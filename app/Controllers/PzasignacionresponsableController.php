@@ -7,7 +7,7 @@ use App\Models\ConsultantModel;
 use App\Models\ClientPoliciesModel; // Usaremos este modelo para client_policies
 use App\Models\DocumentVersionModel; // Usaremos este modelo para client_policies
 use App\Models\PolicyTypeModel; // Usaremos este modelo para client_policies
-
+use CodeIgniter\I18n\Time;
 use Dompdf\Dompdf;
 
 use CodeIgniter\Controller;
@@ -120,7 +120,10 @@ class PzasignacionresponsableController extends Controller
             ->where('policy_type_id', $policyTypeId)
             ->orderBy('created_at', 'DESC')
             ->findAll();
-
+            if ($latestVersion) {
+                $latestVersion['created_at'] = Time::parse($latestVersion['created_at'], 'America/Bogota')
+                                                   ->toLocalizedString('d MMMM yyyy'); // Ej: "01 enero 2025"
+            }
         // Preparar los datos para la vista
         $data = [
             'client' => $client,

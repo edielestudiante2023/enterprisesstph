@@ -174,7 +174,12 @@
                 </td>
                 <td class="code right">
                     Versión: <?= $latestVersion['version_number'] ?><br>
-                    Fecha: <?= date('d M Y', strtotime($latestVersion['created_at'])) ?>
+                    <?php
+setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); // Configura el idioma español
+?>
+
+Fecha: <?= strftime('%d de %B de %Y', strtotime($latestVersion['created_at'])); ?>
+
                 </td>
             </tr>
         </table>
@@ -375,7 +380,10 @@
                         <td><?= $version['version_number'] ?></td>
                         <td><?= $version['document_type'] ?></td>
                         <td><?= $version['acronym'] ?></td>
-                        <td><?= date('d M Y', strtotime($version['created_at'])) ?></td>
+                        <?php setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); ?>
+
+<td><?= strftime('%d de %B de %Y', strtotime($version['created_at'])); ?></td>
+
                         <td><?= $version['change_control'] ?></td>
                     </tr>
                 <?php endforeach; ?>
