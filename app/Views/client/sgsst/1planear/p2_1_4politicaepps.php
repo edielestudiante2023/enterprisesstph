@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2.1.3 Política de Prevención, Preparación y Respuesta ante Emergencias</title>
+    <title>2.1.4 Política Uso de Elementos EPPS</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -133,7 +133,7 @@
 
         .beta-parrafo {
             margin-bottom: 10px;
-            font-size: 0.9em;
+            font-size: 1.1em;
             text-align: justify;
         }
 
@@ -176,25 +176,32 @@
         </table>
     </div>
 
-    <div class="alpha-title">POLÍTICA DE PREVENCIÓN – PREPARACIÓN Y RESPUESTA ANTE EMERGENCIAS</div>
+    <div class="alpha-title">POLÍTICA USO ELEMENTOS DE PROTECCIÓN PERSONAL</div>
 
     <p class="beta-parrafo">
-        Para <strong><?= $client['nombre_cliente'] ?></strong> es de vital importancia proveer un óptimo nivel de seguridad de los residentes, proveedores, contratistas y visitantes, para lo cual dispondrá de elementos e instalaciones adecuadas, apoyo en el fomento de la cultura de la prevención y el entrenamiento requerido para asegurar el control de emergencias de cualquier naturaleza.
+        A pesar de carecer de empleados directos, <strong><?= $client['nombre_cliente'] ?></strong> se compromete a velar por la seguridad y salud en el trabajo de sus contratistas y proveedores, quienes desempeñan actividades comerciales mediante personal especializado según el objeto del contrato. La copropiedad asume la responsabilidad de supervisar, monitorear y auditar la provisión de elementos de protección personal (EPP) por parte de contratistas y proveedores para prevenir accidentes y salvaguardar la salud de los trabajadores.
     </p>
 
     <p class="beta-parrafo">
-        En concordancia con lo anterior, el consejo de administración, administrador de la copropiedad, y vigía SST se comprometen a proporcionar todo su apoyo, colaboración y gestión necesaria, para adelantar todos los procesos tendientes al cumplimiento de los objetivos propuestos en el Plan de Emergencias adoptado por <strong><?= $client['nombre_cliente'] ?></strong>.
+        Para garantizar la eficacia de los equipos y EPP proporcionados al personal de contratistas y proveedores, la copropiedad se compromete a:
     </p>
-
-    <p class="beta-parrafo">Con el fin de:</p>
 
     <ul class="delta-lista">
-        <li class="beta-parrafo">Preservar la vida e integridad de todas las personas (proveedores, contratistas, residentes, visitantes y comunidad).</li>
-        <li class="beta-parrafo">Garantizar la preservación de los bienes y activos de <strong><?= $client['nombre_cliente'] ?></strong>.</li>
-        <li class="beta-parrafo">Velar por que todas las acciones que se adelanten garanticen la protección del medio ambiente.</li>
-        <li class="beta-parrafo">Garantizar la continuidad operativa de <strong><?= $client['nombre_cliente'] ?></strong> y una rápida recuperación de los sectores afectados por eventuales emergencias.</li>
-        <li class="beta-parrafo">Dispondrá todos sus esfuerzos para dar cumplimiento a la legislación vigente en materia de prevención y atención de emergencias.</li>
+        <li class="beta-parrafo">Supervisar, monitorear y auditar la asignación adecuada de recursos para el suministro de EPP necesarios.</li>
+        <li class="beta-parrafo">Verificar la certificación y adecuación de los equipos y EPP según la naturaleza del riesgo, las demandas de nuestros asociados comerciales, su uso y la matriz de EPP, asegurando condiciones óptimas de seguridad y eficiencia para el usuario.</li>
     </ul>
+
+    <p class="beta-parrafo">
+        Se establece como responsabilidad de los proveedores y contratistas de <strong><?= $client['nombre_cliente'] ?></strong>:
+    </p>
+
+    <ul class="delta-lista">
+        <li class="beta-parrafo">Utilizar correctamente y de manera obligatoria los EPP asignados para garantizar su propia seguridad.</li>
+        <li class="beta-parrafo">Informar a su supervisor y/o al responsable del contrato, ya sea contratista o proveedor de la copropiedad, sobre la falta o deterioro de los EPP.</li>
+        <li class="beta-parrafo">No iniciar la prestación del servicio o el objeto del contrato sin disponer de los EPP necesarios según la naturaleza del riesgo.</li>
+        <li class="beta-parrafo">La copropiedad se reserva el derecho de no autorizar la prestación del servicio en caso de incumplimiento por parte del proveedor o contratista en el uso de los EPP exigidos por la normativa vigente en la materia.</li>
+    </ul>
+
 
     <div class="signature-container">
         <div class="signature">
@@ -282,11 +289,11 @@
     <br>
 
     <!-- <div>
-        <a href="<?= base_url('/generatePdf_politicaEmergencias') ?>" target="_blank">
+        <a href="<?= base_url('/generatePdf_politicaEpps') ?>" target="_blank">
             <button type="button">PDF</button>
         </a>
-    </div>
- -->
+    </div> -->
+
 </body>
 
 </html>

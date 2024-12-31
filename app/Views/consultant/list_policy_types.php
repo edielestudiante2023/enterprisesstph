@@ -48,6 +48,8 @@
                 <a href="<?= base_url('/dashboardconsultant') ?>" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; margin-top: 5px;">Ir a DashBoard</a>
             </div>
 
+            <button id="clearState" class="btn btn-danger btn-sm">Restablecer Filtros</button>
+
             <!-- Botón derecho -->
             <div style="text-align: center;">
                 <h2 style="margin: 0; font-size: 16px;">Añadir Registro</h2>
@@ -65,27 +67,35 @@
 
         <!-- Tabla con DataTables -->
         <div class="table-responsive">
-            <table id="documentTypesTable" class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>Nombre del Tipo de Documento</th>
-                        <th>Descripción</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($policyTypes as $type): ?>
-                        <tr>
-                            <td><?= $type['type_name'] ?></td>
-                            <td><?= $type['description'] ?></td>
-                            <td>
-                                <a href="<?= base_url('/editPolicyType/' . $type['id']) ?>" class="btn btn-warning btn-sm">Editar</a>
-                                <a href="<?= base_url('/deletePolicyType/' . $type['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este tipo de política?');">Eliminar</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+        <table id="documentTypesTable" class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Nombre del Tipo de Documento</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th>Nombre del Tipo de Documento</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+        </tr>
+    </tfoot>
+    <tbody>
+        <?php foreach ($policyTypes as $type): ?>
+            <tr>
+                <td><?= $type['type_name'] ?></td>
+                <td><?= $type['description'] ?></td>
+                <td>
+                    <a href="<?= base_url('/editPolicyType/' . $type['id']) ?>" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="<?= base_url('/deletePolicyType/' . $type['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este tipo de política?');">Eliminar</a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
         </div>
     </div>
 
@@ -124,14 +134,43 @@
 
     <!-- Script para activar DataTables -->
     <script>
-        $(document).ready(function() {
-            $('#documentTypesTable').DataTable({
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
-                }
-            });
+    $(document).ready(function () {
+        // Inicializar DataTable
+        var table = $('#documentTypesTable').DataTable({
+            stateSave: true, // Guardar el estado de la tabla
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es_es.json"
+            },
+            initComplete: function () {
+                this.api().columns().every(function () {
+                    var column = this;
+                    var select = $('<select class="form-select form-select-sm"><option value="">Todos</option></select>')
+                        .appendTo($(column.footer()).empty())
+                        .on('change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                            column.search(val ? '^' + val + '$' : '', true, false).draw();
+                        });
+
+                    // Obtener valores únicos de cada columna para los filtros
+                    column.data().unique().sort().each(function (d, j) {
+                        select.append('<option value="' + d + '">' + d + '</option>')
+                    });
+                });
+            }
         });
-    </script>
+
+        // Botón para borrar el estado
+        $('#clearState').on('click', function () {
+            // Borrar estado guardado en localStorage
+            localStorage.removeItem('DataTables_documentTypesTable_/');
+            table.state.clear(); // Limpiar estado en DataTables
+            location.reload(); // Recargar la página
+        });
+    });
+</script>
+
+
+
 
 </body>
 

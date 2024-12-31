@@ -12,12 +12,12 @@ use Dompdf\Dompdf;
 
 use CodeIgniter\Controller;
 
-class PzexamedController extends Controller
+class PzsaneamientoController extends Controller
 {
 
 
 
-    public function examenMedico()
+    public function saneamientoBasico()
     {
         // Obtener el ID del cliente desde la sesión
         $session = session();
@@ -85,10 +85,10 @@ class PzexamedController extends Controller
             'allVersions' => $allVersions,  // Pasamos todas las versiones al footer
         ];
 
-        return view('client/sgsst/1planear/h1_1_1examed', $data);
+        return view('client/sgsst/1planear/h1_1_1saneamiento', $data);
     }
 
-    public function generatePdf_examenMedico()
+    public function generatePdf_saneamientoBasico()
     {
         // Instanciar Dompdf
         $dompdf = new Dompdf();
@@ -133,7 +133,7 @@ class PzexamedController extends Controller
         ];
 
         // Cargar la vista y pasar los datos
-        $html = view('client/sgsst/1planear/h1_1_1examed', $data);
+        $html = view('client/sgsst/1planear/h1_1_1saneamiento', $data);
 
         // Cargar el HTML en Dompdf
         $dompdf->loadHtml($html);

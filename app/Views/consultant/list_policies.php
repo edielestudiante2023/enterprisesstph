@@ -24,6 +24,8 @@
 
     <div class="container my-4">
         <h1>Lista de Contenidos</h1>
+        <button id="clearState" class="btn btn-danger btn-sm">Restablecer Filtros</button>
+
         <table id="contentTable" class="table table-striped table-bordered">
             <thead class="table-light">
                 <tr>
@@ -98,6 +100,14 @@
                     }
                 });
             }
+
+            // Botón para borrar el estado
+        $('#clearState').on('click', function () {
+            // Borrar estado guardado en localStorage
+            localStorage.removeItem('DataTables_contentTable_/');
+            table.state.clear(); // Limpiar estado en DataTables
+            location.reload(); // Recargar la página
+        });
         });
     </script>
 </body>

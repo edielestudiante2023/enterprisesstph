@@ -12,12 +12,12 @@ use Dompdf\Dompdf;
 
 use CodeIgniter\Controller;
 
-class PzpoliticaacosoController extends Controller
+class HzfuncionesyrespController extends Controller
 {
 
 
 
-    public function politicaAcoso()
+    public function funcionesyresponsabilidades()
     {
         // Obtener el ID del cliente desde la sesión
         $session = session();
@@ -42,7 +42,7 @@ class PzpoliticaacosoController extends Controller
         }
 
         // Obtener la política de alcohol y drogas del cliente
-        $policyTypeId = 24; // Supongamos que el ID de la política de alcohol y drogas es 1
+        $policyTypeId = 36; // Supongamos que el ID de la política de alcohol y drogas es 1
         $clientPolicy = $clientPoliciesModel->where('client_id', $clientId)
             ->where('policy_type_id', $policyTypeId)
             ->orderBy('id', 'DESC')
@@ -85,65 +85,8 @@ class PzpoliticaacosoController extends Controller
             'allVersions' => $allVersions,  // Pasamos todas las versiones al footer
         ];
 
-        return view('client/sgsst/1planear/p2_1_4politicaacoso', $data);
+        return view('client/sgsst/1planear/h1_1_5funcionesyresp.php', $data);
     }
 
-    public function generatePdf_politicaAcoso()
-    {
-        // Instanciar Dompdf
-        $dompdf = new Dompdf();
-        $dompdf->set_option('isRemoteEnabled', true);
-
-        // Obtener los mismos datos que en la función policyNoAlcoholDrogas
-        $session = session();
-        $clientId = $session->get('user_id');
-
-        $clientModel = new ClientModel();
-        $consultantModel = new ConsultantModel();
-        $clientPoliciesModel = new ClientPoliciesModel();
-        $policyTypeModel = new PolicyTypeModel();
-        $versionModel = new DocumentVersionModel();
-
-        // Obtener los datos necesarios
-        $client = $clientModel->find($clientId);
-        $consultant = $consultantModel->find($client['id_consultor']);
-        $policyTypeId = 24; // Supongamos que el ID de la política de alcohol y drogas es 1
-        $clientPolicy = $clientPoliciesModel->where('client_id', $clientId)
-            ->where('policy_type_id', $policyTypeId)
-            ->orderBy('id', 'DESC')
-            ->first();
-        $policyType = $policyTypeModel->find($policyTypeId);
-        $latestVersion = $versionModel->where('client_id', $clientId)
-            ->where('policy_type_id', $policyTypeId)
-            ->orderBy('created_at', 'DESC')
-            ->first();
-        $allVersions = $versionModel->where('client_id', $clientId)
-            ->where('policy_type_id', $policyTypeId)
-            ->orderBy('created_at', 'DESC')
-            ->findAll();
-
-        // Preparar los datos para la vista
-        $data = [
-            'client' => $client,
-            'consultant' => $consultant,
-            'clientPolicy' => $clientPolicy,
-            'policyType' => $policyType,
-            'latestVersion' => $latestVersion,
-            'allVersions' => $allVersions,  // Pasamos todas las versiones al footer
-        ];
-
-        // Cargar la vista y pasar los datos
-        $html = view('client/sgsst/1planear/p2_1_4politicaacoso', $data);
-
-        // Cargar el HTML en Dompdf
-        $dompdf->loadHtml($html);
-
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->set_option('isHtml5ParserEnabled', true);
-        $dompdf->set_option('isRemoteEnabled', true); // si usas imágenes externas
-        $dompdf->render();
-
-        // Enviar el PDF al navegador para descargar
-        $dompdf->stream('politica_acoso.pdf', ['Attachment' => false]);
-    }
+    
 }

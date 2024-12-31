@@ -104,7 +104,7 @@
                         <?php foreach ($clients as $client): ?>
                             <tr>
                                 <td><?= $client['id_cliente'] ?></td>
-                                <td><?= $client['fecha_ingreso'] ?></td>
+                                <td><p>FECHA: <strong><?= strftime('%d de %B de %Y', strtotime($client['fecha_ingreso'])); ?></strong></td>
                                 <td><?= $client['nit_cliente'] ?></td>
                                 <td><?= $client['nombre_cliente'] ?></td>
                                 <td><?= $client['usuario'] ?></td>

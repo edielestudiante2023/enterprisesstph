@@ -12,12 +12,12 @@ use Dompdf\Dompdf;
 
 use CodeIgniter\Controller;
 
-class HzentregadotacionController extends Controller
+class PzpoliticaeppsController extends Controller
 {
 
 
 
-    public function entregaDotacion()
+    public function politicaEpps()
     {
         // Obtener el ID del cliente desde la sesión
         $session = session();
@@ -42,7 +42,7 @@ class HzentregadotacionController extends Controller
         }
 
         // Obtener la política de alcohol y drogas del cliente
-        $policyTypeId = 36; // Supongamos que el ID de la política de alcohol y drogas es 1
+        $policyTypeId = 24; // Supongamos que el ID de la política de alcohol y drogas es 1
         $clientPolicy = $clientPoliciesModel->where('client_id', $clientId)
             ->where('policy_type_id', $policyTypeId)
             ->orderBy('id', 'DESC')
@@ -85,10 +85,10 @@ class HzentregadotacionController extends Controller
             'allVersions' => $allVersions,  // Pasamos todas las versiones al footer
         ];
 
-        return view('client/sgsst/1planear/h1_1_5entregadotacion', $data);
+        return view('client/sgsst/1planear/p2_1_4politicaepps', $data);
     }
 
-    public function generatePdf_entregaDotacion()
+    public function generatePdf_politicaEpps()
     {
         // Instanciar Dompdf
         $dompdf = new Dompdf();
@@ -107,7 +107,7 @@ class HzentregadotacionController extends Controller
         // Obtener los datos necesarios
         $client = $clientModel->find($clientId);
         $consultant = $consultantModel->find($client['id_consultor']);
-        $policyTypeId = 36; // Supongamos que el ID de la política de alcohol y drogas es 1
+        $policyTypeId = 24; // Supongamos que el ID de la política de alcohol y drogas es 1
         $clientPolicy = $clientPoliciesModel->where('client_id', $clientId)
             ->where('policy_type_id', $policyTypeId)
             ->orderBy('id', 'DESC')
@@ -133,7 +133,7 @@ class HzentregadotacionController extends Controller
         ];
 
         // Cargar la vista y pasar los datos
-        $html = view('client/sgsst/1planear/h1_1_5entregadotacion', $data);
+        $html = view('client/sgsst/1planear/p2_1_4politicaEpps', $data);
 
         // Cargar el HTML en Dompdf
         $dompdf->loadHtml($html);
@@ -144,6 +144,6 @@ class HzentregadotacionController extends Controller
         $dompdf->render();
 
         // Enviar el PDF al navegador para descargar
-        $dompdf->stream('entregadotacion.pdf', ['Attachment' => false]);
+        $dompdf->stream('politica_acoso.pdf', ['Attachment' => false]);
     }
 }

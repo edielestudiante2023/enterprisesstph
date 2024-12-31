@@ -168,10 +168,10 @@
                 <td class="code right">
                     Versión: <?= $latestVersion['version_number'] ?><br>
                     <?php
-setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); // Configura el idioma español
-?>
+                    setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); // Configura el idioma español
+                    ?>
 
-Fecha: <?= strftime('%d de %B de %Y', strtotime($latestVersion['created_at'])); ?>
+                    Fecha: <?= strftime('%d de %B de %Y', strtotime($latestVersion['created_at'])); ?>
 
                 </td>
             </tr>
@@ -215,57 +215,66 @@ Fecha: <?= strftime('%d de %B de %Y', strtotime($latestVersion['created_at'])); 
     </div>
 
     <div class="gamma-section">
-        <p class="beta-parrafo"><strong>ARTÍCULO PRIMERO:</strong> <strong><?= $client['nombre_cliente'] ?></strong> se compromete a dar cumplimiento a las disposiciones legales vigentes, tendientes a garantizar los mecanismos que aseguren una oportuna y adecuada prevención de los accidentes de trabajo y enfermedades profesionales, de conformidad con el Código Sustantivo del Trabajo y demás normas relacionadas.</p>
+        <p class="beta-parrafo"><strong>ARTÍCULO 1:</strong> La Propiedad Horizontal <strong><?= $client['nombre_cliente'] ?></strong> se compromete a cumplir rigurosamente con todas las disposiciones legales vigentes relacionadas con la Seguridad y Salud en el Trabajo (SG-SST) dentro del ámbito de una propiedad horizontal. Este compromiso se enmarca en las leyes y regulaciones colombianas, las cuales buscan garantizar los mecanismos que aseguren una prevención adecuada y oportuna de los accidentes de trabajo y enfermedades laborales.</p>
+
+        <p class="beta-parrafo">Este compromiso se respalda y fundamenta en los siguientes dispositivos legales: Artículos 34, 57, 58, 205, 206, 217, 220, 221, 282, 283, 348, 349, 350 y 351 del Código Sustantivo del Trabajo, la Ley 9 de 1979, Resolución 2400 de 1979, Decreto 614 de 1984, Resolución 2013 de 1986, Decreto 1295 de 1994, Decreto 1772 de 1994, Ley 1010 de 2006, Resolución 1401 de 2007, Resolución 1918 de 2009, Resolución 2346 de 2007, Resolución 2646 de 2008, Resolución 1409 de 2012, Resolución 1356 de 2012, Resolución 652 de 2012, Ley 1562 de 2012, Resolución 1903 de 2013, Decreto 723 de 2013, Decreto 1477 de 2014, Decreto Único Reglamentario del Sector Trabajo 1072 de 2015, Decreto 1273 de 2018 y Resolución 0312 de 2019.</p>
+
+        <p class="beta-parrafo">Cabe destacar que la Ley 962 de 2005, en su artículo 55, eliminó el requisito de revisión y aprobación del Reglamento por parte del Ministerio de Protección Social, así como cualquier otra normativa que pueda establecerse con dicho propósito.</p>
     </div>
 
     <div class="gamma-section">
-        <p class="beta-parrafo"><strong>ARTÍCULO SEGUNDO:</strong> <strong><?= $client['nombre_cliente'] ?></strong> se obliga a promover y garantizar la constitución y funcionamiento del Comité Paritario de Salud Ocupacional, de acuerdo con las disposiciones legales.</p>
+        <p class="beta-parrafo"><strong>ARTÍCULO 2:</strong> La Propiedad Horizontal <strong><?= $client['nombre_cliente'] ?></strong> asume el compromiso de fomentar y garantizar la designación de un Vigía de Salud y Seguridad en el Trabajo, en estricta conformidad con las disposiciones establecidas por el Decreto 614 de 1984, la Resolución 2013 de 1986, la Resolución 1016 de 1989, el Decreto 1295 de 1994, el Decreto 1072 de 2015 y demás normativas aplicables.</p>
+
+        <p class="beta-parrafo">Además, se compromete a impulsar y asegurar la formación y operación del Vigía quien es la figura del Comité Paritario de Seguridad y Salud en el Trabajo (COPASST), de acuerdo con lo establecido por el Decreto 614 de 1984, la Resolución 2013 de 1986, el Decreto 1295 de 1994, el Decreto 1771 de 1994, la Ley 1562 de 2012, el Decreto Único Reglamentario del Sector Trabajo 1072 de 2015, la Resolución 0312 de 2019 y cualquier otra normativa pertinente que pueda establecerse con ese propósito.</p>
     </div>
 
     <div class="gamma-section">
-        <p class="beta-parrafo"><strong>ARTÍCULO TERCERO:</strong> <strong><?= $client['nombre_cliente'] ?></strong> se compromete a destinar los recursos necesarios para desarrollar actividades permanentes en conformidad con el Sistema de Gestión en seguridad y salud en el trabajo, que contempla, entre otros:</p>
+        <p class="beta-parrafo"><strong>ARTÍCULO 3:</strong> La Propiedad Horizontal <strong><?= $client['nombre_cliente'] ?></strong> se compromete a garantizar que los contratistas designados para llevar a cabo labores permanentes dentro de sus instalaciones implementen un Sistema de Gestión de Seguridad y Salud en el Trabajo (SGSST).</p>
+
+        <p class="beta-parrafo">Dicho sistema deberá contemplar, como mínimo, los siguientes aspectos:</p>
         <ul class="delta-lista">
-            <li class="beta-parrafo">Subprograma de Medicina Preventiva y del Trabajo, orientado a promover y mantener el más alto grado de bienestar físico, mental y social de los trabajadores.</li>
-            <li class="beta-parrafo">Subprograma de Higiene y Seguridad Industrial, enfocado en establecer las mejores condiciones de saneamiento básico y eliminar o controlar los factores de riesgo en los lugares de trabajo.</li>
+            <li class="beta-parrafo"><strong>Subprograma de Medicina Preventiva y del Trabajo:</strong> Fomentar y mantener el bienestar físico, mental y social de su personal.</li>
+            <li class="beta-parrafo"><strong>Subprograma de Higiene y Seguridad Industrial:</strong> Establecer condiciones de saneamiento básico y controlar los factores de riesgo presentes en el entorno laboral.</li>
         </ul>
     </div>
 
     <div class="gamma-section">
-        <p class="beta-parrafo"><strong>ARTÍCULO CUARTO:</strong> Los riesgos existentes en <strong><?= $client['nombre_cliente'] ?></strong> están constituidos principalmente por:</p>
+        <p class="beta-parrafo"><strong>ARTÍCULO 4:</strong> La Propiedad Horizontal <strong><?= $client['nombre_cliente'] ?></strong> se compromete a asignar los recursos necesarios para llevar a cabo actividades programadas, en consonancia con el Sistema de Gestión de la Seguridad y Salud en el Trabajo.</p>
+
+        <p class="beta-parrafo">Este sistema incluirá, como mínimo, los siguientes aspectos:</p>
         <ul class="delta-lista">
-            <li class="beta-parrafo"><strong>Riesgo Biomecánico:</strong> Posturas prolongadas, cargas físicas, esfuerzo repetitivo, entre otros.</li>
-            <li class="beta-parrafo"><strong>Riesgo Biológico:</strong> Parásitos, hongos, bacterias, virus.</li>
-            <li class="beta-parrafo"><strong>Riesgo Público:</strong> Asaltos, desórdenes públicos, violencia.</li>
-            <li class="beta-parrafo"><strong>Riesgo Mecánico:</strong> Manipulación de máquinas y herramientas.</li>
-            <li class="beta-parrafo"><strong>Riesgo Locativo:</strong> Almacenamiento, superficies de trabajo, condiciones de orden y aseo.</li>
-            <li class="beta-parrafo"><strong>Riesgo Eléctrico:</strong> Contacto directo e indirecto con cableado de media y baja tensión.</li>
-            <li class="beta-parrafo"><strong>Riesgos Naturales:</strong> Precipitaciones, inundaciones, terremotos.</li>
-            <li class="beta-parrafo"><strong>Riesgo Físico:</strong> Ruido, iluminación, radiaciones no ionizantes.</li>
-            <li class="beta-parrafo"><strong>Riesgo Psicosocial:</strong> Exceso de responsabilidades, trabajo bajo presión, problemas laborales.</li>
-            <li class="beta-parrafo"><strong>Riesgo Químico:</strong> Líquidos, fibras, material particulado.</li>
-            <li class="beta-parrafo"><strong>Riesgo de Tránsito:</strong> Colisiones, volcamientos, atropellamientos.</li>
-            <li class="beta-parrafo"><strong>Tareas de Alto Riesgo:</strong> Trabajo en alturas, trabajos en caliente, incendios, explosiones.</li>
+            <li class="beta-parrafo">Gestión Integral de Seguridad y Salud en el Trabajo</li>
+            <li class="beta-parrafo">Gestión de Peligros y Riesgos</li>
+            <li class="beta-parrafo">Verificación y Mejora Continua</li>
         </ul>
-        <p class="beta-parrafo">PARÁGRAFO: Para evitar accidentes de trabajo o enfermedades laborales, <strong><?= $client['nombre_cliente'] ?></strong> ejerce control en la fuente, el medio transmisor o el trabajador, conforme a lo estipulado en su Programa de Salud Ocupacional.</p>
     </div>
 
     <div class="gamma-section">
-        <p class="beta-parrafo"><strong>ARTÍCULO QUINTO:</strong> <strong><?= $client['nombre_cliente'] ?></strong> y sus trabajadores darán estricto cumplimiento a las disposiciones legales, normas técnicas e internas relacionadas con la Seguridad Industrial y Salud Ocupacional.</p>
+        <p class="beta-parrafo"><strong>ARTÍCULO 5:</strong> Los riesgos presentes en la propiedad horizontal de <strong><?= $client['nombre_cliente'] ?></strong> incluyen riesgos biológicos, físicos, químicos, psicosociales, biomecánicos, mecánicos, eléctricos, locativos, tecnológicos, públicos, accidentes de tránsito y fenómenos naturales.</p>
     </div>
 
     <div class="gamma-section">
-        <p class="beta-parrafo"><strong>ARTÍCULO SEXTO:</strong> <strong><?= $client['nombre_cliente'] ?></strong> ha implantado un proceso de inducción para capacitar a los trabajadores en las medidas de prevención y seguridad exigidas en su ambiente laboral.</p>
+        <p class="beta-parrafo"><strong>ARTÍCULO 6:</strong> Los contratistas deberán cumplir estrictamente con las disposiciones legales, así como con las normas técnicas e internas que se adopten para lograr la implementación del SG-SST.</p>
     </div>
 
     <div class="gamma-section">
-        <p class="beta-parrafo"><strong>ARTÍCULO SÉPTIMO:</strong> Este Reglamento permanecerá exhibido en al menos dos lugares visibles en los locales de trabajo, junto con la Resolución Aprobatoria, y su contenido se dará a conocer a todos los trabajadores al momento de su ingreso.</p>
+        <p class="beta-parrafo"><strong>ARTÍCULO 7:</strong> La propiedad horizontal llevará a cabo procesos de inducción y/o reinducción para contratistas, orientándolos en medidas de prevención y seguridad.</p>
     </div>
 
     <div class="gamma-section">
-        <p class="beta-parrafo"><strong>ARTÍCULO OCTAVO:</strong> El presente Reglamento entra en vigor a partir de la aprobación del Ministerio de la Protección Social y se revisará anualmente.</p>
-        <p class="beta-parrafo">Fecha de publicación: <?= $client['fecha_ingreso'] ?></p>
+        <p class="beta-parrafo"><strong>ARTÍCULO 8:</strong> Este reglamento estará expuesto en lugares visibles y será comunicado a los trabajadores asignados.</p>
+    </div>
+
+    <div class="gamma-section">
+        <p class="beta-parrafo"><strong>ARTÍCULO 9:</strong> El presente reglamento entrará en vigencia a partir de la fecha de aprobación por el administrador de <strong><?= $client['nombre_cliente'] ?></strong>.</p>
+    </div>
+
+    <div class="gamma-section">
+        <p class="beta-parrafo"><strong>ARTÍCULO 10:</strong> Este reglamento, conforme al artículo 55 de la Ley 962 de 2005, no requiere aprobación formal del Ministerio de Trabajo.</p>
+        <p class="beta-parrafo">Se expide en la fecha: <p>FECHA: <strong><?= strftime('%d de %B de %Y', strtotime($client['fecha_ingreso'])); ?></strong>.</p>
         <p class="beta-parrafo">Publíquese, comuníquese y cúmplase.</p>
     </div>
+
 
     <div class="signature-container">
         <div class="signature">
@@ -276,68 +285,79 @@ Fecha: <?= strftime('%d de %B de %Y', strtotime($latestVersion['created_at'])); 
 
     </div>
 
-<footer>
-    <h2>Historial de Versiones</h2>
-    <style>
-        footer table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-        footer table th, footer table td {
-            border: 1px solid #ddd;
-            text-align: center;
-            vertical-align: middle;
-            padding: 8px;
-            word-wrap: break-word;
-        }
-        footer table th {
-            background-color: #f4f4f4;
-            font-weight: bold;
-        }
-        footer table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        footer table tr:hover {
-            background-color: #f1f1f1;
-        }
-        /* Ajuste del ancho de las columnas */
-        footer table th:nth-child(5),
-        footer table td:nth-child(5) {
-            width: 35%; /* Más ancho para la columna Observaciones */
-        }
-        footer table th:nth-child(1),
-        footer table td:nth-child(1) {
-            width: 10%; /* Más estrecho para la columna Versión */
-        }
-        footer table th:nth-child(2),
-        footer table td:nth-child(2),
-        footer table th:nth-child(3),
-        footer table td:nth-child(3),
-        footer table th:nth-child(4),
-        footer table td:nth-child(4) {
-            width: 15%; /* Ancho uniforme para las demás columnas */
-        }
-    </style>
-    <table>
-        <tr>
-            <th>Versión</th>
-            <th>Tipo de Documento</th>
-            <th>Acrónimo</th>
-            <th>Fecha de Creación</th>
-            <th>Observaciones</th>
-        </tr>
-        <?php foreach ($allVersions as $version): ?>
+    <footer>
+        <h2>Historial de Versiones</h2>
+        <style>
+            footer table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+            }
+
+            footer table th,
+            footer table td {
+                border: 1px solid #ddd;
+                text-align: center;
+                vertical-align: middle;
+                padding: 8px;
+                word-wrap: break-word;
+            }
+
+            footer table th {
+                background-color: #f4f4f4;
+                font-weight: bold;
+            }
+
+            footer table tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+            footer table tr:hover {
+                background-color: #f1f1f1;
+            }
+
+            /* Ajuste del ancho de las columnas */
+            footer table th:nth-child(5),
+            footer table td:nth-child(5) {
+                width: 35%;
+                /* Más ancho para la columna Observaciones */
+            }
+
+            footer table th:nth-child(1),
+            footer table td:nth-child(1) {
+                width: 10%;
+                /* Más estrecho para la columna Versión */
+            }
+
+            footer table th:nth-child(2),
+            footer table td:nth-child(2),
+            footer table th:nth-child(3),
+            footer table td:nth-child(3),
+            footer table th:nth-child(4),
+            footer table td:nth-child(4) {
+                width: 15%;
+                /* Ancho uniforme para las demás columnas */
+            }
+        </style>
+        <table>
             <tr>
-                <td><?= $version['version_number'] ?></td>
-                <td><?= $version['document_type'] ?></td>
-                <td><?= $version['acronym'] ?></td>
-                <td><?= strftime('%d de %B de %Y', strtotime($version['created_at'])); ?></td>
-                <td><?= $version['change_control'] ?></td>
+                <th>Versión</th>
+                <th>Tipo de Documento</th>
+                <th>Acrónimo</th>
+                <th>Fecha de Creación</th>
+                <th>Observaciones</th>
             </tr>
-        <?php endforeach; ?>
-    </table>
-</footer>
+            <?php foreach ($allVersions as $version): ?>
+                <tr>
+                    <td><?= $version['version_number'] ?></td>
+                    <td><?= $version['document_type'] ?></td>
+                    <td><?= $version['acronym'] ?></td>
+                    <td><?= strftime('%d de %B de %Y', strtotime($version['created_at'])); ?></td>
+                    <td><?= $version['change_control'] ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    </footer>
 
     <br>
 

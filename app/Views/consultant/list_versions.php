@@ -6,25 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Versiones del Documento</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#documentTable').DataTable({
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/Spanish.json"
-                },
-                "paging": true,
-                "searching": true,
-                "info": true
-            });
-        });
-    </script>
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
 </head>
 
 <body class="bg-light text-dark">
 
+    <!-- Navbar fija -->
     <nav style="background-color: white; position: fixed; top: 0; width: 100%; z-index: 1000; padding: 10px 0; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto;">
 
@@ -59,6 +49,9 @@
                 <a href="<?= base_url('/dashboardconsultant') ?>" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; margin-top: 5px;">Ir a DashBoard</a>
             </div>
 
+            <button id="clearState" class="btn btn-danger btn-sm">Restablecer Filtros</button>
+
+
             <!-- Botón derecho -->
             <div style="text-align: center;">
                 <h2 style="margin: 0; font-size: 16px;">Añadir Registro</h2>
@@ -67,10 +60,10 @@
         </div>
     </nav>
 
-    <!-- Ajustar el espaciado para evitar que el contenido se oculte bajo el navbar fijo -->
+    <!-- Espaciado para el navbar fijo -->
     <div style="height: 160px;"></div>
 
-
+    <!-- Contenido principal -->
     <div class="container mt-5">
         <h1 class="text-center mb-4">Versiones del Documento</h1>
 
@@ -90,6 +83,20 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
+                <tfoot>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Documento</th>
+                        <th>Tipo</th>
+                        <th>Acrónimo</th>
+                        <th>Versión</th>
+                        <th>Ubicación</th>
+                        <th>Estado</th>
+                        <th>Control</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </tfoot>
                 <tbody>
                     <?php foreach ($versions as $version): ?>
                         <tr>
@@ -111,40 +118,49 @@
                 </tbody>
             </table>
         </div>
-
     </div>
 
-
     <footer style="background-color: white; padding: 20px 0; border-top: 1px solid #B0BEC5; margin-top: 40px; color: #3A3F51; font-size: 14px; text-align: center;">
-        <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
-            <!-- Company and Rights -->
-            <p style="margin: 0; font-weight: bold;">Cycloid Talent SAS</p>
-            <p style="margin: 5px 0;">Todos los derechos reservados © 2024</p>
-            <p style="margin: 5px 0;">NIT: 901.653.912</p>
-
-            <!-- Website Link -->
-            <p style="margin: 5px 0;">
-                Sitio oficial: <a href="https://cycloidtalent.com/" target="_blank" style="color: #007BFF; text-decoration: none;">https://cycloidtalent.com/</a>
-            </p>
-
-            <!-- Social Media Links -->
-            <p style="margin: 15px 0 5px;"><strong>Nuestras Redes Sociales:</strong></p>
-            <div style="display: flex; gap: 15px; justify-content: center;">
-                <a href="https://www.facebook.com/CycloidTalent" target="_blank" style="color: #3A3F51; text-decoration: none;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" style="height: 24px; width: 24px;">
-                </a>
-                <a href="https://co.linkedin.com/company/cycloid-talent" target="_blank" style="color: #3A3F51; text-decoration: none;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/733/733561.png" alt="LinkedIn" style="height: 24px; width: 24px;">
-                </a>
-                <a href="https://www.instagram.com/cycloid_talent?igsh=Nmo4d2QwZDg5dHh0" target="_blank" style="color: #3A3F51; text-decoration: none;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram" style="height: 24px; width: 24px;">
-                </a>
-                <a href="https://www.tiktok.com/@cycloid_talent?_t=8qBSOu0o1ZN&_r=1" target="_blank" style="color: #3A3F51; text-decoration: none;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3046/3046126.png" alt="TikTok" style="height: 24px; width: 24px;">
-                </a>
-            </div>
-        </div>
+        <p style="margin: 0; font-weight: bold;">Cycloid Talent SAS - Todos los derechos reservados © 2024</p>
     </footer>
+
+    <!-- Script de DataTables con filtros -->
+    <script>
+    $(document).ready(function () {
+        // Inicializar DataTable con persistencia
+        var table = $('#documentTable').DataTable({
+            stateSave: true,
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
+            },
+            initComplete: function () {
+                // Añadir filtros en el pie de tabla
+                this.api().columns().every(function () {
+                    var column = this;
+                    var select = $('<select class="form-select form-select-sm"><option value="">Todos</option></select>')
+                        .appendTo($(column.footer()).empty())
+                        .on('change', function () {
+                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                            column.search(val ? '^' + val + '$' : '', true, false).draw();
+                        });
+
+                    // Rellenar el select con valores únicos
+                    column.data().unique().sort().each(function (d, j) {
+                        select.append('<option value="' + d + '">' + d + '</option>');
+                    });
+                });
+            }
+        });
+
+        // Botón para borrar el estado
+        $('#clearState').on('click', function () {
+            // Borrar estado guardado en localStorage
+            localStorage.removeItem('DataTables_documentTable_/');
+            table.state.clear(); // Limpiar estado en DataTables
+            location.reload(); // Recargar la página
+        });
+    });
+</script>
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

@@ -198,7 +198,12 @@ Fecha: <?= strftime('%d de %B de %Y', strtotime($latestVersion['created_at'])); 
 
         <br>
 
-        <p>FECHA: <strong><?= $client['fecha_ingreso'] ?></strong></p>
+        <?php
+setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); // Configura el idioma español
+?>
+
+<p>FECHA: <strong><?= strftime('%d de %B de %Y', strtotime($client['fecha_ingreso'])); ?></strong></p>
+
 
         <p>
 
