@@ -23,7 +23,12 @@
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            /* Ajusta el ancho al 100% */
+            max-width: 100%;
+            /* Asegúrate de que no haya un límite máximo */
         }
+
 
         .btn-dashboard {
             margin-bottom: 1.5rem;
@@ -120,52 +125,54 @@
             <table id="planesTable" class="table table-bordered table-striped">
                 <thead class="thead-dark">
                     <tr>
-                        <!-- <th>Cliente</th> -->
+
                         <th>PHVA</th>
-                        <th>Numeral</th>
+
                         <th>Actividad</th>
                         <th>Fecha Propuesta</th>
                         <th>Fecha Cierre</th>
                         <th>Responsable Definido</th>
                         <th>Estado de Actividad</th>
                         <th>Porcentaje de Avance</th>
-                        <th>Semana</th>
+                        <!-- <th>Semana</th> -->
                         <th>Observaciones</th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <!-- <th>Cliente</th> -->
+
                         <th>PHVA</th>
-                        <th>Numeral</th>
+
                         <th>Actividad</th>
                         <th>Fecha Propuesta</th>
                         <th>Fecha Cierre</th>
                         <th>Responsable Definido</th>
                         <th>Estado de Actividad</th>
                         <th>Porcentaje de Avance</th>
-                        <th>Semana</th>
+                        <!-- <th>Semana</th> -->
                         <th>Observaciones</th>
                     </tr>
                 </tfoot>
                 <tbody>
                     <?php foreach ($planes as $plan): ?>
                         <tr>
-                            <!-- <td data-bs-toggle="tooltip" title="<?= esc($plan['nombre_cliente']) ?>"><?= esc($plan['nombre_cliente']) ?></td> -->
+
                             <td data-bs-toggle="tooltip" title="<?= esc($plan['phva_plandetrabajo']) ?>"><?= esc($plan['phva_plandetrabajo']) ?></td>
-                            <td data-bs-toggle="tooltip" title="<?= esc($plan['numeral_actividad']) ?>"><?= esc($plan['numeral_actividad']) ?></td>
+
                             <td class="actividad-column" data-bs-toggle="tooltip" title="<?= esc($plan['nombre_actividad']) ?>">
                                 <?= strlen(esc($plan['nombre_actividad'])) > 40 ? substr(esc($plan['nombre_actividad']), 0, 40) . '...' : esc($plan['nombre_actividad']) ?>
                             </td>
-                            <td data-bs-toggle="tooltip" title="<?= esc($plan['fecha_propuesta']) ?>"><?= esc($plan['fecha_propuesta']) ?></td>
-                            <td data-bs-toggle="tooltip" title="<?= esc($plan['fecha_cierre']) ?>"><?= esc($plan['fecha_cierre']) ?></td>
+                            <td style="font-size: smaller; width: 11ch;" data-bs-toggle="tooltip" title="<?= esc($plan['fecha_propuesta']) ?>"><?= esc($plan['fecha_propuesta']) ?></td>
+                            <td style="font-size: smaller; width: 11ch;" data-bs-toggle="tooltip" title="<?= esc($plan['fecha_cierre']) ?>"><?= esc($plan['fecha_cierre']) ?></td>
+
                             <td data-bs-toggle="tooltip" title="<?= esc($plan['responsable_definido_paralaactividad']) ?>"><?= esc($plan['responsable_definido_paralaactividad']) ?></td>
                             <td data-bs-toggle="tooltip" title="<?= esc($plan['estado_actividad']) ?>"><?= esc($plan['estado_actividad']) ?></td>
                             <td data-bs-toggle="tooltip" title="<?= esc($plan['porcentaje_avance'] * 100) ?>%"><?= esc($plan['porcentaje_avance'] * 100) ?>%</td>
-                            <td data-bs-toggle="tooltip" title="<?= esc($plan['semana']) ?>"><?= esc($plan['semana']) ?></td>
-                            <td data-bs-toggle="tooltip" title="<?= esc($plan['observaciones']) ?>"><?= esc($plan['observaciones']) ?></td>
+                            <!-- <td data-bs-toggle="tooltip" title="<?= esc($plan['semana']) ?>"><?= esc($plan['semana']) ?></td> -->
+                            <td style="font-size: smaller;" data-bs-toggle="tooltip" title="<?= esc($plan['observaciones']) ?>"><?= esc($plan['observaciones']) ?></td>
                         </tr>
                     <?php endforeach; ?>
+                    
                 </tbody>
             </table>
         </div>
