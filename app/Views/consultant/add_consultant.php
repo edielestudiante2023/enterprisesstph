@@ -101,6 +101,14 @@
                     <input type="file" id="firma_consultor" name="firma_consultor" class="form-control" accept="image/*">
                 </div>
 
+                <div class="mb-3">
+                <label for="role" class="form-label">Rol:</label>
+                <select name="role" id="role" class="form-select" required aria-label="Seleccionar Rol">
+                    <option value="consultant">Consultor</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+
                 <input type="hidden" name="id_cliente" value="1">
 
                 <div class="d-grid">

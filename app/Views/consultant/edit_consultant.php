@@ -111,6 +111,14 @@
                         <?php endif; ?>
                     </div>
 
+                    <div class="mb-3">
+                        <label for="rol" class="form-label">Rol:</label>
+                        <select name="rol" id="rol" class="form-select" required aria-label="Seleccionar Rol">
+                            <option value="consultant" <?= $consultant['rol'] === 'consultant' ? 'selected' : '' ?>>Consultor</option>
+                            <option value="admin" <?= $consultant['rol'] === 'admin' ? 'selected' : '' ?>>Administrador</option>
+                        </select>
+                    </div>
+
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary mt-3">Actualizar Consultor</button>
                     </div>

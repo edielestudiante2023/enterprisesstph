@@ -5,8 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Cronogramas de Capacitación</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons CSS (Opcional) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    
+    <!-- DataTables Buttons CSS -->
+    <link href="https://cdn.datatables.net/buttons/2.3.3/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    
     <style>
         body {
             font-size: 0.9rem;
@@ -24,69 +35,82 @@
         table {
             font-size: 0.85rem;
         }
+
+        /* Ajustes para el botón "Restablecer Filtros" */
+        #clearState {
+            margin-bottom: 15px;
+        }
+
+        /* Establecer altura fija para las filas de la tabla */
+        /* Asegúrate de que el contenido de las celdas no exceda esta altura */
+        table tbody tr td, table thead tr th, table tfoot tr th {
+            height: 50px; /* Ajusta este valor según tus necesidades */
+            vertical-align: middle;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Opcional: Ajustar el ancho de las columnas para mejorar la apariencia */
+        /* table th, table td {
+            max-width: 200px;
+        } */
     </style>
 </head>
 
 <body>
 
-    <nav style="background-color: white; position: fixed; top: 0; width: 100%; z-index: 1000; padding: 10px 0; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto;">
-
-            <!-- Logo izquierdo -->
-            <div>
-                <a href="https://dashboard.cycloidtalent.com/login">
-                    <img src="<?= base_url('uploads/logoenterprisesstblancoslogan.png') ?>" alt="Enterprisesst Logo" style="height: 100px;">
-                </a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <!-- Logos -->
+                <div class="d-flex">
+                    <a href="https://dashboard.cycloidtalent.com/login" class="me-3">
+                        <img src="<?= base_url('uploads/logoenterprisesstblancoslogan.png') ?>" alt="Enterprisesst Logo" style="height: 50px;">
+                    </a>
+                    <a href="https://cycloidtalent.com/index.php/consultoria-sst" class="me-3">
+                        <img src="<?= base_url('uploads/logosst.png') ?>" alt="SST Logo" style="height: 50px;">
+                    </a>
+                    <a href="https://cycloidtalent.com/">
+                        <img src="<?= base_url('uploads/logocycloidsinfondo.png') ?>" alt="Cycloids Logo" style="height: 50px;">
+                    </a>
+                </div>
             </div>
-
-            <!-- Logo centro -->
-            <div>
-                <a href="https://cycloidtalent.com/index.php/consultoria-sst">
-                    <img src="<?= base_url('uploads/logosst.png') ?>" alt="SST Logo" style="height: 100px;">
-                </a>
-            </div>
-
-            <!-- Logo derecho -->
-            <div>
-                <a href="https://cycloidtalent.com/">
-                    <img src="<?= base_url('uploads/logocycloidsinfondo.png') ?>" alt="Cycloids Logo" style="height: 100px;">
-                </a>
-            </div>
-
-        </div>
-
-        <!-- Fila de botones -->
-        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 10px auto 0; padding: 0 20px;">
-            <!-- Botón izquierdo -->
-            <div style="text-align: center;">
-                <h2 style="margin: 0; font-size: 16px;">Ir a Dashboard</h2>
-                <a href="<?= base_url('/dashboardconsultant') ?>" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; margin-top: 5px;">Ir a DashBoard</a>
-            </div>
-
-            <!-- Botón derecho -->
-            <div style="text-align: center;">
-                <h2 style="margin: 0; font-size: 16px;">Añadir Registro</h2>
-                <a href="<?= base_url('/addcronogCapacitacion') ?>" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; margin-top: 5px;" target="_blank">Añadir Registro</a>
+            <!-- Botones -->
+            <div class="d-flex justify-content-between align-items-center w-100 mt-3">
+                <div class="text-center me-3">
+                    <h5 class="mb-1">Ir a Dashboard</h5>
+                    <a href="<?= base_url('/dashboardconsultant') ?>" class="btn btn-primary btn-sm">Ir a DashBoard</a>
+                </div>
+                <div class="text-center">
+                    <h5 class="mb-1">Añadir Registro</h5>
+                    <a href="<?= base_url('/addcronogCapacitacion') ?>" class="btn btn-success btn-sm" target="_blank">Añadir Registro</a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Ajustar el espaciado para evitar que el contenido se oculte bajo el navbar fijo -->
+    <!-- Espaciador para evitar que el contenido se oculte bajo el navbar fijo -->
     <div style="height: 160px;"></div>
 
-
+    <!-- Contenedor Principal -->
     <div class="container my-4">
         <h2 class="text-center mb-4">Lista de Cronogramas de Capacitación</h2>
 
-        <!-- Mostrar mensaje si hay algún mensaje flash de éxito o error -->
+        <!-- Mensajes Flash -->
         <?php if (session()->getFlashdata('msg')): ?>
             <div class="alert alert-info">
                 <?= session()->getFlashdata('msg') ?>
             </div>
         <?php endif; ?>
 
+        <!-- Botón para Restablecer Filtros -->
+        <button id="clearState" class="btn btn-danger btn-sm">Restablecer Filtros</button>
+
+        <!-- Tabla Responsive -->
         <div class="table-responsive">
-            <table id="cronogramaTable" class="table table-bordered table-hover">
+            <table id="cronogramaTable" class="table table-bordered table-hover" style="width:100%">
                 <thead class="text-center">
                     <tr>
                         <th>#</th>
@@ -109,30 +133,53 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
+                <tfoot>
+                    <tr>
+                        <!-- Generaremos los filtros desplegables mediante JavaScript -->
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </tfoot>
                 <tbody>
                     <?php if (!empty($cronogramas) && is_array($cronogramas)): ?>
                         <?php foreach ($cronogramas as $cronograma): ?>
                             <tr>
                                 <td><?= esc($cronograma['id_cronograma_capacitacion']) ?></td>
-                                <td><?= esc($cronograma['nombre_capacitacion']) ?></td>
-                                <td><?= esc($cronograma['objetivo_capacitacion']) ?></td>
-                                <td><?= esc($cronograma['nombre_cliente']) ?></td>
-                                <td><?= esc($cronograma['fecha_programada']) ?></td>
-                                <td><?= esc($cronograma['fecha_de_realizacion']) ?></td>
-                                <td><?= esc($cronograma['estado']) ?></td>
-                                <td><?= esc($cronograma['perfil_de_asistentes']) ?></td>
-                                <td><?= esc($cronograma['nombre_del_capacitador']) ?></td>
-                                <td><?= esc($cronograma['horas_de_duracion_de_la_capacitacion']) ?></td>
-                                <td><?= esc($cronograma['indicador_de_realizacion_de_la_capacitacion']) ?></td>
-                                <td><?= esc($cronograma['numero_de_asistentes_a_capacitacion']) ?></td>
-                                <td><?= esc($cronograma['numero_total_de_personas_programadas']) ?></td>
-                                <td><?= esc($cronograma['porcentaje_cobertura']) ?></td>
-                                <td><?= esc($cronograma['numero_de_personas_evaluadas']) ?></td>
-                                <td><?= esc($cronograma['promedio_de_calificaciones']) ?>%</td>
-                                <td><?= esc($cronograma['observaciones']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['nombre_capacitacion']); ?>"><?= esc($cronograma['nombre_capacitacion']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['objetivo_capacitacion']); ?>"><?= esc($cronograma['objetivo_capacitacion']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['nombre_cliente']); ?>"><?= esc($cronograma['nombre_cliente']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['fecha_programada']); ?>"><?= esc($cronograma['fecha_programada']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['fecha_de_realizacion']); ?>"><?= esc($cronograma['fecha_de_realizacion']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['estado']); ?>"><?= esc($cronograma['estado']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['perfil_de_asistentes']); ?>"><?= esc($cronograma['perfil_de_asistentes']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['nombre_del_capacitador']); ?>"><?= esc($cronograma['nombre_del_capacitador']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['horas_de_duracion_de_la_capacitacion']); ?>"><?= esc($cronograma['horas_de_duracion_de_la_capacitacion']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['indicador_de_realizacion_de_la_capacitacion']); ?>"><?= esc($cronograma['indicador_de_realizacion_de_la_capacitacion']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['numero_de_asistentes_a_capacitacion']); ?>"><?= esc($cronograma['numero_de_asistentes_a_capacitacion']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['numero_total_de_personas_programadas']); ?>"><?= esc($cronograma['numero_total_de_personas_programadas']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['porcentaje_cobertura']); ?>"><?= esc($cronograma['porcentaje_cobertura']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['numero_de_personas_evaluadas']); ?>"><?= esc($cronograma['numero_de_personas_evaluadas']) ?></td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['promedio_de_calificaciones']); ?>"><?= esc($cronograma['promedio_de_calificaciones']) ?>%</td>
+                                <td data-bs-toggle="tooltip" title="<?= esc($cronograma['observaciones']); ?>"><?= esc($cronograma['observaciones']) ?></td>
                                 <td class="text-center">
-                                    <a href="<?= base_url('/editcronogCapacitacion/' . esc($cronograma['id_cronograma_capacitacion'])) ?>" class="btn btn-sm btn-warning">Editar</a>
-                                    <a href="<?= base_url('/deletecronogCapacitacion/' . esc($cronograma['id_cronograma_capacitacion'])) ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este cronograma?');">Eliminar</a>
+                                    <a href="<?= base_url('/editcronogCapacitacion/' . esc($cronograma['id_cronograma_capacitacion'])) ?>" class="btn btn-warning btn-sm">Editar</a>
+                                    <a href="<?= base_url('/deletecronogCapacitacion/' . esc($cronograma['id_cronograma_capacitacion'])) ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este cronograma?');">Eliminar</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -146,51 +193,138 @@
         </div>
     </div>
 
-
-
-
-    <footer style="background-color: white; padding: 20px 0; border-top: 1px solid #B0BEC5; margin-top: 40px; color: #3A3F51; font-size: 14px; text-align: center;">
-        <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+    <!-- Footer -->
+    <footer class="bg-white py-4 border-top mt-4">
+        <div class="container text-center">
             <!-- Company and Rights -->
-            <p style="margin: 0; font-weight: bold;">Cycloid Talent SAS</p>
-            <p style="margin: 5px 0;">Todos los derechos reservados © 2024</p>
-            <p style="margin: 5px 0;">NIT: 901.653.912</p>
+            <p class="fw-bold mb-1">Cycloid Talent SAS</p>
+            <p class="mb-1">Todos los derechos reservados © 2024</p>
+            <p class="mb-1">NIT: 901.653.912</p>
 
             <!-- Website Link -->
-            <p style="margin: 5px 0;">
-                Sitio oficial: <a href="https://cycloidtalent.com/" target="_blank" style="color: #007BFF; text-decoration: none;">https://cycloidtalent.com/</a>
+            <p class="mb-3">
+                Sitio oficial: <a href="https://cycloidtalent.com/" target="_blank" class="text-primary text-decoration-none">https://cycloidtalent.com/</a>
             </p>
 
             <!-- Social Media Links -->
-            <p style="margin: 15px 0 5px;"><strong>Nuestras Redes Sociales:</strong></p>
-            <div style="display: flex; gap: 15px; justify-content: center;">
-                <a href="https://www.facebook.com/CycloidTalent" target="_blank" style="color: #3A3F51; text-decoration: none;">
+            <p class="mb-2"><strong>Nuestras Redes Sociales:</strong></p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="https://www.facebook.com/CycloidTalent" target="_blank">
                     <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" style="height: 24px; width: 24px;">
                 </a>
-                <a href="https://co.linkedin.com/company/cycloid-talent" target="_blank" style="color: #3A3F51; text-decoration: none;">
+                <a href="https://co.linkedin.com/company/cycloid-talent" target="_blank">
                     <img src="https://cdn-icons-png.flaticon.com/512/733/733561.png" alt="LinkedIn" style="height: 24px; width: 24px;">
                 </a>
-                <a href="https://www.instagram.com/cycloid_talent?igsh=Nmo4d2QwZDg5dHh0" target="_blank" style="color: #3A3F51; text-decoration: none;">
+                <a href="https://www.instagram.com/cycloid_talent?igsh=Nmo4d2QwZDg5dHh0" target="_blank">
                     <img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram" style="height: 24px; width: 24px;">
                 </a>
-                <a href="https://www.tiktok.com/@cycloid_talent?_t=8qBSOu0o1ZN&_r=1" target="_blank" style="color: #3A3F51; text-decoration: none;">
+                <a href="https://www.tiktok.com/@cycloid_talent?_t=8qBSOu0o1ZN&_r=1" target="_blank">
                     <img src="https://cdn-icons-png.flaticon.com/512/3046/3046126.png" alt="TikTok" style="height: 24px; width: 24px;">
                 </a>
             </div>
         </div>
     </footer>
 
+    <!-- jQuery 3.6.0 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap 5 JS Bundle (Includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+    
+    <!-- DataTables Buttons JS -->
+    <script src="https://cdn.datatables.net/buttons/2.3.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.colVis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script> <!-- Biblioteca necesaria para Excel -->
+    <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.html5.min.js"></script> <!-- Botones HTML5 -->
+    
+    <!-- DataTables Spanish Language -->
+    <script src="https://cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"></script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#cronogramaTable').DataTable({
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+            // Inicializar DataTable con las opciones requeridas
+            var table = $('#cronogramaTable').DataTable({
+                // Activar la extensión de botones
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="bi bi-file-earmark-excel-fill"></i> Excel', // Icono de Bootstrap Icons
+                        titleAttr: 'Exportar a Excel',
+                        className: 'btn btn-success btn-sm'
+                    },
+                    {
+                        extend: 'colvis',
+                        text: '<i class="bi bi-columns"></i> Mostrar/Ocultar Columnas',
+                        className: 'btn btn-secondary btn-sm'
+                    }
+                ],
+                // Configurar el idioma a español
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
+                },
+                // Activar el guardado del estado para persistencia de filtros
+                stateSave: true,
+                // Definir el callback para inicializar los filtros después de la creación de la tabla
+                initComplete: function () {
+                    this.api().columns().every(function () {
+                        var column = this;
+                        var select = $('<select class="form-select form-select-sm"><option value="">Todos</option></select>')
+                            .appendTo($(column.footer()).empty())
+                            .on('change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
+                            });
+
+                        // Obtener los valores únicos de cada columna
+                        column.data().unique().sort().each(function (d, j) {
+                            if(d !== null && d !== ""){
+                                select.append('<option value="' + d + '">' + d + '</option>')
+                            }
+                        });
+
+                        // Restaurar el valor del filtro si existe en el estado guardado
+                        var state = table.state.loaded();
+                        if(state && state.columns && state.columns[column.index()].search && state.columns[column.index()].search.search) {
+                            var searchValue = state.columns[column.index()].search.search.replace('^','').replace('$','');
+                            select.val(searchValue);
+                        }
+                    });
                 }
+            });
+
+            // Inicializar los tooltips de Bootstrap
+            function initializeTooltips() {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                    new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
+
+            // Inicializar tooltips al cargar la página
+            initializeTooltips();
+
+            // Re-inicializar los tooltips después de cada redibujado de la tabla
+            table.on('draw', function () {
+                initializeTooltips();
+            });
+
+            // Botón para restablecer filtros
+            $('#clearState').on('click', function () {
+                // Limpiar el estado guardado de DataTables
+                table.state.clear();
+                // Recargar la página para aplicar los cambios
+                location.reload();
             });
         });
     </script>

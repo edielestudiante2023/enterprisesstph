@@ -24,6 +24,7 @@ $routes->get('client/dashboard', 'ClientController::dashboard');
 
 
 $routes->get('/dashboardconsultant', 'ConsultantController::index');
+$routes->get('/admindashboard', 'AdminDashboardController::index');
 
 $routes->get('/addClient', 'ConsultantController::addClient');
 $routes->post('/addClient', 'ConsultantController::addClientPost');
@@ -376,3 +377,11 @@ $routes->get('/client/lista-matrices', 'ClientMatrices::index');
 
 
 $routes->get('client/panel', 'ClientPanelController::showPanel');
+
+
+$routes->get('/detailreportlist', 'DetailReportController::detailReportList');
+$routes->get('/detailreportadd', 'DetailReportController::detailReportAdd');
+$routes->post('/detailreportadd', 'DetailReportController::detailReportAddPost');
+$routes->get('/detailreportedit/(:num)', 'DetailReportController::detailReportEdit/$1');
+$routes->post('/detailreportedit', 'DetailReportController::detailReportEditPost');
+$routes->get('/detailreportdelete/(:num)', 'DetailReportController::detailReportDelete/$1');

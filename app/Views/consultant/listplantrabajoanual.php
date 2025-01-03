@@ -5,8 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Actividades - Plan de Trabajo Anual</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- DataTables Buttons CSS -->
+    <link href="https://cdn.datatables.net/buttons/2.3.3/css/buttons.bootstrap5.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #f9f9f9;
@@ -42,31 +46,12 @@
 
         td,
         th {
-            max-width: 80ch;
+            max-width: 20ch;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             height: 50px;
         }
-
-        td[title],
-        th[title] {
-            cursor: help;
-        }
-
-        /* Limitar todas las columnas a un máximo de 20 caracteres */
-        td,
-        th {
-            max-width: 20ch;
-            /* Limita el ancho a 20 caracteres */
-            white-space: nowrap;
-            /* Evita el salto de línea */
-            overflow: hidden;
-            /* Oculta el contenido que excede el ancho */
-            text-overflow: ellipsis;
-            /* Muestra puntos suspensivos para texto truncado */
-        }
-
 
         .tooltip-inner {
             max-width: 300px;
@@ -82,66 +67,67 @@
             width: 100%;
             padding: 4px;
         }
+
+        footer a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .social-icons img {
+            height: 24px;
+            width: 24px;
+        }
     </style>
 </head>
 
 <body>
-
     <!-- Navbar -->
-    <nav style="background-color: white; position: fixed; top: 0; width: 100%; z-index: 1000; padding: 10px 0; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto;">
-
-            <!-- Logo izquierdo -->
-            <div>
-                <a href="https://dashboard.cycloidtalent.com/login">
-                    <img src="<?= base_url('uploads/logoenterprisesstblancoslogan.png') ?>" alt="Enterprisesst Logo" style="height: 100px;">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container-fluid">
+            <!-- Logos -->
+            <div class="d-flex align-items-center">
+                <a href="https://dashboard.cycloidtalent.com/login" class="me-3">
+                    <img src="<?= base_url('uploads/logoenterprisesstblancoslogan.png') ?>" alt="Enterprisesst Logo" height="60">
                 </a>
-            </div>
-
-            <!-- Logo centro -->
-            <div>
-                <a href="https://cycloidtalent.com/index.php/consultoria-sst">
-                    <img src="<?= base_url('uploads/logosst.png') ?>" alt="SST Logo" style="height: 100px;">
+                <a href="https://cycloidtalent.com/index.php/consultoria-sst" class="me-3">
+                    <img src="<?= base_url('uploads/logosst.png') ?>" alt="SST Logo" height="60">
                 </a>
-            </div>
-
-            <!-- Logo derecho -->
-            <div>
                 <a href="https://cycloidtalent.com/">
-                    <img src="<?= base_url('uploads/logocycloidsinfondo.png') ?>" alt="Cycloids Logo" style="height: 100px;">
+                    <img src="<?= base_url('uploads/logocycloidsinfondo.png') ?>" alt="Cycloids Logo" height="60">
                 </a>
             </div>
 
-        </div>
-
-        <!-- Fila de botones -->
-        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 10px auto 0; padding: 0 20px;">
-            <!-- Botón izquierdo -->
-            <div style="text-align: center;">
-                <h2 style="margin: 0; font-size: 16px;">Ir a Dashboard</h2>
-                <a href="<?= base_url('/dashboardconsultant') ?>" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; margin-top: 5px;">Ir a DashBoard</a>
-            </div>
-
-            <!-- Botón derecho -->
-            <div style="text-align: center;">
-                <h2 style="margin: 0; font-size: 16px;">Añadir Registro</h2>
-                <a href="<?= base_url('/addPlanDeTrabajoAnual') ?>" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; margin-top: 5px;">Añadir Registro</a>
+            <!-- Botones Dashboard y Añadir Registro -->
+            <div class="ms-auto d-flex">
+                <div class="text-center me-3">
+                    <h6 class="mb-1" style="font-size: 16px;">Ir a Dashboard</h6>
+                    <a href="<?= base_url('/dashboardconsultant') ?>" class="btn btn-primary btn-sm">Ir a DashBoard</a>
+                </div>
+                <div class="text-center">
+                    <h6 class="mb-1" style="font-size: 16px;">Añadir Registro</h6>
+                    <a href="<?= base_url('/addPlanDeTrabajoAnual') ?>" class="btn btn-success btn-sm">Añadir Registro</a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Ajustar el espaciado para evitar que el contenido se oculte bajo el navbar fijo -->
-    <div style="height: 160px;"></div>
+    <!-- Espaciado para el navbar fijo -->
+    <div style="height: 100px;"></div>
 
     <div class="container mt-5">
-
         <!-- Botón para restablecer filtros -->
-        <button id="clearState" class="btn btn-danger btn-sm mb-3">Restablecer Filtros</button>
+       
 
         <h2 class="text-center mb-4">Lista de Actividades del Plan de Trabajo Anual</h2>
 
+        <button id="clearState" class="btn btn-danger btn-sm mb-3">Restablecer Filtros</button>
+
         <div class="table-responsive">
-            <table id="actividadesTable" class="table table-striped table-bordered">
+            <table id="actividadesTable" class="table table-striped table-bordered nowrap" style="width:100%">
                 <thead class="table-light">
                     <tr>
                         <th>ID</th>
@@ -284,45 +270,50 @@
         </div>
     </div>
 
-    <footer style="background-color: white; padding: 20px 0; border-top: 1px solid #B0BEC5; margin-top: 40px; color: #3A3F51; font-size: 14px; text-align: center;">
-        <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
-            <!-- Company and Rights -->
-            <p style="margin: 0; font-weight: bold;">Cycloid Talent SAS</p>
-            <p style="margin: 5px 0;">Todos los derechos reservados © 2024</p>
-            <p style="margin: 5px 0;">NIT: 901.653.912</p>
-
-            <!-- Website Link -->
-            <p style="margin: 5px 0;">
-                Sitio oficial: <a href="https://cycloidtalent.com/" target="_blank" style="color: #007BFF; text-decoration: none;">https://cycloidtalent.com/</a>
+    <!-- Footer -->
+    <footer class="bg-white py-4 border-top">
+        <div class="container text-center">
+            <p class="fw-bold mb-1">Cycloid Talent SAS</p>
+            <p class="mb-1">Todos los derechos reservados © 2024</p>
+            <p class="mb-1">NIT: 901.653.912</p>
+            <p class="mb-3">
+                Sitio oficial: <a href="https://cycloidtalent.com/" target="_blank">https://cycloidtalent.com/</a>
             </p>
-
-            <!-- Social Media Links -->
-            <p style="margin: 15px 0 5px;"><strong>Nuestras Redes Sociales:</strong></p>
-            <div style="display: flex; gap: 15px; justify-content: center;">
-                <a href="https://www.facebook.com/CycloidTalent" target="_blank" style="color: #3A3F51; text-decoration: none;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" style="height: 24px; width: 24px;">
+            <p><strong>Nuestras Redes Sociales:</strong></p>
+            <div class="social-icons d-flex justify-content-center gap-3">
+                <a href="https://www.facebook.com/CycloidTalent" target="_blank">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
                 </a>
-                <a href="https://co.linkedin.com/company/cycloid-talent" target="_blank" style="color: #3A3F51; text-decoration: none;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/733/733561.png" alt="LinkedIn" style="height: 24px; width: 24px;">
+                <a href="https://co.linkedin.com/company/cycloid-talent" target="_blank">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733561.png" alt="LinkedIn">
                 </a>
-                <a href="https://www.instagram.com/cycloid_talent?igsh=Nmo4d2QwZDg5dHh0" target="_blank" style="color: #3A3F51; text-decoration: none;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram" style="height: 24px; width: 24px;">
+                <a href="https://www.instagram.com/cycloid_talent?igsh=Nmo4d2QwZDg5dHh0" target="_blank">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram">
                 </a>
-                <a href="https://www.tiktok.com/@cycloid_talent?_t=8qBSOu0o1ZN&_r=1" target="_blank" style="color: #3A3F51; text-decoration: none;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3046/3046126.png" alt="TikTok" style="height: 24px; width: 24px;">
+                <a href="https://www.tiktok.com/@cycloid_talent?_t=8qBSOu0o1ZN&_r=1" target="_blank">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3046/3046126.png" alt="TikTok">
                 </a>
             </div>
         </div>
     </footer>
 
     <!-- Scripts al final del body para mejor rendimiento -->
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap Bundle (Incluye Popper.js) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables Buttons JS -->
+    <script src="https://cdn.datatables.net/buttons/2.3.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.colVis.min.js"></script>
     <script>
-        $(document).ready(function() {
-            // Inicializar DataTables con stateSave para persistencia
+        $(document).ready(function () {
+            // Inicializar DataTables con Buttons
             var table = $('#actividadesTable').DataTable({
                 stateSave: true,
                 language: {
@@ -331,17 +322,30 @@
                 pagingType: "full_numbers",
                 responsive: true,
                 autoWidth: false,
-                initComplete: function() {
+                dom: 'Bfltip', // Añadir Buttons al DOM
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Exportar a Excel',
+                        className: 'btn btn-success btn-sm me-2'
+                    },
+                    {
+                        extend: 'colvis',
+                        text: 'Seleccionar Columnas',
+                        className: 'btn btn-secondary btn-sm'
+                    }
+                ],
+                initComplete: function () {
                     var api = this.api();
 
                     // Para cada columna, crear un filtro desplegable en el <tfoot>
-                    api.columns().every(function() {
+                    api.columns().every(function () {
                         var column = this;
                         var select = $(column.footer()).find('select');
 
                         if (select.length) { // Solo si existe un <select> en el <tfoot> de esta columna
                             // Obtener los valores únicos de la columna
-                            column.data().unique().sort().each(function(d, j) {
+                            column.data().unique().sort().each(function (d, j) {
                                 if (d) { // Evitar valores vacíos
                                     select.append('<option value="' + d + '">' + d + '</option>');
                                 }
@@ -357,8 +361,12 @@
                 }
             });
 
+            // Colocar los botones de DataTables en una fila específica si es necesario
+            // Por ejemplo, antes del botón de restablecer filtros
+            table.buttons().container().prependTo('.container');
+
             // Evento al cambiar cualquier filtro
-            $('.filter-select').on('change', function() {
+            $('.filter-select').on('change', function () {
                 var columnIndex = $(this).closest('th').index();
                 var value = $(this).val();
                 table.column(columnIndex).search(value).draw();
@@ -366,12 +374,12 @@
 
             // Inicializar tooltips de Bootstrap 5
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function(tooltipTriggerEl) {
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
             // Botón para borrar el estado
-            $('#clearState').on('click', function() {
+            $('#clearState').on('click', function () {
                 // Borrar estado guardado en localStorage
                 localStorage.removeItem('DataTables_actividadesTable_/');
                 table.state.clear(); // Limpiar estado en DataTables

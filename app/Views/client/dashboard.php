@@ -17,8 +17,10 @@
 
         /* Navbar fija */
         .navbar {
-            background-color:whitesmoke; /* Azul oscuro */
-            border-bottom: 2px solid #bd9751; /* Dorado */
+            background-color: whitesmoke;
+            /* Azul oscuro */
+            border-bottom: 2px solid #bd9751;
+            /* Dorado */
             position: fixed;
             top: 0;
             width: 100%;
@@ -43,8 +45,10 @@
 
         /* Botones personalizados */
         .btn-primary-custom {
-            background-color: #1c2437; /* Azul oscuro */
-            color: #ffffff; /* Blanco */
+            background-color: #1c2437;
+            /* Azul oscuro */
+            color: #ffffff;
+            /* Blanco */
             border: none;
         }
 
@@ -54,7 +58,8 @@
         }
 
         .btn-success-custom {
-            background-color: #bd9751; /* Dorado */
+            background-color: #bd9751;
+            /* Dorado */
             color: #ffffff;
             border: none;
         }
@@ -65,8 +70,10 @@
         }
 
         .btn-info-custom {
-            background-color: #ffffff; /* Blanco */
-            color: #1c2437; /* Azul oscuro */
+            background-color: #ffffff;
+            /* Blanco */
+            color: #1c2437;
+            /* Azul oscuro */
             border: 1px solid #1c2437;
         }
 
@@ -210,9 +217,11 @@
                 </tbody>
             </table>
 
-            <!-- Botón de cerrar sesión -->
+
             <div class="text-center mt-4">
-                <button class="btn btn-logout" onclick="logout()">Cerrar Sesión</button>
+                <a href="<?= base_url('/logout') ?>" rel="noopener noreferrer">
+                    <button type="button" class="btn btn-logout" aria-label="Cerrar Sesión">Cerrar Sesión</button>
+                </a>
             </div>
 
             <!-- Asesoría Section -->

@@ -35,18 +35,30 @@ class AuthController extends Controller
             $consultantModel = new ConsultantModel();
             $consultant = $consultantModel->where('correo_consultor', $username)->first();
             if ($consultant && password_verify($password, $consultant['password'])) {
-                $session->set([
-                    'user_id' => $consultant['id_consultor'],
-                    'role' => 'consultant',
-                    'isLoggedIn' => true
-                ]);
-                return redirect()->to('/dashboardconsultant');
+                if ($consultant['rol'] === 'admin') {
+                    $session->set([
+                        'user_id' => $consultant['id_consultor'],
+                        'role' => $consultant['rol'],
+                        'isLoggedIn' => true
+                    ]);
+                    return redirect()->to('/admindashboard'); // Redirigir al dashboard de administrador
+                } elseif ($consultant['rol'] === 'consultant') {
+                    $session->set([
+                        'user_id' => $consultant['id_consultor'],
+                        'role' => $consultant['rol'],
+                        'isLoggedIn' => true
+                    ]);
+                    return redirect()->to('/dashboardconsultant'); // Redirigir al dashboard de consultores
+                }
             }
         }
 
         $session->setFlashdata('msg', 'Correo electrónico o contraseña incorrectos');
         return redirect()->to('/login');
     }
+
+ 
+
 
 
     public function logout()

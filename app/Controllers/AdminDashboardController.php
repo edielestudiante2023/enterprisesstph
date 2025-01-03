@@ -7,11 +7,11 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use CodeIgniter\Controller;
 
-class ConsultantController extends Controller
+class AdminDashboardController extends Controller
 {
     public function index()
     {
-        return view('consultant/dashboard');
+        return view('consultant/admindashboard');
     }
 
     public function addClient()
@@ -132,7 +132,6 @@ class ConsultantController extends Controller
             'correo_consultor' => $this->request->getVar('correo_consultor'),
             'telefono_consultor' => $this->request->getVar('telefono_consultor'),
             'numero_licencia' => $this->request->getVar('numero_licencia'),
-            
             'id_cliente' => $this->request->getVar('id_cliente'),
         ];
 
