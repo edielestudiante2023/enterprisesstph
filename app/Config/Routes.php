@@ -10,7 +10,7 @@ use CodeIgniter\Router\RouteCollection;
     print_r($routes->getRoutes());
 });
 
-$routes->get('/', 'Home::index');
+$routes->get('/', 'AuthController::login');
 $routes->get('/login', 'AuthController::login');
 $routes->post('/loginPost', 'AuthController::loginPost');
 $routes->get('/logout', 'AuthController::logout');

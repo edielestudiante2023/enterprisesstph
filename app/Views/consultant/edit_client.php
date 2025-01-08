@@ -172,10 +172,10 @@
             <div class="mb-3">
                 <label class="form-label">Tipo de Servicio:</label>
                 <select name="estandares" class="form-select">
-                    <option value="Mensual" <?= $client['estandares'] == 'Mensual' ? 'selected' : '' ?>>7A</option>
-                    <option value="Bimensual" <?= $client['estandares'] == 'Bimensual' ? 'selected' : '' ?>>7B</option>
-                    <option value="Trimestral" <?= $client['estandares'] == 'Trimestral' ? 'selected' : '' ?>>7C</option>
-                    <option value="Proyecto" <?= $client['estandares'] == 'Proyecto' ? 'selected' : '' ?>>7D</option>
+                    <option value="Mensual" <?= $client['estandares'] == 'Mensual' ? 'selected' : '' ?>>Mensual</option>
+                    <option value="Bimensual" <?= $client['estandares'] == 'Bimensual' ? 'selected' : '' ?>>Bimensual</option>
+                    <option value="Trimestral" <?= $client['estandares'] == 'Trimestral' ? 'selected' : '' ?>>Trimestral</option>
+                    <option value="Proyecto" <?= $client['estandares'] == 'Proyecto' ? 'selected' : '' ?>>Proyecto</option>
                     
                 </select>
 
