@@ -1,5 +1,99 @@
 
 
+INSERT INTO `client_policies` (`client_id`, `policy_type_id`, `policy_content`) VALUES
+( 999, 1, ' '),
+( 999, 4, ' '),
+( 999, 5, ' '),
+( 999, 6, ' '),
+( 999, 7, ' '),
+( 999, 8, ' '),
+( 999, 9, ' '),
+( 999, 10, ' '),
+( 999, 11, ' '),
+( 999, 12, ' '),
+( 999, 13, ' '),
+( 999, 14, ' '),
+( 999, 15, ' '),
+( 999, 16, ' '),
+( 999, 17, ' '),
+( 999, 18, ' '),
+( 999, 19, ' '),
+( 999, 20, ' '),
+( 999, 21, ' '),
+( 999, 22, ' '),
+( 999, 23, ' '),
+( 999, 24, ' '),
+( 999, 25, ' '),
+( 999, 26, ' '),
+( 999, 27, ' '),
+( 999, 28, ' '),
+( 999, 29, ' '),
+( 999, 30, ' '),
+( 999, 31, ' '),
+( 999, 32, ' '),
+( 999, 33, ' '),
+( 999, 34, ' '),
+( 999, 35, ' '),
+( 999, 36, ' '),
+( 999, 37, ' '),
+( 999, 38, ' '),
+( 999, 39, ' '),
+( 999, 40, ' '),
+( 999, 41, ' '),
+( 999, 42, ' '),
+( 999, 43, ' '),
+( 999, 44, ' '),
+( 999, 45, ' '),
+( 999, 46, ' ');
+
+INSERT INTO `document_versions` 
+  (`client_id`, `policy_type_id`, `version_number`, `document_type`, `acronym`, `location`, `status`, `change_control`) 
+VALUES
+(999, 1, 1,  'FT', 'SST-001', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 4, 1,  'FT', 'SST-002', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 5, 1,  'FT', 'SST-003', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 6, 1,  'FT', 'SST-004', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 7, 1,  'FT', 'SST-005', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 8, 1,  'FT', 'SST-006', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 9, 1,  'FT', 'SST-007', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 10, 1, 'FT', 'SST-008', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 11, 1, 'FT', 'SST-009', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 12, 1, 'FT', 'SST-010', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 13, 1, 'FT', 'SST-011', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 14, 1, 'MAN', 'SST-001', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 17, 1, 'PRC', 'SST-001', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 18, 1, 'PRG', 'SST-001', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 19, 1, 'PRG', 'SST-002', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 20, 1, 'FT', 'SST-012', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 21, 1, 'PL', 'SST-001', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 22, 1, 'PL', 'SST-002', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 23, 1, 'PL', 'SST-003', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 24, 1, 'PL', 'SST-004', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 25, 1, 'PL', 'SST-005', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 26, 1, 'REG', 'SST-001', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 27, 1, 'FT', 'SST-013', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 28, 1, 'FT', 'SST-014', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 29, 1, 'PRC', 'SST-002', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 30, 1, 'PRC', 'SST-003', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 31, 1, 'MAN', 'SST-002', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 32, 1, 'PRC', 'SST-004', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 33, 1, 'PRG', 'SST-005', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 34, 1, 'PRC', 'SST-006', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 35, 1, 'PRG', 'SST-003', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 36, 1, 'PRC', 'SST-007', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 37, 1, 'FT', 'SST-101', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 38, 1, 'FT', 'SST-015', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 39, 1, 'PRC', 'SST-008', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 40, 1, 'PRC', 'SST-009', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 41, 1, 'PRC', 'SST-010', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 42, 1, 'PRG', 'SST-004', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 43, 1, 'PRG', 'SST-005', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 44, 1, 'FT', 'SST-016', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 45, 1, 'PRC', 'SST-011', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025'),
+(999, 46, 1, 'MA', 'SST-001', 'DIGITAL', 'ACTIVO', 'Elaborado por Cycloid Talent el 8 de enero de 2025');
+
+
+
 INSERT INTO `evaluacion_inicial_sst` ( `id_cliente`, `ciclo`, `estandar`, `detalle_estandar`, `estandares_minimos`, `numeral`, `numerales_del_cliente`, `siete`, `veintiun`, `sesenta`, `item_del_estandar`, `evaluacion_inicial`, `valor`, `puntaje_cuantitativo`, `item`, `criterio`, `modo_de_verificacion`, `calificacion`, `nivel_de_evaluacion`, `observaciones`) VALUES
 (999, 'I. PLANEAR', 'RECURSOS (10%)', 'Recursos financieros, técnicos humanos y de otra índole requeridos para coordinar y desarrollar el Sistema de Gestion de la Seguridad y Salud en el Trabajo (SG-SST) (4 %)', '7-21-60 - Asignación de responsable', '1.1.1', 60, 7, 21, 60, '1.1.1. Responsable del Sistema de Gestión de Seguridad y Salud en el Trabajo SG-SST', 'CUMPLE TOTALMENTE', '0.50', '0.50', 'Asignación de responsable', 'Asignar una persona que cumpla con el siguiente perfil: El diseño e implementacion del Sistema de Gestion de SST Podra ser realzado  por profesioanles en SST, profesionales con posgrado en SST que cuenten con licencia en Seguridad y Salud en el Trabajo vigente y el curso de capacitacion virtual de cincuenta (50) horas.', 'Solicitar el documento en el que consta la asignacion, con la respectiva determinacion de responsabilidaes y constatar la hoja de vida con soportes de la persona asignada.', '0.00', '', ''),
 (999, 'I. PLANEAR', 'RECURSOS (10%)', 'Recursos financieros, técnicos humanos y de otra índole requeridos para coordinar y desarrollar el Sistema de Gestion de la Seguridad y Salud en el Trabajo (SG-SST) (4 %)', '60 - Asignacion de responsabilidades en SST', '1.1.2', 60, 0, 0, 60, '1.1.2 Responsabilidades en el Sistema de Gestión de Seguridad y Salud en el Trabajo – SG-SST', 'NO CUMPLE', '0.50', '0.00', 'Asignacion de responsabilidades en SST', 'Asignar y documentar las responsabilidades específicas en el Sistema de Gestión SST a todos los niveles de la organización, para el desarrollo y mejora continua de dicho Sistema.', 'Solicitar el soporte que contenga la asignación de las responsabilidades en SST.', '0.00', '', ''),
@@ -68,3 +162,9 @@ SET
     puntaje_cuantitativo = '0.00'
 WHERE id_cliente = 999;
 
+INSERT INTO `tbl_pta_cliente` 
+(`id_cliente`, `id_plandetrabajo`, `phva_plandetrabajo`, `numeral_plandetrabajo`, `actividad_plandetrabajo`, `responsable_sugerido_plandetrabajo`, `fecha_propuesta`, `fecha_cierre`, `responsable_definido_paralaactividad`, `estado_actividad`, `porcentaje_avance`, `semana`, `observaciones`, `created_at`, `updated_at`) 
+VALUES
+(999, 144, 'PLANEAR', '2.2.4.6.13', 'Realizar inducción en Seguridad y Salud en el Trabajo (SST) para todos los empleados.', 'Consultor Cycloid Talent', '2025-01-31', NULL, '-', 'ABIERTA', '0', '', '-', NOW(), NOW()),
+(999, 145, 'HACER', '2.2.4.6.8', 'Entregar todas las piezas documentales del diseño del SG-SST al cliente.', 'Consultor Cycloid Talent', '2025-01-31', NULL, '-', 'ABIERTA', '0', '', '-', NOW(), NOW()),
+(999, 146, 'VERIFICAR', '2.2.4.6.28', 'Realizar el reporte del SG-SST ante el Ministerio de Trabajo.', 'Consultor Cycloid Talent', '2025-01-31', NULL, '-', 'ABIERTA', '0', '', '-', NOW(), NOW());
