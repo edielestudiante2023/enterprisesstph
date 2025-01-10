@@ -20,6 +20,8 @@ $routes->get('/dashboardclient', 'ClientController::dashboardSimplified');
 $routes->get('/dashboard', 'ClientController::dashboard');
 $routes->get('/dashboard', 'ClientController::showPanel');
 $routes->get('client/dashboard', 'ClientController::dashboard');
+$routes->get('client/suspended', 'AuthController::suspended');
+
 
 
 
