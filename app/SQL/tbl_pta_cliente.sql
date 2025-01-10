@@ -188,6 +188,13 @@ WHERE
   `id_cliente` = 999;
 
 
+INSERT INTO `tbl_pta_cliente` 
+(`id_cliente`, `id_plandetrabajo`, `phva_plandetrabajo`, `numeral_plandetrabajo`, `actividad_plandetrabajo`, `responsable_sugerido_plandetrabajo`, `fecha_propuesta`, `fecha_cierre`, `responsable_definido_paralaactividad`, `estado_actividad`, `porcentaje_avance`, `semana`, `observaciones`, `created_at`, `updated_at`) 
+VALUES
+(999, 144, 'PLANEAR', '2.2.4.6.13', 'Realizar inducción en Seguridad y Salud en el Trabajo (SST) para todos los empleados.', 'Consultor Cycloid Talent', '2025-01-31', NULL, '-', 'ABIERTA', '0', '', '-', NOW(), NOW()),
+(999, 145, 'HACER', '2.2.4.6.8', 'Entregar todas las piezas documentales del diseño del SG-SST al cliente.', 'Consultor Cycloid Talent', '2025-01-31', NULL, '-', 'ABIERTA', '0', '', '-', NOW(), NOW()),
+(999, 146, 'VERIFICAR', '2.2.4.6.28', 'Realizar el reporte del SG-SST ante el Ministerio de Trabajo.', 'Consultor Cycloid Talent', '2025-01-31', NULL, '-', 'ABIERTA', '0', '', '-', NOW(), NOW());
+
 
 
 
