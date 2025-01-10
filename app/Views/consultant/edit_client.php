@@ -63,12 +63,13 @@
         <?php endif; ?>
 
         <form action="<?= base_url('/updateClient/' . $client['id_cliente']) ?>" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
+           
+
             <div class="mb-3">
                 <label class="form-label">Fecha de Ingreso:</label>
-                <input type="date" name="fecha_ingreso" value="<?= date('Y-m-d', strtotime($client['fecha_ingreso'])); ?>" class="form-control">
+                <input type="date" name="fecha_ingreso" value="<?= $client['fecha_ingreso'] ?>" class="form-control">
             </div>
-
-
+            
             <div class="mb-3">
                 <label class="form-label">NIT Cliente:</label>
                 <input type="text" name="nit_cliente" value="<?= $client['nit_cliente'] ?>" class="form-control">
