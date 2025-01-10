@@ -26,7 +26,7 @@ class AuthController extends Controller
 
             if ($client && password_verify($password, $client['password'])) {
                 // Verificar el estado del cliente
-                if ($client['estado'] !== 'Activo') {
+                if ($client['estado'] !== 'activo') {
                     // Si el estado no es 'Activo', redirigir a la vista específica
                     // Asegúrate de haber creado la vista en app/Views/client/suspended.php 
                     // o la que corresponda.
