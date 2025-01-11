@@ -204,7 +204,10 @@ setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); // Configura el idi
 <p>FECHA: <strong><?= strftime('%d de %B de %Y', strtotime($client['fecha_ingreso'])); ?></strong></p>
 
         <p>
-            <b><?= $client['nombre_rep_legal'] ?></b> con documento de identidad <b><?= $client['cedula_rep_legal'] ?></b> como representante legal de <b><?= $client['nombre_cliente'] ?></b>, nombró a la empresa CYCLOID TALENT S.A.S, asignando como responsable a la profesional en Seguridad y Salud en el Trabajo, <b><?= $consultant['nombre_consultor'] ?></b> con documento de identidad <b><?= $consultant['cedula_consultor'] ?></b>, con número de licencia <b><?= $consultant['numero_licencia'] ?></b>, asignada para la responsabilidad, <?= $clientPolicy['policy_content'] ?>
+            <b><?= $client['nombre_rep_legal'] ?></b> con documento de identidad <b><?= $client['cedula_rep_legal'] ?></b> como representante legal de <b><?= $client['nombre_cliente'] ?></b>, nombró a la empresa CYCLOID TALENT S.A.S, y ésta a su vez asignando como responsable al profesional en Seguridad y Salud en el Trabajo, <b><?= $consultant['nombre_consultor'] ?></b> con documento de identidad <b><?= $consultant['cedula_consultor'] ?></b>, con número de licencia <b><?= $consultant['numero_licencia'] ?></b>, a quien se le confía la responsabilidad de asesorar en la administración e implementación del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) en la propiedad horizontal. Esto incluye la orientación en la planificación, organización y dirección de las evaluaciones del sistema, la presentación de informes detallados sobre su desempeño y resultados al consejo de administración, administrador y asamblea de propietarios, así como la provisión de lineamientos para su actualización continua conforme a la normatividad vigente.
+            
+            
+            <br><br><?= $clientPolicy['policy_content'] ?>
         </p>
 
         <div class="signature-container">
