@@ -83,9 +83,16 @@ class ClientController extends Controller
 
             // Obtener todos los accesos relacionados con el estándar y ordenarlos por la dimensión
             $accesos = $accesoModel
-                ->whereIn('id_acceso', array_column($accesosData, 'id_acceso'))  // Obtener todos los accesos permitidos
-                ->orderBy('FIELD(dimension, "Planear", "Hacer", "Verificar", "Actuar", "Indicadores")', '', false)  // Ordenar por dimensión
+                ->whereIn('id_acceso', array_column($accesosData, 'id_acceso'))
                 ->findAll();
+
+            // Ordenar en PHP usando el ciclo PHVA
+            $orden = ["Planear", "Hacer", "Verificar", "Actuar", "Indicadores"];
+
+            usort($accesos, function ($a, $b) use ($orden) {
+                return array_search($a['dimension'], $orden) - array_search($b['dimension'], $orden);
+            });
+
 
             // Pasar los accesos a la vista `dashboardclient`
             return view('client/dashboard', [
@@ -151,8 +158,8 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 2) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-        
-            $aseo = $reportModel
+
+        $aseo = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -172,7 +179,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 3) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $vigilancia = $reportModel
+        $vigilancia = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -192,7 +199,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 4) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $ambiental = $reportModel
+        $ambiental = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -212,7 +219,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 5) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $actasdevisita = $reportModel
+        $actasdevisita = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -232,7 +239,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 6) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $capacitaciones = $reportModel
+        $capacitaciones = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -252,7 +259,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 7) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $cincuentahoras = $reportModel
+        $cincuentahoras = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -272,7 +279,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 8) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $reporteministerio = $reportModel
+        $reporteministerio = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -292,7 +299,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 9) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $cierredemes = $reportModel
+        $cierredemes = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -312,7 +319,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 10) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $emergencias = $reportModel
+        $emergencias = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -332,7 +339,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 11) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $otrosproveedores = $reportModel
+        $otrosproveedores = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -352,7 +359,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 12) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $secretariasalud = $reportModel
+        $secretariasalud = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -372,7 +379,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 13) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $lavadotanques = $reportModel
+        $lavadotanques = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -392,7 +399,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 14) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $localescomerciales = $reportModel
+        $localescomerciales = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -412,7 +419,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 15) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $fumigaciones = $reportModel
+        $fumigaciones = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -432,7 +439,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 16) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $normatividad = $reportModel
+        $normatividad = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -452,7 +459,7 @@ class ClientController extends Controller
             ->where('tbl_reporte.id_report_type', 17) // ID para 'Matrices'
             ->orderBy('tbl_reporte.created_at', 'DESC')
             ->findAll();
-            $contrato = $reportModel
+        $contrato = $reportModel
             ->select('
                 tbl_reporte.id_reporte,
                 tbl_reporte.titulo_reporte,
@@ -496,5 +503,4 @@ class ClientController extends Controller
 
         return view('client/document_view', $data);
     }
-
 }
