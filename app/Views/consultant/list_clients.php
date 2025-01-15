@@ -121,7 +121,7 @@
                             <th>Fecha Fin de Contrato</th>
                             <th>Ciudad</th>
                             <th>Estado</th>
-                            <th>ID Consultor</th>
+                            <th>Consultor</th>
                             <th>Logo</th>
                             <th>Firma Representante Legal</th>
                             <th>Estándares</th>
@@ -147,7 +147,7 @@
                             <th>Fecha Fin de Contrato</th>
                             <th>Ciudad</th>
                             <th>Estado</th>
-                            <th>ID Consultor</th>
+                            <th>Consultor</th>
                             <th>Logo</th>
                             <th>Firma Representante Legal</th>
                             <th>Estándares</th>
@@ -173,7 +173,7 @@
                                 <td><?= htmlspecialchars($client['fecha_fin_contrato']) ?></td>
                                 <td><?= htmlspecialchars($client['ciudad_cliente']) ?></td>
                                 <td><?= htmlspecialchars($client['estado']) ?></td>
-                                <td><?= htmlspecialchars($client['id_consultor']) ?></td>
+                                <td><?= htmlspecialchars($client['nombre_consultor']) ?></td>
                                 <td>
                                     <?php if (!empty($client['logo'])): ?>
                                         <img src="<?= base_url('uploads/' . htmlspecialchars($client['logo'])) ?>" alt="Logo" width="50" data-bs-toggle="tooltip" title="Logo del Cliente">

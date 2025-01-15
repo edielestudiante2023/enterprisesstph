@@ -15,15 +15,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
         body {
-            background-color: #f8f9fa; /* Fondo claro */
-            color: #333333; /* Texto oscuro para mejor legibilidad */
+            background-color: #f8f9fa;
+            /* Fondo claro */
+            color: #333333;
+            /* Texto oscuro para mejor legibilidad */
             font-family: Arial, sans-serif;
         }
 
         .navbar {
             background-color: #ffffff;
             border-bottom: 1px solid #dee2e6;
-            padding: 15px 0; /* Ajuste de padding para un navbar más amplio */
+            padding: 15px 0;
+            /* Ajuste de padding para un navbar más amplio */
         }
 
         .navbar-brand img {
@@ -40,17 +43,21 @@
         }
 
         .welcome-banner {
-            background-color: #e9ecef; /* Gris claro */
-            border-left: 5px solid #0d6efd; /* Azul corporativo */
+            background-color: #e9ecef;
+            /* Gris claro */
+            border-left: 5px solid #0d6efd;
+            /* Azul corporativo */
             color: #333333;
         }
 
         .welcome-banner h3 {
-            color: #0d6efd; /* Azul corporativo */
+            color: #0d6efd;
+            /* Azul corporativo */
         }
 
         .table th {
-            background-color: #0d6efd; /* Azul corporativo */
+            background-color: #0d6efd;
+            /* Azul corporativo */
             color: #ffffff;
         }
 
@@ -93,7 +100,8 @@
         }
 
         .btn-danger-custom {
-            background-color: #dc3545; /* Rojo corporativo */
+            background-color: #dc3545;
+            /* Rojo corporativo */
             border-color: #dc3545;
             color: #ffffff;
         }
@@ -121,7 +129,8 @@
 
         /* Estilo para el espacio debajo del navbar */
         .navbar-spacing {
-            height: 100px; /* Ajuste según la altura real del navbar */
+            height: 100px;
+            /* Ajuste según la altura real del navbar */
         }
 
         /* Estilos Responsivos */
@@ -138,7 +147,8 @@
 
         /* Estilo para resaltar la fila */
         .highlighted {
-            background-color: #cce5ff !important; /* Azul claro */
+            background-color: #cce5ff !important;
+            /* Azul claro */
             transition: background-color 0.5s ease;
         }
 
@@ -211,6 +221,58 @@
 
         <!-- Tabla con DataTables -->
         <div class="table-responsive">
+
+            <h2>Cargue De Pdf´s</h2>
+            <table id="consultorTable" class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>Detalle</th>
+                        <th>Descripción/Funcionalidad</th> <!-- Nueva columna -->
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Detalle</th>
+                        <th>Descripción/Funcionalidad</th>
+                        <th>Acción</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+
+                    <tr>
+                        <td>Cargue de PDF´S a clientes</td>
+                        <td>Modulo de cargue de soportes de gestión</td>
+                        <td>
+                            <a href="<?= base_url('/reportList') ?>" target="_blank" data-bs-toggle="tooltip" title="Abrir Cargue de PDF's">
+                                <button type="button" class="btn btn-outline-secondary">Abrir</button>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Sub Clasificación de los Reportes</td>
+                        <td>Este Campo Solo Se consulta en BD</td>
+                        <td>
+                            <a href="<?= base_url('detailreportlist') ?>" target="_blank" data-bs-toggle="tooltip" title="Abrir Detalles de Reporte">
+                                <button type="button" class="btn btn-outline-secondary">Abrir</button>
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Tipo de Reporte</td>
+                        <td>Este Campo Segmenta el Gestor Documental</td>
+                        <td>
+                            <a href="<?= base_url('listReportTypes') ?>" target="_blank" data-bs-toggle="tooltip" title="Abrir Documentos y Matrices">
+                                <button type="button" class="btn btn-outline-secondary">Abrir</button>
+                            </a>
+                        </td>
+                    </tr>
+
+
+                </tbody>
+            </table>
+
             <table id="consultorTable" class="table table-hover table-bordered">
                 <thead>
                     <tr>
@@ -276,25 +338,8 @@
                         </td>
                     </tr>
 
-                    <!-- Documentación -->
-                    <tr data-detail="Cargue de PDF´S a clientes">
-                        <td>Cargue de PDF´S a clientes</td>
-                        <td class="description-col">Módulo de cargue de soportes de gestión.</td>
-                        <td>
-                            <a href="<?= base_url('/reportList') ?>" target="_blank" rel="noopener noreferrer" data-bs-toggle="tooltip" title="Abrir Cargue de PDF's">
-                                <button type="button" class="btn btn-outline-secondary btn-sm abrir-btn">Abrir</button>
-                            </a>
-                        </td>
-                    </tr>
-                    <tr data-detail="Documentos y Matrices">
-                        <td>Documentos y Matrices</td>
-                        <td class="description-col">Consulta los tipos de documentos y matrices disponibles.</td>
-                        <td>
-                            <a href="<?= base_url('listReportTypes') ?>" target="_blank" rel="noopener noreferrer" data-bs-toggle="tooltip" title="Abrir Documentos y Matrices">
-                                <button type="button" class="btn btn-outline-secondary btn-sm abrir-btn">Abrir</button>
-                            </a>
-                        </td>
-                    </tr>
+
+
                     <tr data-detail="Matrices">
                         <td>Matrices</td>
                         <td class="description-col">Matrices Interactivas de Gestión.</td>
@@ -470,15 +515,7 @@
                             </a>
                         </td>
                     </tr>
-                    <tr data-detail="Lista de Detalles de Reporte">
-                        <td>Lista de Detalles de Reporte</td>
-                        <td class="description-col">Sub Clasificación del gestor documental, es la rama derivada.</td>
-                        <td>
-                            <a href="<?= base_url('detailreportlist') ?>" target="_blank" rel="noopener noreferrer" data-bs-toggle="tooltip" title="Abrir Detalles de Reporte">
-                                <button type="button" class="btn btn-outline-secondary btn-sm abrir-btn">Abrir</button>
-                            </a>
-                        </td>
-                    </tr>
+
                 </tbody>
             </table>
         </div>
@@ -539,17 +576,17 @@
 
     <!-- DataTables Spanish Translation -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             // Actualizar dinámicamente el año en el footer
             document.getElementById('currentYear').textContent = new Date().getFullYear();
         });
     </script>
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             // Función para inicializar los tooltips
             function initializeTooltips() {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
                 console.log("Tooltips inicializados: " + tooltipList.length);
@@ -557,7 +594,7 @@
 
             // Función para resaltar una fila
             function highlightRow(detail) {
-                var row = $('#consultorTable tbody tr').filter(function () {
+                var row = $('#consultorTable tbody tr').filter(function() {
                     return $(this).data('detail') === detail;
                 });
                 row.addClass('highlighted');
@@ -568,7 +605,7 @@
                 localStorage.setItem('highlightedRows', JSON.stringify(highlights));
 
                 // Establecer timeout para quitar el resaltado después de 15 minutos
-                setTimeout(function () {
+                setTimeout(function() {
                     row.removeClass('highlighted');
                     delete highlights[detail];
                     localStorage.setItem('highlightedRows', JSON.stringify(highlights));
@@ -590,11 +627,11 @@
                     "searchable": false // Deshabilitar búsqueda
                 }],
                 "stateSave": true, // Habilitar guardado de estado
-                "stateSaveCallback": function (settings, data) {
+                "stateSaveCallback": function(settings, data) {
                     // Guardar el estado en localStorage con una clave única
                     localStorage.setItem('DataTables_consultorTable', JSON.stringify(data));
                 },
-                "stateLoadCallback": function (settings) {
+                "stateLoadCallback": function(settings) {
                     // Cargar el estado desde localStorage
                     return JSON.parse(localStorage.getItem('DataTables_consultorTable'));
                 },
@@ -607,11 +644,11 @@
                    i - Table information summary
                    p - pagination control
                 */
-                "initComplete": function () {
+                "initComplete": function() {
                     var api = this.api();
 
                     // Configurar los filtros en <tfoot>
-                    api.columns().every(function () {
+                    api.columns().every(function() {
                         var column = this;
                         var columnIdx = column.index();
 
@@ -623,13 +660,13 @@
 
                         var select = $('<select class="form-select form-select-sm"><option value="">Todos</option></select>')
                             .appendTo($(column.footer()).empty())
-                            .on('change', function () {
+                            .on('change', function() {
                                 var val = $.fn.dataTable.util.escapeRegex($(this).val());
                                 column.search(val ? '^' + val + '$' : '', true, false).draw();
                             });
 
                         // Precargar los datos únicos de la columna en el filtro
-                        column.data().unique().sort().each(function (d, j) {
+                        column.data().unique().sort().each(function(d, j) {
                             // Manejar valores nulos o vacíos
                             if (d === null || d === undefined) {
                                 d = '';
@@ -670,12 +707,12 @@
             });
 
             // Re-inicializar tooltips después de cada dibujo de la tabla
-            table.on('draw.dt', function () {
+            table.on('draw.dt', function() {
                 initializeTooltips();
             });
 
             // Manejar clic en botones "Abrir"
-            $('#consultorTable tbody').on('click', 'button.abrir-btn', function (e) {
+            $('#consultorTable tbody').on('click', 'button.abrir-btn', function(e) {
                 var tr = $(this).closest('tr');
                 var detail = tr.data('detail');
 
@@ -686,7 +723,7 @@
             });
 
             // Funcionalidad de Búsqueda Personalizada por Palabra
-            $('#wordSearch').on('keyup change', function () {
+            $('#wordSearch').on('keyup change', function() {
                 var searchTerm = $(this).val().trim();
 
                 // Aplicar la búsqueda personalizada utilizando expresiones regulares para buscar palabras completas
@@ -700,7 +737,7 @@
             });
 
             // Botón para Limpiar la Búsqueda Personalizada
-            $('#clearWordSearch').on('click', function () {
+            $('#clearWordSearch').on('click', function() {
                 $('#wordSearch').val('');
                 table.search('').draw();
             });

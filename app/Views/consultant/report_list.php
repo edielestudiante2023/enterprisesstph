@@ -55,6 +55,11 @@
       padding: 8px 10px;
       background-color: #f8f9fa;
     }
+
+    /* Alinear la barra de búsqueda a la izquierda */
+    div.dataTables_filter {
+      text-align: left !important;
+    }
   </style>
 </head>
 
@@ -123,6 +128,7 @@
       <table id="reportTable" class="table table-striped table-hover">
         <thead>
           <tr>
+            <th>Acciones</th>
             <th>ID</th>
             <th>Título del Reporte</th>
             <th>Tipo de Documento</th>
@@ -133,11 +139,11 @@
             <th>Nombre del Cliente</th>
             <th>Fecha de Creación</th>
             <th>Enlace</th>
-            <th>Acciones</th>
           </tr>
         </thead>
         <tfoot>
           <tr>
+            <th>Acciones</th>
             <th>ID</th>
             <th>Título del Reporte</th>
             <th>Tipo de Documento</th>
@@ -148,12 +154,16 @@
             <th>Nombre del Cliente</th>
             <th>Fecha de Creación</th>
             <th>Enlace</th>
-            <th>Acciones</th>
           </tr>
         </tfoot>
         <tbody>
           <?php foreach ($reports as $report) : ?>
             <tr>
+              <!-- Columna de Acciones movida al inicio -->
+              <td>
+                <a href="<?= base_url('/editReport/' . $report['id_reporte']) ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Editar Reporte">Editar</a>
+                <a href="<?= base_url('/deleteReport/' . $report['id_reporte']) ?>" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Eliminar Reporte" onclick="return confirm('¿Está seguro de eliminar este reporte?');">Eliminar</a>
+              </td>
               <td data-bs-toggle="tooltip" title="ID Reporte: <?= $report['id_reporte'] ?>">
                 <?= $report['id_reporte'] ?>
               </td>
@@ -185,10 +195,6 @@
                 <a href="<?= htmlspecialchars($report['enlace']) ?>" target="_blank" data-bs-toggle="tooltip" title="<?= htmlspecialchars($report['enlace']) ?>">
                   <?= htmlspecialchars($report['enlace']) ?>
                 </a>
-              </td>
-              <td>
-                <a href="<?= base_url('/editReport/' . $report['id_reporte']) ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Editar Reporte">Editar</a>
-                <a href="<?= base_url('/deleteReport/' . $report['id_reporte']) ?>" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Eliminar Reporte" onclick="return confirm('¿Está seguro de eliminar este reporte?');">Eliminar</a>
               </td>
             </tr>
           <?php endforeach; ?>
@@ -256,14 +262,14 @@
           "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
         },
         "pageLength": 50,
-        "order": [[8, "desc"]],  // Ordenar por Fecha de Creación (índice 8)
+        "order": [[9, "desc"]],  // Ordenar por Fecha de Creación (índice 9 tras reordenar columnas)
         "columnDefs": [
-          { "targets": 1, "className": "title-col" },
-          { "targets": 2, "className": "tipodoc-col" },
-          { "targets": 3, "className": "tiporeporte-col" },
-          { "targets": 5, "className": "observaciones-col" },
-          { "targets": 9, "width": "15%", "className": "text-truncate enlace-col" },
-          { "targets": -1, "orderable": false, "searchable": false }
+          { "targets": 2, "className": "title-col" },
+          { "targets": 3, "className": "tipodoc-col" },
+          { "targets": 4, "className": "tiporeporte-col" },
+          { "targets": 6, "className": "observaciones-col" },
+          { "targets": 10, "width": "15%", "className": "text-truncate enlace-col" },
+          { "targets": 0, "orderable": false, "searchable": false }
         ],
         "stateSave": true,
         "stateSaveCallback": function (settings, data) {
@@ -279,7 +285,7 @@
             text: '<i class="bi bi-file-earmark-excel"></i> Exportar a Excel',
             className: 'btn btn-success btn-sm',
             exportOptions: {
-              columns: ':not(:last-child)'
+              columns: ':not(:first-child)'  // Excluir la primera columna de acciones
             },
             title: 'Lista de Reportes',
             filename: 'Lista_de_Reportes',
@@ -304,7 +310,8 @@
             var column = this;
             var columnIdx = column.index();
 
-            if (columnIdx === 10) {
+            // Excluir la columna de acciones para filtros
+            if (columnIdx === 0) {
               $(column.footer()).empty();
               return;
             }
