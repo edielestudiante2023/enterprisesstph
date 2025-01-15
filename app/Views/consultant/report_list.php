@@ -3,13 +3,13 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lista de Reportes</title>
   <!-- Enlaces de Bootstrap CSS y DataTables -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
   <!-- Enlace de DataTables Buttons CSS -->
-  <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet"/>
+  <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet" />
   <style>
     /* La tabla ocupa el ancho completo */
     table.dataTable {
@@ -99,7 +99,7 @@
       <!-- Botón derecho -->
       <div style="text-align: center;">
         <h2 style="margin: 0; font-size: 16px;">Añadir Registro</h2>
-        <a href="<?= base_url('/addReport') ?>" class="btn btn-success btn-sm mt-1" >Añadir Registro</a>
+        <a href="<?= base_url('/addReport') ?>" class="btn btn-success btn-sm mt-1">Añadir Registro</a>
       </div>
     </div>
   </nav>
@@ -248,10 +248,10 @@
   <!-- Iconos de Bootstrap para los botones -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
       function initializeTooltips() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
           return new bootstrap.Tooltip(tooltipTriggerEl);
         });
         console.log("Tooltips inicializados: " + tooltipList.length);
@@ -262,35 +262,58 @@
           "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
         },
         "pageLength": 50,
-        "order": [[9, "desc"]],  // Ordenar por Fecha de Creación (índice 9 tras reordenar columnas)
-        "columnDefs": [
-          { "targets": 2, "className": "title-col" },
-          { "targets": 3, "className": "tipodoc-col" },
-          { "targets": 4, "className": "tiporeporte-col" },
-          { "targets": 6, "className": "observaciones-col" },
-          { "targets": 10, "width": "15%", "className": "text-truncate enlace-col" },
-          { "targets": 0, "orderable": false, "searchable": false }
+        "order": [
+          [1, "desc"]
+        ], // Orden inicial por ID descendente
+        "orderFixed": [
+          [1, "desc"]
+        ], // Orden fijo para la columna ID descendente
+        "columnDefs": [{
+            "targets": 2,
+            "className": "title-col"
+          },
+          {
+            "targets": 3,
+            "className": "tipodoc-col"
+          },
+          {
+            "targets": 4,
+            "className": "tiporeporte-col"
+          },
+          {
+            "targets": 6,
+            "className": "observaciones-col"
+          },
+          {
+            "targets": 10,
+            "width": "15%",
+            "className": "text-truncate enlace-col"
+          },
+          {
+            "targets": 0,
+            "orderable": false,
+            "searchable": false
+          }
         ],
         "stateSave": true,
-        "stateSaveCallback": function (settings, data) {
+        "stateSaveCallback": function(settings, data) {
           localStorage.setItem('DataTables_reportTable', JSON.stringify(data));
         },
-        "stateLoadCallback": function (settings) {
+        "stateLoadCallback": function(settings) {
           return JSON.parse(localStorage.getItem('DataTables_reportTable'));
         },
         "dom": 'Bfrtip',
-        "buttons": [
-          {
+        "buttons": [{
             extend: 'excelHtml5',
             text: '<i class="bi bi-file-earmark-excel"></i> Exportar a Excel',
             className: 'btn btn-success btn-sm',
             exportOptions: {
-              columns: ':not(:first-child)'  // Excluir la primera columna de acciones
+              columns: ':not(:first-child)' // Excluir la primera columna de acciones
             },
             title: 'Lista de Reportes',
             filename: 'Lista_de_Reportes',
             titleAttr: 'Exportar a Excel',
-            customize: function (xlsx) {
+            customize: function(xlsx) {
               var sheet = xlsx.xl.worksheets['sheet1.xml'];
               $('row:first c', sheet).attr('s', '2');
             }
@@ -302,11 +325,11 @@
             titleAttr: 'Mostrar u Ocultar Columnas'
           }
         ],
-        "initComplete": function () {
+        "initComplete": function() {
           var api = this.api();
 
           // Configurar filtros en <tfoot>
-          api.columns().every(function () {
+          api.columns().every(function() {
             var column = this;
             var columnIdx = column.index();
 
@@ -318,12 +341,12 @@
 
             var select = $('<select class="form-select form-select-sm"><option value="">Todos</option></select>')
               .appendTo($(column.footer()).empty())
-              .on('change', function () {
+              .on('change', function() {
                 var val = $.fn.dataTable.util.escapeRegex($(this).val());
                 column.search(val ? '^' + val + '$' : '', true, false).draw();
               });
 
-            column.data().unique().sort().each(function (d, j) {
+            column.data().unique().sort().each(function(d, j) {
               if (d === null || d === undefined) {
                 d = '';
               }
@@ -344,21 +367,22 @@
 
       initializeTooltips();
 
-      table.on('draw.dt', function () {
+      table.on('draw.dt', function() {
         initializeTooltips();
       });
 
-      $('#clearState').on('click', function () {
+      $('#clearState').on('click', function() {
         localStorage.removeItem('DataTables_reportTable');
         table.state.clear();
         location.reload();
       });
 
-      $('#exportExcel').on('click', function () {
+      $('#exportExcel').on('click', function() {
         table.button('.buttons-excel').trigger();
       });
     });
   </script>
+
 </body>
 
 </html>
