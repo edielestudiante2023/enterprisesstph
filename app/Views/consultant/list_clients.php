@@ -262,6 +262,10 @@
                 },
                 // Guardar el estado de la tabla (filtros, paginación, etc.)
                 "stateSave": true,
+                // Forzar orden al cargar el estado guardado
+                "stateLoadParams": function(settings, data) {
+                    data.order = [[0, "desc"]];
+                },
                 // Configuración de los botones
                 "dom": 'Bfrtip', // Posicionamiento de los botones
                 "buttons": [
@@ -284,9 +288,9 @@
                 // Configuración para ajustar automáticamente el ancho de las columnas
                 "autoWidth": false,
                 // Orden inicial (opcional)
-                "order": [[0, "asc"]],
+                "order": [[0, "desc"]],
                 // Callback después de cada redibujado de la tabla
-                "pageLength": 40,  // <--- Aquí se define la cantidad de filas por página
+                "pageLength": 40,  // Número de filas por página
                 "initComplete": function () {
                     // Agregar filtros desplegables en el footer
                     this.api().columns().every(function () {
