@@ -90,12 +90,13 @@
                 <select name="id_plandetrabajo" id="id_plandetrabajo" class="form-control" required>
                     <option value="">Seleccione una actividad</option>
                     <?php foreach ($actividades as $actividad) : ?>
-                        <option value="<?= $actividad['id_inventario_actividades_plandetrabajo'] ?>">
-                            <?= $actividad['actividad_plandetrabajo'] ?>
+                        <option value="<?= $actividad->id_inventario_actividades_plandetrabajo ?>">
+                            <?= $actividad->actividad_plandetrabajo ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
             </div>
+
 
             <div class="form-group">
                 <label for="phva_plandetrabajo">PHVA:</label>
