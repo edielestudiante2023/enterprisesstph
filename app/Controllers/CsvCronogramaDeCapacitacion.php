@@ -17,7 +17,7 @@ class CsvCronogramaDeCapacitacion extends Controller
     public function upload()
     {
         $file = $this->request->getFile('file');
-        
+
         if ($file->isValid() && !$file->hasMoved()) {
             // Mover el archivo a una ubicación persistente
             $newName = $file->getRandomName();
@@ -31,10 +31,15 @@ class CsvCronogramaDeCapacitacion extends Controller
             }
 
             // Validar tipo MIME del archivo
-            if (mime_content_type($filePath) !== 'text/plain' && mime_content_type($filePath) !== 'text/csv') {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $filePath);
+            finfo_close($finfo);
+
+            if ($mimeType !== 'text/plain' && $mimeType !== 'text/csv') {
                 return redirect()->to(base_url('consultant/csvcronogramadecapacitacion'))
                     ->with('error', 'El archivo no es un CSV válido.');
             }
+
 
             try {
                 // Leer el archivo CSV utilizando PhpSpreadsheet
@@ -76,7 +81,6 @@ class CsvCronogramaDeCapacitacion extends Controller
 
                 return redirect()->to(base_url('consultant/csvcronogramadecapacitacion'))
                     ->with('success', 'Archivo cargado exitosamente.');
-
             } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
                 return redirect()->to(base_url('consultant/csvcronogramadecapacitacion'))
                     ->with('error', 'Error al procesar el archivo CSV: ' . $e->getMessage());
