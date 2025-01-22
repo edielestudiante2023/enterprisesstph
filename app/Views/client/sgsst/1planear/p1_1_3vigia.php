@@ -29,8 +29,6 @@
             }
         }
 
-
-
         h1,
         h2 {
             text-align: center;
@@ -185,9 +183,7 @@
                 <?php
                 setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); // Configura el idioma español
                 ?>
-
                 Fecha: <?= strftime('%d de %B de %Y', strtotime($latestVersion['created_at'])); ?>
-
             </td>
         </tr>
     </table>
@@ -198,19 +194,20 @@
 
         <br>
         <?php
-setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); // Configura el idioma español
-?>
+        setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); // Configura el idioma español
+        ?>
 
-<p>FECHA: <strong><?= strftime('%d de %B de %Y', strtotime($client['fecha_ingreso'])); ?></strong></p>
+        <p>FECHA: <strong><?= strftime('%d de %B de %Y', strtotime($client['fecha_ingreso'])); ?></strong></p>
 
-        <p>
-        <p>En las instalaciones de <strong><?= $client['nombre_cliente'] ?></strong>, el representante legal <strong><?= $client['nombre_rep_legal'] ?></strong>, con documento de identidad número <strong><?= $client['cedula_rep_legal'] ?></strong>, asigna como vigía en Seguridad y Salud en el Trabajo a <strong><?= $latestVigia['nombre_vigia'] ?></strong> con documento de identidad número <strong><?= $latestVigia['cedula_vigia'] ?></strong> Por un periodo de <strong><?= $latestVigia['periodo_texto'] ?></strong>, dando cumplimiento a la normativa vigente en materia de Seguridad y Salud en el Trabajo, incluyendo el <strong>Decreto 1072 de 2015</strong> y la <strong>Resolución 0312 de 2019</strong>, así como a las exigencias de la división de salud ocupacional del Ministerio de Trabajo. El empleador está obligado a proporcionar al menos cuatro horas semanales dentro de la jornada laboral normal para el funcionamiento de las actividades del vigía.
-
-            <br><br>
-            <?= $clientPolicy['policy_content'] ?>
-        </p>
-
-        </p>
+        <?php if (!$latestVigia): ?>
+            <p><strong>VIGIA NO ASIGNADO AÚN</strong></p>
+        <?php else: ?>
+            <p>
+            En las instalaciones de <strong><?= $client['nombre_cliente'] ?></strong>, el representante legal <strong><?= $client['nombre_rep_legal'] ?></strong>, con documento de identidad número <strong><?= $client['cedula_rep_legal'] ?></strong>, asigna como vigía en Seguridad y Salud en el Trabajo a <strong><?= $latestVigia['nombre_vigia'] ?></strong> con documento de identidad número <strong><?= $latestVigia['cedula_vigia'] ?></strong> Por un periodo de <strong><?= $latestVigia['periodo_texto'] ?></strong>, dando cumplimiento a la normativa vigente en materia de Seguridad y Salud en el Trabajo, incluyendo el <strong>Decreto 1072 de 2015</strong> y la <strong>Resolución 0312 de 2019</strong>, así como a las exigencias de la división de salud ocupacional del Ministerio de Trabajo. El empleador está obligado a proporcionar al menos cuatro horas semanales dentro de la jornada laboral normal para el funcionamiento de las actividades del vigía.
+                <br><br>
+                <?= $clientPolicy['policy_content'] ?>
+            </p>
+        <?php endif; ?>
 
         <h2>Funciones del Vigía</h2>
 
@@ -232,27 +229,22 @@ setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); // Configura el idi
             <li>Actualizar constantemente sus conocimientos y habilidades en materia de seguridad y salud en el trabajo.</li>
         </ol>
 
-
-
         <div class="signature-container">
             <div class="signature">
                 <img src="<?= base_url('uploads/' . $client['firma_representante_legal']) ?>" alt="Firma rep. legal">
                 <div class="name"><b><?= $client['nombre_rep_legal'] ?></b></div>
                 <div class="title">Representante Legal</div>
             </div>
+            <?php if ($latestVigia): ?>
             <div class="signature">
                 <img src="<?= base_url('uploads/' . $latestVigia['firma_vigia']) ?>" alt="Firma Vigía">
                 <div class="name"><b><?= $latestVigia['nombre_vigia'] ?></b></div>
                 <div class="title">Vigía</div>
             </div>
-
+            <?php endif; ?>
         </div>
 
-
     </div>
-
-
-
 
     <footer>
         <h2>Historial de Versiones</h2>
