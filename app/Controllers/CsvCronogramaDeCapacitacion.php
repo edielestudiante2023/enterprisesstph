@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use CodeIgniter\Controller;
-use App\Models\CronogcapacitacionModel; // Tu modelo ya existente
+use App\Models\CronogcapacitacionModel; // Modelo existente
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class CsvCronogramaDeCapacitacion extends Controller
@@ -19,27 +19,10 @@ class CsvCronogramaDeCapacitacion extends Controller
         $file = $this->request->getFile('file');
 
         if ($file->isValid() && !$file->hasMoved()) {
-            // Mover el archivo a una ubicación persistente
+            // Mover el archivo a la carpeta writable/uploads
             $newName = $file->getRandomName();
             $file->move(WRITEPATH . 'uploads', $newName);
             $filePath = WRITEPATH . 'uploads/' . $newName;
-
-            // Validar que el archivo existe
-            if (!file_exists($filePath)) {
-                return redirect()->to(base_url('consultant/csvcronogramadecapacitacion'))
-                    ->with('error', 'El archivo no existe en la ruta esperada.');
-            }
-
-            // Validar tipo MIME del archivo
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mimeType = finfo_file($finfo, $filePath);
-            finfo_close($finfo);
-
-            if ($mimeType !== 'text/plain' && $mimeType !== 'text/csv') {
-                return redirect()->to(base_url('consultant/csvcronogramadecapacitacion'))
-                    ->with('error', 'El archivo no es un CSV válido.');
-            }
-
 
             try {
                 // Leer el archivo CSV utilizando PhpSpreadsheet
@@ -74,16 +57,23 @@ class CsvCronogramaDeCapacitacion extends Controller
                         'perfil_de_asistentes' => $row[3],
                         'nombre_del_capacitador' => $row[4],
                         'horas_de_duracion_de_la_capacitacion' => $row[5],
-                        'indicador_de_realizacion_de_la_capacitacion' => $row[6]
+                        'indicador_de_realizacion_de_la_capacitacion' => $row[6],
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s'),
                     ];
+
+                    // Insertar los datos
                     $model->insert($data);
                 }
 
+                // Eliminar el archivo después de procesarlo
+                unlink($filePath);
+
                 return redirect()->to(base_url('consultant/csvcronogramadecapacitacion'))
                     ->with('success', 'Archivo cargado exitosamente.');
-            } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+            } catch (\Exception $e) {
                 return redirect()->to(base_url('consultant/csvcronogramadecapacitacion'))
-                    ->with('error', 'Error al procesar el archivo CSV: ' . $e->getMessage());
+                    ->with('error', 'Error al procesar el archivo: ' . $e->getMessage());
             }
         }
 
