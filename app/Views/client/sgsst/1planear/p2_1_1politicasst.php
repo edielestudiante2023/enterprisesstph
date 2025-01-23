@@ -83,7 +83,7 @@
             padding: 10px;
             font-weight: bold;
             font-size: 16px;
-            text-align: left;
+            text-align: center;
         }
 
         .right {

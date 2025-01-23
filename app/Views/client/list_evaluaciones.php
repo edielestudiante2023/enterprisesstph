@@ -105,7 +105,7 @@
             <div class="col-md-4">
                 <div class="card shadow-sm border-light">
                     <div class="card-body bg-white">
-                        <h5 class="card-title text-secondary">Total Puntaje Cuantitativo</h5>
+                        <h5 class="card-title text-secondary">Suma de Puntuación Actual</h5>
                         <p class="display-4 font-weight-bold"><?= esc($sum_puntaje_cuantitativo) ?></p>
                     </div>
                 </div>
@@ -113,7 +113,7 @@
             <div class="col-md-4">
                 <div class="card shadow-sm border-light">
                     <div class="card-body bg-white">
-                        <h5 class="card-title text-secondary">Total Valor</h5>
+                        <h5 class="card-title text-secondary">Puntuación Máxima del Sistema</h5>
                         <p class="display-4 font-weight-bold"><?= esc($sum_valor) ?></p>
                     </div>
                 </div>
@@ -121,7 +121,7 @@
             <div class="col-md-4">
                 <div class="card shadow-sm border-light">
                     <div class="card-body bg-white">
-                        <h5 class="card-title text-secondary">Indicador General</h5>
+                        <h5 class="card-title text-secondary">Indicador de Cumplimiento </h5>
                         <p class="display-4 font-weight-bold"><?= number_format($indicador_general * 100, 0) ?>%</p>
                     </div>
 
