@@ -461,3 +461,5 @@ $routes->get('/accesosseguncontractualidad/delete/(:num)', 'Accesosseguncontract
 
 
 
+
+$routes->post('/recalcularConteoDias', 'PendientesController::recalcularConteoDias');

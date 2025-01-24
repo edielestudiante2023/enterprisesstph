@@ -13,6 +13,10 @@
     <link href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <!-- DataTables Buttons CSS -->
     <link href="https://cdn.datatables.net/buttons/2.3.3/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <!-- DataTables Responsive CSS (Mejora de Responsividad) -->
+    <link href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <!-- Font Awesome para iconos (opcional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
             background-color: #f8f9fa;
@@ -56,7 +60,8 @@
         }
 
         /* Estilo para los filtros desplegables en <tfoot> */
-        table.dataTable tfoot select {
+        table.dataTable tfoot select,
+        table.dataTable tfoot input {
             width: 100%;
             height: 30px;
         }
@@ -76,6 +81,31 @@
         /* Centrar el contenido de las columnas de fecha */
         .fecha-col {
             text-align: center;
+        }
+
+        /* Estilo para la columna de control de expansión */
+        td.dt-control {
+            text-align: center;
+            cursor: pointer;
+            width: 15px;
+        }
+
+        /* Iconos para control de expansión */
+        td.dt-control::before {
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            content: "\f067"; /* Icono de más */
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        tr.shown td.dt-control::before {
+            content: "\f068"; /* Icono de menos */
+        }
+
+        /* Asegurar que la primera columna (control) no tenga filtros */
+        tfoot th:first-child {
+            display: none;
         }
     </style>
 </head>
@@ -117,13 +147,14 @@
         </div>
 
         <div class="table-responsive table-container">
-            <table id="pendientesTable" class="table table-bordered table-striped w-100">
+            <table id="pendientesTable" class="table table-bordered table-striped w-100 responsive nowrap">
                 <thead class="table-light">
                     <tr>
+                        <th></th> <!-- Nueva Columna para Control de Expansión -->
                         <th>Cliente</th>
                         <th>Responsable</th>
                         <th>Tarea Actividad</th>
-                        <th>Fecha de Apertura</th> <!-- Nueva Columna -->
+                        <th>Fecha de Asignación</th> <!-- Nueva Columna -->
                         <th>Fecha Cierre</th>
                         <th>Estado</th>
                         <th>Conteo Días</th>
@@ -132,21 +163,33 @@
                     </tr>
                 </thead>
                 <tfoot>
-                    <!-- Filtros desplegables generados dinámicamente -->
+                    <tr>
+                        <th></th> <!-- Filtro para la nueva columna de control (sin filtro) -->
+                        <th>Cliente</th>
+                        <th>Responsable</th>
+                        <th>Tarea Actividad</th>
+                        <th>Fecha de Asignación</th>
+                        <th>Fecha Cierre</th>
+                        <th>Estado</th>
+                        <th>Conteo Días</th>
+                        <th>Estado Avance</th>
+                        <th>Evidencia</th>
+                    </tr>
                 </tfoot>
                 <tbody>
                     <?php if (empty($pendientes)): ?>
                         <tr>
-                            <td colspan="9" class="text-center">No hay pendientes registrados.</td> <!-- Actualizado colspan -->
+                            <td colspan="10" class="text-center">No hay pendientes registrados.</td> <!-- Actualizado colspan -->
                         </tr>
                     <?php else: ?>
                         <?php foreach ($pendientes as $pendiente): ?>
                             <tr>
+                                <td class="dt-control"></td> <!-- Celda para Control de Expansión -->
                                 <td data-bs-toggle="tooltip" title="<?= esc($pendiente['nombre_cliente']); ?>"><?= esc($pendiente['nombre_cliente']); ?></td>
                                 <td data-bs-toggle="tooltip" title="<?= esc($pendiente['responsable']); ?>"><?= esc($pendiente['responsable']); ?></td>
                                 <td data-bs-toggle="tooltip" title="<?= esc($pendiente['tarea_actividad']); ?>"><?= esc($pendiente['tarea_actividad']); ?></td>
-                                <td data-bs-toggle="tooltip" title="<?= esc($pendiente['created_at']); ?>" class="fecha-col">
-                                    <?= date('Y-m-d', strtotime($pendiente['created_at'])); ?>
+                                <td data-bs-toggle="tooltip" title="<?= esc($pendiente['fecha_asignacion']); ?>" class="fecha-col">
+                                    <?= date('Y-m-d', strtotime($pendiente['fecha_asignacion'])); ?>
                                 </td>
                                 <td data-bs-toggle="tooltip" title="<?= esc($pendiente['fecha_cierre']); ?>" class="fecha-col">
                                     <?= esc($pendiente['fecha_cierre']); ?>
@@ -207,9 +250,31 @@
     <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.html5.min.js"></script>
     <!-- Buttons ColVis -->
     <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.colVis.min.js"></script>
+    <!-- DataTables Responsive JS -->
+    <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.0/js/responsive.bootstrap5.min.js"></script>
 
     <script>
         $(document).ready(function () {
+            // Función para formatear la fila hija
+            function format(d) {
+                // 'd' es un arreglo que contiene los datos de la fila
+                return `
+                    <div class="child-content">
+                        <strong>Detalles Adicionales:</strong><br>
+                        <p><strong>Cliente:</strong> ${d[1]}</p>
+                        <p><strong>Responsable:</strong> ${d[2]}</p>
+                        <p><strong>Tarea Actividad:</strong> ${d[3]}</p>
+                        <p><strong>Fecha de Asignación:</strong> ${d[4]}</p>
+                        <p><strong>Fecha Cierre:</strong> ${d[5]}</p>
+                        <p><strong>Estado:</strong> ${d[6]}</p>
+                        <p><strong>Conteo Días:</strong> ${d[7]}</p>
+                        <p><strong>Estado Avance:</strong> ${d[8]}</p>
+                        <p><strong>Evidencia:</strong> ${d[9]}</p>
+                    </div>
+                `;
+            }
+
             // Inicializar los tooltips de Bootstrap
             function initTooltips() {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -218,21 +283,29 @@
                 });
             }
 
-            // Clonar el <thead> para crear los filtros en <tfoot>
-            $('#pendientesTable thead tr').clone(true).appendTo('#pendientesTable tfoot');
-            $('#pendientesTable tfoot tr').each(function () {
-                $(this).find('th').each(function (index) {
+            // Configurar los filtros en <tfoot>
+            $('#pendientesTable tfoot th').each(function (index) {
+                if (index === 0) {
+                    // La primera columna es para el control de expansión, sin filtro
+                    $(this).html('');
+                } else {
                     var title = $(this).text();
-                    if (title === 'Fecha de Apertura' || title === 'Fecha Cierre') {
+                    if (title === 'Fecha de Asignación' || title === 'Fecha Cierre') {
                         // Usar un input de fecha para las columnas de fecha
                         $(this).html('<input type="date" class="form-control form-control-sm" placeholder="Filtrar ' + title + '" />');
                     } else {
                         $(this).html('<select class="form-select form-select-sm"><option value="">' + title + '</option></select>');
                     }
-                });
+                }
             });
 
             var table = $('#pendientesTable').DataTable({
+                responsive: {
+                    details: {
+                        type: 'column',
+                        target: 0 // La primera columna es el control
+                    }
+                }, // Activar responsividad con detalles en la primera columna
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
                 },
@@ -253,6 +326,7 @@
                         }
                     }
                 ],
+                order: [[4, 'desc']], // Ordenar por Fecha de Asignación descendente (índice ajustado)
                 stateSave: true, // Habilitar la persistencia del estado
                 scrollY: '50vh',
                 scrollX: true, // Habilitar el desplazamiento horizontal
@@ -263,6 +337,24 @@
                 ordering: true,
                 info: true,
                 autoWidth: false,
+                columnDefs: [
+                    {
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: '',
+                        targets: 0
+                    },
+                    { visible: false, targets: 1 }, // Ocultar la columna "Cliente"
+                    { width: '15%', targets: 2 }, // Responsable
+                    { width: '15%', targets: 3 }, // Tarea Actividad
+                    { width: '10%', targets: 4, className: 'fecha-col' }, // Fecha de Asignación
+                    { width: '10%', targets: 5, className: 'fecha-col' }, // Fecha Cierre
+                    { width: '10%', targets: 6 }, // Estado
+                    { width: '10%', targets: 7 }, // Conteo Días
+                    { width: '10%', targets: 8 }, // Estado Avance
+                    { width: '10%', targets: 9 }  // Evidencia
+                ],
                 initComplete: function () {
                     var api = this.api();
 
@@ -271,6 +363,11 @@
                         var column = this;
                         var footerCell = $(column.footer());
 
+                        if (column.index() === 0) {
+                            // Primera columna (control), sin filtro
+                            return;
+                        }
+
                         if (footerCell.find('input').length) {
                             // Configurar el filtro para columnas de fecha
                             $('input', column.footer()).on('change', function () {
@@ -278,7 +375,7 @@
 
                                 if (val) {
                                     column
-                                        .search('^' + val + '$', true, false)
+                                        .search(val, true, false)
                                         .draw();
                                 } else {
                                     column
@@ -312,12 +409,13 @@
                     var state = table.state.loaded();
                     if (state) {
                         table.columns().every(function (index) {
+                            if (index === 0) return; // Primera columna, sin filtro
                             var colSearch = state.columns[index].search.search;
                             if (colSearch) {
                                 var footerCell = $('th', table.column(index).footer()).text();
-                                if (footerCell === 'Fecha de Apertura' || footerCell === 'Fecha Cierre') {
+                                if (footerCell === 'Fecha de Asignación' || footerCell === 'Fecha Cierre') {
                                     var input = $('input', table.column(index).footer());
-                                    input.val(colSearch.replace('^', '').replace('$', ''));
+                                    input.val(colSearch);
                                 } else {
                                     var select = $('select', table.column(index).footer());
                                     var val = colSearch.replace('^', '').replace('$', '');
@@ -333,19 +431,7 @@
                 drawCallback: function () {
                     // Re-inicializar los tooltips después de cada redibujado de la tabla
                     initTooltips();
-                },
-                // Definir anchos de columnas
-                columnDefs: [
-                    { width: '15%', targets: 0 }, // Cliente
-                    { width: '10%', targets: 1 }, // Responsable
-                    { width: '15%', targets: 2 }, // Tarea Actividad
-                    { width: '10%', targets: 3, className: 'fecha-col' }, // Fecha de Apertura
-                    { width: '10%', targets: 4, className: 'fecha-col' }, // Fecha Cierre
-                    { width: '10%', targets: 5 }, // Estado
-                    { width: '10%', targets: 6 }, // Conteo Días
-                    { width: '10%', targets: 7 }, // Estado Avance
-                    { width: '10%', targets: 8 }  // Evidencia
-                ]
+                }
             });
 
             // Botón para restablecer filtros
@@ -355,6 +441,26 @@
                 // Recargar la página para aplicar los cambios
                 location.reload();
             });
+
+            // Manejar el evento de clic en la columna de control para expandir/contraer filas
+            $('#pendientesTable tbody').on('click', 'td.dt-control', function () {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                if (row.child.isShown()) {
+                    // Esta fila ya está abierta - cerrar
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    // Abrir esta fila
+                    row.child(format(row.data())).show();
+                    tr.addClass('shown');
+                }
+            });
+
+            // Inicializar los tooltips después de cargar la tabla
+            initTooltips();
         });
     </script>
 </body>
