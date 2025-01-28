@@ -463,3 +463,28 @@ $routes->get('/accesosseguncontractualidad/delete/(:num)', 'Accesosseguncontract
 
 
 $routes->post('/recalcularConteoDias', 'PendientesController::recalcularConteoDias');
+
+$routes->get('mantenimientos', 'MantenimientoController::findAll');
+$routes->get('mantenimientos/add', 'MantenimientoController::addMantenimientoController');
+$routes->post('mantenimientos/addpost', 'MantenimientoController::addPostMantenimientoController');
+$routes->get('mantenimientos/edit/(:num)', 'MantenimientoController::editMantenimientoController/$1');
+$routes->post('mantenimientos/editpost/(:num)', 'MantenimientoController::editPostMantenimientoController/$1');
+$routes->get('mantenimientos/delete/(:num)', 'MantenimientoController::deleteMantenimientoController/$1');
+
+
+
+// app/Config/Routes.php
+
+$routes->get('vencimientos', 'VencimientosMantenimientoController::listVencimientosMantenimiento');
+$routes->get('vencimientos/add', 'VencimientosMantenimientoController::addVencimientosMantenimiento');
+$routes->post('vencimientos/addpost', 'VencimientosMantenimientoController::addpostVencimientosMantenimiento');
+$routes->get('vencimientos/edit/(:num)', 'VencimientosMantenimientoController::editVencimientosMantenimiento/$1');
+$routes->post('vencimientos/editpost/(:num)', 'VencimientosMantenimientoController::editpostVencimientosMantenimiento/$1');
+
+$routes->get('vencimientos/delete/(:num)', 'VencimientosMantenimientoController::deleteVencimientosMantenimiento/$1');
+
+
+$routes->get('cron/send-emails', 'VencimientosMantenimientoController::sendEmailsAutomatically');
+
+$routes->get('vencimientos/testEmailForVencimiento/(:num)', 'VencimientosMantenimientoController::testEmailForVencimiento/$1');
+$routes->get('vencimientos/send-emails', 'VencimientosMantenimientoController::sendEmailsForUpcomingVencimientos');

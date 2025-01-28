@@ -130,4 +130,7 @@ nb-configuration.xml
 app/Config/App.php
 app/Config/Database.php
 
-sendgrid.env
+sendgrid.envsendgrid.env
+
+composer.lock
+composer.json
