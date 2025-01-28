@@ -107,17 +107,26 @@
                                             <a href="<?= base_url('listPendientesCliente/' . $client['id_cliente']) ?>" target="_blank">Pendientes</a>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="grid-item">
                                             <i class="fas fa-chart-line"></i>
                                             <a href="<?= base_url('listEvaluaciones/' . $client['id_cliente']) ?>" target="_blank">Evaluaciones</a>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="grid-item">
                                             <i class="fas fa-folder-open"></i>
                                             <a href="<?= base_url('/viewDocuments') ?>" target="_blank">Gestor Documental</a>
                                         </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="grid-item">
+                                            <i class="fas fa-folder-open"></i>
+                                            <a href="<?= base_url('listVencimientosCliente/' . $client['id_cliente']) ?>" target="_blank">Seguimiento a Mantenimientos</a>
+                                        </div>
+
+
+
                                     </div>
                                 </div>
                             </div>

@@ -488,3 +488,5 @@ $routes->get('cron/send-emails', 'VencimientosMantenimientoController::sendEmail
 
 $routes->get('vencimientos/testEmailForVencimiento/(:num)', 'VencimientosMantenimientoController::testEmailForVencimiento/$1');
 $routes->get('vencimientos/send-emails', 'VencimientosMantenimientoController::sendEmailsForUpcomingVencimientos');
+
+$routes->get('/listVencimientosCliente/(:num)', 'VencimientosClienteController::listVencimientosCliente/$1');

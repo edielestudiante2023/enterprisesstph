@@ -1,117 +1,154 @@
-<!-- app/Views/consultant/vencimientos/editVencimientosMantenimiento.php -->
-
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Editar Vencimiento de Mantenimiento</title>
-    <!-- Agrega tus estilos y scripts aquí (por ejemplo, Bootstrap) -->
-    <style>
-        form {
-            max-width: 600px;
-            margin-top: 20px;
-        }
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            box-sizing: border-box;
-        }
-        .alert {
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-        }
-        .alert-danger {
-            color: #721c24;
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-        }
-        .btn {
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-top: 15px;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-        }
-    </style>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Editar Vencimiento de Mantenimiento</h1>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="h4 mb-0"><i class="bi bi-pencil-square me-2"></i>Editar Vencimiento de Mantenimiento</h1>
+                    </div>
+                    <div class="card-body">
+                        <!-- Mensaje de error -->
+                        <?php if (session()->getFlashdata('msg')): ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <?= session()->getFlashdata('msg') ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <?php endif; ?>
 
-    <!-- Mensajes de error -->
-    <?php if(session()->getFlashdata('msg')): ?>
-        <div class="alert alert-danger">
-            <?= session()->getFlashdata('msg') ?>
+                        <!-- Formulario -->
+                        <form action="<?= base_url('vencimientos/editpost/' . esc($vencimiento['id_vencimientos_mmttos'])) ?>" method="post" class="needs-validation" novalidate>
+                            <?= csrf_field() ?>
+
+                            <div class="mb-3">
+                                <label for="id_cliente" class="form-label">Cliente</label>
+                                <select class="form-select" name="id_cliente" id="id_cliente" required>
+                                    <option value="">Seleccione un cliente</option>
+                                    <?php foreach ($clientes as $cliente): ?>
+                                        <option value="<?= esc($cliente['id_cliente']) ?>" <?= ($vencimiento['id_cliente'] == $cliente['id_cliente']) ? 'selected' : '' ?>>
+                                            <?= esc($cliente['nombre_cliente']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <div class="invalid-feedback">Por favor seleccione un cliente.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_consultor" class="form-label">Consultor</label>
+                                <select class="form-select" name="id_consultor" id="id_consultor" required>
+                                    <option value="">Seleccione un consultor</option>
+                                    <?php foreach ($consultores as $consultor): ?>
+                                        <option value="<?= esc($consultor['id_consultor']) ?>" <?= ($vencimiento['id_consultor'] == $consultor['id_consultor']) ? 'selected' : '' ?>>
+                                            <?= esc($consultor['nombre_consultor']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <div class="invalid-feedback">Por favor seleccione un consultor.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_mantenimiento" class="form-label">Mantenimiento</label>
+                                <select class="form-select" name="id_mantenimiento" id="id_mantenimiento" required>
+                                    <option value="">Seleccione un mantenimiento</option>
+                                    <?php foreach ($mantenimientos as $mantenimiento): ?>
+                                        <option value="<?= esc($mantenimiento['id_mantenimiento']) ?>" <?= ($vencimiento['id_mantenimiento'] == $mantenimiento['id_mantenimiento']) ? 'selected' : '' ?>>
+                                            <?= esc($mantenimiento['detalle_mantenimiento']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <div class="invalid-feedback">Por favor seleccione un mantenimiento.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="fecha_vencimiento" class="form-label">Fecha de Vencimiento</label>
+                                <input type="date" class="form-control" name="fecha_vencimiento" id="fecha_vencimiento" value="<?= esc($vencimiento['fecha_vencimiento']) ?>" required>
+                                <div class="invalid-feedback">Por favor seleccione una fecha de vencimiento.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="estado_actividad" class="form-label">Estado de la Actividad</label>
+                                <select class="form-select" name="estado_actividad" id="estado_actividad" required>
+                                    <option value="sin ejecutar" <?= ($vencimiento['estado_actividad'] == 'sin ejecutar') ? 'selected' : '' ?>>Sin Ejecutar</option>
+                                    <option value="ejecutado" <?= ($vencimiento['estado_actividad'] == 'ejecutado') ? 'selected' : '' ?>>Ejecutado</option>
+                                </select>
+                                <div class="invalid-feedback">Por favor seleccione un estado.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="fecha_realizacion" class="form-label">Fecha de Realización</label>
+                                <input type="date" class="form-control" name="fecha_realizacion" id="fecha_realizacion" value="<?= esc($vencimiento['fecha_realizacion']) ?>">
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="observaciones" class="form-label">Observaciones</label>
+                                <textarea class="form-control" name="observaciones" id="observaciones" rows="3"><?= esc($vencimiento['observaciones']) ?></textarea>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="<?= base_url('vencimientos') ?>" class="btn btn-secondary me-md-2">
+                                    <i class="bi bi-arrow-left me-1"></i>Volver
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save me-1"></i>Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-    <?php endif; ?>
+    </div>
 
-    <!-- Formulario para editar vencimiento -->
-    <form action="<?= base_url('vencimientos/editpost/' . esc($vencimiento['id_vencimientos_mmttos'])) ?>" method="post">
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Form Validation Script -->
+    <script>
+        (() => {
+            'use strict';
 
+            // Fetch all forms that need validation
+            const forms = document.querySelectorAll('.needs-validation');
 
-        <?= csrf_field() ?>
+            // Loop over them and prevent submission
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
 
-        <label for="id_cliente">Cliente:</label>
-        <select name="id_cliente" id="id_cliente" required>
-            <option value="">Seleccione un cliente</option>
-            <?php foreach($clientes as $cliente): ?>
-                <option value="<?= esc($cliente['id_cliente']) ?>" <?= ($vencimiento['id_cliente'] == $cliente['id_cliente']) ? 'selected' : '' ?>><?= esc($cliente['nombre_cliente']) ?></option>
-            <?php endforeach; ?>
-        </select>
+            // Show/hide fecha_realizacion based on estado_actividad
+            const estadoSelect = document.getElementById('estado_actividad');
+            const fechaRealizacionDiv = document.querySelector('[for="fecha_realizacion"]').parentNode;
 
-        <label for="id_consultor">Consultor:</label>
-        <select name="id_consultor" id="id_consultor" required>
-            <option value="">Seleccione un consultor</option>
-            <?php foreach($consultores as $consultor): ?>
-                <option value="<?= esc($consultor['id_consultor']) ?>" <?= ($vencimiento['id_consultor'] == $consultor['id_consultor']) ? 'selected' : '' ?>><?= esc($consultor['nombre_consultor']) ?></option>
-            <?php endforeach; ?>
-        </select>
+            function toggleFechaRealizacion() {
+                if (estadoSelect.value === 'ejecutado') {
+                    fechaRealizacionDiv.style.display = 'block';
+                    document.getElementById('fecha_realizacion').required = true;
+                } else {
+                    fechaRealizacionDiv.style.display = 'none';
+                    document.getElementById('fecha_realizacion').required = false;
+                }
+            }
 
-        <label for="id_mantenimiento">Mantenimiento:</label>
-        <select name="id_mantenimiento" id="id_mantenimiento" required>
-            <option value="">Seleccione un mantenimiento</option>
-            <?php foreach($mantenimientos as $mantenimiento): ?>
-                <option value="<?= esc($mantenimiento['id_mantenimiento']) ?>" <?= ($vencimiento['id_mantenimiento'] == $mantenimiento['id_mantenimiento']) ? 'selected' : '' ?>><?= esc($mantenimiento['detalle_mantenimiento']) ?></option>
-            <?php endforeach; ?>
-        </select>
-
-        <label for="fecha_vencimiento">Fecha de Vencimiento:</label>
-        <input type="date" name="fecha_vencimiento" id="fecha_vencimiento" value="<?= esc($vencimiento['fecha_vencimiento']) ?>" required>
-
-        <label for="estado_actividad">Estado de la Actividad:</label>
-        <select name="estado_actividad" id="estado_actividad" required>
-            <option value="sin ejecutar" <?= ($vencimiento['estado_actividad'] == 'sin ejecutar') ? 'selected' : '' ?>>Sin Ejecutar</option>
-            <option value="ejecutado" <?= ($vencimiento['estado_actividad'] == 'ejecutado') ? 'selected' : '' ?>>Ejecutado</option>
-        </select>
-
-        <label for="fecha_realizacion">Fecha de Realización:</label>
-        <input type="date" name="fecha_realizacion" id="fecha_realizacion" value="<?= esc($vencimiento['fecha_realizacion']) ?>">
-
-        <label for="observaciones">Observaciones:</label>
-        <textarea name="observaciones" id="observaciones"><?= esc($vencimiento['observaciones']) ?></textarea>
-
-        <button type="submit" class="btn btn-primary">Actualizar Vencimiento</button>
-        <a href="<?= base_url('vencimientos') ?>" class="btn btn-secondary">Volver al Listado</a>
-
-    </form>
+            estadoSelect.addEventListener('change', toggleFechaRealizacion);
+            toggleFechaRealizacion(); // Initial state
+        })();
+    </script>
 </body>
 </html>
