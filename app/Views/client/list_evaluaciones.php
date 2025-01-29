@@ -103,28 +103,27 @@
         <!-- Tarjetas de indicadores -->
         <div class="row text-center mb-4">
             <div class="col-md-4">
-                <div class="card shadow-sm border-light">
-                    <div class="card-body bg-white">
+                <div class="card shadow-sm border-light h-100">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center" style="background-color: #FFE5EC;">
                         <h5 class="card-title text-secondary">Suma de Puntuación Actual</h5>
                         <p class="display-4 font-weight-bold"><?= esc($sum_puntaje_cuantitativo) ?></p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card shadow-sm border-light">
-                    <div class="card-body bg-white">
+                <div class="card shadow-sm border-light h-100">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center" style="background-color: #E3FDFD;">
                         <h5 class="card-title text-secondary">Puntuación Máxima del Sistema</h5>
                         <p class="display-4 font-weight-bold"><?= esc($sum_valor) ?></p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card shadow-sm border-light">
-                    <div class="card-body bg-white">
-                        <h5 class="card-title text-secondary">Indicador de Cumplimiento </h5>
+                <div class="card shadow-sm border-light h-100">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center" style="background-color: #E5FBB8;">
+                        <h5 class="card-title text-secondary">Indicador de Cumplimiento Decreto 1072 de 2015</h5>
                         <p class="display-4 font-weight-bold"><?= number_format($indicador_general * 100, 0) ?>%</p>
                     </div>
-
                 </div>
             </div>
         </div>
