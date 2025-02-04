@@ -155,37 +155,11 @@
                 <div class="mb-3">
                     <label for="perfil_de_asistentes" class="form-label">Perfil de Asistentes</label>
                     <select name="perfil_de_asistentes" id="perfil_de_asistentes" class="form-select" required>
-                        <option value="" disabled selected>Selecciona un perfil</option>
-
-                        <!-- Roles Internos -->
-                        <optgroup label="Roles Internos">
-                            <option value="GERENTE_GENERAL">Gerente General</option>
-                            <option value="MIEMBROS_COPASST">Miembros del COPASST</option>
-                            <option value="RESPONSABLE_SST">Responsable de SST</option>
-                            <option value="SUPERVISORES">Supervisores o Jefes de Área</option>
-                            <option value="TRABAJADORES_REPRESENTANTES">Trabajadores Representantes</option>
-                            <option value="MIEMBROS_COMITE_CONVIVENCIA">Miembros del Comité de Convivencia Laboral</option>
-                            <option value="RECURSOS_HUMANOS">Departamento de Recursos Humanos</option>
-                            <option value="PERSONAL_MANTENIMIENTO">Personal de Mantenimiento o Producción</option>
-                            <option value="ENCARGADO_AMBIENTAL">Encargado de Gestión Ambiental</option>
-                            <option value="TRABAJADORES_RIESGOS_CRITICOS">Trabajadores con Riesgos Críticos</option>
-                        </optgroup>
-
-                        <!-- Roles Externos -->
-                        <optgroup label="Roles Externos">
-                            <option value="ASESOR_SST">Asesor o Consultor en SST</option>
-                            <option value="AUDITOR_EXTERNO">Auditores Externos</option>
-                            <option value="CAPACITADOR_EXTERNO">Capacitadores Externos</option>
-                            <option value="CONTRATISTAS">Contratistas y Proveedores</option>
-                            <option value="INSPECTORES_GUBERNAMENTALES">Inspectores Gubernamentales</option>
-                            <option value="FISIOTERAPEUTAS_ERGONOMOS">Fisioterapeutas o Ergónomos</option>
-                            <option value="TECNICOS_ESPECIALIZADOS">Técnicos en Riesgos Especializados</option>
-                            <option value="BRIGADISTAS_EXTERNOS">Brigadistas o Personal de Emergencias Externo</option>
-                            <option value="REPRESENTANTES_ARL">Representantes de Aseguradoras (ARL)</option>
-                            <option value="AUDITORES_ISO">Auditores de Normas ISO</option>
-                        </optgroup>
-
-                        <!-- Opción para Todos -->
+                        <option value="" disabled selected>Selecciona un perfil</option><option value="CONTRATISTAS">CONTRATISTAS</option>
+                        <option value="RESIDENTES">RESIDENTES</option>
+                        <option value="ASAMBLEA">ASAMBLEA</option>
+                        <option value="CONSEJO DE ADMINISTRACIÓN">CONSEJO DE ADMINISTRACIÓN</option>
+                        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
                         <option value="TODOS">TODOS</option>
                     </select>
 
@@ -197,19 +171,19 @@
                 <!-- Nombre del Capacitador -->
                 <div class="mb-3">
                     <label for="nombre_del_capacitador" class="form-label">Nombre del Capacitador</label>
-                    <input type="text" name="nombre_del_capacitador" id="nombre_del_capacitador" class="form-control" >
+                    <input type="text" name="nombre_del_capacitador" id="nombre_del_capacitador" class="form-control">
                 </div>
 
                 <!-- Horas de Duración -->
                 <div class="mb-3">
                     <label for="horas_de_duracion_de_la_capacitacion" class="form-label">Horas de Duración</label>
-                    <input type="number" name="horas_de_duracion_de_la_capacitacion" id="horas_de_duracion_de_la_capacitacion" class="form-control" >
+                    <input type="number" name="horas_de_duracion_de_la_capacitacion" id="horas_de_duracion_de_la_capacitacion" class="form-control">
                 </div>
 
                 <!-- Indicador de Realización -->
                 <div class="mb-3">
                     <label for="indicador_de_realizacion_de_la_capacitacion" class="form-label">Indicador de Realización</label>
-                    <select name="indicador_de_realizacion_de_la_capacitacion" id="indicador_de_realizacion_de_la_capacitacion" class="form-select" >
+                    <select name="indicador_de_realizacion_de_la_capacitacion" id="indicador_de_realizacion_de_la_capacitacion" class="form-select">
                         <option value="" disabled selected>Selecciona un indicador</option>
                         <option value="SE EJECUTO EN LA FECHA O ANTES DE LA FECHA">SE EJECUTÓ EN LA FECHA O ANTES DE LA FECHA</option>
                         <option value="SE EJECUTO DESPUES DE LA FECHA ACORDADA A CAUSA DEL CLIENTE">SE EJECUTÓ DESPUÉS DE LA FECHA ACORDADA A CAUSA DEL CLIENTE</option>
@@ -222,13 +196,13 @@
                 <!-- Número de Asistentes -->
                 <div class="mb-3">
                     <label for="numero_de_asistentes_a_capacitacion" class="form-label">Número de Asistentes</label>
-                    <input type="number" name="numero_de_asistentes_a_capacitacion" id="numero_de_asistentes_a_capacitacion" class="form-control" >
+                    <input type="number" name="numero_de_asistentes_a_capacitacion" id="numero_de_asistentes_a_capacitacion" class="form-control">
                 </div>
 
                 <!-- Número Total de Programados -->
                 <div class="mb-3">
                     <label for="numero_total_de_personas_programadas" class="form-label">Número Total de Programados</label>
-                    <input type="number" name="numero_total_de_personas_programadas" id="numero_total_de_personas_programadas" class="form-control" >
+                    <input type="number" name="numero_total_de_personas_programadas" id="numero_total_de_personas_programadas" class="form-control">
                 </div>
 
                 <!-- Porcentaje de Cobertura -->
@@ -240,13 +214,13 @@
                 <!-- Número de Evaluados -->
                 <div class="mb-3">
                     <label for="numero_de_personas_evaluadas" class="form-label">Número de Evaluados</label>
-                    <input type="number" name="numero_de_personas_evaluadas" id="numero_de_personas_evaluadas" class="form-control" >
+                    <input type="number" name="numero_de_personas_evaluadas" id="numero_de_personas_evaluadas" class="form-control">
                 </div>
 
                 <!-- Promedio de Calificaciones -->
                 <div class="mb-3">
                     <label for="promedio_de_calificaciones" class="form-label">Promedio de Calificaciones</label>
-                    <input type="number" step="0.01" name="promedio_de_calificaciones" id="promedio_de_calificaciones" class="form-control" >
+                    <input type="number" step="0.01" name="promedio_de_calificaciones" id="promedio_de_calificaciones" class="form-control">
                 </div>
 
                 <!-- Observaciones -->
