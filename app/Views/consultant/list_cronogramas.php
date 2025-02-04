@@ -127,7 +127,7 @@
                     <tr>
                         <th>#</th>
                         <th>Nombre de la Capacitación</th>
-                        <th>Objetivo de la Capacitación</th>
+                        <th>Enfoque de Fases</th>
                         <th>Nombre del Cliente</th>
                         <th>*Fecha Programada</th>
                         <th>*Fecha de Realización</th>
