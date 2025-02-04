@@ -62,15 +62,28 @@
 
                     <!-- Objetivo de la capacitación -->
                     <div class="mb-3">
-                        <label for="objetivo_capacitacion" class="form-label">Objetivo de la Capacitación:</label>
-                        <textarea name="objetivo_capacitacion" id="objetivo_capacitacion" rows="4" class="form-control" required><?= esc($capacitacion['objetivo_capacitacion']) ?></textarea>
+                        <label for="objetivo_capacitacion" class="form-label">Enfoque de Fases:</label>
+                        <select name="objetivo_capacitacion" id="objetivo_capacitacion" class="form-control" required>
+                            <option value="" disabled>Seleccione una opción</option>
+                            <option value="Estructuración" <?= ($capacitacion['objetivo_capacitacion'] == 'Estructuración') ? 'selected' : '' ?>>Estructuración</option>
+                            <option value="Implementación" <?= ($capacitacion['objetivo_capacitacion'] == 'Implementación') ? 'selected' : '' ?>>Implementación</option>
+                            <option value="Seguimiento y mejora continua" <?= ($capacitacion['objetivo_capacitacion'] == 'Seguimiento y mejora continua') ? 'selected' : '' ?>>Seguimiento y mejora continua</option>
+                        </select>
                     </div>
+
 
                     <!-- Observaciones -->
                     <div class="mb-3">
-                        <label for="observaciones" class="form-label">Observaciones:</label>
-                        <textarea name="observaciones" id="observaciones" rows="3" class="form-control"><?= esc($capacitacion['observaciones']) ?></textarea>
+                        <label for="observaciones" class="form-label">Tipo de Cliente:</label>
+                        <select class="form-control" name="observaciones" id="observaciones" required>
+                            <option value="" disabled selected>Seleccione una opción</option>
+                            <option value="Mensual">Mensual</option>
+                            <option value="Bimensual">Bimensual</option>
+                            <option value="Trimestral">Trimestral</option>
+                            <option value="Proyectos">Proyectos</option>
+                        </select>
                     </div>
+
 
                     <!-- Botones de acción -->
                     <div class="d-flex justify-content-end">

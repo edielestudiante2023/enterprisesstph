@@ -96,15 +96,28 @@
 
                 <!-- Campo para el objetivo de la capacitación -->
                 <div class="mb-3">
-                    <label for="objetivo_capacitacion" class="form-label">Objetivo de la Capacitación:</label>
-                    <textarea class="form-control" name="objetivo_capacitacion" id="objetivo_capacitacion" required></textarea>
+                    <label for="objetivo_capacitacion" class="form-label">Enfoque de Fases:</label>
+                    <select class="form-control" name="objetivo_capacitacion" id="objetivo_capacitacion" required>
+                        <option value="" disabled selected>Seleccione una opción</option>
+                        <option value="Estructuración">Estructuración</option>
+                        <option value="Implementación">Implementación</option>
+                        <option value="Seguimiento y mejora continua">Seguimiento y mejora continua</option>
+                    </select>
                 </div>
+
 
                 <!-- Campo para observaciones -->
                 <div class="mb-3">
-                    <label for="observaciones" class="form-label">Observaciones:</label>
-                    <textarea class="form-control" name="observaciones" id="observaciones"></textarea>
+                    <label for="observaciones" class="form-label">Tipo de Cliente:</label>
+                    <select class="form-control" name="observaciones" id="observaciones" required>
+                        <option value="" disabled selected>Seleccione una opción</option>
+                        <option value="Mensual">Mensual</option>
+                        <option value="Bimensual">Bimensual</option>
+                        <option value="Trimestral">Trimestral</option>
+                        <option value="Proyectos">Proyectos</option>
+                    </select>
                 </div>
+
 
                 <!-- Botón para enviar el formulario -->
                 <button type="submit" class="btn btn-primary w-100">Agregar Capacitación</button>
