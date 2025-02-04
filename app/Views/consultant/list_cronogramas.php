@@ -75,10 +75,33 @@
 
 <body>
 
-    <!-- Navbar y demás contenido se mantienen igual -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
         <div class="container-fluid">
-            <!-- ... contenido del navbar ... -->
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <!-- Logos -->
+                <div class="d-flex">
+                    <a href="https://dashboard.cycloidtalent.com/login" class="me-3">
+                        <img src="<?= base_url('uploads/logoenterprisesstblancoslogan.png') ?>" alt="Enterprisesst Logo" style="height: 50px;">
+                    </a>
+                    <a href="https://cycloidtalent.com/index.php/consultoria-sst" class="me-3">
+                        <img src="<?= base_url('uploads/logosst.png') ?>" alt="SST Logo" style="height: 50px;">
+                    </a>
+                    <a href="https://cycloidtalent.com/">
+                        <img src="<?= base_url('uploads/logocycloidsinfondo.png') ?>" alt="Cycloids Logo" style="height: 50px;">
+                    </a>
+                </div>
+            </div>
+            <!-- Botones -->
+            <div class="d-flex justify-content-between align-items-center w-100 mt-3">
+                <div class="text-center me-3">
+                    <h5 class="mb-1">Ir a Dashboard</h5>
+                    <a href="<?= base_url('/dashboardconsultant') ?>" class="btn btn-primary btn-sm">Ir a DashBoard</a>
+                </div>
+                <div class="text-center">
+                    <h5 class="mb-1">Añadir Registro</h5>
+                    <a href="<?= base_url('/addcronogCapacitacion') ?>" class="btn btn-success btn-sm" target="_blank">Añadir Registro</a>
+                </div>
+            </div>
         </div>
     </nav>
 
