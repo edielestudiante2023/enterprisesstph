@@ -107,7 +107,7 @@
     <div style="height: 160px;"></div>
 
     <!-- Contenedor Principal -->
-    <div class="container my-4">
+    <div class="container-fluid my-4">
         <h2 class="text-center mb-4">Lista de Cronogramas de Capacitación</h2>
 
         <!-- Mensajes Flash -->
