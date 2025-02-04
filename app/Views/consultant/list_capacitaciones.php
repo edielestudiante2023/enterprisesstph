@@ -4,11 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <!-- DataTables Buttons CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables Buttons JS y dependencias -->
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+
     <title>Listado de Capacitaciones</title>
     <style>
         body {
@@ -73,11 +84,11 @@
         </div>
     </nav>
 
-    <!-- Ajustar el espaciado para evitar que el contenido se oculte bajo el navbar fijo -->
+    <!-- Espaciado para evitar que el contenido se oculte bajo el navbar fijo -->
     <div style="height: 160px;"></div>
 
     <div class="container mt-5">
-        <h2 class="mb-4">Listado de Capacitaciónes</h2>
+        <h2 class="mb-4">Listado de Capacitaciones</h2>
 
         <?php if (session()->getFlashdata('msg')): ?>
             <div class="alert alert-info" role="alert">
@@ -88,12 +99,38 @@
         <div class="table-responsive">
             <table id="capacitacionesTable" class="table table-striped table-bordered">
                 <thead class="table-light">
+                    <!-- Fila de títulos -->
                     <tr>
                         <th>ID</th>
                         <th>Capacitación</th>
-                        <th>Objetivo de la Capacitación</th>
-                        <th>Observaciones</th>
+                        <th>Enfoque de Fases</th>
+                        <th>Tipo de Cliente</th>
                         <th>Acciones</th>
+                    </tr>
+                    <!-- Fila de filtros en la cabecera -->
+                    <tr>
+                        <!-- Sin filtro para ID -->
+                        <th></th>
+                        <!-- Filtro para "Capacitación": select dinámico -->
+                        <th>
+                            <select id="filterCapacitacion" class="form-select form-select-sm">
+                                <option value="">Todos</option>
+                            </select>
+                        </th>
+                        <!-- Filtro para "Objetivo de la Capacitación": select dinámico -->
+                        <th>
+                            <select id="filterObjetivos" class="form-select form-select-sm">
+                                <option value="">Todos</option>
+                            </select>
+                        </th>
+                        <!-- Filtro para "Observaciones": select dinámico -->
+                        <th>
+                            <select id="filterObservaciones" class="form-select form-select-sm">
+                                <option value="">Todos</option>
+                            </select>
+                        </th>
+                        <!-- Sin filtro para "Acciones" -->
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -118,31 +155,21 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- <div class="mt-4">
-            <a href="<?= base_url('addCapacitacion') ?>" class="btn btn-primary">Agregar Nueva Capacitación</a>
-        </div>
-
-        <div class="mt-5">
-            <h2>Ir a Dashboard</h2>
-            <a href="<?= base_url('/dashboardconsultant') ?>" class="btn btn-secondary">Ir a DashBoard</a>
-        </div>
-    </div> -->
-
+    </div>
 
     <footer style="background-color: white; padding: 20px 0; border-top: 1px solid #B0BEC5; margin-top: 40px; color: #3A3F51; font-size: 14px; text-align: center;">
         <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
-            <!-- Company and Rights -->
+            <!-- Empresa y Derechos -->
             <p style="margin: 0; font-weight: bold;">Cycloid Talent SAS</p>
             <p style="margin: 5px 0;">Todos los derechos reservados © 2024</p>
             <p style="margin: 5px 0;">NIT: 901.653.912</p>
 
-            <!-- Website Link -->
+            <!-- Enlace al sitio web -->
             <p style="margin: 5px 0;">
                 Sitio oficial: <a href="https://cycloidtalent.com/" target="_blank" style="color: #007BFF; text-decoration: none;">https://cycloidtalent.com/</a>
             </p>
 
-            <!-- Social Media Links -->
+            <!-- Enlaces a Redes Sociales -->
             <p style="margin: 15px 0 5px;"><strong>Nuestras Redes Sociales:</strong></p>
             <div style="display: flex; gap: 15px; justify-content: center;">
                 <a href="https://www.facebook.com/CycloidTalent" target="_blank" style="color: #3A3F51; text-decoration: none;">
@@ -161,17 +188,75 @@
         </div>
     </footer>
 
+    <!-- Inicialización de DataTables con botones y filtros -->
+    <!-- ... resto del código HTML ... -->
 
     <script>
         $(document).ready(function() {
-            $('#capacitacionesTable').DataTable({
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+            var table = $('#capacitacionesTable').DataTable({
+                dom: 'Bfrtip', // Contenedor para los botones
+                buttons: [{
+                    extend: 'excelHtml5',
+                    title: 'Listado de Capacitaciones',
+                    exportOptions: {
+                        // Exporta las columnas 0 a 3 (se omite la columna "Acciones")
+                        columns: [0, 1, 2, 3],
+                        // Personaliza la forma en que se exportan los encabezados
+                        format: {
+                            header: function(data, columnIdx) {
+                                // Se retorna el texto del <th> de la primera fila (fila de títulos)
+                                return $('#capacitacionesTable thead tr:first-child th').eq(columnIdx).text();
+                            }
+                        }
+                    }
+                }],
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+                },
+                initComplete: function() {
+                    var api = this.api();
+
+                    // Filtro para la columna "Capacitación" (índice 1)
+                    var columnCap = api.column(1);
+                    var selectCap = $('#filterCapacitacion');
+                    columnCap.data().unique().sort().each(function(d) {
+                        selectCap.append('<option value="' + d + '">' + d + '</option>');
+                    });
+                    selectCap.on('change', function() {
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        columnCap.search(val ? '^' + val + '$' : '', true, false).draw();
+                    });
+
+                    // Filtro para la columna "Objetivo de la Capacitación" (índice 2)
+                    var columnObj = api.column(2);
+                    var selectObj = $('#filterObjetivos');
+                    columnObj.data().unique().sort().each(function(d) {
+                        selectObj.append('<option value="' + d + '">' + d + '</option>');
+                    });
+                    selectObj.on('change', function() {
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        columnObj.search(val ? '^' + val + '$' : '', true, false).draw();
+                    });
+
+                    // Filtro para la columna "Observaciones" (índice 3)
+                    var columnObs = api.column(3);
+                    var selectObs = $('#filterObservaciones');
+                    columnObs.data().unique().sort().each(function(d) {
+                        selectObs.append('<option value="' + d + '">' + d + '</option>');
+                    });
+                    selectObs.on('change', function() {
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        columnObs.search(val ? '^' + val + '$' : '', true, false).draw();
+                    });
                 }
             });
         });
     </script>
 
+    <!-- ... resto del código HTML ... -->
+
+
+    <!-- Bootstrap JS y Popper -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 </body>
