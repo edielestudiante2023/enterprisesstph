@@ -11,6 +11,9 @@
     <link href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <!-- DataTables Buttons CSS -->
     <link href="https://cdn.datatables.net/buttons/2.3.3/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <!-- Select2 CSS para el select buscable -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <style>
         body {
             background-color: #f9f9f9;
@@ -58,11 +61,7 @@
             white-space: normal;
         }
 
-        table tfoot {
-            display: table-header-group;
-        }
-
-        /* Ajustes adicionales para mejorar la apariencia de los filtros */
+        /* Los filtros se mantienen en el tfoot (sin moverlos al thead) */
         tfoot select,
         tfoot input {
             width: 100%;
@@ -83,13 +82,12 @@
             width: 24px;
         }
 
-        /* Estilo para celdas editables de texto */
+        /* Estilos para celdas editables */
         .editable {
             background-color: #fff3cd;
             cursor: pointer;
         }
 
-        /* Estilo para celdas editables con selector de fecha */
         .editable-date {
             background-color: #d1ecf1;
             cursor: pointer;
@@ -100,7 +98,7 @@
             cursor: pointer;
         }
 
-        /* Icono para expandir/contraer detalle */
+        /* Estilo para la fila expandible */
         td.details-control {
             background: url('https://www.datatables.net/examples/resources/details_open.png') no-repeat center center;
             cursor: pointer;
@@ -128,7 +126,6 @@
                     <img src="<?= base_url('uploads/logocycloidsinfondo.png') ?>" alt="Cycloids Logo" height="60">
                 </a>
             </div>
-
             <!-- Botones Dashboard y Añadir Registro -->
             <div class="ms-auto d-flex">
                 <div class="text-center me-3">
@@ -149,6 +146,20 @@
     <div class="container-fluid mt-5">
         <h2 class="text-center mb-4">Lista de Actividades del Plan de Trabajo Anual</h2>
 
+        <!-- Bloque para el filtro previo de cliente con búsqueda (Select2) -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="clienteSelect">Seleccionar Cliente:</label>
+                <select id="clienteSelect" class="form-select">
+                    <option value="">Seleccione un cliente</option>
+                    <!-- Las opciones se cargarán dinámicamente vía AJAX -->
+                </select>
+            </div>
+            <div class="col-md-2 align-self-end">
+                <button id="loadData" class="btn btn-primary">Cargar Datos</button>
+            </div>
+        </div>
+
         <button id="clearState" class="btn btn-danger btn-sm mb-3">Restablecer Filtros</button>
         <div id="notification" class="alert alert-success" style="display: none;" role="alert"></div>
 
@@ -156,7 +167,6 @@
             <table id="actividadesTable" class="table table-striped table-bordered" style="width:100%">
                 <thead class="table-light">
                     <tr>
-                        <!-- Columna para expandir detalles -->
                         <th></th>
                         <th>ID</th>
                         <th>Acciones</th>
@@ -180,7 +190,7 @@
                         <th></th>
                         <th></th>
                         <th></th>
-                        <!-- Filtro de búsqueda para Cliente -->
+                        <!-- Filtro para Cliente -->
                         <th><input type="text" class="form-control form-control-sm filter-text" placeholder="Buscar Cliente"></th>
                         <th>
                             <select class="form-select form-select-sm filter-select" aria-label="Filtro PHVA">
@@ -192,7 +202,6 @@
                                 <option value="">Todos</option>
                             </select>
                         </th>
-                        <!-- Filtro de búsqueda para Actividad -->
                         <th><input type="text" class="form-control form-control-sm filter-text" placeholder="Buscar Actividad"></th>
                         <th>
                             <select class="form-select form-select-sm filter-select" aria-label="Filtro Responsable Sugerido">
@@ -224,7 +233,6 @@
                                 <option value="">Todos</option>
                             </select>
                         </th>
-                        <!-- Filtro de búsqueda para Observaciones -->
                         <th><input type="text" class="form-control form-control-sm filter-text" placeholder="Buscar Observaciones"></th>
                         <th>
                             <select class="form-select form-select-sm filter-select" aria-label="Filtro Creado en">
@@ -239,50 +247,7 @@
                     </tr>
                 </tfoot>
                 <tbody>
-                    <?php if (!empty($actividades)) : ?>
-                        <?php foreach ($actividades as $actividad) : ?>
-                            <tr data-id="<?= esc($actividad['id_ptacliente']) ?>">
-                                <!-- Celda para activar el detalle expandible -->
-                                <td class="details-control"></td>
-                                <td><?= esc($actividad['id_ptacliente']) ?></td>
-                                <!-- Columna de acciones movida antes de Cliente -->
-                                <td>
-                                    <a href="<?= base_url('editPlanDeTrabajoAnual/' . $actividad['id_ptacliente']) ?>" class="btn btn-warning btn-sm">Editar</a>
-                                    <a href="<?= base_url('deletePlanDeTrabajoAnual/' . $actividad['id_ptacliente']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar esta actividad?')">Eliminar</a>
-                                </td>
-                                <td data-bs-toggle="tooltip" title="<?= esc($actividad['nombre_cliente']) ?>"><?= esc($actividad['nombre_cliente']) ?></td>
-                                <td data-bs-toggle="tooltip" title="<?= esc($actividad['phva_plandetrabajo']) ?>"><?= esc($actividad['phva_plandetrabajo']) ?></td>
-                                <td><?= esc($actividad['numeral_plandetrabajo']) ?></td>
-                                <td data-bs-toggle="tooltip" title="<?= esc($actividad['actividad_plandetrabajo']) ?>"><?= esc($actividad['actividad_plandetrabajo']) ?></td>
-                                <td contenteditable="true" class="editable" data-field="responsable_sugerido_plandetrabajo" data-bs-toggle="tooltip" title="<?= esc($actividad['responsable_sugerido_plandetrabajo']) ?>">
-                                    <?= esc($actividad['responsable_sugerido_plandetrabajo']) ?>
-                                </td>
-                                <!-- Celda editable para Fecha Propuesta con calendario -->
-                                <td contenteditable="false" class="editable-date" data-field="fecha_propuesta" data-bs-toggle="tooltip" title="<?= esc($actividad['fecha_propuesta']) ?>">
-                                    <?= esc($actividad['fecha_propuesta']) ?>
-                                </td>
-                                <td contenteditable="false" class="editable-date" data-field="fecha_cierre" data-bs-toggle="tooltip" title="<?= esc($actividad['fecha_cierre']) ?>">
-                                    <?= esc($actividad['fecha_cierre']) ?>
-                                </td>
-                                <td contenteditable="false" class="editable-select" data-field="estado_actividad" data-bs-toggle="tooltip" title="<?= esc($actividad['estado_actividad']) ?>">
-                                    <?= esc($actividad['estado_actividad']) ?>
-                                </td>
-                                <td contenteditable="false" class="editable-select" data-field="porcentaje_avance" data-bs-toggle="tooltip" title="<?= esc($actividad['porcentaje_avance']) ?>%">
-                                    <?= esc($actividad['porcentaje_avance']) ?>%
-                                </td>
-                                <td><?= esc($actividad['semana']) ?></td>
-                                <td contenteditable="true" class="editable" data-field="observaciones" data-bs-toggle="tooltip" title="<?= esc($actividad['observaciones']) ?>">
-                                    <?= esc($actividad['observaciones']) ?>
-                                </td>
-                                <td data-bs-toggle="tooltip" title="<?= esc($actividad['created_at']) ?>"><?= esc($actividad['created_at']) ?></td>
-                                <td data-bs-toggle="tooltip" title="<?= esc($actividad['updated_at']) ?>"><?= esc($actividad['updated_at']) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else : ?>
-                        <tr>
-                            <td colspan="16" class="text-center">No se encontraron actividades.</td>
-                        </tr>
-                    <?php endif; ?>
+                    <!-- Los datos se cargarán vía AJAX -->
                 </tbody>
             </table>
         </div>
@@ -313,8 +278,7 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <!-- jQuery, Bootstrap, DataTables y extensiones -->
+    <!-- Scripts: jQuery, Bootstrap, DataTables y sus extensiones -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
@@ -324,28 +288,183 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.colVis.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        // Función para formatear la fila expandible de forma legible
+        // Función para formatear la fila expandible (detalles)
         function format(rowData) {
-            // Definimos los encabezados de las columnas (omitiendo la primera columna vacía de detalles)
-            var headers = ["ID", "Acciones", "Cliente", "PHVA", "Numeral", "Actividad", "*Responsable", "*Fecha Propuesta", "*Fecha Cierre", "*Estado Actividad", "*Porcentaje Avance", "Semana", "*Observaciones", "Creado en", "Actualizado en"];
             var html = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
-            // Comenzamos en el índice 1 para omitir la columna de control
-            for (var i = 1; i < rowData.length; i++) {
-                html += '<tr>' +
-                    '<td style="white-space: nowrap;"><strong>' + headers[i - 1] + ':</strong></td>' +
-                    '<td>' + rowData[i] + '</td>' +
-                    '</tr>';
-            }
+            html += '<tr><td><strong>ID:</strong></td><td>' + rowData.id_ptacliente + '</td></tr>';
+            html += '<tr><td><strong>Cliente:</strong></td><td>' + (rowData.cliente || '') + '</td></tr>';
+            html += '<tr><td><strong>PHVA:</strong></td><td>' + rowData.phva_plandetrabajo + '</td></tr>';
+            html += '<tr><td><strong>Numeral:</strong></td><td>' + rowData.numeral_plandetrabajo + '</td></tr>';
+            html += '<tr><td><strong>Actividad:</strong></td><td>' + rowData.actividad_plandetrabajo + '</td></tr>';
+            html += '<tr><td><strong>Responsable:</strong></td><td>' + rowData.responsable_sugerido_plandetrabajo + '</td></tr>';
+            html += '<tr><td><strong>Fecha Propuesta:</strong></td><td>' + rowData.fecha_propuesta + '</td></tr>';
+            html += '<tr><td><strong>Fecha Cierre:</strong></td><td>' + rowData.fecha_cierre + '</td></tr>';
+            html += '<tr><td><strong>Estado Actividad:</strong></td><td>' + rowData.estado_actividad + '</td></tr>';
+            html += '<tr><td><strong>Porcentaje Avance:</strong></td><td>' + rowData.porcentaje_avance + '%</td></tr>';
+            html += '<tr><td><strong>Semana:</strong></td><td>' + rowData.semana + '</td></tr>';
+            html += '<tr><td><strong>Observaciones:</strong></td><td>' + rowData.observaciones + '</td></tr>';
+            html += '<tr><td><strong>Creado en:</strong></td><td>' + rowData.created_at + '</td></tr>';
+            html += '<tr><td><strong>Actualizado en:</strong></td><td>' + rowData.updated_at + '</td></tr>';
             html += '</table>';
             return html;
         }
 
         $(document).ready(function() {
-            // Inicializar DataTables con Buttons
+            // Inicializar el select de Cliente con Select2 para búsqueda
+            $('#clienteSelect').select2({
+                placeholder: 'Seleccione un cliente',
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Cargar la lista de clientes en el select mediante AJAX
+            $.ajax({
+                url: "<?= base_url('/api/getClientes') ?>",
+                method: "GET",
+                success: function(data) {
+                    data.forEach(function(cliente) {
+                        $("#clienteSelect").append('<option value="' + cliente.id + '">' + cliente.nombre + '</option>');
+                    });
+                    // Si ya existe un valor seleccionado guardado en localStorage, selecciónalo
+                    var storedClient = localStorage.getItem('selectedClient');
+                    if (storedClient) {
+                        $("#clienteSelect").val(storedClient).trigger('change');
+                    }
+                },
+                error: function() {
+                    alert('Error al cargar la lista de clientes.');
+                }
+            });
+
+            // Recuperar el cliente seleccionado de localStorage y definir la URL del AJAX
+            var storedClient = localStorage.getItem('selectedClient');
+            var tableAjaxUrl = "<?= base_url('/api/getActividades') ?>";
+            if (storedClient) {
+                tableAjaxUrl += "?cliente=" + storedClient;
+            }
+
+            // Inicializar DataTable
             var table = $('#actividadesTable').DataTable({
                 stateSave: true,
+                stateSaveCallback: function(settings, data) {
+                    localStorage.setItem('DataTables_actividadesTable', JSON.stringify(data));
+                },
+                stateLoadCallback: function(settings) {
+                    return JSON.parse(localStorage.getItem('DataTables_actividadesTable'));
+                },
+                order: [
+                    [8, 'asc']
+                ], // Ordena por la columna Fecha Propuesta (índice 8)
+                ajax: {
+                    url: tableAjaxUrl,
+                    dataSrc: 'data'
+                },
+                columns: [
+                    // Fila expandible
+                    {
+                        data: null,
+                        orderable: false,
+                        className: 'details-control',
+                        defaultContent: ''
+                    },
+                    // ID
+                    {
+                        data: "id_ptacliente"
+                    },
+                    // Acciones: botones Editar y Eliminar
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return '<a href="<?= base_url("editPlanDeTrabajoAnual") ?>/' + row.id_ptacliente +
+                                '" class="btn btn-warning btn-sm">Editar</a> ' +
+                                '<a href="<?= base_url("deletePlanDeTrabajoAnual") ?>/' + row.id_ptacliente +
+                                '" class="btn btn-danger btn-sm" onclick="return confirm(\'¿Estás seguro de eliminar esta actividad?\')">Eliminar</a>';
+                        }
+                    },
+                    // Columna Cliente
+                    {
+                        data: "nombre_cliente",
+                        render: function(data, type, row) {
+                            return '<span data-bs-toggle="tooltip" title="' + (data || '') + '">' + (data || '') + '</span>';
+                        }
+                    },
+                    // PHVA
+                    {
+                        data: "phva_plandetrabajo"
+                    },
+                    // Numeral
+                    {
+                        data: "numeral_plandetrabajo"
+                    },
+                    // Actividad
+                    {
+                        data: "actividad_plandetrabajo",
+                        render: function(data, type, row) {
+                            return '<span data-bs-toggle="tooltip" title="' + data + '">' + data + '</span>';
+                        }
+                    },
+                    // Responsable (editable inline)
+                    {
+                        data: "responsable_sugerido_plandetrabajo",
+                        render: function(data, type, row) {
+                            return '<span contenteditable="true" class="editable" data-field="responsable_sugerido_plandetrabajo" data-id="' + row.id_ptacliente + '" data-bs-toggle="tooltip" title="' + data + '">' + data + '</span>';
+                        }
+                    },
+                    // Fecha Propuesta (editable con selector de fecha)
+                    {
+                        data: "fecha_propuesta",
+                        render: function(data, type, row) {
+                            return '<span contenteditable="false" class="editable-date" data-field="fecha_propuesta" data-id="' + row.id_ptacliente + '" data-bs-toggle="tooltip" title="' + data + '">' + data + '</span>';
+                        }
+                    },
+                    // Fecha Cierre (editable con selector de fecha)
+                    {
+                        data: "fecha_cierre",
+                        render: function(data, type, row) {
+                            return '<span contenteditable="false" class="editable-date" data-field="fecha_cierre" data-id="' + row.id_ptacliente + '" data-bs-toggle="tooltip" title="' + data + '">' + data + '</span>';
+                        }
+                    },
+                    // Estado Actividad (editable select)
+                    {
+                        data: "estado_actividad",
+                        render: function(data, type, row) {
+                            return '<span contenteditable="false" class="editable-select" data-field="estado_actividad" data-id="' + row.id_ptacliente + '" data-bs-toggle="tooltip" title="' + data + '">' + data + '</span>';
+                        }
+                    },
+                    // Porcentaje Avance (editable select)
+                    {
+                        data: "porcentaje_avance",
+                        render: function(data, type, row) {
+                            return '<span contenteditable="false" class="editable-select" data-field="porcentaje_avance" data-id="' + row.id_ptacliente + '" data-bs-toggle="tooltip" title="' + data + '">' + data + '%</span>';
+                        }
+                    },
+                    // Semana
+                    {
+                        data: "semana"
+                    },
+                    // Observaciones (editable inline)
+                    {
+                        data: "observaciones",
+                        render: function(data, type, row) {
+                            return '<span contenteditable="true" class="editable" data-field="observaciones" data-id="' + row.id_ptacliente + '" data-bs-toggle="tooltip" title="' + data + '">' + data + '</span>';
+                        }
+                    },
+                    // Creado en (oculto)
+                    {
+                        data: "created_at",
+                        visible: false
+                    },
+                    // Actualizado en (oculto)
+                    {
+                        data: "updated_at",
+                        visible: false
+                    }
+                ],
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
                 },
@@ -356,7 +475,19 @@
                 buttons: [{
                         extend: 'excelHtml5',
                         text: 'Exportar a Excel',
-                        className: 'btn btn-success btn-sm me-2'
+                        className: 'btn btn-success btn-sm me-2',
+                        customize: function(xlsx) {
+                            var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                            var cliente = $('#clienteSelect option:selected').text() || 'Listado de Actividades';
+                            var rowHead = '<row r="1">' +
+                                '<c t="inlineStr" r="A1"><is><t>Cliente: ' + cliente + '</t></is></c>' +
+                                '</row>';
+                            var sheetData = $('sheetData', sheet);
+                            sheetData.prepend(rowHead);
+                        },
+                        exportOptions: {
+                            columns: ':visible'
+                        }
                     },
                     {
                         extend: 'colvis',
@@ -366,63 +497,89 @@
                 ],
                 initComplete: function() {
                     var api = this.api();
-                    // Para cada columna, si el footer tiene un <select> se rellenan las opciones
+                    // Rellenar selects del footer por cada columna (si existen)
                     api.columns().every(function() {
                         var column = this;
                         var footer = $(column.footer());
-                        if (footer.find('select').length) {
+                        var select = footer.find('select');
+                        if (select.length) {
                             column.data().unique().sort().each(function(d) {
-                                if (d) {
-                                    footer.find('select').append('<option value="' + d + '">' + d + '</option>');
+                                if (d !== null && d !== '') {
+                                    select.append('<option value="' + d + '">' + d + '</option>');
                                 }
                             });
-                            var search = column.search();
-                            if (search) {
-                                footer.find('select').val(search);
-                            }
                         }
+                    });
+                    // Vincular eventos para filtrar inputs y selects del footer
+                    $('#actividadesTable tfoot input').on('keyup change', function() {
+                        var colIndex = $(this).parent().index();
+                        table.column(colIndex).search(this.value).draw();
+                    });
+                    $('#actividadesTable tfoot select').on('change', function() {
+                        var colIndex = $(this).parent().index();
+                        table.column(colIndex).search(this.value).draw();
                     });
                 }
             });
 
-            // Colocar los botones de DataTables antes del botón de restablecer filtros
-            table.buttons().container().prependTo('.container');
-
-            // Evento para filtros con <select>
-            $('.filter-select').on('change', function() {
-                var columnIndex = $(this).parent().index();
-                var value = $(this).val();
-                table.column(columnIndex).search(value).draw();
+            // Actualizar selects del footer en cada redraw y re-inicializar tooltips
+            table.on('draw', function() {
+                table.columns().every(function() {
+                    var column = this;
+                    var footer = $(column.footer());
+                    var select = footer.find('select');
+                    if (select.length) {
+                        select.empty().append('<option value="">Todos</option>');
+                        column.data().unique().sort().each(function(d) {
+                            if (d !== null && d !== '') {
+                                select.append('<option value="' + d + '">' + d + '</option>');
+                            }
+                        });
+                    }
+                });
             });
 
-            // Evento para filtros de texto
-            $('.filter-text').on('keyup change', function() {
-                var columnIndex = $(this).parent().index();
-                table.column(columnIndex).search(this.value).draw();
+            // Botón para cargar datos filtrados por cliente y guardar la selección
+            $("#loadData").click(function() {
+                var clienteID = $("#clienteSelect").val();
+                if (clienteID) {
+                    localStorage.setItem('selectedClient', clienteID);
+                    table.ajax.url("<?= base_url('/api/getActividades') ?>?cliente=" + clienteID).load();
+                } else {
+                    alert('Por favor, seleccione un cliente.');
+                }
             });
 
-            // Inicializar tooltips de Bootstrap 5
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-
-            // Botón para borrar el estado y recargar
+            // Botón para restablecer filtros y estado guardado (incluyendo el cliente seleccionado)
             $('#clearState').on('click', function() {
-                localStorage.removeItem('DataTables_actividadesTable_/');
+                localStorage.removeItem('selectedClient');
+                localStorage.removeItem('DataTables_actividadesTable');
                 table.state.clear();
                 location.reload();
             });
 
-            // Manejador para campos editables (texto)
-            $('.editable').off('blur').on('blur', function() {
-                const cell = $(this);
-                const value = cell.text().trim();
-                const field = cell.data('field');
-                const id = cell.closest('tr').data('id');
+            // Fila expandible
+            $('#actividadesTable tbody').on('click', 'td.details-control', function() {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    row.child(format(row.data())).show();
+                    tr.addClass('shown');
+                }
+            });
+
+            // Celdas editables (texto y observaciones)
+            $('#actividadesTable tbody').on('blur', 'span.editable', function() {
+                var cell = $(this);
+                var value = cell.text().trim();
+                var field = cell.data('field');
+                var id = cell.data('id');
 
                 $.ajax({
-                    url: '<?= base_url('/updatePlanDeTrabajo') ?>',
+                    url: '<?= base_url("/updatePlanDeTrabajo") ?>',
                     method: 'POST',
                     data: {
                         id: id,
@@ -431,10 +588,7 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            $('#notification').text('Registro actualizado correctamente').fadeIn();
-                            setTimeout(function() {
-                                $('#notification').fadeOut();
-                            }, 3000);
+                            $('#notification').text('Registro actualizado correctamente').fadeIn().delay(3000).fadeOut();
                         } else {
                             alert('Error: ' + response.message);
                         }
@@ -445,27 +599,27 @@
                 });
             });
 
-            // Manejador para celdas de fecha (con selector de fecha)
-            $(document).on('click', '.editable-date', function() {
+            // Celdas editables de fecha
+            $('#actividadesTable tbody').on('click', 'span.editable-date', function() {
                 var cell = $(this);
                 if (cell.find('input').length === 0) {
                     var currentValue = cell.text().trim();
                     var input = $('<input>', {
                         type: 'date',
                         value: currentValue,
-                        class: 'form-control'
+                        class: 'form-control form-control-sm'
                     });
                     cell.html(input);
                     input.focus();
                     input.on('blur change', function() {
                         var newValue = $(this).val();
-                        const field = cell.data('field');
-                        const id = cell.closest('tr').data('id');
+                        var field = cell.data('field');
+                        var id = cell.data('id');
                         cell.text(newValue);
                         cell.attr('title', newValue).tooltip('dispose').tooltip();
 
                         $.ajax({
-                            url: '<?= base_url('/updatePlanDeTrabajo') ?>',
+                            url: '<?= base_url("/updatePlanDeTrabajo") ?>',
                             method: 'POST',
                             data: {
                                 id: id,
@@ -474,7 +628,7 @@
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    alert('Registro actualizado correctamente');
+                                    $('#notification').text('Registro actualizado correctamente').fadeIn().delay(3000).fadeOut();
                                 } else {
                                     alert('Error: ' + response.message);
                                 }
@@ -487,12 +641,13 @@
                 }
             });
 
-            // Manejador para celdas con select (por ejemplo, estado y porcentaje)
-            $(document).on('click', '.editable-select', function() {
+            // Celdas editables con select
+            $('#actividadesTable tbody').on('click', 'span.editable-select', function() {
                 var cell = $(this);
                 if (cell.find('select').length === 0) {
                     var field = cell.data('field');
-                    var currentValue = cell.text().trim();
+                    var currentValue = cell.text().trim().replace('%', '');
+                    var id = cell.data('id');
                     var select = $('<select>', {
                         class: 'form-select form-select-sm'
                     });
@@ -504,36 +659,28 @@
                                 value: option,
                                 text: option
                             });
-                            if (option === currentValue) optionElem.attr('selected', 'selected');
+                            if (option === currentValue) optionElem.prop('selected', true);
                             select.append(optionElem);
                         });
                     } else if (field === 'porcentaje_avance') {
                         for (var i = 0; i <= 100; i += 10) {
-                            var perc = i;
                             var optionElem = $('<option>', {
-                                value: perc,
-                                text: perc
+                                value: i,
+                                text: i + '%'
                             });
-                            if (perc == currentValue.replace('%', '')) {
-                                optionElem.attr('selected', 'selected');
-                            }
+                            if (i == currentValue) optionElem.prop('selected', true);
                             select.append(optionElem);
                         }
                     }
-
                     cell.html(select);
                     select.focus();
-
                     select.on('blur change', function() {
                         var newValue = $(this).val();
-                        cell.text(newValue);
+                        cell.text(field === 'porcentaje_avance' ? newValue + '%' : newValue);
                         cell.attr('title', newValue).tooltip('dispose').tooltip();
 
-                        var field = cell.data('field');
-                        var id = cell.closest('tr').data('id');
-
                         $.ajax({
-                            url: '<?= base_url('/updatePlanDeTrabajo') ?>',
+                            url: '<?= base_url("/updatePlanDeTrabajo") ?>',
                             method: 'POST',
                             data: {
                                 id: id,
@@ -552,24 +699,9 @@
                     });
                 }
             });
-
-            // Manejador para la fila expandible (row child details)
-            $('#actividadesTable tbody').on('click', 'td.details-control', function() {
-                var tr = $(this).closest('tr');
-                var row = table.row(tr);
-
-                if (row.child.isShown()) {
-                    // Si ya está abierta, se oculta
-                    row.child.hide();
-                    tr.removeClass('shown');
-                } else {
-                    // Se muestra la fila de detalles con la función format() actualizada
-                    row.child(format(row.data())).show();
-                    tr.addClass('shown');
-                }
-            });
         });
     </script>
+
 </body>
 
 </html>

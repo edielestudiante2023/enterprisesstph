@@ -490,3 +490,22 @@ $routes->get('vencimientos/testEmailForVencimiento/(:num)', 'VencimientosManteni
 $routes->get('vencimientos/send-emails', 'VencimientosMantenimientoController::sendEmailsForUpcomingVencimientos');
 
 $routes->get('/listVencimientosCliente/(:num)', 'VencimientosClienteController::listVencimientosCliente/$1');
+
+$routes->get('api/getClientes', 'PlanDeTrabajoAnualController::getClientes');
+$routes->get('api/getActividades', 'PlanDeTrabajoAnualController::getActividades');
+
+
+$routes->get('api/getClientes', 'EvaluationController::getClientes');
+$routes->get('api/getEvaluaciones', 'EvaluationController::getEvaluaciones');
+$routes->post('api/updateEvaluacion', 'EvaluationController::updateEvaluacion');
+$routes->get('listEvaluacionesAjax', 'EvaluationController::listEvaluacionesAjax');
+
+$routes->get('api/getClientes', 'CronogcapacitacionController::getClientes');
+$routes->get('api/getCronogramasAjax', 'CronogcapacitacionController::getCronogramasAjax');
+$routes->post('api/updatecronogCapacitacion', 'CronogcapacitacionController::updatecronogCapacitacion');
+$routes->get('listcronogCapacitacionAjax', 'CronogcapacitacionController::listcronogCapacitacionAjax');
+
+$routes->get('api/getClientes', 'PendientesController::getClientes');
+$routes->get('api/getPendientesAjax', 'PendientesController::getPendientesAjax');
+$routes->post('api/updatePendiente', 'PendientesController::updatePendiente');
+$routes->get('listPendientesAjax', 'PendientesController::listPendientesAjax');
