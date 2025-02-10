@@ -233,7 +233,7 @@
   <script>
     // Función para formatear la fila expandible (detalles)
     function format(rowData) {
-        var html = '<table class="table table-sm table-borderless" style="width: 60%; table-layout: auto; word-wrap: break-word;">';
+        var html = '<table class="table table-sm table-borderless" style="width: 30%; table-layout: auto; word-wrap: break-word;">';
       html += '<tr><td><strong>Capacitación:</strong></td><td>' + (rowData.nombre_capacitacion || '') + '</td></tr>';
       html += '<tr><td><strong>Objetivo:</strong></td><td>' + (rowData.objetivo_capacitacion || '') + '</td></tr>';
       html += '<tr><td><strong>Cliente:</strong></td><td>' + (rowData.nombre_cliente || '') + '</td></tr>';
