@@ -38,20 +38,20 @@ class PlanDeTrabajoAnualController extends Controller
     public function getActividades()
     {
         $ptaModel = new PtaclienteModel();
-        $clientModel = new ClientModel();
         $clienteID = $this->request->getGet('cliente');
 
         if (!$clienteID) {
             return $this->response->setJSON(["data" => []]);
         }
 
-        $data = $ptaModel->where('id_cliente', $clienteID)->findAll();
+        // Construir la consulta con join
+        $builder = $ptaModel->builder();
+        // Seleccionamos todos los campos de la tabla de actividades y el nombre del cliente
+        $builder->select('tbl_pta_cliente.*, c.nombre_cliente');
+        $builder->join('tbl_clientes as c', 'c.id_cliente = tbl_pta_cliente.id_cliente', 'left');
+        $builder->where('tbl_pta_cliente.id_cliente', $clienteID);
+        $data = $builder->get()->getResultArray();
 
-        // Enriquecer cada registro con el nombre del cliente
-        foreach ($data as &$actividad) {
-            $cliente = $clientModel->find($actividad['id_cliente']);
-            $actividad['nombre_cliente'] = $cliente ? $cliente['nombre_cliente'] : 'Cliente no encontrado';
-        }
         return $this->response->setJSON(["data" => $data]);
     }
 

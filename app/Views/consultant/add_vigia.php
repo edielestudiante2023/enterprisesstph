@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Añadir Vigía</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
 
-<nav style="background-color: white; position: fixed; top: 0; width: 100%; z-index: 1000; padding: 10px 0; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+    <nav style="background-color: white; position: fixed; top: 0; width: 100%; z-index: 1000; padding: 10px 0; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px;">
 
             <!-- Logo izquierdo -->
@@ -62,8 +64,12 @@
                 <input type="file" name="firma_vigia" id="firma_vigia" class="form-control" accept="image/*">
             </div>
             <div class="mb-3">
+                <label for="search_cliente" class="form-label">Buscar Cliente:</label>
+                <input type="text" id="search_cliente" class="form-control mb-2" placeholder="Escriba para buscar...">
+
                 <label for="id_cliente" class="form-label">Cliente:</label>
                 <select name="id_cliente" id="id_cliente" class="form-select">
+                    <option value="">Seleccione un cliente</option>
                     <?php foreach ($clients as $client): ?>
                         <option value="<?= $client['id_cliente'] ?>"><?= $client['nombre_cliente'] ?></option>
                     <?php endforeach; ?>
@@ -107,5 +113,27 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search_cliente');
+            const selectCliente = document.getElementById('id_cliente');
+            const originalOptions = Array.from(selectCliente.options);
+
+            searchInput.addEventListener('input', function(e) {
+                const searchText = e.target.value.toLowerCase();
+
+                // Clear current options
+                selectCliente.innerHTML = '<option value="">Seleccione un cliente</option>';
+
+                // Filter and add matching options
+                originalOptions.forEach(option => {
+                    if (option.text.toLowerCase().includes(searchText)) {
+                        selectCliente.appendChild(option.cloneNode(true));
+                    }
+                });
+            });
+        });
+    </script>
 </body>
+
 </html>
