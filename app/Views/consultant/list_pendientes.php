@@ -80,6 +80,13 @@
     .editable-date {
       min-height: 1em;
     }
+
+    th:nth-child(7),
+    td:nth-child(7) {
+      max-width: 200px;
+      word-wrap: break-word;
+      white-space: normal;
+    }
   </style>
 </head>
 
