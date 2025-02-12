@@ -491,8 +491,13 @@ $routes->get('vencimientos/send-emails', 'VencimientosMantenimientoController::s
 
 $routes->get('/listVencimientosCliente/(:num)', 'VencimientosClienteController::listVencimientosCliente/$1');
 
+// Rutas API para operaciones vía AJAX
 $routes->get('api/getClientes', 'PlanDeTrabajoAnualController::getClientes');
-$routes->get('api/getActividades', 'PlanDeTrabajoAnualController::getActividades');
+$routes->get('api/getActividadesAjax', 'PlanDeTrabajoAnualController::getActividadesAjax');
+$routes->post('api/updatePlanDeTrabajo', 'PlanDeTrabajoAnualController::updatePlanDeTrabajo');
+$routes->get('listPlanDeTrabajoAnualAjax', 'PlanDeTrabajoAnualController::listPlanDeTrabajoAnualAjax');
+
+
 
 
 $routes->get('api/getClientes', 'EvaluationController::getClientes');
