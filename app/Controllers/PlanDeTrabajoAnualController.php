@@ -9,10 +9,8 @@ use CodeIgniter\Controller;
 class PlanDeTrabajoAnualController extends Controller
 {
     /**
-     * Endpoint API para obtener la lista de clientes.
-     * Se retorna un JSON con un arreglo de objetos, donde cada objeto contiene:
-     * - id: Identificador del cliente (se asume que en la BD se llama "id_cliente").
-     * - nombre: Nombre del cliente (se asume que en la BD se llama "nombre_cliente").
+     * API: Retorna la lista de clientes en formato JSON.
+     * Se espera que el campo 'id_cliente' y 'nombre_cliente' existan en la tabla de clientes.
      */
     public function getClientes()
     {
@@ -22,8 +20,8 @@ class PlanDeTrabajoAnualController extends Controller
 
         foreach ($clientes as $cliente) {
             $data[] = [
-                'id'     => $cliente['id_cliente'],      // Ajusta según el campo real
-                'nombre' => $cliente['nombre_cliente']   // Ajusta según el campo real
+                'id'     => $cliente['id_cliente'],
+                'nombre' => $cliente['nombre_cliente']
             ];
         }
 
@@ -31,46 +29,104 @@ class PlanDeTrabajoAnualController extends Controller
     }
 
     /**
-     * Endpoint API para obtener las actividades filtradas por cliente.
+     * API: Retorna la lista de actividades filtradas por cliente (para uso con DataTables vía AJAX).
      * Se espera recibir por GET el parámetro 'cliente' con el ID del cliente.
-     * Si no se envía, se retorna un arreglo vacío.
      */
-    public function getActividades()
+    public function getActividadesAjax()
     {
         $ptaModel = new PtaclienteModel();
         $clienteID = $this->request->getGet('cliente');
 
         if (!$clienteID) {
+            // Retornamos estructura vacía, como espera DataTables (data: [])
             return $this->response->setJSON(["data" => []]);
         }
 
-        // Construir la consulta con join
         $builder = $ptaModel->builder();
-        // Seleccionamos todos los campos de la tabla de actividades y el nombre del cliente
         $builder->select('tbl_pta_cliente.*, c.nombre_cliente');
         $builder->join('tbl_clientes as c', 'c.id_cliente = tbl_pta_cliente.id_cliente', 'left');
         $builder->where('tbl_pta_cliente.id_cliente', $clienteID);
         $data = $builder->get()->getResultArray();
 
+        // La vista de DataTables configurada en la vista (dataSrc: 'data') espera el JSON con key "data"
         return $this->response->setJSON(["data" => $data]);
     }
 
+    /**
+     * API: Actualiza un campo específico de un plan de trabajo anual (útil para la edición inline).
+     */
+    public function updatePlanDeTrabajo()
+    {
+        $ptaModel = new PtaclienteModel();
+
+        $id    = $this->request->getPost('id');
+        $field = $this->request->getPost('field');
+        $value = $this->request->getPost('value');
+
+        // Definir los campos permitidos para actualización
+        $allowedFields = [
+            'fecha_cierre',
+            'responsable_definido_paralaactividad',
+            'responsable_sugerido_plandetrabajo',
+            'estado_actividad',
+            'porcentaje_avance',
+            'observaciones',
+            'fecha_propuesta'
+        ];
+
+        if (!in_array($field, $allowedFields)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Campo no permitido']);
+        }
+
+        // Validación específica para el campo "estado_actividad"
+        if ($field === 'estado_actividad') {
+            $allowedStates = ['ABIERTA', 'CERRADA', 'GESTIONANDO'];
+            if (!in_array(strtoupper($value), $allowedStates)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Estado no permitido']);
+            }
+        }
+
+        $updateData = [$field => $value];
+
+        // Si se actualiza la 'fecha_propuesta', recalculamos la semana
+        if ($field === 'fecha_propuesta') {
+            $week = date('W', strtotime($value));
+            $updateData['semana'] = $week;
+        }
+
+        if ($ptaModel->update($id, $updateData)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Registro actualizado']);
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'No se pudo actualizar el registro']);
+        }
+    }
 
     /**
-     * Lista todos los planes de trabajo anual.
-     * Se procesa cada registro para calcular la semana (si aún no está asignada)
-     * y se enriquecen los datos con la información del cliente.
+     * Retorna la vista que contiene la tabla de actividades (para cargarla vía AJAX).
+     * Esta vista debe estar preparada para realizar las llamadas a las API definidas.
+     */
+    public function listPlanDeTrabajoAnualAjax()
+    {
+        return view('consultant/list_plantrabajoanual_ajax');
+    }
+
+    /*--------------------------------------------------
+      MÉTODOS PARA OPERACIONES TRADICIONALES (FORMULARIOS)
+    ---------------------------------------------------*/
+
+    /**
+     * Lista todos los planes de trabajo anual (vista tradicional).
      */
     public function listPlanDeTrabajoAnual()
     {
         $ptaModel    = new PtaclienteModel();
         $clientModel = new ClientModel();
 
-        $planes      = $ptaModel->asArray()->findAll();
+        $planes = $ptaModel->asArray()->findAll();
         $actividades = [];
 
         foreach ($planes as $plan) {
-            // Si no se ha definido la semana y hay fecha propuesta, se calcula la semana.
+            // Si no se ha definido la semana y hay fecha propuesta, se calcula y se guarda.
             if (empty($plan['semana']) && !empty($plan['fecha_propuesta'])) {
                 $plan['semana'] = date('W', strtotime($plan['fecha_propuesta']));
                 $ptaModel->update($plan['id_ptacliente'], ['semana' => $plan['semana']]);
@@ -107,7 +163,6 @@ class PlanDeTrabajoAnualController extends Controller
     public function addPlanDeTrabajoAnual()
     {
         $clientModel = new ClientModel();
-        // Obtener la lista de clientes para el formulario.
         $data['clientes'] = $clientModel->findAll();
 
         return view('consultant/add_plantrabajoanual', $data);
@@ -119,8 +174,6 @@ class PlanDeTrabajoAnualController extends Controller
     public function addPlanDeTrabajoAnualPost()
     {
         $ptaModel = new PtaclienteModel();
-
-        // Recoger los datos del formulario.
         $fecha_propuesta = $this->request->getPost('fecha_propuesta');
 
         $data = [
@@ -139,9 +192,6 @@ class PlanDeTrabajoAnualController extends Controller
             'observaciones'                      => $this->request->getPost('observaciones'),
         ];
 
-        log_message('debug', 'Datos enviados: ' . print_r($this->request->getPost(), true));
-
-        // Intentar insertar los datos en la base de datos.
         if ($ptaModel->insert($data)) {
             return redirect()->to('/listPlanDeTrabajoAnual')->with('msg', 'Plan de trabajo anual agregado exitosamente');
         } else {
@@ -157,13 +207,9 @@ class PlanDeTrabajoAnualController extends Controller
         $ptaModel    = new PtaclienteModel();
         $clientModel = new ClientModel();
 
-        // Obtener el plan de trabajo específico.
         $data['plan'] = $ptaModel->find($id);
-
-        // Obtener la lista de clientes para el formulario.
         $data['clientes'] = $clientModel->findAll();
 
-        // Verificar si el plan existe.
         if (!$data['plan']) {
             return redirect()->to('/listPlanDeTrabajoAnual')->with('msg', 'Plan de trabajo no encontrado');
         }
@@ -177,8 +223,6 @@ class PlanDeTrabajoAnualController extends Controller
     public function editPlanDeTrabajoAnualPost($id)
     {
         $ptaModel = new PtaclienteModel();
-
-        // Recoger los datos del formulario.
         $fecha_propuesta = $this->request->getPost('fecha_propuesta');
 
         $data = [
@@ -197,13 +241,9 @@ class PlanDeTrabajoAnualController extends Controller
             'observaciones'                      => $this->request->getPost('observaciones'),
         ];
 
-        log_message('debug', 'Datos recibidos del formulario: ' . print_r($this->request->getPost(), true));
-
-        // Intentar actualizar los datos en la base de datos.
         if ($ptaModel->update($id, $data)) {
             return redirect()->to('/listPlanDeTrabajoAnual')->with('msg', 'Plan de trabajo anual actualizado exitosamente');
         } else {
-            log_message('error', 'Errores al actualizar plan de trabajo: ' . print_r($ptaModel->errors(), true));
             return redirect()->back()->with('msg', 'Error al actualizar plan de trabajo anual');
         }
     }
@@ -214,71 +254,15 @@ class PlanDeTrabajoAnualController extends Controller
     public function deletePlanDeTrabajoAnual($id)
     {
         $ptaModel = new PtaclienteModel();
-
-        // Verificar que el plan exista.
         $plan = $ptaModel->find($id);
         if (!$plan) {
             return redirect()->to('/listPlanDeTrabajoAnual')->with('msg', 'El plan de trabajo no existe');
         }
 
-        // Intentar eliminar el plan.
         if ($ptaModel->delete($id)) {
             return redirect()->to('/listPlanDeTrabajoAnual')->with('msg', 'Plan de trabajo anual eliminado exitosamente');
         } else {
             return redirect()->back()->with('msg', 'Error al eliminar el plan de trabajo anual');
-        }
-    }
-
-    /**
-     * Actualiza un campo específico de un plan de trabajo (útil para edición en línea).
-     */
-    public function updatePlanDeTrabajo()
-    {
-        $ptaModel = new PtaclienteModel();
-
-        // Obtener los datos enviados por POST.
-        $id    = $this->request->getPost('id');
-        $field = $this->request->getPost('field');
-        $value = $this->request->getPost('value');
-
-        // Definir los campos permitidos para actualización.
-        $allowedFields = [
-            'fecha_cierre',
-            'responsable_definido_paralaactividad',
-            'responsable_sugerido_plandetrabajo',
-            'estado_actividad',
-            'porcentaje_avance',
-            'observaciones',
-            'fecha_propuesta'
-        ];
-
-        // Verificar que el campo a actualizar esté permitido.
-        if (!in_array($field, $allowedFields)) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Campo no permitido']);
-        }
-
-        // Validar el valor para el campo 'estado_actividad'.
-        if ($field === 'estado_actividad') {
-            $allowedStates = ['ABIERTA', 'CERRADA', 'GESTIONANDO'];
-            if (!in_array(strtoupper($value), $allowedStates)) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Estado no permitido']);
-            }
-        }
-
-        $updateData = [$field => $value];
-
-        // Si se actualiza la 'fecha_propuesta', se recalcula la semana.
-        if ($field === 'fecha_propuesta') {
-            $week = date('W', strtotime($value));
-            $updateData['semana'] = $week;
-            log_message('debug', "Fecha propuesta actualizada: $value, Semana recalculada: $week");
-        }
-
-        // Intentar actualizar el registro.
-        if ($ptaModel->update($id, $updateData)) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Registro actualizado']);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'No se pudo actualizar el registro']);
         }
     }
 }

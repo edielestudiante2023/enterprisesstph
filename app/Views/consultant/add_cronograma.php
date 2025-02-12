@@ -7,6 +7,9 @@
     <title>Agregar Cronograma de Capacitación</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <style>
         body {
             font-size: 0.9rem;
@@ -50,6 +53,44 @@
         .social-icons img {
             height: 24px;
             width: 24px;
+        }
+
+        /* Select2 Custom Styles */
+        .select2-container--bootstrap-5 {
+            width: 100% !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            min-height: 38px;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.9rem;
+            background-color: #fff;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single {
+            height: calc(3.5rem + 2px);
+            line-height: 1.5;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection__rendered {
+            padding: 0.5rem 0;
+            color: #212529;
+        }
+
+        .select2-container--bootstrap-5 .select2-dropdown {
+            border-color: #80bdff;
+            border-radius: 0.375rem;
+        }
+
+        .select2-container--bootstrap-5 .select2-search__field {
+            border-radius: 0.25rem;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
+            background-color: #007bff;
         }
     </style>
 </head>
@@ -117,11 +158,11 @@
                 <!-- Cliente -->
                 <div class="mb-3">
                     <label for="id_cliente" class="form-label">Cliente</label>
-                    <select name="id_cliente" id="id_cliente" class="form-select" required>
-                        <option value="" disabled selected>Selecciona un cliente</option>
+                    <select name="id_cliente" id="id_cliente" class="form-select select2-hidden-accessible" required>
+                        <option value="">Buscar cliente...</option>
                         <?php foreach ($clientes as $cliente): ?>
-                            <option value="<?= $cliente['id_cliente'] ?>">
-                                <?= $cliente['nombre_cliente'] ?>
+                            <option value="<?= htmlspecialchars($cliente['id_cliente']) ?>">
+                                <?= htmlspecialchars($cliente['nombre_cliente']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -266,9 +307,35 @@
         </div>
     </footer>
 
-    <!-- Bootstrap JS y dependencias (Popper.js y jQuery si es necesario) -->
+    <!-- Bootstrap JS y dependencias -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Inicializar Select2 para el dropdown de clientes
+            $('#id_cliente').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Buscar cliente...',
+                allowClear: true,
+                minimumInputLength: 1,
+                language: {
+                    noResults: function() {
+                        return "No se encontraron resultados";
+                    },
+                    searching: function() {
+                        return "Buscando...";
+                    },
+                    inputTooShort: function() {
+                        return "Por favor ingrese 1 o más caracteres";
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
