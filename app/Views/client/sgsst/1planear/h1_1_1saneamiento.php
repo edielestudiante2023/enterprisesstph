@@ -208,7 +208,7 @@
 
     <h1>PLAN DE SANEAMIENTO BÁSICO</h1>
     <p>
-        El desarrollo con eficacia y eficiencia de este plan es responsabilidad directa del representante legal, estará disponible en medio escrito y magnético, a disposición de la autoridad sanitaria competente, e incluye los siguientes programas los cuales CONJUNTO RESIDENCIAL EL TRIUNFO 1 debe implementar (hacer) y desarrollar (ponerlo en práctica).
+        El desarrollo con eficacia y eficiencia de este plan es responsabilidad directa del representante legal, estará disponible en medio escrito y magnético, a disposición de la autoridad sanitaria competente, e incluye los siguientes programas los cuales <strong><?= $client['nombre_cliente'] ?></strong> debe implementar (hacer) y desarrollar (ponerlo en práctica).
     </p>
     <ul>
         <li>Programa de Saneamiento Básico</li>
