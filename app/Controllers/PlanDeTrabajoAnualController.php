@@ -154,7 +154,7 @@ class PlanDeTrabajoAnualController extends Controller
         }
 
         $data['actividades'] = $actividades;
-        return view('consultant/list_plantrabajoanual', $data);
+        return view('consultant/listplantrabajoanual', $data);
     }
 
     /**
