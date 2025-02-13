@@ -2,100 +2,308 @@
 
 namespace App\Controllers;
 
-use App\Models\PendientesModel;
+use App\Controllers\BaseController;
+use App\Models\VencimientosMantenimientoModel;
 use App\Models\ClientModel;
-use CodeIgniter\Controller;
+use App\Models\ConsultantModel;
+use App\Models\MantenimientoModel;
+use SendGrid\Mail\Mail;
 
-class PendientesController extends Controller
+class VencimientosMantenimientoController extends BaseController
 {
-    // Renderiza la vista AJAX para pendientes
-    public function listPendientesAjax()
+    // ... Otras funciones (add, edit, delete, list) sin cambios ...
+
+    /**
+     * Enviar correos electrónicos para vencimientos próximos (envío manual).
+     */
+    public function sendEmailsForUpcomingVencimientos()
     {
-        return view('consultant/list_pendientes_ajax');
+        $vencimientosModel    = new VencimientosMantenimientoModel();
+        $clientModel          = new ClientModel();
+        $consultantModel      = new ConsultantModel();
+        $mantenimientoModel   = new MantenimientoModel();
+    
+        // Obtener vencimientos próximos (la función getUpcomingVencimientos() debe traer todos los registros)
+        $vencimientos = $vencimientosModel->getUpcomingVencimientos();
+    
+        log_message('debug', 'Intentando obtener vencimientos entre ' . date('Y-m-d') . ' y ' . date('Y-m-d', strtotime('+30 days')));
+        log_message('debug', 'Vencimientos encontrados: ' . print_r($vencimientos, true));
+    
+        if (empty($vencimientos)) {
+            log_message('error', '❌ No hay vencimientos próximos para enviar correos.');
+            return redirect()->to(base_url('vencimientos'))->with('msg', 'No hay vencimientos próximos para enviar.');
+        }
+    
+        foreach ($vencimientos as $vencimiento) {
+            // Normalizamos las fechas (establecemos la hora a 00:00:00)
+            $fechaVencimiento = new \DateTime($vencimiento['fecha_vencimiento']);
+            $fechaVencimiento->setTime(0, 0, 0);
+            $hoy = new \DateTime();
+            $hoy->setTime(0, 0, 0);
+    
+            // Si la fecha de vencimiento es anterior o igual a hoy o la diferencia es menor a 30 días, se omite
+            if ($fechaVencimiento <= $hoy) {
+                continue;
+            }
+            $interval = $hoy->diff($fechaVencimiento);
+            if ($interval->days < 30) {
+                continue;
+            }
+    
+            $cliente = $clientModel->find($vencimiento['id_cliente']);
+            $consultor = $consultantModel->find($vencimiento['id_consultor']);
+            $mantenimiento = $mantenimientoModel->find($vencimiento['id_mantenimiento']);
+    
+            // Validar que cliente y consultor existan y tengan correos válidos
+            if (!$cliente || !$consultor) {
+                log_message('error', "⚠️ Error: Cliente o consultor no encontrados para vencimiento ID: {$vencimiento['id_vencimientos_mmttos']}");
+                continue;
+            }
+            if (empty($cliente['correo_cliente']) || !filter_var($cliente['correo_cliente'], FILTER_VALIDATE_EMAIL)) {
+                log_message('error', "⚠️ Correo del cliente no válido o vacío: " . ($cliente['correo_cliente'] ?? 'No definido'));
+                continue;
+            }
+            if (empty($consultor['correo_consultor']) || !filter_var($consultor['correo_consultor'], FILTER_VALIDATE_EMAIL)) {
+                log_message('error', "⚠️ Correo del consultor no válido o vacío: " . ($consultor['correo_consultor'] ?? 'No definido'));
+                continue;
+            }
+    
+            // Enviar el correo
+            $destinatarios = array_unique([$cliente['correo_cliente'], $consultor['correo_consultor']]);
+            log_message('debug', '📧 Destinatarios del correo: ' . implode(', ', $destinatarios));
+    
+            $email = new \SendGrid\Mail\Mail();
+            $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent");
+            $email->setSubject("🔔 Recordatorio de Vencimiento");
+    
+            foreach ($destinatarios as $correo) {
+                $email->addTo($correo);
+            }
+    
+            $email->addContent(
+                "text/html",
+                "<p>🔔 <strong>Estimado/a {$cliente['nombre_cliente']}</strong>,</p>
+                 <p>El mantenimiento <strong>{$mantenimiento['detalle_mantenimiento']}</strong> tiene su fecha de vencimiento programada para el <strong>{$vencimiento['fecha_vencimiento']}</strong>.</p>
+                 <p>Por favor, tome las medidas necesarias para realizar el mantenimiento con la anticipación requerida.</p>
+                 <p>Saludos cordiales,</p>
+                 <p><strong>Cycloid Talent</strong></p>"
+            );
+    
+            $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
+            try {
+                $response = $sendgrid->send($email);
+                log_message('info', "✅ Correo enviado con código: " . $response->statusCode());
+            } catch (\Exception $e) {
+                log_message('error', "❌ Error al enviar correo: " . $e->getMessage());
+            }
+        }
+    
+        return redirect()->to(base_url('vencimientos'))->with('msg', '📩 Correos enviados correctamente.');
     }
-
-    // API: Retorna la lista de clientes en formato JSON
-    public function getClientes()
+    
+    /**
+     * Enviar correos electrónicos a los registros seleccionados (nueva función).
+     */
+    public function sendSelectedEmails()
     {
-        $clientModel = new ClientModel();
-        $clientes = $clientModel->findAll();
-        $data = [];
-        foreach ($clientes as $cliente) {
-            $data[] = [
-                'id'     => $cliente['id_cliente'],
-                'nombre' => $cliente['nombre_cliente']
-            ];
+        // Recoger los IDs enviados (arreglo de IDs)
+        $selectedIds = $this->request->getPost('selected');
+    
+        if (empty($selectedIds)) {
+            return redirect()->to(base_url('vencimientos'))->with('msg', 'No se seleccionaron vencimientos.');
         }
-        return $this->response->setJSON($data);
+    
+        $vencimientosModel    = new VencimientosMantenimientoModel();
+        $clientModel          = new ClientModel();
+        $consultantModel      = new ConsultantModel();
+        $mantenimientoModel   = new MantenimientoModel();
+    
+        foreach ($selectedIds as $id) {
+            $vencimiento = $vencimientosModel->find($id);
+            if (!$vencimiento) {
+                continue;
+            }
+    
+            // Normalizamos las fechas
+            $fechaVencimiento = new \DateTime($vencimiento['fecha_vencimiento']);
+            $fechaVencimiento->setTime(0, 0, 0);
+            $hoy = new \DateTime();
+            $hoy->setTime(0, 0, 0);
+    
+            if ($fechaVencimiento <= $hoy) {
+                continue;
+            }
+            $interval = $hoy->diff($fechaVencimiento);
+            if ($interval->days < 30) {
+                continue;
+            }
+    
+            $cliente = $clientModel->find($vencimiento['id_cliente']);
+            $consultor = $consultantModel->find($vencimiento['id_consultor']);
+            $mantenimiento = $mantenimientoModel->find($vencimiento['id_mantenimiento']);
+    
+            if (!$cliente || !$consultor) {
+                continue;
+            }
+            if (empty($cliente['correo_cliente']) || !filter_var($cliente['correo_cliente'], FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+            if (empty($consultor['correo_consultor']) || !filter_var($consultor['correo_consultor'], FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+    
+            $emailContent = "
+                <p>Hola <strong>{$cliente['nombre_cliente']}</strong>,</p>
+                <p>El mantenimiento <strong>{$mantenimiento['detalle_mantenimiento']}</strong> tiene su fecha de vencimiento programada para el <strong>{$vencimiento['fecha_vencimiento']}</strong>.</p>
+                <p>Por favor, verifique los detalles y tome las medidas necesarias.</p>
+            ";
+    
+            $this->sendEmail(
+                $cliente['correo_cliente'],
+                $consultor['correo_consultor'],
+                'Recordatorio de Vencimiento de Mantenimiento',
+                $emailContent
+            );
+        }
+    
+        return redirect()->to(base_url('vencimientos'))->with('msg', 'Correos enviados a los registros seleccionados.');
     }
-
-    // API: Retorna la lista de pendientes filtrada por el parámetro 'cliente'
-    public function getPendientesAjax()
+    
+    /**
+     * Enviar correos electrónicos automáticamente (por ejemplo, vía cron).
+     */
+    public function sendEmailsAutomatically()
     {
-        $clienteID = $this->request->getGet('cliente');
-        $pendientesModel = new PendientesModel();
-        $clientModel = new ClientModel();
-
-        if (empty($clienteID)) {
-            return $this->response->setJSON([]);
+        $vencimientosModel    = new VencimientosMantenimientoModel();
+        $clientModel          = new ClientModel();
+        $consultantModel      = new ConsultantModel();
+        $mantenimientoModel   = new MantenimientoModel();
+    
+        // Obtener vencimientos próximos
+        $vencimientos = $vencimientosModel->getUpcomingVencimientos();
+    
+        if (empty($vencimientos)) {
+            log_message('info', 'No hay vencimientos próximos para enviar correos.');
+            return;
         }
-
-        $pendientes = $pendientesModel->where('id_cliente', $clienteID)->findAll();
-
-        // Enriquecer cada pendiente con el nombre del cliente
-        foreach ($pendientes as &$pendiente) {
-            $cliente = $clientModel->find($pendiente['id_cliente']);
-            $pendiente['nombre_cliente'] = $cliente['nombre_cliente'] ?? 'Cliente desconocido';
-            // Generar botones de acciones
-            $pendiente['acciones'] = '<a href="' . base_url('editPendiente/' . $pendiente['id_pendientes']) . '" class="btn btn-warning btn-sm">Editar</a> ' .
-                '<a href="' . base_url('deletePendiente/' . $pendiente['id_pendientes']) . '" class="btn btn-danger btn-sm" onclick="return confirm(\'¿Estás seguro de eliminar este pendiente?\');">Eliminar</a>';
+    
+        foreach ($vencimientos as $vencimiento) {
+            // Normalizamos las fechas
+            $fechaVencimiento = new \DateTime($vencimiento['fecha_vencimiento']);
+            $fechaVencimiento->setTime(0, 0, 0);
+            $hoy = new \DateTime();
+            $hoy->setTime(0, 0, 0);
+    
+            if ($fechaVencimiento <= $hoy) {
+                continue;
+            }
+            $interval = $hoy->diff($fechaVencimiento);
+            if ($interval->days < 30) {
+                continue;
+            }
+    
+            $cliente = $clientModel->find($vencimiento['id_cliente']);
+            $consultor = $consultantModel->find($vencimiento['id_consultor']);
+    
+            if (empty($cliente['correo_cliente']) || empty($consultor['correo_consultor'])) {
+                log_message('error', "Faltan correos electrónicos para el vencimiento ID: {$vencimiento['id_vencimientos_mmttos']}");
+                continue;
+            }
+    
+            $mantenimiento = $mantenimientoModel->find($vencimiento['id_mantenimiento']);
+            $tituloMantenimiento = $mantenimiento ? $mantenimiento['detalle_mantenimiento'] : 'Mantenimiento no especificado';
+    
+            $emailContent = "
+                <h3>Recordatorio de Vencimiento</h3>
+                <p>Estimado/a <strong>{$cliente['nombre_cliente']}</strong> y Consultor <strong>{$consultor['nombre_consultor']}</strong>,</p>
+                <p>El mantenimiento <strong>{$tituloMantenimiento}</strong> está próximo a vencer el día <strong>{$vencimiento['fecha_vencimiento']}</strong>.</p>
+                <p>Por favor, tomen las acciones necesarias para su ejecución antes de la fecha de vencimiento.</p>
+                <p>Saludos,</p>
+                <p><strong>Cycloid Talent</strong></p>
+            ";
+    
+            $this->sendEmail(
+                $cliente['correo_cliente'],
+                $consultor['correo_consultor'],
+                'Recordatorio de Vencimiento de Mantenimiento',
+                $emailContent
+            );
         }
-
-        return $this->response->setJSON($pendientes);
+    
+        log_message('info', 'Correos electrónicos de recordatorio enviados automáticamente.');
     }
-
-    // API: Actualiza un campo específico de un pendiente (para inline editing)
-    public function updatePendiente()
+    
+    /**
+     * Función auxiliar para enviar correos electrónicos utilizando SendGrid.
+     *
+     * @param string $clientEmail     Correo electrónico del cliente.
+     * @param string $consultantEmail Correo electrónico del consultor.
+     * @param string $subject         Asunto del correo.
+     * @param string $content         Contenido HTML del correo.
+     */
+    private function sendEmail($clientEmail, $consultantEmail, $subject, $content)
     {
-        $id = $this->request->getPost('id');
-        $field = $this->request->getPost('field');
-        $value = $this->request->getPost('value');
+        $email = new Mail();
+        $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent");
+        $email->setSubject($subject);
+        $email->addTo($clientEmail);
+        $email->addTo($consultantEmail);
+        $email->addContent("text/html", $content);
 
-        // Definir los campos permitidos para actualización
-        $allowedFields = ['tarea_actividad', 'fecha_cierre', 'estado', 'estado_avance', 'evidencia_para_cerrarla', 'fecha_asignacion'];
-        if (!in_array($field, $allowedFields)) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Campo no permitido']);
+        $sendgridApiKey = getenv('SENDGRID_API_KEY');
+
+        if (!$sendgridApiKey) {
+            log_message('error', 'Clave API de SendGrid no configurada.');
+            return;
         }
 
-        $model = new PendientesModel();
-        $pendiente = $model->find($id);
-        if (!$pendiente) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Pendiente no encontrado']);
+        $sendgrid = new \SendGrid($sendgridApiKey);
+
+        try {
+            $response = $sendgrid->send($email);
+            log_message('debug', 'Correo enviado con éxito. Status Code: ' . $response->statusCode());
+        } catch (\Exception $e) {
+            log_message('error', 'Error al enviar el correo: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Enviar correo de prueba para un vencimiento específico.
+     */
+    public function testEmailForVencimiento($id)
+    {
+        $vencimientosModel    = new VencimientosMantenimientoModel();
+        $clientModel          = new ClientModel();
+        $consultantModel      = new ConsultantModel();
+        $mantenimientoModel   = new MantenimientoModel();
+
+        $vencimiento = $vencimientosModel->find($id);
+        if (!$vencimiento) {
+            return 'Vencimiento no encontrado.';
         }
 
-        $updateData = [$field => $value];
+        $cliente = $clientModel->find($vencimiento['id_cliente']);
+        $consultor = $consultantModel->find($vencimiento['id_consultor']);
+        $mantenimiento = $mantenimientoModel->find($vencimiento['id_mantenimiento']);
 
-        // Si el campo afecta el cálculo de 'conteo_dias'
-        $fechaAsignacion = strtotime($pendiente['fecha_asignacion']);
-        $estado = ($field === 'estado') ? $value : $pendiente['estado'];
-        $fechaCierre = ($field === 'fecha_cierre') ? $value : $pendiente['fecha_cierre'];
+        $email = new \SendGrid\Mail\Mail();
+        $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent");
+        $email->setSubject("Recordatorio de Vencimiento");
+        $email->addTo($cliente['correo_cliente']);
+        $email->addTo($consultor['correo_consultor']);
+        $email->addContent(
+            "text/html",
+            "<p>El mantenimiento <strong>{$mantenimiento['detalle_mantenimiento']}</strong> está próximo a vencer el <strong>{$vencimiento['fecha_vencimiento']}</strong>.</p>"
+        );
 
-        if ($estado === 'ABIERTA') {
-            $updateData['conteo_dias'] = (int) floor((time() - $fechaAsignacion) / (60 * 60 * 24));
-        } elseif ($estado === 'CERRADA' && !empty($fechaCierre)) {
-            $updateData['conteo_dias'] = (int) floor((strtotime($fechaCierre) - $fechaAsignacion) / (60 * 60 * 24));
-        } else {
-            $updateData['conteo_dias'] = 0;
-        }
-
-        if ($model->update($id, $updateData)) {
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Registro actualizado correctamente',
-                'updatedValue' => $updateData['conteo_dias']
-            ]);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Error al actualizar el registro']);
+        $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
+        try {
+            $response = $sendgrid->send($email);
+            log_message('info', 'SendGrid Response: ' . $response->body());
+            return "Correo enviado. Código de estado: " . $response->statusCode() . "<br>Respuesta de SendGrid: " . $response->body();
+        } catch (\Exception $e) {
+            log_message('error', 'Error al enviar correo de prueba: ' . $e->getMessage());
+            return "Error al enviar correo: " . $e->getMessage();
         }
     }
 }

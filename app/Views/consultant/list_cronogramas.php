@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,63 +13,77 @@
   <link href="https://cdn.datatables.net/buttons/2.3.3/css/buttons.bootstrap5.min.css" rel="stylesheet">
   <!-- Select2 CSS para select buscable -->
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  
+
   <style>
     body {
       background-color: #f9f9f9;
       font-family: Arial, sans-serif;
     }
+
     h1 {
       margin: 20px 0;
       text-align: center;
       color: #333;
     }
+
     table {
       width: 100%;
     }
+
     .dataTables_filter input {
       background-color: #f0f0f0;
       border-radius: 5px;
       border: 1px solid #ccc;
       padding: 6px;
     }
+
     .dataTables_length select {
       background-color: #f0f0f0;
       border-radius: 5px;
       padding: 6px;
     }
-    td, th {
+
+    td,
+    th {
       max-width: 20ch;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       height: 25px;
     }
+
     .tooltip-inner {
       max-width: 300px;
       word-wrap: break-word;
       z-index: 1050;
     }
+
     .filters select {
       width: 100%;
       padding: 4px;
       border-radius: 4px;
       border: 1px solid #ccc;
     }
+
     /* Columna para fila expandible */
     td.details-control {
       background: url('https://www.datatables.net/examples/resources/details_open.png') no-repeat center center;
       cursor: pointer;
     }
+
     tr.shown td.details-control {
       background: url('https://www.datatables.net/examples/resources/details_close.png') no-repeat center center;
     }
+
     /* Para celdas editables: se asignan estilos mínimos para que siempre contengan contenido (por ejemplo, un espacio no separable) */
-    .editable, .editable-select, .editable-date {
+    .editable,
+    .editable-select,
+    .editable-date {
       min-height: 1em;
     }
   </style>
 </head>
+
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
@@ -102,7 +117,7 @@
 
   <div class="container-fluid mt-5">
     <h1 class="text-center mb-4">Lista de Cronogramas de Capacitación</h1>
-    
+
     <!-- Bloque para seleccionar cliente -->
     <div class="row mb-3">
       <div class="col-md-4">
@@ -115,10 +130,10 @@
         <button id="loadData" class="btn btn-primary">Cargar Datos</button>
       </div>
     </div>
-    
+
     <button id="clearState" class="btn btn-danger btn-sm mb-3">Restablecer Filtros</button>
     <div id="buttonsContainer"></div>
-    
+
     <div class="table-responsive">
       <table id="cronogramaTable" class="table table-striped table-bordered nowrap" style="width:100%">
         <thead class="table-light">
@@ -126,6 +141,7 @@
             <!-- Columna para fila expandible -->
             <th></th>
             <th>#</th>
+            <th>Acciones</th>
             <th>Capacitación</th>
             <th>Objetivo</th>
             <th>Cliente</th>
@@ -142,13 +158,13 @@
             <th>*Evaluadas</th>
             <th>*Promedio</th>
             <th>*Observaciones</th>
-            <th>Acciones</th>
           </tr>
         </thead>
         <tfoot class="table-light">
           <tr class="filters">
             <th></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar ID"></th>
+            <th></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Capacitación"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Objetivo"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Cliente"></th>
@@ -191,7 +207,6 @@
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Evaluadas"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Promedio"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Observaciones"></th>
-            <th></th>
           </tr>
         </tfoot>
         <tbody>
@@ -231,30 +246,30 @@
   <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.html5.min.js"></script>
 
   <script>
-    // Función para formatear la fila expandible (detalles)
+    // Función para formatear la fila expandible (detalles) con 30% para el nombre y 70% para el texto (con overflow auto)
     function format(rowData) {
-        var html = '<table class="table table-sm table-borderless" style="width: 30%; table-layout: auto; word-wrap: break-word;">';
-      html += '<tr><td><strong>Capacitación:</strong></td><td>' + (rowData.nombre_capacitacion || '') + '</td></tr>';
-      html += '<tr><td><strong>Objetivo:</strong></td><td>' + (rowData.objetivo_capacitacion || '') + '</td></tr>';
-      html += '<tr><td><strong>Cliente:</strong></td><td>' + (rowData.nombre_cliente || '') + '</td></tr>';
-      html += '<tr><td><strong>Fecha Programada:</strong></td><td>' + (rowData.fecha_programada || '') + '</td></tr>';
-      html += '<tr><td><strong>Fecha de Realización:</strong></td><td>' + (rowData.fecha_de_realizacion || '') + '</td></tr>';
-      html += '<tr><td><strong>Estado:</strong></td><td>' + (rowData.estado || '') + '</td></tr>';
-      html += '<tr><td><strong>Perfil de Asistentes:</strong></td><td>' + (rowData.perfil_de_asistentes || '') + '</td></tr>';
-      html += '<tr><td><strong>Capacitador:</strong></td><td>' + (rowData.nombre_del_capacitador || '') + '</td></tr>';
-      html += '<tr><td><strong>Horas de Duración:</strong></td><td>' + (rowData.horas_de_duracion_de_la_capacitacion || '') + '</td></tr>';
-      html += '<tr><td><strong>Indicador de Realización:</strong></td><td>' + (rowData.indicador_de_realizacion_de_la_capacitacion || '') + '</td></tr>';
-      html += '<tr><td><strong>Nº Asistentes:</strong></td><td>' + (rowData.numero_de_asistentes_a_capacitacion || '') + '</td></tr>';
-      html += '<tr><td><strong>Total Programados:</strong></td><td>' + (rowData.numero_total_de_personas_programadas || '') + '</td></tr>';
-      html += '<tr><td><strong>% Cobertura:</strong></td><td>' + (rowData.porcentaje_cobertura || '') + '</td></tr>';
-      html += '<tr><td><strong>Personas Evaluadas:</strong></td><td>' + (rowData.numero_de_personas_evaluadas || '') + '</td></tr>';
-      html += '<tr><td><strong>Promedio:</strong></td><td>' + (rowData.promedio_de_calificaciones || '') + '</td></tr>';
-      html += '<tr><td><strong>Observaciones:</strong></td><td>' + (rowData.observaciones || '') + '</td></tr>';
+      var html = '<table class="table table-sm table-borderless" style="width:100%;">';
+      html += '<tr><td style="width:30%;"><strong>Capacitación:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.nombre_capacitacion || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Objetivo:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.objetivo_capacitacion || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Cliente:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.nombre_cliente || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Fecha Programada:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.fecha_programada || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Fecha de Realización:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.fecha_de_realizacion || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Estado:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.estado || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Perfil de Asistentes:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.perfil_de_asistentes || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Capacitador:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.nombre_del_capacitador || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Horas de Duración:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.horas_de_duracion_de_la_capacitacion || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Indicador de Realización:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.indicador_de_realizacion_de_la_capacitacion || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Nº Asistentes:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.numero_de_asistentes_a_capacitacion || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Total Programados:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.numero_total_de_personas_programadas || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>% Cobertura:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.porcentaje_cobertura || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Personas Evaluadas:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.numero_de_personas_evaluadas || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Promedio:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.promedio_de_calificaciones || '') + '</td></tr>';
+      html += '<tr><td style="width:30%;"><strong>Observaciones:</strong></td><td style="width:70%; overflow:auto;">' + (rowData.observaciones || '') + '</td></tr>';
       html += '</table>';
       return html;
     }
 
-    $(document).ready(function(){
+    $(document).ready(function() {
       // Inicializar el select con Select2
       $('#clientSelect').select2({
         placeholder: 'Seleccione un cliente',
@@ -272,7 +287,7 @@
             $("#clientSelect").append('<option value="' + cliente.id + '">' + cliente.nombre + '</option>');
           });
           var storedClient = localStorage.getItem('selectedClient');
-          if(storedClient) {
+          if (storedClient) {
             $("#clientSelect").val(storedClient).trigger('change');
           }
         },
@@ -292,8 +307,7 @@
         autoWidth: false,
         dom: 'Bfltip',
         pageLength: 10,
-        buttons: [
-          {
+        buttons: [{
             extend: 'excelHtml5',
             text: 'Exportar a Excel',
             className: 'btn btn-success btn-sm'
@@ -311,23 +325,39 @@
           },
           dataSrc: ''
         },
-        columns: [
-          {
+        columns: [{
             data: null,
             orderable: false,
             className: 'details-control',
             defaultContent: ''
           },
-          { data: 'id_cronograma_capacitacion' },
-          { data: 'nombre_capacitacion' },
-          { data: 'objetivo_capacitacion' },
-          { data: 'nombre_cliente' },
+          {
+            data: 'id_cronograma_capacitacion'
+          },
+          {
+            data: 'acciones',
+            orderable: false
+          },
+          {
+            data: 'nombre_capacitacion',
+            render: function(data, type, row) {
+              data = (data === null || data === "") ? "--" : data;
+              var displayText = data || '&nbsp;';
+              return '<span class="editable" data-field="nombre_capacitacion" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
+            }
+          },
+          {
+            data: 'objetivo_capacitacion'
+          },
+          {
+            data: 'nombre_cliente'
+          },
           {
             data: 'fecha_programada',
             render: function(data, type, row) {
               data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable-date" data-field="fecha_programada" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable-date" data-field="fecha_programada" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
           {
@@ -335,7 +365,7 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable-date" data-field="fecha_de_realizacion" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable-date" data-field="fecha_de_realizacion" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
           {
@@ -343,7 +373,7 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable-select" data-field="estado" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable-select" data-field="estado" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
           {
@@ -351,7 +381,7 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable-select" data-field="perfil_de_asistentes" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable-select" data-field="perfil_de_asistentes" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
           {
@@ -359,7 +389,7 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable" data-field="nombre_del_capacitador" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable" data-field="nombre_del_capacitador" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
           {
@@ -367,7 +397,7 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable" data-field="horas_de_duracion_de_la_capacitacion" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable" data-field="horas_de_duracion_de_la_capacitacion" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
           {
@@ -375,7 +405,7 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable-select" data-field="indicador_de_realizacion_de_la_capacitacion" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable-select" data-field="indicador_de_realizacion_de_la_capacitacion" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
           {
@@ -383,7 +413,7 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable" data-field="numero_de_asistentes_a_capacitacion" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable" data-field="numero_de_asistentes_a_capacitacion" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
           {
@@ -391,16 +421,18 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable" data-field="numero_total_de_personas_programadas" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable" data-field="numero_total_de_personas_programadas" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
-          { data: 'porcentaje_cobertura' },
+          {
+            data: 'porcentaje_cobertura'
+          },
           {
             data: 'numero_de_personas_evaluadas',
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable" data-field="numero_de_personas_evaluadas" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable" data-field="numero_de_personas_evaluadas" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
           {
@@ -408,7 +440,7 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data ? data + '%' : '&nbsp;';
-              return '<span class="editable" data-field="promedio_de_calificaciones" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable" data-field="promedio_de_calificaciones" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
           {
@@ -416,25 +448,24 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable" data-field="observaciones" data-id="'+row.id_cronograma_capacitacion+'" data-bs-toggle="tooltip" title="'+data+'">' + displayText + '</span>';
+              return '<span class="editable" data-field="observaciones" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
-          },
-          { data: 'acciones', orderable: false }
+          }
         ],
-        initComplete: function(){
+        initComplete: function() {
           var api = this.api();
-          api.columns().every(function(){
+          api.columns().every(function() {
             var column = this;
             var headerIndex = column.index();
             var filterElement = $('tfoot tr.filters th').eq(headerIndex).find('.filter-search');
-            if(filterElement.length){
-              column.data().unique().sort().each(function(d){
-                if(d !== null && d !== '' && filterElement.find('option[value="'+ d +'"]').length === 0){
-                  filterElement.append('<option value="'+ d +'">'+ d +'</option>');
+            if (filterElement.length) {
+              column.data().unique().sort().each(function(d) {
+                if (d !== null && d !== '' && filterElement.find('option[value="' + d + '"]').length === 0) {
+                  filterElement.append('<option value="' + d + '">' + d + '</option>');
                 }
               });
               var search = column.search();
-              if(search){
+              if (search) {
                 filterElement.val(search);
               }
             }
@@ -445,16 +476,16 @@
       table.buttons().container().appendTo('#buttonsContainer');
 
       // Filtros por columna (global o por select en tfoot)
-      $('tfoot .filter-search').on('keyup change', function(){
+      $('tfoot .filter-search').on('keyup change', function() {
         var index = $(this).parent().index();
         table.column(index).search(this.value).draw();
       });
 
       // Evento para expandir/contraer la fila (child row)
-      $('#cronogramaTable tbody').on('click', 'td.details-control', function(){
+      $('#cronogramaTable tbody').on('click', 'td.details-control', function() {
         var tr = $(this).closest('tr');
         var row = table.row(tr);
-        if(row.child.isShown()){
+        if (row.child.isShown()) {
           row.child.hide();
           tr.removeClass('shown');
         } else {
@@ -469,15 +500,16 @@
         if ($(this).find('input, select').length) return;
         var cell = $(this);
         var field = cell.data('field');
-        // Se obtiene el id desde el atributo data-id que en este caso está en el <tr> o en el propio elemento
-        // En este ejemplo, usamos el atributo data-id en el elemento <span>
         var id = cell.data('id');
         var currentValue = cell.text().trim();
-        // Si la celda está vacía, se asigna un espacio no separable
         currentValue = currentValue === '' ? '' : currentValue;
 
         if (cell.hasClass('editable-date')) {
-          var input = $('<input>', { type: 'date', class: 'form-control form-control-sm', value: currentValue });
+          var input = $('<input>', {
+            type: 'date',
+            class: 'form-control form-control-sm',
+            value: currentValue
+          });
           cell.html(input);
           input.focus();
           input.on('blur change', function() {
@@ -485,8 +517,7 @@
             cell.html(newValue || '&nbsp;');
             updateField(id, field, newValue, cell);
           });
-        }
-        else if (cell.hasClass('editable-select')) {
+        } else if (cell.hasClass('editable-select')) {
           var options = [];
           if (field === 'estado') {
             options = ['PROGRAMADA', 'EJECUTADA', 'CANCELADA POR EL CLIENTE', 'REPROGRAMADA'];
@@ -495,7 +526,9 @@
           } else if (field === 'indicador_de_realizacion_de_la_capacitacion') {
             options = ['SE EJECUTO EN LA FECHA O ANTES', 'SE EJECUTO DESPUES', 'DECLINADA', 'NO SE REALIZÓ'];
           }
-          var select = $('<select>', { class: 'form-select form-select-sm' });
+          var select = $('<select>', {
+            class: 'form-select form-select-sm'
+          });
           options.forEach(function(option) {
             select.append($('<option>', {
               value: option,
@@ -512,9 +545,12 @@
               updateField(id, field, newValue, cell);
             }, 200);
           });
-        }
-        else {
-          var input = $('<input>', { type: 'text', class: 'form-control form-control-sm', value: currentValue });
+        } else {
+          var input = $('<input>', {
+            type: 'text',
+            class: 'form-control form-control-sm',
+            value: currentValue
+          });
           cell.html(input);
           input.focus();
           input.on('blur', function() {
@@ -530,9 +566,13 @@
         $.ajax({
           url: '<?= base_url('/api/updatecronogCapacitacion') ?>',
           method: 'POST',
-          data: { id: id, field: field, value: value },
+          data: {
+            id: id,
+            field: field,
+            value: value
+          },
           success: function(response) {
-            if(response.success) {
+            if (response.success) {
               console.log('Registro actualizado correctamente');
             } else {
               alert('Error: ' + response.message);
@@ -546,9 +586,9 @@
       }
 
       // Botón para cargar datos cuando se haga clic
-      $("#loadData").click(function(){
+      $("#loadData").click(function() {
         var clientId = $("#clientSelect").val();
-        if(clientId) {
+        if (clientId) {
           localStorage.setItem('selectedClient', clientId);
           table.ajax.reload();
         } else {
@@ -557,21 +597,21 @@
       });
 
       // Recargar la tabla automáticamente al cambiar el select
-      $('#clientSelect').on('change', function(){
+      $('#clientSelect').on('change', function() {
         var clientId = $(this).val();
-        if(clientId) {
+        if (clientId) {
           localStorage.setItem('selectedClient', clientId);
           table.ajax.reload();
         }
       });
 
       // Botón para restablecer filtros y estado guardado
-      $("#clearState").on("click", function(){
+      $("#clearState").on("click", function() {
         localStorage.removeItem('selectedClient');
         var storageKey = 'DataTables_' + table.table().node().id + '_' + window.location.pathname;
         localStorage.removeItem(storageKey);
         table.state.clear();
-        $('tfoot .filter-search').each(function(){
+        $('tfoot .filter-search').each(function() {
           $(this).val('');
         });
         table.columns().search('').draw();
@@ -579,17 +619,18 @@
       });
 
       // Inicializar tooltips de Bootstrap
-      function initializeTooltips(){
+      function initializeTooltips() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function(tooltipTriggerEl){
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
           return new bootstrap.Tooltip(tooltipTriggerEl);
         });
       }
       initializeTooltips();
-      table.on('draw.dt', function(){
+      table.on('draw.dt', function() {
         initializeTooltips();
       });
     });
   </script>
 </body>
+
 </html>

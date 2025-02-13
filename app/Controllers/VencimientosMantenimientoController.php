@@ -192,56 +192,56 @@ class VencimientosMantenimientoController extends BaseController
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
         $mantenimientoModel = new MantenimientoModel();
-    
+
         // Obtener vencimientos próximos
         $vencimientos = $vencimientosModel->getUpcomingVencimientos();
-    
+
         // Log de depuración para ver fechas y resultados
         log_message('debug', 'Intentando obtener vencimientos entre ' . date('Y-m-d') . ' y ' . date('Y-m-d', strtotime('+30 days')));
         log_message('debug', 'Vencimientos encontrados: ' . print_r($vencimientos, true));
-    
+
         if (empty($vencimientos)) {
             log_message('error', '❌ No hay vencimientos próximos para enviar correos.');
             return redirect()->to(base_url('vencimientos'))->with('msg', 'No hay vencimientos próximos para enviar.');
         }
-    
+
         foreach ($vencimientos as $vencimiento) {
             $cliente = $clientModel->find($vencimiento['id_cliente']);
             $consultor = $consultantModel->find($vencimiento['id_consultor']);
             $mantenimiento = $mantenimientoModel->find($vencimiento['id_mantenimiento']);
-    
+
             // Validar que cliente y consultor existan
             if (!$cliente || !$consultor) {
                 log_message('error', "⚠️ Error: Cliente o consultor no encontrados para vencimiento ID: {$vencimiento['id_vencimientos_mmttos']}");
                 continue;
             }
-    
+
             // Verificar si los correos son válidos
             if (empty($cliente['correo_cliente']) || !filter_var($cliente['correo_cliente'], FILTER_VALIDATE_EMAIL)) {
                 log_message('error', "⚠️ Correo del cliente no válido o vacío: " . ($cliente['correo_cliente'] ?? 'No definido'));
                 continue;
             }
-    
+
             if (empty($consultor['correo_consultor']) || !filter_var($consultor['correo_consultor'], FILTER_VALIDATE_EMAIL)) {
                 log_message('error', "⚠️ Correo del consultor no válido o vacío: " . ($consultor['correo_consultor'] ?? 'No definido'));
                 continue;
             }
-    
+
             // Eliminar correos duplicados
             $destinatarios = array_unique([$cliente['correo_cliente'], $consultor['correo_consultor']]);
-    
+
             // Log de destinatarios
             log_message('debug', '📧 Destinatarios del correo: ' . implode(', ', $destinatarios));
-    
+
             $email = new \SendGrid\Mail\Mail();
             $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent");
             $email->setSubject("🔔 Recordatorio de Vencimiento");
-    
+
             // Agregar destinatarios únicos
             foreach ($destinatarios as $correo) {
                 $email->addTo($correo);
             }
-    
+
             $email->addContent(
                 "text/html",
                 "<p>🔔 <strong>Estimado/a {$cliente['nombre_cliente']}</strong>,</p>
@@ -257,8 +257,8 @@ class VencimientosMantenimientoController extends BaseController
                  <p>Saludos cordiales,</p>
                  <p><strong>Cycloid Talent</strong></p>"
             );
-            
-    
+
+
             // Intentar enviar el correo
             $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
             try {
@@ -268,10 +268,10 @@ class VencimientosMantenimientoController extends BaseController
                 log_message('error', "❌ Error al enviar correo: " . $e->getMessage());
             }
         }
-    
+
         return redirect()->to(base_url('vencimientos'))->with('msg', '📩 Correos enviados correctamente.');
     }
-    
+
 
 
     /**
@@ -402,9 +402,61 @@ class VencimientosMantenimientoController extends BaseController
             log_message('error', 'Error al enviar correo de prueba: ' . $e->getMessage());
             return "Error al enviar correo: " . $e->getMessage();
         }
-        
     }
 
+    public function sendSelectedEmails()
+    {
+        // Recoger los IDs enviados (arreglo de IDs)
+        $selectedIds = $this->request->getPost('selected');
 
+        if (empty($selectedIds)) {
+            return redirect()->to(base_url('vencimientos'))->with('msg', 'No se seleccionaron vencimientos.');
+        }
 
+        // Instanciar los modelos necesarios
+        $vencimientosModel = new VencimientosMantenimientoModel();
+        $clientModel = new ClientModel();
+        $consultantModel = new ConsultantModel();
+        $mantenimientoModel = new MantenimientoModel();
+
+        // Recorrer cada ID seleccionado y enviar el correo
+        foreach ($selectedIds as $id) {
+            $vencimiento = $vencimientosModel->find($id);
+            if (!$vencimiento) {
+                continue;
+            }
+
+            $cliente = $clientModel->find($vencimiento['id_cliente']);
+            $consultor = $consultantModel->find($vencimiento['id_consultor']);
+            $mantenimiento = $mantenimientoModel->find($vencimiento['id_mantenimiento']);
+
+            // Validar que existan y que los correos sean válidos
+            if (!$cliente || !$consultor) {
+                continue;
+            }
+            if (empty($cliente['correo_cliente']) || !filter_var($cliente['correo_cliente'], FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+            if (empty($consultor['correo_consultor']) || !filter_var($consultor['correo_consultor'], FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+
+            // Preparar el contenido del correo (ajusta el HTML según tus necesidades)
+            $emailContent = "
+          <p>Hola <strong>{$cliente['nombre_cliente']}</strong>,</p>
+          <p>El mantenimiento <strong>{$mantenimiento['detalle_mantenimiento']}</strong> tiene su fecha de vencimiento programada para el <strong>{$vencimiento['fecha_vencimiento']}</strong>.</p>
+          <p>Por favor, verifica los detalles y toma las medidas necesarias.</p>
+        ";
+
+            // Reutilizamos el método sendEmail existente para enviar el correo
+            $this->sendEmail(
+                $cliente['correo_cliente'],
+                $consultor['correo_consultor'],
+                'Recordatorio de Vencimiento de Mantenimiento',
+                $emailContent
+            );
+        }
+
+        return redirect()->to(base_url('vencimientos'))->with('msg', 'Correos enviados a los registros seleccionados.');
+    }
 }
