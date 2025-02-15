@@ -49,9 +49,9 @@
                                 <label for="tipo" class="form-label">Tipo de Documento</label>
                                 <input type="text" class="form-control" id="tipo" name="tipo" required>
                                 <label for="descripcion" class="form-label">Detalle del Contenido</label>
-                                <input type="text" class="form-control" id="descripcion" name="descripcion" required>
+                                <input type="text" class="form-control" id="descripcion" name="descripcion" >
                                 <label for="observaciones" class="form-label">Observaciones</label>
-                                <input type="text" class="form-control" id="observaciones" name="observaciones" required>
+                                <input type="text" class="form-control" id="observaciones" name="observaciones" >
                                 <div class="invalid-feedback">Por favor, ingrese el tipo de Documentación o Matriz.</div>
                             </div>
 
