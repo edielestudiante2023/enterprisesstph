@@ -306,6 +306,9 @@
     <script>
         $(document).ready(function() {
             $('#itemTable').DataTable({
+                order: [
+                    [6, 'asc']
+                ], // Ordena por la columna "Orden" (índice 6) de forma ascendente
                 columnDefs: [{
                         targets: 0,
                         visible: false
@@ -313,7 +316,7 @@
                     {
                         targets: 6,
                         visible: false
-                    } // Oculta la columna "Orden" (índice 6)
+                    } // Oculta la columna "Orden" (índice 6), pero se usa para el ordenamiento
                 ],
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
