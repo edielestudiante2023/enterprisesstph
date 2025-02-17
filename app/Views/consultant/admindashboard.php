@@ -249,9 +249,10 @@
                             </td>
                             <td><?= esc($item['orden']) ?></td>
                             <td>
-                                <a href="<?= base_url('consultant/edititemdashboar/' . $item['id']) ?>" class="btn btn-warning btn-sm">
+                                <a href="<?= base_url('consultant/edititemdashboar/' . $item['id']) ?>" class="btn btn-warning btn-sm" target="_blank">
                                     <i class="bi bi-pencil-square"></i> Edit
                                 </a>
+
                                 <!-- <a href="<?= base_url('consultant/deleteitemdashboard/' . $item['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
                                     <i class="bi bi-trash"></i> Delete
                                 </a> -->
@@ -305,9 +306,14 @@
     <script>
         $(document).ready(function() {
             $('#itemTable').DataTable({
-                columnDefs: [
-                    { targets: 0, visible: false },  // Oculta la columna "ID" (índice 0)
-                    { targets: 6, visible: false }   // Oculta la columna "Orden" (índice 6)
+                columnDefs: [{
+                        targets: 0,
+                        visible: false
+                    }, // Oculta la columna "ID" (índice 0)
+                    {
+                        targets: 6,
+                        visible: false
+                    } // Oculta la columna "Orden" (índice 6)
                 ],
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
