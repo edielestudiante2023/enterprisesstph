@@ -297,8 +297,8 @@
                     [5, 'asc']
                 ],
                 createdRow: function(row, data, dataIndex) {
-                    // data[5] corresponde al valor de la columna "Orden"
-                    var orden = data[5];
+                    // Obtener el valor de la columna "Orden" desde las celdas de la fila
+                    var orden = $('td:eq(5)', row).text().trim();
                     if (orden == '1') {
                         $(row).addClass('orden-1');
                     } else if (orden == '2') {
@@ -312,7 +312,7 @@
                     }
                 },
                 columnDefs: [{
-                    targets: [0, 5],
+                    targets: [0],
                     visible: false
                 }],
                 language: {
