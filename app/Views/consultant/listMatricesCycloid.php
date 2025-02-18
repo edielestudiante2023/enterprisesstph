@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Matrices Cycloid</title>
+    <title>Lista de Documentos de Apoyo</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- DataTables CSS -->
@@ -97,7 +97,7 @@
     <div style="height: 160px;"></div>
 
     <div class="container">
-        <h1>Lista Completa de Matrices Cycloid</h1>
+        <h1>Lista Completa Documentos de Apoyo</h1>
 
         <!-- Mensajes flash de éxito o error -->
         <?php if (session()->getFlashdata('success')): ?>
@@ -124,8 +124,6 @@
                         <th>Tipo de Documento</th>
                         <th>Enlace</th>
                         <th>Observaciones</th>
-                        <th>Fecha de Creación</th>
-                        <th>Fecha de Actualización</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -138,8 +136,6 @@
                                 <td><?= esc($matriz['Tipo_documento']) ?></td>
                                 <td><a href="<?= esc($matriz['enlace']) ?>" target="_blank">Ver Documento</a></td>
                                 <td><?= esc($matriz['observaciones']) ?></td>
-                                <td><?= esc($matriz['created_at']) ?></td>
-                                <td><?= esc($matriz['updated_at']) ?></td>
                                 <td>
                                     <a href="<?= base_url('editMatrizCycloid/' . $matriz['id_matrizcycloid']) ?>" class="btn btn-sm btn-warning">Editar</a>
                                     <a href="<?= base_url('deleteMatrizCycloid/' . $matriz['id_matrizcycloid']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta matriz?');">Eliminar</a>
@@ -148,7 +144,7 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="8" class="text-center">No hay matrices disponibles.</td>
+                            <td colspan="6" class="text-center">No hay Documentos disponibles.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

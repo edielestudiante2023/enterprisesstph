@@ -70,7 +70,7 @@
                         <label for="observaciones" class="form-label">Observaciones</label>
                         <textarea name="observaciones" id="observaciones" rows="4" class="form-control"><?= esc($matriz['observaciones']) ?></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Actualizar Matriz</button>
+                    <button type="submit" class="btn btn-primary w-100">Actualizar </button>
                 </form>
             </div>
         </div>

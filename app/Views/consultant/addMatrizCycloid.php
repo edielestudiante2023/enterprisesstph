@@ -70,7 +70,7 @@
                         <label for="observaciones" class="form-label">Observaciones</label>
                         <textarea name="observaciones" id="observaciones" rows="4" class="form-control"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-success w-100">Crear Matriz</button>
+                    <button type="submit" class="btn btn-success w-100">Crear </button>
                 </form>
                 <div class="text-center mt-3">
                     <a href="/listMatricesCycloid" class="btn btn-link">Volver a la lista de matrices</a>
