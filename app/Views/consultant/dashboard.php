@@ -137,6 +137,32 @@
         footer a:hover {
             text-decoration: underline;
         }
+
+        /* Estilos para filas según la columna "Orden" */
+        tr.orden-1 {
+            background-color: #FFEBEE !important;
+            /* pastel rojo muy suave */
+        }
+
+        tr.orden-2 {
+            background-color: #E8F5E9 !important;
+            /* pastel verde */
+        }
+
+        tr.orden-3 {
+            background-color: #E3F2FD !important;
+            /* pastel azul */
+        }
+
+        tr.orden-4 {
+            background-color: #FFFDE7 !important;
+            /* pastel amarillo */
+        }
+
+        tr.orden-5 {
+            background-color: #F3E5F5 !important;
+            /* pastel morado suave */
+        }
     </style>
 </head>
 
@@ -269,12 +295,26 @@
             $('#itemTable').DataTable({
                 order: [
                     [5, 'asc']
-                ], // Ordena internamente por la columna "Orden" (índice 5)
-                columnDefs: [{
-                        targets: [0, 5],
-                        visible: false
-                    } // Oculta las columnas "ID" y "Orden"
                 ],
+                createdRow: function(row, data, dataIndex) {
+                    // data[5] corresponde al valor de la columna "Orden"
+                    var orden = data[5];
+                    if (orden == '1') {
+                        $(row).addClass('orden-1');
+                    } else if (orden == '2') {
+                        $(row).addClass('orden-2');
+                    } else if (orden == '3') {
+                        $(row).addClass('orden-3');
+                    } else if (orden == '4') {
+                        $(row).addClass('orden-4');
+                    } else if (orden == '5') {
+                        $(row).addClass('orden-5');
+                    }
+                },
+                columnDefs: [{
+                    targets: [0, 5],
+                    visible: false
+                }],
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
                 },
