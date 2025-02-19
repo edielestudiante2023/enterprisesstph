@@ -1,3 +1,9 @@
+<?php
+// Ordenar el array $vencimientos de forma descendente por id
+usort($vencimientos, function($a, $b) {
+    return $b['id'] - $a['id'];
+});
+?>
 <!DOCTYPE html>
 <html>
 
@@ -88,7 +94,6 @@
     <div style="margin-bottom: 10px;">
         <a href="<?= site_url('vencimientos/add') ?>" class="btn btn-success">Agregar Nuevo Vencimiento</a>
         <a href="<?= base_url('vencimientos/send-emails') ?>" class="btn btn-warning">Enviar Recordatorios por Correo</a>
-
     </div>
     <!-- Botón para enviar emails a los registros seleccionados -->
     <div style="margin-top: 10px;">
@@ -222,8 +227,6 @@
                 <?php endif; ?>
             </tbody>
         </table>
-
-
     </form>
 
     <!-- Script de filtrado y manejo de checkboxes -->
