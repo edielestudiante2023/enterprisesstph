@@ -416,11 +416,17 @@
                 tableAjaxUrl += "?cliente=" + storedClient;
             }
 
-            // Inicializar DataTable
+            // Inicializar DataTable con optimizaciones para server-side processing
             var table = $('#actividadesTable').DataTable({
                 processing: true,
                 serverSide: true,
-                stateSave: true,
+                searching: false, // Desactivar búsqueda client-side ya que usamos filtros server-side
+                deferRender: true, // Mejorar rendimiento con grandes conjuntos de datos
+                pageLength: 10, // Número de registros por página
+                lengthMenu: [[10, 25, 50], [10, 25, 50]], // Opciones de registros por página
+                stateSave: true, // Guardar estado de la tabla
+                orderCellsTop: true, // Optimizar ordenamiento
+                fixedHeader: true, // Mantener encabezados visibles al hacer scroll
                 stateSaveCallback: function(settings, data) {
                     localStorage.setItem('DataTables_actividadesTable', JSON.stringify(data));
                 },
@@ -431,12 +437,14 @@
                     [8, 'asc']
                 ], // Ordenar por Fecha Propuesta (índice 8)
                 ajax: {
-                    url: tableAjaxUrl,
+                    url: function() {
+                        var clienteID = $("#clienteSelect").val();
+                        return "<?= base_url('/api/getActividadesAjax') ?>?cliente=" + (clienteID || '');
+                    },
                     type: 'GET',
                     data: function(d) {
                         // Agregar parámetros de filtros personalizados
                         return $.extend({}, d, {
-                            cliente: $("#clienteSelect").val(),
                             estado: $("#estadoSelect").val(),
                             fechaInicio: $("#fechaInicio").val(),
                             fechaFin: $("#fechaFin").val(),
@@ -444,6 +452,10 @@
                             avance: $("#avanceSelect").val(),
                             semana: $("#semanaSelect").val()
                         });
+                    },
+                    error: function(xhr, error, thrown) {
+                        console.error('Error en la solicitud AJAX:', error);
+                        alert('Error al cargar los datos. Por favor, intente nuevamente.');
                     }
                 },
                 columns: [{
@@ -596,14 +608,25 @@
                 initializeTooltips();
             });
 
-            // Botón para cargar datos filtrados por cliente y guardar la selección
+            // Botón para cargar datos filtrados
             $("#loadData").click(function() {
                 var clienteID = $("#clienteSelect").val();
-                if (clienteID) {
-                    localStorage.setItem('selectedClient', clienteID);
-                    table.ajax.url("<?= base_url('/api/getActividadesAjax') ?>?cliente=" + clienteID).load();
-                } else {
+                if (!clienteID) {
                     alert('Por favor, seleccione un cliente.');
+                    return;
+                }
+
+                // Guardar cliente seleccionado
+                localStorage.setItem('selectedClient', clienteID);
+
+                // Recargar tabla con nuevos filtros
+                table.ajax.reload();
+            });
+
+            // Manejar cambios en los filtros individuales
+            $("#estadoSelect, #fechaInicio, #fechaFin, #phvaSelect, #avanceSelect, #semanaSelect").on('change', function() {
+                if ($("#clienteSelect").val()) {
+                    table.ajax.reload();
                 }
             });
 
