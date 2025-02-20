@@ -34,7 +34,6 @@ class PlanDeTrabajoAnualController extends Controller
      */
     public function getActividadesAjax()
     {
-        $ptaModel = new PtaclienteModel();
         $db = \Config\Database::connect();
         $clienteID = $this->request->getGet('cliente');
         
@@ -47,107 +46,60 @@ class PlanDeTrabajoAnualController extends Controller
             ]);
         }
 
-        // Base query
-        $baseQuery = "FROM tbl_pta_cliente 
-                     LEFT JOIN tbl_clientes c ON c.id_cliente = tbl_pta_cliente.id_cliente 
-                     WHERE tbl_pta_cliente.id_cliente = ?";
-        $baseParams = [$clienteID];
+        // Obtener parámetros de paginación
+        $start = (int)$this->request->getGet('start');
+        $length = (int)$this->request->getGet('length') ?: 10;
 
-        // Build WHERE clause for filters
-        $whereClause = "";
-        $filterParams = [];
+        // Construir consulta base optimizada
+        $baseQuery = "FROM tbl_pta_cliente p 
+                     LEFT JOIN tbl_clientes c ON c.id_cliente = p.id_cliente 
+                     WHERE p.id_cliente = ?";
+        $params = [$clienteID];
 
-        // Estado filter
+        // Aplicar filtros principales (solo los más importantes)
         $estado = $this->request->getGet('estado');
         if (!empty($estado)) {
-            $whereClause .= " AND tbl_pta_cliente.estado_actividad = ?";
-            $filterParams[] = $estado;
+            $baseQuery .= " AND p.estado_actividad = ?";
+            $params[] = $estado;
         }
 
-        // Fecha range filter
-        $fechaInicio = $this->request->getGet('fechaInicio');
-        $fechaFin = $this->request->getGet('fechaFin');
-        if (!empty($fechaInicio) && !empty($fechaFin)) {
-            $whereClause .= " AND tbl_pta_cliente.fecha_propuesta BETWEEN ? AND ?";
-            $filterParams[] = $fechaInicio;
-            $filterParams[] = $fechaFin;
-        }
-
-        // PHVA filter
-        $phva = $this->request->getGet('phva');
-        if (!empty($phva)) {
-            $whereClause .= " AND tbl_pta_cliente.phva_plandetrabajo = ?";
-            $filterParams[] = $phva;
-        }
-
-        // Avance filter
-        $avance = $this->request->getGet('avance');
-        if (!empty($avance)) {
-            if ($avance === '0') {
-                $whereClause .= " AND tbl_pta_cliente.porcentaje_avance = 0";
-            } else {
-                list($min, $max) = explode('-', $avance);
-                $whereClause .= " AND tbl_pta_cliente.porcentaje_avance BETWEEN ? AND ?";
-                $filterParams[] = $min;
-                $filterParams[] = $max;
-            }
-        }
-
-        // Semana filter
-        $semana = $this->request->getGet('semana');
-        if (!empty($semana)) {
-            $whereClause .= " AND tbl_pta_cliente.semana = ?";
-            $filterParams[] = $semana;
-        }
-
-        // Search filter
+        // Búsqueda global simplificada
         $search = $this->request->getGet('search')['value'];
         if (!empty($search)) {
-            $whereClause .= " AND (
-                c.nombre_cliente LIKE ? OR
-                tbl_pta_cliente.phva_plandetrabajo LIKE ? OR
-                tbl_pta_cliente.numeral_plandetrabajo LIKE ? OR
-                tbl_pta_cliente.actividad_plandetrabajo LIKE ? OR
-                tbl_pta_cliente.responsable_sugerido_plandetrabajo LIKE ? OR
-                tbl_pta_cliente.estado_actividad LIKE ? OR
-                tbl_pta_cliente.observaciones LIKE ?
-            )";
-            $searchParam = "%$search%";
-            $filterParams = array_merge($filterParams, array_fill(0, 7, $searchParam));
+            $baseQuery .= " AND (p.actividad_plandetrabajo LIKE ? OR p.estado_actividad LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
         }
 
-        // Count total records
-        $totalQuery = "SELECT COUNT(*) as total " . $baseQuery;
-        $totalResult = $db->query($totalQuery, $baseParams)->getRow();
+        // Contar total de registros (sin filtros)
+        $totalQuery = "SELECT COUNT(*) as total FROM tbl_pta_cliente WHERE id_cliente = ?";
+        $totalResult = $db->query($totalQuery, [$clienteID])->getRow();
         $totalRecords = $totalResult->total;
 
-        // Count filtered records
-        $filteredQuery = "SELECT COUNT(*) as total " . $baseQuery . $whereClause;
-        $filteredParams = array_merge($baseParams, $filterParams);
-        $filteredResult = $db->query($filteredQuery, $filteredParams)->getRow();
+        // Contar registros filtrados
+        $filteredQuery = "SELECT COUNT(*) as total " . $baseQuery;
+        $filteredResult = $db->query($filteredQuery, $params)->getRow();
         $recordsFiltered = $filteredResult->total;
 
-        // Build final query with ORDER BY and LIMIT
-        $columns = [
-            'id_ptacliente', 'nombre_cliente', 'phva_plandetrabajo', 'numeral_plandetrabajo',
-            'actividad_plandetrabajo', 'responsable_sugerido_plandetrabajo', 'fecha_propuesta',
-            'fecha_cierre', 'estado_actividad', 'porcentaje_avance', 'semana', 'observaciones'
-        ];
-
+        // Ordenamiento
         $order = $this->request->getGet('order')[0];
         $columnIndex = $order['column'];
-        $columnName = $columns[$columnIndex] ?? 'id_ptacliente';
         $direction = $order['dir'];
+        
+        // Lista simplificada de columnas ordenables
+        $columns = ['id_ptacliente', 'estado_actividad', 'fecha_propuesta', 'actividad_plandetrabajo'];
+        $orderBy = isset($columns[$columnIndex]) ? $columns[$columnIndex] : 'id_ptacliente';
+        
+        // Consulta final con paginación
+        $finalQuery = "SELECT p.*, c.nombre_cliente " . $baseQuery . 
+                     " ORDER BY p." . $orderBy . " " . $direction . 
+                     " LIMIT ? OFFSET ?";
+        
+        $params[] = $length;
+        $params[] = $start;
 
-        $start = (int)$this->request->getGet('start');
-        $length = (int)$this->request->getGet('length');
-
-        $finalQuery = "SELECT tbl_pta_cliente.*, c.nombre_cliente " . 
-                     $baseQuery . $whereClause . 
-                     " ORDER BY $columnName $direction " .
-                     " LIMIT $length OFFSET $start";
-
-        $data = $db->query($finalQuery, $filteredParams)->getResultArray();
+        // Ejecutar consulta final
+        $data = $db->query($finalQuery, $params)->getResultArray();
 
         return $this->response->setJSON([
             "draw" => $this->request->getGet('draw'),
