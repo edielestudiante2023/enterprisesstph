@@ -148,20 +148,91 @@
     <div class="container-fluid mt-5">
         <h2 class="text-center mb-4">Lista de Actividades del Plan de Trabajo Anual</h2>
 
-        <!-- Filtro de cliente -->
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label for="clienteSelect">Seleccionar Cliente:</label>
-                <select id="clienteSelect" class="form-select">
-                    <option value="">Seleccione un cliente</option>
-                </select>
+        <!-- Panel de Filtros -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Filtros de Búsqueda</h5>
             </div>
-            <div class="col-md-2 align-self-end">
-                <button id="loadData" class="btn btn-primary">Cargar Datos</button>
+            <div class="card-body">
+                <form id="filterForm" class="row g-3">
+                    <!-- Cliente -->
+                    <div class="col-md-4">
+                        <label for="clienteSelect" class="form-label">Cliente:</label>
+                        <select id="clienteSelect" class="form-select">
+                            <option value="">Seleccione un cliente</option>
+                        </select>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="col-md-3">
+                        <label for="estadoSelect" class="form-label">Estado:</label>
+                        <select id="estadoSelect" class="form-select">
+                            <option value="">Todos los estados</option>
+                            <option value="ABIERTA">ABIERTA</option>
+                            <option value="CERRADA">CERRADA</option>
+                            <option value="GESTIONANDO">GESTIONANDO</option>
+                        </select>
+                    </div>
+
+                    <!-- Rango de Fechas -->
+                    <div class="col-md-2">
+                        <label for="fechaInicio" class="form-label">Fecha Inicio:</label>
+                        <input type="date" id="fechaInicio" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="fechaFin" class="form-label">Fecha Fin:</label>
+                        <input type="date" id="fechaFin" class="form-control">
+                    </div>
+
+                    <!-- PHVA -->
+                    <div class="col-md-3">
+                        <label for="phvaSelect" class="form-label">PHVA:</label>
+                        <select id="phvaSelect" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="PLANEAR">PLANEAR</option>
+                            <option value="HACER">HACER</option>
+                            <option value="VERIFICAR">VERIFICAR</option>
+                            <option value="ACTUAR">ACTUAR</option>
+                        </select>
+                    </div>
+
+                    <!-- Porcentaje de Avance -->
+                    <div class="col-md-3">
+                        <label for="avanceSelect" class="form-label">% Avance:</label>
+                        <select id="avanceSelect" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="0">0%</option>
+                            <option value="1-25">1-25%</option>
+                            <option value="26-50">26-50%</option>
+                            <option value="51-75">51-75%</option>
+                            <option value="76-99">76-99%</option>
+                            <option value="100">100%</option>
+                        </select>
+                    </div>
+
+                    <!-- Semana -->
+                    <div class="col-md-3">
+                        <label for="semanaSelect" class="form-label">Semana:</label>
+                        <select id="semanaSelect" class="form-select">
+                            <option value="">Todas</option>
+                            <?php for($i = 1; $i <= 52; $i++): ?>
+                                <option value="<?= $i ?>">Semana <?= $i ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="col-12">
+                        <button type="button" id="loadData" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Aplicar Filtros
+                        </button>
+                        <button type="button" id="clearState" class="btn btn-danger">
+                            <i class="fas fa-times"></i> Limpiar Filtros
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-
-        <button id="clearState" class="btn btn-danger btn-sm mb-3">Restablecer Filtros</button>
         <div id="notification" class="alert alert-success" style="display: none;" role="alert"></div>
 
         <div class="table-responsive">
@@ -363,8 +434,16 @@
                     url: tableAjaxUrl,
                     type: 'GET',
                     data: function(d) {
-                        // Add custom parameters here if needed
-                        return d;
+                        // Agregar parámetros de filtros personalizados
+                        return $.extend({}, d, {
+                            cliente: $("#clienteSelect").val(),
+                            estado: $("#estadoSelect").val(),
+                            fechaInicio: $("#fechaInicio").val(),
+                            fechaFin: $("#fechaFin").val(),
+                            phva: $("#phvaSelect").val(),
+                            avance: $("#avanceSelect").val(),
+                            semana: $("#semanaSelect").val()
+                        });
                     }
                 },
                 columns: [{

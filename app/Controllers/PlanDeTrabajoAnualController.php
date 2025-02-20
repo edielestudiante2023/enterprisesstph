@@ -54,6 +54,40 @@ class PlanDeTrabajoAnualController extends Controller
         // Get total count before filtering
         $totalRecords = $builder->countAllResults(false);
 
+        // Apply custom filters
+        $estado = $this->request->getGet('estado');
+        if (!empty($estado)) {
+            $builder->where('tbl_pta_cliente.estado_actividad', $estado);
+        }
+
+        $fechaInicio = $this->request->getGet('fechaInicio');
+        $fechaFin = $this->request->getGet('fechaFin');
+        if (!empty($fechaInicio) && !empty($fechaFin)) {
+            $builder->where('tbl_pta_cliente.fecha_propuesta >=', $fechaInicio)
+                    ->where('tbl_pta_cliente.fecha_propuesta <=', $fechaFin);
+        }
+
+        $phva = $this->request->getGet('phva');
+        if (!empty($phva)) {
+            $builder->where('tbl_pta_cliente.phva_plandetrabajo', $phva);
+        }
+
+        $avance = $this->request->getGet('avance');
+        if (!empty($avance)) {
+            if ($avance === '0') {
+                $builder->where('tbl_pta_cliente.porcentaje_avance', 0);
+            } else {
+                list($min, $max) = explode('-', $avance);
+                $builder->where('tbl_pta_cliente.porcentaje_avance >=', $min)
+                        ->where('tbl_pta_cliente.porcentaje_avance <=', $max);
+            }
+        }
+
+        $semana = $this->request->getGet('semana');
+        if (!empty($semana)) {
+            $builder->where('tbl_pta_cliente.semana', $semana);
+        }
+
         // Apply search
         $search = $this->request->getGet('search')['value'];
         if (!empty($search)) {
