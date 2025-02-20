@@ -36,20 +36,65 @@ class PlanDeTrabajoAnualController extends Controller
     {
         $ptaModel = new PtaclienteModel();
         $clienteID = $this->request->getGet('cliente');
-
+        
         if (!$clienteID) {
-            // Retornamos estructura vacía, como espera DataTables (data: [])
-            return $this->response->setJSON(["data" => []]);
+            return $this->response->setJSON([
+                "draw" => $this->request->getGet('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => []
+            ]);
         }
 
         $builder = $ptaModel->builder();
         $builder->select('tbl_pta_cliente.*, c.nombre_cliente');
         $builder->join('tbl_clientes as c', 'c.id_cliente = tbl_pta_cliente.id_cliente', 'left');
         $builder->where('tbl_pta_cliente.id_cliente', $clienteID);
+
+        // Get total count before filtering
+        $totalRecords = $builder->countAllResults(false);
+
+        // Apply search
+        $search = $this->request->getGet('search')['value'];
+        if (!empty($search)) {
+            $builder->groupStart()
+                ->like('c.nombre_cliente', $search)
+                ->orLike('tbl_pta_cliente.phva_plandetrabajo', $search)
+                ->orLike('tbl_pta_cliente.numeral_plandetrabajo', $search)
+                ->orLike('tbl_pta_cliente.actividad_plandetrabajo', $search)
+                ->orLike('tbl_pta_cliente.responsable_sugerido_plandetrabajo', $search)
+                ->orLike('tbl_pta_cliente.estado_actividad', $search)
+                ->orLike('tbl_pta_cliente.observaciones', $search)
+            ->groupEnd();
+        }
+
+        // Get filtered count
+        $recordsFiltered = $builder->countAllResults(false);
+
+        // Apply ordering
+        $order = $this->request->getGet('order')[0];
+        $columnIndex = $order['column'];
+        $columnName = $this->request->getGet('columns')[$columnIndex]['data'];
+        $direction = $order['dir'];
+        
+        if ($columnName != 'id_ptacliente') {
+            $builder->orderBy($columnName, $direction);
+        }
+
+        // Apply pagination
+        $start = $this->request->getGet('start');
+        $length = $this->request->getGet('length');
+        $builder->limit($length, $start);
+
+        // Get final data
         $data = $builder->get()->getResultArray();
 
-        // La vista de DataTables configurada en la vista (dataSrc: 'data') espera el JSON con key "data"
-        return $this->response->setJSON(["data" => $data]);
+        return $this->response->setJSON([
+            "draw" => $this->request->getGet('draw'),
+            "recordsTotal" => $totalRecords,
+            "recordsFiltered" => $recordsFiltered,
+            "data" => $data
+        ]);
     }
 
     /**
