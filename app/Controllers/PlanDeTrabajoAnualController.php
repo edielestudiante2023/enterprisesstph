@@ -34,79 +34,22 @@ class PlanDeTrabajoAnualController extends Controller
      */
     public function getActividadesAjax()
     {
-        $db = \Config\Database::connect();
+        $ptaModel = new PtaclienteModel();
         $clienteID = $this->request->getGet('cliente');
-        
+
         if (!$clienteID) {
-            return $this->response->setJSON([
-                "draw" => $this->request->getGet('draw'),
-                "recordsTotal" => 0,
-                "recordsFiltered" => 0,
-                "data" => []
-            ]);
+            // Retornamos estructura vacía, como espera DataTables (data: [])
+            return $this->response->setJSON(["data" => []]);
         }
 
-        // Obtener parámetros de paginación
-        $start = (int)$this->request->getGet('start');
-        $length = (int)$this->request->getGet('length') ?: 10;
+        $builder = $ptaModel->builder();
+        $builder->select('tbl_pta_cliente.*, c.nombre_cliente');
+        $builder->join('tbl_clientes as c', 'c.id_cliente = tbl_pta_cliente.id_cliente', 'left');
+        $builder->where('tbl_pta_cliente.id_cliente', $clienteID);
+        $data = $builder->get()->getResultArray();
 
-        // Construir consulta base optimizada
-        $baseQuery = "FROM tbl_pta_cliente p 
-                     LEFT JOIN tbl_clientes c ON c.id_cliente = p.id_cliente 
-                     WHERE p.id_cliente = ?";
-        $params = [$clienteID];
-
-        // Aplicar filtros principales (solo los más importantes)
-        $estado = $this->request->getGet('estado');
-        if (!empty($estado)) {
-            $baseQuery .= " AND p.estado_actividad = ?";
-            $params[] = $estado;
-        }
-
-        // Búsqueda global simplificada
-        $search = $this->request->getGet('search')['value'];
-        if (!empty($search)) {
-            $baseQuery .= " AND (p.actividad_plandetrabajo LIKE ? OR p.estado_actividad LIKE ?)";
-            $params[] = "%$search%";
-            $params[] = "%$search%";
-        }
-
-        // Contar total de registros (sin filtros)
-        $totalQuery = "SELECT COUNT(*) as total FROM tbl_pta_cliente WHERE id_cliente = ?";
-        $totalResult = $db->query($totalQuery, [$clienteID])->getRow();
-        $totalRecords = $totalResult->total;
-
-        // Contar registros filtrados
-        $filteredQuery = "SELECT COUNT(*) as total " . $baseQuery;
-        $filteredResult = $db->query($filteredQuery, $params)->getRow();
-        $recordsFiltered = $filteredResult->total;
-
-        // Ordenamiento
-        $order = $this->request->getGet('order')[0];
-        $columnIndex = $order['column'];
-        $direction = $order['dir'];
-        
-        // Lista simplificada de columnas ordenables
-        $columns = ['id_ptacliente', 'estado_actividad', 'fecha_propuesta', 'actividad_plandetrabajo'];
-        $orderBy = isset($columns[$columnIndex]) ? $columns[$columnIndex] : 'id_ptacliente';
-        
-        // Consulta final con paginación
-        $finalQuery = "SELECT p.*, c.nombre_cliente " . $baseQuery . 
-                     " ORDER BY p." . $orderBy . " " . $direction . 
-                     " LIMIT ? OFFSET ?";
-        
-        $params[] = $length;
-        $params[] = $start;
-
-        // Ejecutar consulta final
-        $data = $db->query($finalQuery, $params)->getResultArray();
-
-        return $this->response->setJSON([
-            "draw" => $this->request->getGet('draw'),
-            "recordsTotal" => $totalRecords,
-            "recordsFiltered" => $recordsFiltered,
-            "data" => $data
-        ]);
+        // La vista de DataTables configurada en la vista (dataSrc: 'data') espera el JSON con key "data"
+        return $this->response->setJSON(["data" => $data]);
     }
 
     /**
@@ -321,5 +264,15 @@ class PlanDeTrabajoAnualController extends Controller
         } else {
             return redirect()->back()->with('msg', 'Error al eliminar el plan de trabajo anual');
         }
+    }
+
+    public function listPlanDeTrabajoAnualFiltrado()
+    {
+        $ptaModel = new PtaclienteModel();
+
+        // Obtén solo las actividades con estado 'ABIERTA'
+        $data['actividades'] = $ptaModel->getActividadesByEstado('ABIERTA');
+
+        return view('consultant/listplantrabajoanual', $data);
     }
 }

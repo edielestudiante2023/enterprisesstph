@@ -11,24 +11,9 @@
     <link href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <!-- DataTables Buttons CSS -->
     <link href="https://cdn.datatables.net/buttons/2.3.3/css/buttons.bootstrap5.min.css" rel="stylesheet">
-    <!-- DataTables Scroller CSS -->
-    <link href="https://cdn.datatables.net/scroller/2.0.5/css/scroller.bootstrap5.min.css" rel="stylesheet">
-    <!-- DataTables Responsive CSS -->
-    <link href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css" rel="stylesheet">
     <!-- Select2 CSS para select buscable -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-        /* DataTables Scroller custom styles */
-        div.DTS div.dataTables_scrollBody {
-            background: repeating-linear-gradient(
-                45deg,
-                #f9f9f9,
-                #f9f9f9 10px,
-                #fff 10px,
-                #fff 20px
-            );
-        }
-
         body {
             background-color: #f9f9f9;
             font-family: Arial, sans-serif;
@@ -163,91 +148,20 @@
     <div class="container-fluid mt-5">
         <h2 class="text-center mb-4">Lista de Actividades del Plan de Trabajo Anual</h2>
 
-        <!-- Panel de Filtros -->
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Filtros de Búsqueda</h5>
+        <!-- Filtro de cliente -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="clienteSelect">Seleccionar Cliente:</label>
+                <select id="clienteSelect" class="form-select">
+                    <option value="">Seleccione un cliente</option>
+                </select>
             </div>
-            <div class="card-body">
-                <form id="filterForm" class="row g-3">
-                    <!-- Cliente -->
-                    <div class="col-md-4">
-                        <label for="clienteSelect" class="form-label">Cliente:</label>
-                        <select id="clienteSelect" class="form-select">
-                            <option value="">Seleccione un cliente</option>
-                        </select>
-                    </div>
-
-                    <!-- Estado -->
-                    <div class="col-md-3">
-                        <label for="estadoSelect" class="form-label">Estado:</label>
-                        <select id="estadoSelect" class="form-select">
-                            <option value="">Todos los estados</option>
-                            <option value="ABIERTA">ABIERTA</option>
-                            <option value="CERRADA">CERRADA</option>
-                            <option value="GESTIONANDO">GESTIONANDO</option>
-                        </select>
-                    </div>
-
-                    <!-- Rango de Fechas -->
-                    <div class="col-md-2">
-                        <label for="fechaInicio" class="form-label">Fecha Inicio:</label>
-                        <input type="date" id="fechaInicio" class="form-control">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="fechaFin" class="form-label">Fecha Fin:</label>
-                        <input type="date" id="fechaFin" class="form-control">
-                    </div>
-
-                    <!-- PHVA -->
-                    <div class="col-md-3">
-                        <label for="phvaSelect" class="form-label">PHVA:</label>
-                        <select id="phvaSelect" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="PLANEAR">PLANEAR</option>
-                            <option value="HACER">HACER</option>
-                            <option value="VERIFICAR">VERIFICAR</option>
-                            <option value="ACTUAR">ACTUAR</option>
-                        </select>
-                    </div>
-
-                    <!-- Porcentaje de Avance -->
-                    <div class="col-md-3">
-                        <label for="avanceSelect" class="form-label">% Avance:</label>
-                        <select id="avanceSelect" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="0">0%</option>
-                            <option value="1-25">1-25%</option>
-                            <option value="26-50">26-50%</option>
-                            <option value="51-75">51-75%</option>
-                            <option value="76-99">76-99%</option>
-                            <option value="100">100%</option>
-                        </select>
-                    </div>
-
-                    <!-- Semana -->
-                    <div class="col-md-3">
-                        <label for="semanaSelect" class="form-label">Semana:</label>
-                        <select id="semanaSelect" class="form-select">
-                            <option value="">Todas</option>
-                            <?php for($i = 1; $i <= 52; $i++): ?>
-                                <option value="<?= $i ?>">Semana <?= $i ?></option>
-                            <?php endfor; ?>
-                        </select>
-                    </div>
-
-                    <!-- Botones -->
-                    <div class="col-12">
-                        <button type="button" id="loadData" class="btn btn-primary">
-                            <i class="fas fa-search"></i> Aplicar Filtros
-                        </button>
-                        <button type="button" id="clearState" class="btn btn-danger">
-                            <i class="fas fa-times"></i> Limpiar Filtros
-                        </button>
-                    </div>
-                </form>
+            <div class="col-md-2 align-self-end">
+                <button id="loadData" class="btn btn-primary">Cargar Datos</button>
             </div>
         </div>
+
+        <button id="clearState" class="btn btn-danger btn-sm mb-3">Restablecer Filtros</button>
         <div id="notification" class="alert alert-success" style="display: none;" role="alert"></div>
 
         <div class="table-responsive">
@@ -363,16 +277,13 @@
         </div>
     </footer>
 
-    <!-- Scripts: jQuery, Bootstrap, DataTables, Buttons, Scroller y Select2 -->
+    <!-- Scripts: jQuery, Bootstrap, DataTables, Buttons y Select2 -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.3/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/scroller/2.0.5/js/dataTables.scroller.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.colVis.min.js"></script>
@@ -427,58 +338,28 @@
                 }
             });
 
-            // Inicializar DataTable con optimizaciones mínimas para server-side processing
+            // Determinar URL para AJAX según el cliente seleccionado
+            var storedClient = localStorage.getItem('selectedClient');
+            var tableAjaxUrl = "<?= base_url('/api/getActividadesAjax') ?>";
+            if (storedClient) {
+                tableAjaxUrl += "?cliente=" + storedClient;
+            }
+
+            // Inicializar DataTable
             var table = $('#actividadesTable').DataTable({
-                processing: true,
-                serverSide: true,
-                searching: false,
-                pageLength: 10,
-                lengthMenu: [[10, 25], [10, 25]],
-                deferRender: true,
-                orderCellsTop: true,
-                stateSave: false,
-                searchDelay: 350,
-                serverMethod: 'GET',
-                orderMulti: false,
-                order: [[8, 'asc']], // Ordenar por Fecha Propuesta
-                scrollY: '50vh', // Altura fija para el cuerpo de la tabla
-                scroller: {
-                    loadingIndicator: true, // Mostrar indicador de carga
-                    displayBuffer: 3, // Reducir buffer para mejor rendimiento
-                    boundaryScale: 0.25 // Reducir el margen de carga para mejorar rendimiento
+                stateSave: true,
+                stateSaveCallback: function(settings, data) {
+                    localStorage.setItem('DataTables_actividadesTable', JSON.stringify(data));
                 },
-                scrollCollapse: true, // Optimizar altura de la tabla
+                stateLoadCallback: function(settings) {
+                    return JSON.parse(localStorage.getItem('DataTables_actividadesTable'));
+                },
+                order: [
+                    [8, 'asc']
+                ], // Ordenar por Fecha Propuesta (índice 8)
                 ajax: {
-                    url: function() {
-                        var clienteID = $("#clienteSelect").val();
-                        return "<?= base_url('/api/getActividadesAjax') ?>?cliente=" + (clienteID || '');
-                    },
-                    type: 'GET',
-                    data: function(d) {
-                        // Agregar parámetros de filtros personalizados
-                        return $.extend({}, d, {
-                            estado: $("#estadoSelect").val(),
-                            fechaInicio: $("#fechaInicio").val(),
-                            fechaFin: $("#fechaFin").val(),
-                            phva: $("#phvaSelect").val(),
-                            avance: $("#avanceSelect").val(),
-                            semana: $("#semanaSelect").val()
-                        });
-                    },
-                    error: function(xhr, error, thrown) {
-                        console.error('Error en la solicitud AJAX:', error);
-                        alert('Error al cargar los datos. Por favor, intente nuevamente.');
-                    },
-                    cache: true, // Enable AJAX caching
-                    dataSrc: function(json) {
-                        // Process data before rendering
-                        if (!json.data) return [];
-                        return json.data.map(function(row) {
-                            // Pre-process data for better rendering performance
-                            row.DT_RowId = 'row_' + row.id_ptacliente;
-                            return row;
-                        });
-                    }
+                    url: tableAjaxUrl,
+                    dataSrc: 'data'
                 },
                 columns: [{
                         data: null,
@@ -569,25 +450,9 @@
                     url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
                 },
                 pagingType: "full_numbers",
-                responsive: {
-                    details: {
-                        type: 'column',
-                        target: 'tr',
-                        renderer: function(api, rowIdx, columns) {
-                            var data = $.map(columns, function(col, i) {
-                                return col.hidden ?
-                                    '<tr data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
-                                    '<td>' + col.title + ':</td> ' +
-                                    '<td>' + col.data + '</td>' +
-                                    '</tr>' :
-                                    '';
-                            }).join('');
-                            return data ? $('<table/>').append(data) : false;
-                        }
-                    }
-                },
-                autoWidth: false, // Better for responsive
-                dom: 'Bfrtip', // Changed from 'Bfltip' to 'Bfrtip' for better responsive layout
+                responsive: true,
+                autoWidth: true,
+                dom: 'Bfltip',
                 buttons: [{
                         extend: 'excelHtml5',
                         text: 'Exportar a Excel',
@@ -646,25 +511,14 @@
                 initializeTooltips();
             });
 
-            // Botón para cargar datos filtrados
+            // Botón para cargar datos filtrados por cliente y guardar la selección
             $("#loadData").click(function() {
                 var clienteID = $("#clienteSelect").val();
-                if (!clienteID) {
+                if (clienteID) {
+                    localStorage.setItem('selectedClient', clienteID);
+                    table.ajax.url("<?= base_url('/api/getActividadesAjax') ?>?cliente=" + clienteID).load();
+                } else {
                     alert('Por favor, seleccione un cliente.');
-                    return;
-                }
-
-                // Guardar cliente seleccionado
-                localStorage.setItem('selectedClient', clienteID);
-
-                // Recargar tabla con nuevos filtros
-                table.ajax.reload();
-            });
-
-            // Manejar cambios en los filtros individuales
-            $("#estadoSelect, #fechaInicio, #fechaFin, #phvaSelect, #avanceSelect, #semanaSelect").on('change', function() {
-                if ($("#clienteSelect").val()) {
-                    table.ajax.reload();
                 }
             });
 
