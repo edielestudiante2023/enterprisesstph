@@ -265,14 +265,4 @@ class PlanDeTrabajoAnualController extends Controller
             return redirect()->back()->with('msg', 'Error al eliminar el plan de trabajo anual');
         }
     }
-
-    public function listPlanDeTrabajoAnualFiltrado()
-    {
-        $ptaModel = new PtaclienteModel();
-
-        // Obtén solo las actividades con estado 'ABIERTA'
-        $data['actividades'] = $ptaModel->getActividadesByEstado('ABIERTA');
-
-        return view('consultant/listplantrabajoanual', $data);
-    }
 }
