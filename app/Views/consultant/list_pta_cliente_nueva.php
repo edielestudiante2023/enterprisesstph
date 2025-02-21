@@ -10,6 +10,8 @@
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <style>
         body {
             padding: 20px;
@@ -166,6 +168,18 @@
         <?php endif; ?>
         <?php if (session()->has('error')): ?>
             <div class="alert alert-danger mt-3"><?= session('error') ?></div>
+        <?php endif; ?>
+        <?php if (session()->has('warning')): ?>
+            <div class="alert alert-warning mt-3">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <?= session('warning') ?>
+            </div>
+        <?php endif; ?>
+        <?php if (session()->has('info')): ?>
+            <div class="alert alert-info mt-3">
+                <i class="fas fa-info-circle me-2"></i>
+                <?= session('info') ?>
+            </div>
         <?php endif; ?>
     </div>
 
