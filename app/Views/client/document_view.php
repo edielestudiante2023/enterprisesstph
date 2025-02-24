@@ -119,7 +119,7 @@
             'emergencias'        => 'Emergencias',
             'otrosproveedores'   => 'Otros Proveedores',
             'secretariasalud'    => 'Secretaría de Salud',
-            'lavadotanques'      => 'Lava Tanques',
+            'lavadotanques'      => 'Lavado de Tanques',
             'localescomerciales' => 'Locales Comerciales',
             'fumigaciones'       => 'Fumigaciones',
             'normatividad'       => 'Normatividad',

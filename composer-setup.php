@@ -20,15 +20,24 @@ process(is_array($argv) ? $argv : array());
  */
 function setupEnvironment()
 {
-    ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
     if (extension_loaded('uopz') && !(ini_get('uopz.disable') || ini_get('uopz.exit'))) {
         // uopz works at opcode level and disables exit calls
         if (function_exists('uopz_allow_exit')) {
             @uopz_allow_exit(true);
-        } else {
-            throw new RuntimeException('The uopz extension ignores exit calls and breaks this installer.');
         }
+    }
+=======
+    if (extension_loaded('ionCube Loader') && function_exists('ioncube_loader_iversion')) {
+        if (ioncube_loader_iversion() < 40009) {
+        $ioncube = function_exists('ioncube_loader_version') ? ioncube_loader_version() : 'unknown';
+        $errors['ioncube'] = array(
+            'Your ionCube Loader extension ('.$ioncube.') is incompatible with Phar files.',
+            'Upgrade to ionCube 4.0.9 or higher or remove this line (path may be different) from your `php.ini` to disable it.',
+            $iniMessage
+        );
+    }
     }
 
     $installer = 'ComposerInstaller';

@@ -350,14 +350,19 @@
             data: 'objetivo_capacitacion'
           },
           {
-            data: 'nombre_cliente'
+            data: 'nombre_cliente',
+            render: function(data, type, row) {
+              data = (data === null || data === "") ? "--" : data;
+              var displayText = data || '&nbsp;';
+              return '<span data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
+            }
           },
           {
             data: 'fecha_programada',
             render: function(data, type, row) {
               data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable-date" data-field="fecha_programada" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
+              return '<span class="editable-date" data-field="fecha_programada" data-id="' + row.id_cronograma_capacitacion + '">' + displayText + '</span>';
             }
           },
           {
@@ -365,7 +370,7 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "--" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable-date" data-field="fecha_de_realizacion" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
+              return '<span class="editable-date" data-field="fecha_de_realizacion" data-id="' + row.id_cronograma_capacitacion + '">' + displayText + '</span>';
             }
           },
           {
