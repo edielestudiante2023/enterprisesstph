@@ -380,7 +380,7 @@
           },
           dataSrc: ''
         },
-        columns: [{
+columns: [{
             data: null,
             orderable: false,
             className: 'details-control',
@@ -391,7 +391,13 @@
             orderable: false
           },
           {
-            data: 'nombre_cliente'
+            data: 'nombre_cliente',
+            render: function (data, type, row) {
+              if (type === 'display') {
+                return '<span data-bs-toggle="tooltip" title="' + data + '">' + data + '</span>';
+              }
+              return data;
+            }
           },
           {
             data: 'ciclo'
@@ -400,7 +406,13 @@
             data: 'estandar'
           },
           {
-            data: 'item_del_estandar'
+            data: 'item_del_estandar',
+            render: function (data, type, row) {
+              if (type === 'display') {
+                return '<span data-bs-toggle="tooltip" title="' + data + '">' + data + '</span>';
+              }
+              return data;
+            }
           },
           {
             data: 'evaluacion_inicial',
@@ -410,7 +422,7 @@
               }
               data = (data === null || data === "") ? "-" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable-select" data-field="evaluacion_inicial" data-id="' + row.id_ev_ini + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
+              return '<span class="editable-select" data-field="evaluacion_inicial" data-id="' + row.id_ev_ini + '">' + displayText + '</span>';
             }
           },
           {
@@ -436,7 +448,7 @@
               }
               data = (data === null || data === "") ? "-" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable" data-field="observaciones" data-id="' + row.id_ev_ini + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
+              return '<span class="editable" data-field="observaciones" data-id="' + row.id_ev_ini + '">' + displayText + '</span>';
             }
           }
         ],
