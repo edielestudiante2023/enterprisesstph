@@ -160,6 +160,8 @@ class ClientController extends Controller
             'fumigaciones'      => 16,
             'normatividad'      => 17,
             'contrato'          => 19,
+            'saneamiento'       => 20,
+            'consultor'         => 21,
         ];
 
         $data = [];

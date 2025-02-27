@@ -123,7 +123,9 @@
             'localescomerciales' => 'Locales Comerciales',
             'fumigaciones'       => 'Fumigaciones',
             'normatividad'       => 'Normatividad',
-            'contrato'           => 'Contrato'
+            'contrato'           => 'Contrato',
+            'saneamiento'        => 'Saneamiento Básico',
+            'consultor'          => 'Documentos Consultor'
         ];
         ?>
 
