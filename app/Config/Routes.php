@@ -111,6 +111,7 @@ $routes->get('/editVersion/(:num)', 'VersionController::editVersion/$1');
 $routes->post('/editVersionPost/(:num)', 'VersionController::editVersionPost/$1');
 $routes->get('/deleteVersion/(:num)', 'VersionController::deleteVersion/$1');
 $routes->get('/listVersions', 'VersionController::listVersions');
+$routes->get('/getVersionsByClient/(:num)', 'VersionController::getVersionsByClient/$1');
 $routes->get('/generatePdfNoAlcoholDrogas', 'SGSSTPlanear::generatePdfNoAlcoholDrogas');
 $routes->get('/generatePdf_asignacionResponsable', 'PzasignacionresponsableController::generatePdf_asignacionResponsable');
 $routes->get('/generatePdf_asignacionResponsabilidades', 'PzasignacionresponsabilidadesController::generatePdf_asignacionResponsabilidades');
