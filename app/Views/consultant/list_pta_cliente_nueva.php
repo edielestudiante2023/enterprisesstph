@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css" rel="stylesheet">
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
@@ -188,6 +189,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
@@ -235,11 +239,31 @@
                     }
                 });
 
-                var table = $('#ptaTable').DataTable({
+            var table = $('#ptaTable').DataTable({
                     "lengthChange": true,
                     "responsive": true,
                     "autoWidth": false,
                     "order": [],
+                    "buttons": [
+                        {
+                            extend: 'excel',
+                            text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
+                            className: 'btn btn-success',
+                            title: 'Lista_PTA_Cliente',
+                            charset: 'UTF-8',
+                            bom: true,
+                            exportOptions: {
+                                columns: ':visible',
+                                format: {
+                                    body: function(data, row, column, node) {
+                                        // Decode HTML entities
+                                        return $('<div/>').html(data).text();
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "dom": 'Bfrtip',
                     "initComplete": function() {
                         this.api().columns().every(function() {
                             var column = this;
