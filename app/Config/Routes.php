@@ -547,6 +547,9 @@ $routes->post('/pta-cliente-nueva/editinginline', 'PtaClienteNuevaController::ed
 $routes->get('/pta-cliente-nueva/excel', 'PtaClienteNuevaController::exportExcelPtaClienteNuevaModel');
 $routes->get('/pta-cliente-nueva/delete/(:num)', 'PtaClienteNuevaController::deletePtaClienteNuevaModel/$1');
 
+// Ruta para actualizar registros cerrados
+$routes->post('/pta-cliente-nueva/updateCerradas', 'PtaClienteNuevaController::updateCerradas');
+
 $routes->get('consultant/actualizar_pta_cliente', 'CsvUploadController::index'); // Carga la vista
 $routes->post('csv/upload', 'CsvUploadController::upload'); // Procesa el CSV
 
