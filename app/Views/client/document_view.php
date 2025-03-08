@@ -122,7 +122,7 @@
             'lavadotanques'      => 'Lavado de Tanques',
             'localescomerciales' => 'Locales Comerciales',
             'fumigaciones'       => 'Fumigaciones',
-            'normatividad'       => 'Normatividad',
+            'normatividad'       => 'Normatividad y Cierre de Numerales',
             'contrato'           => 'Contrato',
             'saneamiento'        => 'Saneamiento Básico',
             'consultor'          => 'Documentos Consultor'

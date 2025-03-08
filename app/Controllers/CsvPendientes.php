@@ -78,20 +78,29 @@ class CsvPendientes extends Controller
      */
     private function formatDate($date)
     {
+        if (empty($date)) {
+            return null;
+        }
+
         // Eliminar espacios en blanco
         $date = trim($date);
 
-        // Validar si la fecha tiene un formato esperable (YYYY-MM-DD)
+        // Validar si la fecha ya está en formato YYYY-MM-DD
         if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
             return $date;
         }
 
-        // Convertir con strtotime si es un formato diferente
-        $timestamp = strtotime($date);
-        if ($timestamp === false) {
-            return null; // Si la conversión falla, devolver NULL en lugar de la fecha actual
+        // Lista de formatos aceptados
+        $formats = ['d/m/Y', 'm-d-Y', 'Y-m-d'];
+
+        foreach ($formats as $format) {
+            $dt = \DateTime::createFromFormat($format, $date);
+            // Verifica que la fecha parseada coincida exactamente con el input
+            if ($dt && $dt->format($format) === $date) {
+                return $dt->format('Y-m-d');
+            }
         }
 
-        return date('Y-m-d', $timestamp);
+        return null;
     }
 }
