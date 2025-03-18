@@ -1,6 +1,6 @@
 <?php
 // Ordenar el array $vencimientos de forma descendente por id
-usort($vencimientos, function($a, $b) {
+usort($vencimientos, function ($a, $b) {
     return $b['id'] - $a['id'];
 });
 ?>
@@ -10,7 +10,6 @@ usort($vencimientos, function($a, $b) {
 <head>
     <meta charset="UTF-8">
     <title>Listado de Vencimientos de Mantenimiento</title>
-    <!-- Agrega tus estilos y scripts aquí (por ejemplo, Bootstrap) -->
     <style>
         table {
             width: 100%;
@@ -27,6 +26,21 @@ usort($vencimientos, function($a, $b) {
 
         th {
             background-color: #f2f2f2;
+            cursor: pointer;
+            /* Indica que es clickable */
+        }
+
+        th.sortable:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Indicadores de ordenación */
+        th.sort-asc::after {
+            content: " ▲";
+        }
+
+        th.sort-desc::after {
+            content: " ▼";
         }
 
         tfoot select,
@@ -95,27 +109,38 @@ usort($vencimientos, function($a, $b) {
         <a href="<?= site_url('vencimientos/add') ?>" class="btn btn-success">Agregar Nuevo Vencimiento</a>
         <a href="<?= base_url('vencimientos/send-emails') ?>" class="btn btn-warning">Enviar Recordatorios por Correo</a>
     </div>
+
     <!-- Botón para enviar emails a los registros seleccionados -->
     <div style="margin-top: 10px;">
-        <button type="submit" class="btn btn-warning">Enviar Emails a Seleccionados</button>
+        <button type="submit" class="btn btn-warning" form="sendSelectedForm">Enviar Emails a Seleccionados</button>
     </div>
+
+    
+    
+
+    <!-- Filtro por cliente en la parte superior -->
+    <div style="margin: 10px 0;">
+        <label for="topFilter_cliente"><strong>Filtrar por Cliente:</strong></label>
+        <input type="text" id="topFilter_cliente" placeholder="Buscar Cliente" />
+        <button type="button" id="resetFilters" class="btn btn-secondary">Limpiar Filtros</button>
+    </div>
+
+
     <!-- Formulario para enviar emails a registros seleccionados -->
     <form id="sendSelectedForm" method="post" action="<?= site_url('vencimientos/send-selected-emails') ?>">
         <table id="vencimientosTable">
             <thead>
                 <tr>
                     <!-- Columna para checkboxes con opción "Select All" -->
-                    <th>
-                        <input type="checkbox" id="selectAll" />
-                    </th>
-                    <th>ID</th>
-                    <th>Cliente</th>
-                    <th>Consultor</th>
-                    <th>Mantenimiento</th>
-                    <th>Fecha de Vencimiento</th>
-                    <th>Estado</th>
-                    <th>Fecha de Realización</th>
-                    <th>Observaciones</th>
+                    <th><input type="checkbox" id="selectAll" /></th>
+                    <th class="sortable" data-col="1">ID</th>
+                    <th class="sortable" data-col="2">Cliente</th>
+                    <th class="sortable" data-col="3">Consultor</th>
+                    <th class="sortable" data-col="4">Mantenimiento</th>
+                    <th class="sortable" data-col="5">Fecha de Vencimiento</th>
+                    <th class="sortable" data-col="6">Estado</th>
+                    <th class="sortable" data-col="7">Fecha de Realización</th>
+                    <th class="sortable" data-col="8">Observaciones</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -135,7 +160,7 @@ usort($vencimientos, function($a, $b) {
                             ?>
                         </select>
                     </th>
-                    <!-- Filtro para Cliente (Text Input para búsqueda) -->
+                    <!-- Filtro para Cliente (Texto) -->
                     <th>
                         <input type="text" id="filter_cliente" placeholder="Buscar Cliente" />
                     </th>
@@ -163,9 +188,10 @@ usort($vencimientos, function($a, $b) {
                             ?>
                         </select>
                     </th>
-                    <!-- Filtro para Fecha de Vencimiento -->
+                    <!-- Filtro para Fecha de Vencimiento (rango de fechas) -->
                     <th>
-                        <input type="date" id="filter_fecha_vencimiento" placeholder="Buscar Fecha Venc." />
+                        <input type="date" id="filter_fecha_vencimiento_inicio" placeholder="Desde" style="margin-bottom:4px;" />
+                        <input type="date" id="filter_fecha_vencimiento_fin" placeholder="Hasta" />
                     </th>
                     <!-- Filtro para Estado -->
                     <th>
@@ -229,11 +255,48 @@ usort($vencimientos, function($a, $b) {
         </table>
     </form>
 
-    <!-- Script de filtrado y manejo de checkboxes -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Checkbox "Select All"
-            const selectAll = document.getElementById('selectAll');
+            // Función de ayuda para obtener elementos por ID
+            function $(id) {
+                return document.getElementById(id);
+            }
+
+            // --- Persistencia de filtros usando localStorage ---
+            const filterIds = ['filter_id', 'filter_cliente', 'filter_consultor', 'filter_mantenimiento', 'filter_fecha_vencimiento_inicio', 'filter_fecha_vencimiento_fin', 'filter_estado', 'filter_fecha_realizacion', 'filter_observaciones'];
+            filterIds.forEach(function(filterId) {
+                const storedValue = localStorage.getItem(filterId);
+                if (storedValue) {
+                    $(filterId).value = storedValue;
+                }
+            });
+            // Sincronizar el filtro superior de cliente con el de pie de tabla
+            const storedTopCliente = localStorage.getItem('topFilter_cliente');
+            if (storedTopCliente) {
+                $('topFilter_cliente').value = storedTopCliente;
+                $('filter_cliente').value = storedTopCliente;
+            }
+
+            // Guardar el estado de cada filtro
+            filterIds.concat(['topFilter_cliente']).forEach(function(filterId) {
+                $(filterId).addEventListener('change', function() {
+                    localStorage.setItem(filterId, this.value);
+                    if (filterId === 'topFilter_cliente') {
+                        $('filter_cliente').value = this.value;
+                    }
+                    filterTable();
+                });
+                $(filterId).addEventListener('keyup', function() {
+                    localStorage.setItem(filterId, this.value);
+                    if (filterId === 'topFilter_cliente') {
+                        $('filter_cliente').value = this.value;
+                    }
+                    filterTable();
+                });
+            });
+
+            // --- Manejador del checkbox "Select All" ---
+            const selectAll = $('selectAll');
             const checkboxes = document.querySelectorAll('.email-checkbox');
             selectAll.addEventListener('change', function() {
                 checkboxes.forEach(function(checkbox) {
@@ -241,19 +304,20 @@ usort($vencimientos, function($a, $b) {
                 });
             });
 
-            // Filtros de la tabla (se ajusta el índice de celdas por la columna de checkbox)
+            // --- Función de filtrado de la tabla ---
             const filters = {
-                id: document.getElementById('filter_id'),
-                cliente: document.getElementById('filter_cliente'),
-                consultor: document.getElementById('filter_consultor'),
-                mantenimiento: document.getElementById('filter_mantenimiento'),
-                fecha_vencimiento: document.getElementById('filter_fecha_vencimiento'),
-                estado: document.getElementById('filter_estado'),
-                fecha_realizacion: document.getElementById('filter_fecha_realizacion'),
-                observaciones: document.getElementById('filter_observaciones'),
+                id: $('filter_id'),
+                cliente: $('filter_cliente'),
+                consultor: $('filter_consultor'),
+                mantenimiento: $('filter_mantenimiento'),
+                fecha_vencimiento_inicio: $('filter_fecha_vencimiento_inicio'),
+                fecha_vencimiento_fin: $('filter_fecha_vencimiento_fin'),
+                estado: $('filter_estado'),
+                fecha_realizacion: $('filter_fecha_realizacion'),
+                observaciones: $('filter_observaciones')
             };
 
-            const table = document.getElementById('vencimientosTable');
+            const table = $('vencimientosTable');
             const tbody = table.getElementsByTagName('tbody')[0];
             const rows = tbody.getElementsByTagName('tr');
 
@@ -263,13 +327,13 @@ usort($vencimientos, function($a, $b) {
                     cliente: filters.cliente.value.toLowerCase(),
                     consultor: filters.consultor.value.toLowerCase(),
                     mantenimiento: filters.mantenimiento.value.toLowerCase(),
-                    fecha_vencimiento: filters.fecha_vencimiento.value,
+                    fecha_vencimiento_inicio: filters.fecha_vencimiento_inicio.value,
+                    fecha_vencimiento_fin: filters.fecha_vencimiento_fin.value,
                     estado: filters.estado.value.toLowerCase(),
                     fecha_realizacion: filters.fecha_realizacion.value,
-                    observaciones: filters.observaciones.value.toLowerCase(),
+                    observaciones: filters.observaciones.value.toLowerCase()
                 };
 
-                // Recorremos cada fila (recordando que la primera celda es para el checkbox)
                 for (let i = 0; i < rows.length; i++) {
                     const cells = rows[i].getElementsByTagName('td');
                     let showRow = true;
@@ -290,9 +354,22 @@ usort($vencimientos, function($a, $b) {
                     if (filterValues.mantenimiento && !cells[4].textContent.toLowerCase().includes(filterValues.mantenimiento)) {
                         showRow = false;
                     }
-                    // Filtro para Fecha de Vencimiento (celda 5)
-                    if (filterValues.fecha_vencimiento && cells[5].textContent !== filterValues.fecha_vencimiento) {
-                        showRow = false;
+                    // Filtro para Fecha de Vencimiento (celda 5) por rango
+                    let cellDate = cells[5].textContent.trim();
+                    if (filterValues.fecha_vencimiento_inicio || filterValues.fecha_vencimiento_fin) {
+                        if (cellDate === "") {
+                            showRow = false;
+                        } else {
+                            let rowDate = new Date(cellDate);
+                            if (filterValues.fecha_vencimiento_inicio) {
+                                let startDate = new Date(filterValues.fecha_vencimiento_inicio);
+                                if (rowDate < startDate) showRow = false;
+                            }
+                            if (filterValues.fecha_vencimiento_fin) {
+                                let endDate = new Date(filterValues.fecha_vencimiento_fin);
+                                if (rowDate > endDate) showRow = false;
+                            }
+                        }
                     }
                     // Filtro para Estado (celda 6)
                     if (filterValues.estado && !cells[6].textContent.toLowerCase().includes(filterValues.estado)) {
@@ -306,18 +383,93 @@ usort($vencimientos, function($a, $b) {
                     if (filterValues.observaciones && !cells[8].textContent.toLowerCase().includes(filterValues.observaciones)) {
                         showRow = false;
                     }
-
                     rows[i].style.display = showRow ? '' : 'none';
                 }
             }
 
-            // Asociar eventos a los filtros
             for (let key in filters) {
                 if (filters.hasOwnProperty(key)) {
                     filters[key].addEventListener('change', filterTable);
                     filters[key].addEventListener('keyup', filterTable);
                 }
             }
+
+            // --- Funcionalidad de ordenación ---
+            let currentSortCol = localStorage.getItem('sortCol') || null;
+            let currentSortOrder = localStorage.getItem('sortOrder') || 'asc';
+
+            function sortTableByColumn(colIndex, sortOrder) {
+                let rowsArray = Array.from(rows);
+                rowsArray.sort(function(a, b) {
+                    let aText = a.getElementsByTagName('td')[colIndex].textContent.trim();
+                    let bText = b.getElementsByTagName('td')[colIndex].textContent.trim();
+
+                    // Si son numéricos, comparar como números
+                    let aNum = parseFloat(aText);
+                    let bNum = parseFloat(bText);
+                    if (!isNaN(aNum) && !isNaN(bNum)) {
+                        return sortOrder === 'asc' ? aNum - bNum : bNum - aNum;
+                    }
+                    // De lo contrario, comparar como cadenas
+                    return sortOrder === 'asc' ? aText.localeCompare(bText) : bText.localeCompare(aText);
+                });
+                rowsArray.forEach(function(row) {
+                    tbody.appendChild(row);
+                });
+            }
+
+            const headers = document.querySelectorAll('th.sortable');
+            headers.forEach(function(header) {
+                header.addEventListener('click', function() {
+                    let colIndex = parseInt(this.getAttribute('data-col'));
+                    if (currentSortCol == colIndex) {
+                        currentSortOrder = (currentSortOrder === 'asc') ? 'desc' : 'asc';
+                    } else {
+                        currentSortOrder = 'asc';
+                        currentSortCol = colIndex;
+                    }
+                    localStorage.setItem('sortCol', currentSortCol);
+                    localStorage.setItem('sortOrder', currentSortOrder);
+                    headers.forEach(function(h) {
+                        h.classList.remove('sort-asc', 'sort-desc');
+                    });
+                    this.classList.add(currentSortOrder === 'asc' ? 'sort-asc' : 'sort-desc');
+                    sortTableByColumn(colIndex, currentSortOrder);
+                });
+            });
+
+            // Aplicar ordenación guardada (si existe)
+            if (currentSortCol) {
+                headers.forEach(function(header) {
+                    if (parseInt(header.getAttribute('data-col')) === parseInt(currentSortCol)) {
+                        header.classList.add(currentSortOrder === 'asc' ? 'sort-asc' : 'sort-desc');
+                    }
+                });
+                sortTableByColumn(parseInt(currentSortCol), currentSortOrder);
+            }
+        });
+
+        document.getElementById('resetFilters').addEventListener('click', function() {
+            const filterIds = [
+                'filter_id',
+                'filter_cliente',
+                'filter_consultor',
+                'filter_mantenimiento',
+                'filter_fecha_vencimiento_inicio',
+                'filter_fecha_vencimiento_fin',
+                'filter_estado',
+                'filter_fecha_realizacion',
+                'filter_observaciones',
+                'topFilter_cliente'
+            ];
+
+            filterIds.forEach(function(filterId) {
+                localStorage.removeItem(filterId);
+                document.getElementById(filterId).value = '';
+            });
+
+            // Actualiza la tabla sin filtros
+            filterTable();
         });
     </script>
 </body>
