@@ -1,477 +1,407 @@
-<?php
-// Ordenar el array $vencimientos de forma descendente por id
-usort($vencimientos, function ($a, $b) {
-    return $b['id'] - $a['id'];
-});
-?>
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listado de Vencimientos de Mantenimiento</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <style>
-        table {
+        .dataTables_filter {
+            margin-bottom: 1rem;
+        }
+        .dt-buttons {
+            margin-bottom: 1rem;
+        }
+        .action-buttons .btn {
+            margin: 2px;
+        }
+        .table thead th {
+            background-color: #f8f9fa;
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+            height: 100%;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-            cursor: pointer;
-            /* Indica que es clickable */
-        }
-
-        th.sortable:hover {
-            background-color: #e0e0e0;
-        }
-
-        /* Indicadores de ordenación */
-        th.sort-asc::after {
-            content: " ▲";
-        }
-
-        th.sort-desc::after {
-            content: " ▼";
-        }
-
-        tfoot select,
-        tfoot input {
+        tfoot input, tfoot select {
             width: 100%;
-            padding: 6px;
+            padding: 3px;
             box-sizing: border-box;
         }
-
-        .alert {
-            padding: 10px;
+        .date-range-filter {
             margin-bottom: 15px;
-            border: 1px solid transparent;
-            border-radius: 4px;
         }
-
-        .alert-success {
-            color: #155724;
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-        }
-
-        .btn {
-            padding: 6px 12px;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-right: 5px;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            color: black;
+        .date-range-filter input {
+            width: 150px;
+            margin-right: 10px;
         }
     </style>
 </head>
 
 <body>
-    <h1>Listado de Vencimientos de Mantenimiento</h1>
-
-    <!-- Mensajes de éxito -->
-    <?php if (session()->getFlashdata('msg')): ?>
-        <div class="alert alert-success">
-            <?= session()->getFlashdata('msg') ?>
-        </div>
-    <?php endif; ?>
-
-    <!-- Botones de acciones -->
-    <div style="margin-bottom: 10px;">
-        <a href="<?= site_url('vencimientos/add') ?>" class="btn btn-success">Agregar Nuevo Vencimiento</a>
-        <a href="<?= base_url('vencimientos/send-emails') ?>" class="btn btn-warning">Enviar Recordatorios por Correo</a>
-    </div>
-
-    <!-- Botón para enviar emails a los registros seleccionados -->
-    <div style="margin-top: 10px;">
-        <button type="submit" class="btn btn-warning" form="sendSelectedForm">Enviar Emails a Seleccionados</button>
-    </div>
-
-    
-    
-
-    <!-- Filtro por cliente en la parte superior -->
-    <div style="margin: 10px 0;">
-        <label for="topFilter_cliente"><strong>Filtrar por Cliente:</strong></label>
-        <input type="text" id="topFilter_cliente" placeholder="Buscar Cliente" />
-        <button type="button" id="resetFilters" class="btn btn-secondary">Limpiar Filtros</button>
-    </div>
-
-
-    <!-- Formulario para enviar emails a registros seleccionados -->
-    <form id="sendSelectedForm" method="post" action="<?= site_url('vencimientos/send-selected-emails') ?>">
-        <table id="vencimientosTable">
-            <thead>
-                <tr>
-                    <!-- Columna para checkboxes con opción "Select All" -->
-                    <th><input type="checkbox" id="selectAll" /></th>
-                    <th class="sortable" data-col="1">ID</th>
-                    <th class="sortable" data-col="2">Cliente</th>
-                    <th class="sortable" data-col="3">Consultor</th>
-                    <th class="sortable" data-col="4">Mantenimiento</th>
-                    <th class="sortable" data-col="5">Fecha de Vencimiento</th>
-                    <th class="sortable" data-col="6">Estado</th>
-                    <th class="sortable" data-col="7">Fecha de Realización</th>
-                    <th class="sortable" data-col="8">Observaciones</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tfoot>
-                <tr>
-                    <!-- Sin filtro para la columna de selección -->
-                    <th></th>
-                    <!-- Filtro para ID -->
-                    <th>
-                        <select id="filter_id">
-                            <option value="">Todos</option>
-                            <?php
-                            $ids = array_unique(array_column($vencimientos, 'id'));
-                            foreach ($ids as $id) {
-                                echo '<option value="' . esc($id) . '">' . esc($id) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </th>
-                    <!-- Filtro para Cliente (Texto) -->
-                    <th>
-                        <input type="text" id="filter_cliente" placeholder="Buscar Cliente" />
-                    </th>
-                    <!-- Filtro para Consultor -->
-                    <th>
-                        <select id="filter_consultor">
-                            <option value="">Todos</option>
-                            <?php
-                            $consultores = array_unique(array_column($vencimientos, 'consultor'));
-                            foreach ($consultores as $consultor) {
-                                echo '<option value="' . esc($consultor) . '">' . esc($consultor) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </th>
-                    <!-- Filtro para Mantenimiento -->
-                    <th>
-                        <select id="filter_mantenimiento">
-                            <option value="">Todos</option>
-                            <?php
-                            $mantenimientos = array_unique(array_column($vencimientos, 'mantenimiento'));
-                            foreach ($mantenimientos as $mantenimiento) {
-                                echo '<option value="' . esc($mantenimiento) . '">' . esc($mantenimiento) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </th>
-                    <!-- Filtro para Fecha de Vencimiento (rango de fechas) -->
-                    <th>
-                        <input type="date" id="filter_fecha_vencimiento_inicio" placeholder="Desde" style="margin-bottom:4px;" />
-                        <input type="date" id="filter_fecha_vencimiento_fin" placeholder="Hasta" />
-                    </th>
-                    <!-- Filtro para Estado -->
-                    <th>
-                        <select id="filter_estado">
-                            <option value="">Todos</option>
-                            <?php
-                            $estados = array_unique(array_column($vencimientos, 'estado_actividad'));
-                            foreach ($estados as $estado) {
-                                echo '<option value="' . esc($estado) . '">' . esc($estado) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </th>
-                    <!-- Filtro para Fecha de Realización -->
-                    <th>
-                        <input type="date" id="filter_fecha_realizacion" placeholder="Buscar Fecha Real." />
-                    </th>
-                    <!-- Filtro para Observaciones -->
-                    <th>
-                        <select id="filter_observaciones">
-                            <option value="">Todos</option>
-                            <?php
-                            $observaciones = array_unique(array_column($vencimientos, 'observaciones'));
-                            foreach ($observaciones as $observacion) {
-                                echo '<option value="' . esc($observacion) . '">' . esc($observacion) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </th>
-                    <!-- Sin filtro para Acciones -->
-                    <th></th>
-                </tr>
-            </tfoot>
-            <tbody>
-                <?php if (!empty($vencimientos) && is_array($vencimientos)): ?>
-                    <?php foreach ($vencimientos as $vencimiento): ?>
-                        <tr>
-                            <td>
-                                <input type="checkbox" class="email-checkbox" name="selected[]" value="<?= esc($vencimiento['id']) ?>" />
-                            </td>
-                            <td><?= esc($vencimiento['id']) ?></td>
-                            <td><?= esc($vencimiento['cliente']) ?></td>
-                            <td><?= esc($vencimiento['consultor']) ?></td>
-                            <td><?= esc($vencimiento['mantenimiento']) ?></td>
-                            <td><?= esc($vencimiento['fecha_vencimiento']) ?></td>
-                            <td><?= esc($vencimiento['estado_actividad']) ?></td>
-                            <td><?= esc($vencimiento['fecha_realizacion']) ?></td>
-                            <td><?= esc($vencimiento['observaciones']) ?></td>
-                            <td>
-                                <a href="<?= site_url('vencimientos/edit/' . esc($vencimiento['id'])) ?>" class="btn btn-primary">Editar</a>
-                                <a href="<?= site_url('vencimientos/delete/' . esc($vencimiento['id'])) ?>" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar este vencimiento?');">Eliminar</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="10">No hay vencimientos registrados.</td>
-                    </tr>
+    <div class="container-fluid py-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Listado de Vencimientos de Mantenimiento</h2>
+            </div>
+            <div class="card-body">
+                <!-- Mensajes de éxito -->
+                <?php if (session()->getFlashdata('msg')): ?>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('msg') ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 <?php endif; ?>
-            </tbody>
-        </table>
-    </form>
+
+                <!-- Botones de acciones principales -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="btn-group">
+                            <a href="<?= site_url('vencimientos/add') ?>" class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>Agregar Nuevo
+                            </a>
+                            <a href="<?= base_url('vencimientos/send-emails') ?>" class="btn btn-warning">
+                                <i class="fas fa-envelope me-2"></i>Enviar Recordatorios
+                            </a>
+                            <button type="submit" class="btn btn-info" form="sendSelectedForm">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar a Seleccionados
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros superiores -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="topFilter_cliente"><strong>Filtrar por Cliente:</strong></label>
+                        <input type="text" id="topFilter_cliente" class="form-control" placeholder="Buscar Cliente" />
+                    </div>
+                    <div class="col-md-6">
+                        <label><strong>Rango de Fechas de Vencimiento:</strong></label>
+                        <div class="date-range-filter">
+                            <input type="date" id="filter_fecha_vencimiento_inicio" class="form-control d-inline-block" placeholder="Desde" />
+                            <input type="date" id="filter_fecha_vencimiento_fin" class="form-control d-inline-block" placeholder="Hasta" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" id="resetFilters" class="btn btn-secondary mt-4">
+                            <i class="fas fa-undo me-2"></i>Limpiar Filtros
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla de Vencimientos -->
+                <form id="sendSelectedForm" method="post" action="<?= site_url('vencimientos/send-selected-emails') ?>">
+                    <table id="vencimientosTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll" class="form-check-input" /></th>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Consultor</th>
+                                <th>Mantenimiento</th>
+                                <th>Fecha de Vencimiento</th>
+                                <th>Estado</th>
+                                <th>Fecha de Realización</th>
+                                <th>Observaciones</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>
+                                    <select id="filter_id" class="form-select">
+                                        <option value="">Todos</option>
+                                        <?php
+                                        $ids = array_unique(array_column($vencimientos, 'id'));
+                                        sort($ids);
+                                        foreach ($ids as $id) {
+                                            echo '<option value="' . esc($id) . '">' . esc($id) . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </th>
+                                <th>
+                                    <select id="filter_cliente" class="form-select">
+                                        <option value="">Todos</option>
+                                        <?php
+                                        $clientes = array_unique(array_column($vencimientos, 'cliente'));
+                                        sort($clientes);
+                                        foreach ($clientes as $cliente) {
+                                            if (!empty($cliente)) {
+                                                echo '<option value="' . esc($cliente) . '">' . esc($cliente) . '</option>';
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+                                </th>
+                                <th>
+                                    <select id="filter_consultor" class="form-select">
+                                        <option value="">Todos</option>
+                                        <?php
+                                        $consultores = array_unique(array_column($vencimientos, 'consultor'));
+                                        sort($consultores);
+                                        foreach ($consultores as $consultor) {
+                                            if (!empty($consultor)) {
+                                                echo '<option value="' . esc($consultor) . '">' . esc($consultor) . '</option>';
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+                                </th>
+                                <th>
+                                    <select id="filter_mantenimiento" class="form-select">
+                                        <option value="">Todos</option>
+                                        <?php
+                                        $mantenimientos = array_unique(array_column($vencimientos, 'mantenimiento'));
+                                        sort($mantenimientos);
+                                        foreach ($mantenimientos as $mantenimiento) {
+                                            if (!empty($mantenimiento)) {
+                                                echo '<option value="' . esc($mantenimiento) . '">' . esc($mantenimiento) . '</option>';
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+                                </th>
+                                <th></th>
+                                <th>
+                                    <select id="filter_estado" class="form-select">
+                                        <option value="">Todos</option>
+                                        <?php
+                                        $estados = array_unique(array_column($vencimientos, 'estado_actividad'));
+                                        sort($estados);
+                                        foreach ($estados as $estado) {
+                                            if (!empty($estado)) {
+                                                echo '<option value="' . esc($estado) . '">' . esc($estado) . '</option>';
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+                                </th>
+                                <th></th>
+                                <th>
+                                    <select id="filter_observaciones" class="form-select">
+                                        <option value="">Todos</option>
+                                        <?php
+                                        $observaciones = array_unique(array_column($vencimientos, 'observaciones'));
+                                        sort($observaciones);
+                                        foreach ($observaciones as $observacion) {
+                                            if (!empty($observacion)) {
+                                                echo '<option value="' . esc($observacion) . '">' . esc($observacion) . '</option>';
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+                                </th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                            <?php if (!empty($vencimientos) && is_array($vencimientos)): ?>
+                                <?php foreach ($vencimientos as $vencimiento): ?>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="form-check-input email-checkbox" 
+                                                   name="selected[]" value="<?= esc($vencimiento['id']) ?>" />
+                                        </td>
+                                        <td><?= esc($vencimiento['id']) ?></td>
+                                        <td><?= esc($vencimiento['cliente']) ?></td>
+                                        <td><?= esc($vencimiento['consultor']) ?></td>
+                                        <td><?= esc($vencimiento['mantenimiento']) ?></td>
+                                        <td data-order="<?= strtotime(esc($vencimiento['fecha_vencimiento'])) ?>">
+                                            <?= date('d/m/Y', strtotime(esc($vencimiento['fecha_vencimiento']))) ?>
+                                        </td>
+                                        <td><?= esc($vencimiento['estado_actividad']) ?></td>
+                                        <td data-order="<?= strtotime(esc($vencimiento['fecha_realizacion'])) ?>">
+                                            <?= ($vencimiento['fecha_realizacion'] != '0000-00-00') ? date('d/m/Y', strtotime(esc($vencimiento['fecha_realizacion']))) : '' ?>
+                                        </td>
+                                        <td><?= esc($vencimiento['observaciones']) ?></td>
+                                        <td class="action-buttons">
+                                            <a href="<?= site_url('vencimientos/edit/' . esc($vencimiento['id'])) ?>" 
+                                               class="btn btn-sm btn-primary" data-bs-toggle="tooltip" 
+                                               title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="<?= site_url('vencimientos/delete/' . esc($vencimiento['id'])) ?>" 
+                                               class="btn btn-sm btn-danger" 
+                                               onclick="return confirm('¿Estás seguro de eliminar este vencimiento?');"
+                                               data-bs-toggle="tooltip" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading indicator -->
+    <div class="loading d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Función de ayuda para obtener elementos por ID
-            function $(id) {
-                return document.getElementById(id);
-            }
-
-            // --- Persistencia de filtros usando localStorage ---
-            const filterIds = ['filter_id', 'filter_cliente', 'filter_consultor', 'filter_mantenimiento', 'filter_fecha_vencimiento_inicio', 'filter_fecha_vencimiento_fin', 'filter_estado', 'filter_fecha_realizacion', 'filter_observaciones'];
-            filterIds.forEach(function(filterId) {
-                const storedValue = localStorage.getItem(filterId);
-                if (storedValue) {
-                    $(filterId).value = storedValue;
-                }
-            });
-            // Sincronizar el filtro superior de cliente con el de pie de tabla
-            const storedTopCliente = localStorage.getItem('topFilter_cliente');
-            if (storedTopCliente) {
-                $('topFilter_cliente').value = storedTopCliente;
-                $('filter_cliente').value = storedTopCliente;
-            }
-
-            // Guardar el estado de cada filtro
-            filterIds.concat(['topFilter_cliente']).forEach(function(filterId) {
-                $(filterId).addEventListener('change', function() {
-                    localStorage.setItem(filterId, this.value);
-                    if (filterId === 'topFilter_cliente') {
-                        $('filter_cliente').value = this.value;
-                    }
-                    filterTable();
-                });
-                $(filterId).addEventListener('keyup', function() {
-                    localStorage.setItem(filterId, this.value);
-                    if (filterId === 'topFilter_cliente') {
-                        $('filter_cliente').value = this.value;
-                    }
-                    filterTable();
-                });
+        $(document).ready(function() {
+            // Inicializar tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
             });
 
-            // --- Manejador del checkbox "Select All" ---
-            const selectAll = $('selectAll');
-            const checkboxes = document.querySelectorAll('.email-checkbox');
-            selectAll.addEventListener('change', function() {
-                checkboxes.forEach(function(checkbox) {
-                    checkbox.checked = selectAll.checked;
-                });
-            });
-
-            // --- Función de filtrado de la tabla ---
-            const filters = {
-                id: $('filter_id'),
-                cliente: $('filter_cliente'),
-                consultor: $('filter_consultor'),
-                mantenimiento: $('filter_mantenimiento'),
-                fecha_vencimiento_inicio: $('filter_fecha_vencimiento_inicio'),
-                fecha_vencimiento_fin: $('filter_fecha_vencimiento_fin'),
-                estado: $('filter_estado'),
-                fecha_realizacion: $('filter_fecha_realizacion'),
-                observaciones: $('filter_observaciones')
-            };
-
-            const table = $('vencimientosTable');
-            const tbody = table.getElementsByTagName('tbody')[0];
-            const rows = tbody.getElementsByTagName('tr');
-
-            function filterTable() {
-                const filterValues = {
-                    id: filters.id.value.toLowerCase(),
-                    cliente: filters.cliente.value.toLowerCase(),
-                    consultor: filters.consultor.value.toLowerCase(),
-                    mantenimiento: filters.mantenimiento.value.toLowerCase(),
-                    fecha_vencimiento_inicio: filters.fecha_vencimiento_inicio.value,
-                    fecha_vencimiento_fin: filters.fecha_vencimiento_fin.value,
-                    estado: filters.estado.value.toLowerCase(),
-                    fecha_realizacion: filters.fecha_realizacion.value,
-                    observaciones: filters.observaciones.value.toLowerCase()
-                };
-
-                for (let i = 0; i < rows.length; i++) {
-                    const cells = rows[i].getElementsByTagName('td');
-                    let showRow = true;
-
-                    // Filtro para ID (celda 1)
-                    if (filterValues.id && !cells[1].textContent.toLowerCase().includes(filterValues.id)) {
-                        showRow = false;
-                    }
-                    // Filtro para Cliente (celda 2)
-                    if (filterValues.cliente && !cells[2].textContent.toLowerCase().includes(filterValues.cliente)) {
-                        showRow = false;
-                    }
-                    // Filtro para Consultor (celda 3)
-                    if (filterValues.consultor && !cells[3].textContent.toLowerCase().includes(filterValues.consultor)) {
-                        showRow = false;
-                    }
-                    // Filtro para Mantenimiento (celda 4)
-                    if (filterValues.mantenimiento && !cells[4].textContent.toLowerCase().includes(filterValues.mantenimiento)) {
-                        showRow = false;
-                    }
-                    // Filtro para Fecha de Vencimiento (celda 5) por rango
-                    let cellDate = cells[5].textContent.trim();
-                    if (filterValues.fecha_vencimiento_inicio || filterValues.fecha_vencimiento_fin) {
-                        if (cellDate === "") {
-                            showRow = false;
-                        } else {
-                            let rowDate = new Date(cellDate);
-                            if (filterValues.fecha_vencimiento_inicio) {
-                                let startDate = new Date(filterValues.fecha_vencimiento_inicio);
-                                if (rowDate < startDate) showRow = false;
-                            }
-                            if (filterValues.fecha_vencimiento_fin) {
-                                let endDate = new Date(filterValues.fecha_vencimiento_fin);
-                                if (rowDate > endDate) showRow = false;
-                            }
+            // Configurar DataTables
+            var table = $('#vencimientosTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+                },
+                order: [[5, 'asc']], // Ordenar por fecha de vencimiento por defecto
+                pageLength: 25,
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: '<i class="fas fa-file-excel me-2"></i>Exportar a Excel',
+                        className: 'btn btn-success',
+                        exportOptions: {
+                            columns: [1,2,3,4,5,6,7,8]
                         }
                     }
-                    // Filtro para Estado (celda 6)
-                    if (filterValues.estado && !cells[6].textContent.toLowerCase().includes(filterValues.estado)) {
-                        showRow = false;
+                ],
+                columnDefs: [
+                    {
+                        targets: [0, 9], // Checkbox y columna de acciones
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        targets: [5, 7], // Columnas de fecha
+                        type: 'date'
                     }
-                    // Filtro para Fecha de Realización (celda 7)
-                    if (filterValues.fecha_realizacion && cells[7].textContent !== filterValues.fecha_realizacion) {
-                        showRow = false;
-                    }
-                    // Filtro para Observaciones (celda 8)
-                    if (filterValues.observaciones && !cells[8].textContent.toLowerCase().includes(filterValues.observaciones)) {
-                        showRow = false;
-                    }
-                    rows[i].style.display = showRow ? '' : 'none';
-                }
-            }
+                ],
+                responsive: true
+            });
 
-            for (let key in filters) {
-                if (filters.hasOwnProperty(key)) {
-                    filters[key].addEventListener('change', filterTable);
-                    filters[key].addEventListener('keyup', filterTable);
-                }
-            }
-
-            // --- Funcionalidad de ordenación ---
-            let currentSortCol = localStorage.getItem('sortCol') || null;
-            let currentSortOrder = localStorage.getItem('sortOrder') || 'asc';
-
-            function sortTableByColumn(colIndex, sortOrder) {
-                let rowsArray = Array.from(rows);
-                rowsArray.sort(function(a, b) {
-                    let aText = a.getElementsByTagName('td')[colIndex].textContent.trim();
-                    let bText = b.getElementsByTagName('td')[colIndex].textContent.trim();
-
-                    // Si son numéricos, comparar como números
-                    let aNum = parseFloat(aText);
-                    let bNum = parseFloat(bText);
-                    if (!isNaN(aNum) && !isNaN(bNum)) {
-                        return sortOrder === 'asc' ? aNum - bNum : bNum - aNum;
-                    }
-                    // De lo contrario, comparar como cadenas
-                    return sortOrder === 'asc' ? aText.localeCompare(bText) : bText.localeCompare(aText);
-                });
-                rowsArray.forEach(function(row) {
-                    tbody.appendChild(row);
-                });
-            }
-
-            const headers = document.querySelectorAll('th.sortable');
-            headers.forEach(function(header) {
-                header.addEventListener('click', function() {
-                    let colIndex = parseInt(this.getAttribute('data-col'));
-                    if (currentSortCol == colIndex) {
-                        currentSortOrder = (currentSortOrder === 'asc') ? 'desc' : 'asc';
-                    } else {
-                        currentSortOrder = 'asc';
-                        currentSortCol = colIndex;
-                    }
-                    localStorage.setItem('sortCol', currentSortCol);
-                    localStorage.setItem('sortOrder', currentSortOrder);
-                    headers.forEach(function(h) {
-                        h.classList.remove('sort-asc', 'sort-desc');
+            // Aplicar filtros de pie de tabla
+            table.columns().every(function(index) {
+                var column = this;
+                var select = $('select', this.footer());
+                
+                if (select.length > 0) {
+                    select.on('change', function() {
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        column.search(val ? '^'+val+'$' : '', true, false).draw();
                     });
-                    this.classList.add(currentSortOrder === 'asc' ? 'sort-asc' : 'sort-desc');
-                    sortTableByColumn(colIndex, currentSortOrder);
-                });
+                }
             });
 
-            // Aplicar ordenación guardada (si existe)
-            if (currentSortCol) {
-                headers.forEach(function(header) {
-                    if (parseInt(header.getAttribute('data-col')) === parseInt(currentSortCol)) {
-                        header.classList.add(currentSortOrder === 'asc' ? 'sort-asc' : 'sort-desc');
+            // Filtro de rango de fechas (utilizando el atributo data-order que contiene el timestamp en segundos)
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    var min = $('#filter_fecha_vencimiento_inicio').val();
+                    var max = $('#filter_fecha_vencimiento_fin').val();
+
+                    // Si no se especifica ningún filtro, se muestran todas las filas
+                    if (!min && !max) return true;
+
+                    // Obtener el elemento de la celda de la columna de fecha de vencimiento
+                    var cell = $(table.row(dataIndex).node()).find('td:eq(5)');
+                    // Convertir el timestamp a milisegundos (el valor en data-order está en segundos)
+                    var timestamp = parseInt(cell.attr('data-order')) * 1000;
+
+                    // Convertir los valores de los inputs de fecha a timestamp en milisegundos
+                    var minDate = min ? new Date(min).setHours(0, 0, 0, 0) : null;
+                    var maxDate = max ? new Date(max).setHours(23, 59, 59, 999) : null;
+
+                    if (minDate && !maxDate) {
+                        return timestamp >= minDate;
                     }
-                });
-                sortTableByColumn(parseInt(currentSortCol), currentSortOrder);
-            }
-        });
+                    if (!minDate && maxDate) {
+                        return timestamp <= maxDate;
+                    }
+                    if (minDate && maxDate) {
+                        return timestamp >= minDate && timestamp <= maxDate;
+                    }
+                    return true;
+                }
+            );
 
-        document.getElementById('resetFilters').addEventListener('click', function() {
-            const filterIds = [
-                'filter_id',
-                'filter_cliente',
-                'filter_consultor',
-                'filter_mantenimiento',
-                'filter_fecha_vencimiento_inicio',
-                'filter_fecha_vencimiento_fin',
-                'filter_estado',
-                'filter_fecha_realizacion',
-                'filter_observaciones',
-                'topFilter_cliente'
-            ];
-
-            filterIds.forEach(function(filterId) {
-                localStorage.removeItem(filterId);
-                document.getElementById(filterId).value = '';
+            // Eventos para filtros de fecha
+            $('#filter_fecha_vencimiento_inicio, #filter_fecha_vencimiento_fin').change(function() {
+                table.draw();
             });
 
-            // Actualiza la tabla sin filtros
-            filterTable();
+            // Sincronizar filtro superior de cliente con el de pie de tabla
+            $('#topFilter_cliente').on('keyup change', function() {
+                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                table.column(2).search(val ? val : '', true, false).draw();
+            });
+
+            // Manejar checkbox "Seleccionar todos"
+            $('#selectAll').change(function() {
+                $('.email-checkbox').prop('checked', $(this).prop('checked'));
+            });
+
+            // Actualizar checkbox "Seleccionar todos" cuando se cambian los individuales
+            $('.email-checkbox').change(function() {
+                var allChecked = $('.email-checkbox:checked').length === $('.email-checkbox').length;
+                $('#selectAll').prop('checked', allChecked);
+            });
+
+            // Botón de reinicio de filtros
+            $('#resetFilters').click(function() {
+                // Limpiar filtros superiores
+                $('#topFilter_cliente').val('');
+                $('#filter_fecha_vencimiento_inicio').val('');
+                $('#filter_fecha_vencimiento_fin').val('');
+                
+                // Limpiar filtros de pie de tabla
+                table.columns().search('').draw();
+                $('tfoot select').val('');
+                
+                // Redibujar la tabla
+                table.draw();
+            });
+
+            // Mostrar/ocultar indicador de carga
+            $(document)
+                .ajaxStart(function() {
+                    $('.loading').removeClass('d-none');
+                })
+                .ajaxStop(function() {
+                    $('.loading').addClass('d-none');
+                });
         });
     </script>
 </body>
-
 </html>
