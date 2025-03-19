@@ -635,6 +635,27 @@
         initializeTooltips();
       });
     });
+
+$.ajax({
+      url: '<?= base_url("updatecronogCapacitacion") ?>',
+      type: 'POST',
+      data: {
+        id: id,
+        field: field,
+        value: value
+      },
+      success: function(response) {
+        if (response.success) {
+          // Actualiza el elemento del DOM con el nuevo valor
+          $('#porcentaje-cobertura-' + id).text(response.newValue);
+          // También podrías agregar un mensaje de éxito aquí si es necesario
+        }
+      },
+      error: function(error) {
+        console.log(error);
+      }
+    });
+
   </script>
 </body>
 
