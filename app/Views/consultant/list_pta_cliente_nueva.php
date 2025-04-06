@@ -208,7 +208,7 @@
         <form id="filterForm" method="get" action="<?= site_url('/pta-cliente-nueva/list') ?>">
             <div class="row mb-3">
                 <!-- Seleccionar Cliente -->
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label for="cliente" class="form-label">Cliente</label>
                     <select name="cliente" id="cliente" class="form-select">
                         <option value="">Seleccione un Cliente</option>
@@ -223,16 +223,16 @@
                     </select>
                 </div>
                 <!-- Rango de Fechas -->
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="fecha_desde" class="form-label">Fecha Desde</label>
                     <input type="date" name="fecha_desde" id="fecha_desde" class="form-control" value="<?= esc(service('request')->getGet('fecha_desde')) ?>">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="fecha_hasta" class="form-label">Fecha Hasta</label>
                     <input type="date" name="fecha_hasta" id="fecha_hasta" class="form-control" value="<?= esc(service('request')->getGet('fecha_hasta')) ?>">
                 </div>
                 <!-- Estado de Actividad -->
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="estado" class="form-label">Estado de Actividad</label>
                     <select name="estado" id="estado" class="form-select">
                         <option value="">Todas</option>
@@ -241,24 +241,45 @@
                         <option value="GESTIONANDO" <?= (service('request')->getGet('estado') == 'GESTIONANDO') ? 'selected' : '' ?>>GESTIONANDO</option>
                     </select>
                 </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <button type="submit" class="btn btn-primary" id="btnBuscar">
-                        <i class="fas fa-search"></i> Buscar
-                    </button>
-                    <button type="reset" id="resetFilters" class="btn btn-secondary">
-                        <i class="fas fa-undo"></i> Resetear Filtros
-                    </button>
-                    <button type="button" id="btnCalificarCerradas" class="btn btn-warning">
-                        <i class="fas fa-check-double"></i> Calificar Cerradas
-                    </button>
-                    <!-- Botón para Añadir Registro con filtros en la URL -->
-                    <a href="<?= base_url('/pta-cliente-nueva/add?' . http_build_query($filters)) ?>" class="btn btn-info">
-                        <i class="fas fa-plus"></i> Añadir Registro
-                    </a>
+
+                <div class="col-md-2">
+                    <label for="mesSeleccionado" class="form-label">Seleccionar Mes o Todo el Año</label>
+                    <select id="mesSeleccionado" class="form-select">
+                        <option value="">-- Seleccione una opción --</option>
+                        <option value="all">Todo el Año</option>
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+
                 </div>
-            </div>
+                <div style="height: 10px;"></div>
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary" id="btnBuscar">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button type="reset" id="resetFilters" class="btn btn-secondary">
+                            <i class="fas fa-undo"></i> Resetear Filtros
+                        </button>
+                        <button type="button" id="btnCalificarCerradas" class="btn btn-warning">
+                            <i class="fas fa-check-double"></i> Calificar Cerradas
+                        </button>
+                        <!-- Botón para Añadir Registro con filtros en la URL -->
+                        <a href="<?= base_url('/pta-cliente-nueva/add?' . http_build_query($filters)) ?>" class="btn btn-info">
+                            <i class="fas fa-plus"></i> Añadir Registro
+                        </a>
+                    </div>
+                </div>
         </form>
 
         <!-- Mostrar la tabla solo si existen registros -->
@@ -396,6 +417,37 @@
                 }
             });
 
+            // Al cambiar el mes, se asignan las fechas correspondientes
+            $('#mesSeleccionado').on('change', function() {
+                var valor = $(this).val();
+                var anio = new Date().getFullYear();
+                var primerDia, ultimoDia;
+
+                if (valor === "all") {
+                    // Todo el año: desde el 1 de enero hasta el 31 de diciembre
+                    primerDia = new Date(anio, 0, 1);
+                    ultimoDia = new Date(anio, 11, 31);
+                } else {
+                    var mes = parseInt(valor);
+                    if (!mes) return; // Si no se selecciona ningún mes, salir
+
+                    // Primer día del mes
+                    primerDia = new Date(anio, mes - 1, 1);
+                    // Último día del mes (crea una fecha del mes siguiente y resta un día)
+                    ultimoDia = new Date(anio, mes, 0);
+                }
+
+                // Función para formatear la fecha a YYYY-MM-DD
+                function formatearFecha(fecha) {
+                    var dia = ("0" + fecha.getDate()).slice(-2);
+                    var mesFormateado = ("0" + (fecha.getMonth() + 1)).slice(-2);
+                    return fecha.getFullYear() + '-' + mesFormateado + '-' + dia;
+                }
+
+                $('#fecha_desde').val(formatearFecha(primerDia));
+                $('#fecha_hasta').val(formatearFecha(ultimoDia));
+            });
+
             $('#filterForm').on('submit', function(e) {
                 var cliente = $('#cliente').val();
                 var fechaDesde = $('#fecha_desde').val();
@@ -471,7 +523,6 @@
                             }
                         });
                     }
-
                 });
 
                 // Función para actualizar los contadores de las tarjetas superiores
