@@ -133,44 +133,71 @@ class ClientController extends Controller
     {
         $reportModel = new ReporteModel();
 
-        // Obtener el ID del cliente desde la sesión
+        // 1) Obtener el ID del cliente desde la sesión
         $clientId = session()->get('user_id');
-
         if (!$clientId) {
             return redirect()->to('/login')->with('error', 'Sesión no válida.');
         }
 
-        // Mapeo de claves con sus respectivos ID de reporte
+        // 2) Mapeo de claves ⇒ ID de reporte
         $reportTypes = [
-            'inspecciones'      => 1,
-            'reportes'          => 2,
-            'aseo'              => 3,
-            'vigilancia'        => 4,
-            'ambiental'         => 5,
-            'actasdevisita'     => 6,
-            'capacitaciones'    => 7,
-            'cincuentahoras'    => 8,
-            'reporteministerio' => 9,
-            'cierredemes'       => 10,
-            'emergencias'       => 11,
-            'otrosproveedores'  => 12,
-            'secretariasalud'   => 13,
-            'lavadotanques'     => 14,
+            'inspecciones'       => 1,
+            'reportes'           => 2,
+            'aseo'               => 3,
+            'vigilancia'         => 4,
+            'ambiental'          => 5,
+            'actasdevisita'      => 6,
+            'capacitaciones'     => 7,
+            'cincuentahoras'     => 8,
+            'reporteministerio'  => 9,
+            'cierredemes'        => 10,
+            'emergencias'        => 11,
+            'otrosproveedores'   => 12,
+            'secretariasalud'    => 13,
+            'lavadotanques'      => 14,
             'localescomerciales' => 15,
-            'fumigaciones'      => 16,
-            'normatividad'      => 17,
-            'contrato'          => 19,
-            'saneamiento'       => 20,
-            'consultor'         => 21,
+            'fumigaciones'       => 16,
+            'normatividad'       => 17,
+            'contrato'           => 19,
+            'saneamiento'        => 20,
+            'consultor'          => 21,
         ];
 
-        $data = [];
+        // 3) Mapeo de claves ⇒ títulos para el menú (topicsList)
+        $topicsList = [
+            'inspecciones'       => 'Inspecciones',
+            'reportes'           => 'Reportes Generales',
+            'aseo'               => 'Servicios de Aseo',
+            'vigilancia'         => 'Vigilancia',
+            'ambiental'          => 'Plan de Gestión Ambiental',
+            'actasdevisita'      => 'Actas de Visita SST',
+            'capacitaciones'     => 'Capacitaciones en SST',
+            'cincuentahoras'     => 'Programa 50 Horas',
+            'reporteministerio'  => 'Reportes Ministerio',
+            'cierredemes'        => 'Cierre de Meses',
+            'emergencias'        => 'Protocolos de Emergencia',
+            'otrosproveedores'   => 'Otros Proveedores',
+            'secretariasalud'    => 'Secretaría de Salud',
+            'lavadotanques'      => 'Lavado de Tanques',
+            'localescomerciales' => 'Locales Comerciales',
+            'fumigaciones'       => 'Fumigaciones',
+            'normatividad'       => 'Documentación Normativa',
+            'contrato'           => 'Contratos',
+            'saneamiento'        => 'Saneamiento Básico',
+            'consultor'          => 'Informes de Consultor',
+        ];
 
-        // Iterar sobre cada tipo de reporte y obtener los datos correspondientes
+        // 4) Inicializar data con topicsList
+        $data = [
+            'topicsList' => $topicsList
+        ];
+
+        // 5) Cargar los reportes en cada key
         foreach ($reportTypes as $key => $typeId) {
             $data[$key] = $this->getReportsForType($reportModel, $clientId, $typeId);
         }
 
+        // 6) Enviar todo a la vista
         return view('client/document_view', $data);
     }
 }
