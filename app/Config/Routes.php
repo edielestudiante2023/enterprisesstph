@@ -555,6 +555,7 @@ $routes->post('csv/upload', 'CsvUploadController::upload'); // Procesa el CSV
 
 $routes->post('api/getCronogramasAjax', 'CronogramaCapacitacionController::getCronogramasAjax');
 
+$routes->post('api/recalcularConteoDias', 'PendientesController::recalcularConteoDias');
 
 
 
