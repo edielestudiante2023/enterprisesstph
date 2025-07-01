@@ -173,10 +173,11 @@
     <main class="container-fluid my-5">
         <!-- Banner de Bienvenida -->
         <div class="welcome-banner">
-            <h3>Enterprisesst - PH // Consultor</h3>
-            <h4>Hola mi Nata, Dianita y Eleyson</h4>
-            <p class="mb-0">¡Con Enterprisesst - PH nos vamos a Comer el Mundo!</p>
+        <h3>Enterprisesst - PH // Consultor</h3>
+         <h4>Bienvenido al módulo de gestión consultiva</h4>
+                <p class="mb-0">Con Enterprisesst - PH fortalecemos el cumplimiento, mejoramos la   trazabilidad y elevamos el valor de nuestra consultoría.</p>
         </div>
+
 
         <!-- Tabla a pantalla completa -->
         <div class="table-responsive">

@@ -142,7 +142,7 @@ class ReportController extends Controller
             // Llamar a sendEmailToClient con el ID del cliente
             $this->sendEmailToClient($idCliente, $data['titulo_reporte'], $data['enlace']);
 
-            return redirect()->to('/reportList')->with('msg', 'Reporte agregado exitosamente');
+            return redirect()->to('/addReport')->with('msg', 'Reporte agregado exitosamente');
         } else {
             return redirect()->back()->with('msg', 'Error al guardar reporte en la base de datos.');
         }
