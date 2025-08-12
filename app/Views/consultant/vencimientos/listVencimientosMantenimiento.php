@@ -80,11 +80,62 @@
           </div>
         <?php endif; ?>
 
+        <?php if (isset($mostrar_filtro) && $mostrar_filtro): ?>
+        <!-- Formulario de filtro por cliente -->
+        <div class="alert alert-info mb-4">
+          <h5><i class="fas fa-filter me-2"></i>Filtrar por Cliente</h5>
+          <p>Para mejorar la velocidad de carga, debe seleccionar un cliente antes de mostrar los datos.</p>
+        </div>
+        
+        <form method="GET" action="<?= current_url() ?>">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <label for="cliente_id" class="form-label"><strong>Seleccionar Cliente:</strong></label>
+              <select name="cliente_id" id="cliente_id" class="form-select" required>
+                <option value="">-- Seleccione un cliente --</option>
+                <?php if (!empty($clientes)): ?>
+                  <?php foreach ($clientes as $cliente): ?>
+                    <option value="<?= esc($cliente['id_cliente']) ?>"><?= esc($cliente['nombre_cliente']) ?></option>
+                  <?php endforeach; ?>
+                <?php endif; ?>
+              </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Cargar Vencimientos
+              </button>
+            </div>
+          </div>
+        </form>
+        <?php else: ?>
+
+        <!-- Información del cliente seleccionado -->
+        <div class="alert alert-success mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-user me-2"></i><strong>Cliente seleccionado:</strong> 
+              <?php 
+                $clienteActual = null;
+                foreach ($clientes as $cliente) {
+                  if ($cliente['id_cliente'] == $cliente_seleccionado) {
+                    $clienteActual = $cliente['nombre_cliente'];
+                    break;
+                  }
+                }
+                echo esc($clienteActual);
+              ?>
+            </div>
+            <a href="<?= current_url() ?>" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-exchange-alt me-2"></i>Cambiar Cliente
+            </a>
+          </div>
+        </div>
+
         <!-- Botones de acciones principales -->
         <div class="row mb-3">
           <div class="col-md-6">
             <div class="btn-group">
-              <a href="<?= site_url('vencimientos/add') ?>?cliente=" id="btn-agregar" class="btn btn-success">
+              <a href="<?= site_url('vencimientos/add') ?>?cliente=<?= esc($cliente_seleccionado) ?>" id="btn-agregar" class="btn btn-success">
                 <i class="fas fa-plus me-2"></i>Agregar Nuevo
               </a>
               <a href="<?= base_url('vencimientos/send-emails') ?>" class="btn btn-warning">
@@ -96,7 +147,9 @@
             </div>
           </div>
         </div>
+        <?php endif; ?>
 
+        <?php if (!isset($mostrar_filtro) || !$mostrar_filtro): ?>
         <!-- Filtros superiores -->
         <div class="row mb-3">
           <div class="col-md-3">
@@ -262,8 +315,8 @@
                       <?= (!empty($vencimiento['fecha_vencimiento']) && $vencimiento['fecha_vencimiento'] != '0000-00-00') ? date('d/m/Y', strtotime(esc($vencimiento['fecha_vencimiento']))) : '' ?>
                     </td>
                     <td><?= esc($vencimiento['estado_actividad']) ?></td>
-                    <td data-order="<?= strtotime(esc($vencimiento['fecha_realizacion'])) ?>">
-                      <?= ($vencimiento['fecha_realizacion'] != '0000-00-00') ? date('d/m/Y', strtotime(esc($vencimiento['fecha_realizacion']))) : '' ?>
+                    <td data-order="<?= (!empty($vencimiento['fecha_realizacion']) && $vencimiento['fecha_realizacion'] != '0000-00-00') ? strtotime(esc($vencimiento['fecha_realizacion'])) : 0 ?>">
+                      <?= (!empty($vencimiento['fecha_realizacion']) && $vencimiento['fecha_realizacion'] != '0000-00-00') ? date('d/m/Y', strtotime(esc($vencimiento['fecha_realizacion']))) : '-' ?>
                     </td>
                     <td><?= esc($vencimiento['observaciones']) ?></td>
                     <td class="action-buttons">
@@ -284,6 +337,7 @@
             </tbody>
           </table>
         </form>
+        <?php endif; ?>
       </div>
     </div>
   </div>
@@ -314,7 +368,8 @@
         return new bootstrap.Tooltip(tooltipTriggerEl);
       });
 
-      // Inicializar DataTable
+      <?php if (!isset($mostrar_filtro) || !$mostrar_filtro): ?>
+      // Inicializar DataTable solo si hay datos
       var table = $('#vencimientosTable').DataTable({
         language: {
           url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
@@ -497,6 +552,7 @@
 
       // Llamar updateClientFilter inicialmente
       updateClientFilter();
+      <?php endif; ?>
     });
   </script>
 </body>

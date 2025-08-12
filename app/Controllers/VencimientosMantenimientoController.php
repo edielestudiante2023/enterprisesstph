@@ -154,8 +154,24 @@ class VencimientosMantenimientoController extends BaseController
         $consultantModel = new ConsultantModel();
         $mantenimientoModel = new MantenimientoModel();
 
-        // Obtener todos los vencimientos
-        $vencimientos = $vencimientosModel->findAll();
+        // Obtener el filtro de cliente de la URL o POST
+        $clienteId = $this->request->getGet('cliente_id') ?? $this->request->getPost('cliente_id');
+        
+        // Obtener lista de clientes para el filtro
+        $clientes = $clientModel->findAll();
+
+        // Si no se ha seleccionado un cliente, mostrar solo el formulario de filtro
+        if (empty($clienteId)) {
+            return view('consultant/vencimientos/listVencimientosMantenimiento', [
+                'vencimientos' => [],
+                'clientes' => $clientes,
+                'mostrar_filtro' => true,
+                'cliente_seleccionado' => null,
+            ]);
+        }
+
+        // Obtener vencimientos filtrados por cliente
+        $vencimientos = $vencimientosModel->where('id_cliente', $clienteId)->findAll();
 
         // Preparar los datos descriptivos para la vista
         $dataVencimientos = [];
@@ -172,7 +188,7 @@ class VencimientosMantenimientoController extends BaseController
                 'mantenimiento'      => $mantenimiento ? $mantenimiento['detalle_mantenimiento'] : 'No especificado',
                 'fecha_vencimiento'  => $vencimiento['fecha_vencimiento'],
                 'estado_actividad'   => ucfirst($vencimiento['estado_actividad']),
-                'fecha_realizacion'  => $vencimiento['fecha_realizacion'] ?? 'N/A',
+                'fecha_realizacion'  => $vencimiento['fecha_realizacion'],
                 'observaciones'      => $vencimiento['observaciones'] ?? 'N/A',
             ];
         }
@@ -180,6 +196,9 @@ class VencimientosMantenimientoController extends BaseController
         // Cargar la vista con los datos
         return view('consultant/vencimientos/listVencimientosMantenimiento', [
             'vencimientos' => $dataVencimientos,
+            'clientes' => $clientes,
+            'mostrar_filtro' => false,
+            'cliente_seleccionado' => $clienteId,
         ]);
     }
 
