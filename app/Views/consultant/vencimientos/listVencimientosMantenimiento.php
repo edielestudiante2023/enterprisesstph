@@ -141,55 +141,33 @@
                 <th>
                   <select id="filter_id" class="form-select">
                     <option value="">Todos</option>
-                    <?php
-                      $ids = array_unique(array_column($vencimientos, 'id'));
-                      sort($ids);
-                      foreach ($ids as $id) {
-                        echo '<option value="' . esc($id) . '">' . esc($id) . '</option>';
-                      }
-                    ?>
+                    <?php foreach ($filtros['ids'] as $id): ?>
+                      <option value="<?= esc($id) ?>"><?= esc($id) ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </th>
                 <th>
                   <select id="filter_cliente" class="form-select">
                     <option value="">Todos</option>
-                    <?php
-                      $clientes = array_unique(array_column($vencimientos, 'cliente'));
-                      sort($clientes);
-                      foreach ($clientes as $cliente) {
-                        if (!empty($cliente)) {
-                          echo '<option value="' . esc($cliente) . '">' . esc($cliente) . '</option>';
-                        }
-                      }
-                    ?>
+                    <?php foreach ($filtros['clientes'] as $cliente): ?>
+                      <option value="<?= esc($cliente) ?>"><?= esc($cliente) ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </th>
                 <th>
                   <select id="filter_consultor" class="form-select">
                     <option value="">Todos</option>
-                    <?php
-                      $consultores = array_unique(array_column($vencimientos, 'consultor'));
-                      sort($consultores);
-                      foreach ($consultores as $consultor) {
-                        if (!empty($consultor)) {
-                          echo '<option value="' . esc($consultor) . '">' . esc($consultor) . '</option>';
-                        }
-                      }
-                    ?>
+                    <?php foreach ($filtros['consultores'] as $consultor): ?>
+                      <option value="<?= esc($consultor) ?>"><?= esc($consultor) ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </th>
                 <th>
                   <select id="filter_mantenimiento" class="form-select">
                     <option value="">Todos</option>
-                    <?php
-                      $mantenimientos = array_unique(array_column($vencimientos, 'mantenimiento'));
-                      sort($mantenimientos);
-                      foreach ($mantenimientos as $mantenimiento) {
-                        if (!empty($mantenimiento)) {
-                          echo '<option value="' . esc($mantenimiento) . '">' . esc($mantenimiento) . '</option>';
-                        }
-                      }
-                    ?>
+                    <?php foreach ($filtros['mantenimientos'] as $mantenimiento): ?>
+                      <option value="<?= esc($mantenimiento) ?>"><?= esc($mantenimiento) ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </th>
                 <th>
@@ -198,89 +176,25 @@
                 <th>
                   <select id="filter_estado" class="form-select">
                     <option value="">Todos</option>
-                    <?php
-                      $estados = array_unique(array_column($vencimientos, 'estado_actividad'));
-                      sort($estados);
-                      foreach ($estados as $estado) {
-                        if (!empty($estado)) {
-                          echo '<option value="' . esc($estado) . '">' . esc($estado) . '</option>';
-                        }
-                      }
-                    ?>
+                    <?php foreach ($filtros['estados'] as $estado): ?>
+                      <option value="<?= esc($estado) ?>"><?= esc($estado) ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </th>
                 <th></th>
                 <th>
                   <select id="filter_observaciones" class="form-select">
                     <option value="">Todos</option>
-                    <?php
-                      $observaciones = array_unique(array_column($vencimientos, 'observaciones'));
-                      sort($observaciones);
-                      foreach ($observaciones as $observacion) {
-                        if (!empty($observacion)) {
-                          echo '<option value="' . esc($observacion) . '">' . esc($observacion) . '</option>';
-                        }
-                      }
-                    ?>
+                    <?php foreach ($filtros['observaciones'] as $observacion): ?>
+                      <option value="<?= esc($observacion) ?>"><?= esc($observacion) ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </th>
                 <th></th>
               </tr>
             </tfoot>
             <tbody>
-              <?php if (!empty($vencimientos) && is_array($vencimientos)): ?>
-                <?php foreach ($vencimientos as $vencimiento): ?>
-                  <?php
-                    $fecha_vencimiento = $vencimiento['fecha_vencimiento'];
-                    $clase_fila = '';
-                    // Verificar si está ejecutado (tiene fecha de realización)
-                    if (!empty($vencimiento['fecha_realizacion']) && $vencimiento['fecha_realizacion'] != '0000-00-00') {
-                      $clase_fila = 'ejecutado';
-                    } elseif (!empty($fecha_vencimiento) && $fecha_vencimiento != '0000-00-00') {
-                      $fecha_venc = new DateTime($fecha_vencimiento);
-                      $hoy = new DateTime();
-                      $diff = $hoy->diff($fecha_venc);
-                      
-                      if ($fecha_venc < $hoy) {
-                        $clase_fila = 'vencido';
-                      } elseif ($diff->days <= 30 && $fecha_venc > $hoy) {
-                        $clase_fila = 'proximo-vencer';
-                      }
-                    }
-                  ?>
-                  <tr class="<?= $clase_fila ?>">
-                    <td>
-                      <input type="checkbox" class="form-check-input email-checkbox" 
-                             name="selected[]" value="<?= esc($vencimiento['id']) ?>" />
-                    </td>
-                    <td><?= esc($vencimiento['id']) ?></td>
-                    <td><?= esc($vencimiento['cliente']) ?></td>
-                    <td><?= esc($vencimiento['consultor']) ?></td>
-                    <td><?= esc($vencimiento['mantenimiento']) ?></td>
-                    <!-- Se asigna el atributo data-order para que DataTables use el timestamp al ordenar -->
-                    <td data-order="<?= (!empty($vencimiento['fecha_vencimiento']) && $vencimiento['fecha_vencimiento'] != '0000-00-00') ? strtotime(esc($vencimiento['fecha_vencimiento'])) : 0 ?>">
-                      <?= (!empty($vencimiento['fecha_vencimiento']) && $vencimiento['fecha_vencimiento'] != '0000-00-00') ? date('d/m/Y', strtotime(esc($vencimiento['fecha_vencimiento']))) : '' ?>
-                    </td>
-                    <td><?= esc($vencimiento['estado_actividad']) ?></td>
-                    <td data-order="<?= strtotime(esc($vencimiento['fecha_realizacion'])) ?>">
-                      <?= ($vencimiento['fecha_realizacion'] != '0000-00-00') ? date('d/m/Y', strtotime(esc($vencimiento['fecha_realizacion']))) : '' ?>
-                    </td>
-                    <td><?= esc($vencimiento['observaciones']) ?></td>
-                    <td class="action-buttons">
-                      <a href="<?= site_url('vencimientos/edit/' . esc($vencimiento['id'])) ?>?cliente=" 
-                         class="btn btn-sm btn-primary btn-editar" data-bs-toggle="tooltip" title="Editar">
-                        <i class="fas fa-edit"></i>
-                      </a>
-                      <a href="<?= site_url('vencimientos/delete/' . esc($vencimiento['id'])) ?>" 
-                         class="btn btn-sm btn-danger" 
-                         onclick="return confirm('¿Estás seguro de eliminar este vencimiento?');"
-                         data-bs-toggle="tooltip" title="Eliminar">
-                        <i class="fas fa-trash"></i>
-                      </a>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              <?php endif; ?>
+              <!-- Los datos se cargan vía AJAX -->
             </tbody>
           </table>
         </form>
@@ -314,10 +228,21 @@
         return new bootstrap.Tooltip(tooltipTriggerEl);
       });
 
-      // Inicializar DataTable
+      // Inicializar DataTable con server-side processing
       var table = $('#vencimientosTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+          url: '<?= site_url('vencimientos/get-datatable-data') ?>',
+          type: 'POST',
+          data: function(d) {
+            // Aquí puedes agregar filtros personalizados
+            return d;
+          }
+        },
         language: {
-          url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+          url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json',
+          processing: 'Procesando...'
         },
         order: [[5, 'asc']], // Se ordena inicialmente por "Fecha de Vencimiento"
         pageLength: 10,
@@ -339,40 +264,33 @@
             searchable: false
           },
           {
-            // Para "Fecha de Vencimiento" (columna 5) y "Fecha de Realización" (columna 7)
-            // DataTables utilizará el valor numérico de data-order para ordenar.
             targets: [5, 7],
-            type: 'num',
-            orderSequence: ['asc', 'desc']
+            type: 'date',
+            render: function(data, type, row) {
+              if (type === 'display' || type === 'type') {
+                return data;
+              }
+              // Para ordenamiento, convertir dd/mm/yyyy a yyyy-mm-dd
+              if (data && data.match(/\d{2}\/\d{2}\/\d{4}/)) {
+                var parts = data.split('/');
+                return parts[2] + '-' + parts[1] + '-' + parts[0];
+              }
+              return data;
+            }
           },
           {
-            // La columna Estado (índice 6) se ordena alfabéticamente.
             targets: 6,
             type: 'string',
             orderSequence: ['asc', 'desc']
           }
         ],
-        responsive: true,
-        initComplete: function () {
-          // Filtros en el pie de tabla (para select)
-          this.api().columns().every(function (index) {
-            var column = this;
-            var footer = $(column.footer());
-            var select = footer.find('select');
-            if (select.length > 0) {
-              select.on('change', function() {
-                var val = $(this).val();
-                column.search(val ? val : '', true, false).draw();
-              });
-              // Ordenar opciones alfabéticamente
-              var options = select.find('option').toArray();
-              options.sort(function(a, b) {
-                return $(a).text().localeCompare($(b).text());
-              });
-              select.empty().append(options);
-            }
-          });
-        }
+        createdRow: function(row, data, dataIndex) {
+          // Aplicar clase CSS a la fila
+          if (data.DT_RowClass) {
+            $(row).addClass(data.DT_RowClass);
+          }
+        },
+        responsive: true
       });
 
       // Filtro de rango de fechas para "Fecha de Vencimiento"
