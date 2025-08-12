@@ -187,126 +187,34 @@
           </div>
         </div>
 
-        <!-- Tabla de Vencimientos -->
-        <form id="sendSelectedForm" method="post" action="<?= site_url('vencimientos/send-selected-emails') ?>">
-          <table id="vencimientosTable" class="table table-striped table-bordered table-hover">
-            <thead>
-              <tr>
-                <th><input type="checkbox" id="selectAll" class="form-check-input" /></th>
-                <th>ID</th>
-                <th>Cliente</th>
-                <th>Consultor</th>
-                <th>Mantenimiento</th>
-                <!-- La columna "Fecha de Vencimiento" se ordena utilizando el atributo data-order -->
-                <th>Fecha de Vencimiento</th>
-                <th>Estado</th>
-                <th>Fecha de Realización</th>
-                <th>Observaciones</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tfoot>
-              <tr>
-                <th></th>
-                <th>
-                  <select id="filter_id" class="form-select">
-                    <option value="">Todos</option>
-                    <?php
-                      $ids = array_unique(array_column($vencimientos, 'id'));
-                      sort($ids);
-                      foreach ($ids as $id) {
-                        echo '<option value="' . esc($id) . '">' . esc($id) . '</option>';
-                      }
-                    ?>
-                  </select>
-                </th>
-                <th>
-                  <select id="filter_cliente" class="form-select">
-                    <option value="">Todos</option>
-                    <?php
-                      $clientes = array_unique(array_column($vencimientos, 'cliente'));
-                      sort($clientes);
-                      foreach ($clientes as $cliente) {
-                        if (!empty($cliente)) {
-                          echo '<option value="' . esc($cliente) . '">' . esc($cliente) . '</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                </th>
-                <th>
-                  <select id="filter_consultor" class="form-select">
-                    <option value="">Todos</option>
-                    <?php
-                      $consultores = array_unique(array_column($vencimientos, 'consultor'));
-                      sort($consultores);
-                      foreach ($consultores as $consultor) {
-                        if (!empty($consultor)) {
-                          echo '<option value="' . esc($consultor) . '">' . esc($consultor) . '</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                </th>
-                <th>
-                  <select id="filter_mantenimiento" class="form-select">
-                    <option value="">Todos</option>
-                    <?php
-                      $mantenimientos = array_unique(array_column($vencimientos, 'mantenimiento'));
-                      sort($mantenimientos);
-                      foreach ($mantenimientos as $mantenimiento) {
-                        if (!empty($mantenimiento)) {
-                          echo '<option value="' . esc($mantenimiento) . '">' . esc($mantenimiento) . '</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                </th>
-                <th>
-                  <input type="text" class="form-control" placeholder="Filtrar fecha (dd/mm/yyyy)" />
-                </th>
-                <th>
-                  <select id="filter_estado" class="form-select">
-                    <option value="">Todos</option>
-                    <?php
-                      $estados = array_unique(array_column($vencimientos, 'estado_actividad'));
-                      sort($estados);
-                      foreach ($estados as $estado) {
-                        if (!empty($estado)) {
-                          echo '<option value="' . esc($estado) . '">' . esc($estado) . '</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                </th>
-                <th></th>
-                <th>
-                  <select id="filter_observaciones" class="form-select">
-                    <option value="">Todos</option>
-                    <?php
-                      $observaciones = array_unique(array_column($vencimientos, 'observaciones'));
-                      sort($observaciones);
-                      foreach ($observaciones as $observacion) {
-                        if (!empty($observacion)) {
-                          echo '<option value="' . esc($observacion) . '">' . esc($observacion) . '</option>';
-                        }
-                      }
-                    ?>
-                  </select>
-                </th>
-                <th></th>
-              </tr>
-            </tfoot>
-            <tbody>
-              <?php if (!empty($vencimientos) && is_array($vencimientos)): ?>
-                <?php foreach ($vencimientos as $vencimiento): ?>
+        <!-- Tabla de Vencimientos Sin Ejecutar -->
+        <?php if (!empty($vencimientos_sin_ejecutar)): ?>
+        <div class="mb-4">
+          <h4 class="text-danger mb-3">
+            <i class="fas fa-exclamation-triangle me-2"></i>Vencimientos Sin Ejecutar 
+            <span class="badge bg-danger"><?= count($vencimientos_sin_ejecutar) ?></span>
+          </h4>
+          <form id="sendSelectedForm" method="post" action="<?= site_url('vencimientos/send-selected-emails') ?>">
+            <table id="vencimientosSinEjecutarTable" class="table table-striped table-bordered table-hover">
+              <thead class="table-danger">
+                <tr>
+                  <th><input type="checkbox" id="selectAllSinEjecutar" class="form-check-input" /></th>
+                  <th>ID</th>
+                  <th>Cliente</th>
+                  <th>Consultor</th>
+                  <th>Mantenimiento</th>
+                  <th>Fecha de Vencimiento</th>
+                  <th>Estado</th>
+                  <th>Observaciones</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($vencimientos_sin_ejecutar as $vencimiento): ?>
                   <?php
                     $fecha_vencimiento = $vencimiento['fecha_vencimiento'];
                     $clase_fila = '';
-                    // Verificar si está ejecutado (tiene fecha de realización)
-                    if (!empty($vencimiento['fecha_realizacion']) && $vencimiento['fecha_realizacion'] != '0000-00-00') {
-                      $clase_fila = 'ejecutado';
-                    } elseif (!empty($fecha_vencimiento) && $fecha_vencimiento != '0000-00-00') {
+                    if (!empty($fecha_vencimiento) && $fecha_vencimiento != '0000-00-00') {
                       $fecha_venc = new DateTime($fecha_vencimiento);
                       $hoy = new DateTime();
                       $diff = $hoy->diff($fecha_venc);
@@ -320,21 +228,17 @@
                   ?>
                   <tr class="<?= $clase_fila ?>">
                     <td>
-                      <input type="checkbox" class="form-check-input email-checkbox" 
+                      <input type="checkbox" class="form-check-input email-checkbox-sin-ejecutar" 
                              name="selected[]" value="<?= esc($vencimiento['id']) ?>" />
                     </td>
                     <td><?= esc($vencimiento['id']) ?></td>
                     <td><?= esc($vencimiento['cliente']) ?></td>
                     <td><?= esc($vencimiento['consultor']) ?></td>
                     <td><?= esc($vencimiento['mantenimiento']) ?></td>
-                    <!-- Se asigna el atributo data-order para que DataTables use el timestamp al ordenar -->
                     <td data-order="<?= (!empty($vencimiento['fecha_vencimiento']) && $vencimiento['fecha_vencimiento'] != '0000-00-00') ? strtotime(esc($vencimiento['fecha_vencimiento'])) : 0 ?>">
                       <?= (!empty($vencimiento['fecha_vencimiento']) && $vencimiento['fecha_vencimiento'] != '0000-00-00') ? date('d/m/Y', strtotime(esc($vencimiento['fecha_vencimiento']))) : '' ?>
                     </td>
-                    <td><?= esc($vencimiento['estado_actividad']) ?></td>
-                    <td data-order="<?= (!empty($vencimiento['fecha_realizacion']) && $vencimiento['fecha_realizacion'] != '0000-00-00') ? strtotime(esc($vencimiento['fecha_realizacion'])) : 0 ?>">
-                      <?= (!empty($vencimiento['fecha_realizacion']) && $vencimiento['fecha_realizacion'] != '0000-00-00') ? date('d/m/Y', strtotime(esc($vencimiento['fecha_realizacion']))) : '-' ?>
-                    </td>
+                    <td><span class="badge bg-warning text-dark"><?= esc($vencimiento['estado_actividad']) ?></span></td>
                     <td><?= esc($vencimiento['observaciones']) ?></td>
                     <td class="action-buttons">
                       <a href="<?= site_url('vencimientos/edit/' . esc($vencimiento['id'])) ?>?cliente_id=<?= esc($cliente_seleccionado) ?>" 
@@ -350,10 +254,66 @@
                     </td>
                   </tr>
                 <?php endforeach; ?>
-              <?php endif; ?>
+              </tbody>
+            </table>
+          </form>
+        </div>
+        <?php endif; ?>
+
+        <!-- Tabla de Vencimientos Ejecutados -->
+        <?php if (!empty($vencimientos_ejecutados)): ?>
+        <div class="mb-4">
+          <h4 class="text-success mb-3">
+            <i class="fas fa-check-circle me-2"></i>Vencimientos Ejecutados 
+            <span class="badge bg-success"><?= count($vencimientos_ejecutados) ?></span>
+          </h4>
+          <table id="vencimientosEjecutadosTable" class="table table-striped table-bordered table-hover">
+            <thead class="table-success">
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Consultor</th>
+                <th>Mantenimiento</th>
+                <th>Fecha de Vencimiento</th>
+                <th>Fecha de Realización</th>
+                <th>Estado</th>
+                <th>Observaciones</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($vencimientos_ejecutados as $vencimiento): ?>
+                <tr class="ejecutado">
+                  <td><?= esc($vencimiento['id']) ?></td>
+                  <td><?= esc($vencimiento['cliente']) ?></td>
+                  <td><?= esc($vencimiento['consultor']) ?></td>
+                  <td><?= esc($vencimiento['mantenimiento']) ?></td>
+                  <td data-order="<?= (!empty($vencimiento['fecha_vencimiento']) && $vencimiento['fecha_vencimiento'] != '0000-00-00') ? strtotime(esc($vencimiento['fecha_vencimiento'])) : 0 ?>">
+                    <?= (!empty($vencimiento['fecha_vencimiento']) && $vencimiento['fecha_vencimiento'] != '0000-00-00') ? date('d/m/Y', strtotime(esc($vencimiento['fecha_vencimiento']))) : '' ?>
+                  </td>
+                  <td data-order="<?= (!empty($vencimiento['fecha_realizacion']) && $vencimiento['fecha_realizacion'] != '0000-00-00') ? strtotime(esc($vencimiento['fecha_realizacion'])) : 0 ?>">
+                    <?= (!empty($vencimiento['fecha_realizacion']) && $vencimiento['fecha_realizacion'] != '0000-00-00') ? date('d/m/Y', strtotime(esc($vencimiento['fecha_realizacion']))) : '-' ?>
+                  </td>
+                  <td><span class="badge bg-success"><?= esc($vencimiento['estado_actividad']) ?></span></td>
+                  <td><?= esc($vencimiento['observaciones']) ?></td>
+                  <td class="action-buttons">
+                    <a href="<?= site_url('vencimientos/edit/' . esc($vencimiento['id'])) ?>?cliente_id=<?= esc($cliente_seleccionado) ?>" 
+                       class="btn btn-sm btn-primary btn-editar" data-bs-toggle="tooltip" title="Editar">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="<?= site_url('vencimientos/delete/' . esc($vencimiento['id'])) ?>" 
+                       class="btn btn-sm btn-danger" 
+                       onclick="return confirm('¿Estás seguro de eliminar este vencimiento?');"
+                       data-bs-toggle="tooltip" title="Eliminar">
+                      <i class="fas fa-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
             </tbody>
           </table>
-        </form>
+        </div>
+        <?php endif; ?>
         <?php endif; ?>
       </div>
     </div>
@@ -402,11 +362,27 @@
         var clienteId = urlParams.get('cliente_id');
         if (clienteId) {
           $('.select2-cliente').val(clienteId).trigger('change');
+          
+          // Actualizar el filtro superior con el nombre del cliente
+          var nombreCliente = $('.select2-cliente option:selected').text();
+          if (nombreCliente && nombreCliente !== '-- Busque y seleccione un cliente --') {
+            $('#topFilter_cliente').val(nombreCliente);
+          }
         }
       }
 
       // Ejecutar al cargar la página
       mantenerClienteSeleccionado();
+
+      // Escuchar cambios en el Select2 para actualizar el filtro superior
+      $('.select2-cliente').on('change', function() {
+        var nombreCliente = $(this).find('option:selected').text();
+        if (nombreCliente && nombreCliente !== '-- Busque y seleccione un cliente --') {
+          $('#topFilter_cliente').val(nombreCliente);
+        } else {
+          $('#topFilter_cliente').val('');
+        }
+      });
 
       // Inicializar tooltips
       var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -415,66 +391,77 @@
       });
 
       <?php if (!isset($mostrar_filtro) || !$mostrar_filtro): ?>
-      // Inicializar DataTable solo si hay datos
-      var table = $('#vencimientosTable').DataTable({
-        language: {
-          url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
-        },
-        order: [[5, 'asc']], // Se ordena inicialmente por "Fecha de Vencimiento"
-        pageLength: 10,
-        dom: 'Bfrtip',
-        buttons: [
-          {
-            extend: 'excel',
-            text: '<i class="fas fa-file-excel me-2"></i>Exportar a Excel',
-            className: 'btn btn-success',
-            exportOptions: {
-              columns: [1,2,3,4,5,6,7,8]
-            }
-          }
-        ],
-        columnDefs: [
-          {
-            targets: [0, 9],
-            orderable: false,
-            searchable: false
+      // Inicializar DataTable para vencimientos sin ejecutar
+      var tableSinEjecutar = null;
+      if ($('#vencimientosSinEjecutarTable').length) {
+        tableSinEjecutar = $('#vencimientosSinEjecutarTable').DataTable({
+          language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
           },
-          {
-            // Para "Fecha de Vencimiento" (columna 5) y "Fecha de Realización" (columna 7)
-            // DataTables utilizará el valor numérico de data-order para ordenar.
-            targets: [5, 7],
-            type: 'num',
-            orderSequence: ['asc', 'desc']
-          },
-          {
-            // La columna Estado (índice 6) se ordena alfabéticamente.
-            targets: 6,
-            type: 'string',
-            orderSequence: ['asc', 'desc']
-          }
-        ],
-        responsive: true,
-        initComplete: function () {
-          // Filtros en el pie de tabla (para select)
-          this.api().columns().every(function (index) {
-            var column = this;
-            var footer = $(column.footer());
-            var select = footer.find('select');
-            if (select.length > 0) {
-              select.on('change', function() {
-                var val = $(this).val();
-                column.search(val ? val : '', true, false).draw();
-              });
-              // Ordenar opciones alfabéticamente
-              var options = select.find('option').toArray();
-              options.sort(function(a, b) {
-                return $(a).text().localeCompare($(b).text());
-              });
-              select.empty().append(options);
+          order: [[5, 'asc']], // Se ordena inicialmente por "Fecha de Vencimiento"
+          pageLength: 10,
+          dom: 'Bfrtip',
+          buttons: [
+            {
+              extend: 'excel',
+              text: '<i class="fas fa-file-excel me-2"></i>Exportar Sin Ejecutar',
+              className: 'btn btn-warning',
+              exportOptions: {
+                columns: [1,2,3,4,5,6,7]
+              }
             }
-          });
-        }
-      });
+          ],
+          columnDefs: [
+            {
+              targets: [0, 8],
+              orderable: false,
+              searchable: false
+            },
+            {
+              targets: [5],
+              type: 'num',
+              orderSequence: ['asc', 'desc']
+            }
+          ],
+          responsive: true
+        });
+      }
+
+      // Inicializar DataTable para vencimientos ejecutados
+      var tableEjecutados = null;
+      if ($('#vencimientosEjecutadosTable').length) {
+        tableEjecutados = $('#vencimientosEjecutadosTable').DataTable({
+          language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+          },
+          order: [[5, 'desc']], // Se ordena por "Fecha de Realización" descendente
+          pageLength: 10,
+          dom: 'Bfrtip',
+          buttons: [
+            {
+              extend: 'excel',
+              text: '<i class="fas fa-file-excel me-2"></i>Exportar Ejecutados',
+              className: 'btn btn-success',
+              exportOptions: {
+                columns: [0,1,2,3,4,5,6,7]
+              }
+            }
+          ],
+          columnDefs: [
+            {
+              targets: [8],
+              orderable: false,
+              searchable: false
+            },
+            {
+              targets: [4, 5],
+              type: 'num',
+              orderSequence: ['asc', 'desc']
+            }
+          ],
+          responsive: true
+        });
+      }
 
       // Filtro de rango de fechas para "Fecha de Vencimiento"
       $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
@@ -484,8 +471,11 @@
         // Si no hay filtros, se muestran todas las filas
         if (!min && !max) return true;
 
+        var currentTable = settings.nTable.id;
+        var columnIndex = (currentTable === 'vencimientosSinEjecutarTable') ? 5 : 4;
+        
         // Se obtiene el valor numérico (timestamp en segundos) del atributo data-order
-        var cell = $(table.row(dataIndex).node()).find('td:eq(5)');
+        var cell = $(settings.nTable).find('tbody tr').eq(dataIndex).find('td:eq(' + columnIndex + ')');
         var orderVal = cell.attr('data-order');
         var timestamp = orderVal ? parseInt(orderVal) * 1000 : 0; // Convertir a milisegundos
 
@@ -505,31 +495,26 @@
         return true;
       });
 
-      // Actualizar tabla al cambiar los inputs de fecha
+      // Actualizar tablas al cambiar los inputs de fecha
       $('#filter_fecha_vencimiento_inicio, #filter_fecha_vencimiento_fin').change(function() {
-        table.draw();
+        if (tableSinEjecutar) tableSinEjecutar.draw();
+        if (tableEjecutados) tableEjecutados.draw();
       });
 
-      // Filtro de fecha en el pie de tabla (para búsquedas parciales)
-      $('tfoot input').on('keyup', function() {
-        var columnIndex = $(this).closest('th').index();
-        var searchText = this.value;
-        table.column(columnIndex).search(searchText ? searchText : '', true, false).draw();
-      });
-
-      // Sincronizar filtro superior de cliente con el pie de tabla
+      // Sincronizar filtro superior de cliente con las tablas
       $('#topFilter_cliente').on('keyup change', function() {
         var val = $.fn.dataTable.util.escapeRegex($(this).val());
-        table.column(2).search(val ? val : '', true, false).draw();
+        if (tableSinEjecutar) tableSinEjecutar.column(2).search(val ? val : '', true, false).draw();
+        if (tableEjecutados) tableEjecutados.column(1).search(val ? val : '', true, false).draw();
       });
 
-      // Checkbox "Seleccionar todos"
-      $('#selectAll').change(function() {
-        $('.email-checkbox').prop('checked', $(this).prop('checked'));
+      // Checkbox "Seleccionar todos" para tabla sin ejecutar
+      $('#selectAllSinEjecutar').change(function() {
+        $('.email-checkbox-sin-ejecutar').prop('checked', $(this).prop('checked'));
       });
-      $('.email-checkbox').change(function() {
-        var allChecked = $('.email-checkbox:checked').length === $('.email-checkbox').length;
-        $('#selectAll').prop('checked', allChecked);
+      $(document).on('change', '.email-checkbox-sin-ejecutar', function() {
+        var allChecked = $('.email-checkbox-sin-ejecutar:checked').length === $('.email-checkbox-sin-ejecutar').length;
+        $('#selectAllSinEjecutar').prop('checked', allChecked);
       });
 
       // Botón de reinicio de filtros
@@ -537,9 +522,12 @@
         $('#topFilter_cliente').val('');
         $('#filter_fecha_vencimiento_inicio').val('');
         $('#filter_fecha_vencimiento_fin').val('');
-        table.columns().search('').draw();
-        $('tfoot select').val('');
-        table.draw();
+        if (tableSinEjecutar) {
+          tableSinEjecutar.columns().search('').draw();
+        }
+        if (tableEjecutados) {
+          tableEjecutados.columns().search('').draw();
+        }
       });
 
       // Mostrar/ocultar indicador de carga
@@ -574,10 +562,24 @@
         var urlParams = new URLSearchParams(window.location.search);
         var clienteParam = urlParams.get('cliente_id');
         if (clienteParam) {
-          $('#filter_cliente').val(clienteParam);
-          $('#topFilter_cliente').val(clienteParam);
-          if (typeof table !== 'undefined') {
-            table.column(2).search(clienteParam ? clienteParam : '', true, false).draw();
+          // Buscar el nombre del cliente por su ID
+          var nombreCliente = '';
+          $('#cliente_id option').each(function() {
+            if ($(this).val() === clienteParam) {
+              nombreCliente = $(this).text();
+              return false; // break
+            }
+          });
+          
+          // Establecer el nombre del cliente en el filtro de búsqueda
+          if (nombreCliente && nombreCliente !== '-- Busque y seleccione un cliente --') {
+            $('#topFilter_cliente').val(nombreCliente);
+            if (tableSinEjecutar) {
+              tableSinEjecutar.column(2).search(nombreCliente, true, false).draw();
+            }
+            if (tableEjecutados) {
+              tableEjecutados.column(1).search(nombreCliente, true, false).draw();
+            }
           }
         }
       }
@@ -585,8 +587,8 @@
       // Ejecutar al cargar la página
       checkClienteFromURL();
 
-      // Actualizar URLs cuando cambie el filtro de cliente
-      $('#filter_cliente, #topFilter_cliente').on('change keyup', function() {
+      // Actualizar URLs cuando cambie el filtro superior de cliente
+      $('#topFilter_cliente').on('change keyup', function() {
         updateClientFilter();
       });
 

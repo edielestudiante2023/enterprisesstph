@@ -163,7 +163,8 @@ class VencimientosMantenimientoController extends BaseController
         // Si no se ha seleccionado un cliente, mostrar solo el formulario de filtro
         if (empty($clienteId)) {
             return view('consultant/vencimientos/listVencimientosMantenimiento', [
-                'vencimientos' => [],
+                'vencimientos_sin_ejecutar' => [],
+                'vencimientos_ejecutados' => [],
                 'clientes' => $clientes,
                 'mostrar_filtro' => true,
                 'cliente_seleccionado' => null,
@@ -173,15 +174,16 @@ class VencimientosMantenimientoController extends BaseController
         // Obtener vencimientos filtrados por cliente
         $vencimientos = $vencimientosModel->where('id_cliente', $clienteId)->findAll();
 
-        // Preparar los datos descriptivos para la vista
-        $dataVencimientos = [];
+        // Preparar los datos descriptivos separados por estado
+        $vencimientosSinEjecutar = [];
+        $vencimientosEjecutados = [];
 
         foreach ($vencimientos as $vencimiento) {
             $cliente = $clientModel->find($vencimiento['id_cliente']);
             $consultor = $consultantModel->find($vencimiento['id_consultor']);
             $mantenimiento = $mantenimientoModel->find($vencimiento['id_mantenimiento']);
 
-            $dataVencimientos[] = [
+            $dataVencimiento = [
                 'id'                 => $vencimiento['id_vencimientos_mmttos'],
                 'cliente'            => $cliente ? $cliente['nombre_cliente'] : 'Desconocido',
                 'consultor'          => $consultor ? $consultor['nombre_consultor'] : 'Desconocido',
@@ -191,11 +193,19 @@ class VencimientosMantenimientoController extends BaseController
                 'fecha_realizacion'  => $vencimiento['fecha_realizacion'],
                 'observaciones'      => $vencimiento['observaciones'] ?? 'N/A',
             ];
+
+            // Separar por estado
+            if (strtolower($vencimiento['estado_actividad']) === 'ejecutado') {
+                $vencimientosEjecutados[] = $dataVencimiento;
+            } else {
+                $vencimientosSinEjecutar[] = $dataVencimiento;
+            }
         }
 
-        // Cargar la vista con los datos
+        // Cargar la vista con los datos separados
         return view('consultant/vencimientos/listVencimientosMantenimiento', [
-            'vencimientos' => $dataVencimientos,
+            'vencimientos_sin_ejecutar' => $vencimientosSinEjecutar,
+            'vencimientos_ejecutados' => $vencimientosEjecutados,
             'clientes' => $clientes,
             'mostrar_filtro' => false,
             'cliente_seleccionado' => $clienteId,
