@@ -152,7 +152,7 @@
         <div class="row mb-3">
           <div class="col-md-6">
             <div class="btn-group">
-              <a href="<?= site_url('vencimientos/add') ?>?cliente=<?= esc($cliente_seleccionado) ?>" id="btn-agregar" class="btn btn-success">
+              <a href="<?= site_url('vencimientos/add') ?>?cliente_id=<?= esc($cliente_seleccionado) ?>" id="btn-agregar" class="btn btn-success">
                 <i class="fas fa-plus me-2"></i>Agregar Nuevo
               </a>
               <a href="<?= base_url('vencimientos/send-emails') ?>" class="btn btn-warning">
@@ -337,7 +337,7 @@
                     </td>
                     <td><?= esc($vencimiento['observaciones']) ?></td>
                     <td class="action-buttons">
-                      <a href="<?= site_url('vencimientos/edit/' . esc($vencimiento['id'])) ?>?cliente=" 
+                      <a href="<?= site_url('vencimientos/edit/' . esc($vencimiento['id'])) ?>?cliente_id=<?= esc($cliente_seleccionado) ?>" 
                          class="btn btn-sm btn-primary btn-editar" data-bs-toggle="tooltip" title="Editar">
                         <i class="fas fa-edit"></i>
                       </a>
@@ -395,6 +395,18 @@
           }
         }
       });
+
+      // Mantener cliente seleccionado desde la URL
+      function mantenerClienteSeleccionado() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var clienteId = urlParams.get('cliente_id');
+        if (clienteId) {
+          $('.select2-cliente').val(clienteId).trigger('change');
+        }
+      }
+
+      // Ejecutar al cargar la página
+      mantenerClienteSeleccionado();
 
       // Inicializar tooltips
       var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -541,25 +553,17 @@
 
       // Manejar filtro persistente de cliente
       function updateClientFilter() {
-        var clienteSeleccionado = $('#filter_cliente').val() || $('#topFilter_cliente').val();
+        var urlParams = new URLSearchParams(window.location.search);
+        var clienteSeleccionado = urlParams.get('cliente_id');
+        
         if (clienteSeleccionado) {
           // Actualizar URLs de botones de agregar y editar
           $('#btn-agregar').attr('href', function(i, href) {
-            return href.split('?')[0] + '?cliente=' + encodeURIComponent(clienteSeleccionado);
+            return href.split('?')[0] + '?cliente_id=' + encodeURIComponent(clienteSeleccionado);
           });
           $('.btn-editar').each(function() {
             $(this).attr('href', function(i, href) {
-              return href.split('?')[0] + '?cliente=' + encodeURIComponent(clienteSeleccionado);
-            });
-          });
-        } else {
-          // Limpiar parámetro cliente de las URLs
-          $('#btn-agregar').attr('href', function(i, href) {
-            return href.split('?')[0];
-          });
-          $('.btn-editar').each(function() {
-            $(this).attr('href', function(i, href) {
-              return href.split('?')[0];
+              return href.split('?')[0] + '?cliente_id=' + encodeURIComponent(clienteSeleccionado);
             });
           });
         }
@@ -568,11 +572,13 @@
       // Verificar si hay un cliente en la URL al cargar la página
       function checkClienteFromURL() {
         var urlParams = new URLSearchParams(window.location.search);
-        var clienteParam = urlParams.get('cliente');
+        var clienteParam = urlParams.get('cliente_id');
         if (clienteParam) {
           $('#filter_cliente').val(clienteParam);
           $('#topFilter_cliente').val(clienteParam);
-          table.column(2).search(clienteParam ? clienteParam : '', true, false).draw();
+          if (typeof table !== 'undefined') {
+            table.column(2).search(clienteParam ? clienteParam : '', true, false).draw();
+          }
         }
       }
 
@@ -587,6 +593,9 @@
       // Llamar updateClientFilter inicialmente
       updateClientFilter();
       <?php endif; ?>
+      
+      // Ejecutar updateClientFilter para todos los casos
+      updateClientFilter();
     });
   </script>
 </body>
