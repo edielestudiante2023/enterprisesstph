@@ -159,30 +159,11 @@ class VencimientosMantenimientoController extends BaseController
 
         // Preparar los datos descriptivos para la vista
         $dataVencimientos = [];
-        $hoy = new \DateTime();
 
         foreach ($vencimientos as $vencimiento) {
             $cliente = $clientModel->find($vencimiento['id_cliente']);
             $consultor = $consultantModel->find($vencimiento['id_consultor']);
             $mantenimiento = $mantenimientoModel->find($vencimiento['id_mantenimiento']);
-
-            // Calcular clase CSS para el resaltado de filas
-            $clase_fila = '';
-            $fecha_vencimiento = $vencimiento['fecha_vencimiento'];
-            
-            // Verificar si está ejecutado (tiene fecha de realización)
-            if (!empty($vencimiento['fecha_realizacion']) && $vencimiento['fecha_realizacion'] != '0000-00-00') {
-                $clase_fila = 'ejecutado';
-            } elseif (!empty($fecha_vencimiento) && $fecha_vencimiento != '0000-00-00') {
-                $fecha_venc = new \DateTime($fecha_vencimiento);
-                $diff = $hoy->diff($fecha_venc);
-                
-                if ($fecha_venc < $hoy) {
-                    $clase_fila = 'vencido';
-                } elseif ($diff->days <= 30 && $fecha_venc > $hoy) {
-                    $clase_fila = 'proximo-vencer';
-                }
-            }
 
             $dataVencimientos[] = [
                 'id'                 => $vencimiento['id_vencimientos_mmttos'],
@@ -193,29 +174,12 @@ class VencimientosMantenimientoController extends BaseController
                 'estado_actividad'   => ucfirst($vencimiento['estado_actividad']),
                 'fecha_realizacion'  => $vencimiento['fecha_realizacion'] ?? 'N/A',
                 'observaciones'      => $vencimiento['observaciones'] ?? 'N/A',
-                'clase_fila'         => $clase_fila,
             ];
-        }
-
-        // Generar opciones de filtros una sola vez para mejorar rendimiento
-        $filtros = [
-            'ids' => array_unique(array_column($dataVencimientos, 'id')),
-            'clientes' => array_unique(array_filter(array_column($dataVencimientos, 'cliente'))),
-            'consultores' => array_unique(array_filter(array_column($dataVencimientos, 'consultor'))),
-            'mantenimientos' => array_unique(array_filter(array_column($dataVencimientos, 'mantenimiento'))),
-            'estados' => array_unique(array_filter(array_column($dataVencimientos, 'estado_actividad'))),
-            'observaciones' => array_unique(array_filter(array_column($dataVencimientos, 'observaciones')))
-        ];
-        
-        // Ordenar cada filtro
-        foreach ($filtros as &$filtro) {
-            sort($filtro);
         }
 
         // Cargar la vista con los datos
         return view('consultant/vencimientos/listVencimientosMantenimiento', [
             'vencimientos' => $dataVencimientos,
-            'filtros' => $filtros,
         ]);
     }
 
@@ -494,129 +458,5 @@ class VencimientosMantenimientoController extends BaseController
         }
 
         return redirect()->to(base_url('vencimientos'))->with('msg', 'Correos enviados a los registros seleccionados.');
-    }
-
-    /**
-     * Método para server-side processing de DataTables
-     */
-    public function getVencimientosDataTable()
-    {
-        $request = \Config\Services::request();
-        
-        // Instanciar los modelos necesarios
-        $vencimientosModel = new VencimientosMantenimientoModel();
-        $clientModel = new ClientModel();
-        $consultantModel = new ConsultantModel();
-        $mantenimientoModel = new MantenimientoModel();
-
-        // Parámetros de DataTables
-        $draw = intval($request->getPost('draw'));
-        $start = intval($request->getPost('start'));
-        $length = intval($request->getPost('length'));
-        $searchValue = $request->getPost('search')['value'] ?? '';
-        
-        // Obtener todos los vencimientos (aquí podrías implementar filtros de BD)
-        $vencimientos = $vencimientosModel->findAll();
-        $totalRecords = count($vencimientos);
-        
-        // Preparar los datos con cálculos optimizados
-        $dataVencimientos = [];
-        $hoy = new \DateTime();
-        
-        foreach ($vencimientos as $vencimiento) {
-            $cliente = $clientModel->find($vencimiento['id_cliente']);
-            $consultor = $consultantModel->find($vencimiento['id_consultor']);
-            $mantenimiento = $mantenimientoModel->find($vencimiento['id_mantenimiento']);
-
-            // Calcular clase CSS para el resaltado de filas
-            $clase_fila = '';
-            $fecha_vencimiento = $vencimiento['fecha_vencimiento'];
-            
-            if (!empty($vencimiento['fecha_realizacion']) && $vencimiento['fecha_realizacion'] != '0000-00-00') {
-                $clase_fila = 'ejecutado';
-            } elseif (!empty($fecha_vencimiento) && $fecha_vencimiento != '0000-00-00') {
-                $fecha_venc = new \DateTime($fecha_vencimiento);
-                $diff = $hoy->diff($fecha_venc);
-                
-                if ($fecha_venc < $hoy) {
-                    $clase_fila = 'vencido';
-                } elseif ($diff->days <= 30 && $fecha_venc > $hoy) {
-                    $clase_fila = 'proximo-vencer';
-                }
-            }
-
-            $dataVencimientos[] = [
-                'id' => $vencimiento['id_vencimientos_mmttos'],
-                'cliente' => $cliente ? $cliente['nombre_cliente'] : 'Desconocido',
-                'consultor' => $consultor ? $consultor['nombre_consultor'] : 'Desconocido',
-                'mantenimiento' => $mantenimiento ? $mantenimiento['detalle_mantenimiento'] : 'No especificado',
-                'fecha_vencimiento' => $vencimiento['fecha_vencimiento'],
-                'estado_actividad' => ucfirst($vencimiento['estado_actividad']),
-                'fecha_realizacion' => $vencimiento['fecha_realizacion'] ?? 'N/A',
-                'observaciones' => $vencimiento['observaciones'] ?? 'N/A',
-                'clase_fila' => $clase_fila,
-            ];
-        }
-
-        // Aplicar filtro de búsqueda si existe
-        $filteredData = $dataVencimientos;
-        if (!empty($searchValue)) {
-            $filteredData = array_filter($dataVencimientos, function($row) use ($searchValue) {
-                return stripos($row['cliente'], $searchValue) !== false ||
-                       stripos($row['consultor'], $searchValue) !== false ||
-                       stripos($row['mantenimiento'], $searchValue) !== false ||
-                       stripos($row['estado_actividad'], $searchValue) !== false;
-            });
-        }
-
-        $totalFiltered = count($filteredData);
-
-        // Aplicar paginación
-        $paginatedData = array_slice($filteredData, $start, $length);
-
-        // Formatear datos para DataTables
-        $formattedData = [];
-        foreach ($paginatedData as $row) {
-            // Formatear fecha de vencimiento
-            $fechaVencFormateada = '';
-            $timestampVenc = 0;
-            if (!empty($row['fecha_vencimiento']) && $row['fecha_vencimiento'] != '0000-00-00' && $row['fecha_vencimiento'] != 'N/A') {
-                $fechaVencFormateada = date('d/m/Y', strtotime($row['fecha_vencimiento']));
-                $timestampVenc = strtotime($row['fecha_vencimiento']);
-            }
-            
-            // Formatear fecha de realización
-            $fechaRealizacionFormateada = '';
-            $timestampReal = 0;
-            if (!empty($row['fecha_realizacion']) && $row['fecha_realizacion'] != '0000-00-00' && $row['fecha_realizacion'] != 'N/A') {
-                $fechaRealizacionFormateada = date('d/m/Y', strtotime($row['fecha_realizacion']));
-                $timestampReal = strtotime($row['fecha_realizacion']);
-            }
-
-            $formattedData[] = [
-                'DT_RowClass' => $row['clase_fila'],
-                '0' => '<input type="checkbox" class="form-check-input email-checkbox" name="selected[]" value="' . esc($row['id']) . '" />',
-                '1' => esc($row['id']),
-                '2' => esc($row['cliente']),
-                '3' => esc($row['consultor']),
-                '4' => esc($row['mantenimiento']),
-                '5' => $fechaVencFormateada,
-                '6' => esc($row['estado_actividad']),
-                '7' => $fechaRealizacionFormateada,
-                '8' => esc($row['observaciones']),
-                '9' => '<a href="' . site_url('vencimientos/edit/' . esc($row['id'])) . '?cliente=" class="btn btn-sm btn-primary btn-editar" title="Editar"><i class="fas fa-edit"></i></a> ' .
-                       '<a href="' . site_url('vencimientos/delete/' . esc($row['id'])) . '" class="btn btn-sm btn-danger" onclick="return confirm(\'¿Estás seguro de eliminar este vencimiento?\');" title="Eliminar"><i class="fas fa-trash"></i></a>'
-            ];
-        }
-
-        // Respuesta para DataTables
-        $response = [
-            'draw' => $draw,
-            'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $totalFiltered,
-            'data' => $formattedData
-        ];
-
-        return $this->response->setJSON($response);
     }
 }

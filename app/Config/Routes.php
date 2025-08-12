@@ -490,7 +490,6 @@ $routes->get('cron/send-emails', 'VencimientosMantenimientoController::sendEmail
 $routes->get('vencimientos/testEmailForVencimiento/(:num)', 'VencimientosMantenimientoController::testEmailForVencimiento/$1');
 $routes->get('vencimientos/send-emails', 'VencimientosMantenimientoController::sendEmailsForUpcomingVencimientos');
 $routes->post('vencimientos/send-selected-emails', 'VencimientosMantenimientoController::sendSelectedEmails');
-$routes->post('vencimientos/get-datatable-data', 'VencimientosMantenimientoController::getVencimientosDataTable');
 
 
 $routes->get('/listVencimientosCliente/(:num)', 'VencimientosClienteController::listVencimientosCliente/$1');
