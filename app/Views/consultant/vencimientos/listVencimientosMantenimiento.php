@@ -11,6 +11,9 @@
   <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
   <!-- Font Awesome for icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <!-- Select2 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
   
   <style>
     .dataTables_filter {
@@ -62,6 +65,20 @@
       background-color: #e8f5e8 !important;
       color: #2e7d32 !important;
     }
+    /* Estilos para Select2 */
+    .select2-container {
+      width: 100% !important;
+    }
+    .select2-container--bootstrap-5 .select2-selection {
+      min-height: calc(1.5em + 0.75rem + 2px);
+      padding: 0.375rem 0.75rem;
+      font-size: 1rem;
+    }
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+      line-height: 1.5;
+      padding-left: 0;
+      color: #495057;
+    }
   </style>
 </head>
 
@@ -89,10 +106,10 @@
         
         <form method="GET" action="<?= current_url() ?>">
           <div class="row mb-4">
-            <div class="col-md-6">
-              <label for="cliente_id" class="form-label"><strong>Seleccionar Cliente:</strong></label>
-              <select name="cliente_id" id="cliente_id" class="form-select" required>
-                <option value="">-- Seleccione un cliente --</option>
+            <div class="col-md-8">
+              <label for="cliente_id" class="form-label"><strong>Buscar y Seleccionar Cliente:</strong></label>
+              <select name="cliente_id" id="cliente_id" class="form-select select2-cliente" required>
+                <option value="">-- Busque y seleccione un cliente --</option>
                 <?php if (!empty($clientes)): ?>
                   <?php foreach ($clientes as $cliente): ?>
                     <option value="<?= esc($cliente['id_cliente']) ?>"><?= esc($cliente['nombre_cliente']) ?></option>
@@ -100,8 +117,8 @@
                 <?php endif; ?>
               </select>
             </div>
-            <div class="col-md-6 d-flex align-items-end">
-              <button type="submit" class="btn btn-primary">
+            <div class="col-md-4 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary btn-lg">
                 <i class="fas fa-search me-2"></i>Cargar Vencimientos
               </button>
             </div>
@@ -359,9 +376,26 @@
   <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+  <!-- Select2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
   <script>
     $(document).ready(function() {
+      // Inicializar Select2 para el selector de cliente
+      $('.select2-cliente').select2({
+        theme: 'bootstrap-5',
+        placeholder: '-- Busque y seleccione un cliente --',
+        allowClear: true,
+        language: {
+          noResults: function() {
+            return "No se encontraron resultados";
+          },
+          searching: function() {
+            return "Buscando...";
+          }
+        }
+      });
+
       // Inicializar tooltips
       var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
       tooltipTriggerList.map(function(tooltipTriggerEl) {
