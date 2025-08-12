@@ -49,6 +49,19 @@
       width: 150px;
       margin-right: 10px;
     }
+    /* Estilos para resaltar vencimientos */
+    .vencido {
+      background-color: #ffebee !important;
+      color: #c62828 !important;
+    }
+    .proximo-vencer {
+      background-color: #fff8e1 !important;
+      color: #f57f17 !important;
+    }
+    .ejecutado {
+      background-color: #e8f5e8 !important;
+      color: #2e7d32 !important;
+    }
   </style>
 </head>
 
@@ -71,7 +84,7 @@
         <div class="row mb-3">
           <div class="col-md-6">
             <div class="btn-group">
-              <a href="<?= site_url('vencimientos/add') ?>" class="btn btn-success">
+              <a href="<?= site_url('vencimientos/add') ?>?cliente=" id="btn-agregar" class="btn btn-success">
                 <i class="fas fa-plus me-2"></i>Agregar Nuevo
               </a>
               <a href="<?= base_url('vencimientos/send-emails') ?>" class="btn btn-warning">
@@ -217,7 +230,25 @@
             <tbody>
               <?php if (!empty($vencimientos) && is_array($vencimientos)): ?>
                 <?php foreach ($vencimientos as $vencimiento): ?>
-                  <tr>
+                  <?php
+                    $fecha_vencimiento = $vencimiento['fecha_vencimiento'];
+                    $clase_fila = '';
+                    // Verificar si está ejecutado (tiene fecha de realización)
+                    if (!empty($vencimiento['fecha_realizacion']) && $vencimiento['fecha_realizacion'] != '0000-00-00') {
+                      $clase_fila = 'ejecutado';
+                    } elseif (!empty($fecha_vencimiento) && $fecha_vencimiento != '0000-00-00') {
+                      $fecha_venc = new DateTime($fecha_vencimiento);
+                      $hoy = new DateTime();
+                      $diff = $hoy->diff($fecha_venc);
+                      
+                      if ($fecha_venc < $hoy) {
+                        $clase_fila = 'vencido';
+                      } elseif ($diff->days <= 30 && $fecha_venc > $hoy) {
+                        $clase_fila = 'proximo-vencer';
+                      }
+                    }
+                  ?>
+                  <tr class="<?= $clase_fila ?>">
                     <td>
                       <input type="checkbox" class="form-check-input email-checkbox" 
                              name="selected[]" value="<?= esc($vencimiento['id']) ?>" />
@@ -227,8 +258,8 @@
                     <td><?= esc($vencimiento['consultor']) ?></td>
                     <td><?= esc($vencimiento['mantenimiento']) ?></td>
                     <!-- Se asigna el atributo data-order para que DataTables use el timestamp al ordenar -->
-                    <td data-order="<?= strtotime(esc($vencimiento['fecha_vencimiento'])) ?>">
-                      <?= date('d/m/Y', strtotime(esc($vencimiento['fecha_vencimiento']))) ?>
+                    <td data-order="<?= (!empty($vencimiento['fecha_vencimiento']) && $vencimiento['fecha_vencimiento'] != '0000-00-00') ? strtotime(esc($vencimiento['fecha_vencimiento'])) : 0 ?>">
+                      <?= (!empty($vencimiento['fecha_vencimiento']) && $vencimiento['fecha_vencimiento'] != '0000-00-00') ? date('d/m/Y', strtotime(esc($vencimiento['fecha_vencimiento']))) : '' ?>
                     </td>
                     <td><?= esc($vencimiento['estado_actividad']) ?></td>
                     <td data-order="<?= strtotime(esc($vencimiento['fecha_realizacion'])) ?>">
@@ -236,8 +267,8 @@
                     </td>
                     <td><?= esc($vencimiento['observaciones']) ?></td>
                     <td class="action-buttons">
-                      <a href="<?= site_url('vencimientos/edit/' . esc($vencimiento['id'])) ?>" 
-                         class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Editar">
+                      <a href="<?= site_url('vencimientos/edit/' . esc($vencimiento['id'])) ?>?cliente=" 
+                         class="btn btn-sm btn-primary btn-editar" data-bs-toggle="tooltip" title="Editar">
                         <i class="fas fa-edit"></i>
                       </a>
                       <a href="<?= site_url('vencimientos/delete/' . esc($vencimiento['id'])) ?>" 
@@ -289,7 +320,7 @@
           url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
         },
         order: [[5, 'asc']], // Se ordena inicialmente por "Fecha de Vencimiento"
-        pageLength: 25,
+        pageLength: 10,
         dom: 'Bfrtip',
         buttons: [
           {
@@ -418,6 +449,54 @@
         .ajaxStop(function() {
           $('.loading').addClass('d-none');
         });
+
+      // Manejar filtro persistente de cliente
+      function updateClientFilter() {
+        var clienteSeleccionado = $('#filter_cliente').val() || $('#topFilter_cliente').val();
+        if (clienteSeleccionado) {
+          // Actualizar URLs de botones de agregar y editar
+          $('#btn-agregar').attr('href', function(i, href) {
+            return href.split('?')[0] + '?cliente=' + encodeURIComponent(clienteSeleccionado);
+          });
+          $('.btn-editar').each(function() {
+            $(this).attr('href', function(i, href) {
+              return href.split('?')[0] + '?cliente=' + encodeURIComponent(clienteSeleccionado);
+            });
+          });
+        } else {
+          // Limpiar parámetro cliente de las URLs
+          $('#btn-agregar').attr('href', function(i, href) {
+            return href.split('?')[0];
+          });
+          $('.btn-editar').each(function() {
+            $(this).attr('href', function(i, href) {
+              return href.split('?')[0];
+            });
+          });
+        }
+      }
+
+      // Verificar si hay un cliente en la URL al cargar la página
+      function checkClienteFromURL() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var clienteParam = urlParams.get('cliente');
+        if (clienteParam) {
+          $('#filter_cliente').val(clienteParam);
+          $('#topFilter_cliente').val(clienteParam);
+          table.column(2).search(clienteParam ? clienteParam : '', true, false).draw();
+        }
+      }
+
+      // Ejecutar al cargar la página
+      checkClienteFromURL();
+
+      // Actualizar URLs cuando cambie el filtro de cliente
+      $('#filter_cliente, #topFilter_cliente').on('change keyup', function() {
+        updateClientFilter();
+      });
+
+      // Llamar updateClientFilter inicialmente
+      updateClientFilter();
     });
   </script>
 </body>
