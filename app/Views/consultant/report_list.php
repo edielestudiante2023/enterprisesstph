@@ -113,17 +113,30 @@
 
   <!-- Contenedor fluid -->
   <div class="container-fluid my-4">
-    <!-- Encabezado con título y filtro por cliente -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="mb-0">Lista de Reportes</h2>
-      <div class="d-flex align-items-center">
-        <label for="clientFilter" class="me-2 mb-0">Filtrar por Cliente:</label>
-        <select id="clientFilter" style="width: 600px;">
-          <option value="">Todos</option>
-          <?php foreach ($clients as $client) : ?>
-            <option value="<?= htmlspecialchars($client['nombre_cliente']) ?>"><?= htmlspecialchars($client['nombre_cliente']) ?></option>
-          <?php endforeach; ?>
-        </select>
+    <!-- Encabezado con título y filtros -->
+    <div class="mb-4">
+      <h2 class="mb-3">Lista de Reportes</h2>
+      <div class="row g-3 align-items-end">
+        <!-- Filtro por Cliente -->
+        <div class="col-md-6">
+          <label for="clientFilter" class="form-label">Filtrar por Cliente:</label>
+          <select id="clientFilter" class="form-select">
+            <option value="">Todos</option>
+            <?php foreach ($clients as $client) : ?>
+              <option value="<?= htmlspecialchars($client['nombre_cliente']) ?>"><?= htmlspecialchars($client['nombre_cliente']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <!-- Filtro por Fecha Desde -->
+        <div class="col-md-3">
+          <label for="dateFrom" class="form-label">Fecha Desde:</label>
+          <input type="date" id="dateFrom" class="form-control">
+        </div>
+        <!-- Filtro por Fecha Hasta -->
+        <div class="col-md-3">
+          <label for="dateTo" class="form-label">Fecha Hasta:</label>
+          <input type="date" id="dateTo" class="form-control">
+        </div>
       </div>
     </div>
 
@@ -464,10 +477,57 @@
         table.column(10).search(selected ? '^' + selected + '$' : '', true, false).draw();
       });
 
+      // Función para aplicar filtro de fechas
+      function applyDateFilter() {
+        var dateFrom = $('#dateFrom').val();
+        var dateTo = $('#dateTo').val();
+        
+        $.fn.dataTable.ext.search.pop(); // Remover filtro anterior si existe
+        
+        if (dateFrom || dateTo) {
+          $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+              if (settings.nTable.id !== 'reportTable') {
+                return true;
+              }
+              
+              var dateCreated = data[1]; // Columna Fecha de Creación (índice 1)
+              
+              // Convertir fecha de la tabla al formato YYYY-MM-DD para comparación
+              var tableDateParts = dateCreated.split(' ')[0]; // Tomar solo la parte de fecha
+              var tableDate = new Date(tableDateParts).getTime();
+              
+              var fromDate = dateFrom ? new Date(dateFrom).getTime() : null;
+              var toDate = dateTo ? new Date(dateTo + ' 23:59:59').getTime() : null;
+              
+              if (fromDate && toDate) {
+                return tableDate >= fromDate && tableDate <= toDate;
+              } else if (fromDate) {
+                return tableDate >= fromDate;
+              } else if (toDate) {
+                return tableDate <= toDate;
+              }
+              
+              return true;
+            }
+          );
+        }
+        
+        table.draw();
+      }
+
+      // Eventos para los campos de fecha
+      $('#dateFrom, #dateTo').on('change', function() {
+        applyDateFilter();
+      });
+
       // Botón para restablecer estado y recargar la página
       $('#clearState').on('click', function () {
         localStorage.removeItem('DataTables_reportTable');
         table.state.clear();
+        // Limpiar filtros de fecha
+        $('#dateFrom, #dateTo').val('');
+        $.fn.dataTable.ext.search.pop(); // Remover filtro de fechas
         location.reload();
       });
     });
