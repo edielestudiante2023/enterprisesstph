@@ -57,9 +57,41 @@
       background-color: #f8f9fa;
     }
 
-    /* Alinear la búsqueda a la izquierda */
+    /* Alinear la búsqueda a la izquierda y mejorar visibilidad */
     div.dataTables_filter {
       text-align: left !important;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    div.dataTables_filter label {
+      color: white !important;
+      font-weight: bold;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    div.dataTables_filter input {
+      margin-left: 10px !important;
+      padding: 8px 15px !important;
+      border: 2px solid #ffffff !important;
+      border-radius: 25px !important;
+      font-size: 14px !important;
+      width: 300px !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+      transition: all 0.3s ease !important;
+    }
+
+    div.dataTables_filter input:focus {
+      outline: none !important;
+      border-color: #ffc107 !important;
+      box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3) !important;
+      transform: scale(1.02) !important;
     }
 
     /* Icono de detalles: cursor pointer */
