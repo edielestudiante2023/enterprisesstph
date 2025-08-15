@@ -678,14 +678,20 @@
                     return false;
                 }
                 
-                // Validar que se haya seleccionado al menos un filtro de fecha
-                // EXCEPCIÓN: Si viene del botón "Ver Todos", permitir sin fechas
+                // Validar filtros de búsqueda
                 var esViaTodos = $(this).data('via-todos') === true;
                 var tieneFechas = fechaDesde && fechaHasta;
                 var tieneFiltroRapido = anioSeleccionado || mesSeleccionado;
+                var tieneEstado = $('#estado').val();
                 
-                if (!esViaTodos && !tieneFechas && !tieneFiltroRapido) {
-                    showAlert('Es indispensable que seleccione fechas. Puede usar:\n• Rango manual de fechas (Fecha Desde y Fecha Hasta)\n• Filtros rápidos (Año y/o Período)\n• O hacer clic en "Ver Todos" para mostrar todos los registros', 'warning');
+                // PERMITIR búsqueda si:
+                // 1. Viene del botón "Ver Todos"
+                // 2. Tiene fechas completas (manual o rápido)
+                // 3. Tiene solo cliente + estado (sin fechas)
+                var puedeEjecutar = esViaTodos || tieneFechas || tieneFiltroRapido || tieneEstado;
+                
+                if (!puedeEjecutar) {
+                    showAlert('Debe especificar al menos uno de los siguientes filtros:\n• Rango manual de fechas (Fecha Desde y Fecha Hasta)\n• Filtros rápidos (Año y/o Período)\n• Estado de Actividad\n• O hacer clic en "Ver Todos" para mostrar todos los registros', 'warning');
                     e.preventDefault();
                     return false;
                 }
