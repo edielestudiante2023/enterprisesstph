@@ -642,22 +642,87 @@
 
             // Botón para mostrar todos los registros (limpiar filtros de fecha)
             $('#btnMostrarTodos').on('click', function() {
+                var cliente = $('#cliente').val();
+                if (!cliente) {
+                    showAlert('Primero debe seleccionar un Cliente antes de usar "Ver Todos".', 'warning');
+                    return;
+                }
+                
                 $('#fecha_desde').val('');
                 $('#fecha_hasta').val('');
                 $('#anioSeleccionado').val('');
                 $('#mesSeleccionado').val('');
-                alert('Se han limpiado los filtros de fecha. Haga clic en "Buscar" para ver todos los registros.');
+                showAlert('Se han limpiado los filtros de fecha. Haga clic en "Buscar" para ver todos los registros del cliente seleccionado.', 'success');
             });
 
             $('#filterForm').on('submit', function(e) {
                 var cliente = $('#cliente').val();
+                var fechaDesde = $('#fecha_desde').val();
+                var fechaHasta = $('#fecha_hasta').val();
+                var anioSeleccionado = $('#anioSeleccionado').val();
+                var mesSeleccionado = $('#mesSeleccionado').val();
+                
+                // Validar que se haya seleccionado un cliente
                 if (!cliente) {
-                    alert('Debe seleccionar un Cliente.');
+                    showAlert('Debe seleccionar un Cliente.', 'error');
                     e.preventDefault();
                     return false;
                 }
-                // Se eliminó la validación obligatoria de fechas para permitir ver todos los registros
+                
+                // Validar que se haya seleccionado al menos un filtro de fecha
+                var tieneFechas = fechaDesde && fechaHasta;
+                var tieneFiltroRapido = anioSeleccionado || mesSeleccionado;
+                
+                if (!tieneFechas && !tieneFiltroRapido) {
+                    showAlert('Es indispensable que seleccione fechas. Puede usar:\n• Rango manual de fechas (Fecha Desde y Fecha Hasta)\n• Filtros rápidos (Año y/o Período)\n• O hacer clic en "Ver Todos" para mostrar todos los registros', 'warning');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Si tiene fechas manuales incompletas, avisar
+                if ((fechaDesde && !fechaHasta) || (!fechaDesde && fechaHasta)) {
+                    showAlert('Para usar rango manual debe completar tanto "Fecha Desde" como "Fecha Hasta".', 'warning');
+                    e.preventDefault();
+                    return false;
+                }
             });
+
+            // Función para mostrar alertas mejoradas
+            function showAlert(message, type = 'info') {
+                const alertClass = {
+                    'error': 'alert-danger',
+                    'warning': 'alert-warning',
+                    'success': 'alert-success',
+                    'info': 'alert-info'
+                }[type] || 'alert-info';
+                
+                const icon = {
+                    'error': 'fas fa-exclamation-circle',
+                    'warning': 'fas fa-exclamation-triangle',
+                    'success': 'fas fa-check-circle',
+                    'info': 'fas fa-info-circle'
+                }[type] || 'fas fa-info-circle';
+                
+                // Remover alertas previas
+                $('.custom-alert').remove();
+                
+                // Crear nueva alerta
+                const alertHtml = `
+                    <div class="alert ${alertClass} alert-dismissible fade show custom-alert" role="alert" style="position: relative; z-index: 1050;">
+                        <i class="${icon} me-2"></i>
+                        <strong>${message.replace(/\n/g, '<br>')}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                
+                // Insertar antes del formulario
+                $('.filter-card').before(alertHtml);
+                
+                // Auto-ocultar después de 8 segundos
+                setTimeout(function() {
+                    $('.custom-alert').fadeOut();
+                }, 8000);
+            }
 
             var table;
             if ($('#ptaTable').length) {
