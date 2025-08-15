@@ -243,10 +243,23 @@
                 </div>
 
                 <div class="col-md-2">
+                    <label for="anioSeleccionado" class="form-label">Seleccionar Año</label>
+                    <select id="anioSeleccionado" class="form-select">
+                        <option value="">-- Seleccione un año --</option>
+                        <?php 
+                        $currentYear = date('Y');
+                        for($i = $currentYear; $i >= 2020; $i--): ?>
+                            <option value="<?= $i ?>"><?= $i ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-2">
                     <label for="mesSeleccionado" class="form-label">Seleccionar Mes o Todo el Año</label>
                     <select id="mesSeleccionado" class="form-select">
                         <option value="">-- Seleccione una opción --</option>
-                        <option value="all">Todo el Año</option>
+                        <option value="all">Todo el Año Seleccionado</option>
                         <option value="1">Enero</option>
                         <option value="2">Febrero</option>
                         <option value="3">Marzo</option>
@@ -260,6 +273,11 @@
                         <option value="11">Noviembre</option>
                         <option value="12">Diciembre</option>
                     </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" id="btnMostrarTodos" class="btn btn-success">
+                        <i class="fas fa-eye"></i> Mostrar Todos los Registros
+                    </button>
 
                 </div>
                 <div style="height: 10px;"></div>
@@ -417,24 +435,27 @@
                 }
             });
 
-            // Al cambiar el mes, se asignan las fechas correspondientes
-            $('#mesSeleccionado').on('change', function() {
-                var valor = $(this).val();
-                var anio = new Date().getFullYear();
+            // Al cambiar el año o mes, se asignan las fechas correspondientes
+            function actualizarFechas() {
+                var valorMes = $('#mesSeleccionado').val();
+                var valorAnio = $('#anioSeleccionado').val();
+                
+                // Si no hay año seleccionado, usar el año actual como referencia
+                var anio = valorAnio ? parseInt(valorAnio) : new Date().getFullYear();
                 var primerDia, ultimoDia;
 
-                if (valor === "all") {
+                if (valorMes === "all") {
                     // Todo el año: desde el 1 de enero hasta el 31 de diciembre
                     primerDia = new Date(anio, 0, 1);
                     ultimoDia = new Date(anio, 11, 31);
-                } else {
-                    var mes = parseInt(valor);
-                    if (!mes) return; // Si no se selecciona ningún mes, salir
-
+                } else if (valorMes) {
+                    var mes = parseInt(valorMes);
                     // Primer día del mes
                     primerDia = new Date(anio, mes - 1, 1);
                     // Último día del mes (crea una fecha del mes siguiente y resta un día)
                     ultimoDia = new Date(anio, mes, 0);
+                } else {
+                    return; // No hacer nada si no se selecciona mes
                 }
 
                 // Función para formatear la fecha a YYYY-MM-DD
@@ -446,22 +467,28 @@
 
                 $('#fecha_desde').val(formatearFecha(primerDia));
                 $('#fecha_hasta').val(formatearFecha(ultimoDia));
+            }
+
+            $('#mesSeleccionado').on('change', actualizarFechas);
+            $('#anioSeleccionado').on('change', actualizarFechas);
+
+            // Botón para mostrar todos los registros (limpiar filtros de fecha)
+            $('#btnMostrarTodos').on('click', function() {
+                $('#fecha_desde').val('');
+                $('#fecha_hasta').val('');
+                $('#anioSeleccionado').val('');
+                $('#mesSeleccionado').val('');
+                alert('Se han limpiado los filtros de fecha. Haga clic en "Buscar" para ver todos los registros.');
             });
 
             $('#filterForm').on('submit', function(e) {
                 var cliente = $('#cliente').val();
-                var fechaDesde = $('#fecha_desde').val();
-                var fechaHasta = $('#fecha_hasta').val();
                 if (!cliente) {
                     alert('Debe seleccionar un Cliente.');
                     e.preventDefault();
                     return false;
                 }
-                if (!fechaDesde || !fechaHasta) {
-                    alert('Debe seleccionar el rango de fechas (Fecha Desde y Fecha Hasta).');
-                    e.preventDefault();
-                    return false;
-                }
+                // Se eliminó la validación obligatoria de fechas para permitir ver todos los registros
             });
 
             var table;
