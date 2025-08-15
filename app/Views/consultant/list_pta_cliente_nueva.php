@@ -248,7 +248,7 @@
                         <option value="">-- Seleccione un año --</option>
                         <?php 
                         $currentYear = date('Y');
-                        for($i = $currentYear; $i >= 2020; $i--): ?>
+                        for($i = $currentYear + 1; $i >= 2020; $i--): ?>
                             <option value="<?= $i ?>"><?= $i ?></option>
                         <?php endfor; ?>
                     </select>
@@ -435,21 +435,21 @@
                 }
             });
 
-            // Al cambiar el año o mes, se asignan las fechas correspondientes
-            function actualizarFechas() {
-                var valorMes = $('#mesSeleccionado').val();
+            // Al cambiar el mes, se asignan las fechas correspondientes
+            $('#mesSeleccionado').on('change', function() {
+                var valor = $(this).val();
                 var valorAnio = $('#anioSeleccionado').val();
                 
-                // Si no hay año seleccionado, usar el año actual como referencia
+                // Si hay año seleccionado, usar ese; si no, usar el año actual
                 var anio = valorAnio ? parseInt(valorAnio) : new Date().getFullYear();
                 var primerDia, ultimoDia;
 
-                if (valorMes === "all") {
+                if (valor === "all") {
                     // Todo el año: desde el 1 de enero hasta el 31 de diciembre
                     primerDia = new Date(anio, 0, 1);
                     ultimoDia = new Date(anio, 11, 31);
-                } else if (valorMes) {
-                    var mes = parseInt(valorMes);
+                } else if (valor) {
+                    var mes = parseInt(valor);
                     // Primer día del mes
                     primerDia = new Date(anio, mes - 1, 1);
                     // Último día del mes (crea una fecha del mes siguiente y resta un día)
@@ -467,10 +467,15 @@
 
                 $('#fecha_desde').val(formatearFecha(primerDia));
                 $('#fecha_hasta').val(formatearFecha(ultimoDia));
-            }
+            });
 
-            $('#mesSeleccionado').on('change', actualizarFechas);
-            $('#anioSeleccionado').on('change', actualizarFechas);
+            // Al cambiar el año, si hay un mes seleccionado, actualizar las fechas
+            $('#anioSeleccionado').on('change', function() {
+                var valorMes = $('#mesSeleccionado').val();
+                if (valorMes) {
+                    $('#mesSeleccionado').trigger('change');
+                }
+            });
 
             // Botón para mostrar todos los registros (limpiar filtros de fecha)
             $('#btnMostrarTodos').on('click', function() {
