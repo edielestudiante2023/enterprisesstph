@@ -648,11 +648,22 @@
                     return;
                 }
                 
+                // Limpiar todos los filtros de fecha
                 $('#fecha_desde').val('');
                 $('#fecha_hasta').val('');
                 $('#anioSeleccionado').val('');
                 $('#mesSeleccionado').val('');
-                showAlert('Se han limpiado los filtros de fecha. Haga clic en "Buscar" para ver todos los registros del cliente seleccionado.', 'success');
+                $('#estado').val(''); // También limpiar el estado para mostrar TODOS los registros
+                
+                showAlert('Mostrando todos los registros del cliente seleccionado...', 'success');
+                
+                // Marcar que viene del botón "Ver Todos" para evitar validación de fechas
+                $('#filterForm').data('via-todos', true);
+                
+                // Enviar automáticamente el formulario después de limpiar las fechas
+                setTimeout(function() {
+                    $('#filterForm').submit();
+                }, 1000); // Esperar 1 segundo para que el usuario vea el mensaje
             });
 
             $('#filterForm').on('submit', function(e) {
@@ -670,14 +681,19 @@
                 }
                 
                 // Validar que se haya seleccionado al menos un filtro de fecha
+                // EXCEPCIÓN: Si viene del botón "Ver Todos", permitir sin fechas
+                var esViaTodos = $(this).data('via-todos') === true;
                 var tieneFechas = fechaDesde && fechaHasta;
                 var tieneFiltroRapido = anioSeleccionado || mesSeleccionado;
                 
-                if (!tieneFechas && !tieneFiltroRapido) {
+                if (!esViaTodos && !tieneFechas && !tieneFiltroRapido) {
                     showAlert('Es indispensable que seleccione fechas. Puede usar:\n• Rango manual de fechas (Fecha Desde y Fecha Hasta)\n• Filtros rápidos (Año y/o Período)\n• O hacer clic en "Ver Todos" para mostrar todos los registros', 'warning');
                     e.preventDefault();
                     return false;
                 }
+                
+                // Limpiar el flag después de usarlo
+                $(this).removeData('via-todos');
                 
                 // Si tiene fechas manuales incompletas, avisar
                 if ((fechaDesde && !fechaHasta) || (!fechaDesde && fechaHasta)) {
