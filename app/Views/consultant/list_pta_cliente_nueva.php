@@ -341,9 +341,7 @@
                             </label>
                             <select name="estado" id="estado" class="form-select">
                                 <option value="">Todas</option>
-                                <option value="ABIERTA" <?= (service('request')->getGet('estado') == 'ABIERTA') ? 'selected' : '' ?>>
-                                    <span class="badge bg-primary">ABIERTA</span> ABIERTA
-                                </option>
+                                <option value="ABIERTA" <?= (service('request')->getGet('estado') == 'ABIERTA') ? 'selected' : '' ?>>ABIERTA</option>
                                 <option value="CERRADA" <?= (service('request')->getGet('estado') == 'CERRADA') ? 'selected' : '' ?>>CERRADA</option>
                                 <option value="GESTIONANDO" <?= (service('request')->getGet('estado') == 'GESTIONANDO') ? 'selected' : '' ?>>GESTIONANDO</option>
                             </select>
