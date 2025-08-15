@@ -115,12 +115,12 @@
   <!-- Espaciado para el navbar fijo -->
   <div style="height: 100px;"></div>
 
-  <div class="container-fluid mt-5">
-    <h1 class="text-center mb-4">Lista de Cronogramas de Capacitación</h1>
+  <div class="container-fluid px-2 mt-2">
+    <h1 class="text-center mb-3">Lista de Cronogramas de Capacitación</h1>
 
     <!-- Bloque para seleccionar cliente -->
-    <div class="row mb-3">
-      <div class="col-md-4">
+    <div class="row mb-2">
+      <div class="col-md-3">
         <label for="clientSelect">Selecciona un Cliente:</label>
         <select id="clientSelect" class="form-select">
           <option value="">Seleccione un cliente</option>
@@ -129,10 +129,11 @@
       <div class="col-md-2 align-self-end">
         <button id="loadData" class="btn btn-primary">Cargar Datos</button>
       </div>
+      <div class="col-md-7 align-self-end">
+        <button id="clearState" class="btn btn-danger btn-sm me-2">Restablecer Filtros</button>
+        <div id="buttonsContainer" class="d-inline-block"></div>
+      </div>
     </div>
-
-    <button id="clearState" class="btn btn-danger btn-sm mb-3">Restablecer Filtros</button>
-    <div id="buttonsContainer"></div>
 
     <div class="table-responsive">
       <table id="cronogramaTable" class="table table-striped table-bordered nowrap" style="width:100%">
@@ -217,12 +218,12 @@
   </div>
 
   <!-- Footer -->
-  <footer class="bg-white py-4 border-top mt-4">
-    <div class="container text-center">
+  <footer class="bg-white py-2 border-top mt-2">
+    <div class="container-fluid text-center">
       <p class="fw-bold mb-1">Cycloid Talent SAS</p>
       <p class="mb-1">Todos los derechos reservados © 2024</p>
       <p class="mb-1">NIT: 901.653.912</p>
-      <p class="mb-3">
+      <p class="mb-1">
         Sitio oficial: <a href="https://cycloidtalent.com/" target="_blank">https://cycloidtalent.com/</a>
       </p>
     </div>
@@ -306,7 +307,9 @@
         responsive: true,
         autoWidth: false,
         dom: 'Bfltip',
-        pageLength: 10,
+        pageLength: 25,
+        scrollX: true,
+        scrollCollapse: true,
         buttons: [{
             extend: 'excelHtml5',
             text: 'Exportar a Excel',

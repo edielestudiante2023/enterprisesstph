@@ -140,8 +140,9 @@
                 <!-- Columna Izquierda -->
                 <div class="col-md-6">
                     <!-- Capacitación -->
-
-                    <select name="id_capacitacion" id="id_capacitacion" class="form-select" required>
+                    <div class="mb-3">
+                        <label for="id_capacitacion" class="form-label">Capacitación</label>
+                        <select name="id_capacitacion" id="id_capacitacion" class="form-select" required>
                         <option value="" disabled selected>Selecciona una capacitación</option>
                         <?php foreach ($capacitaciones as $capacitacion): ?>
                             <option value="<?= htmlspecialchars($capacitacion['id_capacitacion']) ?>">
@@ -149,9 +150,7 @@
                             </option>
                         <?php endforeach; ?>
                     </select>
-
-
-
+                    </div>
 
                 </div>
 
@@ -320,6 +319,26 @@
                 theme: 'bootstrap-5',
                 width: '100%',
                 placeholder: 'Buscar cliente...',
+                allowClear: true,
+                minimumInputLength: 1,
+                language: {
+                    noResults: function() {
+                        return "No se encontraron resultados";
+                    },
+                    searching: function() {
+                        return "Buscando...";
+                    },
+                    inputTooShort: function() {
+                        return "Por favor ingrese 1 o más caracteres";
+                    }
+                }
+            });
+
+            // Inicializar Select2 para el dropdown de capacitaciones
+            $('#id_capacitacion').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Buscar capacitación...',
                 allowClear: true,
                 minimumInputLength: 1,
                 language: {

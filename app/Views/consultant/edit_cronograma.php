@@ -9,6 +9,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <style>
         body {
             font-size: 0.9rem;
@@ -62,6 +65,44 @@
         .social-icons img {
             height: 24px;
             width: 24px;
+        }
+
+        /* Select2 Custom Styles */
+        .select2-container--bootstrap-5 {
+            width: 100% !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            min-height: 38px;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.9rem;
+            background-color: #fff;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single {
+            height: calc(3.5rem + 2px);
+            line-height: 1.5;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection__rendered {
+            padding: 0.5rem 0;
+            color: #212529;
+        }
+
+        .select2-container--bootstrap-5 .select2-dropdown {
+            border-color: #80bdff;
+            border-radius: 0.375rem;
+        }
+
+        .select2-container--bootstrap-5 .select2-search__field {
+            border-radius: 0.25rem;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
+            background-color: #007bff;
         }
     </style>
 </head>
@@ -276,6 +317,52 @@
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Inicializar Select2 para el dropdown de clientes
+            $('#id_cliente').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Buscar cliente...',
+                allowClear: true,
+                minimumInputLength: 1,
+                language: {
+                    noResults: function() {
+                        return "No se encontraron resultados";
+                    },
+                    searching: function() {
+                        return "Buscando...";
+                    },
+                    inputTooShort: function() {
+                        return "Por favor ingrese 1 o más caracteres";
+                    }
+                }
+            });
+
+            // Inicializar Select2 para el dropdown de capacitaciones
+            $('#id_capacitacion').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Buscar capacitación...',
+                allowClear: true,
+                minimumInputLength: 1,
+                language: {
+                    noResults: function() {
+                        return "No se encontraron resultados";
+                    },
+                    searching: function() {
+                        return "Buscando...";
+                    },
+                    inputTooShort: function() {
+                        return "Por favor ingrese 1 o más caracteres";
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
