@@ -245,11 +245,36 @@ class PtaClienteNuevaController extends Controller
                 unset($postData[$field]);
             }
         }
+        
+        // Auto-calcular porcentaje basado en el estado
+        if (isset($postData['estado_actividad'])) {
+            $estado = $postData['estado_actividad'];
+            switch ($estado) {
+                case 'CERRADA':
+                    $postData['porcentaje_avance'] = 100;
+                    break;
+                case 'GESTIONANDO':
+                    $postData['porcentaje_avance'] = 50;
+                    break;
+                case 'ABIERTA':
+                    $postData['porcentaje_avance'] = 0;
+                    break;
+            }
+        }
+        
         $ptaModel->update($id, $postData);
-        return $this->response->setJSON([
+        
+        // Retornar también el porcentaje actualizado para actualizar la vista
+        $response = [
             'status'  => 'success',
             'message' => 'Registro actualizado inline correctamente.'
-        ]);
+        ];
+        
+        if (isset($postData['porcentaje_avance'])) {
+            $response['porcentaje_avance'] = $postData['porcentaje_avance'];
+        }
+        
+        return $this->response->setJSON($response);
     }
 
     /**
