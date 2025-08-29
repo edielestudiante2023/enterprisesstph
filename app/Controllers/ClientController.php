@@ -2,15 +2,12 @@
 
 namespace App\Controllers;
 
-require __DIR__ . '/../../vendor/autoload.php';
-
 use App\Models\ClientModel;
 use App\Models\AccesoModel;
 use App\Models\EstandarModel;
 use App\Models\EstandarAccesoModel;
 use CodeIgniter\Controller;
 use App\Models\ReporteModel;
-use SendGrid\Mail\Mail;
 
 class ClientController extends Controller
 {
@@ -73,9 +70,6 @@ class ClientController extends Controller
 
             // Si no hay accesos asociados al estándar
             if (empty($accesosData)) {
-                // Enviar notificación por email
-                $this->sendMissingAccessNotification($id_cliente, $client['nombre_cliente'], $estandarNombre);
-                
                 // Pasar array vacío a la vista para que muestre el mensaje
                 $accesos = [];
             } else {
@@ -201,68 +195,5 @@ class ClientController extends Controller
 
         // 6) Enviar todo a la vista
         return view('client/document_view', $data);
-    }
-
-    public function sendMissingAccessNotification($clientId, $clientName, $standard)
-    {
-        log_message('info', "Enviando notificación - Cliente ID: $clientId");
-        
-        try {
-            $email = new \SendGrid\Mail\Mail();
-            $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Sistema Cycloid Talent");
-            $email->setSubject("Cliente sin accesos a documentación - ID: $clientId");
-            $email->addTo("edison.cuervo@cycloidtalent.com", "Edison Cuervo");
-            
-            $htmlContent = "
-                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                    <h2 style='color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 10px;'>
-                        ⚠️ Cliente sin Accesos a Documentación
-                    </h2>
-                    <div style='background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;'>
-                        <h3 style='margin-top: 0; color: #333;'>Detalles del Evento:</h3>
-                        <p><strong>ID Cliente:</strong> $clientId</p>
-                        <p><strong>Nombre Cliente:</strong> $clientName</p>
-                        <p><strong>Estándar:</strong> $standard</p>
-                        <p><strong>Fecha y Hora:</strong> " . date('Y-m-d H:i:s') . "</p>
-                    </div>
-                    <div style='background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;'>
-                        <p><strong>Acción Requerida:</strong></p>
-                        <p>El cliente intentó acceder a su documentación pero no tiene tablas maestras configuradas. 
-                        Por favor, revise y configure los accesos correspondientes para este cliente.</p>
-                    </div>
-                    <hr style='margin: 30px 0;'>
-                    <p style='color: #666; font-size: 14px;'>
-                        Este mensaje fue generado automáticamente por el sistema Cycloid Talent.
-                    </p>
-                </div>
-            ";
-            
-            $email->addContent("text/html", $htmlContent);
-            
-            $plainContent = "
-CLIENTE SIN ACCESOS A DOCUMENTACIÓN
-
-ID Cliente: $clientId
-Nombre Cliente: $clientName
-Estándar: $standard
-Fecha y Hora: " . date('Y-m-d H:i:s') . "
-
-El cliente intentó acceder a su documentación pero no tiene tablas maestras configuradas.
-Por favor, revise y configure los accesos correspondientes para este cliente.
-
----
-Este mensaje fue generado automáticamente por el sistema Cycloid Talent.
-            ";
-            
-            $email->addContent("text/plain", $plainContent);
-
-            $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
-            $response = $sendgrid->send($email);
-            
-            log_message('info', "Email enviado - Cliente ID: $clientId - Status Code: " . $response->statusCode());
-            
-        } catch (\Exception $e) {
-            log_message('error', "Error enviando email para cliente $clientId: " . $e->getMessage());
-        }
     }
 }
