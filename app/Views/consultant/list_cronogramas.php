@@ -459,7 +459,7 @@
             data: 'promedio_de_calificaciones',
             render: function(data, type, row) {
               data = (data === null || data === "") ? "" : data;
-              var displayText = data ? data + '%' : '&nbsp;';
+              var displayText = data || '&nbsp;';
               // Se elimina tooltip en esta columna
               return '<span class="editable" data-field="promedio_de_calificaciones" data-id="' + row.id_cronograma_capacitacion + '">' + displayText + '</span>';
             }
@@ -516,14 +516,14 @@
       });
 
       // Inline editing: detecta clic en celdas con clases editable, editable-select o editable-date
-      $(document).on('click', '.editable, .editable-select, .editable-date', function(e) {
+      $('#cronogramaTable').on('click', '.editable, .editable-select, .editable-date', function(e) {
         e.stopPropagation(); // Evita que se active la expansión de fila
         if ($(this).find('input, select').length) return;
         var cell = $(this);
         var field = cell.data('field');
         var id = cell.data('id');
         var currentValue = cell.text().trim();
-        currentValue = currentValue === '' ? '' : currentValue;
+        currentValue = currentValue === '&nbsp;' ? '' : currentValue;
 
         if (cell.hasClass('editable-date')) {
           var input = $('<input>', {
@@ -574,7 +574,8 @@
           });
           cell.html(input);
           input.focus();
-          input.on('blur', function() {
+          input.on('blur keypress', function(e) {
+            if (e.type === 'keypress' && e.which !== 13) return; // Solo procesar en blur o Enter
             var newValue = input.val();
             cell.html(newValue || '&nbsp;');
             updateField(id, field, newValue, cell);
@@ -650,14 +651,25 @@
 
       // Inicializar tooltips de Bootstrap
       function initializeTooltips() {
+        // Limpiar tooltips existentes para evitar duplicados
+        $('[data-bs-toggle="tooltip"]').each(function() {
+          var tooltip = bootstrap.Tooltip.getInstance(this);
+          if (tooltip) {
+            tooltip.dispose();
+          }
+        });
+        
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function(tooltipTriggerEl) {
-          return new bootstrap.Tooltip(tooltipTriggerEl);
+          return new bootstrap.Tooltip(tooltipTriggerEl, {
+            trigger: 'hover focus',
+            delay: { show: 500, hide: 100 }
+          });
         });
       }
       initializeTooltips();
       table.on('draw.dt', function() {
-        initializeTooltips();
+        setTimeout(initializeTooltips, 100);
       });
     });
 
