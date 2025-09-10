@@ -597,13 +597,22 @@
             if (response.success) {
               console.log('Registro actualizado correctamente');
               
-              // Si se actualizaron los campos que afectan el % Cobertura, recargar la fila
+              // Si se actualizaron los campos que afectan el % Cobertura, actualizar manualmente
               if (field === 'numero_de_asistentes_a_capacitacion' || field === 'numero_total_de_personas_programadas') {
                 var row = table.row(cell.closest('tr'));
-                if (row.length) {
-                  // Recargar solo esta fila para actualizar el % Cobertura
-                  row.invalidate('data').draw(false);
-                }
+                var rowData = row.data();
+                
+                // Actualizar el dato en el objeto de la fila
+                rowData[field] = value;
+                
+                // Recalcular y actualizar la columna de % Cobertura
+                var asistentes = parseFloat(rowData.numero_de_asistentes_a_capacitacion) || 0;
+                var programados = parseFloat(rowData.numero_total_de_personas_programadas) || 0;
+                var porcentaje = programados > 0 ? Math.round((asistentes / programados) * 100) : 0;
+                
+                // Encontrar y actualizar la celda del % Cobertura (columna 15)
+                var coberturaCell = cell.closest('tr').find('td').eq(15);
+                coberturaCell.text(porcentaje + '%');
               }
             } else {
               alert('Error: ' + response.message);
