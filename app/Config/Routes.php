@@ -505,6 +505,7 @@ $routes->get('listPlanDeTrabajoAnualAjax', 'PlanDeTrabajoAnualController::listPl
 
 $routes->get('api/getClientes', 'EvaluationController::getClientes');
 $routes->get('api/getEvaluaciones', 'EvaluationController::getEvaluaciones');
+$routes->get('api/getClientIndicators', 'EvaluationController::getClientIndicators');
 $routes->post('api/updateEvaluacion', 'EvaluationController::updateEvaluacion');
 $routes->get('listEvaluacionesAjax', 'EvaluationController::listEvaluacionesAjax');
 
