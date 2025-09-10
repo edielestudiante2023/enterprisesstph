@@ -300,6 +300,7 @@
       // Inicializar DataTable con fila expandible y render para inline editing
       var table = $('#cronogramaTable').DataTable({
         stateSave: true,
+        order: [[6, 'asc']], // Ordenar por fecha programada ASC por defecto
         language: {
           url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
         },
@@ -344,7 +345,7 @@
           {
             data: 'nombre_capacitacion',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               return '<span class="editable" data-field="nombre_capacitacion" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
@@ -355,7 +356,7 @@
           {
             data: 'nombre_cliente',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               return '<span data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
@@ -371,7 +372,7 @@
           {
             data: 'fecha_de_realizacion',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               return '<span class="editable-date" data-field="fecha_de_realizacion" data-id="' + row.id_cronograma_capacitacion + '">' + displayText + '</span>';
             }
@@ -379,7 +380,7 @@
           {
             data: 'estado',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               return '<span class="editable-select" data-field="estado" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
@@ -387,7 +388,7 @@
           {
             data: 'perfil_de_asistentes',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               return '<span class="editable-select" data-field="perfil_de_asistentes" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
@@ -395,7 +396,7 @@
           {
             data: 'nombre_del_capacitador',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               return '<span class="editable" data-field="nombre_del_capacitador" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
@@ -403,7 +404,7 @@
           {
             data: 'horas_de_duracion_de_la_capacitacion',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               // Se elimina tooltip en esta columna
               return '<span class="editable" data-field="horas_de_duracion_de_la_capacitacion" data-id="' + row.id_cronograma_capacitacion + '">' + displayText + '</span>';
@@ -412,7 +413,7 @@
           {
             data: 'indicador_de_realizacion_de_la_capacitacion',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               return '<span class="editable-select" data-field="indicador_de_realizacion_de_la_capacitacion" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
@@ -420,7 +421,7 @@
           {
             data: 'numero_de_asistentes_a_capacitacion',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               // Se elimina tooltip en esta columna
               return '<span class="editable" data-field="numero_de_asistentes_a_capacitacion" data-id="' + row.id_cronograma_capacitacion + '">' + displayText + '</span>';
@@ -429,19 +430,26 @@
           {
             data: 'numero_total_de_personas_programadas',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               // Se elimina tooltip en esta columna
               return '<span class="editable" data-field="numero_total_de_personas_programadas" data-id="' + row.id_cronograma_capacitacion + '">' + displayText + '</span>';
             }
           },
           {
-            data: 'porcentaje_cobertura'
+            data: 'porcentaje_cobertura',
+            render: function(data, type, row) {
+              // Calcular % Cobertura automáticamente
+              var asistentes = parseFloat(row.numero_de_asistentes_a_capacitacion) || 0;
+              var programados = parseFloat(row.numero_total_de_personas_programadas) || 0;
+              var porcentaje = programados > 0 ? Math.round((asistentes / programados) * 100) : 0;
+              return porcentaje + '%';
+            }
           },
           {
             data: 'numero_de_personas_evaluadas',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               // Se elimina tooltip en esta columna
               return '<span class="editable" data-field="numero_de_personas_evaluadas" data-id="' + row.id_cronograma_capacitacion + '">' + displayText + '</span>';
@@ -450,7 +458,7 @@
           {
             data: 'promedio_de_calificaciones',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data ? data + '%' : '&nbsp;';
               // Se elimina tooltip en esta columna
               return '<span class="editable" data-field="promedio_de_calificaciones" data-id="' + row.id_cronograma_capacitacion + '">' + displayText + '</span>';
@@ -459,7 +467,7 @@
           {
             data: 'observaciones',
             render: function(data, type, row) {
-              data = (data === null || data === "") ? "--" : data;
+              data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               return '<span class="editable" data-field="observaciones" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
@@ -587,6 +595,15 @@
           success: function(response) {
             if (response.success) {
               console.log('Registro actualizado correctamente');
+              
+              // Si se actualizaron los campos que afectan el % Cobertura, recargar la fila
+              if (field === 'numero_de_asistentes_a_capacitacion' || field === 'numero_total_de_personas_programadas') {
+                var row = table.row(cell.closest('tr'));
+                if (row.length) {
+                  // Recargar solo esta fila para actualizar el % Cobertura
+                  row.invalidate('data').draw(false);
+                }
+              }
             } else {
               alert('Error: ' + response.message);
             }
@@ -644,25 +661,6 @@
       });
     });
 
-    $.ajax({
-      url: '<?= base_url("updatecronogCapacitacion") ?>',
-      type: 'POST',
-      data: {
-        id: id,
-        field: field,
-        value: value
-      },
-      success: function(response) {
-        if (response.success) {
-          // Actualiza el elemento del DOM con el nuevo valor
-          $('#porcentaje-cobertura-' + id).text(response.newValue);
-          // También podrías agregar un mensaje de éxito aquí si es necesario
-        }
-      },
-      error: function(error) {
-        console.log(error);
-      }
-    });
   </script>
 </body>
 
