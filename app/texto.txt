@@ -1,0 +1,43 @@
+como los clientes no están cerrando los pendientes no puedo dejarlos en estado abierto perpetuamente, entonces necesito crear un estado nuevo, para lograrlo primero edite la base de datos, pero hay que hacer lo propio en el aplicativo.
+
+NECESITO UNA SENTENCIA SQL
+
+DESCRIBE tbl_pendientes;
+
+Field                  |Type                     |Null|Key|Default          |Extra                                        |
+-----------------------+-------------------------+----+---+-----------------+---------------------------------------------+
+id_pendientes          |int                      |NO  |PRI|                 |auto_increment                               |
+id_cliente             |int                      |NO  |   |                 |                                             |
+id_acta                |varchar(255)             |NO  |   |                 |                                             |
+responsable            |varchar(255)             |NO  |   |                 |                                             |
+tarea_actividad        |text                     |NO  |   |                 |                                             |
+fecha_asignacion       |datetime                 |YES |   |CURRENT_TIMESTAMP|DEFAULT_GENERATED                            |
+fecha_cierre           |date                     |YES |   |                 |                                             |
+estado                 |enum('ABIERTA','CERRADA')|NO  |   |                 |                                             |
+estado_avance          |varchar(255)             |YES |   |                 |                                             |
+evidencia_para_cerrarla|text                     |YES |   |                 |                                             |
+conteo_dias            |int                      |YES |   |0                |                                             |
+created_at             |datetime                 |YES |   |CURRENT_TIMESTAMP|DEFAULT_GENERATED                            |
+updated_at             |datetime                 |YES |   |CURRENT_TIMESTAMP|DEFAULT_GENERATED on update CURRENT_TIMESTAMP|
+
+EN ESTADO DEBO AGREGAR LA OPCIÓN 
+
+INCUMPLIMIENTO
+ChatGPT dijo:
+Pensado durante 30s
+
+Aquí tienes la sentencia para agregar INCUMPLIMIENTO al ENUM de estado:
+
+ALTER TABLE tbl_pendientes
+  MODIFY COLUMN estado ENUM('ABIERTA','CERRADA','INCUMPLIMIENTO') NOT NULL;
+
+
+(Opcional) Si quieres además fijar un valor por defecto:
+
+ALTER TABLE tbl_pendientes
+  MODIFY COLUMN estado ENUM('ABIERTA','CERRADA','INCUMPLIMIENTO') NOT NULL DEFAULT 'ABIERTA';
+
+
+Puedes verificar el cambio con:
+
+DESCRIBE tbl_pendientes;
