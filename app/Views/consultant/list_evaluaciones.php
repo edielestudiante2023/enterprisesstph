@@ -571,6 +571,12 @@ columns: [{
           var select = $('<select>', {
             class: 'form-select form-select-sm'
           });
+          // Agregar opción vacía
+          select.append($('<option>', {
+            value: '',
+            text: '-- Seleccionar --',
+            selected: currentValue === '-' || currentValue === ''
+          }));
           options.forEach(function (option) {
             select.append($('<option>', {
               value: option,
