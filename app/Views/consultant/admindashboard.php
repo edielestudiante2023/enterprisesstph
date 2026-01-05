@@ -615,6 +615,15 @@
                 <p><i class="fas fa-tools me-2"></i>Centro de Control - Gestión Avanzada de Procesos SST</p>
             </div>
 
+            <!-- Botón de Acceso Rápido -->
+            <div class="text-center mb-4">
+                <a href="<?= base_url('/quick-access') ?>" target="_blank" rel="noopener noreferrer">
+                    <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary)); border: none;" aria-label="Acceso Rápido">
+                        <i class="fas fa-bolt me-2"></i>Acceso Rápido
+                    </button>
+                </a>
+            </div>
+
             <!-- Card contenedor de tabla -->
             <div class="table-card-custom">
                 <div class="d-flex align-items-center mb-4">

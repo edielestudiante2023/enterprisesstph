@@ -363,8 +363,10 @@
         if (filterElement.length && !filterElement.prop('disabled')) {
           filterElement.empty().append('<option value="">Todos</option>');
           column.data().unique().sort().each(function (d) {
-            if (d && filterElement.find('option[value="' + d + '"]').length === 0) {
-              filterElement.append('<option value="' + d + '">' + d + '</option>');
+            // Incluir valores vacíos/null como "-"
+            var displayValue = (d === null || d === "" || d === undefined) ? "-" : d;
+            if (filterElement.find('option[value="' + displayValue + '"]').length === 0) {
+              filterElement.append('<option value="' + displayValue + '">' + displayValue + '</option>');
             }
           });
           var search = column.search();
@@ -470,10 +472,13 @@ columns: [{
           {
             data: 'evaluacion_inicial',
             render: function (data, type, row) {
+              // Normalizar valores vacíos/null a "-" para filter y display
+              data = (data === null || data === "") ? "-" : data;
+
               if (type === 'filter') {
                 return data;
               }
-              data = (data === null || data === "") ? "-" : data;
+
               var displayText = data || '&nbsp;';
               return '<span class="editable-select" data-field="evaluacion_inicial" data-id="' + row.id_ev_ini + '">' + displayText + '</span>';
             }

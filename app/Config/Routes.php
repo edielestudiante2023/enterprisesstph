@@ -27,6 +27,7 @@ $routes->get('client/suspended', 'AuthController::suspended');
 
 $routes->get('/dashboardconsultant', 'ConsultantController::index');
 $routes->get('/admindashboard', 'AdminDashboardController::index');
+$routes->get('/quick-access', 'QuickAccessDashboardController::index');
 
 $routes->get('/addClient', 'ConsultantController::addClient');
 $routes->post('/addClient', 'ConsultantController::addClientPost');

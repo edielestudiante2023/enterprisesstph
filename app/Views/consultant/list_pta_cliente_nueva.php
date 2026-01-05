@@ -599,6 +599,31 @@
                 }
             });
 
+            // Cargar cliente desde localStorage si existe
+            var storedClient = localStorage.getItem('selectedClient');
+            var urlParams = new URLSearchParams(window.location.search);
+            var hasClienteParam = urlParams.has('cliente') && urlParams.get('cliente') !== '';
+
+            if (storedClient && !hasClienteParam) {
+                // Solo cargar desde localStorage si no hay parámetro 'cliente' en la URL
+                $('#cliente').val(storedClient).trigger('change');
+
+                // Auto-clic en "Ver Todos" después de cargar el cliente
+                setTimeout(function() {
+                    $('#btnMostrarTodos').click();
+                }, 500);
+            }
+
+            // Guardar cliente en localStorage cuando cambie
+            $('#cliente').on('change', function() {
+                var clientId = $(this).val();
+                if (clientId) {
+                    localStorage.setItem('selectedClient', clientId);
+                } else {
+                    localStorage.removeItem('selectedClient');
+                }
+            });
+
             // Al cambiar el mes, se asignan las fechas correspondientes
             $('#mesSeleccionado').on('change', function() {
                 var valor = $(this).val();

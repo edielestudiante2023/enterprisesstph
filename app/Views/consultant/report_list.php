@@ -667,7 +667,37 @@
       $('#clientFilter').on('change', function () {
         var selected = $(this).val();
         table.column(10).search(selected ? '^' + selected + '$' : '', true, false).draw();
+
+        // Actualizar localStorage con el ID del cliente seleccionado
+        if (selected) {
+          <?php foreach ($clients as $client): ?>
+            if (selected === '<?= htmlspecialchars($client['nombre_cliente']) ?>') {
+              localStorage.setItem('selectedClient', '<?= $client['id_cliente'] ?>');
+            }
+          <?php endforeach; ?>
+        } else {
+          localStorage.removeItem('selectedClient');
+        }
       });
+
+      // Cargar cliente desde localStorage si existe (para sincronización con quick-access)
+      var storedClient = localStorage.getItem('selectedClient');
+      if (storedClient) {
+        // Buscar el nombre del cliente por su ID
+        var clientName = null;
+        <?php foreach ($clients as $client): ?>
+          if (<?= $client['id_cliente'] ?> == storedClient) {
+            clientName = '<?= htmlspecialchars($client['nombre_cliente']) ?>';
+          }
+        <?php endforeach; ?>
+
+        if (clientName) {
+          // Establecer el valor y forzar el filtrado
+          $('#clientFilter').val(clientName).trigger('change.select2');
+          // Aplicar el filtro manualmente
+          table.column(10).search('^' + clientName + '$', true, false).draw();
+        }
+      }
 
       // Función para aplicar filtro de fechas
       function applyDateFilter() {

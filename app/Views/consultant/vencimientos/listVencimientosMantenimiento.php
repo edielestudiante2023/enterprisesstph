@@ -142,7 +142,7 @@
                 echo esc($clienteActual);
               ?>
             </div>
-            <a href="<?= current_url() ?>" class="btn btn-sm btn-outline-primary">
+            <a href="<?= current_url() ?>?cambiar_cliente=1" class="btn btn-sm btn-outline-primary">
               <i class="fas fa-exchange-alt me-2"></i>Cambiar Cliente
             </a>
           </div>
@@ -356,13 +356,31 @@
         }
       });
 
+      // Cargar cliente desde localStorage si existe (para sincronización con quick-access)
+      var storedClient = localStorage.getItem('selectedClient');
+      var urlParams = new URLSearchParams(window.location.search);
+      var cambiarCliente = urlParams.get('cambiar_cliente');
+
+      // Solo auto-cargar si no hay cliente_id en URL y NO se está cambiando de cliente manualmente
+      if (storedClient && !window.location.search.includes('cliente_id') && !cambiarCliente) {
+        $('.select2-cliente').val(storedClient).trigger('change');
+
+        // Auto-click en "Cargar Vencimientos" después de seleccionar cliente
+        setTimeout(function() {
+          $('form[action="<?= current_url() ?>"]').submit();
+        }, 500);
+      }
+
       // Mantener cliente seleccionado desde la URL
       function mantenerClienteSeleccionado() {
         var urlParams = new URLSearchParams(window.location.search);
         var clienteId = urlParams.get('cliente_id');
         if (clienteId) {
           $('.select2-cliente').val(clienteId).trigger('change');
-          
+
+          // Guardar en localStorage para sincronización
+          localStorage.setItem('selectedClient', clienteId);
+
           // Actualizar el filtro superior con el nombre del cliente
           var nombreCliente = $('.select2-cliente option:selected').text();
           if (nombreCliente && nombreCliente !== '-- Busque y seleccione un cliente --') {
@@ -374,9 +392,19 @@
       // Ejecutar al cargar la página
       mantenerClienteSeleccionado();
 
-      // Escuchar cambios en el Select2 para actualizar el filtro superior
+      // Escuchar cambios en el Select2 para actualizar el filtro superior y localStorage
       $('.select2-cliente').on('change', function() {
+        var clienteId = $(this).val();
         var nombreCliente = $(this).find('option:selected').text();
+
+        // Guardar en localStorage
+        if (clienteId) {
+          localStorage.setItem('selectedClient', clienteId);
+        } else {
+          localStorage.removeItem('selectedClient');
+        }
+
+        // Actualizar filtro superior
         if (nombreCliente && nombreCliente !== '-- Busque y seleccione un cliente --') {
           $('#topFilter_cliente').val(nombreCliente);
         } else {

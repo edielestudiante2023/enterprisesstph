@@ -53,9 +53,12 @@ class VencimientosMantenimientoController extends BaseController
             'observaciones'       => $this->request->getVar('observaciones'),
         ];
 
+        // Obtener el id_cliente para mantenerlo en la URL de redirección
+        $clienteId = $this->request->getVar('id_cliente');
+
         // Guardar los datos en la base de datos
         if ($vencimientosModel->save($data)) {
-            return redirect()->to(base_url('vencimientos'))->with('msg', 'Vencimiento agregado exitosamente');
+            return redirect()->to(base_url('vencimientos') . '?cliente_id=' . $clienteId)->with('msg', 'Vencimiento agregado exitosamente');
         } else {
             return redirect()->back()->with('msg', 'Error al guardar el vencimiento.')->withInput();
         }
@@ -117,9 +120,12 @@ class VencimientosMantenimientoController extends BaseController
             'observaciones'          => $this->request->getVar('observaciones'),
         ];
 
+        // Obtener el id_cliente para mantenerlo en la URL de redirección
+        $clienteId = $this->request->getVar('id_cliente');
+
         // Actualizar los datos en la base de datos
         if ($vencimientosModel->save($data)) {
-            return redirect()->to(base_url('vencimientos'))->with('msg', 'Vencimiento actualizado exitosamente');
+            return redirect()->to(base_url('vencimientos') . '?cliente_id=' . $clienteId)->with('msg', 'Vencimiento actualizado exitosamente');
         } else {
             return redirect()->back()->with('msg', 'Error al actualizar el vencimiento.')->withInput();
         }
@@ -135,9 +141,17 @@ class VencimientosMantenimientoController extends BaseController
         // Instanciar el modelo de vencimientos
         $vencimientosModel = new VencimientosMantenimientoModel();
 
+        // Obtener el vencimiento antes de eliminarlo para conservar el id_cliente
+        $vencimiento = $vencimientosModel->find($id);
+        $clienteId = $vencimiento ? $vencimiento['id_cliente'] : null;
+
         // Eliminar el vencimiento
         if ($vencimientosModel->delete($id)) {
-            return redirect()->to(base_url('vencimientos'))->with('msg', 'Vencimiento eliminado exitosamente');
+            $redirectUrl = base_url('vencimientos');
+            if ($clienteId) {
+                $redirectUrl .= '?cliente_id=' . $clienteId;
+            }
+            return redirect()->to($redirectUrl)->with('msg', 'Vencimiento eliminado exitosamente');
         } else {
             return redirect()->back()->with('msg', 'Error al eliminar el vencimiento.');
         }
