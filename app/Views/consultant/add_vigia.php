@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Añadir Vigía</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 </head>
 
 <body class="bg-light">
@@ -64,11 +67,8 @@
                 <input type="file" name="firma_vigia" id="firma_vigia" class="form-control" accept="image/*">
             </div>
             <div class="mb-3">
-                <label for="search_cliente" class="form-label">Buscar Cliente:</label>
-                <input type="text" id="search_cliente" class="form-control mb-2" placeholder="Escriba para buscar...">
-
                 <label for="id_cliente" class="form-label">Cliente:</label>
-                <select name="id_cliente" id="id_cliente" class="form-select">
+                <select name="id_cliente" id="id_cliente" class="form-select" required>
                     <option value="">Seleccione un cliente</option>
                     <?php foreach ($clients as $client): ?>
                         <option value="<?= $client['id_cliente'] ?>"><?= $client['nombre_cliente'] ?></option>
@@ -112,25 +112,18 @@
         </div>
     </footer>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('search_cliente');
-            const selectCliente = document.getElementById('id_cliente');
-            const originalOptions = Array.from(selectCliente.options);
-
-            searchInput.addEventListener('input', function(e) {
-                const searchText = e.target.value.toLowerCase();
-
-                // Clear current options
-                selectCliente.innerHTML = '<option value="">Seleccione un cliente</option>';
-
-                // Filter and add matching options
-                originalOptions.forEach(option => {
-                    if (option.text.toLowerCase().includes(searchText)) {
-                        selectCliente.appendChild(option.cloneNode(true));
-                    }
-                });
+        $(document).ready(function() {
+            // Inicializar Select2 en el campo de cliente
+            $('#id_cliente').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Seleccione un cliente',
+                allowClear: true,
+                width: '100%'
             });
         });
     </script>
