@@ -490,13 +490,31 @@ columns: [{
             data: 'puntaje_cuantitativo'
           },
           {
-            data: 'item'
+            data: 'item',
+            render: function (data, type, row) {
+              if (type === 'display') {
+                return '<span data-bs-toggle="tooltip" title="' + (data || '') + '">' + (data || '') + '</span>';
+              }
+              return data;
+            }
           },
           {
-            data: 'criterio'
+            data: 'criterio',
+            render: function (data, type, row) {
+              if (type === 'display') {
+                return '<span data-bs-toggle="tooltip" title="' + (data || '') + '">' + (data || '') + '</span>';
+              }
+              return data;
+            }
           },
           {
-            data: 'modo_de_verificacion'
+            data: 'modo_de_verificacion',
+            render: function (data, type, row) {
+              if (type === 'display') {
+                return '<span data-bs-toggle="tooltip" title="' + (data || '') + '">' + (data || '') + '</span>';
+              }
+              return data;
+            }
           },
           {
             data: 'observaciones',
@@ -687,9 +705,22 @@ columns: [{
       });
 
       function initializeTooltips() {
+        // Destruir tooltips existentes primero
+        var existingTooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        existingTooltips.forEach(function (element) {
+          var tooltip = bootstrap.Tooltip.getInstance(element);
+          if (tooltip) {
+            tooltip.dispose();
+          }
+        });
+
+        // Crear nuevos tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
-          return new bootstrap.Tooltip(tooltipTriggerEl);
+          return new bootstrap.Tooltip(tooltipTriggerEl, {
+            trigger: 'hover',
+            container: 'body'
+          });
         });
       }
       initializeTooltips();
