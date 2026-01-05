@@ -118,7 +118,7 @@
   <div class="container-fluid px-2 mt-2">
     <h1 class="text-center mb-3">Lista de Cronogramas de Capacitación</h1>
 
-    <!-- Bloque para seleccionar cliente -->
+    <!-- Bloque para seleccionar cliente y año -->
     <div class="row mb-2">
       <div class="col-md-3">
         <label for="clientSelect">Selecciona un Cliente:</label>
@@ -126,10 +126,16 @@
           <option value="">Seleccione un cliente</option>
         </select>
       </div>
+      <div class="col-md-2">
+        <label for="yearFilter">Filtrar por Año:</label>
+        <select id="yearFilter" class="form-select">
+          <option value="">Todos los años</option>
+        </select>
+      </div>
       <div class="col-md-2 align-self-end">
         <button id="loadData" class="btn btn-primary">Cargar Datos</button>
       </div>
-      <div class="col-md-7 align-self-end">
+      <div class="col-md-5 align-self-end">
         <button id="clearState" class="btn btn-danger btn-sm me-2">Restablecer Filtros</button>
         <div id="buttonsContainer" class="d-inline-block"></div>
       </div>
@@ -327,7 +333,29 @@
           data: function(d) {
             d.cliente = $("#clientSelect").val();
           },
-          dataSrc: ''
+          dataSrc: function(json) {
+            // Extraer años únicos de las fechas programadas
+            var years = [];
+            json.forEach(function(item) {
+              if (item.fecha_programada) {
+                var year = item.fecha_programada.substring(0, 4);
+                if (year && years.indexOf(year) === -1) {
+                  years.push(year);
+                }
+              }
+            });
+
+            // Ordenar años de más reciente a más antiguo
+            years.sort(function(a, b) { return b - a; });
+
+            // Poblar el select de años
+            $('#yearFilter').empty().append('<option value="">Todos los años</option>');
+            years.forEach(function(year) {
+              $('#yearFilter').append('<option value="' + year + '">' + year + '</option>');
+            });
+
+            return json;
+          }
         },
         columns: [{
             data: null,
@@ -645,6 +673,18 @@
         }
       });
 
+      // Filtro por año de fecha programada
+      $('#yearFilter').on('change', function() {
+        var year = $(this).val();
+        if (year) {
+          // Filtrar por año en la columna de fecha programada (columna 6)
+          table.column(6).search('^' + year, true, false).draw();
+        } else {
+          // Limpiar filtro si no hay año seleccionado
+          table.column(6).search('').draw();
+        }
+      });
+
       // Botón para restablecer filtros y estado guardado
       $("#clearState").on("click", function() {
         localStorage.removeItem('selectedClient');
@@ -656,6 +696,7 @@
         });
         table.columns().search('').draw();
         $("#clientSelect").val(null).trigger("change");
+        $("#yearFilter").val('');
       });
 
       // Inicializar tooltips de Bootstrap

@@ -126,12 +126,18 @@
   <div class="container-fluid mt-5">
     <h1 class="text-center mb-4">Lista de Pendientes</h1>
 
-    <!-- Selección de Cliente -->
+    <!-- Selección de Cliente y Año -->
     <div class="row mb-3">
-      <div class="col-md-4">
+      <div class="col-md-3">
         <label for="clientSelect">Selecciona un Cliente:</label>
         <select id="clientSelect" class="form-select">
           <option value="">Seleccione un cliente</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="yearFilter">Filtrar por Año:</label>
+        <select id="yearFilter" class="form-select">
+          <option value="">Todos los años</option>
         </select>
       </div>
       <div class="col-md-2 align-self-end">
@@ -296,7 +302,29 @@
           data: function(d) {
             d.cliente = $("#clientSelect").val();
           },
-          dataSrc: ''
+          dataSrc: function(json) {
+            // Extraer años únicos de las fechas de asignación
+            var years = [];
+            json.forEach(function(item) {
+              if (item.fecha_asignacion) {
+                var year = item.fecha_asignacion.substring(0, 4);
+                if (year && years.indexOf(year) === -1) {
+                  years.push(year);
+                }
+              }
+            });
+
+            // Ordenar años de más reciente a más antiguo
+            years.sort(function(a, b) { return b - a; });
+
+            // Poblar el select de años
+            $('#yearFilter').empty().append('<option value="">Todos los años</option>');
+            years.forEach(function(year) {
+              $('#yearFilter').append('<option value="' + year + '">' + year + '</option>');
+            });
+
+            return json;
+          }
         },
         columns: [{
             data: null,
@@ -522,6 +550,18 @@
         }
       });
 
+      // Filtro por año de fecha de asignación
+      $('#yearFilter').on('change', function() {
+        var year = $(this).val();
+        if (year) {
+          // Filtrar por año en la columna de fecha asignación (columna 4)
+          table.column(4).search('^' + year, true, false).draw();
+        } else {
+          // Limpiar filtro si no hay año seleccionado
+          table.column(4).search('').draw();
+        }
+      });
+
       // Botón para restablecer filtros y estado
       $("#clearState").on("click", function() {
         localStorage.removeItem('selectedClient');
@@ -531,6 +571,7 @@
         $('tfoot .filter-search').val('');
         table.search('').columns().search('').draw();
         $("#clientSelect").val(null).trigger("change");
+        $("#yearFilter").val('');
       });
 
       // Nuevo manejador para recalcular el conteo de días
