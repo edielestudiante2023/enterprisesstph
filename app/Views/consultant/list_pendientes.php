@@ -317,21 +317,37 @@
             // Ordenar años de más reciente a más antiguo
             years.sort(function(a, b) { return b - a; });
 
+            // Obtener el valor actual del filtro de año
+            var selectedYear = $('#yearFilter').val();
+
+            // Si el filtro está vacío (primera carga), establecer año actual
+            if (!selectedYear) {
+              var currentYear = new Date().getFullYear().toString();
+              if (years.indexOf(currentYear) !== -1) {
+                selectedYear = currentYear;
+              }
+            }
+
             // Poblar el select de años
             $('#yearFilter').empty().append('<option value="">Todos los años</option>');
             years.forEach(function(year) {
               $('#yearFilter').append('<option value="' + year + '">' + year + '</option>');
             });
 
-            // Establecer año actual por defecto
-            var currentYear = new Date().getFullYear().toString();
-            if (years.indexOf(currentYear) !== -1) {
-              $('#yearFilter').val(currentYear);
-              // Aplicar filtro por año actual
-              table.column(4).search('^' + currentYear, true, false).draw();
+            // Establecer el valor seleccionado
+            if (selectedYear) {
+              $('#yearFilter').val(selectedYear);
             }
 
-            return json;
+            // Filtrar datos según el año seleccionado
+            var filteredData = json;
+            if (selectedYear) {
+              filteredData = json.filter(function(item) {
+                return item.fecha_asignacion && item.fecha_asignacion.substring(0, 4) === selectedYear;
+              });
+            }
+
+            return filteredData;
           }
         },
         columns: [{
@@ -560,14 +576,8 @@
 
       // Filtro por año de fecha de asignación
       $('#yearFilter').on('change', function() {
-        var year = $(this).val();
-        if (year) {
-          // Filtrar por año en la columna de fecha asignación (columna 4)
-          table.column(4).search('^' + year, true, false).draw();
-        } else {
-          // Limpiar filtro si no hay año seleccionado
-          table.column(4).search('').draw();
-        }
+        // Recargar los datos cuando cambie el año
+        table.ajax.reload();
       });
 
       // Botón para restablecer filtros y estado
