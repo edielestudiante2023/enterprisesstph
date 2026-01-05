@@ -354,6 +354,14 @@
               $('#yearFilter').append('<option value="' + year + '">' + year + '</option>');
             });
 
+            // Establecer año actual por defecto
+            var currentYear = new Date().getFullYear().toString();
+            if (years.indexOf(currentYear) !== -1) {
+              $('#yearFilter').val(currentYear);
+              // Aplicar filtro por año actual
+              table.column(6).search('^' + currentYear, true, false).draw();
+            }
+
             return json;
           }
         },
