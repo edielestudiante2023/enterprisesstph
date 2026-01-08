@@ -639,6 +639,10 @@
               }
             }
           });
+
+          // Mostrar información de registros después de cada draw
+          var info = api.page.info();
+          console.log('Registros mostrados:', info.recordsDisplay, 'de', info.recordsTotal);
         }
       });
 
@@ -692,9 +696,11 @@
         <?php endforeach; ?>
 
         if (clientName) {
-          // Establecer el valor y forzar el filtrado
-          $('#clientFilter').val(clientName).trigger('change.select2');
-          // Aplicar el filtro manualmente
+          // Establecer el valor en Select2 sin disparar el evento change aún
+          $('#clientFilter').val(clientName);
+          // Refrescar la visualización de Select2
+          $('#clientFilter').trigger('change.select2');
+          // Aplicar el filtro y redibujar la tabla
           table.column(10).search('^' + clientName + '$', true, false).draw();
         }
       }
