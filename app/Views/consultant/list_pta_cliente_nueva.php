@@ -160,6 +160,65 @@
             border-radius: 8px;
             border: 1px solid #ffe082;
         }
+
+        /* Estilos para tarjetas clickeables */
+        .card-clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .card-clickable:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-clickable.active {
+            border: 3px solid #ffeb3b !important;
+            box-shadow: 0 0 25px rgba(255, 235, 59, 0.8), 0 0 10px rgba(255, 255, 255, 0.5) !important;
+            transform: scale(1.08) !important;
+            position: relative;
+        }
+
+        .card-clickable.active::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ffeb3b;
+            color: #000;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .card-year {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            min-height: 80px;
+        }
+
+        .card-month {
+            min-height: 70px;
+        }
+
+        .card-status {
+            min-height: 90px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #4e73df;
+            border-left: 4px solid #4e73df;
+            padding-left: 10px;
+            margin: 20px 0 15px 0;
+        }
     </style>
 </head>
 
@@ -168,56 +227,83 @@
         <!-- Enlace a Dashboard -->
         <a href="<?= base_url('/dashboardconsultant') ?>" class="btn btn-primary btn-sm mb-3">Ir a DashBoard</a>
 
-        <!-- Tarjetas de conteo superiores -->
+        <!-- Mensaje informativo -->
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle"></i>
+            <strong>Filtros Dinámicos:</strong> Las tarjetas de año, estado y mes son interactivas.
+            Haz clic sobre ellas para filtrar la tabla instantáneamente. Puedes combinar múltiples filtros.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Sección de Filtros por Año -->
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="section-title mb-0">
+                <i class="fas fa-calendar-alt"></i> Filtrar por Año
+            </div>
+            <button type="button" id="btnClearCardFilters" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-times"></i> Limpiar Filtros de Tarjetas
+            </button>
+        </div>
+        <div class="row mb-4 mt-2" id="yearCards">
+            <!-- Se generarán dinámicamente con JavaScript -->
+        </div>
+
+        <!-- Tarjetas de Estados (clickeables) -->
+        <div class="section-title">
+            <i class="fas fa-tasks"></i> Filtrar por Estado
+        </div>
         <div class="row mb-4">
             <div class="col-md-2">
-                <div class="card text-white bg-primary">
-                    <div class="card-body">
+                <div class="card text-white bg-primary card-clickable card-status" data-status="ABIERTA">
+                    <div class="card-body text-center">
                         <h5 class="card-title">Activas</h5>
-                        <p class="card-text" id="countActivas">0</p>
+                        <p class="card-text display-6" id="countActivas">0</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-2">
-                <div class="card text-white bg-danger">
-                    <div class="card-body">
+                <div class="card text-white bg-danger card-clickable card-status" data-status="CERRADA">
+                    <div class="card-body text-center">
                         <h5 class="card-title">Cerradas</h5>
-                        <p class="card-text" id="countCerradas">0</p>
+                        <p class="card-text display-6" id="countCerradas">0</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-2">
-                <div class="card text-white bg-warning">
-                    <div class="card-body">
+                <div class="card text-white bg-warning card-clickable card-status" data-status="GESTIONANDO">
+                    <div class="card-body text-center">
                         <h5 class="card-title">Gestionando</h5>
-                        <p class="card-text" id="countGestionando">0</p>
+                        <p class="card-text display-6" id="countGestionando">0</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card text-white bg-dark">
-                    <div class="card-body">
+                <div class="card text-white bg-dark card-clickable card-status" data-status="CERRADA SIN EJECUCIÓN">
+                    <div class="card-body text-center">
                         <h5 class="card-title">Cerradas Sin Ejecución</h5>
-                        <p class="card-text" id="countCerradasSinEjecucion">0</p>
+                        <p class="card-text display-6" id="countCerradasSinEjecucion">0</p>
                     </div>
                 </div>
             </div>
             <!-- Tarjeta para total de actividades -->
             <div class="col-md-3">
-                <div class="card text-white bg-secondary">
-                    <div class="card-body">
+                <div class="card text-white bg-secondary card-clickable card-status" data-status="ALL">
+                    <div class="card-body text-center">
                         <h5 class="card-title">Total</h5>
-                        <p class="card-text" id="countTotal">0</p>
+                        <p class="card-text display-6" id="countTotal">0</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tarjetas mensuales -->
+        <!-- Tarjetas mensuales (clickeables) -->
+        <div class="section-title">
+            <i class="fas fa-calendar-week"></i> Filtrar por Mes
+        </div>
         <div class="row mb-4">
             <!-- Cada tarjeta ocupa 1 columna en md y 6 en xs -->
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="1">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Enero</h6>
                         <p class="card-text text-center" id="countEnero">0</p>
@@ -225,7 +311,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="2">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Febrero</h6>
                         <p class="card-text text-center" id="countFebrero">0</p>
@@ -233,7 +319,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="3">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Marzo</h6>
                         <p class="card-text text-center" id="countMarzo">0</p>
@@ -241,7 +327,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="4">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Abril</h6>
                         <p class="card-text text-center" id="countAbril">0</p>
@@ -249,7 +335,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="5">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Mayo</h6>
                         <p class="card-text text-center" id="countMayo">0</p>
@@ -257,7 +343,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="6">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Junio</h6>
                         <p class="card-text text-center" id="countJunio">0</p>
@@ -265,7 +351,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="7">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Julio</h6>
                         <p class="card-text text-center" id="countJulio">0</p>
@@ -273,7 +359,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="8">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Agosto</h6>
                         <p class="card-text text-center" id="countAgosto">0</p>
@@ -281,7 +367,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="9">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Sept.</h6>
                         <p class="card-text text-center" id="countSeptiembre">0</p>
@@ -289,7 +375,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="10">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Oct.</h6>
                         <p class="card-text text-center" id="countOctubre">0</p>
@@ -297,7 +383,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="11">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Nov.</h6>
                         <p class="card-text text-center" id="countNoviembre">0</p>
@@ -305,7 +391,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-1">
-                <div class="card text-white bg-info">
+                <div class="card text-white bg-info card-clickable card-month" data-month="12">
                     <div class="card-body p-2">
                         <h6 class="card-title text-center mb-0">Dic.</h6>
                         <p class="card-text text-center" id="countDiciembre">0</p>
@@ -319,13 +405,13 @@
         <!-- FORMULARIO DE FILTROS MEJORADO -->
         <div class="filter-card">
             <form id="filterForm" method="get" action="<?= site_url('/pta-cliente-nueva/list') ?>">
-                
-                <!-- Sección Principal -->
+
+                <!-- Filtros en una sola fila -->
                 <div class="filter-section">
-                    <h6><i class="fas fa-filter"></i> Filtros Principales</h6>
+                    <h6><i class="fas fa-filter"></i> Filtros de Búsqueda</h6>
                     <div class="row mb-3">
                         <!-- Cliente (Campo requerido) -->
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <label for="cliente" class="form-label">
                                 <i class="fas fa-user-tie"></i> Cliente *
                             </label>
@@ -341,97 +427,25 @@
                                 <?php endif; ?>
                             </select>
                         </div>
-                        
-                        <!-- Estado de Actividad -->
-                        <div class="col-lg-3">
-                            <label for="estado" class="form-label">
-                                <i class="fas fa-tasks"></i> Estado de Actividad
-                            </label>
-                            <select name="estado" id="estado" class="form-select">
-                                <option value="">Todas</option>
-                                <option value="ABIERTA" <?= (service('request')->getGet('estado') == 'ABIERTA') ? 'selected' : '' ?>>ABIERTA</option>
-                                <option value="CERRADA" <?= (service('request')->getGet('estado') == 'CERRADA') ? 'selected' : '' ?>>CERRADA</option>
-                                <option value="GESTIONANDO" <?= (service('request')->getGet('estado') == 'GESTIONANDO') ? 'selected' : '' ?>>GESTIONANDO</option>
-                                <option value="CERRADA SIN EJECUCIÓN" <?= (service('request')->getGet('estado') == 'CERRADA SIN EJECUCIÓN') ? 'selected' : '' ?>>CERRADA SIN EJECUCIÓN</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Sección Fechas -->
-                <div class="filter-section">
-                    <h6><i class="fas fa-calendar-alt"></i> Filtros de Fecha</h6>
-                    <div class="row mb-3">
-                        <!-- Fechas Manuales -->
-                        <div class="col-lg-6">
-                            <div class="date-range-group">
-                                <small class="text-muted mb-2 d-block">
-                                    <i class="fas fa-info-circle"></i> Rango manual de fechas
-                                </small>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <label for="fecha_desde" class="form-label">
-                                            <i class="fas fa-calendar-plus"></i> Fecha Desde
-                                        </label>
-                                        <input type="date" name="fecha_desde" id="fecha_desde" 
-                                               class="form-control" 
-                                               value="<?= esc(service('request')->getGet('fecha_desde')) ?>">
-                                    </div>
-                                    <div class="col-6">
-                                        <label for="fecha_hasta" class="form-label">
-                                            <i class="fas fa-calendar-minus"></i> Fecha Hasta
-                                        </label>
-                                        <input type="date" name="fecha_hasta" id="fecha_hasta" 
-                                               class="form-control" 
-                                               value="<?= esc(service('request')->getGet('fecha_hasta')) ?>">
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Fecha Desde -->
+                        <div class="col-lg-4">
+                            <label for="fecha_desde" class="form-label">
+                                <i class="fas fa-calendar-plus"></i> Fecha Desde
+                            </label>
+                            <input type="date" name="fecha_desde" id="fecha_desde"
+                                   class="form-control"
+                                   value="<?= esc(service('request')->getGet('fecha_desde')) ?>">
                         </div>
-                        
-                        <!-- Filtros Rápidos -->
-                        <div class="col-lg-6">
-                            <div class="quick-filters">
-                                <small class="text-muted mb-2 d-block">
-                                    <i class="fas fa-magic"></i> Filtros rápidos
-                                </small>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <label for="anioSeleccionado" class="form-label">
-                                            <i class="fas fa-calendar"></i> Año
-                                        </label>
-                                        <select id="anioSeleccionado" class="form-select">
-                                            <option value="">Seleccione año</option>
-                                            <?php 
-                                            $currentYear = date('Y');
-                                            for($i = $currentYear + 1; $i >= 2020; $i--): ?>
-                                                <option value="<?= $i ?>"><?= $i ?></option>
-                                            <?php endfor; ?>
-                                        </select>
-                                    </div>
-                                    <div class="col-6">
-                                        <label for="mesSeleccionado" class="form-label">
-                                            <i class="fas fa-calendar-week"></i> Período
-                                        </label>
-                                        <select id="mesSeleccionado" class="form-select">
-                                            <option value="">Seleccione período</option>
-                                            <option value="all">Todo el Año</option>
-                                            <option value="1">Enero</option>
-                                            <option value="2">Febrero</option>
-                                            <option value="3">Marzo</option>
-                                            <option value="4">Abril</option>
-                                            <option value="5">Mayo</option>
-                                            <option value="6">Junio</option>
-                                            <option value="7">Julio</option>
-                                            <option value="8">Agosto</option>
-                                            <option value="9">Septiembre</option>
-                                            <option value="10">Octubre</option>
-                                            <option value="11">Noviembre</option>
-                                            <option value="12">Diciembre</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+
+                        <!-- Fecha Hasta -->
+                        <div class="col-lg-4">
+                            <label for="fecha_hasta" class="form-label">
+                                <i class="fas fa-calendar-minus"></i> Fecha Hasta
+                            </label>
+                            <input type="date" name="fecha_hasta" id="fecha_hasta"
+                                   class="form-control"
+                                   value="<?= esc(service('request')->getGet('fecha_hasta')) ?>">
                         </div>
                     </div>
                 </div>
@@ -581,6 +595,11 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Variables globales para filtros activos
+            var activeYear = null;
+            var activeMonth = null;
+            var activeStatus = null;
+
             // Initialize Select2 on client dropdown
             $('#cliente').select2({
                 theme: 'bootstrap-5',
@@ -598,53 +617,173 @@
                 }
             });
 
-            // Al cambiar el mes, se asignan las fechas correspondientes
-            $('#mesSeleccionado').on('change', function() {
-                var valor = $(this).val();
-                var valorAnio = $('#anioSeleccionado').val();
-                
-                // Si no hay mes seleccionado, no hacer nada
-                if (!valor) return;
-                
-                // Si hay año seleccionado, usar ese; si no, mostrar alerta y salir
-                if (!valorAnio) {
-                    alert('Primero debe seleccionar un año.');
-                    $(this).val('');
-                    return;
-                }
-                
-                var anio = parseInt(valorAnio);
-                var primerDia, ultimoDia;
+            // Generar tarjetas de años dinámicamente
+            function generateYearCards() {
+                if (!table) return;
 
-                if (valor === "all") {
-                    // Todo el año: desde el 1 de enero hasta el 31 de diciembre
-                    primerDia = new Date(anio, 0, 1);
-                    ultimoDia = new Date(anio, 11, 31);
+                var yearCounts = {};
+
+                // Contar actividades por año
+                table.rows({search: 'applied'}).every(function() {
+                    var data = this.data();
+                    var fechaPropuesta = data[8]; // Columna "Fecha Propuesta"
+                    if (fechaPropuesta) {
+                        var parts = fechaPropuesta.split("-");
+                        if (parts.length >= 1) {
+                            var year = parts[0];
+                            yearCounts[year] = (yearCounts[year] || 0) + 1;
+                        }
+                    }
+                });
+
+                var yearArray = Object.keys(yearCounts).sort().reverse();
+                var yearCardsHtml = '';
+
+                yearArray.forEach(function(year) {
+                    var count = yearCounts[year];
+                    yearCardsHtml += `
+                        <div class="col-6 col-md-2">
+                            <div class="card text-white card-year card-clickable" data-year="${year}">
+                                <div class="card-body text-center p-3">
+                                    <h4 class="card-title mb-1">${year}</h4>
+                                    <p class="mb-0" style="font-size: 1.5rem; font-weight: bold;">${count}</p>
+                                    <small style="font-size: 0.75rem;">actividades</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                $('#yearCards').html(yearCardsHtml);
+            }
+
+            // Función para aplicar filtros combinados
+            function applyFilters() {
+                if (!table) return;
+
+                $.fn.dataTable.ext.search.pop(); // Limpiar filtros personalizados previos
+
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        var fechaPropuesta = data[8] || ''; // Columna 8: Fecha Propuesta
+                        var estadoActividad = data[10] || ''; // Columna 10: Estado
+
+                        // Filtro por año
+                        if (activeYear) {
+                            if (!fechaPropuesta.startsWith(activeYear)) {
+                                return false;
+                            }
+                        }
+
+                        // Filtro por mes
+                        if (activeMonth) {
+                            if (fechaPropuesta) {
+                                var parts = fechaPropuesta.split("-");
+                                if (parts.length >= 2) {
+                                    var month = parseInt(parts[1], 10);
+                                    if (month !== parseInt(activeMonth)) {
+                                        return false;
+                                    }
+                                } else {
+                                    return false;
+                                }
+                            } else {
+                                return false;
+                            }
+                        }
+
+                        // Filtro por estado
+                        if (activeStatus && activeStatus !== 'ALL') {
+                            if (estadoActividad.trim() !== activeStatus) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+                );
+
+                table.draw();
+
+                // Actualizar tarjetas de año después de aplicar filtros
+                generateYearCards();
+            }
+
+            // Click en tarjetas de año
+            $(document).on('click', '.card-year', function() {
+                var year = $(this).data('year');
+
+                if ($(this).hasClass('active')) {
+                    // Desactivar filtro
+                    $(this).removeClass('active');
+                    activeYear = null;
                 } else {
-                    var mes = parseInt(valor);
-                    // Primer día del mes
-                    primerDia = new Date(anio, mes - 1, 1);
-                    // Último día del mes (crea una fecha del mes siguiente y resta un día)
-                    ultimoDia = new Date(anio, mes, 0);
+                    // Activar filtro
+                    $('.card-year').removeClass('active');
+                    $(this).addClass('active');
+                    activeYear = year;
                 }
 
-                // Función para formatear la fecha a YYYY-MM-DD
-                function formatearFecha(fecha) {
-                    var dia = ("0" + fecha.getDate()).slice(-2);
-                    var mesFormateado = ("0" + (fecha.getMonth() + 1)).slice(-2);
-                    return fecha.getFullYear() + '-' + mesFormateado + '-' + dia;
-                }
-
-                $('#fecha_desde').val(formatearFecha(primerDia));
-                $('#fecha_hasta').val(formatearFecha(ultimoDia));
+                applyFilters();
             });
 
-            // Al cambiar el año, si hay un mes seleccionado, actualizar las fechas
-            $('#anioSeleccionado').on('change', function() {
-                var valorMes = $('#mesSeleccionado').val();
-                if (valorMes) {
-                    $('#mesSeleccionado').trigger('change');
+            // Click en tarjetas de mes
+            $(document).on('click', '.card-month', function() {
+                var month = $(this).data('month');
+
+                if ($(this).hasClass('active')) {
+                    // Desactivar filtro
+                    $(this).removeClass('active');
+                    activeMonth = null;
+                } else {
+                    // Activar filtro
+                    $('.card-month').removeClass('active');
+                    $(this).addClass('active');
+                    activeMonth = month;
                 }
+
+                applyFilters();
+            });
+
+            // Click en tarjetas de estado
+            $(document).on('click', '.card-status', function() {
+                var status = $(this).data('status');
+
+                if ($(this).hasClass('active')) {
+                    // Desactivar filtro
+                    $(this).removeClass('active');
+                    activeStatus = null;
+                } else {
+                    // Activar filtro
+                    $('.card-status').removeClass('active');
+                    $(this).addClass('active');
+                    activeStatus = status;
+                }
+
+                applyFilters();
+            });
+
+            // Botón para limpiar todos los filtros de tarjetas
+            $('#btnClearCardFilters').on('click', function() {
+                // Limpiar estados
+                activeYear = null;
+                activeMonth = null;
+                activeStatus = null;
+
+                // Remover clases activas
+                $('.card-year').removeClass('active');
+                $('.card-month').removeClass('active');
+                $('.card-status').removeClass('active');
+
+                // Limpiar filtros personalizados de DataTables
+                $.fn.dataTable.ext.search.pop();
+
+                if (table) {
+                    table.draw();
+                    generateYearCards(); // Regenerar tarjetas de año
+                }
+
+                showAlert('Filtros de tarjetas limpiados. Mostrando todos los registros.', 'info');
             });
 
             // Botón para mostrar todos los registros (limpiar filtros de fecha)
@@ -654,19 +793,16 @@
                     showAlert('Primero debe seleccionar un Cliente antes de usar "Ver Todos".', 'warning');
                     return;
                 }
-                
+
                 // Limpiar todos los filtros de fecha
                 $('#fecha_desde').val('');
                 $('#fecha_hasta').val('');
-                $('#anioSeleccionado').val('');
-                $('#mesSeleccionado').val('');
-                $('#estado').val(''); // También limpiar el estado para mostrar TODOS los registros
-                
+
                 showAlert('Mostrando todos los registros del cliente seleccionado...', 'success');
-                
+
                 // Marcar que viene del botón "Ver Todos" para evitar validación de fechas
                 $('#filterForm').data('via-todos', true);
-                
+
                 // Enviar automáticamente el formulario después de limpiar las fechas
                 setTimeout(function() {
                     $('#filterForm').submit();
@@ -677,37 +813,32 @@
                 var cliente = $('#cliente').val();
                 var fechaDesde = $('#fecha_desde').val();
                 var fechaHasta = $('#fecha_hasta').val();
-                var anioSeleccionado = $('#anioSeleccionado').val();
-                var mesSeleccionado = $('#mesSeleccionado').val();
-                
+
                 // Validar que se haya seleccionado un cliente
                 if (!cliente) {
                     showAlert('Debe seleccionar un Cliente.', 'error');
                     e.preventDefault();
                     return false;
                 }
-                
+
                 // Validar filtros de búsqueda
                 var esViaTodos = $(this).data('via-todos') === true;
                 var tieneFechas = fechaDesde && fechaHasta;
-                var tieneFiltroRapido = anioSeleccionado || mesSeleccionado;
-                var tieneEstado = $('#estado').val();
-                
+
                 // PERMITIR búsqueda si:
                 // 1. Viene del botón "Ver Todos"
-                // 2. Tiene fechas completas (manual o rápido)
-                // 3. Tiene solo cliente + estado (sin fechas)
-                var puedeEjecutar = esViaTodos || tieneFechas || tieneFiltroRapido || tieneEstado;
-                
+                // 2. Tiene fechas completas
+                var puedeEjecutar = esViaTodos || tieneFechas;
+
                 if (!puedeEjecutar) {
-                    showAlert('Debe especificar al menos uno de los siguientes filtros:\n• Rango manual de fechas (Fecha Desde y Fecha Hasta)\n• Filtros rápidos (Año y/o Período)\n• Estado de Actividad\n• O hacer clic en "Ver Todos" para mostrar todos los registros', 'warning');
+                    showAlert('Debe especificar:\n• Rango de fechas (Fecha Desde y Fecha Hasta)\n• O hacer clic en "Ver Todos" para mostrar todos los registros del cliente', 'warning');
                     e.preventDefault();
                     return false;
                 }
-                
+
                 // Limpiar el flag después de usarlo
                 $(this).removeData('via-todos');
-                
+
                 // Si tiene fechas manuales incompletas, avisar
                 if ((fechaDesde && !fechaHasta) || (!fechaDesde && fechaHasta)) {
                     showAlert('Para usar rango manual debe completar tanto "Fecha Desde" como "Fecha Hasta".', 'warning');
@@ -873,6 +1004,7 @@
                 });
                 updateCardCounts();
                 updateMonthlyCounts();
+                generateYearCards(); // Generar tarjetas de año al inicializar
 
                 $('#ptaTable tbody').on('dblclick', 'td.editable', function() {
                     var cell = table.cell(this);
@@ -928,6 +1060,12 @@
                                 id: id
                             };
                             dataToSend[fieldName] = newValue;
+
+                            // Si se está editando la fecha de cierre (columna 9) y tiene un valor, también enviar estado_actividad = CERRADA
+                            if (colIndex === 9 && newValue && newValue.trim() !== '') {
+                                dataToSend['estado_actividad'] = 'CERRADA';
+                            }
+
                             dataToSend["<?= csrf_token() ?>"] = "<?= csrf_hash() ?>";
 
                             $.ajax({
@@ -938,13 +1076,25 @@
                                 success: function(response) {
                                     if (response.status === 'success') {
                                         cell.data(newValue).draw();
-                                        
+
+                                        // Si se cambió la fecha de cierre y se actualizó el estado, actualizar la celda de estado
+                                        if (colIndex === 9 && newValue && newValue.trim() !== '') {
+                                            var estadoCell = table.cell($td.closest('tr'), 10); // Columna 10 es estado_actividad
+                                            estadoCell.data('CERRADA').draw();
+                                        }
+
                                         // Si se cambió el estado y se retornó un porcentaje, actualizar la celda del porcentaje
                                         if (fieldName === 'estado_actividad' && response.porcentaje_avance !== undefined) {
                                             var porcentajeCell = table.cell($td.closest('tr'), 11); // Columna 11 es porcentaje_avance
                                             porcentajeCell.data(response.porcentaje_avance).draw();
                                         }
-                                        
+
+                                        // Si se cambió la fecha de cierre y hay porcentaje en la respuesta, actualizarlo
+                                        if (colIndex === 9 && response.porcentaje_avance !== undefined) {
+                                            var porcentajeCell = table.cell($td.closest('tr'), 11);
+                                            porcentajeCell.data(response.porcentaje_avance).draw();
+                                        }
+
                                         updateCardCounts();
                                         updateMonthlyCounts();
                                     } else {
