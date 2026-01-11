@@ -78,6 +78,17 @@ class HzresponsablepesvController extends Controller
             ->orderBy('created_at', 'DESC')
             ->findAll();
 
+        // Sobrescribir las fechas de todas las versiones con la del primer contrato
+        foreach ($allVersions as &$version) {
+            if ($firstContractDate) {
+                $version['created_at'] = $firstContractDate;
+            } else {
+                $version['created_at'] = null;
+                $version['sin_contrato'] = true;
+            }
+        }
+        unset($version); // Romper la referencia
+
         if (!$allVersions) {
             return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
         }
@@ -109,7 +120,7 @@ class HzresponsablepesvController extends Controller
     {
         // Instanciar Dompdf
         $dompdf = new Dompdf();
-        $dompdf->set_option('isRemoteEnabled', true);
+        $dompdf->setOption('isRemoteEnabled', true);
 
         // Obtener los mismos datos que en la función asignacionResponsabilidades
         $session = session();

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
+use App\Models\ContractModel;
 use App\Models\ClientPoliciesModel; // Usaremos este modelo para client_policies
 use App\Models\DocumentVersionModel; // Usaremos este modelo para client_policies
 use App\Models\PolicyTypeModel; // Usaremos este modelo para client_policies
@@ -54,6 +55,10 @@ class PzasignacionresponsableController extends Controller
         // Obtener el tipo de política
         $policyType = $policyTypeModel->find($policyTypeId);
 
+        // Obtener la fecha del primer contrato del cliente
+        $contractModel = new ContractModel();
+        $firstContractDate = $contractModel->getFirstContractDate($clientId);
+
         // Obtener la versión más reciente del documento
         $latestVersion = $versionModel->where('client_id', $clientId)
             ->where('policy_type_id', $policyTypeId)
@@ -62,6 +67,15 @@ class PzasignacionresponsableController extends Controller
 
         if (!$latestVersion) {
             return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
+        }
+
+        // Sobrescribir la fecha con la del primer contrato (o mostrar pendiente si no hay)
+        if ($firstContractDate) {
+            $latestVersion['created_at'] = $firstContractDate;
+        } else {
+            // Cliente sin contrato: mostrar "PENDIENTE DE CONTRATO"
+            $latestVersion['created_at'] = null;
+            $latestVersion['sin_contrato'] = true;
         }
 
         // Obtener todas las versiones del documento
@@ -73,6 +87,17 @@ class PzasignacionresponsableController extends Controller
         if (!$allVersions) {
             return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
         }
+
+        // Sobrescribir las fechas de todas las versiones con la del primer contrato
+        foreach ($allVersions as &$version) {
+            if ($firstContractDate) {
+                $version['created_at'] = $firstContractDate;
+            } else {
+                $version['created_at'] = null;
+                $version['sin_contrato'] = true;
+            }
+        }
+        unset($version); // Romper la referencia
 
         // Pasar los datos a la vista
         $data = [
@@ -91,7 +116,7 @@ class PzasignacionresponsableController extends Controller
     {
         // Instanciar Dompdf
         $dompdf = new Dompdf();
-        $dompdf->set_option('isRemoteEnabled', true);
+        $dompdf->setOption('isRemoteEnabled', true);
 
         // Obtener los mismos datos que en la función policyNoAlcoholDrogas
         $session = session();
@@ -106,6 +131,11 @@ class PzasignacionresponsableController extends Controller
         // Obtener los datos necesarios
         $client = $clientModel->find($clientId);
         $consultant = $consultantModel->find($client['id_consultor']);
+
+        // Obtener la fecha del primer contrato del cliente
+        $contractModel = new ContractModel();
+        $firstContractDate = $contractModel->getFirstContractDate($clientId);
+
         $policyTypeId = 1; // Supongamos que el ID de la política de alcohol y drogas es 1
         $clientPolicy = $clientPoliciesModel->where('client_id', $clientId)
             ->where('policy_type_id', $policyTypeId)
@@ -120,9 +150,32 @@ class PzasignacionresponsableController extends Controller
             ->where('policy_type_id', $policyTypeId)
             ->orderBy('created_at', 'DESC')
             ->findAll();
-            if ($latestVersion) {
+
+            // Sobrescribir la fecha con la del primer contrato
+            if ($firstContractDate) {
+                $latestVersion['created_at'] = $firstContractDate;
+            } else {
+                // Cliente sin contrato
+                $latestVersion['created_at'] = null;
+                $latestVersion['sin_contrato'] = true;
+            }
+
+            // Sobrescribir las fechas de todas las versiones con la del primer contrato
+            foreach ($allVersions as &$version) {
+                if ($firstContractDate) {
+                    $version['created_at'] = $firstContractDate;
+                } else {
+                    $version['created_at'] = null;
+                    $version['sin_contrato'] = true;
+                }
+            }
+            unset($version); // Romper la referencia
+
+            if ($latestVersion && $latestVersion['created_at']) {
                 $latestVersion['created_at'] = Time::parse($latestVersion['created_at'], 'America/Bogota')
                                                    ->toLocalizedString('d MMMM yyyy'); // Ej: "01 enero 2025"
+            } elseif (isset($latestVersion['sin_contrato'])) {
+                $latestVersion['created_at'] = 'PENDIENTE DE CONTRATO';
             }
         // Preparar los datos para la vista
         $data = [

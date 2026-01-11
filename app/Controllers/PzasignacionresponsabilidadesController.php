@@ -101,7 +101,7 @@ class PzasignacionresponsabilidadesController extends Controller
     {
         // Instanciar Dompdf
         $dompdf = new Dompdf();
-        $dompdf->set_option('isRemoteEnabled', true);
+        $dompdf->setOption('isRemoteEnabled', true);
 
         // Obtener los mismos datos que en la función policyNoAlcoholDrogas
         $session = session();

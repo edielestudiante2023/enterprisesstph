@@ -160,7 +160,11 @@ class ContractController extends Controller
             'fecha_inicio' => $this->request->getPost('fecha_inicio'),
             'fecha_fin' => $this->request->getPost('fecha_fin'),
             'valor_contrato' => $this->request->getPost('valor_contrato'),
+            'valor_mensual' => $this->request->getPost('valor_mensual'),
+            'numero_cuotas' => $this->request->getPost('numero_cuotas'),
+            'frecuencia_visitas' => $this->request->getPost('frecuencia_visitas'),
             'tipo_contrato' => $this->request->getPost('tipo_contrato'),
+            'estado' => $this->request->getPost('estado') ?: 'activo',
             'observaciones' => $this->request->getPost('observaciones')
         ];
 

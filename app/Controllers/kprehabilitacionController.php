@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
+use App\Models\ContractModel;
 // Ya no usamos ClientPoliciesModel, DocumentVersionModel, PolicyTypeModel (migrado a DocumentLibrary.php)
 use App\Models\ClientKpiModel;
 use App\Models\KpisModel;
@@ -55,6 +56,10 @@ class kprehabilitacionController extends Controller
             return redirect()->to('/dashboardclient')->with('error', 'No se pudo encontrar la información del consultor');
         }
 
+
+        // Obtener la fecha del primer contrato del cliente
+        $contractModel = new ContractModel();
+        $firstContractDate = $contractModel->getFirstContractDate($clientId);
         // Obtener la política de alcohol y drogas del cliente
         $policyTypeId = 46; // Supongamos que el ID de la política de alcohol y drogas es 1
         $id_kpis = 16; // Primer indicador: Plan de Trabajo Anual
@@ -70,10 +75,32 @@ class kprehabilitacionController extends Controller
         // Obtener la versión más reciente del documento
         $latestVersion = $policyType;
 
+        // Sobrescribir la fecha con la del primer contrato (o mostrar pendiente si no hay)
+        if ($firstContractDate) {
+            $latestVersion['created_at'] = $firstContractDate;
+        } else {
+            // Cliente sin contrato: mostrar \"PENDIENTE DE CONTRATO\"
+            $latestVersion['created_at'] = null;
+            $latestVersion['sin_contrato'] = true;
+        }
+
+
         
 
         // Obtener todas las versiones del documento
         $allVersions = get_all_document_versions($policyTypeId);
+
+        // Sobrescribir las fechas de todas las versiones con la del primer contrato
+        foreach ($allVersions as &$version) {
+            if ($firstContractDate) {
+                $version['created_at'] = $firstContractDate;
+            } else {
+                $version['created_at'] = null;
+                $version['sin_contrato'] = true;
+            }
+        }
+        unset($version); // Romper la referencia
+
 
         
 

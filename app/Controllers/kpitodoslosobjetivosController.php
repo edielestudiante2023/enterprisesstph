@@ -91,7 +91,18 @@ class kpitodoslosobjetivosController extends Controller
             ->where('policy_type_id', $policyTypeId)
             ->orderBy('created_at', 'DESC')
             ->findAll();
-    
+
+        // Sobrescribir las fechas de todas las versiones con la del primer contrato
+        foreach ($allVersions as &$version) {
+            if ($firstContractDate) {
+                $version['created_at'] = $firstContractDate;
+            } else {
+                $version['created_at'] = null;
+                $version['sin_contrato'] = true;
+            }
+        }
+        unset($version); // Romper la referencia
+
         if (!$allVersions) {
             return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
         }

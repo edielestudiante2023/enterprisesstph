@@ -117,6 +117,17 @@ class PzmanconvivencialaboralController extends Controller
             ->orderBy('created_at', 'DESC')
             ->findAll();
 
+        // Sobrescribir las fechas de todas las versiones con la del primer contrato
+        foreach ($allVersions as &$version) {
+            if ($firstContractDate) {
+                $version['created_at'] = $firstContractDate;
+            } else {
+                $version['created_at'] = null;
+                $version['sin_contrato'] = true;
+            }
+        }
+        unset($version); // Romper la referencia
+
         if (!$allVersions) {
             return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
         }
@@ -147,7 +158,7 @@ class PzmanconvivencialaboralController extends Controller
     {
         // Instanciar Dompdf
         $dompdf = new Dompdf();
-        $dompdf->set_option('isRemoteEnabled', true);
+        $dompdf->setOption('isRemoteEnabled', true);
 
         // Obtener los mismos datos que en la función policyNoAlcoholDrogas
         $session = session();
@@ -227,6 +238,17 @@ class PzmanconvivencialaboralController extends Controller
             ->orderBy('created_at', 'DESC')
             ->findAll();
 
+        // Sobrescribir las fechas de todas las versiones con la del primer contrato
+        foreach ($allVersions as &$version) {
+            if ($firstContractDate) {
+                $version['created_at'] = $firstContractDate;
+            } else {
+                $version['created_at'] = null;
+                $version['sin_contrato'] = true;
+            }
+        }
+        unset($version); // Romper la referencia
+
         // Preparar los datos para la vista
         $data = [
             'client' => $client,
@@ -252,8 +274,8 @@ class PzmanconvivencialaboralController extends Controller
         $dompdf->loadHtml($html);
 
         $dompdf->setPaper('A3', 'portrait');
-        $dompdf->set_option('isHtml5ParserEnabled', true);
-        $dompdf->set_option('isRemoteEnabled', true); // si usas imágenes externas
+        $dompdf->setOption('isHtml5ParserEnabled', true);
+        $dompdf->setOption('isRemoteEnabled', true); // si usas imágenes externas
         $dompdf->render();
 
         // Enviar el PDF al navegador para descargar
