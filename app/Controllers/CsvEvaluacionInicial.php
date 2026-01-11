@@ -4,14 +4,23 @@ namespace App\Controllers;
 
 use CodeIgniter\Controller;
 use App\Models\EvaluationModel;
+use App\Models\SimpleEvaluationModel;
+use App\Libraries\StandardsLibrary;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class CsvEvaluacionInicial extends Controller
 {
     public function index()
     {
+        // Cargar la lista de clientes para el select
+        $clientModel = new \App\Models\ClientModel();
+        $data['clients'] = $clientModel->orderBy('nombre_cliente', 'ASC')->findAll();
+
+        // Verificar si el archivo CSV maestro existe
+        $data['csv_exists'] = StandardsLibrary::csvFileExists();
+
         // Cargar la vista para subir el archivo CSV
-        return view('consultant/csvevaluacioninicial');
+        return view('consultant/csvevaluacioninicial', $data);
     }
 
     public function upload()
@@ -82,5 +91,58 @@ class CsvEvaluacionInicial extends Controller
     return redirect()->to(base_url('consultant/csvevaluacioninicial'))
         ->with('error', 'Error al subir el archivo.');
 }
+
+    /**
+     * Genera los estándares mínimos automáticamente para un cliente
+     * Este método debe ser llamado cuando se crea un nuevo cliente
+     *
+     * @param int $idCliente ID del cliente
+     * @return array Resultado de la operación con éxito y mensaje
+     */
+    public function generateForClient(int $idCliente): array
+    {
+        try {
+            // Cargar la librería de estándares
+            $standardsLibrary = new StandardsLibrary();
+
+            // Obtener los estándares del CSV
+            $standards = $standardsLibrary->getStandards($idCliente);
+
+            if (empty($standards)) {
+                return [
+                    'success' => false,
+                    'message' => 'No se encontraron estándares en el archivo CSV maestro',
+                    'count' => 0
+                ];
+            }
+
+            // Insertar los estándares en la base de datos
+            $model = new SimpleEvaluationModel();
+
+            $insertedCount = 0;
+            foreach ($standards as $standard) {
+                if ($model->insert($standard)) {
+                    $insertedCount++;
+                }
+            }
+
+            log_message('info', "Generados {$insertedCount} estándares mínimos para Cliente ID: {$idCliente}");
+
+            return [
+                'success' => true,
+                'message' => "Se generaron {$insertedCount} estándares mínimos correctamente",
+                'count' => $insertedCount
+            ];
+
+        } catch (\Exception $e) {
+            log_message('error', "Error al generar estándares para Cliente ID {$idCliente}: " . $e->getMessage());
+
+            return [
+                'success' => false,
+                'message' => 'Error al generar estándares: ' . $e->getMessage(),
+                'count' => 0
+            ];
+        }
+    }
 
 }

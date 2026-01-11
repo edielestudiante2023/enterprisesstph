@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
+use App\Models\ContractModel;
 use App\Models\ClientPoliciesModel; // Usaremos este modelo para client_policies
 use App\Models\DocumentVersionModel; // Usaremos este modelo para client_policies
 use App\Models\PolicyTypeModel; // Usaremos este modelo para client_policies
@@ -58,6 +59,11 @@ class kpimipvrdcController
             return redirect()->to('/dashboardclient')->with('error', 'No se pudo encontrar la información del consultor');
         }
 
+        // Obtener fecha del primer contrato del cliente para documentos
+        $contractModel = new ContractModel();
+        $firstContractDate = $contractModel->getFirstContractDate($clientId);
+        $documentDate = $firstContractDate ?? date('Y-m-d H:i:s');
+
         
 
         
@@ -86,6 +92,9 @@ class kpimipvrdcController
         if (!$latestVersion) {
             return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
         }
+
+        // Usar fecha del primer contrato del cliente
+        $latestVersion['created_at'] = $documentDate;
 
         // Obtener todas las versiones del documento
         $allVersions = $versionModel->where('client_id', $clientId)

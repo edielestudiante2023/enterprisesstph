@@ -370,4 +370,62 @@ class PtaClienteNuevaController extends Controller
         fclose($output);
         exit;
     }
+
+    /**
+     * Actualiza la fecha propuesta de una actividad según el mes seleccionado
+     * Calcula el último día del mes automáticamente (considerando años bisiestos)
+     */
+    public function updateDateByMonth()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Método no permitido']);
+        }
+
+        $id = $this->request->getPost('id');
+        $month = (int) $this->request->getPost('month');
+
+        if (empty($id) || $month < 1 || $month > 12) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Parámetros inválidos']);
+        }
+
+        try {
+            // Obtener el año actual de la actividad o usar el año actual
+            $model = new \App\Models\PtaClienteNuevaModel();
+            $activity = $model->find($id);
+
+            if (!$activity) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Actividad no encontrada']);
+            }
+
+            // Determinar el año: usar el de fecha_propuesta si existe, sino el actual
+            $year = date('Y');
+            if (!empty($activity['fecha_propuesta'])) {
+                $existingDate = new \DateTime($activity['fecha_propuesta']);
+                $year = $existingDate->format('Y');
+            }
+
+            // Calcular el último día del mes (considera años bisiestos automáticamente)
+            $lastDay = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+            $newDate = sprintf('%04d-%02d-%02d', $year, $month, $lastDay);
+
+            // Actualizar la fecha
+            $updateData = [
+                'fecha_propuesta' => $newDate,
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+
+            if ($model->update($id, $updateData)) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Fecha actualizada correctamente',
+                    'newDate' => $newDate,
+                    'formatted' => date('d/m/Y', strtotime($newDate))
+                ]);
+            } else {
+                return $this->response->setJSON(['success' => false, 'message' => 'Error al actualizar']);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
 }

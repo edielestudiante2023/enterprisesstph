@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use CodeIgniter\Controller;
 use App\Models\PlanModel;
+use App\Libraries\WorkPlanLibrary;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class PlanController extends Controller
@@ -193,5 +194,102 @@ class PlanController extends Controller
 
         // Si todo falla, retornar null
         return null;
+    }
+
+    /**
+     * Obtiene la lista de clientes en formato JSON para el selector del modal
+     */
+    public function getClients()
+    {
+        $db = \Config\Database::connect();
+
+        $clients = $db->table('tbl_clientes')
+            ->select('id_cliente, nombre_cliente')
+            ->orderBy('nombre_cliente', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        return $this->response->setJSON($clients);
+    }
+
+    /**
+     * Genera automáticamente el plan de trabajo desde las plantillas predefinidas
+     */
+    public function generate()
+    {
+        // Validar que la petición sea POST
+        if (!$this->request->is('post')) {
+            return redirect()->to(base_url('consultant/plan'))
+                ->with('error', 'Método no permitido');
+        }
+
+        // Obtener datos del formulario
+        $idCliente = $this->request->getPost('id_cliente');
+        $year = (int) $this->request->getPost('year');
+        $serviceType = strtolower($this->request->getPost('service_type'));
+
+        // Validar campos requeridos
+        if (empty($idCliente) || empty($year) || empty($serviceType)) {
+            return redirect()->to(base_url('consultant/plan'))
+                ->with('error', 'Todos los campos son obligatorios');
+        }
+
+        try {
+            // Obtener el nombre del cliente
+            $db = \Config\Database::connect();
+            $clientQuery = $db->table('tbl_clientes')
+                ->select('nombre_cliente')
+                ->where('id_cliente', $idCliente)
+                ->get();
+
+            $clientData = $clientQuery->getRow();
+            $clientName = $clientData ? $clientData->nombre_cliente : "ID: {$idCliente}";
+
+            // Instanciar la librería
+            $workPlanLibrary = new WorkPlanLibrary();
+
+            // Obtener las actividades filtradas
+            $activities = $workPlanLibrary->getActivities($idCliente, $year, $serviceType);
+
+            // Validar que se obtuvieron actividades
+            if (empty($activities)) {
+                return redirect()->to(base_url('consultant/plan'))
+                    ->with('warning', 'No se encontraron actividades para la combinación seleccionada (Año ' . $year . ' - ' . ucfirst($serviceType) . ')');
+            }
+
+            // Insertar las actividades en la base de datos
+            $planModel = new PlanModel();
+            $successCount = 0;
+            $errorCount = 0;
+
+            foreach ($activities as $activity) {
+                if ($planModel->insert($activity)) {
+                    $successCount++;
+                } else {
+                    $errorCount++;
+                }
+            }
+
+            // Preparar mensaje de resultado
+            $serviceTypeLabel = ucfirst($serviceType);
+            $message = "<strong>Plan de Trabajo generado exitosamente:</strong><br>";
+            $message .= "✓ Cliente: <strong>{$clientName}</strong><br>";
+            $message .= "✓ Año del SGSST: {$year}<br>";
+            $message .= "✓ Tipo de Servicio: {$serviceTypeLabel}<br>";
+            $message .= "✓ Actividades insertadas: {$successCount}<br>";
+
+            if ($errorCount > 0) {
+                $message .= "✗ Actividades con errores: {$errorCount}<br>";
+            }
+
+            $flashType = ($errorCount === 0) ? 'success' : 'warning';
+
+            return redirect()->to(base_url('consultant/plan'))
+                ->with($flashType, $message);
+
+        } catch (\Exception $e) {
+            return redirect()->to(base_url('consultant/plan'))
+                ->with('error', 'Error al generar el plan de trabajo: ' . $e->getMessage());
+        }
     }
 }

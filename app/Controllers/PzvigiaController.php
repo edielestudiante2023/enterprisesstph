@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
+use App\Models\ContractModel;
 use App\Models\ClientPoliciesModel;
 use App\Models\DocumentVersionModel;
 use App\Models\PolicyTypeModel;
@@ -40,6 +41,11 @@ class PzvigiaController extends Controller
             return redirect()->to('/dashboardclient')->with('error', 'No se pudo encontrar la información del consultor');
         }
 
+        // Obtener fecha del primer contrato del cliente para documentos
+        $contractModel = new ContractModel();
+        $firstContractDate = $contractModel->getFirstContractDate($clientId);
+        $documentDate = $firstContractDate ?? date('Y-m-d H:i:s');
+
         // Obtener la política de alcohol y drogas del cliente
         $policyTypeId = 5; // ID de la política correspondiente
         $clientPolicy = $clientPoliciesModel->where('client_id', $clientId)
@@ -62,6 +68,9 @@ class PzvigiaController extends Controller
         if (!$latestVersion) {
             return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
         }
+
+        // Usar fecha del primer contrato del cliente
+        $latestVersion['created_at'] = $documentDate;
 
         // Obtener todas las versiones del documento
         $allVersions = $versionModel->where('client_id', $clientId)
@@ -112,6 +121,11 @@ class PzvigiaController extends Controller
         // Obtener los datos necesarios
         $client = $clientModel->find($clientId);
         $consultant = $consultantModel->find($client['id_consultor']);
+
+        // Obtener fecha del primer contrato del cliente
+        $contractModel = new ContractModel();
+        $firstContractDate = $contractModel->getFirstContractDate($clientId);
+        $documentDate = $firstContractDate ?? date('Y-m-d H:i:s');
         $policyTypeId = 5;
         $clientPolicy = $clientPoliciesModel->where('client_id', $clientId)
             ->where('policy_type_id', $policyTypeId)

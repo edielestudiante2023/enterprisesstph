@@ -331,6 +331,15 @@ $routes->get('/editcronogCapacitacion/(:num)', 'CronogcapacitacionController::ed
 $routes->post('/editcronogCapacitacionPost/(:num)', 'CronogcapacitacionController::editcronogCapacitacionPost/$1');
 $routes->get('/deletecronogCapacitacion/(:num)', 'CronogcapacitacionController::deletecronogCapacitacion/$1');
 
+// Ruta para actualizar fecha programada por mes seleccionado (botones mensuales)
+$routes->post('/cronogCapacitacion/updateDateByMonth', 'CronogcapacitacionController::updateDateByMonth');
+
+// Ruta para obtener lista de clientes (modal de generar cronograma)
+$routes->get('/cronogCapacitacion/getClients', 'CronogcapacitacionController::getClients');
+
+// Ruta para generar cronograma de capacitación automáticamente
+$routes->post('/cronogCapacitacion/generate', 'CronogcapacitacionController::generate');
+
 $routes->get('/listPlanDeTrabajoAnual', 'PlanDeTrabajoAnualController::listPlanDeTrabajoAnual');
 $routes->get('/addPlanDeTrabajoAnual', 'PlanDeTrabajoAnualController::addPlanDeTrabajoAnual');
 $routes->post('/addPlanDeTrabajoAnualPost', 'PlanDeTrabajoAnualController::addPlanDeTrabajoAnualPost');
@@ -403,6 +412,8 @@ $routes->get('/deleteinventarioactividades/(:num)', 'InventarioActividadesContro
 
 $routes->get('consultant/plan', 'PlanController::index'); // Ruta para mostrar la vista
 $routes->post('consultant/plan/upload', 'PlanController::upload'); // Ruta para procesar la carga
+$routes->get('consultant/plan/getClients', 'PlanController::getClients'); // Obtener lista de clientes para el modal
+$routes->post('consultant/plan/generate', 'PlanController::generate'); // Generar plan de trabajo automáticamente
 
 $routes->get('/nuevoListPlanTrabajoCliente/(:num)', 'NuevoClientePlanTrabajoController::nuevoListPlanTrabajoCliente/$1');
 
@@ -422,11 +433,13 @@ $routes->post('consultant/csvpendientes/upload', 'CsvPendientes::upload');
 $routes->get('consultant/csvevaluacioninicial', 'CsvEvaluacionInicial::index');
 $routes->post('consultant/csvevaluacioninicial/upload', 'CsvEvaluacionInicial::upload');
 
-$routes->get('consultant/csvpoliticasparadocumentos', 'csvpoliticasparadocumentosController::index');
-$routes->post('consultant/csvpoliticasparadocumentos/upload', 'csvpoliticasparadocumentosController::upload');
+// ELIMINADO: Carga CSV de políticas - Ahora se asignan automáticamente desde librería estática
+// $routes->get('consultant/csvpoliticasparadocumentos', 'csvpoliticasparadocumentosController::index');
+// $routes->post('consultant/csvpoliticasparadocumentos/upload', 'csvpoliticasparadocumentosController::upload');
 
-$routes->get('consultant/csvversionesdocumentos', 'csvversionesdocumentosController::index');
-$routes->post('consultant/csvversionesdocumentos/upload', 'csvversionesdocumentosController::upload');
+// ELIMINADO: Carga CSV de versiones de documentos - Ahora se asignan automáticamente desde librería estática
+// $routes->get('consultant/csvversionesdocumentos', 'csvversionesdocumentosController::index');
+// $routes->post('consultant/csvversionesdocumentos/upload', 'csvversionesdocumentosController::upload');
 
 $routes->get('consultant/csvkpisempresas', 'csvkpiempresasController::index');
 $routes->post('consultant/csvkpisempresas/upload', 'csvkpiempresasController::upload');
@@ -552,12 +565,54 @@ $routes->get('/pta-cliente-nueva/delete/(:num)', 'PtaClienteNuevaController::del
 // Ruta para actualizar registros cerrados
 $routes->post('/pta-cliente-nueva/updateCerradas', 'PtaClienteNuevaController::updateCerradas');
 
+// Ruta para actualizar fecha por mes seleccionado (botones mensuales)
+$routes->post('/pta-cliente-nueva/updateDateByMonth', 'PtaClienteNuevaController::updateDateByMonth');
+
 $routes->get('consultant/actualizar_pta_cliente', 'CsvUploadController::index'); // Carga la vista
 $routes->post('csv/upload', 'CsvUploadController::upload'); // Procesa el CSV
 
 $routes->post('api/getCronogramasAjax', 'CronogramaCapacitacionController::getCronogramasAjax');
 
 $routes->post('api/recalcularConteoDias', 'PendientesController::recalcularConteoDias');
+
+// ============================================================================
+// RUTAS DE GESTIÓN DE CONTRATOS
+// ============================================================================
+
+// Listado y dashboard de contratos
+$routes->get('/contracts', 'ContractController::index');
+$routes->get('/contracts/alerts', 'ContractController::alerts');
+
+// Ver contrato individual
+$routes->get('/contracts/view/(:num)', 'ContractController::view/$1');
+
+// Crear nuevo contrato
+$routes->get('/contracts/create', 'ContractController::create');
+$routes->get('/contracts/create/(:num)', 'ContractController::create/$1');
+$routes->post('/contracts/store', 'ContractController::store');
+
+// Renovar contrato
+$routes->get('/contracts/renew/(:num)', 'ContractController::renew/$1');
+$routes->post('/contracts/process-renewal', 'ContractController::processRenewal');
+
+// Cancelar contrato
+$routes->get('/contracts/cancel/(:num)', 'ContractController::cancel/$1');
+$routes->post('/contracts/cancel/(:num)', 'ContractController::cancel/$1');
+
+// Historial de contratos por cliente
+$routes->get('/contracts/client-history/(:num)', 'ContractController::clientHistory/$1');
+
+// Mantenimiento automático (cron job)
+$routes->get('/contracts/maintenance', 'ContractController::maintenance');
+
+// API endpoints
+$routes->get('/api/contracts/active/(:num)', 'ContractController::getActiveContract/$1');
+$routes->get('/api/contracts/stats', 'ContractController::getStats');
+
+// Generación de contratos en PDF
+$routes->get('/contracts/edit-contract-data/(:num)', 'ContractController::editContractData/$1');
+$routes->post('/contracts/save-and-generate/(:num)', 'ContractController::saveAndGeneratePDF/$1');
+$routes->get('/contracts/download-pdf/(:num)', 'ContractController::downloadPDF/$1');
 
 
 

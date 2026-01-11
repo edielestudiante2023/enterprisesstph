@@ -2,15 +2,16 @@
 
 namespace App\Controllers;
 
-use App\Models\DocumentVersionModel;
 use App\Models\ClientModel;
-use App\Models\PolicyTypeModel;
 
 class VersionController extends BaseController
 {
     // Método para listar las versiones de un cliente y tipo de política
     public function listVersions()
     {
+        // Cargar helper para acceso a DocumentLibrary
+        helper('document_library');
+
         $clientModel = new ClientModel();
         
         // Get all active clients for the dropdown only
@@ -26,10 +27,8 @@ class VersionController extends BaseController
     // Nuevo método para obtener versiones por cliente
     public function getVersionsByClient($clientId)
     {
-        $versionModel = new DocumentVersionModel();
-        $clientModel = new ClientModel();
-        $policyTypeModel = new PolicyTypeModel();
-        
+                $clientModel = new ClientModel();
+                
         // Obtener solo las versiones del cliente seleccionado
         $versions = $versionModel->where('client_id', $clientId)->findAll();
         
@@ -54,9 +53,11 @@ class VersionController extends BaseController
     // Método para agregar una nueva versión
     public function addVersion()
     {
-        $clientModel = new ClientModel();
-        $policyTypeModel = new PolicyTypeModel();
+        // Cargar helper para acceso a DocumentLibrary
+        helper('document_library');
 
+        $clientModel = new ClientModel();
+        
         $data = [
             'clients' => $clientModel->findAll(),
             'policyTypes' => $policyTypeModel->findAll(),
@@ -68,8 +69,10 @@ class VersionController extends BaseController
     // Método para manejar el formulario de agregar nueva versión
     /* public function addVersionPost()
     {
-        $versionModel = new DocumentVersionModel();
-        $versionModel->insert([
+        // Cargar helper para acceso a DocumentLibrary
+        helper('document_library');
+
+                $versionModel->insert([
             'client_id' => $this->request->getPost('client_id'),
             'policy_type_id' => $this->request->getPost('policy_type_id'),
             'version_number' => $this->request->getPost('version_number')
@@ -80,8 +83,10 @@ class VersionController extends BaseController
 
     public function addVersionPost()
 {
-    $versionModel = new DocumentVersionModel();
+        // Cargar helper para acceso a DocumentLibrary
+        helper('document_library');
 
+    
     $data = [
         'client_id' => $this->request->getPost('client_id'),
         'policy_type_id' => $this->request->getPost('policy_type_id'),
@@ -100,10 +105,8 @@ class VersionController extends BaseController
 
     public function editVersion($id)
 {
-    $versionModel = new DocumentVersionModel();
-    $clientModel = new ClientModel();
-    $policyTypeModel = new PolicyTypeModel();
-
+        $clientModel = new ClientModel();
+    
     // Obtener la versión específica
     $version = $versionModel->find($id);
 
@@ -128,8 +131,7 @@ class VersionController extends BaseController
 
 public function editVersionPost($id)
 {
-    $versionModel = new DocumentVersionModel();
-
+    
     // Recibir todos los campos enviados por el formulario
     $data = [
         'client_id' => $this->request->getPost('client_id'),
@@ -151,8 +153,7 @@ public function editVersionPost($id)
 
 public function deleteVersion($id)
 {
-    $versionModel = new DocumentVersionModel();
-
+    
     if ($versionModel->find($id)) {
         $versionModel->delete($id);
         return redirect()->to('/listVersions')->with('message', 'Versión eliminada exitosamente.');

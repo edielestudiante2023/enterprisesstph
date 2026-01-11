@@ -2,41 +2,43 @@
 
 namespace App\Controllers;
 
-use App\Models\ClientPoliciesModel;
 use App\Models\ClientModel;
-use App\Models\PolicyTypeModel;
 use CodeIgniter\Controller;
+// Ya no usamos ClientPoliciesModel, DocumentVersionModel, PolicyTypeModel (migrado a DocumentLibrary.php)
 
+/**
+ * NOTA: Este controlador está deprecado
+ * Las políticas ahora se gestionan desde app/Libraries/DocumentLibrary.php
+ * Ya no se almacenan en base de datos, son archivos PHP estáticos
+ */
 class PolicyController extends Controller
 {
     public function listPolicies()
-{
-    $clientModel = new ClientModel();
-    $clients = $clientModel->findAll();
-
-    $policyModel = new ClientPoliciesModel();
-    $policies = $policyModel->findAll();
-
-    $policyTypeModel = new PolicyTypeModel();
-    $policyTypes = $policyTypeModel->findAll();
-
-    return view('consultant/list_policies', [
-        'clients' => $clients,
-        'policies' => $policies,
-        'policyTypes' => $policyTypes
-    ]);
-}
-
-
-    public function addPolicy()
     {
+        helper('document_library');
+        
         $clientModel = new ClientModel();
         $clients = $clientModel->findAll();
 
-        $policyTypeModel = new PolicyTypeModel();
-        $policyTypes = $policyTypeModel->findAll();
+        // Obtener todos los documentos desde la librería
+        $policyTypes = get_all_documents();
 
-  
+        return view('consultant/list_policies', [
+            'clients' => $clients,
+            'policies' => [], // Ya no hay policies por cliente, todo es estático
+            'policyTypes' => $policyTypes
+        ]);
+    }
+
+    public function addPolicy()
+    {
+        helper('document_library');
+
+        $clientModel = new ClientModel();
+        $clients = $clientModel->findAll();
+
+        // Obtener todos los documentos desde la librería
+        $policyTypes = get_all_documents();
 
         return view('consultant/add_policy', [
             'clients' => $clients,
@@ -46,116 +48,66 @@ class PolicyController extends Controller
 
     public function addPolicyPost()
     {
-        $model = new ClientPoliciesModel();
-
-        $data = [
-            'client_id' => $this->request->getVar('client_id'),
-            'policy_type_id' => $this->request->getVar('policy_type_id'),
-            'policy_content' => $this->request->getVar('policy_content')
-        ];
-
-        if ($model->save($data)) {
-            return redirect()->to('/listPolicies')->with('msg', 'Política agregada exitosamente');
-        } else {
-            return redirect()->back()->with('msg', 'Error al agregar política');
-        }
+        // DEPRECADO: Ya no se crean políticas por cliente
+        // Todo se maneja desde DocumentLibrary.php
+        return redirect()->to('/listPolicies')->with('msg', 'Esta funcionalidad está deprecada. Las políticas se gestionan desde DocumentLibrary.php');
     }
 
     public function editPolicy($id)
     {
-        $model = new ClientPoliciesModel();
-        $policy = $model->find($id);
-
-        $clientModel = new ClientModel();
-        $clients = $clientModel->findAll();
-
-        $policyTypeModel = new PolicyTypeModel();
-        $policyTypes = $policyTypeModel->findAll();
-
-        return view('consultant/edit_policy', [
-            'policy' => $policy,
-            'clients' => $clients,
-            'policyTypes' => $policyTypes
-        ]);
+        // DEPRECADO: Ya no se editan políticas por cliente
+        return redirect()->to('/listPolicies')->with('msg', 'Esta funcionalidad está deprecada. Las políticas se gestionan desde DocumentLibrary.php');
     }
 
     public function editPolicyPost($id)
     {
-        $model = new ClientPoliciesModel();
-
-        $data = [
-            'client_id' => $this->request->getVar('client_id'),
-            'policy_type_id' => $this->request->getVar('policy_type_id'),
-            'policy_content' => $this->request->getVar('policy_content')
-        ];
-
-        if ($model->update($id, $data)) {
-            return redirect()->to('/listPolicies')->with('msg', 'Contenido actualizado exitosamente');
-        } else {
-            return redirect()->back()->with('msg', 'Error al actualizar Contenido');
-        }
+        // DEPRECADO: Ya no se editan políticas por cliente
+        return redirect()->to('/listPolicies')->with('msg', 'Esta funcionalidad está deprecada. Las políticas se gestionan desde DocumentLibrary.php');
     }
 
     public function deletePolicy($id)
     {
-        $model = new ClientPoliciesModel();
-        $model->delete($id);
-
-        return redirect()->to('/listPolicies')->with('msg', 'Política eliminada exitosamente');
+        // DEPRECADO: Ya no se eliminan políticas por cliente
+        return redirect()->to('/listPolicies')->with('msg', 'Esta funcionalidad está deprecada. Las políticas se gestionan desde DocumentLibrary.php');
     }
 
-      public function listPolicyTypes()
+    public function listPolicyTypes()
     {
-        $model = new PolicyTypeModel();
-        $policyTypes = $model->findAll();
+        helper('document_library');
+
+        // Obtener todos los documentos desde la librería
+        $policyTypes = get_all_documents();
         return view('consultant/list_policy_types', ['policyTypes' => $policyTypes]);
     }
 
-    // Mostrar formulario para añadir un nuevo tipo de política
     public function addPolicyType()
     {
-        return view('consultant/add_policy_type');
+        // DEPRECADO: Los tipos de política se gestionan en DocumentLibrary.php
+        return redirect()->to('/listPolicyTypes')->with('msg', 'Esta funcionalidad está deprecada. Los documentos se gestionan desde DocumentLibrary.php');
     }
 
-    // Guardar un nuevo tipo de política
     public function addPolicyTypePost()
     {
-        $model = new PolicyTypeModel();
-        $data = [
-            'type_name' => $this->request->getPost('type_name'),
-            'description' => $this->request->getPost('description'),
-        ];
-        $model->save($data);
-        return redirect()->to('/listPolicyTypes')->with('msg', 'Tipo de política añadido con éxito');
+        // DEPRECADO
+        return redirect()->to('/listPolicyTypes')->with('msg', 'Esta funcionalidad está deprecada. Los documentos se gestionan desde DocumentLibrary.php');
     }
 
-    // Mostrar formulario para editar un tipo de política existente
     public function editPolicyType($id)
     {
-        $model = new PolicyTypeModel();
-        $policyType = $model->find($id);
-        return view('consultant/edit_policy_type', ['policyType' => $policyType]);
+        // DEPRECADO
+        return redirect()->to('/listPolicyTypes')->with('msg', 'Esta funcionalidad está deprecada. Los documentos se gestionan desde DocumentLibrary.php');
     }
 
-    // Actualizar un tipo de política existente
     public function editPolicyTypePost($id)
     {
-        $model = new PolicyTypeModel();
-        $data = [
-            'type_name' => $this->request->getPost('type_name'),
-            'description' => $this->request->getPost('description'),
-        ];
-        $model->update($id, $data);
-        return redirect()->to('/listPolicyTypes')->with('msg', 'Tipo de política actualizado con éxito');
+        // DEPRECADO
+        return redirect()->to('/listPolicyTypes')->with('msg', 'Esta funcionalidad está deprecada. Los documentos se gestionan desde DocumentLibrary.php');
     }
 
-    // Eliminar un tipo de política
     public function deletePolicyType($id)
     {
-        $model = new PolicyTypeModel();
-        $model->delete($id);
-        return redirect()->to('/listPolicyTypes')->with('msg', 'Tipo de política eliminado con éxito');
+        // DEPRECADO
+        return redirect()->to('/listPolicyTypes')->with('msg', 'Esta funcionalidad está deprecada. Los documentos se gestionan desde DocumentLibrary.php');
     }
 }
-
 

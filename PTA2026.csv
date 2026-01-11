@@ -1,0 +1,89 @@
+﻿phva_plandetrabajo;numeral_plandetrabajo;actividad_plandetrabajo;CLIENTE AÑO 1;CLIENTE AÑO 2;CLIENTE AÑO 3;MENSUAL;BIMENSUAL;TRIMESTRAL;PROYECTO;RESPONSABLE
+HACER;5.1.2;Asesorar y preparar la ejecución del simulacro de emergencias;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;5.1.2;Evaluar la ejecución del simulacro de emergencias;x;x;x;x;x;x;;CONSULTOR CYCLOID
+PLANEAR;1.1.2;Asignar y documentar responsabilidades del SG-SST a todos los niveles de la copropiedad;x;x;x;x;x;x;x;CONSULTOR CYCLOID
+PLANEAR;2.10.1;Realizar auditoría SG-SST al contratista de aseo;x;x;x;x;x;x;;CONSULTOR CYCLOID
+PLANEAR;2.10.1;Realizar auditoría SG-SST al contratista de vigilancia;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;3.2.1;Realizar el autorreporte de Estándares Mínimos del SG-SST;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;1.2.1;Revisar el estado y la capacitación de los brigadistas;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;1.2.1;Diligenciar hoja de vida de los brigadistas;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;3.1.8;Registrar el lavado de tanques con soporte correspondiente (Periodo 1);x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;3.1.8;Registrar el lavado de tanques con soporte correspondiente (Periodo 2);x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;3.1.8;Registrar la fumigación con soporte correspondiente (Periodo 1);x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;3.1.8;Registrar la fumigación con soporte correspondiente (Periodo 2);x;x;x;x;x;x;;CONSULTOR CYCLOID
+PLANEAR;1.1.3;Elaborar el presupuesto e inversiones en SST para el año;x;x;x;x;x;x;;CONSULTOR CYCLOID
+PLANEAR;2.2.1;Definir los objetivos del Sistema de Gestión de SST conforme a la política y normatividad vigente;x;x;x;x;x;x;x;CONSULTOR CYCLOID
+PLANEAR;2.2.1;Socializar los objetivos del SG-SST y gestionar su firma y vigencia;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;4.2.5;Revisar anualmente el plan o metodología de control de mantenimientos y validar su cumplimiento;x;x;x;x;x;x;;CONSULTOR CYCLOID
+PLANEAR;2.4.1;Diseñar y definir el Plan Anual de Trabajo del SG-SST;x;x;x;x;x;x;x;CONSULTOR CYCLOID
+PLANEAR;2.4.1;Socializar y formalizar el Plan Anual de Trabajo del SG-SST para su ejecución;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;5.1.1;Elaborar o actualizar el Plan de Emergencias;x;x;x;x;x;x;;CONSULTOR CYCLOID
+PLANEAR;1.2.1;Elaborar el programa anual de capacitación en SG-SST;x;x;x;x;x;x;x;CONSULTOR CYCLOID
+PLANEAR;2.1.1;Establecer por escrito la Política de Seguridad y Salud en el Trabajo;x;x;x;x;x;x;x;CONSULTOR CYCLOID
+PLANEAR;2.1.1;Formalizar, divulgar y publicar la Política de Seguridad y Salud en el Trabajo;x;x;x;x;x;x;;CONSULTOR CYCLOID
+PLANEAR;1.1.4;Revisar la planilla de Seguridad Social del administrador, empresa de vigilancia y empresa de aseo (Periodo 1);x;x;x;x;x;x;;CONSULTOR CYCLOID
+PLANEAR;1.1.4;Revisar la planilla de Seguridad Social del administrador, empresa de vigilancia y empresa de aseo (Periodo 2);x;x;;x;x;;;CONSULTOR CYCLOID
+PLANEAR;1.1.4;Revisar la planilla de Seguridad Social del administrador, empresa de vigilancia y empresa de aseo (Periodo 3);x;;;x;;;;CONSULTOR CYCLOID
+PLANEAR;1.1.4;Revisar la planilla de Seguridad Social del administrador, empresa de vigilancia y empresa de aseo (Periodo 4);x;;;x;;;;CONSULTOR CYCLOID
+PLANEAR;2.1.1;Verificar que la Política de SST se encuentre firmada y publicada;x;x;x;x;x;x;x;CONSULTOR CYCLOID
+PLANEAR;2.3.1;Diligenciar la autoevaluación inicial del SG-SST y gestionar su firma;x;x;x;x;x;x;x;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 1);x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 2);x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 3);x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 4);x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 5);x;x;;x;x;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 6);x;x;;x;x;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 7);x;;;x;;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 8);x;;;x;;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 9);x;;;x;;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 10);x;;;x;;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 11);x;;;x;;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre anual del SG-SST;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;3.1.9;Elaborar el informe de inspección del cuarto de residuos (Periodo 1);x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;3.1.9;Elaborar el informe de inspección del cuarto de residuos (Periodo 2);x;;;x;;;;CONSULTOR CYCLOID
+HACER;4.2.6;Inspeccionar la dotación del personal de aseo;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;5.1.1;Inspeccionar los botiquines de primeros auxilios (Periodo 1);x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;5.1.1;Inspeccionar los botiquines de primeros auxilios (Periodo 2);x;x;;x;x;;;CONSULTOR CYCLOID
+HACER;5.1.1;Inspeccionar los botiquines de primeros auxilios (Periodo 3);x;;;x;;;;CONSULTOR CYCLOID
+HACER;5.1.1;Inspeccionar los equipos de comunicación;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;5.1.1;Inspeccionar los extintores y gabinetes;x;x;x;x;x;x;;CONSULTOR CYCLOID
+PLANEAR;1.2.1;Programar y ejecutar la inducción y reinducción en SG-SST para el personal de la copropiedad;x;x;x;x;x;x;x;CONSULTOR CYCLOID
+HACER;5.1.1;Inspeccionar los recursos destinados para la seguridad;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;5.1.1;Realizar la inspección locativa (Periodo 1);x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;5.1.1;Realizar la inspección locativa (Periodo 2);x;x;;x;x;;;CONSULTOR CYCLOID
+HACER;5.1.1;Realizar la inspección locativa (Periodo 3);x;;;x;;;;CONSULTOR CYCLOID
+HACER;5.1.1;Realizar la inspección locativa (Periodo 4);x;;;x;;;;CONSULTOR CYCLOID
+HACER;5.1.2;Reportar la ejecución del simulacro a las entidades de control;x;x;x;x;x;x;;CONSULTOR CYCLOID
+VERIFICAR;6.1.3;Socializar el informe de gestión anual del SG-SST con la administración;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;3.2.1;Socializar el procedimiento de reporte de accidentes de trabajo en la inducción del SG-SST;x;x;x;x;x;x;x;CONSULTOR CYCLOID
+HACER;4.1.2;Socializar los riesgos y peligros identificados a la administración, contratistas y trabajadores en la inducción;x;x;x;x;x;x;x;CONSULTOR CYCLOID
+VERIFICAR;6.1.3;Realizar la revisión anual del SG-SST por parte de la alta dirección;x;x;x;x;x;x;;CONSULTOR CYCLOID
+VERIFICAR;6.3.1;Inspeccionar la dotación del personal de vigilancia;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 1 del programa anual de capacitación en SG-SST;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 2 del programa anual de capacitación en SG-SST;x;x;x;x;x;x;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 3 del programa anual de capacitación en SG-SST;x;x;;x;x;;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 4 del programa anual de capacitación en SG-SST;x;x;;x;x;;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 5 del programa anual de capacitación en SG-SST;x;;;x;;;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 6 del programa anual de capacitación en SG-SST;x;;;x;;;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 7 del programa anual de capacitación en SG-SST;x;;;x;;;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 8 del programa anual de capacitación en SG-SST;x;;;x;;;;CONSULTOR CYCLOID
+HACER;4.2.4;Inspeccionar el almacenamiento de productos químicos;;x;;x;x;;;CONSULTOR CYCLOID
+HACER;4.2.4;Revisar resultados de visitas de entidades de control y gestionar solicitudes de corrección (ej. Secretaría de Salud);;x;;x;x;x;;CONSULTOR CYCLOID
+HACER;4.2.4;Inspeccionar la señalización de seguridad y salud en el trabajo;;x;;x;x;;;CONSULTOR CYCLOID
+PLANEAR;1.1.6;Asignar el vigía de SST mediante carta firmada por el representante legal;x;;;x;x;x;;CONSULTOR CYCLOID
+PLANEAR;1.1.7;Verificar y archivar el soporte del curso de 50 o 20 horas en SST del vigía;x;;;x;x;x;;CONSULTOR CYCLOID
+PLANEAR;1.2.3;Verificar y archivar el soporte del curso de 50 o 20 horas en SG-SST del administrador;x;;;x;x;x;;CONSULTOR CYCLOID
+HACER;5.1.1;Diligenciar la matriz de vulnerabilidad;x;;;x;x;x;;CONSULTOR CYCLOID
+HACER;5.1.1;Diligenciar la matriz de peligros;x;;;x;x;x;;CONSULTOR CYCLOID
+HACER;4.2.4;Diligenciar el Vértice Cicloide;x;;;x;x;x;;CONSULTOR CYCLOID
+HACER;3.1.8;Diseñar y definir el Plan de Saneamiento Básico (agua potable, manejo de residuos y control de plagas);x;;;x;x;x;;CONSULTOR CYCLOID
+HACER;3.1.8;Ejecutar el Plan de Saneamiento Básico;x;;;x;x;x;;CONSULTOR CYCLOID
+HACER;3.2.1;Establecer y aplicar el procedimiento para el reporte y seguimiento de accidentes de trabajo en la copropiedad;x;;;x;x;x;x;CONSULTOR CYCLOID
+PLANEAR;2.5.1;Establecer y mantener el procedimiento de archivo y retención documental del SG-SST;x;;;x;x;x;x;CONSULTOR CYCLOID
+PLANEAR;1.1.8;Formalizar la exoneración del Comité de Convivencia.;x;;;x;x;x;x;CONSULTOR CYCLOID
+PLANEAR;1.1.1;Formalizar la asignación del responsable del SG-SST mediante carta firmada y soportes requeridos;x;;;x;x;x;x;CONSULTOR CYCLOID
+PLANEAR;2.10.1;Elaborar y actualizar el manual de contratistas y el listado de información de los contratistas de la copropiedad;x;;;x;x;x;x;CONSULTOR CYCLOID
+HACER;4.1.1;Elaborar el Reglamento de Higiene y Seguridad Industrial;x;;;x;x;x;x;CONSULTOR CYCLOID
+HACER;4.1.2;Actualizar la matriz de riesgos correspondiente al año en curso;x;;;x;x;x;x;CONSULTOR CYCLOID
+HACER;4.2.4;Elaborar el informe de inspección general descriptiva de la planta física;x;;;x;x;x;;CONSULTOR CYCLOID
+HACER;4.2.6;Elaborar y actualizar la matriz de elementos de protección personal (EPP);x;;;x;x;x;x;CONSULTOR CYCLOID

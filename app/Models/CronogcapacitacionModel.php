@@ -15,6 +15,8 @@ class CronogcapacitacionModel extends Model
     // Definimos los campos permitidos para inserciones/actualizaciones masivas
     protected $allowedFields = [
         'id_capacitacion',
+        'nombre_capacitacion',
+        'objetivo_capacitacion',
         'id_cliente',
         'fecha_programada',
         'fecha_de_realizacion',

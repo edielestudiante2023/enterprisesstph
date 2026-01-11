@@ -4,9 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
-use App\Models\ClientPoliciesModel; // Usaremos este modelo para client_policies
-use App\Models\DocumentVersionModel; // Usaremos este modelo para client_policies
-use App\Models\PolicyTypeModel; // Usaremos este modelo para client_policies
+// Ya no usamos ClientPoliciesModel, DocumentVersionModel, PolicyTypeModel (migrado a DocumentLibrary.php)
 use App\Models\ClientKpiModel;
 use App\Models\KpisModel;
 use App\Models\KpiDefinitionModel;
@@ -27,16 +25,16 @@ class kpatelController extends Controller
 
     public function atelKpi()
     {
+        // Cargar helper para acceso a DocumentLibrary
+        helper('document_library');
+
         // Obtener el ID del cliente desde la sesión
         $session = session();
         $clientId = $session->get('user_id'); // Asegúrate de que este ID es el del cliente
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
-        $clientPoliciesModel = new ClientPoliciesModel();
-        $policyTypeModel = new PolicyTypeModel();
-        $versionModel = new DocumentVersionModel();
-        $clientKpiModel = new ClientKpiModel();
+                                $clientKpiModel = new ClientKpiModel();
         $kpisModel = new KpisModel();
         $kpiDefinitionModel = new KpiDefinitionModel();
         $dataOwnerModel = new DataOwnerModel();
@@ -60,36 +58,24 @@ class kpatelController extends Controller
         // Obtener la política de alcohol y drogas del cliente
         $policyTypeId = 46; // Supongamos que el ID de la política de alcohol y drogas es 1
         $id_kpis = 10; // Primer indicador: Plan de Trabajo Anual
-        $clientPolicy = $clientPoliciesModel->where('client_id', $clientId)
-            ->where('policy_type_id', $policyTypeId)
-            ->orderBy('id', 'DESC')
-            ->first();
-        if (!$clientPolicy) {
-            return redirect()->to('/dashboardclient')->with('error', 'No se encontró este documento para este cliente.');
-        }
+        
+        
 
         // Obtener el tipo de política
-        $policyType = $policyTypeModel->find($policyTypeId);
+        $policyType = get_document($policyTypeId);
+        if (!$policyType) {
+            return redirect()->to('/dashboardclient')->with('error', 'No se encontró este documento.');
+        }
 
         // Obtener la versión más reciente del documento
-        $latestVersion = $versionModel->where('client_id', $clientId)
-            ->where('policy_type_id', $policyTypeId)
-            ->orderBy('created_at', 'DESC')
-            ->first();
+        $latestVersion = $policyType;
 
-        if (!$latestVersion) {
-            return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
-        }
+        
 
         // Obtener todas las versiones del documento
-        $allVersions = $versionModel->where('client_id', $clientId)
-            ->where('policy_type_id', $policyTypeId)
-            ->orderBy('created_at', 'DESC')
-            ->findAll();
+        $allVersions = get_all_document_versions($policyTypeId);
 
-        if (!$allVersions) {
-            return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
-        }
+        
 
         $clientKpi = $clientKpiModel->where('id_cliente', $clientId)
             ->where('id_kpis', $id_kpis)
@@ -171,6 +157,11 @@ class kpatelController extends Controller
         $seguimiento2 = $clientKpi['seguimiento2'];
         $seguimiento3 = $clientKpi['seguimiento3'];
 
+
+        // Para compatibilidad con vistas que usan $clientPolicy
+        $clientPolicy = [
+            'policy_content' => $policyType['default_content'] ?? ''
+        ];
 
         // Pasar los datos a la vista
         $data = [

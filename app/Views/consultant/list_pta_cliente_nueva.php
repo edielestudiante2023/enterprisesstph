@@ -219,13 +219,57 @@
             padding-left: 10px;
             margin: 20px 0 15px 0;
         }
+
+        /* Estilos para botones de gestión rápida de meses */
+        .btn-month {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #6c757d;
+            background-color: #fff;
+            color: #495057;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+
+        .btn-month:hover {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+            transform: scale(1.1);
+        }
+
+        .btn-month.has-date {
+            background-color: #28a745;
+            color: #fff;
+            border-color: #28a745;
+        }
+
+        .btn-month:active {
+            transform: scale(0.95);
+        }
+
+        .month-buttons {
+            max-width: 200px;
+        }
     </style>
 </head>
 
 <body>
     <div class="container-fluid">
-        <!-- Enlace a Dashboard -->
-        <a href="<?= base_url('/dashboardconsultant') ?>" class="btn btn-primary btn-sm mb-3">Ir a DashBoard</a>
+        <!-- Enlaces de navegación -->
+        <div class="d-flex gap-2 mb-3">
+            <a href="<?= base_url('/dashboardconsultant') ?>" class="btn btn-primary btn-sm">Ir a DashBoard</a>
+            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#renewPlanModal">
+                <i class="fas fa-sync-alt"></i> Renovar Plan de Trabajo
+            </button>
+        </div>
 
         <!-- Mensaje informativo -->
         <div class="alert alert-info alert-dismissible fade show" role="alert">
@@ -500,6 +544,7 @@
                             <th class="d-none">Semana</th>
                             <th class="d-none">Created At</th>
                             <th class="d-none">Updated At</th>
+                            <th style="min-width: 200px;">📅 Gestión Rápida</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -526,6 +571,23 @@
                                 <td class="d-none"><?= esc($row['semana']) ?></td>
                                 <td class="d-none"><?= esc($row['created_at']) ?></td>
                                 <td class="d-none"><?= esc($row['updated_at']) ?></td>
+                                <td class="text-center">
+                                    <!-- Botones de meses (1-12) organizados en 3 filas de 4 -->
+                                    <div class="month-buttons" style="display: grid; grid-template-columns: repeat(4, 32px); gap: 4px; justify-content: center;">
+                                        <?php
+                                        $mesesEspanol = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                                        for ($month = 1; $month <= 12; $month++):
+                                        ?>
+                                            <button type="button"
+                                                    class="btn-month"
+                                                    data-id="<?= esc($row['id_ptacliente']) ?>"
+                                                    data-month="<?= $month ?>"
+                                                    title="<?= $mesesEspanol[$month - 1] ?>">
+                                                <?= $month ?>
+                                            </button>
+                                        <?php endfor; ?>
+                                    </div>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -556,6 +618,7 @@
                             <th class="d-none"></th>
                             <th class="d-none"></th>
                             <th class="d-none"></th>
+                            <th></th>
                         </tr>
                     </tfoot>
                 </table>
@@ -1167,6 +1230,180 @@
                     }
                 });
             });
+
+            // ===================================================================
+            // GESTIÓN DE BOTONES MENSUALES (Asignación rápida de fecha por mes)
+            // ===================================================================
+            $(document).on('click', '.btn-month', function() {
+                var $button = $(this);
+                var activityId = $button.data('id');
+                var month = $button.data('month');
+
+                // Mostrar feedback visual inmediato
+                $button.prop('disabled', true).css('opacity', '0.5');
+
+                $.ajax({
+                    url: '<?= site_url('/pta-cliente-nueva/updateDateByMonth') ?>',
+                    method: 'POST',
+                    data: {
+                        id: activityId,
+                        month: month,
+                        '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Actualizar la celda de fecha_propuesta en la tabla
+                            var row = table.row(function(idx, data, node) {
+                                return data[1] == activityId; // data[1] es id_ptacliente
+                            });
+
+                            if (row.length > 0) {
+                                var rowData = row.data();
+                                rowData[8] = response.newDate; // Columna 8 es fecha_propuesta
+                                row.data(rowData).draw(false);
+                            }
+
+                            // Agregar clase visual de éxito al botón
+                            $button.addClass('has-date');
+
+                            // Mostrar mensaje sutil de éxito
+                            var monthName = new Date(2000, month - 1, 1).toLocaleString('es', { month: 'long' });
+                            var successMsg = $('<small class="text-success ms-2"><i class="fas fa-check"></i></small>');
+                            $button.parent().append(successMsg);
+                            setTimeout(function() {
+                                successMsg.fadeOut(function() { $(this).remove(); });
+                            }, 2000);
+
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error al actualizar la fecha: ' + error);
+                        console.error('Error AJAX:', xhr.responseText);
+                    },
+                    complete: function() {
+                        // Re-habilitar botón
+                        $button.prop('disabled', false).css('opacity', '1');
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Modal para Renovar Plan de Trabajo -->
+    <div class="modal fade" id="renewPlanModal" tabindex="-1" aria-labelledby="renewPlanModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="renewPlanModalLabel">
+                        <i class="fas fa-sync-alt"></i> Renovar Plan de Trabajo
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="<?= base_url('consultant/plan/generate') ?>" method="post" id="renewPlanForm">
+                    <div class="modal-body">
+                        <div class="alert alert-info" role="alert">
+                            <small><i class="fas fa-info-circle"></i> Esta opción generará automáticamente las actividades del plan de trabajo según las plantillas predefinidas.</small>
+                        </div>
+
+                        <!-- Selector de Cliente -->
+                        <div class="mb-3">
+                            <label for="id_cliente_modal" class="form-label">Cliente <span class="text-danger">*</span></label>
+                            <select class="form-select" name="id_cliente" id="id_cliente_modal" required>
+                                <option value="">Seleccione un cliente...</option>
+                                <!-- Aquí se cargarán los clientes dinámicamente -->
+                            </select>
+                            <div class="invalid-feedback">Por favor seleccione un cliente.</div>
+                        </div>
+
+                        <!-- Selector de Año -->
+                        <div class="mb-3">
+                            <label for="year_modal" class="form-label">Año del SGSST <span class="text-danger">*</span></label>
+                            <select class="form-select" name="year" id="year_modal" required>
+                                <option value="">Seleccione el año...</option>
+                                <option value="1">Año 1</option>
+                                <option value="2">Año 2</option>
+                                <option value="3">Año 3</option>
+                            </select>
+                            <div class="invalid-feedback">Por favor seleccione el año del SGSST.</div>
+                        </div>
+
+                        <!-- Selector de Tipo de Servicio -->
+                        <div class="mb-3">
+                            <label for="service_type_modal" class="form-label">Tipo de Servicio <span class="text-danger">*</span></label>
+                            <select class="form-select" name="service_type" id="service_type_modal" required>
+                                <option value="">Seleccione el tipo de servicio...</option>
+                                <option value="mensual">Mensual</option>
+                                <option value="bimensual">Bimensual</option>
+                                <option value="trimestral">Trimestral</option>
+                                <option value="proyecto">Proyecto</option>
+                            </select>
+                            <div class="invalid-feedback">Por favor seleccione el tipo de servicio.</div>
+                        </div>
+
+                        <div class="alert alert-warning mb-0" role="alert">
+                            <small><i class="fas fa-exclamation-triangle"></i> <strong>Importante:</strong> Se crearán nuevas actividades con estado ABIERTA, porcentaje 0% y fecha del día actual. Las actividades anteriores se mantendrán en el sistema.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-check"></i> Generar Plan de Trabajo
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar clientes al abrir el modal de renovación
+        document.getElementById('renewPlanModal').addEventListener('show.bs.modal', function () {
+            fetch('<?= base_url('consultant/plan/getClients') ?>')
+                .then(response => response.json())
+                .then(data => {
+                    const clientSelect = document.getElementById('id_cliente_modal');
+                    clientSelect.innerHTML = '<option value="">Seleccione un cliente...</option>';
+
+                    data.forEach(client => {
+                        const option = document.createElement('option');
+                        option.value = client.id_cliente;
+                        option.textContent = client.nombre_cliente;
+                        clientSelect.appendChild(option);
+                    });
+
+                    // Inicializar Select2 después de cargar los clientes
+                    $('#id_cliente_modal').select2({
+                        theme: 'bootstrap-5',
+                        placeholder: 'Buscar cliente...',
+                        allowClear: true,
+                        dropdownParent: $('#renewPlanModal')
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al cargar clientes:', error);
+                    alert('Error al cargar la lista de clientes');
+                });
+        });
+
+        // Destruir Select2 al cerrar el modal para evitar problemas
+        document.getElementById('renewPlanModal').addEventListener('hidden.bs.modal', function () {
+            if ($('#id_cliente_modal').hasClass('select2-hidden-accessible')) {
+                $('#id_cliente_modal').select2('destroy');
+            }
+        });
+
+        // Validación del formulario de renovación
+        document.getElementById('renewPlanForm').addEventListener('submit', function (event) {
+            if (!this.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            this.classList.add('was-validated');
         });
     </script>
 </body>

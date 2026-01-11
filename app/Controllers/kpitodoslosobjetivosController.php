@@ -15,6 +15,7 @@ use App\Models\MeasurementPeriodModel;
 use App\Models\ClientKpiModel; // Faltaba este uso
 use CodeIgniter\Controller;
 use App\Models\ConsultantModel;
+use App\Models\ContractModel;
 use App\Models\ClientPoliciesModel; // Usaremos este modelo para client_policies
 use App\Models\DocumentVersionModel; // Usaremos este modelo para client_policies
 use App\Models\PolicyTypeModel;
@@ -54,6 +55,11 @@ class kpitodoslosobjetivosController extends Controller
         if (!$consultant) {
             return redirect()->to('/dashboardclient')->with('error', 'No se pudo encontrar la información del consultor');
         }
+
+        // Obtener fecha del primer contrato del cliente para documentos
+        $contractModel = new ContractModel();
+        $firstContractDate = $contractModel->getFirstContractDate($clientId);
+        $documentDate = $firstContractDate ?? date('Y-m-d H:i:s');
     
         // Obtener la política de alcohol y drogas del cliente
         $policyTypeId = 46; // Ajusta según sea necesario
@@ -76,6 +82,9 @@ class kpitodoslosobjetivosController extends Controller
         if (!$latestVersion) {
             return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
         }
+
+        // Usar fecha del primer contrato del cliente
+        $latestVersion['created_at'] = $documentDate;
     
         // Obtener todas las versiones del documento
         $allVersions = $versionModel->where('client_id', $clientId)

@@ -142,6 +142,37 @@
       padding-left: 10px;
       margin: 20px 0 15px 0;
     }
+
+    /* Estilos para botones mensuales */
+    .btn-month {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #6c757d;
+      background-color: #fff;
+      color: #495057;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .btn-month:hover {
+      background-color: #007bff;
+      color: #fff;
+      border-color: #007bff;
+      transform: scale(1.1);
+    }
+
+    .btn-month.has-date {
+      background-color: #28a745;
+      color: #fff;
+      border-color: #28a745;
+    }
   </style>
 </head>
 
@@ -164,6 +195,12 @@
         <div class="text-center me-3">
           <h6 class="mb-1" style="font-size: 16px;">Ir a Dashboard</h6>
           <a href="<?= base_url('/dashboardconsultant') ?>" class="btn btn-primary btn-sm">Ir a DashBoard</a>
+        </div>
+        <div class="text-center me-3">
+          <h6 class="mb-1" style="font-size: 16px;">Cargar Cronograma</h6>
+          <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#generateTrainingModal">
+            <i class="fas fa-magic"></i> Generar Automático
+          </button>
         </div>
         <div class="text-center">
           <h6 class="mb-1" style="font-size: 16px;">Añadir Registro</h6>
@@ -359,7 +396,7 @@
       </div>
     </div>
 
-    <div class="table-responsive">
+    <div class="table-responsive" style="overflow-x: auto; max-width: 100%;">
       <table id="cronogramaTable" class="table table-striped table-bordered nowrap" style="width:100%">
         <thead class="table-light">
           <tr>
@@ -368,7 +405,7 @@
             <th>#</th>
             <th>Acciones</th>
             <th>Capacitación</th>
-            <th>Objetivo</th>
+            <!-- <th>Objetivo</th> -->
             <th>Cliente</th>
             <th>*Fecha Programada</th>
             <th>*Fecha de Realización</th>
@@ -383,6 +420,7 @@
             <th>*Evaluadas</th>
             <th>*Promedio</th>
             <th>*Observaciones</th>
+            <th style="min-width: 200px;">📅 Gestión Rápida</th>
           </tr>
         </thead>
         <tfoot class="table-light">
@@ -391,7 +429,7 @@
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar ID"></th>
             <th></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Capacitación"></th>
-            <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Objetivo"></th>
+            <!-- <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Objetivo"></th> -->
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Cliente"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Fecha"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Fecha"></th>
@@ -437,12 +475,72 @@
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Evaluadas"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Promedio"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Observaciones"></th>
+            <th></th>
           </tr>
         </tfoot>
         <tbody>
           <!-- Los datos se cargarán vía AJAX -->
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Modal para Generar Cronograma Automáticamente -->
+  <div class="modal fade" id="generateTrainingModal" tabindex="-1" aria-labelledby="generateTrainingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title" id="generateTrainingModalLabel">
+            <i class="fas fa-magic"></i> Generar Cronograma de Capacitación Automáticamente
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formGenerateTraining" action="<?= base_url('/cronogCapacitacion/generate') ?>" method="post">
+          <div class="modal-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <strong>Información:</strong> Esta función generará automáticamente el cronograma de capacitación basado en el tipo de servicio del cliente.
+            </div>
+
+            <!-- Cliente -->
+            <div class="mb-3">
+              <label for="modalClientSelect" class="form-label">
+                <i class="fas fa-building"></i> Cliente <span class="text-danger">*</span>
+              </label>
+              <select name="id_cliente" id="modalClientSelect" class="form-select" required>
+                <option value="">Seleccione un cliente...</option>
+              </select>
+            </div>
+
+            <!-- Tipo de Servicio -->
+            <div class="mb-3">
+              <label for="serviceTypeSelect" class="form-label">
+                <i class="fas fa-concierge-bell"></i> Tipo de Servicio <span class="text-danger">*</span>
+              </label>
+              <select name="service_type" id="serviceTypeSelect" class="form-select" required>
+                <option value="">Seleccione tipo de servicio...</option>
+                <option value="mensual">Mensual (Todas las capacitaciones)</option>
+                <option value="bimensual">Bimensual (Capacitaciones seleccionadas)</option>
+                <option value="trimestral">Trimestral (Capacitaciones mínimas)</option>
+                <option value="proyecto">Proyecto (Capacitaciones mínimas)</option>
+              </select>
+            </div>
+
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <strong>Nota:</strong> Esta acción agregará múltiples registros de capacitación al cronograma del cliente seleccionado.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="submit" class="btn btn-warning">
+              <i class="fas fa-check"></i> Generar Cronograma
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -584,9 +682,10 @@
               return '<span class="editable" data-field="nombre_capacitacion" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
-          {
-            data: 'objetivo_capacitacion'
-          },
+          // Columna Objetivo oculta
+          // {
+          //   data: 'objetivo_capacitacion'
+          // },
           {
             data: 'nombre_cliente',
             render: function(data, type, row) {
@@ -704,6 +803,20 @@
               data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               return '<span class="editable" data-field="observaciones" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
+            }
+          },
+          {
+            data: null,
+            orderable: false,
+            searchable: false,
+            render: function(data, type, row) {
+              var mesesEspanol = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+              var html = '<div class="month-buttons" style="display: grid; grid-template-columns: repeat(4, 32px); gap: 4px; justify-content: center;">';
+              for (var month = 1; month <= 12; month++) {
+                html += '<button type="button" class="btn-month" data-id="' + row.id_cronograma_capacitacion + '" data-month="' + month + '" title="' + mesesEspanol[month - 1] + '">' + month + '</button>';
+              }
+              html += '</div>';
+              return html;
             }
           }
         ],
@@ -1127,6 +1240,71 @@
         }
       });
 
+      // Manejador de clic para los botones mensuales (asignación rápida de fecha)
+      $(document).on('click', '.btn-month', function() {
+        var $button = $(this);
+        var trainingId = $button.data('id');
+        var month = $button.data('month');
+
+        // Deshabilitar el botón mientras se procesa
+        $button.prop('disabled', true).css('opacity', '0.5');
+
+        $.ajax({
+          url: '<?= base_url('/cronogCapacitacion/updateDateByMonth') ?>',
+          method: 'POST',
+          data: {
+            id: trainingId,
+            month: month,
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+          },
+          dataType: 'json',
+          success: function(response) {
+            if (response.success) {
+              // Recargar la tabla sin resetear la paginación
+              table.ajax.reload(null, false);
+
+              // Marcar el botón como "tiene fecha"
+              $button.addClass('has-date');
+
+              // Mostrar mensaje de éxito temporal
+              var mesesEspanol = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+              var mesNombre = mesesEspanol[month - 1];
+
+              // Crear toast de Bootstrap para feedback visual
+              var toastHtml = '<div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">' +
+                '<div class="d-flex">' +
+                  '<div class="toast-body">' +
+                    '✓ Fecha programada actualizada a ' + mesNombre + ' (' + response.formatted + ')' +
+                  '</div>' +
+                  '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>' +
+                '</div>' +
+              '</div>';
+
+              $('body').append(toastHtml);
+              var toastElement = $('.toast').last()[0];
+              var toast = new bootstrap.Toast(toastElement, { autohide: true, delay: 3000 });
+              toast.show();
+
+              // Eliminar el toast del DOM después de que se oculte
+              toastElement.addEventListener('hidden.bs.toast', function() {
+                $(toastElement).remove();
+              });
+
+            } else {
+              alert('Error: ' + response.message);
+            }
+          },
+          error: function(xhr, status, error) {
+            alert('Error al actualizar la fecha: ' + error);
+            console.error('Error AJAX:', xhr.responseText);
+          },
+          complete: function() {
+            // Rehabilitar el botón
+            $button.prop('disabled', false).css('opacity', '1');
+          }
+        });
+      });
+
       // Botón para restablecer filtros y estado guardado
       $("#clearState").on("click", function() {
         localStorage.removeItem('selectedClient');
@@ -1161,6 +1339,37 @@
       initializeTooltips();
       table.on('draw.dt', function() {
         setTimeout(initializeTooltips, 100);
+      });
+
+      // Cargar lista de clientes en el modal cuando se abre
+      $('#generateTrainingModal').on('show.bs.modal', function() {
+        $.ajax({
+          url: '<?= base_url('/cronogCapacitacion/getClients') ?>',
+          method: 'GET',
+          dataType: 'json',
+          success: function(clients) {
+            var $select = $('#modalClientSelect');
+            $select.empty();
+            $select.append('<option value="">Seleccione un cliente...</option>');
+
+            clients.forEach(function(client) {
+              $select.append('<option value="' + client.id_cliente + '">' + client.nombre_cliente + '</option>');
+            });
+
+            // Inicializar Select2 en el modal si está disponible
+            if ($.fn.select2) {
+              $select.select2({
+                dropdownParent: $('#generateTrainingModal'),
+                placeholder: 'Buscar cliente...',
+                allowClear: true
+              });
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error('Error al cargar clientes:', error);
+            alert('Error al cargar la lista de clientes');
+          }
+        });
       });
     });
 

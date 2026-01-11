@@ -49,9 +49,13 @@ class CronogcapacitacionController extends Controller
             $cliente = $clientModel->find($cronograma['id_cliente']);
             $cronograma['nombre_cliente'] = $cliente['nombre_cliente'] ?? 'Cliente no encontrado';
 
-            $capacitacion = $capacitacionModel->find($cronograma['id_capacitacion']);
-            $cronograma['nombre_capacitacion'] = $capacitacion['capacitacion'] ?? 'Capacitación no encontrada';
-            $cronograma['objetivo_capacitacion'] = $capacitacion['objetivo_capacitacion'] ?? 'Objetivo no disponible';
+            // Si el cronograma ya tiene nombre_capacitacion en la BD, usarlo
+            // De lo contrario, buscar en la tabla antigua tbl_capacitaciones_sst
+            if (empty($cronograma['nombre_capacitacion']) && !empty($cronograma['id_capacitacion'])) {
+                $capacitacion = $capacitacionModel->find($cronograma['id_capacitacion']);
+                $cronograma['nombre_capacitacion'] = $capacitacion['capacitacion'] ?? 'Capacitación no encontrada';
+                $cronograma['objetivo_capacitacion'] = $capacitacion['objetivo_capacitacion'] ?? 'Objetivo no disponible';
+            }
 
             // Generar botones de acciones
             $cronograma['acciones'] = '<a href="' . base_url('/editcronogCapacitacion/' . $cronograma['id_cronograma_capacitacion']) . '" class="btn btn-warning btn-sm">Editar</a> ' .
@@ -70,6 +74,8 @@ class CronogcapacitacionController extends Controller
         $value = $this->request->getPost('value');
 
         $allowedFields = [
+            'nombre_capacitacion',
+            'objetivo_capacitacion',
             'fecha_programada',
             'fecha_de_realizacion',
             'estado',
@@ -186,17 +192,18 @@ class CronogcapacitacionController extends Controller
         // Depuración: Mostrar los valores recibidos
         log_message('debug', 'Datos POST recibidos: ' . print_r($this->request->getPost(), true));
 
-        // Capturar el valor de id_capacitacion
-        $id_capacitacion = $this->request->getPost('id_capacitacion');
+        // Capturar el valor de nombre_capacitacion
+        $nombre_capacitacion = $this->request->getPost('nombre_capacitacion');
 
-        // Si `id_capacitacion` está vacío, detener el proceso
-        if (empty($id_capacitacion)) {
-            return redirect()->back()->with('msg', 'Error: No seleccionaste una capacitación.');
+        // Si `nombre_capacitacion` está vacío, detener el proceso
+        if (empty($nombre_capacitacion)) {
+            return redirect()->back()->with('msg', 'Error: El nombre de la capacitación es obligatorio.');
         }
 
         // Preparar los datos para la inserción
         $data = [
-            'id_capacitacion' => $id_capacitacion,
+            'nombre_capacitacion' => $nombre_capacitacion,
+            'objetivo_capacitacion' => $this->request->getPost('objetivo_capacitacion'),
             'id_cliente' => $this->request->getPost('id_cliente'),
             'fecha_programada' => $this->request->getPost('fecha_programada'),
             'fecha_de_realizacion' => $this->request->getPost('fecha_de_realizacion'),
@@ -262,7 +269,8 @@ class CronogcapacitacionController extends Controller
             : 0;
 
         $data = [
-            'id_capacitacion' => $this->request->getPost('id_capacitacion'),
+            'nombre_capacitacion' => $this->request->getPost('nombre_capacitacion'),
+            'objetivo_capacitacion' => $this->request->getPost('objetivo_capacitacion'),
             'id_cliente' => $this->request->getPost('id_cliente'),
             'fecha_programada' => $this->request->getPost('fecha_programada'),
             'fecha_de_realizacion' => $this->request->getPost('fecha_de_realizacion'),
@@ -300,4 +308,156 @@ class CronogcapacitacionController extends Controller
 
     // Actualizar campos específicos del cronograma de capacitación
 
+    /**
+     * Actualiza la fecha programada de una capacitación según el mes seleccionado
+     * Calcula el último día del mes automáticamente (considerando años bisiestos)
+     */
+    public function updateDateByMonth()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Método no permitido']);
+        }
+
+        $id = $this->request->getPost('id');
+        $month = (int) $this->request->getPost('month');
+
+        if (empty($id) || $month < 1 || $month > 12) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Parámetros inválidos']);
+        }
+
+        try {
+            // Obtener el año actual de la capacitación o usar el año actual
+            $model = new CronogcapacitacionModel();
+            $training = $model->find($id);
+
+            if (!$training) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Capacitación no encontrada']);
+            }
+
+            // Determinar el año: usar el de fecha_programada si existe, sino el actual
+            $year = date('Y');
+            if (!empty($training['fecha_programada'])) {
+                $existingDate = new \DateTime($training['fecha_programada']);
+                $year = $existingDate->format('Y');
+            }
+
+            // Calcular el último día del mes (considera años bisiestos automáticamente)
+            $lastDay = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+            $newDate = sprintf('%04d-%02d-%02d', $year, $month, $lastDay);
+
+            // Actualizar la fecha
+            $updateData = [
+                'fecha_programada' => $newDate,
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+
+            if ($model->update($id, $updateData)) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Fecha actualizada correctamente',
+                    'newDate' => $newDate,
+                    'formatted' => date('d/m/Y', strtotime($newDate))
+                ]);
+            } else {
+                return $this->response->setJSON(['success' => false, 'message' => 'Error al actualizar']);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Obtiene la lista de clientes en formato JSON para el selector del modal
+     */
+    public function getClients()
+    {
+        $db = \Config\Database::connect();
+
+        $clients = $db->table('tbl_clientes')
+            ->select('id_cliente, nombre_cliente')
+            ->orderBy('nombre_cliente', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        return $this->response->setJSON($clients);
+    }
+
+    /**
+     * Genera automáticamente el cronograma de capacitación desde las plantillas predefinidas
+     */
+    public function generate()
+    {
+        // Validar que la petición sea POST
+        if (!$this->request->is('post')) {
+            return redirect()->to(base_url('/listcronogCapacitacion'))
+                ->with('error', 'Método no permitido');
+        }
+
+        // Obtener datos del formulario
+        $idCliente = $this->request->getPost('id_cliente');
+        $serviceType = strtolower($this->request->getPost('service_type'));
+
+        // Validar campos requeridos
+        if (empty($idCliente) || empty($serviceType)) {
+            return redirect()->to(base_url('/listcronogCapacitacion'))
+                ->with('error', 'Todos los campos son obligatorios');
+        }
+
+        try {
+            // Obtener el nombre del cliente
+            $db = \Config\Database::connect();
+            $clientQuery = $db->table('tbl_clientes')
+                ->select('nombre_cliente')
+                ->where('id_cliente', $idCliente)
+                ->get();
+
+            $clientData = $clientQuery->getRow();
+            $clientName = $clientData ? $clientData->nombre_cliente : "ID: {$idCliente}";
+
+            // Instanciar la librería de capacitaciones
+            $trainingLibrary = new \App\Libraries\TrainingLibrary();
+
+            // Obtener las capacitaciones filtradas
+            $trainings = $trainingLibrary->getTrainings($idCliente, $serviceType);
+
+            // Validar que se obtuvieron capacitaciones
+            if (empty($trainings)) {
+                return redirect()->to(base_url('/listcronogCapacitacion'))
+                    ->with('warning', 'No se encontraron capacitaciones para el tipo de servicio seleccionado (' . ucfirst($serviceType) . ')');
+            }
+
+            // Insertar las capacitaciones en la base de datos
+            $cronogModel = new CronogcapacitacionModel();
+            $successCount = 0;
+            $errorCount = 0;
+
+            foreach ($trainings as $training) {
+                if ($cronogModel->insert($training)) {
+                    $successCount++;
+                } else {
+                    $errorCount++;
+                }
+            }
+
+            // Preparar mensaje de resultado
+            $serviceTypeLabel = ucfirst($serviceType);
+            $message = "<strong>Cronograma de Capacitación generado exitosamente:</strong><br>";
+            $message .= "✓ Cliente: <strong>{$clientName}</strong><br>";
+            $message .= "✓ Tipo de Servicio: {$serviceTypeLabel}<br>";
+            $message .= "✓ Capacitaciones insertadas: {$successCount}<br>";
+
+            if ($errorCount > 0) {
+                $message .= "✗ Capacitaciones con errores: {$errorCount}<br>";
+            }
+
+            $flashType = ($errorCount === 0) ? 'success' : 'warning';
+
+            return redirect()->to(base_url('/listcronogCapacitacion'))
+                ->with($flashType, $message);
+
+        } catch (\Exception $e) {
+            return redirect()->to(base_url('/listcronogCapacitacion'))
+                ->with('error', 'Error al generar el cronograma de capacitación: ' . $e->getMessage());
+        }
+    }
 }

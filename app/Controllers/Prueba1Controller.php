@@ -3,9 +3,7 @@ namespace App\Controllers;
 
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
-use App\Models\ClientPoliciesModel; // Usaremos este modelo para client_policies
-use App\Models\DocumentVersionModel; // Usaremos este modelo para client_policies
-use App\Models\PolicyTypeModel; // Usaremos este modelo para client_policies
+// Ya no usamos ClientPoliciesModel, DocumentVersionModel, PolicyTypeModel (migrado a DocumentLibrary.php)
 
 use Dompdf\Dompdf;
 
@@ -15,6 +13,9 @@ class Prueba1Controller extends Controller
 {
     public function responsableDelSGSST()
     {
+        // Cargar helper para acceso a DocumentLibrary
+        helper('document_library');
+
         // Obtener el ID del cliente desde la sesión
         $session = session();
         $clientId = $session->get('user_id'); // Asegúrate de que este ID es el del cliente
@@ -45,6 +46,7 @@ class Prueba1Controller extends Controller
         $data = [
             'client' => $client,
             'consultant' => $consultant,
+            'clientPolicy' => $clientPolicy,
         ];
 
         return view('client/sgsst/1planear/responsabledelsgsst', $data);
@@ -54,16 +56,16 @@ class Prueba1Controller extends Controller
 
     public function prueba1()
 {
+        // Cargar helper para acceso a DocumentLibrary
+        helper('document_library');
+
     // Obtener el ID del cliente desde la sesión
     $session = session();
     $clientId = $session->get('user_id'); // Asegúrate de que este ID es el del cliente
 
     $clientModel = new ClientModel();
     $consultantModel = new ConsultantModel();
-    $clientPoliciesModel = new ClientPoliciesModel();
-    $policyTypeModel = new PolicyTypeModel();
-    $versionModel = new DocumentVersionModel();
-
+            
     // Obtener los datos del cliente
     $client = $clientModel->find($clientId);
     if (!$client) {
@@ -78,33 +80,31 @@ class Prueba1Controller extends Controller
 
     // Obtener la política de alcohol y drogas del cliente
     $policyTypeId = 4; // Supongamos que el ID de la política de alcohol y drogas es 1
-    $clientPolicy = $clientPoliciesModel->where('client_id', $clientId)
-                                        ->where('policy_type_id', $policyTypeId)
-                                        ->first();
-    if (!$clientPolicy) {
-        return redirect()->to('/dashboardclient')->with('error', 'No se encontró la política de No Alcohol, Drogas y Tabaco para este cliente.');
-    }
+    
+    
 
     // Obtener el tipo de política
-    $policyType = $policyTypeModel->find($policyTypeId);
+    $policyType = get_document($policyTypeId);
+        if (!$policyType) {
+            return redirect()->to('/dashboardclient')->with('error', 'No se encontró este documento.');
+        }
 
     // Obtener la versión más reciente del documento
-    $latestVersion = $versionModel->where('client_id', $clientId)
-                                  ->where('policy_type_id', $policyTypeId)
-                                  ->orderBy('created_at', 'DESC')
-                                  ->first();
+    $latestVersion = $policyType;
 
     // Obtener todas las versiones del documento
-    $allVersions = $versionModel->where('client_id', $clientId)
-                                ->where('policy_type_id', $policyTypeId)
-                                ->orderBy('created_at', 'DESC')
-                                ->findAll();
+    $allVersions = get_all_document_versions($policyTypeId);
 
-    // Pasar los datos a la vista
-    $data = [
+    // Para compatibilidad con vistas que usan $clientPolicy
+        $clientPolicy = [
+            'policy_content' => $policyType['default_content'] ?? ''
+        ];
+
+        // Pasar los datos a la vista
+        $data = [
         'client' => $client,
         'consultant' => $consultant,
-        'clientPolicy' => $clientPolicy,
+            'clientPolicy' => $clientPolicy,
         'policyType' => $policyType,
         'latestVersion' => $latestVersion,
         'allVersions' => $allVersions,  // Pasamos todas las versiones al footer
@@ -115,9 +115,12 @@ class Prueba1Controller extends Controller
 
 public function generatePdfNoAlcoholDrogas()
 {
+        // Cargar helper para acceso a DocumentLibrary
+        helper('document_library');
+
     // Instanciar Dompdf
     $dompdf = new Dompdf();
-    $dompdf->set_option('isRemoteEnabled', true);
+    $dompdf->setOption('isRemoteEnabled', true);
 
     // Obtener los mismos datos que en la función policyNoAlcoholDrogas
     $session = session();
@@ -125,32 +128,29 @@ public function generatePdfNoAlcoholDrogas()
 
     $clientModel = new ClientModel();
     $consultantModel = new ConsultantModel();
-    $clientPoliciesModel = new ClientPoliciesModel();
-    $policyTypeModel = new PolicyTypeModel();
-    $versionModel = new DocumentVersionModel();
-
+            
     // Obtener los datos necesarios
     $client = $clientModel->find($clientId);
     $consultant = $consultantModel->find($client['id_consultor']);
     $policyTypeId = 1; // Supongamos que el ID de la política de alcohol y drogas es 1
-    $clientPolicy = $clientPoliciesModel->where('client_id', $clientId)
-                                        ->where('policy_type_id', $policyTypeId)
-                                        ->first();
-    $policyType = $policyTypeModel->find($policyTypeId);
-    $latestVersion = $versionModel->where('client_id', $clientId)
-                                  ->where('policy_type_id', $policyTypeId)
-                                  ->orderBy('created_at', 'DESC')
-                                  ->first();
-    $allVersions = $versionModel->where('client_id', $clientId)
-                                ->where('policy_type_id', $policyTypeId)
-                                ->orderBy('created_at', 'DESC')
-                                ->findAll();
+    
+    $policyType = get_document($policyTypeId);
+        if (!$policyType) {
+            return redirect()->to('/dashboardclient')->with('error', 'No se encontró este documento.');
+        }
+    $latestVersion = $policyType;
+    $allVersions = get_all_document_versions($policyTypeId);
 
-    // Preparar los datos para la vista
-    $data = [
+    // Para compatibilidad con vistas que usan $clientPolicy
+        $clientPolicy = [
+            'policy_content' => $policyType['default_content'] ?? ''
+        ];
+
+        // Preparar los datos para la vista
+        $data = [
         'client' => $client,
         'consultant' => $consultant,
-        'clientPolicy' => $clientPolicy,
+            'clientPolicy' => $clientPolicy,
         'policyType' => $policyType,
         'latestVersion' => $latestVersion,
         'allVersions' => $allVersions,  // Pasamos todas las versiones al footer

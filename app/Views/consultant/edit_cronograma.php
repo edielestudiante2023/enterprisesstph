@@ -153,14 +153,14 @@
                 <div class="col-md-6">
                     <!-- Capacitación -->
                     <div class="mb-3">
-                        <label for="id_capacitacion" class="form-label">Capacitación</label>
-                        <select name="id_capacitacion" id="id_capacitacion" class="form-select" required>
-                            <?php foreach ($capacitaciones as $capacitacion): ?>
-                                <option value="<?= $capacitacion['id_capacitacion'] ?>" <?= ($cronograma['id_capacitacion'] == $capacitacion['id_capacitacion']) ? 'selected' : '' ?>>
-                                    <?= $capacitacion['capacitacion'] ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label for="nombre_capacitacion" class="form-label">Nombre de la Capacitación</label>
+                        <input type="text" name="nombre_capacitacion" id="nombre_capacitacion" class="form-control" value="<?= esc($cronograma['nombre_capacitacion']) ?>" placeholder="Ej: Inducción y Reinducción SG-SST" required>
+                    </div>
+
+                    <!-- Objetivo de la Capacitación -->
+                    <div class="mb-3">
+                        <label for="objetivo_capacitacion" class="form-label">Objetivo de la Capacitación</label>
+                        <textarea name="objetivo_capacitacion" id="objetivo_capacitacion" class="form-control" rows="3" placeholder="Descripción del objetivo de la capacitación"><?= esc($cronograma['objetivo_capacitacion']) ?></textarea>
                     </div>
 
                     <!-- Cliente -->
@@ -201,14 +201,7 @@
                     <!-- Perfil de Asistentes -->
                     <div class="mb-3">
                         <label for="perfil_de_asistentes" class="form-label">Perfil de Asistentes</label>
-                        <select name="perfil_de_asistentes" id="perfil_de_asistentes" class="form-select" required>
-                            <option value="CONTRATISTAS" <?= ($cronograma['perfil_de_asistentes'] == 'CONTRATISTAS') ? 'selected' : '' ?>>CONTRATISTAS</option>
-                            <option value="RESIDENTES" <?= ($cronograma['perfil_de_asistentes'] == 'RESIDENTES') ? 'selected' : '' ?>>RESIDENTES</option>
-                            <option value="ASAMBLEA" <?= ($cronograma['perfil_de_asistentes'] == 'ASAMBLEA') ? 'selected' : '' ?>>ASAMBLEA</option>
-                            <option value="CONSEJO DE ADMINISTRACIÓN" <?= ($cronograma['perfil_de_asistentes'] == 'CONSEJO DE ADMINISTRACIÓN') ? 'selected' : '' ?>>CONSEJO DE ADMINISTRACIÓN</option>
-                            <option value="ADMINISTRADOR" <?= ($cronograma['perfil_de_asistentes'] == 'ADMINISTRADOR') ? 'selected' : '' ?>>ADMINISTRADOR</option>
-                            <option value="TODOS" <?= ($cronograma['perfil_de_asistentes'] == 'TODOS') ? 'selected' : '' ?>>TODOS</option>
-                        </select>
+                        <input type="text" name="perfil_de_asistentes" id="perfil_de_asistentes" class="form-control" value="<?= esc($cronograma['perfil_de_asistentes']) ?>" placeholder="Ej: TODOS, CONTRATISTAS, RESIDENTES" required>
                     </div>
                 </div>
 
@@ -223,19 +216,13 @@
                     <!-- Horas de Duración -->
                     <div class="mb-3">
                         <label for="horas_de_duracion_de_la_capacitacion" class="form-label">Horas de Duración</label>
-                        <input type="number" name="horas_de_duracion_de_la_capacitacion" id="horas_de_duracion_de_la_capacitacion" class="form-control" value="<?= esc($cronograma['horas_de_duracion_de_la_capacitacion']) ?>" >
+                        <input type="number" name="horas_de_duracion_de_la_capacitacion" id="horas_de_duracion_de_la_capacitacion" class="form-control" value="<?= esc($cronograma['horas_de_duracion_de_la_capacitacion']) ?>" min="0" step="0.5">
                     </div>
 
                     <!-- Indicador de Realización -->
                     <div class="mb-3">
                         <label for="indicador_de_realizacion_de_la_capacitacion" class="form-label">Indicador de Realización</label>
-                        <select name="indicador_de_realizacion_de_la_capacitacion" id="indicador_de_realizacion_de_la_capacitacion" class="form-select" >
-                            <option value="SE EJECUTO EN LA FECHA O ANTES DE LA FECHA" <?= ($cronograma['indicador_de_realizacion_de_la_capacitacion'] == 'SE EJECUTO EN LA FECHA O ANTES DE LA FECHA') ? 'selected' : '' ?>>SE EJECUTÓ EN LA FECHA O ANTES DE LA FECHA</option>
-                            <option value="SE EJECUTO DESPUES DE LA FECHA ACORDADA A CAUSA DEL CLIENTE" <?= ($cronograma['indicador_de_realizacion_de_la_capacitacion'] == 'SE EJECUTO DESPUES DE LA FECHA ACORDADA A CAUSA DEL CLIENTE') ? 'selected' : '' ?>>SE EJECUTÓ DESPUÉS DE LA FECHA ACORDADA A CAUSA DEL CLIENTE</option>
-                            <option value="DECLINADA POR EL CLIENTE" <?= ($cronograma['indicador_de_realizacion_de_la_capacitacion'] == 'DECLINADA POR EL CLIENTE') ? 'selected' : '' ?>>DECLINADA POR EL CLIENTE</option>
-                            <option value="NO HAY JUSTIFICACION PORQUE NO SE REALIZÓ" <?= ($cronograma['indicador_de_realizacion_de_la_capacitacion'] == 'NO HAY JUSTIFICACION PORQUE NO SE REALIZÓ') ? 'selected' : '' ?>>NO HAY JUSTIFICACIÓN PORQUE NO SE REALIZÓ</option>
-                            <option value="SE EJECUTO DESPUES DE LA FECHA POR CAUSA DEL CAPACITADOR" <?= ($cronograma['indicador_de_realizacion_de_la_capacitacion'] == 'SE EJECUTO DESPUES DE LA FECHA POR CAUSA DEL CAPACITADOR') ? 'selected' : '' ?>>SE EJECUTÓ DESPUÉS DE LA FECHA POR CAUSA DEL CAPACITADOR</option>
-                        </select>
+                        <input type="text" name="indicador_de_realizacion_de_la_capacitacion" id="indicador_de_realizacion_de_la_capacitacion" class="form-control" value="<?= esc($cronograma['indicador_de_realizacion_de_la_capacitacion']) ?>" placeholder="Ej: SIN CALIFICAR, SE EJECUTÓ EN LA FECHA">
                     </div>
 
                     <!-- Número de Asistentes -->
@@ -342,23 +329,16 @@
                 }
             });
 
-            // Inicializar Select2 para el dropdown de capacitaciones
-            $('#id_capacitacion').select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: 'Buscar capacitación...',
-                allowClear: true,
-                minimumInputLength: 1,
-                language: {
-                    noResults: function() {
-                        return "No se encontraron resultados";
-                    },
-                    searching: function() {
-                        return "Buscando...";
-                    },
-                    inputTooShort: function() {
-                        return "Por favor ingrese 1 o más caracteres";
-                    }
+            // Calcular porcentaje de cobertura automáticamente
+            $('#numero_de_asistentes_a_capacitacion, #numero_total_de_personas_programadas').on('input', function() {
+                var asistentes = parseFloat($('#numero_de_asistentes_a_capacitacion').val()) || 0;
+                var programados = parseFloat($('#numero_total_de_personas_programadas').val()) || 0;
+
+                if (programados > 0) {
+                    var porcentaje = ((asistentes / programados) * 100).toFixed(2);
+                    $('#porcentaje_cobertura').val(porcentaje + '%');
+                } else {
+                    $('#porcentaje_cobertura').val('');
                 }
             });
         });

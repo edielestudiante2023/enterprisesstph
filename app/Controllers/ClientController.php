@@ -3,9 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ClientModel;
-use App\Models\AccesoModel;
-use App\Models\EstandarModel;
-use App\Models\EstandarAccesoModel;
+// Ya no usamos AccesoModel, EstandarModel, EstandarAccesoModel (migrado a AccessLibrary.php)
 use CodeIgniter\Controller;
 use App\Models\ReporteModel;
 
@@ -33,6 +31,9 @@ class ClientController extends Controller
     public function dashboard()
     {
         try {
+            // Cargar helper para acceso a AccessLibrary
+            helper('access_library');
+
             $session = session();
 
             // Obtener el ID del cliente desde la sesión
@@ -48,47 +49,25 @@ class ClientController extends Controller
                 return redirect()->to('/login')->with('error', 'Cliente no encontrado.');
             }
 
-            // Inicializar $accesos como un array vacío
-            $accesos = [];
-
-            // Obtener el estándar del cliente (por ejemplo '7A')
+            // Obtener el estándar del cliente (Mensual, Bimensual, Trimestral, Proyecto)
             $estandarNombre = $client['estandares'];
 
-            // Instanciar el modelo de estandares y obtener el ID del estándar (por ejemplo 1 para '7A')
-            $estandarModel = new EstandarModel();
-            $estandar = $estandarModel->where('nombre', $estandarNombre)->first();
+            // Obtener accesos desde AccessLibrary (librería PHP estática)
+            // Ya no consultamos BD (accesos, estandares, estandares_accesos)
+            $accesos = get_accesses_by_standard($estandarNombre);
 
-            if (!$estandar) {
-                return redirect()->to('/login')->with('error', 'Estándar no encontrado.');
-            }
-
-            $id_estandar = $estandar['id_estandar'];  // Esto nos da el ID numérico del estándar
-
-            // Obtener los accesos permitidos para el estándar usando el modelo EstandarAccesoModel
-            $estandarAccesoModel = new EstandarAccesoModel();
-            $accesosData = $estandarAccesoModel->where('id_estandar', $id_estandar)->findAll();
-
-            // Si no hay accesos asociados al estándar
-            if (empty($accesosData)) {
+            // Si no hay accesos definidos para este estándar
+            if (empty($accesos)) {
                 // Pasar array vacío a la vista para que muestre el mensaje
                 $accesos = [];
             } else {
-                // Instanciar el modelo de accesos para obtener los detalles de cada acceso ordenado por la dimensión
-                $accesoModel = new AccesoModel();
-
-                // Obtener todos los accesos relacionados con el estándar y ordenarlos por la dimensión
-                $accesos = $accesoModel
-                    ->whereIn('id_acceso', array_column($accesosData, 'id_acceso'))
-                    ->findAll();
-
-                // Ordenar en PHP usando el ciclo PHVA
+                // Ordenar por dimensión PHVA
                 $orden = ["Planear", "Hacer", "Verificar", "Actuar", "Indicadores"];
 
                 usort($accesos, function ($a, $b) use ($orden) {
                     return array_search($a['dimension'], $orden) - array_search($b['dimension'], $orden);
                 });
             }
-
 
             // Pasar los accesos a la vista `dashboardclient`
             return view('client/dashboard', [
