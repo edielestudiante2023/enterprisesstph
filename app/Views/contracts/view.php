@@ -131,6 +131,40 @@
 
                         <div class="row">
                             <div class="col-md-6">
+                                <div class="info-label">Frecuencia de Visitas</div>
+                                <div class="info-value">
+                                    <?php
+                                        $frecuencia = strtolower($contract['frecuencia_visitas'] ?? '');
+                                        $frecuenciaBadge = 'secondary';
+                                        if (strpos($frecuencia, 'mensual') !== false && strpos($frecuencia, 'bimensual') === false) {
+                                            $frecuenciaBadge = 'warning';
+                                        } elseif (strpos($frecuencia, 'bimensual') !== false) {
+                                            $frecuenciaBadge = 'info';
+                                        } elseif (strpos($frecuencia, 'trimestral') !== false) {
+                                            $frecuenciaBadge = 'purple';
+                                        }
+                                    ?>
+                                    <span class="badge bg-<?= $frecuenciaBadge ?>" style="<?= $frecuenciaBadge === 'purple' ? 'background-color: #6f42c1 !important;' : '' ?>">
+                                        <i class="fas fa-calendar-check me-1"></i>
+                                        <?= htmlspecialchars($contract['frecuencia_visitas'] ?? 'No definida') ?>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-label">Consultor Responsable</div>
+                                <div class="info-value">
+                                    <?php if (!empty($contract['nombre_consultor'])): ?>
+                                        <i class="fas fa-user-tie text-primary"></i>
+                                        <?= htmlspecialchars($contract['nombre_consultor']) ?>
+                                    <?php else: ?>
+                                        <span class="text-muted">No asignado</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
                                 <div class="info-label">Fecha de Inicio</div>
                                 <div class="info-value">
                                     <i class="fas fa-calendar-plus text-success"></i>
