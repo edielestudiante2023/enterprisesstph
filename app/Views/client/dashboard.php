@@ -379,19 +379,24 @@
             <!-- Quick Access Buttons -->
             <div class="quick-access text-center fade-in-up">
                 <div class="row justify-content-center">
-                    <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="col-lg-3 col-md-6 mb-3">
                         <a href="<?= base_url('nuevoListPlanTrabajoCliente/' . $client['id_cliente']) ?>" target="_blank" class="btn btn-primary-custom w-100">
                             <i class="fas fa-calendar-alt me-2"></i> Plan de Trabajo
                         </a>
                     </div>
-                    <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="col-lg-3 col-md-6 mb-3">
                         <a href="<?= base_url('/report_dashboard') ?>" target="_blank" class="btn btn-success-custom w-100">
                             <i class="fas fa-file-alt me-2"></i> Documentos
                         </a>
                     </div>
-                    <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="col-lg-3 col-md-6 mb-3">
                         <a href="<?= base_url('client/panel') ?>" target="_blank" class="btn btn-info-custom w-100">
                             <i class="fas fa-chart-line me-2"></i> Panel de Gestión
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('/pdfUnificado') ?>" target="_blank" class="btn w-100" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; border: none;">
+                            <i class="fas fa-file-pdf me-2"></i> PDF Unificado
                         </a>
                     </div>
                 </div>

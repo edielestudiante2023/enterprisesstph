@@ -11,6 +11,7 @@ use App\Models\PolicyTypeModel;
 use CodeIgniter\I18n\Time; // Usaremos este modelo para client_policies
 
 use Dompdf\Dompdf;
+use Dompdf\Options;
 
 use CodeIgniter\Controller;
 
@@ -159,9 +160,10 @@ class PzmanconvivencialaboralController extends Controller
 
     public function generatePdf_manconvivenciaLaboral()
     {
-        // Instanciar Dompdf
-        $dompdf = new Dompdf();
-        $dompdf->setOption('isRemoteEnabled', true);
+        // Instanciar Dompdf con opciones
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
 
         // Obtener los mismos datos que en la función policyNoAlcoholDrogas
         $session = session();
@@ -293,8 +295,6 @@ class PzmanconvivencialaboralController extends Controller
         $dompdf->loadHtml($html);
 
         $dompdf->setPaper('A3', 'portrait');
-        $dompdf->setOption('isHtml5ParserEnabled', true);
-        $dompdf->setOption('isRemoteEnabled', true); // si usas imágenes externas
         $dompdf->render();
 
         // Enviar el PDF al navegador para descargar

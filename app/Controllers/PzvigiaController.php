@@ -12,6 +12,7 @@ use CodeIgniter\I18n\Time;
 use App\Models\VigiaModel; // Importamos el modelo de Vigias
 
 use Dompdf\Dompdf;
+use Dompdf\Options;
 
 use CodeIgniter\Controller;
 
@@ -122,9 +123,10 @@ class PzvigiaController extends Controller
 
     public function generatePdf_asignacionVigia()
     {
-        // Instanciar Dompdf
-        $dompdf = new Dompdf();
-        $dompdf->setOption('isRemoteEnabled', true);
+        // Instanciar Dompdf con opciones
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
 
         // Obtener los mismos datos que en la función asignacionVigia
         $session = session();

@@ -28,6 +28,10 @@ $routes->get('client/dashboard-capacitaciones/(:num)', 'ClientDashboardCapacitac
 $routes->get('client/dashboard-plan-trabajo/(:num)', 'ClientDashboardPlanTrabajoController::index/$1');
 $routes->get('client/dashboard-pendientes/(:num)', 'ClientDashboardPendientesController::index/$1');
 
+// Rutas para PDF Unificado
+$routes->get('/pdfUnificado', 'PdfUnificadoController::index');
+$routes->post('/generarPdfUnificado', 'PdfUnificadoController::generarPdfUnificado');
+
 // Rutas para dashboards de consultor (todos los clientes)
 $routes->get('consultant/dashboard-estandares', 'ConsultantDashboardEstandaresController::index');
 $routes->get('consultant/dashboard-capacitaciones', 'ConsultantDashboardCapacitacionesController::index');

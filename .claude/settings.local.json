@@ -33,7 +33,8 @@
       "Bash(python:*)",
       "Bash(wc:*)",
       "Bash(curl:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(more:*)"
     ]
   }
 }

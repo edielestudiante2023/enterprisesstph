@@ -10,6 +10,7 @@ use App\Models\DocumentVersionModel; // Usaremos este modelo para client_policie
 use App\Models\PolicyTypeModel; // Usaremos este modelo para client_policies
 use CodeIgniter\I18n\Time;
 use Dompdf\Dompdf;
+use Dompdf\Options;
 
 use CodeIgniter\Controller;
 
@@ -115,9 +116,10 @@ class PzactacocolabController extends Controller
 
     public function generatePdf_actaCocolab()
     {
-        // Instanciar Dompdf
-        $dompdf = new Dompdf();
-        $dompdf->setOption('isRemoteEnabled', true);
+        // Instanciar Dompdf con opciones
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
 
         // Obtener los mismos datos que en la función policyNoAlcoholDrogas
         $session = session();
@@ -196,8 +198,6 @@ class PzactacocolabController extends Controller
         $dompdf->loadHtml($html);
 
         $dompdf->setPaper('A3', 'portrait');
-        $dompdf->setOption('isHtml5ParserEnabled', true);
-        $dompdf->setOption('isRemoteEnabled', true); // si usas imágenes externas
         $dompdf->render();
 
         // Enviar el PDF al navegador para descargar

@@ -6,6 +6,7 @@ use App\Models\ConsultantModel;
 // Ya no usamos ClientPoliciesModel, DocumentVersionModel, PolicyTypeModel (migrado a DocumentLibrary.php)
 
 use Dompdf\Dompdf;
+use Dompdf\Options;
 
 use CodeIgniter\Controller;
 
@@ -118,9 +119,10 @@ public function generatePdfNoAlcoholDrogas()
         // Cargar helper para acceso a DocumentLibrary
         helper('document_library');
 
-    // Instanciar Dompdf
-    $dompdf = new Dompdf();
-    $dompdf->setOption('isRemoteEnabled', true);
+    // Instanciar Dompdf con opciones
+    $options = new Options();
+    $options->set('isRemoteEnabled', true);
+    $dompdf = new Dompdf($options);
 
     // Obtener los mismos datos que en la función policyNoAlcoholDrogas
     $session = session();

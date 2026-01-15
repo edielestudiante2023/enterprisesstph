@@ -45,7 +45,7 @@ class AccessLibrary
             25 => ['id_acceso' => 25, 'nombre' => '2.5.1 Procedimiento para el Control y Conservación de Documentos del SG-SST', 'url' => '/documentosSgsst/1', 'dimension' => 'Planear'],
             26 => ['id_acceso' => 26, 'nombre' => '2.5.2 Procedimiento de Rendición de Cuentas en Seguridad y Salud en el Trabajo (SG-SST)', 'url' => '/rendicionCuentas/1', 'dimension' => 'Planear'],
             34 => ['id_acceso' => 34, 'nombre' => '2.12.0 Formato de Asignación de Responsable del PESV', 'url' => '/responsablePesv/1', 'dimension' => 'Planear'],
-            41 => ['id_acceso' => 41, 'nombre' => 'Plan de Saneamiento Básico', 'url' => '/saneamientoBasico/1', 'dimension' => 'Planear'],
+            // 41 => ['id_acceso' => 41, 'nombre' => 'Plan de Saneamiento Básico', 'url' => '/saneamientoBasico/1', 'dimension' => 'Planear'],
 
             // HACER
             3 => ['id_acceso' => 3, 'nombre' => '1.1.3 Asignación de Vigía', 'url' => '/asignacionVigia/1', 'dimension' => 'Hacer'],
@@ -117,10 +117,10 @@ class AccessLibrary
     {
         // Mapeo basado en los datos de estandares_accesos (id_estandar = 1 = Mensual)
         $standardMappings = [
-            'Mensual' => [1, 2, 3, 4, 5, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 28, 31, 36, 41],
-            'Bimensual' => [1, 2, 3, 4, 5, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 28, 31, 36, 41],
-            'Trimestral' => [1, 2, 3, 4, 5, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 28, 31, 36, 41],
-            'Proyecto' => [1, 2, 3, 4, 5, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 28, 31, 36, 41]
+            'Mensual' => [1, 2, 3, 4, 5, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 28, 31, 36],
+            'Bimensual' => [1, 2, 3, 4, 5, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 28, 31, 36],
+            'Trimestral' => [1, 2, 3, 4, 5, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 28, 31, 36],
+            'Proyecto' => [1, 2, 3, 4, 5, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 28, 31, 36]
         ];
 
         $accessIds = $standardMappings[$standardName] ?? [];
