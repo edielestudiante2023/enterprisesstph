@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\CronogcapacitacionModel;
 use App\Models\ClientModel;
 use App\Models\CapacitacionModel;
+use App\Models\ContractModel;
 use CodeIgniter\Controller;
 
 class CronogcapacitacionController extends Controller
@@ -314,7 +315,8 @@ class CronogcapacitacionController extends Controller
      */
     public function updateDateByMonth()
     {
-        if (!$this->request->isAJAX()) {
+        // Permitir tanto AJAX como POST normal para compatibilidad con producción
+        if (strtolower($this->request->getMethod()) !== 'post') {
             return $this->response->setJSON(['success' => false, 'message' => 'Método no permitido']);
         }
 
@@ -341,8 +343,10 @@ class CronogcapacitacionController extends Controller
                 $year = $existingDate->format('Y');
             }
 
-            // Calcular el último día del mes (considera años bisiestos automáticamente)
-            $lastDay = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+            // Calcular el último día del mes usando DateTime (no requiere extensión calendar)
+            $lastDayDate = new \DateTime("$year-$month-01");
+            $lastDayDate->modify('last day of this month');
+            $lastDay = (int) $lastDayDate->format('d');
             $newDate = sprintf('%04d-%02d-%02d', $year, $month, $lastDay);
 
             // Actualizar la fecha
@@ -380,6 +384,35 @@ class CronogcapacitacionController extends Controller
             ->getResultArray();
 
         return $this->response->setJSON($clients);
+    }
+
+    /**
+     * Obtiene el último contrato del cliente seleccionado (para AJAX)
+     */
+    public function getClientContract()
+    {
+        $idCliente = $this->request->getGet('id_cliente');
+
+        if (empty($idCliente)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'ID de cliente requerido']);
+        }
+
+        $contractModel = new ContractModel();
+        $contract = $contractModel->where('id_cliente', $idCliente)
+                                  ->orderBy('fecha_fin', 'DESC')
+                                  ->first();
+
+        if ($contract) {
+            return $this->response->setJSON([
+                'success' => true,
+                'contract' => $contract
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No se encontró contrato para este cliente'
+            ]);
+        }
     }
 
     /**

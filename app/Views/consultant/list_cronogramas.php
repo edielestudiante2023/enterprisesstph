@@ -173,6 +173,110 @@
       color: #fff;
       border-color: #28a745;
     }
+
+    /* Estilos para tarjeta de contrato */
+    .contract-card {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      border-radius: 12px;
+      color: white;
+      box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+    }
+
+    .contract-card .contract-header {
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .contract-card .contract-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .contract-card .contract-item:last-child {
+      border-bottom: none;
+    }
+
+    .contract-card .contract-label {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .contract-card .contract-value {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .contract-card .frecuencia-badge {
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+    }
+
+    .frecuencia-mensual {
+      background-color: #ffc107;
+      color: #000;
+    }
+
+    .frecuencia-bimensual {
+      background-color: #17a2b8;
+      color: #fff;
+    }
+
+    .frecuencia-trimestral {
+      background-color: #6f42c1;
+      color: #fff;
+    }
+
+    .frecuencia-default {
+      background-color: #6c757d;
+      color: #fff;
+    }
+
+    .contract-status {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-activo {
+      background-color: #28a745;
+    }
+
+    .status-vencido {
+      background-color: #dc3545;
+    }
+
+    .status-cancelado {
+      background-color: #6c757d;
+    }
+
+    .no-contract-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Ajustar columna de capacitación */
+    td.capacitacion-col,
+    th.capacitacion-col {
+      max-width: 250px !important;
+      min-width: 180px;
+      white-space: normal !important;
+      word-wrap: break-word;
+    }
   </style>
 </head>
 
@@ -224,17 +328,33 @@
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <!-- Sección de Filtros por Año -->
-    <div class="d-flex justify-content-between align-items-center">
-      <div class="section-title mb-0">
-        <i class="fas fa-calendar-alt"></i> Filtrar por Año
+    <!-- Sección de Información del Contrato y Filtros por Año -->
+    <div class="row mb-4">
+      <!-- Tarjeta de Contrato -->
+      <div class="col-lg-4 mb-3">
+        <div id="contractCardContainer">
+          <div class="no-contract-card h-100 d-flex flex-column justify-content-center">
+            <i class="fas fa-hand-pointer fa-3x mb-3 opacity-75"></i>
+            <h5>Seleccione un Cliente</h5>
+            <p class="mb-0 opacity-75">Seleccione un cliente para ver la información de su contrato.</p>
+          </div>
+        </div>
       </div>
-      <button type="button" id="btnClearCardFilters" class="btn btn-outline-secondary btn-sm">
-        <i class="fas fa-times"></i> Limpiar Filtros de Tarjetas
-      </button>
-    </div>
-    <div class="row mb-4 mt-2" id="yearCards">
-      <!-- Se generarán dinámicamente con JavaScript -->
+
+      <!-- Tarjetas de Año -->
+      <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="section-title mb-0">
+            <i class="fas fa-calendar-alt"></i> Filtrar por Año
+          </div>
+          <button type="button" id="btnClearCardFilters" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-times"></i> Limpiar Filtros de Tarjetas
+          </button>
+        </div>
+        <div class="row mt-2" id="yearCards">
+          <!-- Se generarán dinámicamente con JavaScript -->
+        </div>
+      </div>
     </div>
 
     <!-- Tarjetas de Estados (clickeables) -->
@@ -404,7 +524,8 @@
             <th></th>
             <th>#</th>
             <th>Acciones</th>
-            <th>Capacitación</th>
+            <th style="min-width: 200px;">📅 Gestión Rápida</th>
+            <th class="capacitacion-col">Capacitación</th>
             <!-- <th>Objetivo</th> -->
             <th>Cliente</th>
             <th>*Fecha Programada</th>
@@ -420,13 +541,13 @@
             <th>*Evaluadas</th>
             <th>*Promedio</th>
             <th>*Observaciones</th>
-            <th style="min-width: 200px;">📅 Gestión Rápida</th>
           </tr>
         </thead>
         <tfoot class="table-light">
           <tr class="filters">
             <th></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar ID"></th>
+            <th></th>
             <th></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Capacitación"></th>
             <!-- <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Objetivo"></th> -->
@@ -475,7 +596,6 @@
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Evaluadas"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Promedio"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Observaciones"></th>
-            <th></th>
           </tr>
         </tfoot>
         <tbody>
@@ -675,11 +795,26 @@
             orderable: false
           },
           {
+            data: null,
+            orderable: false,
+            searchable: false,
+            render: function(data, type, row) {
+              var mesesEspanol = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+              var html = '<div class="month-buttons" style="display: grid; grid-template-columns: repeat(4, 32px); gap: 4px; justify-content: center;">';
+              for (var month = 1; month <= 12; month++) {
+                html += '<button type="button" class="btn-month" data-id="' + row.id_cronograma_capacitacion + '" data-month="' + month + '" title="' + mesesEspanol[month - 1] + '">' + month + '</button>';
+              }
+              html += '</div>';
+              return html;
+            }
+          },
+          {
             data: 'nombre_capacitacion',
+            className: 'capacitacion-col',
             render: function(data, type, row) {
               data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable" data-field="nombre_capacitacion" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
+              return '<span class="editable" data-field="nombre_capacitacion" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '" style="white-space: normal; word-wrap: break-word;">' + displayText + '</span>';
             }
           },
           // Columna Objetivo oculta
@@ -803,20 +938,6 @@
               data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
               return '<span class="editable" data-field="observaciones" data-id="' + row.id_cronograma_capacitacion + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
-            }
-          },
-          {
-            data: null,
-            orderable: false,
-            searchable: false,
-            render: function(data, type, row) {
-              var mesesEspanol = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-              var html = '<div class="month-buttons" style="display: grid; grid-template-columns: repeat(4, 32px); gap: 4px; justify-content: center;">';
-              for (var month = 1; month <= 12; month++) {
-                html += '<button type="button" class="btn-month" data-id="' + row.id_cronograma_capacitacion + '" data-month="' + month + '" title="' + mesesEspanol[month - 1] + '">' + month + '</button>';
-              }
-              html += '</div>';
-              return html;
             }
           }
         ],
@@ -1237,8 +1358,130 @@
             updateMonthlyCounts();
             generateYearCards();
           });
+          // Cargar información del contrato
+          loadClientContract(clientId);
+        } else {
+          // Mostrar mensaje de "Seleccione un cliente"
+          $('#contractCardContainer').html(`
+            <div class="no-contract-card h-100 d-flex flex-column justify-content-center">
+              <i class="fas fa-hand-pointer fa-3x mb-3 opacity-75"></i>
+              <h5>Seleccione un Cliente</h5>
+              <p class="mb-0 opacity-75">Seleccione un cliente para ver la información de su contrato.</p>
+            </div>
+          `);
         }
       });
+
+      // Función para cargar el contrato del cliente
+      function loadClientContract(clientId) {
+        $.ajax({
+          url: '<?= base_url('/cronogCapacitacion/getClientContract') ?>',
+          method: 'GET',
+          data: { id_cliente: clientId },
+          dataType: 'json',
+          success: function(response) {
+            if (response.success && response.contract) {
+              var contract = response.contract;
+
+              // Determinar clase de frecuencia
+              var frecuencia = (contract.frecuencia_visitas || '').toLowerCase();
+              var frecuenciaClass = 'frecuencia-default';
+              if (frecuencia.indexOf('mensual') !== -1 && frecuencia.indexOf('bimensual') === -1) {
+                frecuenciaClass = 'frecuencia-mensual';
+              } else if (frecuencia.indexOf('bimensual') !== -1) {
+                frecuenciaClass = 'frecuencia-bimensual';
+              } else if (frecuencia.indexOf('trimestral') !== -1) {
+                frecuenciaClass = 'frecuencia-trimestral';
+              }
+
+              // Determinar clase de estado
+              var estadoContrato = (contract.estado || 'activo').toLowerCase();
+              var estadoClass = 'status-' + estadoContrato;
+
+              // Formatear fechas
+              var fechaInicio = contract.fecha_inicio ? formatDate(contract.fecha_inicio) : 'N/A';
+              var fechaFin = contract.fecha_fin ? formatDate(contract.fecha_fin) : 'N/A';
+
+              var html = `
+                <div class="contract-card p-3 h-100">
+                  <div class="contract-header">
+                    <i class="fas fa-file-contract me-2"></i> Último Contrato
+                    <span class="contract-status ${estadoClass} float-end">
+                      ${capitalizeFirst(contract.estado || 'Activo')}
+                    </span>
+                  </div>
+                  <div class="text-center mb-3">
+                    <span class="frecuencia-badge ${frecuenciaClass}">
+                      <i class="fas fa-calendar-check me-1"></i>
+                      ${contract.frecuencia_visitas || 'No definida'}
+                    </span>
+                  </div>
+                  <div class="contract-item">
+                    <span class="contract-label"><i class="fas fa-hashtag me-1"></i> Número:</span>
+                    <span class="contract-value">${contract.numero_contrato || 'N/A'}</span>
+                  </div>
+                  <div class="contract-item">
+                    <span class="contract-label"><i class="fas fa-play-circle me-1"></i> Inicio:</span>
+                    <span class="contract-value">${fechaInicio}</span>
+                  </div>
+                  <div class="contract-item">
+                    <span class="contract-label"><i class="fas fa-stop-circle me-1"></i> Fin:</span>
+                    <span class="contract-value">${fechaFin}</span>
+                  </div>
+                  <div class="mt-3 text-center">
+                    <a href="<?= base_url('/contracts/view/') ?>${contract.id_contrato}" class="btn btn-light btn-sm">
+                      <i class="fas fa-eye me-1"></i> Ver Contrato
+                    </a>
+                  </div>
+                </div>
+              `;
+              $('#contractCardContainer').html(html);
+            } else {
+              // No hay contrato
+              $('#contractCardContainer').html(`
+                <div class="no-contract-card h-100 d-flex flex-column justify-content-center">
+                  <i class="fas fa-file-contract fa-3x mb-3 opacity-75"></i>
+                  <h5>Sin Contrato Registrado</h5>
+                  <p class="mb-3 opacity-75">Este cliente no tiene contratos registrados en el sistema.</p>
+                  <a href="<?= base_url('/contracts/create/') ?>${clientId}" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus me-1"></i> Crear Contrato
+                  </a>
+                </div>
+              `);
+            }
+          },
+          error: function() {
+            $('#contractCardContainer').html(`
+              <div class="no-contract-card h-100 d-flex flex-column justify-content-center">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3 opacity-75"></i>
+                <h5>Error al cargar</h5>
+                <p class="mb-0 opacity-75">No se pudo cargar la información del contrato.</p>
+              </div>
+            `);
+          }
+        });
+      }
+
+      // Función auxiliar para formatear fecha
+      function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        var parts = dateString.split('-');
+        if (parts.length === 3) {
+          return parts[2] + '/' + parts[1] + '/' + parts[0];
+        }
+        return dateString;
+      }
+
+      // Función auxiliar para capitalizar primera letra
+      function capitalizeFirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+      }
+
+      // Cargar contrato si hay un cliente almacenado
+      var storedClient = localStorage.getItem('selectedClient');
+      if (storedClient) {
+        loadClientContract(storedClient);
+      }
 
       // Manejador de clic para los botones mensuales (asignación rápida de fecha)
       $(document).on('click', '.btn-month', function() {

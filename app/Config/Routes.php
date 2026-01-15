@@ -346,6 +346,9 @@ $routes->post('/cronogCapacitacion/updateDateByMonth', 'CronogcapacitacionContro
 // Ruta para obtener lista de clientes (modal de generar cronograma)
 $routes->get('/cronogCapacitacion/getClients', 'CronogcapacitacionController::getClients');
 
+// Ruta para obtener el contrato del cliente (AJAX)
+$routes->get('/cronogCapacitacion/getClientContract', 'CronogcapacitacionController::getClientContract');
+
 // Ruta para generar cronograma de capacitación automáticamente
 $routes->post('/cronogCapacitacion/generate', 'CronogcapacitacionController::generate');
 
