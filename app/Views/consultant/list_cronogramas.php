@@ -320,6 +320,31 @@
   <div class="container-fluid px-2 mt-2">
     <h1 class="text-center mb-3">Lista de Cronogramas de Capacitación</h1>
 
+    <!-- Mensajes Flash -->
+    <?php if (session()->getFlashdata('success')): ?>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <?= session()->getFlashdata('success') ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
+
+    <?php if (session()->getFlashdata('error')): ?>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <?= session()->getFlashdata('error') ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
+
+    <?php if (session()->getFlashdata('warning')): ?>
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <?= session()->getFlashdata('warning') ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
+
     <!-- Mensaje informativo -->
     <div class="alert alert-info alert-dismissible fade show" role="alert">
       <i class="fas fa-info-circle"></i>
