@@ -19,6 +19,7 @@ use App\Models\ContractModel;
 use App\Models\ClientPoliciesModel; // Usaremos este modelo para client_policies
 use App\Models\DocumentVersionModel; // Usaremos este modelo para client_policies
 use App\Models\PolicyTypeModel;
+use CodeIgniter\I18n\Time;
 
 class kpitodoslosobjetivosController extends Controller
 {
@@ -56,10 +57,6 @@ class kpitodoslosobjetivosController extends Controller
             return redirect()->to('/dashboardclient')->with('error', 'No se pudo encontrar la información del consultor');
         }
 
-        // Obtener fecha del primer contrato del cliente para documentos
-        $contractModel = new ContractModel();
-        $firstContractDate = $contractModel->getFirstContractDate($clientId);
-        $documentDate = $firstContractDate ?? date('Y-m-d H:i:s');
     
         // Obtener la política de alcohol y drogas del cliente
         $policyTypeId = 46; // Ajusta según sea necesario
@@ -73,6 +70,11 @@ class kpitodoslosobjetivosController extends Controller
     
         // Obtener el tipo de política
         $policyType = $policyTypeModel->find($policyTypeId);
+
+        // Obtener la fecha del primer contrato del cliente
+        $contractModel = new ContractModel();
+        $firstContractDate = $contractModel->getFirstContractDate($clientId);
+
     
         // Obtener la versión más reciente del documento
         $latestVersion = $versionModel->where('client_id', $clientId)
@@ -83,14 +85,24 @@ class kpitodoslosobjetivosController extends Controller
             return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
         }
 
-        // Usar fecha del primer contrato del cliente
-        $latestVersion['created_at'] = $documentDate;
+        // Sobrescribir la fecha con la del primer contrato (o mostrar pendiente si no hay)
+        if ($firstContractDate) {
+            $latestVersion['created_at'] = $firstContractDate;
+        } else {
+            // Cliente sin contrato: mostrar "PENDIENTE DE CONTRATO"
+            $latestVersion['created_at'] = null;
+            $latestVersion['sin_contrato'] = true;
+        }
     
         // Obtener todas las versiones del documento
         $allVersions = $versionModel->where('client_id', $clientId)
             ->where('policy_type_id', $policyTypeId)
             ->orderBy('created_at', 'DESC')
             ->findAll();
+
+        if (!$allVersions) {
+            return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
+        }
 
         // Sobrescribir las fechas de todas las versiones con la del primer contrato
         foreach ($allVersions as &$version) {
@@ -102,10 +114,6 @@ class kpitodoslosobjetivosController extends Controller
             }
         }
         unset($version); // Romper la referencia
-
-        if (!$allVersions) {
-            return redirect()->to('/dashboardclient')->with('error', 'No se encontró un versionamiento para este documento de este cliente.');
-        }
     
         // Obtener solo los KPIs del cliente autenticado
         $clientKpis = $clientKpiModel->where('id_cliente', $clientId)->findAll();

@@ -288,6 +288,26 @@
                 </div>
             </div>
 
+            <!-- Sección 6: Cláusula Cuarta - Duración -->
+            <div class="form-section">
+                <h4 class="section-title"><i class="fas fa-clock"></i> Cláusula Cuarta - Duración y Plazo de Ejecución</h4>
+
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Cláusula Personalizable:</strong> Esta sección debe adaptarse según las condiciones específicas
+                    negociadas con el cliente. Incluya información sobre plazos, anticipos, duración, y condiciones de terminación.
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-file-contract"></i> Texto de la Cláusula Cuarta</label>
+                    <textarea name="clausula_cuarta_duracion" class="form-control" rows="12"
+                              placeholder="Ejemplo:&#10;&#10;CUARTA-PLAZO DE EJECUCIÓN: El plazo para la ejecución será de 30 días calendario contados a partir de la firma del presente acuerdo y del pago inicial del anticipo del 50%, para la entrega del Diseño Documental, para la gestión del auto reporte se realizará en los tiempos estipulados por el Ministerio de protección Social.&#10;&#10;CUARTA-DURACIÓN: La duración de este contrato es de 6 meses contados a partir de la fecha de la firma y con finalización 30 de abril 2026. No obstante, el contrato podrá ser terminado de forma anticipada por parte de EL CONTRATANTE, en cualquier momento previa comunicación escrita con 30 días calendario de anticipación.&#10;&#10;PARÁGRAFO PRIMERO: En caso de terminación anticipada de este contrato, solo se reconocerán los honorarios causados por actividades ejecutadas hasta dicho momento, y para el pago respectivo EL CONTRATISTA deberá entregar todos los desarrollos, documentos físicos y digitales y demás resultados producto de la ejecución contractual realizados.&#10;&#10;PARÁGRAFO SEGUNDO: Sobre el presente contrato no opera la prórroga automática. Por lo anterior, la intención de prórroga deberá ser discutida entre las partes al finalizar el plazo inicialmente aquí pactado y deberá constar por escrito."><?= esc($contract['clausula_cuarta_duracion'] ?? '') ?></textarea>
+                    <small class="text-muted">
+                        Este texto aparecerá en el PDF del contrato como la CLÁUSULA CUARTA. Personalícelo según las condiciones del contrato.
+                    </small>
+                </div>
+            </div>
+
             <!-- Botones de Acción -->
             <div class="form-section">
                 <div class="row">
@@ -296,7 +316,7 @@
                             <i class="fas fa-file-pdf"></i> Guardar y Generar Contrato PDF
                         </button>
                         <small class="text-muted d-block mt-2">
-                            El contrato se generará y enviará automáticamente a edison.cuervo@cycloidtalent.com
+                            El contrato se generará y enviará automáticamente a diana.cuestas@cycloidtalent.com
                         </small>
                     </div>
                     <div class="col-md-6">

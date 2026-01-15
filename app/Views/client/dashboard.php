@@ -397,6 +397,35 @@
                 </div>
             </div>
 
+            <!-- Dashboards Analíticos -->
+            <h4 class="section-title fade-in-up">
+                <i class="fas fa-chart-bar"></i> Dashboards Analíticos
+            </h4>
+            <div class="quick-access text-center fade-in-up">
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('client/dashboard-estandares/' . $client['id_cliente']) ?>" target="_blank" class="btn btn-primary-custom w-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-chart-pie me-2"></i> Estándares Mínimos
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('client/dashboard-capacitaciones/' . $client['id_cliente']) ?>" target="_blank" class="btn btn-success-custom w-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-graduation-cap me-2"></i> Capacitaciones
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('client/dashboard-plan-trabajo/' . $client['id_cliente']) ?>" target="_blank" class="btn btn-info-custom w-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none;">
+                            <i class="fas fa-tasks me-2"></i> Plan de Trabajo
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('client/dashboard-pendientes/' . $client['id_cliente']) ?>" target="_blank" class="btn btn-info-custom w-100" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border: none;">
+                            <i class="fas fa-clipboard-list me-2"></i> Pendientes
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Título -->
             <h4 class="section-title fade-in-up">
                 <i class="fas fa-shield-alt"></i> Dispositivos Documentales Sistema de Gestión en Seguridad y Salud en el Trabajo

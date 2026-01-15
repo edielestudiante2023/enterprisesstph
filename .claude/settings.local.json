@@ -28,7 +28,12 @@
       "Bash(perl /tmp/update_controller.pl:*)",
       "Bash(git restore:*)",
       "Bash(rm:*)",
-      "Bash(./mysql.exe:*)"
+      "Bash(./mysql.exe:*)",
+      "Bash(python update_contract_views.py:*)",
+      "Bash(python:*)",
+      "Bash(wc:*)",
+      "Bash(curl:*)",
+      "Bash(test:*)"
     ]
   }
 }

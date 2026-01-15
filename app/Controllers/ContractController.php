@@ -165,7 +165,8 @@ class ContractController extends Controller
             'frecuencia_visitas' => $this->request->getPost('frecuencia_visitas'),
             'tipo_contrato' => $this->request->getPost('tipo_contrato'),
             'estado' => $this->request->getPost('estado') ?: 'activo',
-            'observaciones' => $this->request->getPost('observaciones')
+            'observaciones' => $this->request->getPost('observaciones'),
+            'clausula_cuarta_duracion' => $this->request->getPost('clausula_cuarta_duracion')
         ];
 
         // Validar que no se superpongan fechas
@@ -448,7 +449,8 @@ class ContractController extends Controller
             'email_responsable_sgsst' => $this->request->getPost('email_responsable_sgsst'),
             'banco' => $this->request->getPost('banco'),
             'tipo_cuenta' => $this->request->getPost('tipo_cuenta'),
-            'cuenta_bancaria' => $this->request->getPost('cuenta_bancaria')
+            'cuenta_bancaria' => $this->request->getPost('cuenta_bancaria'),
+            'clausula_cuarta_duracion' => $this->request->getPost('clausula_cuarta_duracion')
         ];
 
         // Actualizar el contrato con los nuevos datos
@@ -491,11 +493,11 @@ class ContractController extends Controller
                 $this->contractModel->update($idContrato, [
                     'contrato_enviado' => 1,
                     'fecha_envio_contrato' => date('Y-m-d H:i:s'),
-                    'email_envio_contrato' => 'edison.cuervo@cycloidtalent.com'
+                    'email_envio_contrato' => 'diana.cuestas@cycloidtalent.com'
                 ]);
 
                 return redirect()->to('/contracts/view/' . $idContrato)
-                               ->with('success', 'Contrato generado y enviado exitosamente a edison.cuervo@cycloidtalent.com');
+                               ->with('success', 'Contrato generado y enviado exitosamente a diana.cuestas@cycloidtalent.com');
             } else {
                 return redirect()->to('/contracts/view/' . $idContrato)
                                ->with('warning', 'Contrato generado correctamente, pero hubo un error al enviar el email. Puede descargarlo manualmente.');
@@ -518,7 +520,7 @@ class ContractController extends Controller
             $email = new Mail();
             $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent");
             $email->setSubject("Nuevo Contrato Generado - " . $contract['numero_contrato']);
-            $email->addTo("edison.cuervo@cycloidtalent.com", "Edison Cuervo");
+            $email->addTo("diana.cuestas@cycloidtalent.com", "Diana Cuestas");
 
             // Cuerpo del email en HTML
             $htmlContent = "

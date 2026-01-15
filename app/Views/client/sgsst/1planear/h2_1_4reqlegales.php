@@ -178,7 +178,7 @@
 setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); // Configura el idioma español
 ?>
 
-Fecha: <?= strftime('%d de %B de %Y', strtotime($latestVersion['created_at'])); ?>
+Fecha: <?= isset($latestVersion['sin_contrato']) && $latestVersion['sin_contrato'] ? '<span style="color: red; font-weight: bold;">PENDIENTE DE CONTRATO</span>' : strftime('%d de %B de %Y', strtotime($latestVersion['created_at'])); ?>
 
                 </td>
             </tr>
@@ -382,7 +382,7 @@ Fecha: <?= strftime('%d de %B de %Y', strtotime($latestVersion['created_at'])); 
                         <td><?= $version['acronym'] ?></td>
                         <?php setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); ?>
 
-<td><?= strftime('%d de %B de %Y', strtotime($version['created_at'])); ?></td>
+<td><?= isset($version['sin_contrato']) && $version['sin_contrato'] ? '<span style="color: red; font-weight: bold;">PENDIENTE DE CONTRATO</span>' : strftime('%d de %B de %Y', strtotime($version['created_at'])); ?></td>
 
                         <td><?= $version['change_control'] ?></td>
                     </tr>

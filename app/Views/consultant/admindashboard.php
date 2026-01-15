@@ -624,6 +624,39 @@
                 </a>
             </div>
 
+            <!-- Dashboards Analíticos -->
+            <div class="mb-5">
+                <h4 class="text-center mb-4" style="color: var(--primary-dark); font-weight: 700;">
+                    <i class="fas fa-chart-bar me-2"></i>Dashboards Analíticos
+                </h4>
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('consultant/dashboard-estandares') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); border-radius: 12px; transition: all 0.3s ease;">
+                            <i class="fas fa-chart-pie fa-lg mb-2 d-block"></i>
+                            Estándares Mínimos
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('consultant/dashboard-capacitaciones') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3); border-radius: 12px; transition: all 0.3s ease;">
+                            <i class="fas fa-graduation-cap fa-lg mb-2 d-block"></i>
+                            Capacitaciones
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('consultant/dashboard-plan-trabajo') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3); border-radius: 12px; transition: all 0.3s ease;">
+                            <i class="fas fa-tasks fa-lg mb-2 d-block"></i>
+                            Plan de Trabajo
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('consultant/dashboard-pendientes') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3); border-radius: 12px; transition: all 0.3s ease;">
+                            <i class="fas fa-clipboard-list fa-lg mb-2 d-block"></i>
+                            Pendientes
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Card contenedor de tabla -->
             <div class="table-card-custom">
                 <div class="d-flex align-items-center mb-4">

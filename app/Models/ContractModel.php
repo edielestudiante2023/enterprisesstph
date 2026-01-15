@@ -17,6 +17,7 @@ class ContractModel extends Model
         'tipo_contrato',
         'estado',
         'observaciones',
+        'clausula_cuarta_duracion',
         'created_at',
         'updated_at',
         // Campos para generación de contratos

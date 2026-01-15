@@ -225,10 +225,22 @@ class ContractPDFGenerator
     }
 
     /**
-     * Cláusula Cuarta - Duración (con negritas en términos clave)
+     * Cláusula Cuarta - Duración (personalizable o texto por defecto)
      */
     private function buildClausulaDuracion($data)
     {
+        // Si existe texto personalizado en clausula_cuarta_duracion, usar ese
+        if (!empty($data['clausula_cuarta_duracion'])) {
+            // Convertir saltos de línea a <br> para HTML
+            $textoPersonalizado = nl2br($data['clausula_cuarta_duracion']);
+
+            // Aplicar formato de negritas a términos clave comunes
+            $textoPersonalizado = $this->aplicarNegritasTerminosClave($textoPersonalizado);
+
+            return $textoPersonalizado;
+        }
+
+        // Si no hay texto personalizado, usar el formato por defecto
         $fechaInicio = new \DateTime($data['fecha_inicio']);
         $fechaFin = new \DateTime($data['fecha_fin']);
         $diff = $fechaInicio->diff($fechaFin);
@@ -237,6 +249,35 @@ class ContractPDFGenerator
         $texto = "<b>CUARTA-DURACIÓN:</b> La duración de este contrato es de <b>(" . $meses . ") meses</b> desde el <b>" . $fechaInicio->format('d') . " de " . $this->getMesNombre($fechaInicio->format('m')) . " de " . $fechaInicio->format('Y') . "</b>";
         $texto .= " y con finalización máxima a <b>" . $fechaFin->format('d') . " de " . $this->getMesNombre($fechaFin->format('m')) . " de " . $fechaFin->format('Y') . "</b>.<br><br>";
         $texto .= "<b>PARÁGRAFO:</b> Sobre el presente contrato no opera la prórroga automática. Por lo anterior, la intención de prórroga deberá ser discutida entre las partes al finalizar el plazo inicialmente aquí pactado y deberá constar por escrito.";
+
+        return $texto;
+    }
+
+    /**
+     * Aplica negritas a términos clave en el texto personalizado
+     */
+    private function aplicarNegritasTerminosClave($texto)
+    {
+        // Términos clave que deben ir en negrita
+        $terminosClave = [
+            'CUARTA-DURACIÓN:',
+            'CUARTA-PLAZO DE EJECUCIÓN:',
+            'PARÁGRAFO PRIMERO:',
+            'PARÁGRAFO SEGUNDO:',
+            'PARÁGRAFO:',
+            'EL CONTRATANTE',
+            'EL CONTRATISTA',
+            'EnterpriseSST',
+            'Cycloid Talent',
+            'CYCLOID TALENT S.A.S.'
+        ];
+
+        foreach ($terminosClave as $termino) {
+            // Evitar duplicar las etiquetas <b> si ya existen
+            if (stripos($texto, '<b>' . $termino . '</b>') === false) {
+                $texto = str_ireplace($termino, '<b>' . $termino . '</b>', $texto);
+            }
+        }
 
         return $texto;
     }
@@ -490,7 +531,7 @@ class ContractPDFGenerator
         $this->pdf->SetFont('helvetica', '', 9);
         $this->pdf->Cell(0, 5, 'C.C. ' . $data['cedula_responsable_sgsst'], 0, 1, 'C');
         $this->pdf->Cell(0, 5, 'PROFESIONAL SG-SST', 0, 1, 'C');
-        $this->pdf->Cell(0, 5, 'Edison.cuervo@cycloidtalent.com', 0, 1, 'C');
+        $this->pdf->Cell(0, 5, $data['email_responsable_sgsst'], 0, 1, 'C');
     }
 
     /**

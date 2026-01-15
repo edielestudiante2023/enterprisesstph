@@ -6,6 +6,8 @@
     <title>Crear Nuevo Contrato</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <style>
         body {
             background-color: #f8f9fa;
@@ -162,6 +164,35 @@
                               placeholder="Notas adicionales sobre el contrato..."></textarea>
                 </div>
 
+                <!-- SECCIÓN: CLÁUSULA CUARTA - DURACIÓN -->
+                <div class="section-header">
+                    <h5 class="mb-0"><i class="fas fa-clock"></i> Cláusula Cuarta - Duración y Plazo de Ejecución</h5>
+                </div>
+
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Importante:</strong> Esta cláusula es personalizable y debe adaptarse a las condiciones específicas
+                    negociadas con el cliente. Incluya información sobre:
+                    <ul class="mb-0 mt-2">
+                        <li>Plazo de ejecución (días calendario)</li>
+                        <li>Porcentaje y condiciones de anticipo</li>
+                        <li>Duración del contrato en meses</li>
+                        <li>Condiciones de terminación anticipada</li>
+                        <li>Obligaciones del contratista</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <label for="clausula_cuarta_duracion" class="form-label">
+                        <i class="fas fa-file-contract"></i> Texto de la Cláusula Cuarta
+                    </label>
+                    <textarea class="form-control" id="clausula_cuarta_duracion" name="clausula_cuarta_duracion" rows="10"
+                              placeholder="Ejemplo:&#10;&#10;CUARTA-PLAZO DE EJECUCIÓN: El plazo para la ejecución será de 30 días calendario contados a partir de la firma del presente acuerdo y del pago inicial del anticipo del 50%, para la entrega del Diseño Documental, para la gestión del auto reporte se realizará en los tiempos estipulados por el Ministerio de protección Social.&#10;&#10;CUARTA-DURACIÓN: La duración de este contrato es de 6 meses contados a partir de la fecha de la firma y con finalización 30 de abril 2026...&#10;&#10;PARÁGRAFO PRIMERO: En caso de terminación anticipada de este contrato, solo se reconocerán los honorarios causados por actividades ejecutadas hasta dicho momento...&#10;&#10;PARÁGRAFO SEGUNDO: Sobre el presente contrato no opera la prórroga automática..."></textarea>
+                    <small class="text-muted">
+                        Este texto aparecerá en el PDF del contrato como la CLÁUSULA CUARTA. Puede copiar y adaptar el ejemplo mostrado en el placeholder.
+                    </small>
+                </div>
+
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i>
                     <strong>Nota:</strong> Después de crear el contrato, podrá completar los datos adicionales
@@ -180,8 +211,28 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        // Inicializar Select2 en el selector de clientes
+        $(document).ready(function() {
+            $('#id_cliente').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Buscar cliente por nombre o NIT...',
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: function() {
+                        return "No se encontraron clientes";
+                    },
+                    searching: function() {
+                        return "Buscando...";
+                    }
+                }
+            });
+        });
+
         // Calcular valor mensual automáticamente
         document.getElementById('valor_contrato').addEventListener('input', calcularValorMensual);
         document.getElementById('fecha_inicio').addEventListener('change', calcularValorMensual);

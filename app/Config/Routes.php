@@ -22,8 +22,17 @@ $routes->get('/dashboard', 'ClientController::showPanel');
 $routes->get('client/dashboard', 'ClientController::dashboard');
 $routes->get('client/suspended', 'AuthController::suspended');
 
+// Rutas para dashboards específicos de cliente
+$routes->get('client/dashboard-estandares/(:num)', 'ClientDashboardEstandaresController::index/$1');
+$routes->get('client/dashboard-capacitaciones/(:num)', 'ClientDashboardCapacitacionesController::index/$1');
+$routes->get('client/dashboard-plan-trabajo/(:num)', 'ClientDashboardPlanTrabajoController::index/$1');
+$routes->get('client/dashboard-pendientes/(:num)', 'ClientDashboardPendientesController::index/$1');
 
-
+// Rutas para dashboards de consultor (todos los clientes)
+$routes->get('consultant/dashboard-estandares', 'ConsultantDashboardEstandaresController::index');
+$routes->get('consultant/dashboard-capacitaciones', 'ConsultantDashboardCapacitacionesController::index');
+$routes->get('consultant/dashboard-plan-trabajo', 'ConsultantDashboardPlanTrabajoController::index');
+$routes->get('consultant/dashboard-pendientes', 'ConsultantDashboardPendientesController::index');
 
 $routes->get('/dashboardconsultant', 'ConsultantController::index');
 $routes->get('/admindashboard', 'AdminDashboardController::index');
