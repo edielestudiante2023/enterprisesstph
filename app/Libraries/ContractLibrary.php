@@ -287,14 +287,14 @@ class ContractLibrary
                     ->where('tbl_clientes.id_consultor', $idConsultor);
         }
 
-        $result = $builder->select('
+        $result = $builder->select("
             COUNT(*) as total_contratos,
-            SUM(CASE WHEN tbl_contratos.estado = "activo" THEN 1 ELSE 0 END) as contratos_activos,
-            SUM(CASE WHEN tbl_contratos.estado = "vencido" THEN 1 ELSE 0 END) as contratos_vencidos,
-            SUM(CASE WHEN tbl_contratos.estado = "cancelado" THEN 1 ELSE 0 END) as contratos_cancelados,
-            SUM(CASE WHEN tbl_contratos.tipo_contrato = "renovacion" THEN 1 ELSE 0 END) as total_renovaciones,
-            SUM(CASE WHEN tbl_contratos.estado = "activo" THEN tbl_contratos.valor_contrato ELSE 0 END) as valor_total_activos
-        ')->get()->getRowArray();
+            SUM(CASE WHEN tbl_contratos.estado = 'activo' THEN 1 ELSE 0 END) as contratos_activos,
+            SUM(CASE WHEN tbl_contratos.estado = 'vencido' THEN 1 ELSE 0 END) as contratos_vencidos,
+            SUM(CASE WHEN tbl_contratos.estado = 'cancelado' THEN 1 ELSE 0 END) as contratos_cancelados,
+            SUM(CASE WHEN tbl_contratos.tipo_contrato = 'renovacion' THEN 1 ELSE 0 END) as total_renovaciones,
+            SUM(CASE WHEN tbl_contratos.estado = 'activo' THEN tbl_contratos.valor_contrato ELSE 0 END) as valor_total_activos
+        ")->get()->getRowArray();
 
         $stats = $result ?? [
             'total_contratos' => 0,

@@ -192,10 +192,10 @@ class ContractModel extends Model
     public function getContractStatsByConsultant($idConsultor = null)
     {
         $builder = $this->db->table('tbl_contratos ct')
-                            ->select('c.id_consultor, con.nombre_consultor,
+                            ->select("c.id_consultor, con.nombre_consultor,
                                      COUNT(ct.id_contrato) as total_contratos,
-                                     SUM(CASE WHEN ct.estado = "activo" THEN 1 ELSE 0 END) as contratos_activos,
-                                     SUM(CASE WHEN ct.tipo_contrato = "renovacion" THEN 1 ELSE 0 END) as renovaciones')
+                                     SUM(CASE WHEN ct.estado = 'activo' THEN 1 ELSE 0 END) as contratos_activos,
+                                     SUM(CASE WHEN ct.tipo_contrato = 'renovacion' THEN 1 ELSE 0 END) as renovaciones")
                             ->join('tbl_clientes c', 'c.id_cliente = ct.id_cliente')
                             ->join('tbl_consultores con', 'con.id_consultor = c.id_consultor')
                             ->groupBy('c.id_consultor, con.nombre_consultor');

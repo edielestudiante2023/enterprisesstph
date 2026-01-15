@@ -28,7 +28,7 @@ class ClientModel extends Model
                              tbl_contratos.valor_contrato,
                              tbl_contratos.tipo_contrato,
                              tbl_contratos.estado as estado_contrato')
-                    ->join('tbl_contratos', 'tbl_contratos.id_cliente = tbl_clientes.id_cliente AND tbl_contratos.estado = "activo"', 'left')
+                    ->join('tbl_contratos', "tbl_contratos.id_cliente = tbl_clientes.id_cliente AND tbl_contratos.estado = 'activo'", 'left')
                     ->where('tbl_clientes.id_cliente', $idCliente)
                     ->first();
     }
@@ -45,7 +45,7 @@ class ClientModel extends Model
                                  tbl_contratos.numero_contrato,
                                  tbl_contratos.fecha_fin as contrato_fin,
                                  DATEDIFF(tbl_contratos.fecha_fin, CURDATE()) as dias_restantes')
-                        ->join('tbl_contratos', 'tbl_contratos.id_cliente = tbl_clientes.id_cliente AND tbl_contratos.estado = "activo"')
+                        ->join('tbl_contratos', "tbl_contratos.id_cliente = tbl_clientes.id_cliente AND tbl_contratos.estado = 'activo'")
                         ->where('tbl_contratos.fecha_fin <=', $date)
                         ->where('tbl_contratos.fecha_fin >=', date('Y-m-d'))
                         ->orderBy('tbl_contratos.fecha_fin', 'ASC');
@@ -84,11 +84,11 @@ class ClientModel extends Model
     public function getClientsWithContractStats($idConsultor = null)
     {
         $builder = $this->db->table('tbl_clientes c')
-                           ->select('c.*,
+                           ->select("c.*,
                                     COUNT(ct.id_contrato) as total_contratos,
-                                    SUM(CASE WHEN ct.tipo_contrato = "renovacion" THEN 1 ELSE 0 END) as renovaciones,
+                                    SUM(CASE WHEN ct.tipo_contrato = 'renovacion' THEN 1 ELSE 0 END) as renovaciones,
                                     MIN(ct.fecha_inicio) as primer_contrato,
-                                    MAX(CASE WHEN ct.estado = "activo" THEN ct.fecha_fin END) as contrato_vigente_hasta')
+                                    MAX(CASE WHEN ct.estado = 'activo' THEN ct.fecha_fin END) as contrato_vigente_hasta")
                            ->join('tbl_contratos ct', 'ct.id_cliente = c.id_cliente', 'left')
                            ->groupBy('c.id_cliente');
 
