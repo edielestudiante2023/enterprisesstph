@@ -93,15 +93,23 @@ class PtaClienteNuevaController extends Controller
             'estado'      => $estado,
         ];
 
-        // Obtener el último contrato del cliente seleccionado
+        // Obtener el contrato activo del cliente seleccionado
         $lastContract = null;
         $selectedClient = null;
         if (!empty($cliente)) {
             $contractModel = new ContractModel();
-            // Obtener el último contrato (el más reciente por fecha_fin)
+            // Priorizar contrato activo
             $lastContract = $contractModel->where('id_cliente', $cliente)
+                                          ->where('estado', 'activo')
                                           ->orderBy('fecha_fin', 'DESC')
                                           ->first();
+
+            // Si no hay contrato activo, buscar el más reciente por fecha de creación
+            if (!$lastContract) {
+                $lastContract = $contractModel->where('id_cliente', $cliente)
+                                              ->orderBy('created_at', 'DESC')
+                                              ->first();
+            }
 
             // Obtener información del cliente seleccionado
             foreach ($clients as $c) {

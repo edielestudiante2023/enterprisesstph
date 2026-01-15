@@ -387,7 +387,8 @@ class CronogcapacitacionController extends Controller
     }
 
     /**
-     * Obtiene el último contrato del cliente seleccionado (para AJAX)
+     * Obtiene el contrato activo del cliente seleccionado (para AJAX)
+     * Prioriza el contrato activo, si no existe, toma el más reciente
      */
     public function getClientContract()
     {
@@ -398,9 +399,19 @@ class CronogcapacitacionController extends Controller
         }
 
         $contractModel = new ContractModel();
+
+        // Primero buscar contrato activo
         $contract = $contractModel->where('id_cliente', $idCliente)
+                                  ->where('estado', 'activo')
                                   ->orderBy('fecha_fin', 'DESC')
                                   ->first();
+
+        // Si no hay contrato activo, buscar el más reciente por fecha de creación
+        if (!$contract) {
+            $contract = $contractModel->where('id_cliente', $idCliente)
+                                      ->orderBy('created_at', 'DESC')
+                                      ->first();
+        }
 
         if ($contract) {
             return $this->response->setJSON([

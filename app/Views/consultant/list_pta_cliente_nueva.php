@@ -397,10 +397,14 @@
                     ?>
                     <div class="contract-card p-3 h-100">
                         <div class="contract-header">
-                            <i class="fas fa-file-contract me-2"></i> Último Contrato
+                            <i class="fas fa-file-contract me-2"></i> Contrato
                             <span class="contract-status <?= $estadoClass ?> float-end">
                                 <?= esc(ucfirst($lastContract['estado'] ?? 'Activo')) ?>
                             </span>
+                        </div>
+
+                        <div class="text-center mb-2">
+                            <strong style="font-size: 0.95rem;"><?= esc($selectedClient['nombre_cliente'] ?? 'Cliente') ?></strong>
                         </div>
 
                         <div class="text-center mb-3">

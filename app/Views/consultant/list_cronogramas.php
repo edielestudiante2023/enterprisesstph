@@ -1376,15 +1376,17 @@
       // Recargar la tabla automáticamente al cambiar el select
       $('#clientSelect').on('change', function() {
         var clientId = $(this).val();
+        var clientName = $(this).find('option:selected').text().trim();
         if (clientId) {
           localStorage.setItem('selectedClient', clientId);
+          localStorage.setItem('selectedClientName', clientName);
           table.ajax.reload(function() {
             updateStatusCounts();
             updateMonthlyCounts();
             generateYearCards();
           });
           // Cargar información del contrato
-          loadClientContract(clientId);
+          loadClientContract(clientId, clientName);
         } else {
           // Mostrar mensaje de "Seleccione un cliente"
           $('#contractCardContainer').html(`
@@ -1398,7 +1400,12 @@
       });
 
       // Función para cargar el contrato del cliente
-      function loadClientContract(clientId) {
+      function loadClientContract(clientId, clientName) {
+        // Si no se proporciona clientName, intentar obtenerlo del select o localStorage
+        if (!clientName) {
+          clientName = $('#clientSelect option:selected').text().trim() || localStorage.getItem('selectedClientName') || 'Cliente';
+        }
+
         $.ajax({
           url: '<?= base_url('/cronogCapacitacion/getClientContract') ?>',
           method: 'GET',
@@ -1430,10 +1437,13 @@
               var html = `
                 <div class="contract-card p-3 h-100">
                   <div class="contract-header">
-                    <i class="fas fa-file-contract me-2"></i> Último Contrato
+                    <i class="fas fa-file-contract me-2"></i> Contrato
                     <span class="contract-status ${estadoClass} float-end">
                       ${capitalizeFirst(contract.estado || 'Activo')}
                     </span>
+                  </div>
+                  <div class="text-center mb-2">
+                    <strong style="font-size: 0.95rem;">${clientName}</strong>
                   </div>
                   <div class="text-center mb-3">
                     <span class="frecuencia-badge ${frecuenciaClass}">
@@ -1466,7 +1476,7 @@
               $('#contractCardContainer').html(`
                 <div class="no-contract-card h-100 d-flex flex-column justify-content-center">
                   <i class="fas fa-file-contract fa-3x mb-3 opacity-75"></i>
-                  <h5>Sin Contrato Registrado</h5>
+                  <h5>Sin Contrato - ${clientName}</h5>
                   <p class="mb-3 opacity-75">Este cliente no tiene contratos registrados en el sistema.</p>
                   <a href="<?= base_url('/contracts/create/') ?>${clientId}" class="btn btn-light btn-sm">
                     <i class="fas fa-plus me-1"></i> Crear Contrato
@@ -1479,7 +1489,7 @@
             $('#contractCardContainer').html(`
               <div class="no-contract-card h-100 d-flex flex-column justify-content-center">
                 <i class="fas fa-exclamation-triangle fa-3x mb-3 opacity-75"></i>
-                <h5>Error al cargar</h5>
+                <h5>Error - ${clientName}</h5>
                 <p class="mb-0 opacity-75">No se pudo cargar la información del contrato.</p>
               </div>
             `);
