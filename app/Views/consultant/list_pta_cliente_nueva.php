@@ -161,6 +161,101 @@
             border: 1px solid #ffe082;
         }
 
+        /* Estilos para tarjeta de contrato */
+        .contract-card {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+        }
+
+        .contract-card .contract-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .contract-card .contract-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .contract-card .contract-item:last-child {
+            border-bottom: none;
+        }
+
+        .contract-card .contract-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .contract-card .contract-value {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .contract-card .frecuencia-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+
+        .frecuencia-mensual {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .frecuencia-bimensual {
+            background-color: #17a2b8;
+            color: #fff;
+        }
+
+        .frecuencia-trimestral {
+            background-color: #6f42c1;
+            color: #fff;
+        }
+
+        .frecuencia-default {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+        .contract-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-activo {
+            background-color: #28a745;
+        }
+
+        .status-vencido {
+            background-color: #dc3545;
+        }
+
+        .status-cancelado {
+            background-color: #6c757d;
+        }
+
+        .no-contract-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
         /* Estilos para tarjetas clickeables */
         .card-clickable {
             cursor: pointer;
@@ -279,17 +374,92 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <!-- Sección de Filtros por Año -->
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="section-title mb-0">
-                <i class="fas fa-calendar-alt"></i> Filtrar por Año
+        <!-- Sección de Información del Contrato y Filtros por Año -->
+        <div class="row mb-4">
+            <!-- Tarjeta de Contrato -->
+            <div class="col-lg-4 mb-3">
+                <?php if (!empty($lastContract)): ?>
+                    <?php
+                        // Determinar la clase de frecuencia
+                        $frecuencia = strtolower($lastContract['frecuencia_visitas'] ?? '');
+                        $frecuenciaClass = 'frecuencia-default';
+                        if (strpos($frecuencia, 'mensual') !== false && strpos($frecuencia, 'bimensual') === false) {
+                            $frecuenciaClass = 'frecuencia-mensual';
+                        } elseif (strpos($frecuencia, 'bimensual') !== false) {
+                            $frecuenciaClass = 'frecuencia-bimensual';
+                        } elseif (strpos($frecuencia, 'trimestral') !== false) {
+                            $frecuenciaClass = 'frecuencia-trimestral';
+                        }
+
+                        // Determinar estado del contrato
+                        $estadoContrato = strtolower($lastContract['estado'] ?? 'activo');
+                        $estadoClass = 'status-' . $estadoContrato;
+                    ?>
+                    <div class="contract-card p-3 h-100">
+                        <div class="contract-header">
+                            <i class="fas fa-file-contract me-2"></i> Último Contrato
+                            <span class="contract-status <?= $estadoClass ?> float-end">
+                                <?= esc(ucfirst($lastContract['estado'] ?? 'Activo')) ?>
+                            </span>
+                        </div>
+
+                        <div class="text-center mb-3">
+                            <span class="frecuencia-badge <?= $frecuenciaClass ?>">
+                                <i class="fas fa-calendar-check me-1"></i>
+                                <?= esc($lastContract['frecuencia_visitas'] ?? 'No definida') ?>
+                            </span>
+                        </div>
+
+                        <div class="contract-item">
+                            <span class="contract-label"><i class="fas fa-hashtag me-1"></i> Número:</span>
+                            <span class="contract-value"><?= esc($lastContract['numero_contrato'] ?? 'N/A') ?></span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label"><i class="fas fa-play-circle me-1"></i> Inicio:</span>
+                            <span class="contract-value"><?= !empty($lastContract['fecha_inicio']) ? date('d/m/Y', strtotime($lastContract['fecha_inicio'])) : 'N/A' ?></span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label"><i class="fas fa-stop-circle me-1"></i> Fin:</span>
+                            <span class="contract-value"><?= !empty($lastContract['fecha_fin']) ? date('d/m/Y', strtotime($lastContract['fecha_fin'])) : 'N/A' ?></span>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <a href="<?= base_url('/contracts/view/' . $lastContract['id_contrato']) ?>" class="btn btn-light btn-sm">
+                                <i class="fas fa-eye me-1"></i> Ver Contrato
+                            </a>
+                        </div>
+                    </div>
+                <?php elseif (!empty($filters['cliente'])): ?>
+                    <div class="no-contract-card h-100 d-flex flex-column justify-content-center">
+                        <i class="fas fa-file-contract fa-3x mb-3 opacity-75"></i>
+                        <h5>Sin Contrato Registrado</h5>
+                        <p class="mb-3 opacity-75">Este cliente no tiene contratos registrados en el sistema.</p>
+                        <a href="<?= base_url('/contracts/create/' . $filters['cliente']) ?>" class="btn btn-light btn-sm">
+                            <i class="fas fa-plus me-1"></i> Crear Contrato
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <div class="no-contract-card h-100 d-flex flex-column justify-content-center">
+                        <i class="fas fa-hand-pointer fa-3x mb-3 opacity-75"></i>
+                        <h5>Seleccione un Cliente</h5>
+                        <p class="mb-0 opacity-75">Seleccione un cliente para ver la información de su contrato.</p>
+                    </div>
+                <?php endif; ?>
             </div>
-            <button type="button" id="btnClearCardFilters" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-times"></i> Limpiar Filtros de Tarjetas
-            </button>
-        </div>
-        <div class="row mb-4 mt-2" id="yearCards">
-            <!-- Se generarán dinámicamente con JavaScript -->
+
+            <!-- Tarjetas de Año -->
+            <div class="col-lg-8">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="section-title mb-0">
+                        <i class="fas fa-calendar-alt"></i> Filtrar por Año
+                    </div>
+                    <button type="button" id="btnClearCardFilters" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-times"></i> Limpiar Filtros de Tarjetas
+                    </button>
+                </div>
+                <div class="row mt-2" id="yearCards">
+                    <!-- Se generarán dinámicamente con JavaScript -->
+                </div>
+            </div>
         </div>
 
         <!-- Tarjetas de Estados (clickeables) -->

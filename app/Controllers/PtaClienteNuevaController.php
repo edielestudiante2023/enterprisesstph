@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\PtaClienteNuevaModel;
 use App\Models\ClientModel;
+use App\Models\ContractModel;
 use CodeIgniter\Controller;
 
 class PtaClienteNuevaController extends Controller
@@ -92,10 +93,31 @@ class PtaClienteNuevaController extends Controller
             'estado'      => $estado,
         ];
 
+        // Obtener el último contrato del cliente seleccionado
+        $lastContract = null;
+        $selectedClient = null;
+        if (!empty($cliente)) {
+            $contractModel = new ContractModel();
+            // Obtener el último contrato (el más reciente por fecha_fin)
+            $lastContract = $contractModel->where('id_cliente', $cliente)
+                                          ->orderBy('fecha_fin', 'DESC')
+                                          ->first();
+
+            // Obtener información del cliente seleccionado
+            foreach ($clients as $c) {
+                if ($c['id_cliente'] == $cliente) {
+                    $selectedClient = $c;
+                    break;
+                }
+            }
+        }
+
         $data = [
             'clients' => $clients,
             'records' => $records,
             'filters' => $filters,
+            'lastContract' => $lastContract,
+            'selectedClient' => $selectedClient,
         ];
 
         return view('consultant/list_pta_cliente_nueva', $data);
@@ -377,7 +399,8 @@ class PtaClienteNuevaController extends Controller
      */
     public function updateDateByMonth()
     {
-        if (!$this->request->isAJAX()) {
+        // Permitir tanto AJAX como POST normal para compatibilidad con producción
+        if (strtolower($this->request->getMethod()) !== 'post') {
             return $this->response->setJSON(['success' => false, 'message' => 'Método no permitido']);
         }
 
@@ -404,8 +427,10 @@ class PtaClienteNuevaController extends Controller
                 $year = $existingDate->format('Y');
             }
 
-            // Calcular el último día del mes (considera años bisiestos automáticamente)
-            $lastDay = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+            // Calcular el último día del mes usando DateTime (no requiere extensión calendar)
+            $lastDayDate = new \DateTime("$year-$month-01");
+            $lastDayDate->modify('last day of this month');
+            $lastDay = (int) $lastDayDate->format('d');
             $newDate = sprintf('%04d-%02d-%02d', $year, $month, $lastDay);
 
             // Actualizar la fecha

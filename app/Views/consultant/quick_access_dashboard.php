@@ -181,6 +181,11 @@
                         </button>
                     </div>
                 </div>
+                <div class="alert alert-warning mt-3 mb-0" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Importante:</strong> Para abrir todas las vistas, debe habilitar los pop-ups en su navegador.
+                    Si solo se abre una ventana, busque el icono de pop-up bloqueado en la barra de direcciones y seleccione "Permitir siempre".
+                </div>
             </div>
 
             <!-- Vistas Disponibles -->
