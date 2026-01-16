@@ -162,7 +162,7 @@
                                             </td>
                                             <td>
                                                 <span class="badge bg-secondary">
-                                                    <?= htmlspecialchars($archivo['reporte']['detail_report_name'] ?? 'N/A') ?>
+                                                    <?= htmlspecialchars($archivo['reporte']['detail_report'] ?? 'N/A') ?>
                                                 </span>
                                             </td>
                                             <td>

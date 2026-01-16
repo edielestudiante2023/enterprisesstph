@@ -51,9 +51,9 @@ class DocumentacionContratoController extends Controller
 
         // Obtener reportes del cliente dentro del rango de fechas del contrato
         $reportes = $this->reporteModel
-            ->select('tbl_reporte.*, tbl_detailreport.detail_report_name, tbl_report_type.report_type_name')
-            ->join('tbl_detailreport', 'tbl_detailreport.id_detailreport = tbl_reporte.id_detailreport', 'left')
-            ->join('tbl_report_type', 'tbl_report_type.id_report_type = tbl_reporte.id_report_type', 'left')
+            ->select('tbl_reporte.*, detail_report.detail_report, report_type_table.report_type')
+            ->join('detail_report', 'detail_report.id_detailreport = tbl_reporte.id_detailreport', 'left')
+            ->join('report_type_table', 'report_type_table.id_report_type = tbl_reporte.id_report_type', 'left')
             ->where('tbl_reporte.id_cliente', $contract['id_cliente'])
             ->where('DATE(tbl_reporte.created_at) >=', $contract['fecha_inicio'])
             ->where('DATE(tbl_reporte.created_at) <=', $contract['fecha_fin'])
@@ -136,9 +136,9 @@ class DocumentacionContratoController extends Controller
 
         // Obtener reportes del cliente dentro del rango de fechas del contrato
         $reportes = $this->reporteModel
-            ->select('tbl_reporte.*, tbl_detailreport.detail_report_name, tbl_report_type.report_type_name')
-            ->join('tbl_detailreport', 'tbl_detailreport.id_detailreport = tbl_reporte.id_detailreport', 'left')
-            ->join('tbl_report_type', 'tbl_report_type.id_report_type = tbl_reporte.id_report_type', 'left')
+            ->select('tbl_reporte.*, detail_report.detail_report, report_type_table.report_type')
+            ->join('detail_report', 'detail_report.id_detailreport = tbl_reporte.id_detailreport', 'left')
+            ->join('report_type_table', 'report_type_table.id_report_type = tbl_reporte.id_report_type', 'left')
             ->where('tbl_reporte.id_cliente', $idCliente)
             ->where('DATE(tbl_reporte.created_at) >=', $contract['fecha_inicio'])
             ->where('DATE(tbl_reporte.created_at) <=', $contract['fecha_fin'])
