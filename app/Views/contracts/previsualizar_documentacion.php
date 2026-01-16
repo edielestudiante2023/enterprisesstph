@@ -56,8 +56,11 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-success mb-4">
         <div class="container-fluid">
             <?php if (isset($fromReportList) && $fromReportList): ?>
-                <a class="navbar-brand" href="<?= base_url('/reportList') ?>">
-                    <i class="fas fa-arrow-left"></i> Volver a Lista de Reportes
+                <a class="navbar-brand" href="<?= base_url('/contracts/seleccionar-documentacion/' . $contract['id_cliente']) ?>">
+                    <i class="fas fa-arrow-left"></i> Cambiar Filtro
+                </a>
+                <a class="navbar-brand ms-3" href="<?= base_url('/reportList') ?>">
+                    <i class="fas fa-list"></i> Ir a Lista de Reportes
                 </a>
             <?php else: ?>
                 <a class="navbar-brand" href="<?= base_url('/contracts/view/' . $contract['id_contrato']) ?>">
@@ -88,7 +91,21 @@
                 </div>
                 <div class="col-md-4 text-end">
                     <?php if ($archivosExistentes > 0): ?>
-                        <?php if (isset($fromReportList) && $fromReportList): ?>
+                        <?php if (isset($fromReportList) && $fromReportList && isset($filtroTipo)): ?>
+                            <?php
+                                $downloadParams = ['filtro_tipo' => $filtroTipo];
+                                if ($filtroTipo === 'contrato' && isset($contract['id_contrato'])) {
+                                    $downloadParams['id_contrato'] = $contract['id_contrato'];
+                                } elseif ($filtroTipo === 'fechas') {
+                                    $downloadParams['fecha_desde'] = $fechaInicio;
+                                    $downloadParams['fecha_hasta'] = $fechaFin;
+                                }
+                            ?>
+                            <a href="<?= base_url('/contracts/descargar-filtrado/' . $contract['id_cliente']) ?>?<?= http_build_query($downloadParams) ?>"
+                               class="btn btn-light btn-lg">
+                                <i class="fas fa-download"></i> Descargar ZIP
+                            </a>
+                        <?php elseif (isset($fromReportList) && $fromReportList): ?>
                             <a href="<?= base_url('/contracts/descargar-documentacion-cliente/' . $contract['id_cliente']) ?>"
                                class="btn btn-light btn-lg">
                                 <i class="fas fa-download"></i> Descargar ZIP
@@ -201,7 +218,21 @@
 
                 <?php if ($archivosExistentes > 0): ?>
                     <div class="text-center">
-                        <?php if (isset($fromReportList) && $fromReportList): ?>
+                        <?php if (isset($fromReportList) && $fromReportList && isset($filtroTipo)): ?>
+                            <?php
+                                $downloadParams = ['filtro_tipo' => $filtroTipo];
+                                if ($filtroTipo === 'contrato' && isset($contract['id_contrato'])) {
+                                    $downloadParams['id_contrato'] = $contract['id_contrato'];
+                                } elseif ($filtroTipo === 'fechas') {
+                                    $downloadParams['fecha_desde'] = $fechaInicio;
+                                    $downloadParams['fecha_hasta'] = $fechaFin;
+                                }
+                            ?>
+                            <a href="<?= base_url('/contracts/descargar-filtrado/' . $contract['id_cliente']) ?>?<?= http_build_query($downloadParams) ?>"
+                               class="btn btn-success btn-lg me-2">
+                                <i class="fas fa-download"></i> Descargar <?= $archivosExistentes ?> archivo(s) en ZIP
+                            </a>
+                        <?php elseif (isset($fromReportList) && $fromReportList): ?>
                             <a href="<?= base_url('/contracts/descargar-documentacion-cliente/' . $contract['id_cliente']) ?>"
                                class="btn btn-success btn-lg me-2">
                                 <i class="fas fa-download"></i> Descargar <?= $archivosExistentes ?> archivo(s) en ZIP

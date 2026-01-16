@@ -634,8 +634,13 @@ $routes->get('/contracts/download-pdf/(:num)', 'ContractController::downloadPDF/
 $routes->get('/contracts/documentacion/(:num)', 'DocumentacionContratoController::previsualizarDocumentacion/$1');
 $routes->get('/contracts/descargar-documentacion/(:num)', 'DocumentacionContratoController::descargarDocumentacion/$1');
 
-// Descarga de documentación por cliente (desde reportList)
-$routes->get('/contracts/documentacion-cliente/(:num)', 'DocumentacionContratoController::previsualizarPorCliente/$1');
+// Descarga de documentación por cliente (desde reportList) - Nuevo flujo con selección de contrato/fechas
+$routes->get('/contracts/seleccionar-documentacion/(:num)', 'DocumentacionContratoController::seleccionarDocumentacion/$1');
+$routes->get('/contracts/filtrar-documentacion/(:num)', 'DocumentacionContratoController::filtrarDocumentacion/$1');
+$routes->get('/contracts/descargar-filtrado/(:num)', 'DocumentacionContratoController::descargarFiltrado/$1');
+
+// Rutas legacy (mantener compatibilidad)
+$routes->get('/contracts/documentacion-cliente/(:num)', 'DocumentacionContratoController::seleccionarDocumentacion/$1');
 $routes->get('/contracts/descargar-documentacion-cliente/(:num)', 'DocumentacionContratoController::descargarPorCliente/$1');
 
 

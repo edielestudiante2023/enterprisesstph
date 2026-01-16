@@ -1148,19 +1148,19 @@
         }
       });
 
-      // Botón Ver Documentación - abre vista previa
+      // Botón Ver Documentación - abre vista de selección de contrato/fechas
       $('#btnVerDocumentacion').on('click', function() {
         var clientId = $('#clientDownload').val();
         if (clientId) {
-          window.open('<?= base_url("/contracts/documentacion-cliente/") ?>' + clientId, '_blank');
+          window.open('<?= base_url("/contracts/seleccionar-documentacion/") ?>' + clientId, '_blank');
         }
       });
 
-      // Botón Descargar ZIP - descarga directa
+      // Botón Descargar ZIP - abre vista de selección de contrato/fechas
       $('#btnDescargarZip').on('click', function() {
         var clientId = $('#clientDownload').val();
         if (clientId) {
-          window.location.href = '<?= base_url("/contracts/descargar-documentacion-cliente/") ?>' + clientId;
+          window.open('<?= base_url("/contracts/seleccionar-documentacion/") ?>' + clientId, '_blank');
         }
       });
     });
