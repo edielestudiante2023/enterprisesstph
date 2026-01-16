@@ -41,6 +41,15 @@
         }
         .stats-box h3 { margin: 0; font-size: 2rem; }
         .stats-box small { opacity: 0.9; }
+        .btn-excel {
+            background: linear-gradient(135deg, #1d6f42 0%, #28a745 100%);
+            color: white;
+            border: none;
+        }
+        .btn-excel:hover {
+            background: linear-gradient(135deg, #155d36 0%, #1e7e34 100%);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -125,7 +134,14 @@
             <!-- Lista de archivos -->
             <div class="col-md-8">
                 <div class="info-card">
-                    <h5><i class="fas fa-file-pdf"></i> Documentos del Contrato</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="fas fa-file-pdf"></i> Documentos del Contrato</h5>
+                        <?php if (!empty($archivos)): ?>
+                            <button type="button" id="btnExportExcel" class="btn btn-excel">
+                                <i class="fas fa-file-excel"></i> Exportar a Excel
+                            </button>
+                        <?php endif; ?>
+                    </div>
                     <hr>
 
                     <?php if (empty($archivos)): ?>
@@ -134,7 +150,7 @@
                         </div>
                     <?php else: ?>
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
+                            <table class="table table-hover mb-0" id="tablaDocumentos">
                                 <thead class="table-light">
                                     <tr>
                                         <th width="50"></th>
@@ -187,12 +203,12 @@
                     <div class="text-center">
                         <?php if (isset($fromReportList) && $fromReportList): ?>
                             <a href="<?= base_url('/contracts/descargar-documentacion-cliente/' . $contract['id_cliente']) ?>"
-                               class="btn btn-success btn-lg">
+                               class="btn btn-success btn-lg me-2">
                                 <i class="fas fa-download"></i> Descargar <?= $archivosExistentes ?> archivo(s) en ZIP
                             </a>
                         <?php else: ?>
                             <a href="<?= base_url('/contracts/descargar-documentacion/' . $contract['id_contrato']) ?>"
-                               class="btn btn-success btn-lg">
+                               class="btn btn-success btn-lg me-2">
                                 <i class="fas fa-download"></i> Descargar <?= $archivosExistentes ?> archivo(s) en ZIP
                             </a>
                         <?php endif; ?>
@@ -203,5 +219,77 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+    document.getElementById('btnExportExcel')?.addEventListener('click', function() {
+        // Datos del cliente y contrato
+        const clienteNombre = <?= json_encode($contract['nombre_cliente']) ?>;
+        const clienteNit = <?= json_encode($contract['nit_cliente']) ?>;
+        const numeroContrato = <?= json_encode($contract['numero_contrato']) ?>;
+        const fechaInicio = <?= json_encode(date('d/m/Y', strtotime($contract['fecha_inicio']))) ?>;
+        const fechaFin = <?= json_encode(date('d/m/Y', strtotime($contract['fecha_fin']))) ?>;
+
+        // Crear datos para el Excel
+        const datosExcel = [];
+
+        // Encabezado con información del cliente
+        datosExcel.push(['DOCUMENTACIÓN ENTREGADA - SG-SST']);
+        datosExcel.push([]);
+        datosExcel.push(['Cliente:', clienteNombre]);
+        datosExcel.push(['NIT:', clienteNit]);
+        datosExcel.push(['Contrato:', numeroContrato]);
+        datosExcel.push(['Período:', fechaInicio + ' al ' + fechaFin]);
+        datosExcel.push(['Fecha de Generación:', new Date().toLocaleDateString('es-CO')]);
+        datosExcel.push([]);
+        datosExcel.push([]);
+
+        // Encabezados de la tabla
+        datosExcel.push(['No.', 'DOCUMENTO', 'TIPO', 'FECHA', 'ESTADO']);
+
+        // Datos de los documentos
+        <?php $contador = 1; ?>
+        <?php foreach ($archivos as $archivo): ?>
+        datosExcel.push([
+            <?= $contador++ ?>,
+            <?= json_encode($archivo['reporte']['titulo_reporte']) ?>,
+            <?= json_encode($archivo['reporte']['detail_report'] ?? 'N/A') ?>,
+            <?= json_encode(date('d/m/Y', strtotime($archivo['reporte']['created_at']))) ?>,
+            <?= json_encode($archivo['existe'] ? 'Disponible' : 'No encontrado') ?>
+        ]);
+        <?php endforeach; ?>
+
+        // Resumen al final
+        datosExcel.push([]);
+        datosExcel.push(['', '', '', 'Total Documentos:', <?= $totalReportes ?>]);
+        datosExcel.push(['', '', '', 'Archivos Disponibles:', <?= $archivosExistentes ?>]);
+
+        // Crear libro de Excel
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(datosExcel);
+
+        // Ajustar ancho de columnas
+        ws['!cols'] = [
+            { wch: 5 },   // No.
+            { wch: 50 },  // Documento
+            { wch: 20 },  // Tipo
+            { wch: 12 },  // Fecha
+            { wch: 15 }   // Estado
+        ];
+
+        // Combinar celdas del título
+        ws['!merges'] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }  // Título
+        ];
+
+        XLSX.utils.book_append_sheet(wb, ws, 'Documentación');
+
+        // Generar nombre del archivo
+        const nombreArchivo = 'Documentacion_' + clienteNombre.replace(/[^a-zA-Z0-9]/g, '_') + '_' + numeroContrato + '.xlsx';
+
+        // Descargar
+        XLSX.writeFile(wb, nombreArchivo);
+    });
+    </script>
 </body>
 </html>
