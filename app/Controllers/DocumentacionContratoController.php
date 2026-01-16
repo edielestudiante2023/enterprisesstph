@@ -267,9 +267,15 @@ class DocumentacionContratoController extends Controller
             $rutaArchivo = FCPATH . $rutaRelativa;
 
             if (file_exists($rutaArchivo)) {
+                // Limpiar el título: remover caracteres que crean carpetas o son inválidos
+                $tituloLimpio = $reporte['titulo_reporte'];
+                $tituloLimpio = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $tituloLimpio);
+                $tituloLimpio = preg_replace('/_{2,}/', '_', $tituloLimpio); // Múltiples _ a uno solo
+                $tituloLimpio = trim($tituloLimpio, '_');
+
                 $archivosParaZip[] = [
                     'ruta' => $rutaArchivo,
-                    'nombre' => $reporte['titulo_reporte'] . '_' . date('Y-m-d', strtotime($reporte['created_at'])) . '.' . pathinfo($rutaArchivo, PATHINFO_EXTENSION)
+                    'nombre' => $tituloLimpio . '_' . date('Y-m-d', strtotime($reporte['created_at'])) . '.' . pathinfo($rutaArchivo, PATHINFO_EXTENSION)
                 ];
             }
         }
@@ -530,9 +536,15 @@ class DocumentacionContratoController extends Controller
             $rutaArchivo = FCPATH . $rutaRelativa;
 
             if (file_exists($rutaArchivo)) {
+                // Limpiar el título: remover caracteres que crean carpetas o son inválidos
+                $tituloLimpio = $reporte['titulo_reporte'];
+                $tituloLimpio = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $tituloLimpio);
+                $tituloLimpio = preg_replace('/_{2,}/', '_', $tituloLimpio); // Múltiples _ a uno solo
+                $tituloLimpio = trim($tituloLimpio, '_');
+
                 $archivosParaZip[] = [
                     'ruta' => $rutaArchivo,
-                    'nombre' => $reporte['titulo_reporte'] . '_' . date('Y-m-d', strtotime($reporte['created_at'])) . '.' . pathinfo($rutaArchivo, PATHINFO_EXTENSION)
+                    'nombre' => $tituloLimpio . '_' . date('Y-m-d', strtotime($reporte['created_at'])) . '.' . pathinfo($rutaArchivo, PATHINFO_EXTENSION)
                 ];
             }
         }
@@ -628,9 +640,15 @@ class DocumentacionContratoController extends Controller
             $rutaArchivo = FCPATH . $rutaRelativa;
 
             if (file_exists($rutaArchivo)) {
+                // Limpiar el título: remover caracteres que crean carpetas o son inválidos
+                $tituloLimpio = $reporte['titulo_reporte'];
+                $tituloLimpio = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $tituloLimpio);
+                $tituloLimpio = preg_replace('/_{2,}/', '_', $tituloLimpio); // Múltiples _ a uno solo
+                $tituloLimpio = trim($tituloLimpio, '_');
+
                 $archivosParaZip[] = [
                     'ruta' => $rutaArchivo,
-                    'nombre' => $reporte['titulo_reporte'] . '_' . date('Y-m-d', strtotime($reporte['created_at'])) . '.' . pathinfo($rutaArchivo, PATHINFO_EXTENSION)
+                    'nombre' => $tituloLimpio . '_' . date('Y-m-d', strtotime($reporte['created_at'])) . '.' . pathinfo($rutaArchivo, PATHINFO_EXTENSION)
                 ];
             }
         }
