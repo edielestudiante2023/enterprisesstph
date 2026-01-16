@@ -93,6 +93,11 @@ class DocumentacionContratoController extends Controller
                     ->with('error', 'Contrato no válido');
             }
 
+            // Agregar datos del cliente al contrato
+            $contract['nombre_cliente'] = $client['nombre_cliente'];
+            $contract['nit_cliente'] = $client['nit_cliente'];
+            $contract['id_consultor'] = $client['id_consultor'];
+
             $fechaInicio = $contract['fecha_inicio'];
             $fechaFin = $contract['fecha_fin'];
             $periodoLabel = 'Contrato ' . $contract['numero_contrato'];
