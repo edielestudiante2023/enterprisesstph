@@ -182,7 +182,8 @@
                             <div id="yearButtons">
                                 <?php
                                 $currentYear = (int)date('Y');
-                                for ($y = $currentYear; $y >= $currentYear - 4; $y--):
+                                $minYear = 2024; // Año mínimo de documentación
+                                for ($y = $currentYear; $y >= $minYear; $y--):
                                 ?>
                                     <button type="button" class="btn btn-outline-success year-btn" onclick="selectYear(<?= $y ?>, event)">
                                         <?= $y ?>
