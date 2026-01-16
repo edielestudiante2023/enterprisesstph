@@ -176,13 +176,13 @@
 
                         <input type="radio" name="filtro_tipo" value="fechas" id="radioFechas" class="d-none">
 
-                        <!-- Años rápidos -->
+                        <!-- Años rápidos (dinámico: desde año actual hasta 2024) -->
                         <div class="text-center mb-3">
                             <label class="form-label"><strong>Anualidad:</strong></label>
                             <div id="yearButtons">
                                 <?php
                                 $currentYear = (int)date('Y');
-                                $minYear = 2024; // Año mínimo de documentación
+                                $minYear = 2024; // Año en que inició el sistema
                                 for ($y = $currentYear; $y >= $minYear; $y--):
                                 ?>
                                     <button type="button" class="btn btn-outline-success year-btn" onclick="selectYear(<?= $y ?>, event)">
