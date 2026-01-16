@@ -305,6 +305,12 @@
                             <i class="fas fa-history"></i> Ver Historial Completo
                         </a>
 
+                        <!-- Descargar Documentación del Contrato -->
+                        <a href="<?= base_url('/contracts/documentacion/' . $contract['id_contrato']) ?>"
+                           class="btn btn-success w-100 mb-2">
+                            <i class="fas fa-folder-open"></i> Descargar Documentación
+                        </a>
+
                         <a href="<?= base_url('/editClient/' . $contract['id_cliente']) ?>"
                            class="btn btn-info w-100 mb-2">
                             <i class="fas fa-user-edit"></i> Editar Cliente

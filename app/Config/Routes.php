@@ -630,5 +630,13 @@ $routes->get('/contracts/edit-contract-data/(:num)', 'ContractController::editCo
 $routes->post('/contracts/save-and-generate/(:num)', 'ContractController::saveAndGeneratePDF/$1');
 $routes->get('/contracts/download-pdf/(:num)', 'ContractController::downloadPDF/$1');
 
+// Descarga de documentación del contrato
+$routes->get('/contracts/documentacion/(:num)', 'DocumentacionContratoController::previsualizarDocumentacion/$1');
+$routes->get('/contracts/descargar-documentacion/(:num)', 'DocumentacionContratoController::descargarDocumentacion/$1');
+
+// Descarga de documentación por cliente (desde reportList)
+$routes->get('/contracts/documentacion-cliente/(:num)', 'DocumentacionContratoController::previsualizarPorCliente/$1');
+$routes->get('/contracts/descargar-documentacion-cliente/(:num)', 'DocumentacionContratoController::descargarPorCliente/$1');
+
 
 
