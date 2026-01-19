@@ -1069,6 +1069,13 @@
         width: 'resolve'
       });
 
+      // Inicializamos Select2 en el select de descarga de documentación
+      $('#clientDownload').select2({
+        placeholder: "-- Seleccione un cliente --",
+        allowClear: true,
+        width: '100%'
+      });
+
       // Evento para filtrar la tabla según el cliente seleccionado
       $('#clientFilter').on('change', function () {
         var selected = $(this).val();
