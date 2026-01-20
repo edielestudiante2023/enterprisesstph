@@ -312,5 +312,124 @@ class EvaluationController extends Controller
             'indicador_no_aplica' => $indicador_no_aplica
         ]);
     }
-    
+
+    /**
+     * Resetear evaluaciones del ciclo PHVA para un cliente específico
+     * Solo resetea los items que se renuevan anualmente según el Decreto 1072
+     */
+    public function resetCicloPHVA()
+    {
+        $idCliente = $this->request->getPost('id_cliente');
+
+        if (!$idCliente) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'ID de cliente no proporcionado'
+            ]);
+        }
+
+        $evaluationModel = new EvaluationModel();
+        $clientModel = new ClientModel();
+
+        // Verificar que el cliente existe
+        $cliente = $clientModel->find($idCliente);
+        if (!$cliente) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Cliente no encontrado'
+            ]);
+        }
+
+        // Numerales de los items que se resetean en el ciclo PHVA anual
+        // Usamos el campo 'numeral' que es más estandarizado
+        $numeralesARenovar = [
+            '1.1.2',  // Responsabilidades en el SG-SST
+            '1.1.3',  // Asignación de recursos
+            '1.1.4',  // Afiliación al Sistema de Riesgos Laborales
+            '1.1.5',  // Identificación trabajadores alto riesgo
+            '1.1.6',  // Conformación COPASST
+            '1.1.7',  // Capacitación COPASST
+            '1.1.8',  // Conformación Comité de Convivencia
+            '1.2.1',  // Programa Capacitación PYP
+            '1.2.2',  // Inducción y Reinducción
+            '1.2.3',  // Responsables con curso 50 horas
+            '2.1.1',  // Política del SG-SST
+            '2.2.1',  // Objetivos del SG-SST
+            '2.4.1',  // Plan de trabajo anual
+            '2.5.1',  // Archivo documental
+            '2.9.1',  // Adquisición de productos
+            '2.10.1', // Evaluación de proveedores
+            '3.1.1',  // Diagnóstico de Condiciones de Salud
+            '3.1.2',  // Actividades de Promoción y Prevención
+            '3.1.4',  // Evaluaciones médicas ocupacionales
+            '3.1.5',  // Custodia de Historias Clínicas
+            '3.1.6',  // Restricciones médico laborales
+            '3.1.7',  // Estilos de vida saludables
+            '3.1.8',  // Agua potable y servicios sanitarios
+            '3.1.9',  // Eliminación de residuos
+            '3.2.1',  // Reporte de AT y EL
+            '3.2.2',  // Investigación de Incidentes
+            '3.2.3',  // Registro estadístico
+            '3.3.6',  // Medición del ausentismo
+            '4.1.2',  // Identificación de peligros
+            '4.2.1',  // Medidas de prevención y control
+            '4.2.4',  // Inspecciones
+            '4.2.5',  // Mantenimiento periódico
+            '4.2.6',  // Entrega de EPP
+            '5.1.1',  // Plan de emergencias
+            '5.1.2',  // Brigada de prevención
+            '6.1.3',  // Revisión anual de la alta dirección
+            '7.1.1'   // Acciones preventivas y correctivas
+        ];
+
+        $db = \Config\Database::connect();
+        $builder = $db->table('evaluacion_inicial_sst');
+
+        // Resetear: poner evaluacion_inicial = '' y puntaje_cuantitativo = 0
+        // Usamos el campo 'numeral' para hacer match exacto
+        $affectedRows = $builder
+            ->where('id_cliente', $idCliente)
+            ->whereIn('numeral', $numeralesARenovar)
+            ->update([
+                'evaluacion_inicial' => '',
+                'puntaje_cuantitativo' => 0,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+        $countAffected = $db->affectedRows();
+
+        if ($countAffected > 0) {
+            log_message('info', "Ciclo PHVA reseteado para cliente {$cliente['nombre_cliente']} (ID: {$idCliente}). Items afectados: {$countAffected}");
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "Se resetearon {$countAffected} evaluaciones del ciclo PHVA para {$cliente['nombre_cliente']}",
+                'affected_rows' => $countAffected
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No se encontraron evaluaciones para resetear o ya estaban vacías'
+            ]);
+        }
+    }
+
+    /**
+     * Obtener lista de clientes para el modal de reseteo
+     */
+    public function getClientesParaReseteo()
+    {
+        $clientModel = new ClientModel();
+        $clientes = $clientModel->orderBy('nombre_cliente', 'ASC')->findAll();
+
+        $data = [];
+        foreach ($clientes as $cliente) {
+            $data[] = [
+                'id' => $cliente['id_cliente'],
+                'nombre' => $cliente['nombre_cliente']
+            ];
+        }
+
+        return $this->response->setJSON($data);
+    }
+
 }

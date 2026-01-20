@@ -535,7 +535,12 @@
       <div class="col-md-2 align-self-end">
         <button id="loadData" class="btn btn-primary">Cargar Datos</button>
       </div>
-      <div class="col-md-7 align-self-end">
+      <div class="col-md-2 align-self-end">
+        <button id="btnSocializarCronograma" class="btn btn-success btn-sm" title="Enviar Cronograma de Capacitaciones por email al cliente y consultor">
+          <i class="fas fa-envelope"></i> Socializar Cronograma
+        </button>
+      </div>
+      <div class="col-md-5 align-self-end">
         <button id="clearState" class="btn btn-danger btn-sm me-2">Restablecer Filtros</button>
         <div id="buttonsContainer" class="d-inline-block"></div>
       </div>
@@ -1646,6 +1651,47 @@
           error: function(xhr, status, error) {
             console.error('Error al cargar clientes:', error);
             alert('Error al cargar la lista de clientes');
+          }
+        });
+      });
+
+      // Manejador para el botón de Socializar Cronograma de Capacitaciones
+      $('#btnSocializarCronograma').on('click', function() {
+        var clienteId = $('#clientSelect').val();
+
+        if (!clienteId) {
+          alert('Debe seleccionar un cliente primero.');
+          return;
+        }
+
+        if (!confirm('¿Desea enviar el Cronograma de Capacitaciones por email al cliente y al consultor?\n\nSe enviará copia a:\n- solangel.cuervo@cycloidtalent.com\n- head.consultant.cycloidtalent@gmail.com')) {
+          return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Enviando...');
+
+        $.ajax({
+          url: '<?= base_url('/socializacion/send-cronograma-capacitaciones') ?>',
+          method: 'POST',
+          data: {
+            id_cliente: clienteId,
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+          },
+          dataType: 'json',
+          success: function(response) {
+            if (response.success) {
+              alert('Email enviado exitosamente.\n\n' + response.message);
+            } else {
+              alert('Error: ' + response.message);
+            }
+          },
+          error: function(xhr, status, error) {
+            alert('Error al enviar el email: ' + error);
+            console.error('Error AJAX:', xhr.responseText);
+          },
+          complete: function() {
+            $btn.prop('disabled', false).html('<i class="fas fa-envelope"></i> Socializar Cronograma');
           }
         });
       });

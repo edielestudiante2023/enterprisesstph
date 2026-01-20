@@ -121,6 +121,48 @@
       <div class="col-md-2 align-self-end">
         <button id="loadData" class="btn btn-primary">Cargar Datos</button>
       </div>
+      <div class="col-md-2 align-self-end">
+        <button id="btnSocializarEvaluacion" class="btn btn-success btn-sm" title="Enviar Evaluación de Estándares Mínimos por email al cliente y consultor">
+          <i class="fas fa-envelope"></i> Socializar Evaluación
+        </button>
+      </div>
+      <div class="col-md-2 align-self-end">
+        <button id="btnResetCicloPHVA" class="btn btn-danger btn-sm" title="Resetear las 37 evaluaciones del ciclo PHVA anual" data-bs-toggle="modal" data-bs-target="#confirmResetModal">
+          <i class="fas fa-redo-alt"></i> Resetear Ciclo PHVA
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal de Confirmación para Reset PHVA -->
+    <div class="modal fade" id="confirmResetModal" tabindex="-1" aria-labelledby="confirmResetModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title" id="confirmResetModalLabel">
+              <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Reseteo del Ciclo PHVA
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-warning">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Información:</strong> Esta acción reseteará las 37 evaluaciones del ciclo PHVA anual. Los campos de evaluación inicial quedarán vacíos y el puntaje cuantitativo se pondrá en 0.
+            </div>
+            <div class="alert alert-danger">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              <strong>¡ATENCIÓN!</strong> Esta acción no se puede deshacer.
+            </div>
+            <p class="fs-5">¿Está seguro que desea resetear el ciclo PHVA para:</p>
+            <p class="fs-4 fw-bold text-center text-primary" id="clienteNombreConfirm"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="btnEjecutarReset">
+              <i class="fas fa-check me-1"></i>Sí, Resetear Ahora
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Tarjetas de indicadores compactas -->
@@ -735,6 +777,107 @@ columns: [{
       table.on('draw.dt', function () {
         updateFilters(table);
         initializeTooltips();
+      });
+
+      // Manejador para el botón de Socializar Evaluación de Estándares
+      $('#btnSocializarEvaluacion').on('click', function() {
+        var clienteId = $('#clientSelect').val();
+
+        if (!clienteId) {
+          alert('Debe seleccionar un cliente primero.');
+          return;
+        }
+
+        if (!confirm('¿Desea enviar la Evaluación de Estándares Mínimos por email al cliente y al consultor?\n\nSe enviará copia a:\n- solangel.cuervo@cycloidtalent.com\n- head.consultant.cycloidtalent@gmail.com')) {
+          return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Enviando...');
+
+        $.ajax({
+          url: '<?= base_url('/socializacion/send-evaluacion-estandares') ?>',
+          method: 'POST',
+          data: {
+            id_cliente: clienteId,
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+          },
+          dataType: 'json',
+          success: function(response) {
+            if (response.success) {
+              alert('Email enviado exitosamente.\n\n' + response.message);
+            } else {
+              alert('Error: ' + response.message);
+            }
+          },
+          error: function(xhr, status, error) {
+            alert('Error al enviar el email: ' + error);
+            console.error('Error AJAX:', xhr.responseText);
+          },
+          complete: function() {
+            $btn.prop('disabled', false).html('<i class="fas fa-envelope"></i> Socializar Evaluación');
+          }
+        });
+      });
+
+      // ============================================
+      // Funcionalidad Reset Ciclo PHVA
+      // ============================================
+
+      // Validar que haya cliente seleccionado antes de abrir el modal
+      $('#btnResetCicloPHVA').on('click', function(e) {
+        var clienteId = $('#clientSelect').val();
+        if (!clienteId) {
+          e.preventDefault();
+          e.stopPropagation();
+          alert('Debe seleccionar un cliente primero.');
+          return false;
+        }
+        // Mostrar nombre del cliente en el modal
+        var clienteNombre = $('#clientSelect option:selected').text();
+        $('#clienteNombreConfirm').text(clienteNombre);
+      });
+
+      // Ejecutar el reset cuando se confirma
+      $('#btnEjecutarReset').on('click', function() {
+        var clienteId = $('#clientSelect').val();
+        var $btn = $(this);
+
+        if (!clienteId) {
+          alert('Debe seleccionar un cliente primero.');
+          $('#confirmResetModal').modal('hide');
+          return;
+        }
+
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Procesando...');
+
+        $.ajax({
+          url: '<?= base_url('api/resetCicloPHVA') ?>',
+          method: 'POST',
+          data: {
+            id_cliente: clienteId,
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+          },
+          dataType: 'json',
+          success: function(response) {
+            $('#confirmResetModal').modal('hide');
+            if (response.success) {
+              alert('✅ ' + response.message);
+              // Recargar la tabla para reflejar los cambios
+              $('#loadData').click();
+            } else {
+              alert('❌ Error: ' + response.message);
+            }
+          },
+          error: function(xhr, status, error) {
+            $('#confirmResetModal').modal('hide');
+            alert('❌ Error al procesar la solicitud: ' + error);
+            console.error('Error:', xhr.responseText);
+          },
+          complete: function() {
+            $btn.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Sí, Resetear Ahora');
+          }
+        });
       });
     });
   </script>

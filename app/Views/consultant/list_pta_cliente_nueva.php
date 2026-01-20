@@ -364,6 +364,11 @@
             <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#renewPlanModal">
                 <i class="fas fa-sync-alt"></i> Renovar Plan de Trabajo
             </button>
+            <?php if (!empty($filters['cliente'])): ?>
+            <button type="button" id="btnSocializarPlanTrabajo" class="btn btn-success btn-sm" title="Enviar Plan de Trabajo por email al cliente y consultor">
+                <i class="fas fa-envelope"></i> Socializar Plan de Trabajo
+            </button>
+            <?php endif; ?>
         </div>
 
         <!-- Mensaje informativo -->
@@ -1578,6 +1583,49 @@
                 event.stopPropagation();
             }
             this.classList.add('was-validated');
+        });
+
+        // Manejador para el botón de Socializar Plan de Trabajo
+        $(document).ready(function() {
+            $('#btnSocializarPlanTrabajo').on('click', function() {
+                var clienteId = '<?= $filters['cliente'] ?? '' ?>';
+
+                if (!clienteId) {
+                    alert('Debe seleccionar un cliente primero.');
+                    return;
+                }
+
+                if (!confirm('¿Desea enviar el Plan de Trabajo por email al cliente y al consultor?\n\nSe enviará copia a:\n- solangel.cuervo@cycloidtalent.com\n- head.consultant.cycloidtalent@gmail.com')) {
+                    return;
+                }
+
+                var $btn = $(this);
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Enviando...');
+
+                $.ajax({
+                    url: '<?= base_url('/socializacion/send-plan-trabajo') ?>',
+                    method: 'POST',
+                    data: {
+                        id_cliente: clienteId,
+                        '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Email enviado exitosamente.\n\n' + response.message);
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error al enviar el email: ' + error);
+                        console.error('Error AJAX:', xhr.responseText);
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html('<i class="fas fa-envelope"></i> Socializar Plan de Trabajo');
+                    }
+                });
+            });
         });
     </script>
 </body>

@@ -538,6 +538,8 @@ $routes->get('api/getEvaluaciones', 'EvaluationController::getEvaluaciones');
 $routes->get('api/getClientIndicators', 'EvaluationController::getClientIndicators');
 $routes->post('api/updateEvaluacion', 'EvaluationController::updateEvaluacion');
 $routes->get('listEvaluacionesAjax', 'EvaluationController::listEvaluacionesAjax');
+$routes->post('api/resetCicloPHVA', 'EvaluationController::resetCicloPHVA');
+$routes->get('api/getClientesParaReseteo', 'EvaluationController::getClientesParaReseteo');
 
 $routes->get('api/getClientes', 'CronogcapacitacionController::getClientes');
 $routes->get('api/getCronogramasAjax', 'CronogcapacitacionController::getCronogramasAjax');
@@ -643,5 +645,11 @@ $routes->get('/contracts/descargar-filtrado/(:num)', 'DocumentacionContratoContr
 $routes->get('/contracts/documentacion-cliente/(:num)', 'DocumentacionContratoController::seleccionarDocumentacion/$1');
 $routes->get('/contracts/descargar-documentacion-cliente/(:num)', 'DocumentacionContratoController::descargarPorCliente/$1');
 
+// ============================================================================
+// RUTAS DE SOCIALIZACIÓN - DECRETO 1072 (Envío de emails)
+// ============================================================================
+$routes->post('/socializacion/send-plan-trabajo', 'SocializacionEmailController::sendPlanTrabajo');
+$routes->post('/socializacion/send-cronograma-capacitaciones', 'SocializacionEmailController::sendCronogramaCapacitaciones');
+$routes->post('/socializacion/send-evaluacion-estandares', 'SocializacionEmailController::sendEvaluacionEstandares');
 
 
