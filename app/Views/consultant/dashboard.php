@@ -491,11 +491,16 @@
             </div>
         </div>
 
-        <!-- Botón de Acceso Rápido -->
+        <!-- Botones de Acceso Rápido -->
         <div class="text-center mb-4">
             <a href="<?= base_url('/quick-access') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary)); border: none;">
+                <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary)); border: none;">
                     <i class="fas fa-bolt me-2"></i>Acceso Rápido
+                </button>
+            </a>
+            <a href="<?= base_url('/admin/usage') ?>" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #11998e, #38ef7d); border: none;">
+                    <i class="fas fa-chart-line me-2"></i>Consumo de Plataforma
                 </button>
             </a>
         </div>

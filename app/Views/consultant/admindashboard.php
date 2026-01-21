@@ -615,11 +615,21 @@
                 <p><i class="fas fa-tools me-2"></i>Centro de Control - Gestión Avanzada de Procesos SST</p>
             </div>
 
-            <!-- Botón de Acceso Rápido -->
+            <!-- Botones de Acceso Rápido -->
             <div class="text-center mb-4">
                 <a href="<?= base_url('/quick-access') ?>" target="_blank" rel="noopener noreferrer">
-                    <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary)); border: none;" aria-label="Acceso Rápido">
+                    <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary)); border: none;" aria-label="Acceso Rápido">
                         <i class="fas fa-bolt me-2"></i>Acceso Rápido
+                    </button>
+                </a>
+                <a href="<?= base_url('/admin/users') ?>" rel="noopener noreferrer">
+                    <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #667eea, #764ba2); border: none;" aria-label="Gestión de Usuarios">
+                        <i class="fas fa-users-cog me-2"></i>Gestión de Usuarios
+                    </button>
+                </a>
+                <a href="<?= base_url('/admin/usage') ?>" rel="noopener noreferrer">
+                    <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #11998e, #38ef7d); border: none;" aria-label="Consumo de Plataforma">
+                        <i class="fas fa-chart-line me-2"></i>Consumo de Plataforma
                     </button>
                 </a>
             </div>

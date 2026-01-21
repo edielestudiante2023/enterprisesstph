@@ -14,6 +14,12 @@ $routes->get('/', 'AuthController::login');
 $routes->get('/login', 'AuthController::login');
 $routes->post('/loginPost', 'AuthController::loginPost');
 $routes->get('/logout', 'AuthController::logout');
+
+// Recuperación de contraseña
+$routes->get('/forgot-password', 'AuthController::forgotPassword');
+$routes->post('/forgot-password', 'AuthController::forgotPasswordPost');
+$routes->get('/reset-password/(:any)', 'AuthController::resetPassword/$1');
+$routes->post('/reset-password-post', 'AuthController::resetPasswordPost');
 $routes->get('/dashboardclient', 'ClientController::index');
 $routes->get('/dashboardclient', 'ClientController::dashboard');
 $routes->get('/dashboardclient', 'ClientController::dashboardSimplified');
@@ -652,4 +658,26 @@ $routes->post('/socializacion/send-plan-trabajo', 'SocializacionEmailController:
 $routes->post('/socializacion/send-cronograma-capacitaciones', 'SocializacionEmailController::sendCronogramaCapacitaciones');
 $routes->post('/socializacion/send-evaluacion-estandares', 'SocializacionEmailController::sendEvaluacionEstandares');
 
+// ============================================================================
+// RUTAS DE GESTIÓN DE USUARIOS
+// ============================================================================
+$routes->get('/admin/users', 'UserController::listUsers');
+$routes->get('/admin/users/add', 'UserController::addUser');
+$routes->post('/admin/users/add', 'UserController::addUserPost');
+$routes->get('/admin/users/edit/(:num)', 'UserController::editUser/$1');
+$routes->post('/admin/users/edit/(:num)', 'UserController::editUserPost/$1');
+$routes->get('/admin/users/delete/(:num)', 'UserController::deleteUser/$1');
+$routes->get('/admin/users/toggle/(:num)', 'UserController::toggleStatus/$1');
+$routes->get('/admin/users/reset-password/(:num)', 'UserController::resetPassword/$1');
+
+// Ruta para vista de cuenta bloqueada
+$routes->get('/auth/blocked', 'AuthController::blocked');
+
+// ============================================================================
+// RUTAS DE CONSUMO DE PLATAFORMA (TRACKING DE SESIONES)
+// ============================================================================
+$routes->get('/admin/usage', 'UsageController::index');
+$routes->get('/admin/usage/user/(:num)', 'UsageController::userDetail/$1');
+$routes->get('/admin/usage/export-csv', 'UsageController::exportCsv');
+$routes->get('/admin/usage/chart-data', 'UsageController::chartData');
 
