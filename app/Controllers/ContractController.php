@@ -67,8 +67,11 @@ class ContractController extends Controller
 
         $contracts = $builder->orderBy('tbl_contratos.created_at', 'DESC')->get()->getResultArray();
 
-        // Obtener estadísticas
-        $stats = $this->contractLibrary->getContractStats($role === 'consultor' ? $idConsultor : null);
+        // Obtener estadísticas (filtradas por estado del cliente si se especifica)
+        $stats = $this->contractLibrary->getContractStats(
+            $role === 'consultor' ? $idConsultor : null,
+            $estadoCliente
+        );
 
         // Obtener lista de clientes para el filtro
         $clients = $role === 'consultor'

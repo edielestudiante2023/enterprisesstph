@@ -277,14 +277,23 @@ class ContractLibrary
 
     /**
      * Obtiene estadísticas generales de contratos
+     * @param int|null $idConsultor Filtrar por consultor
+     * @param string|null $estadoCliente Filtrar por estado del cliente (activo, inactivo, pendiente)
      */
-    public function getContractStats($idConsultor = null)
+    public function getContractStats($idConsultor = null, $estadoCliente = null)
     {
         $builder = $this->contractModel->builder();
 
+        // Siempre hacer join con clientes para poder filtrar por estado_cliente
+        $builder->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_contratos.id_cliente');
+
         if ($idConsultor) {
-            $builder->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_contratos.id_cliente')
-                    ->where('tbl_clientes.id_consultor', $idConsultor);
+            $builder->where('tbl_clientes.id_consultor', $idConsultor);
+        }
+
+        // Filtrar por estado del cliente si se especifica
+        if ($estadoCliente) {
+            $builder->where('tbl_clientes.estado', $estadoCliente);
         }
 
         $result = $builder->select("
@@ -307,10 +316,16 @@ class ContractLibrary
 
         // Calcular tasa de renovación
         $builderInicial = $this->contractModel->builder();
+        $builderInicial->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_contratos.id_cliente');
+
         if ($idConsultor) {
-            $builderInicial->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_contratos.id_cliente')
-                          ->where('tbl_clientes.id_consultor', $idConsultor);
+            $builderInicial->where('tbl_clientes.id_consultor', $idConsultor);
         }
+
+        if ($estadoCliente) {
+            $builderInicial->where('tbl_clientes.estado', $estadoCliente);
+        }
+
         $totalInicial = $builderInicial->where('tbl_contratos.tipo_contrato', 'inicial')->countAllResults();
 
         $stats['tasa_renovacion'] = $totalInicial > 0
