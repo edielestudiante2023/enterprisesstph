@@ -36,9 +36,10 @@ class ContractController extends Controller
         $estado = $this->request->getGet('estado');
         $tipo = $this->request->getGet('tipo');
         $idCliente = $this->request->getGet('id_cliente');
+        $estadoCliente = $this->request->getGet('estado_cliente');
 
         $builder = $this->contractModel->builder();
-        $builder->select('tbl_contratos.*, tbl_clientes.nombre_cliente, tbl_clientes.nit_cliente')
+        $builder->select('tbl_contratos.*, tbl_clientes.nombre_cliente, tbl_clientes.nit_cliente, tbl_clientes.estado as estado_cliente')
                 ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_contratos.id_cliente');
 
         // Filtrar por consultor si es consultor
@@ -59,6 +60,11 @@ class ContractController extends Controller
             $builder->where('tbl_contratos.id_cliente', $idCliente);
         }
 
+        // Filtro por estado del cliente (activo/inactivo/pendiente)
+        if ($estadoCliente) {
+            $builder->where('tbl_clientes.estado', $estadoCliente);
+        }
+
         $contracts = $builder->orderBy('tbl_contratos.created_at', 'DESC')->get()->getResultArray();
 
         // Obtener estadísticas
@@ -76,7 +82,8 @@ class ContractController extends Controller
             'filters' => [
                 'estado' => $estado,
                 'tipo' => $tipo,
-                'id_cliente' => $idCliente
+                'id_cliente' => $idCliente,
+                'estado_cliente' => $estadoCliente
             ]
         ];
 
