@@ -638,6 +638,9 @@ $routes->get('/contracts/edit-contract-data/(:num)', 'ContractController::editCo
 $routes->post('/contracts/save-and-generate/(:num)', 'ContractController::saveAndGeneratePDF/$1');
 $routes->get('/contracts/download-pdf/(:num)', 'ContractController::downloadPDF/$1');
 
+// Generación de cláusula con IA
+$routes->post('/contracts/generate-clausula-ia', 'ContractController::generateClausulaIA');
+
 // Descarga de documentación del contrato
 $routes->get('/contracts/documentacion/(:num)', 'DocumentacionContratoController::previsualizarDocumentacion/$1');
 $routes->get('/contracts/descargar-documentacion/(:num)', 'DocumentacionContratoController::descargarDocumentacion/$1');

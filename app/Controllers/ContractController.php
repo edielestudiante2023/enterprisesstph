@@ -638,4 +638,146 @@ class ContractController extends Controller
         // Descargar el archivo
         return $this->response->download($filePath, null)->setFileName(basename($filePath));
     }
+
+    /**
+     * Genera la cláusula cuarta usando OpenAI
+     */
+    public function generateClausulaIA()
+    {
+        // Verificar que sea una petición AJAX
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Petición no válida'
+            ])->setStatusCode(400);
+        }
+
+        $instrucciones = $this->request->getPost('instrucciones');
+        $nombreCliente = $this->request->getPost('nombre_cliente');
+        $fechaInicio = $this->request->getPost('fecha_inicio');
+        $fechaFin = $this->request->getPost('fecha_fin');
+        $valorContrato = $this->request->getPost('valor_contrato');
+        $tipoContrato = $this->request->getPost('tipo_contrato');
+
+        if (empty($instrucciones)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Por favor ingrese las instrucciones para generar la cláusula'
+            ]);
+        }
+
+        // Obtener API key de OpenAI
+        $apiKey = getenv('OPENAI_API_KEY');
+
+        if (empty($apiKey)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'API key de OpenAI no configurada'
+            ]);
+        }
+
+        // Construir el prompt del sistema
+        $systemPrompt = "Eres un experto en redacción de contratos de servicios de Seguridad y Salud en el Trabajo (SG-SST) en Colombia.
+Tu tarea es redactar la CLÁUSULA CUARTA de un contrato de prestación de servicios.
+
+La cláusula debe incluir:
+1. CUARTA-PLAZO DE EJECUCIÓN: El plazo para la ejecución de actividades
+2. CUARTA-DURACIÓN: La duración total del contrato
+3. PARÁGRAFO PRIMERO: Condiciones de terminación anticipada
+4. PARÁGRAFO SEGUNDO: Condiciones sobre prórroga automática
+
+Usa un lenguaje formal y legal apropiado para contratos en Colombia.
+NO incluyas saludos ni explicaciones, solo el texto de la cláusula.";
+
+        // Construir el prompt del usuario
+        $userPrompt = "Genera la CLÁUSULA CUARTA para un contrato con los siguientes datos:
+
+DATOS DEL CONTRATO:
+- Cliente: " . ($nombreCliente ?: 'Por definir') . "
+- Fecha de inicio: " . ($fechaInicio ?: 'Por definir') . "
+- Fecha de finalización: " . ($fechaFin ?: 'Por definir') . "
+- Valor del contrato: $" . ($valorContrato ? number_format($valorContrato, 0, ',', '.') : 'Por definir') . " COP
+- Tipo de contrato: " . ($tipoContrato ?: 'inicial') . "
+
+INSTRUCCIONES ESPECÍFICAS DEL VENDEDOR:
+" . $instrucciones . "
+
+Genera únicamente el texto de la cláusula, listo para insertar en el contrato.";
+
+        try {
+            // Llamar a la API de OpenAI
+            $ch = curl_init('https://api.openai.com/v1/chat/completions');
+
+            $payload = [
+                'model' => 'gpt-4o-mini',
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user', 'content' => $userPrompt]
+                ],
+                'temperature' => 0.7,
+                'max_tokens' => 1500
+            ];
+
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode($payload),
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'Authorization: Bearer ' . $apiKey
+                ],
+                CURLOPT_TIMEOUT => 60
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            if ($curlError) {
+                log_message('error', 'Error cURL OpenAI: ' . $curlError);
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Error de conexión: ' . $curlError
+                ]);
+            }
+
+            $data = json_decode($response, true);
+
+            if ($httpCode !== 200) {
+                $errorMsg = $data['error']['message'] ?? 'Error desconocido de OpenAI';
+                log_message('error', 'Error OpenAI API: ' . $errorMsg);
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Error de OpenAI: ' . $errorMsg
+                ]);
+            }
+
+            $clausulaGenerada = $data['choices'][0]['message']['content'] ?? '';
+
+            if (empty($clausulaGenerada)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No se pudo generar la cláusula'
+                ]);
+            }
+
+            // Log de uso de tokens para monitoreo
+            $tokensUsados = $data['usage']['total_tokens'] ?? 0;
+            log_message('info', 'OpenAI - Cláusula generada. Tokens usados: ' . $tokensUsados);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'clausula' => $clausulaGenerada,
+                'tokens_usados' => $tokensUsados
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Excepción al llamar OpenAI: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al generar la cláusula: ' . $e->getMessage()
+            ]);
+        }
+    }
 }

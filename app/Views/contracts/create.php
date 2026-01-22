@@ -169,17 +169,40 @@
                     <h5 class="mb-0"><i class="fas fa-clock"></i> Cláusula Cuarta - Duración y Plazo de Ejecución</h5>
                 </div>
 
+                <!-- Generador de Cláusula con IA -->
+                <div class="card border-primary mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-robot"></i> Generar Cláusula con Inteligencia Artificial</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="instrucciones_ia" class="form-label">
+                                <i class="fas fa-lightbulb text-warning"></i> Instrucciones para la IA
+                            </label>
+                            <textarea class="form-control" id="instrucciones_ia" rows="4"
+                                      placeholder="Describa las condiciones específicas del contrato. Ejemplos:
+- Anticipo del 50% al inicio
+- Plazo de ejecución de 30 días para diseño documental
+- Contrato de 6 meses
+- Sin prórroga automática
+- Incluir condiciones para terminación anticipada"></textarea>
+                            <small class="text-muted">
+                                Escriba las condiciones que desea incluir y la IA generará el texto legal completo.
+                            </small>
+                        </div>
+                        <button type="button" id="btnGenerarIA" class="btn btn-primary">
+                            <i class="fas fa-magic"></i> Generar con IA
+                        </button>
+                        <span id="iaStatus" class="ms-3 text-muted" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Generando cláusula...
+                        </span>
+                    </div>
+                </div>
+
                 <div class="alert alert-warning">
                     <i class="fas fa-exclamation-triangle"></i>
                     <strong>Importante:</strong> Esta cláusula es personalizable y debe adaptarse a las condiciones específicas
-                    negociadas con el cliente. Incluya información sobre:
-                    <ul class="mb-0 mt-2">
-                        <li>Plazo de ejecución (días calendario)</li>
-                        <li>Porcentaje y condiciones de anticipo</li>
-                        <li>Duración del contrato en meses</li>
-                        <li>Condiciones de terminación anticipada</li>
-                        <li>Obligaciones del contratista</li>
-                    </ul>
+                    negociadas con el cliente. Puede usar el generador de IA arriba o escribir manualmente.
                 </div>
 
                 <div class="mb-3">
@@ -187,9 +210,9 @@
                         <i class="fas fa-file-contract"></i> Texto de la Cláusula Cuarta
                     </label>
                     <textarea class="form-control" id="clausula_cuarta_duracion" name="clausula_cuarta_duracion" rows="10"
-                              placeholder="Ejemplo:&#10;&#10;CUARTA-PLAZO DE EJECUCIÓN: El plazo para la ejecución será de 30 días calendario contados a partir de la firma del presente acuerdo y del pago inicial del anticipo del 50%, para la entrega del Diseño Documental, para la gestión del auto reporte se realizará en los tiempos estipulados por el Ministerio de protección Social.&#10;&#10;CUARTA-DURACIÓN: La duración de este contrato es de 6 meses contados a partir de la fecha de la firma y con finalización 30 de abril 2026...&#10;&#10;PARÁGRAFO PRIMERO: En caso de terminación anticipada de este contrato, solo se reconocerán los honorarios causados por actividades ejecutadas hasta dicho momento...&#10;&#10;PARÁGRAFO SEGUNDO: Sobre el presente contrato no opera la prórroga automática..."></textarea>
+                              placeholder="Use el botón 'Generar con IA' arriba o escriba manualmente aquí..."></textarea>
                     <small class="text-muted">
-                        Este texto aparecerá en el PDF del contrato como la CLÁUSULA CUARTA. Puede copiar y adaptar el ejemplo mostrado en el placeholder.
+                        Este texto aparecerá en el PDF del contrato como la CLÁUSULA CUARTA.
                     </small>
                 </div>
 
@@ -280,6 +303,71 @@
                 document.getElementById('fecha_fin').value = fechaFin;
                 calcularValorMensual();
             }
+        });
+
+        // ============================================
+        // Generación de Cláusula con IA (OpenAI)
+        // ============================================
+        document.getElementById('btnGenerarIA').addEventListener('click', function() {
+            const instrucciones = document.getElementById('instrucciones_ia').value.trim();
+
+            if (!instrucciones) {
+                alert('Por favor ingrese las instrucciones para generar la cláusula');
+                return;
+            }
+
+            // Obtener datos del formulario para contexto
+            const clienteSelect = document.getElementById('id_cliente');
+            const nombreCliente = clienteSelect.options[clienteSelect.selectedIndex]?.text || '';
+            const fechaInicio = document.getElementById('fecha_inicio').value;
+            const fechaFin = document.getElementById('fecha_fin').value;
+            const valorContrato = document.getElementById('valor_contrato').value;
+            const tipoContrato = document.getElementById('tipo_contrato').value;
+
+            // Mostrar estado de carga
+            const btnGenerarIA = document.getElementById('btnGenerarIA');
+            const iaStatus = document.getElementById('iaStatus');
+            btnGenerarIA.disabled = true;
+            iaStatus.style.display = 'inline';
+
+            // Llamar al endpoint
+            fetch('<?= base_url('/contracts/generate-clausula-ia') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new URLSearchParams({
+                    '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
+                    'instrucciones': instrucciones,
+                    'nombre_cliente': nombreCliente,
+                    'fecha_inicio': fechaInicio,
+                    'fecha_fin': fechaFin,
+                    'valor_contrato': valorContrato,
+                    'tipo_contrato': tipoContrato
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                btnGenerarIA.disabled = false;
+                iaStatus.style.display = 'none';
+
+                if (data.success) {
+                    document.getElementById('clausula_cuarta_duracion').value = data.clausula;
+
+                    // Mostrar mensaje de éxito
+                    const tokensMsg = data.tokens_usados ? ` (${data.tokens_usados} tokens usados)` : '';
+                    alert('¡Cláusula generada exitosamente!' + tokensMsg + '\n\nRevise y ajuste el texto si es necesario.');
+                } else {
+                    alert('Error: ' + (data.message || 'No se pudo generar la cláusula'));
+                }
+            })
+            .catch(error => {
+                btnGenerarIA.disabled = false;
+                iaStatus.style.display = 'none';
+                console.error('Error:', error);
+                alert('Error de conexión. Por favor intente de nuevo.');
+            });
         });
     </script>
 </body>
