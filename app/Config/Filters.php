@@ -12,6 +12,7 @@ use CodeIgniter\Filters\InvalidChars;
 use CodeIgniter\Filters\PageCache;
 use CodeIgniter\Filters\PerformanceMetrics;
 use CodeIgniter\Filters\SecureHeaders;
+use App\Filters\AuthFilter;
 
 class Filters extends BaseFilters
 {
@@ -34,6 +35,7 @@ class Filters extends BaseFilters
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
+        'auth'          => AuthFilter::class,
     ];
 
     /**
@@ -103,5 +105,88 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    public array $filters = [
+        'auth' => [
+            'before' => [
+                'dashboard*',
+                'dashboardclient*',
+                'dashboardconsultant*',
+                'admindashboard*',
+                'client/*',
+                'consultant/*',
+                'admin/*',
+                'addClient*',
+                'editClient*',
+                'deleteClient*',
+                'listClients*',
+                'addConsultant*',
+                'editConsultant*',
+                'deleteConsultant*',
+                'listConsultants*',
+                'addReport*',
+                'editReport*',
+                'deleteReport*',
+                'reportList*',
+                'addPolicy*',
+                'editPolicy*',
+                'deletePolicy*',
+                'listPolicies*',
+                'listPolicyTypes*',
+                'addPolicyType*',
+                'editPolicyType*',
+                'deletePolicyType*',
+                'viewDocuments*',
+                'pdfUnificado*',
+                'generarPdfUnificado*',
+                'quick-access*',
+                'listVigias*',
+                'addVigia*',
+                'editVigia*',
+                'deleteVigia*',
+                'listKpi*',
+                'addKpi*',
+                'editKpi*',
+                'deleteKpi*',
+                'listEvaluaciones*',
+                'addEvaluacion*',
+                'editEvaluacion*',
+                'deleteEvaluacion*',
+                'listCapacitaciones*',
+                'addCapacitacion*',
+                'editCapacitacion*',
+                'deleteCapacitacion*',
+                'listcronogCapacitacion*',
+                'addcronogCapacitacion*',
+                'editcronogCapacitacion*',
+                'deletecronogCapacitacion*',
+                'listPlanDeTrabajoAnual*',
+                'addPlanDeTrabajoAnual*',
+                'editPlanDeTrabajoAnual*',
+                'deletePlanDeTrabajoAnual*',
+                'listPendientes*',
+                'addPendiente*',
+                'editPendiente*',
+                'deletePendiente*',
+                'contracts*',
+                'lookerstudio/*',
+                'matrices/*',
+                'mantenimientos*',
+                'vencimientos*',
+                'api/*',
+                'pta-cliente-nueva/*',
+                'accesosseguncliente/*',
+                'estandarcontractual/*',
+                'accesosseguncontractualidad/*',
+                // Rutas de documentos PDF
+                'responsableSGSST/*',
+                'policyNoAlcoholDrogas/*',
+                'asignacionResponsable/*',
+                'asignacionResponsabilidades/*',
+                'viewPolicy/*',
+                'generatePdf*',
+                // Y muchas más rutas de documentos...
+            ],
+        ],
+    ];
 }
+
