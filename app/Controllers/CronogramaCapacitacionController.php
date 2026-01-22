@@ -28,7 +28,7 @@ class CronogramaCapacitacionController extends Controller
 
             // Obtener datos de la capacitación
             $capacitacion = $capacitacionModel->find($cronograma['id_capacitacion']);
-            $cronograma['nombre_capacitacion'] = $capacitacion ? $capacitacion['capacitacion'] : 'No disponible';
+            $cronograma['nombre_capacitacion'] = ($capacitacion && isset($capacitacion['capacitacion'])) ? $capacitacion['capacitacion'] : 'No disponible';
         }
 
         // Enviar los datos a la vista (se utiliza el mismo nombre de vista que antes)
