@@ -859,6 +859,37 @@
                 }
             });
 
+            // ============================================
+            // Precargar cliente desde localStorage (Quick Access)
+            // ============================================
+            var storedClient = localStorage.getItem('selectedClient');
+            var currentClientParam = '<?= service('request')->getGet('cliente') ?? '' ?>';
+
+            // Solo precargar si no hay cliente ya seleccionado por URL y hay uno guardado en localStorage
+            if (storedClient && !currentClientParam) {
+                // Verificar que el cliente exista en las opciones
+                if ($('#cliente option[value="' + storedClient + '"]').length > 0) {
+                    $('#cliente').val(storedClient).trigger('change');
+                    console.log('Cliente precargado desde Quick Access: ' + storedClient);
+
+                    // Enviar formulario automáticamente usando la lógica de "Ver Todos"
+                    $('#filterForm').data('via-todos', true);
+                    setTimeout(function() {
+                        $('#filterForm').submit();
+                    }, 500);
+                }
+            }
+
+            // Guardar cliente en localStorage cuando se seleccione manualmente
+            $('#cliente').on('change', function() {
+                var clientId = $(this).val();
+                if (clientId) {
+                    localStorage.setItem('selectedClient', clientId);
+                } else {
+                    localStorage.removeItem('selectedClient');
+                }
+            });
+
             // Generar tarjetas de años dinámicamente
             function generateYearCards() {
                 if (!table) return;

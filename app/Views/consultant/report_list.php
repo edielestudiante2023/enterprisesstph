@@ -1069,6 +1069,26 @@
         width: 'resolve'
       });
 
+      // ============================================
+      // Precargar cliente desde localStorage (Quick Access)
+      // ============================================
+      var storedClientId = localStorage.getItem('selectedClient');
+      if (storedClientId) {
+        // Mapeo de id_cliente a nombre_cliente
+        var clientMap = {
+          <?php foreach ($clients as $client): ?>
+          '<?= $client['id_cliente'] ?>': '<?= addslashes($client['nombre_cliente']) ?>',
+          <?php endforeach; ?>
+        };
+
+        var clientName = clientMap[storedClientId];
+        if (clientName) {
+          // Seleccionar el cliente en el filtro
+          $('#clientFilter').val(clientName).trigger('change');
+          console.log('Cliente precargado desde Quick Access: ' + clientName);
+        }
+      }
+
       // Inicializamos Select2 en el select de descarga de documentación
       $('#clientDownload').select2({
         placeholder: "-- Seleccione un cliente --",
@@ -1085,6 +1105,21 @@
           updateMonthlyCounts();
           generateYearCards();
         }, 100);
+
+        // Guardar en localStorage para Quick Access (mapeo inverso nombre -> id)
+        if (selected) {
+          var reverseClientMap = {
+            <?php foreach ($clients as $client): ?>
+            '<?= addslashes($client['nombre_cliente']) ?>': '<?= $client['id_cliente'] ?>',
+            <?php endforeach; ?>
+          };
+          var clientId = reverseClientMap[selected];
+          if (clientId) {
+            localStorage.setItem('selectedClient', clientId);
+          }
+        } else {
+          localStorage.removeItem('selectedClient');
+        }
       });
 
       // Función para aplicar filtro de fechas
