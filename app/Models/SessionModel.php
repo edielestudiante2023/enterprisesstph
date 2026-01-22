@@ -7,6 +7,13 @@ use CodeIgniter\Model;
 class SessionModel extends Model
 {
     protected $table = 'tbl_sesiones_usuario';
+
+    public function __construct()
+    {
+        parent::__construct();
+        // Asegurar zona horaria de Colombia
+        date_default_timezone_set('America/Bogota');
+    }
     protected $primaryKey = 'id_sesion';
     protected $allowedFields = [
         'id_usuario',
