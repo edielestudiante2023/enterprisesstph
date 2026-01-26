@@ -788,7 +788,7 @@ columns: [{
           return;
         }
 
-        if (!confirm('¿Desea enviar la Evaluación de Estándares Mínimos por email al cliente y al consultor?\n\nSe enviará copia a:\n- solangel.cuervo@cycloidtalent.com\n- head.consultant.cycloidtalent@gmail.com')) {
+        if (!confirm('¿Desea enviar la Evaluación de Estándares Mínimos por email al cliente y al consultor?')) {
           return;
         }
 

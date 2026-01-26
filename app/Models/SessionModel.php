@@ -47,6 +47,7 @@ class SessionModel extends Model
 
     /**
      * Cerrar sesión activa del usuario
+     * Aplica timeout máximo según el rol del usuario
      */
     public function cerrarSesion(int $idSesion): bool
     {
@@ -56,36 +57,71 @@ class SessionModel extends Model
             return false;
         }
 
-        $inicio = strtotime($sesion['inicio_sesion']);
-        $fin = time();
-        $duracion = $fin - $inicio;
+        // Obtener el rol del usuario para aplicar el timeout correcto
+        $builder = $this->db->table('tbl_usuarios');
+        $usuario = $builder->select('tipo_usuario')->where('id_usuario', $sesion['id_usuario'])->get()->getRowArray();
+        $tipoUsuario = $usuario['tipo_usuario'] ?? 'client';
+        $timeoutMaximo = self::TIMEOUT_BY_ROLE[$tipoUsuario] ?? 600;
 
+        $inicio = strtotime($sesion['inicio_sesion']);
+        $ahora = time();
+        $duracionReal = $ahora - $inicio;
+
+        // Si la duración excede el timeout, marcar como expirada con duración = timeout
+        if ($duracionReal > $timeoutMaximo) {
+            $finTimestamp = $inicio + $timeoutMaximo;
+            return $this->update($idSesion, [
+                'fin_sesion' => date('Y-m-d H:i:s', $finTimestamp),
+                'duracion_segundos' => $timeoutMaximo,
+                'estado' => 'expirada'
+            ]);
+        }
+
+        // Duración normal
         return $this->update($idSesion, [
             'fin_sesion' => date('Y-m-d H:i:s'),
-            'duracion_segundos' => $duracion,
+            'duracion_segundos' => $duracionReal,
             'estado' => 'cerrada'
         ]);
     }
 
     /**
      * Cerrar sesiones activas de un usuario (cuando inicia nueva sesión)
+     * Aplica timeout máximo según el rol del usuario
      */
     public function cerrarSesionesActivas(int $idUsuario): void
     {
+        // Obtener el rol del usuario para aplicar el timeout correcto
+        $builder = $this->db->table('tbl_usuarios');
+        $usuario = $builder->select('tipo_usuario')->where('id_usuario', $idUsuario)->get()->getRowArray();
+        $tipoUsuario = $usuario['tipo_usuario'] ?? 'client';
+        $timeoutMaximo = self::TIMEOUT_BY_ROLE[$tipoUsuario] ?? 600;
+
         $sesionesActivas = $this->where('id_usuario', $idUsuario)
                                 ->where('estado', 'activa')
                                 ->findAll();
 
         foreach ($sesionesActivas as $sesion) {
             $inicio = strtotime($sesion['inicio_sesion']);
-            $fin = time();
-            $duracion = $fin - $inicio;
+            $ahora = time();
+            $duracionReal = $ahora - $inicio;
 
-            $this->update($sesion['id_sesion'], [
-                'fin_sesion' => date('Y-m-d H:i:s'),
-                'duracion_segundos' => $duracion,
-                'estado' => 'cerrada'
-            ]);
+            // Si la duración excede el timeout, marcar como expirada con duración = timeout
+            if ($duracionReal > $timeoutMaximo) {
+                $finTimestamp = $inicio + $timeoutMaximo;
+                $this->update($sesion['id_sesion'], [
+                    'fin_sesion' => date('Y-m-d H:i:s', $finTimestamp),
+                    'duracion_segundos' => $timeoutMaximo,
+                    'estado' => 'expirada'
+                ]);
+            } else {
+                // Duración normal, cerrar con el tiempo real
+                $this->update($sesion['id_sesion'], [
+                    'fin_sesion' => date('Y-m-d H:i:s'),
+                    'duracion_segundos' => $duracionReal,
+                    'estado' => 'cerrada'
+                ]);
+            }
         }
     }
 

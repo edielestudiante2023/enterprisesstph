@@ -123,7 +123,7 @@ class Filters extends BaseFilters
                 'editConsultant*',
                 'deleteConsultant*',
                 'listConsultants*',
-                'addReport*',
+                'addReport',  // Solo la vista GET, no addReportPost (usado por n8n)
                 'editReport*',
                 'deleteReport*',
                 'reportList*',

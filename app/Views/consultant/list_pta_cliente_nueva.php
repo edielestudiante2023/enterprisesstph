@@ -1626,7 +1626,7 @@
                     return;
                 }
 
-                if (!confirm('¿Desea enviar el Plan de Trabajo por email al cliente y al consultor?\n\nSe enviará copia a:\n- solangel.cuervo@cycloidtalent.com\n- head.consultant.cycloidtalent@gmail.com')) {
+                if (!confirm('¿Desea enviar el Plan de Trabajo por email al cliente y al consultor?')) {
                     return;
                 }
 

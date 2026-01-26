@@ -17,11 +17,8 @@ use SendGrid\Mail\Mail;
  */
 class SocializacionEmailController extends BaseController
 {
-    // Emails que siempre van en copia
-    private $ccEmails = [
-        'solangel.cuervo@cycloidtalent.com',
-        'head.consultant.cycloidtalent@gmail.com'
-    ];
+    // Emails que siempre van en copia (vacío - solo se envía a cliente y consultor)
+    private $ccEmails = [];
 
     /**
      * Enviar email con el Plan de Trabajo Anual (PTA)
