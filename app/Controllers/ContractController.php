@@ -479,14 +479,19 @@ class ContractController extends Controller
             $pdfGenerator->generateContract($contract);
 
             // 2. Crear directorio si no existe
-            $uploadDir = FCPATH . 'uploads/contratos/';
+            $uploadDir = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'contratos' . DIRECTORY_SEPARATOR;
             if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
+                mkdir($uploadDir, 0775, true);
+            }
+            // Asegurar permisos de escritura
+            if (!is_writable($uploadDir)) {
+                chmod($uploadDir, 0775);
             }
 
             // 3. Guardar el PDF
             $fileName = 'contrato_' . $contract['numero_contrato'] . '_' . date('Ymd_His') . '.pdf';
-            $filePath = $uploadDir . $fileName;
+            $filePath = realpath($uploadDir) . DIRECTORY_SEPARATOR . $fileName;
+            log_message('info', 'Guardando contrato PDF en: ' . $filePath);
             $pdfGenerator->save($filePath);
 
             // 4. Actualizar base de datos con información de generación
