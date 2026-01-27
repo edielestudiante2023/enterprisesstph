@@ -68,12 +68,39 @@
     </nav>
 
     <div class="container">
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show">
-                <?= session()->getFlashdata('success') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
+        <!-- Toast Container -->
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+            <?php if (session()->getFlashdata('success')): ?>
+                <div class="toast align-items-center text-bg-success border-0 show" role="alert" data-bs-autohide="true" data-bs-delay="5000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <?php if (session()->getFlashdata('warning')): ?>
+                <div class="toast align-items-center text-bg-warning border-0 show" role="alert" data-bs-autohide="true" data-bs-delay="7000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-exclamation-triangle me-2"></i><?= session()->getFlashdata('warning') ?>
+                        </div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <?php if (session()->getFlashdata('error')): ?>
+                <div class="toast align-items-center text-bg-danger border-0 show" role="alert" data-bs-autohide="true" data-bs-delay="7000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-times-circle me-2"></i><?= session()->getFlashdata('error') ?>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
 
         <?php if (isset($contract)): ?>
             <!-- Encabezado del Contrato -->
@@ -375,5 +402,15 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize Bootstrap toasts
+        document.addEventListener('DOMContentLoaded', function() {
+            var toastElList = document.querySelectorAll('.toast');
+            toastElList.forEach(function(toastEl) {
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            });
+        });
+    </script>
 </body>
 </html>

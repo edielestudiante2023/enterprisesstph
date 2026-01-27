@@ -36,6 +36,20 @@
     </nav>
 
     <div class="container">
+        <!-- Toast Container -->
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+            <?php if (session()->getFlashdata('error')): ?>
+                <div class="toast align-items-center text-bg-danger border-0 show" role="alert" data-bs-autohide="true" data-bs-delay="7000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-times-circle me-2"></i><?= session()->getFlashdata('error') ?>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+
         <h2 class="mb-4"><i class="fas fa-edit"></i> Editar Datos para Generación de Contrato</h2>
         <p class="text-muted">Complete o verifique los datos antes de generar el contrato en PDF</p>
 
@@ -349,6 +363,11 @@
 
         // Calcular al cargar la página
         calcularValorMensual();
+
+        // Initialize Bootstrap toasts
+        document.querySelectorAll('.toast').forEach(function(toastEl) {
+            new bootstrap.Toast(toastEl).show();
+        });
     </script>
 </body>
 </html>
