@@ -31,13 +31,13 @@ HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del cons
 HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 2);x;x;x;x;x;x;;CONSULTOR CYCLOID
 HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 3);x;x;x;x;x;x;;CONSULTOR CYCLOID
 HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 4);x;x;x;x;x;x;;CONSULTOR CYCLOID
-HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 5);x;x;;x;x;;;CONSULTOR CYCLOID
-HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 6);x;x;;x;x;;;CONSULTOR CYCLOID
-HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 7);x;;;x;;;;CONSULTOR CYCLOID
-HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 8);x;;;x;;;;CONSULTOR CYCLOID
-HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 9);x;;;x;;;;CONSULTOR CYCLOID
-HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 10);x;;;x;;;;CONSULTOR CYCLOID
-HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 11);x;;;x;;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 5);x;x;x;x;x;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 6);x;x;x;x;x;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 7);x;x;x;x;;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 8);x;x;x;x;;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 9);x;x;x;x;;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 10);x;x;x;x;;;;CONSULTOR CYCLOID
+HACER;2.6.1;Elaborar el informe de cierre mensual posterior a la visita del consultor (Mes 11);x;x;x;x;;;;CONSULTOR CYCLOID
 HACER;2.6.1;Elaborar el informe de cierre anual del SG-SST;x;x;x;x;x;x;;CONSULTOR CYCLOID
 HACER;3.1.9;Elaborar el informe de inspección del cuarto de residuos (Periodo 1);x;x;x;x;x;x;;CONSULTOR CYCLOID
 HACER;3.1.9;Elaborar el informe de inspección del cuarto de residuos (Periodo 2);x;;;x;;;;CONSULTOR CYCLOID
@@ -61,12 +61,12 @@ VERIFICAR;6.1.3;Realizar la revisión anual del SG-SST por parte de la alta dire
 VERIFICAR;6.3.1;Inspeccionar la dotación del personal de vigilancia;x;x;x;x;x;x;;CONSULTOR CYCLOID
 HACER;1.2.1;Realizar capacitación No. 1 del programa anual de capacitación en SG-SST;x;x;x;x;x;x;;CONSULTOR CYCLOID
 HACER;1.2.1;Realizar capacitación No. 2 del programa anual de capacitación en SG-SST;x;x;x;x;x;x;;CONSULTOR CYCLOID
-HACER;1.2.1;Realizar capacitación No. 3 del programa anual de capacitación en SG-SST;x;x;;x;x;;;CONSULTOR CYCLOID
-HACER;1.2.1;Realizar capacitación No. 4 del programa anual de capacitación en SG-SST;x;x;;x;x;;;CONSULTOR CYCLOID
-HACER;1.2.1;Realizar capacitación No. 5 del programa anual de capacitación en SG-SST;x;;;x;;;;CONSULTOR CYCLOID
-HACER;1.2.1;Realizar capacitación No. 6 del programa anual de capacitación en SG-SST;x;;;x;;;;CONSULTOR CYCLOID
-HACER;1.2.1;Realizar capacitación No. 7 del programa anual de capacitación en SG-SST;x;;;x;;;;CONSULTOR CYCLOID
-HACER;1.2.1;Realizar capacitación No. 8 del programa anual de capacitación en SG-SST;x;;;x;;;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 3 del programa anual de capacitación en SG-SST;x;x;x;x;x;;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 4 del programa anual de capacitación en SG-SST;x;x;x;x;x;;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 5 del programa anual de capacitación en SG-SST;x;x;x;x;;;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 6 del programa anual de capacitación en SG-SST;x;x;x;x;;;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 7 del programa anual de capacitación en SG-SST;x;x;x;x;;;;CONSULTOR CYCLOID
+HACER;1.2.1;Realizar capacitación No. 8 del programa anual de capacitación en SG-SST;x;x;x;x;;;;CONSULTOR CYCLOID
 HACER;4.2.4;Inspeccionar el almacenamiento de productos químicos;;x;;x;x;;;CONSULTOR CYCLOID
 HACER;4.2.4;Revisar resultados de visitas de entidades de control y gestionar solicitudes de corrección (ej. Secretaría de Salud);;x;;x;x;x;;CONSULTOR CYCLOID
 HACER;4.2.4;Inspeccionar la señalización de seguridad y salud en el trabajo;;x;;x;x;;;CONSULTOR CYCLOID
