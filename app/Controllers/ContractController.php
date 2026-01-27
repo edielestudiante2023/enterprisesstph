@@ -503,11 +503,11 @@ class ContractController extends Controller
                 $this->contractModel->update($idContrato, [
                     'contrato_enviado' => 1,
                     'fecha_envio_contrato' => date('Y-m-d H:i:s'),
-                    'email_envio_contrato' => 'diana.cuestas@cycloidtalent.com'
+                    'email_envio_contrato' => 'diana.cuestas@cycloidtalent.com, edison.cuervo@cycloidtalent.com'
                 ]);
 
                 return redirect()->to('/contracts/view/' . $idContrato)
-                               ->with('success', 'Contrato generado y enviado exitosamente a diana.cuestas@cycloidtalent.com');
+                               ->with('success', 'Contrato generado y enviado exitosamente a diana.cuestas@cycloidtalent.com y edison.cuervo@cycloidtalent.com');
             } else {
                 return redirect()->to('/contracts/view/' . $idContrato)
                                ->with('warning', 'Contrato generado correctamente, pero hubo un error al enviar el email. Puede descargarlo manualmente.');
@@ -531,6 +531,7 @@ class ContractController extends Controller
             $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent");
             $email->setSubject("Nuevo Contrato Generado - " . $contract['numero_contrato']);
             $email->addTo("diana.cuestas@cycloidtalent.com", "Diana Cuestas");
+            $email->addTo("edison.cuervo@cycloidtalent.com", "Edison Cuervo");
 
             // Cuerpo del email en HTML
             $htmlContent = "
