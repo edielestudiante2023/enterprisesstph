@@ -629,6 +629,9 @@ $routes->get('/contracts/client-history/(:num)', 'ContractController::clientHist
 // Mantenimiento automático (cron job)
 $routes->get('/contracts/maintenance', 'ContractController::maintenance');
 
+// Reporte semanal de contratos vencidos y próximos a vencer (cron job - lunes)
+$routes->get('/contracts/weekly-report', 'ContractController::sendWeeklyContractReport');
+
 // API endpoints
 $routes->get('/api/contracts/active/(:num)', 'ContractController::getActiveContract/$1');
 $routes->get('/api/contracts/stats', 'ContractController::getStats');
