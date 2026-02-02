@@ -12,9 +12,14 @@ class ConsultantDashboardPendientesController extends Controller
     {
         $session = session();
 
-        // Verificar que el usuario esté autenticado
-        if (!$session->get('user_id')) {
+        // Verificar que el usuario esté autenticado y tenga rol permitido
+        if (!$session->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Debe iniciar sesión');
+        }
+
+        $role = $session->get('role');
+        if (!in_array($role, ['admin', 'consultant'])) {
+            return redirect()->to('/login')->with('error', 'No tiene permisos para acceder');
         }
 
         $pendientesModel = new PendientesModel();
