@@ -154,7 +154,7 @@ class PtaClienteAuditModel extends Model
             $builder->where('fecha_accion <=', $filters['fecha_hasta'] . ' 23:59:59');
         }
 
-        $porUsuario = $builder->select('nombre_usuario, id_usuario, COUNT(*) as cantidad')
+        $porUsuario = $builder->select('MAX(nombre_usuario) as nombre_usuario, id_usuario, COUNT(*) as cantidad')
                               ->groupBy('id_usuario')
                               ->orderBy('cantidad', 'DESC')
                               ->limit(10)

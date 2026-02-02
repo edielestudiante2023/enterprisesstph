@@ -71,7 +71,7 @@ class AuditPtaController extends Controller
 
         // Obtener lista de usuarios únicos que han hecho cambios
         $usuarios = $this->auditModel->builder()
-                         ->select('id_usuario, nombre_usuario')
+                         ->select('id_usuario, MAX(nombre_usuario) as nombre_usuario')
                          ->groupBy('id_usuario')
                          ->orderBy('nombre_usuario', 'ASC')
                          ->get()
