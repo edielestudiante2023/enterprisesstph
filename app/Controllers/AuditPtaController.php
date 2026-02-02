@@ -33,6 +33,12 @@ class AuditPtaController extends Controller
             return redirect()->to('/login')->with('error', 'No tiene permisos para acceder a esta sección.');
         }
 
+        // Verificar si la tabla de auditoría existe
+        $db = \Config\Database::connect();
+        if (!$db->tableExists('tbl_pta_cliente_audit')) {
+            return redirect()->to('/setup-audit-table')->with('warning', 'La tabla de auditoría no existe. Por favor, créela primero.');
+        }
+
         // Obtener filtros
         $request     = service('request');
         $idCliente   = $request->getGet('cliente');

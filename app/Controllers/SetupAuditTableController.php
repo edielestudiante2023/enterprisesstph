@@ -63,42 +63,48 @@ class SetupAuditTableController extends Controller
         }
 
         try {
-            // Configuración de producción desde variables de entorno
-            $customConfig = [
-                'DSN'          => '',
-                'hostname'     => env('database.production.hostname', ''),
-                'username'     => env('database.production.username', ''),
-                'password'     => env('database.production.password', ''),
-                'database'     => env('database.production.database', ''),
-                'DBDriver'     => env('database.production.DBDriver', 'MySQLi'),
-                'DBPrefix'     => '',
-                'pConnect'     => false,
-                'DBDebug'      => true,
-                'charset'      => 'utf8mb4',
-                'DBCollat'     => 'utf8mb4_unicode_ci',
-                'swapPre'      => '',
-                'encrypt'      => [
-                    'ssl_key'    => null,
-                    'ssl_cert'   => null,
-                    'ssl_ca'     => null,
-                    'ssl_capath' => null,
-                    'ssl_cipher' => null,
-                    'ssl_verify' => false,
-                ],
-                'failover'     => [],
-                'port'         => (int) env('database.production.port', 25060),
-                'strictOn'     => false,
-            ];
+            // Si estamos en producción, usar la conexión por defecto
+            if (env('CI_ENVIRONMENT') === 'production') {
+                $db = \Config\Database::connect();
+            } else {
+                // Configuración de producción desde variables de entorno (para localhost)
+                $customConfig = [
+                    'DSN'          => '',
+                    'hostname'     => env('database.production.hostname', ''),
+                    'username'     => env('database.production.username', ''),
+                    'password'     => env('database.production.password', ''),
+                    'database'     => env('database.production.database', ''),
+                    'DBDriver'     => env('database.production.DBDriver', 'MySQLi'),
+                    'DBPrefix'     => '',
+                    'pConnect'     => false,
+                    'DBDebug'      => true,
+                    'charset'      => 'utf8mb4',
+                    'DBCollat'     => 'utf8mb4_unicode_ci',
+                    'swapPre'      => '',
+                    'encrypt'      => [
+                        'ssl_key'    => null,
+                        'ssl_cert'   => null,
+                        'ssl_ca'     => null,
+                        'ssl_capath' => null,
+                        'ssl_cipher' => null,
+                        'ssl_verify' => false,
+                    ],
+                    'failover'     => [],
+                    'port'         => (int) env('database.production.port', 25060),
+                    'strictOn'     => false,
+                ];
 
-            // Verificar que las credenciales estén configuradas
-            if (empty($customConfig['hostname']) || empty($customConfig['password'])) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Credenciales de producción no configuradas. Agregue las variables database.production.* en el archivo .env'
-                ]);
+                // Verificar que las credenciales estén configuradas
+                if (empty($customConfig['hostname']) || empty($customConfig['password'])) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Credenciales de producción no configuradas. Agregue las variables database.production.* en el archivo .env'
+                    ]);
+                }
+
+                $db = \Config\Database::connect($customConfig);
             }
 
-            $db = \Config\Database::connect($customConfig);
             $result = $this->createAuditTable($db);
 
             return $this->response->setJSON([
@@ -167,59 +173,78 @@ class SetupAuditTableController extends Controller
             return $this->response->setJSON(['success' => false, 'message' => 'Acceso denegado']);
         }
 
+        $isProduction = (env('CI_ENVIRONMENT') === 'production');
+
         $status = [
             'local' => false,
             'production' => false,
             'local_count' => 0,
             'production_count' => 0,
+            'is_production_env' => $isProduction,
         ];
 
-        // Verificar LOCAL
-        try {
-            $dbLocal = \Config\Database::connect();
-            $status['local'] = $dbLocal->tableExists('tbl_pta_cliente_audit');
-            if ($status['local']) {
-                $status['local_count'] = $dbLocal->table('tbl_pta_cliente_audit')->countAllResults();
-            }
-        } catch (\Exception $e) {
-            $status['local_error'] = $e->getMessage();
-        }
-
-        // Verificar PRODUCCIÓN
-        try {
-            $customConfig = [
-                'DSN'          => '',
-                'hostname'     => env('database.production.hostname', ''),
-                'username'     => env('database.production.username', ''),
-                'password'     => env('database.production.password', ''),
-                'database'     => env('database.production.database', ''),
-                'DBDriver'     => env('database.production.DBDriver', 'MySQLi'),
-                'DBPrefix'     => '',
-                'pConnect'     => false,
-                'DBDebug'      => false,
-                'charset'      => 'utf8mb4',
-                'DBCollat'     => 'utf8mb4_unicode_ci',
-                'swapPre'      => '',
-                'encrypt'      => [
-                    'ssl_verify' => false,
-                ],
-                'failover'     => [],
-                'port'         => (int) env('database.production.port', 25060),
-                'strictOn'     => false,
-            ];
-
-            // Si no hay credenciales de producción configuradas, saltar verificación
-            if (empty($customConfig['hostname']) || empty($customConfig['password'])) {
-                $status['production_error'] = 'Credenciales de producción no configuradas en .env';
-            } else {
-                $dbProd = \Config\Database::connect($customConfig);
-                $status['production'] = $dbProd->tableExists('tbl_pta_cliente_audit');
+        // En producción, solo verificamos la conexión por defecto
+        if ($isProduction) {
+            try {
+                $db = \Config\Database::connect();
+                $status['production'] = $db->tableExists('tbl_pta_cliente_audit');
                 if ($status['production']) {
-                    $status['production_count'] = $dbProd->table('tbl_pta_cliente_audit')->countAllResults();
+                    $status['production_count'] = $db->table('tbl_pta_cliente_audit')->countAllResults();
                 }
+                // En producción, local = production (es la misma base de datos)
+                $status['local'] = $status['production'];
+                $status['local_count'] = $status['production_count'];
+            } catch (\Exception $e) {
+                $status['production_error'] = $e->getMessage();
             }
-        } catch (\Exception $e) {
-            $status['production_error'] = $e->getMessage();
+        } else {
+            // En desarrollo, verificar LOCAL
+            try {
+                $dbLocal = \Config\Database::connect();
+                $status['local'] = $dbLocal->tableExists('tbl_pta_cliente_audit');
+                if ($status['local']) {
+                    $status['local_count'] = $dbLocal->table('tbl_pta_cliente_audit')->countAllResults();
+                }
+            } catch (\Exception $e) {
+                $status['local_error'] = $e->getMessage();
+            }
+
+            // En desarrollo, verificar PRODUCCIÓN con credenciales del .env
+            try {
+                $customConfig = [
+                    'DSN'          => '',
+                    'hostname'     => env('database.production.hostname', ''),
+                    'username'     => env('database.production.username', ''),
+                    'password'     => env('database.production.password', ''),
+                    'database'     => env('database.production.database', ''),
+                    'DBDriver'     => env('database.production.DBDriver', 'MySQLi'),
+                    'DBPrefix'     => '',
+                    'pConnect'     => false,
+                    'DBDebug'      => false,
+                    'charset'      => 'utf8mb4',
+                    'DBCollat'     => 'utf8mb4_unicode_ci',
+                    'swapPre'      => '',
+                    'encrypt'      => [
+                        'ssl_verify' => false,
+                    ],
+                    'failover'     => [],
+                    'port'         => (int) env('database.production.port', 25060),
+                    'strictOn'     => false,
+                ];
+
+                // Si no hay credenciales de producción configuradas, saltar verificación
+                if (empty($customConfig['hostname']) || empty($customConfig['password'])) {
+                    $status['production_error'] = 'Credenciales de producción no configuradas en .env';
+                } else {
+                    $dbProd = \Config\Database::connect($customConfig);
+                    $status['production'] = $dbProd->tableExists('tbl_pta_cliente_audit');
+                    if ($status['production']) {
+                        $status['production_count'] = $dbProd->table('tbl_pta_cliente_audit')->countAllResults();
+                    }
+                }
+            } catch (\Exception $e) {
+                $status['production_error'] = $e->getMessage();
+            }
         }
 
         return $this->response->setJSON([
