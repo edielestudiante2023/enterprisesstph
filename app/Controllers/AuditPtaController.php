@@ -28,8 +28,8 @@ class AuditPtaController extends Controller
     {
         // Verificar permisos (solo superadmin y consultant)
         $session = session();
-        $rol = $session->get('rol');
-        if (!in_array($rol, ['superadmin', 'consultant'])) {
+        $rol = $session->get('role');
+        if (!in_array($rol, ['admin', 'consultant'])) {
             return redirect()->to('/login')->with('error', 'No tiene permisos para acceder a esta sección.');
         }
 
@@ -111,8 +111,8 @@ class AuditPtaController extends Controller
     public function view($idAudit)
     {
         $session = session();
-        $rol = $session->get('rol');
-        if (!in_array($rol, ['superadmin', 'consultant'])) {
+        $rol = $session->get('role');
+        if (!in_array($rol, ['admin', 'consultant'])) {
             return redirect()->to('/login')->with('error', 'No tiene permisos para acceder.');
         }
 
@@ -146,8 +146,8 @@ class AuditPtaController extends Controller
     public function historyPta($idPtaCliente)
     {
         $session = session();
-        $rol = $session->get('rol');
-        if (!in_array($rol, ['superadmin', 'consultant'])) {
+        $rol = $session->get('role');
+        if (!in_array($rol, ['admin', 'consultant'])) {
             return redirect()->to('/login')->with('error', 'No tiene permisos para acceder.');
         }
 
@@ -179,8 +179,8 @@ class AuditPtaController extends Controller
     public function export()
     {
         $session = session();
-        $rol = $session->get('rol');
-        if (!in_array($rol, ['superadmin', 'consultant'])) {
+        $rol = $session->get('role');
+        if (!in_array($rol, ['admin', 'consultant'])) {
             return redirect()->to('/login')->with('error', 'No tiene permisos para exportar.');
         }
 
@@ -259,8 +259,8 @@ class AuditPtaController extends Controller
     public function apiRecentChanges()
     {
         $session = session();
-        $rol = $session->get('rol');
-        if (!in_array($rol, ['superadmin', 'consultant'])) {
+        $rol = $session->get('role');
+        if (!in_array($rol, ['admin', 'consultant'])) {
             return $this->response->setJSON(['success' => false, 'message' => 'Acceso denegado']);
         }
 
@@ -280,8 +280,8 @@ class AuditPtaController extends Controller
     public function apiStats()
     {
         $session = session();
-        $rol = $session->get('rol');
-        if (!in_array($rol, ['superadmin', 'consultant'])) {
+        $rol = $session->get('role');
+        if (!in_array($rol, ['admin', 'consultant'])) {
             return $this->response->setJSON(['success' => false, 'message' => 'Acceso denegado']);
         }
 
@@ -306,8 +306,8 @@ class AuditPtaController extends Controller
     public function dashboard()
     {
         $session = session();
-        $rol = $session->get('rol');
-        if (!in_array($rol, ['superadmin', 'consultant'])) {
+        $rol = $session->get('role');
+        if (!in_array($rol, ['admin', 'consultant'])) {
             return redirect()->to('/login')->with('error', 'No tiene permisos para acceder.');
         }
 

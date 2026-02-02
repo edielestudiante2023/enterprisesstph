@@ -17,7 +17,7 @@ class SetupAuditTableController extends Controller
     {
         // Verificar que sea superadmin
         $session = session();
-        if ($session->get('rol') !== 'superadmin') {
+        if ($session->get('role') !== 'admin') {
             return redirect()->to('/login')->with('error', 'Acceso denegado. Solo superadmin puede ejecutar esta acción.');
         }
 
@@ -30,7 +30,7 @@ class SetupAuditTableController extends Controller
     public function createLocal()
     {
         $session = session();
-        if ($session->get('rol') !== 'superadmin') {
+        if ($session->get('role') !== 'admin') {
             return $this->response->setJSON(['success' => false, 'message' => 'Acceso denegado']);
         }
 
@@ -58,7 +58,7 @@ class SetupAuditTableController extends Controller
     public function createProduction()
     {
         $session = session();
-        if ($session->get('rol') !== 'superadmin') {
+        if ($session->get('role') !== 'admin') {
             return $this->response->setJSON(['success' => false, 'message' => 'Acceso denegado']);
         }
 
@@ -169,7 +169,7 @@ class SetupAuditTableController extends Controller
     public function checkStatus()
     {
         $session = session();
-        if ($session->get('rol') !== 'superadmin') {
+        if ($session->get('role') !== 'admin') {
             return $this->response->setJSON(['success' => false, 'message' => 'Acceso denegado']);
         }
 
