@@ -193,6 +193,8 @@ class Filters extends BaseFilters
                 'vencimientos*',
                 'api/*',
                 'pta-cliente-nueva/*',
+                'audit-pta*',
+                'setup-audit-table*',
                 'accesosseguncliente/*',
                 'estandarcontractual/*',
                 'accesosseguncontractualidad/*',
