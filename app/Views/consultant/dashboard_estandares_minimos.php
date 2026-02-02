@@ -305,8 +305,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
     <script>
+        // Registrar plugin de datalabels
+        Chart.register(ChartDataLabels);
         // Datos originales
         var originalData = <?= json_encode($evaluaciones) ?>;
 
@@ -390,6 +393,15 @@
                     plugins: {
                         legend: {
                             position: 'bottom'
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: function(value, context) {
+                                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                var percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
+                                return value > 0 ? percentage : '';
+                            }
                         }
                     }
                 }
@@ -415,6 +427,15 @@
                     plugins: {
                         legend: {
                             display: false
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            anchor: 'center',
+                            align: 'center',
+                            font: { weight: 'bold', size: 11 },
+                            formatter: function(value) {
+                                return value > 0 ? value : '';
+                            }
                         }
                     },
                     scales: {
@@ -443,6 +464,15 @@
                     plugins: {
                         legend: {
                             position: 'bottom'
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: function(value, context) {
+                                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                var percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
+                                return value > 0 ? percentage : '';
+                            }
                         }
                     }
                 }
