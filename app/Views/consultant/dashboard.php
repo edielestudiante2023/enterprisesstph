@@ -486,7 +486,7 @@
         <div class="welcome-banner-custom">
             <div class="content-custom">
                 <h3><i class="fas fa-shield-alt me-3"></i>Enterprisesst - PH // Consultor</h3>
-                <h4><i class="fas fa-users me-2"></i>Dash Board de Administración</h4>
+                <h4><i class="fas fa-user me-2"></i>Bienvenido, <strong><?= session()->get('nombre_usuario') ?? 'Consultor' ?></strong></h4>
                 <p class="mb-0"><i class="fas fa-globe me-2"></i>Enterprisesst - Sistemas que Evolucionan</p>
             </div>
         </div>

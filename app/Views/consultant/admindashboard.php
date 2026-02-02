@@ -611,7 +611,8 @@
             <!-- Banner de Bienvenida -->
             <div class="welcome-banner-custom">
                 <i class="fas fa-shield-alt fa-3x mb-3" style="color: var(--gold-secondary);"></i>
-                <h3><i class="fas fa-users-cog me-2"></i>Dashboard de Administración Propiedad Horizontal </h3>
+                <h3><i class="fas fa-users-cog me-2"></i>Dashboard de Administración Propiedad Horizontal</h3>
+                <p><i class="fas fa-user me-2"></i>Bienvenido, <strong><?= session()->get('nombre_usuario') ?? 'Usuario' ?></strong></p>
                 <p><i class="fas fa-tools me-2"></i>Centro de Control - Gestión Avanzada de Procesos SST</p>
             </div>
 
