@@ -687,3 +687,20 @@ $routes->get('/admin/usage/user/(:num)', 'UsageController::userDetail/$1');
 $routes->get('/admin/usage/export-csv', 'UsageController::exportCsv');
 $routes->get('/admin/usage/chart-data', 'UsageController::chartData');
 
+// ============================================================================
+// RUTAS DE AUDITORÍA DEL PLAN DE TRABAJO ANUAL (PTA)
+// ============================================================================
+$routes->get('/audit-pta', 'AuditPtaController::index');
+$routes->get('/audit-pta/view/(:num)', 'AuditPtaController::view/$1');
+$routes->get('/audit-pta/history/(:num)', 'AuditPtaController::historyPta/$1');
+$routes->get('/audit-pta/export', 'AuditPtaController::export');
+$routes->get('/audit-pta/dashboard', 'AuditPtaController::dashboard');
+$routes->get('/api/audit-pta/recent', 'AuditPtaController::apiRecentChanges');
+$routes->get('/api/audit-pta/stats', 'AuditPtaController::apiStats');
+
+// Setup de tabla de auditoría (solo superadmin)
+$routes->get('/setup-audit-table', 'SetupAuditTableController::index');
+$routes->post('/setup-audit-table/create-local', 'SetupAuditTableController::createLocal');
+$routes->post('/setup-audit-table/create-production', 'SetupAuditTableController::createProduction');
+$routes->get('/setup-audit-table/check-status', 'SetupAuditTableController::checkStatus');
+

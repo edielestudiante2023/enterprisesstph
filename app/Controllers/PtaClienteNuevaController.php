@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\PtaClienteNuevaModel;
 use App\Models\ClientModel;
 use App\Models\ContractModel;
+use App\Services\PtaAuditService;
 use CodeIgniter\Controller;
 
 class PtaClienteNuevaController extends Controller
@@ -157,6 +158,12 @@ class PtaClienteNuevaController extends Controller
         $data = $this->request->getPost();
         $ptaModel->insert($data);
 
+        // Obtener el ID del registro insertado
+        $insertId = $ptaModel->getInsertID();
+
+        // Registrar auditoría de creación
+        PtaAuditService::logInsert($insertId, $data, __METHOD__);
+
         // Recuperar filtros enviados desde el formulario (campos ocultos)
         $filters = [
             'cliente'     => $this->request->getPost('filter_cliente'),
@@ -201,9 +208,21 @@ class PtaClienteNuevaController extends Controller
     {
         $ptaModel = new PtaClienteNuevaModel();
 
+        // Obtener datos anteriores para auditoría
+        $datosAnteriores = $ptaModel->find($id);
+
         // Recoger datos del formulario
         $data = $this->request->getPost();
         $ptaModel->update($id, $data);
+
+        // Registrar auditoría de múltiples cambios
+        PtaAuditService::logMultiple(
+            $id,
+            $datosAnteriores,
+            $data,
+            __METHOD__,
+            $datosAnteriores['id_cliente'] ?? null
+        );
 
         // Recuperar filtros enviados desde campos ocultos
         $filters = [
@@ -229,6 +248,15 @@ class PtaClienteNuevaController extends Controller
         }
 
         $ptaModel = new PtaClienteNuevaModel();
+
+        // Obtener datos antes de eliminar para auditoría
+        $datosAnteriores = $ptaModel->find($id);
+
+        // Registrar auditoría de eliminación ANTES de eliminar
+        if ($datosAnteriores) {
+            PtaAuditService::logDelete($id, $datosAnteriores, __METHOD__);
+        }
+
         $ptaModel->where('id_ptacliente', $id)->delete();
 
         // Recuperar filtros desde GET para mantenerlos
@@ -259,6 +287,10 @@ class PtaClienteNuevaController extends Controller
                 'message' => 'ID es requerido.'
             ]);
         }
+
+        // Obtener datos anteriores para auditoría
+        $datosAnteriores = $ptaModel->find($id);
+
         $postData = $this->request->getPost();
         $disallowed = [
             'id_ptacliente',
@@ -272,7 +304,7 @@ class PtaClienteNuevaController extends Controller
                 unset($postData[$field]);
             }
         }
-        
+
         // Auto-calcular porcentaje basado en el estado
         if (isset($postData['estado_actividad'])) {
             $estado = $postData['estado_actividad'];
@@ -288,19 +320,28 @@ class PtaClienteNuevaController extends Controller
                     break;
             }
         }
-        
+
         $ptaModel->update($id, $postData);
-        
+
+        // Registrar auditoría de cambios inline
+        PtaAuditService::logMultiple(
+            $id,
+            $datosAnteriores,
+            $postData,
+            __METHOD__,
+            $datosAnteriores['id_cliente'] ?? null
+        );
+
         // Retornar también el porcentaje actualizado para actualizar la vista
         $response = [
             'status'  => 'success',
             'message' => 'Registro actualizado inline correctamente.'
         ];
-        
+
         if (isset($postData['porcentaje_avance'])) {
             $response['porcentaje_avance'] = $postData['porcentaje_avance'];
         }
-        
+
         return $this->response->setJSON($response);
     }
 
@@ -320,10 +361,25 @@ class PtaClienteNuevaController extends Controller
 
         $ptaModel = new PtaClienteNuevaModel();
         $data = ['porcentaje_avance' => 100];
-        
+
         try {
             foreach ($ids as $id) {
+                // Obtener valor anterior para auditoría
+                $registro = $ptaModel->find($id);
+                $valorAnterior = $registro['porcentaje_avance'] ?? null;
+
                 $ptaModel->update($id, $data);
+
+                // Registrar auditoría
+                PtaAuditService::log(
+                    $id,
+                    'BULK_UPDATE',
+                    'porcentaje_avance',
+                    $valorAnterior,
+                    100,
+                    __METHOD__,
+                    $registro['id_cliente'] ?? null
+                );
             }
             return $this->response->setJSON([
                 'status' => 'success',
@@ -441,6 +497,9 @@ class PtaClienteNuevaController extends Controller
             $lastDay = (int) $lastDayDate->format('d');
             $newDate = sprintf('%04d-%02d-%02d', $year, $month, $lastDay);
 
+            // Obtener valor anterior para auditoría
+            $valorAnterior = $activity['fecha_propuesta'] ?? null;
+
             // Actualizar la fecha
             $updateData = [
                 'fecha_propuesta' => $newDate,
@@ -448,6 +507,17 @@ class PtaClienteNuevaController extends Controller
             ];
 
             if ($model->update($id, $updateData)) {
+                // Registrar auditoría
+                PtaAuditService::log(
+                    $id,
+                    'UPDATE',
+                    'fecha_propuesta',
+                    $valorAnterior,
+                    $newDate,
+                    __METHOD__,
+                    $activity['id_cliente'] ?? null
+                );
+
                 return $this->response->setJSON([
                     'success' => true,
                     'message' => 'Fecha actualizada correctamente',

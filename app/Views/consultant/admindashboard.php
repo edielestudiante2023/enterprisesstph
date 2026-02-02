@@ -628,8 +628,18 @@
                     </button>
                 </a>
                 <a href="<?= base_url('/admin/usage') ?>" rel="noopener noreferrer">
-                    <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #11998e, #38ef7d); border: none;" aria-label="Consumo de Plataforma">
+                    <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #11998e, #38ef7d); border: none;" aria-label="Consumo de Plataforma">
                         <i class="fas fa-chart-line me-2"></i>Consumo de Plataforma
+                    </button>
+                </a>
+                <a href="<?= base_url('/audit-pta') ?>" rel="noopener noreferrer">
+                    <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none;" aria-label="Auditoría PTA">
+                        <i class="fas fa-history me-2"></i>Auditoría PTA
+                    </button>
+                </a>
+                <a href="<?= base_url('/setup-audit-table') ?>" rel="noopener noreferrer">
+                    <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #9b59b6, #8e44ad); border: none;" aria-label="Configurar Auditoría">
+                        <i class="fas fa-database me-2"></i>Config. Auditoría
                     </button>
                 </a>
             </div>
