@@ -139,6 +139,7 @@ class Filters extends BaseFilters
                 'pdfUnificado*',
                 'generarPdfUnificado*',
                 'quick-access*',
+                'vista-cliente*',
                 'listVigias*',
                 'addVigia*',
                 'editVigia*',

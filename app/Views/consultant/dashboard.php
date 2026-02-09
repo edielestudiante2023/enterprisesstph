@@ -498,6 +498,11 @@
                     <i class="fas fa-bolt me-2"></i>Acceso Rápido
                 </button>
             </a>
+            <a href="<?= base_url('/vista-cliente') ?>" target="_blank" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none;">
+                    <i class="fas fa-eye me-2"></i>Ver Vista de Cliente
+                </button>
+            </a>
             <a href="<?= base_url('/admin/usage') ?>" rel="noopener noreferrer">
                 <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #11998e, #38ef7d); border: none;">
                     <i class="fas fa-chart-line me-2"></i>Consumo de Plataforma

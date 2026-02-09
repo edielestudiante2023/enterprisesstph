@@ -48,6 +48,10 @@ $routes->get('/dashboardconsultant', 'ConsultantController::index');
 $routes->get('/admindashboard', 'AdminDashboardController::index');
 $routes->get('/quick-access', 'QuickAccessDashboardController::index');
 
+// Rutas para Ver Vista de Cliente (consultor y admin)
+$routes->get('/vista-cliente', 'ViewAsClientController::index');
+$routes->get('/vista-cliente/(:num)', 'ViewAsClientController::viewClient/$1');
+
 $routes->get('/addClient', 'ConsultantController::addClient');
 $routes->post('/addClient', 'ConsultantController::addClientPost');
 
