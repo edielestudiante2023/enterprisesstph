@@ -36,6 +36,7 @@ $routes->get('client/dashboard-pendientes/(:num)', 'ClientDashboardPendientesCon
 
 // Rutas para PDF Unificado
 $routes->get('/pdfUnificado', 'PdfUnificadoController::index');
+$routes->get('/pdfUnificado/(:num)', 'PdfUnificadoController::index/$1');
 $routes->post('/generarPdfUnificado', 'PdfUnificadoController::generarPdfUnificado');
 
 // Rutas para dashboards de consultor (todos los clientes)
@@ -77,6 +78,7 @@ $routes->post('/editReportPost/(:num)', 'ReportController::editReportPost/$1');
 $routes->get('/deleteReport/(:num)', 'ReportController::deleteReport/$1');
 
 $routes->get('/report_dashboard', 'ClienteReportController::index');
+$routes->get('/report_dashboard/(:num)', 'ClienteReportController::index/$1');
 $routes->get('/documento', 'DocumentoController::mostrarDocumento');
 
 $routes->get('/showPhoto/(:num)', 'ConsultantController::showPhoto/$1');
@@ -416,6 +418,7 @@ $routes->get('/client/lista-matrices', 'ClientMatrices::index');
 
 
 $routes->get('client/panel', 'ClientPanelController::showPanel');
+$routes->get('client/panel/(:num)', 'ClientPanelController::showPanel/$1');
 
 
 $routes->get('/detailreportlist', 'DetailReportController::detailReportList');

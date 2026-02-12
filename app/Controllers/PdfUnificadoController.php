@@ -64,12 +64,19 @@ class PdfUnificadoController extends Controller
     /**
      * Muestra la página de generación de PDF unificado
      */
-    public function index()
+    public function index($idClienteParam = null)
     {
         helper('access_library');
 
         $session = session();
-        $clientId = $session->get('user_id');
+
+        // Si viene parámetro y el usuario es consultant/admin, usar ese ID
+        $role = $session->get('role');
+        if ($idClienteParam && in_array($role, ['consultant', 'admin'])) {
+            $clientId = $idClienteParam;
+        } else {
+            $clientId = $session->get('user_id');
+        }
 
         if (!$clientId) {
             return redirect()->to('/login')->with('error', 'Cliente no autenticado.');

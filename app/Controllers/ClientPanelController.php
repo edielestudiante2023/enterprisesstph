@@ -6,12 +6,18 @@ use App\Models\ClientModel;
 
 class ClientPanelController extends BaseController
 {
-    public function showPanel()
+    public function showPanel($idClienteParam = null)
     {
         $session = session();
 
-        // Obtener el ID del cliente desde la sesión
-        $id_cliente = $session->get('user_id');
+        // Si viene parámetro y el usuario es consultant/admin, usar ese ID
+        $role = $session->get('role');
+        if ($idClienteParam && in_array($role, ['consultant', 'admin'])) {
+            $id_cliente = $idClienteParam;
+        } else {
+            $id_cliente = $session->get('user_id');
+        }
+
         if (!$id_cliente) {
             return redirect()->to('/login')->with('error', 'Cliente no autenticado.');
         }
