@@ -36,7 +36,7 @@ $configs = [
         'port'     => 25060,
         'user'     => 'cycloid_userdb',
         'password' => getenv('DB_PROD_PASS') ?: '',
-        'database' => 'empresas_sst',
+        'database' => 'propiedad_horizontal',
         'ssl'      => true,
     ],
 ];
