@@ -144,6 +144,7 @@
                 <div class="col-md-12">
                     <h1><i class="fas fa-clipboard-list"></i> Dashboard Pendientes</h1>
                     <p class="mb-0"><strong>Cliente:</strong> <?= esc($client['nombre_cliente']) ?></p>
+                    <p class="mb-0"><i class="fas fa-user me-2"></i>Sesión: <strong><?= session()->get('nombre_usuario') ?? 'Usuario' ?></strong></p>
                 </div>
             </div>
         </div>

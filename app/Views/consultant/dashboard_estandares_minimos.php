@@ -148,6 +148,7 @@
                 <div class="col-md-8">
                     <h1><i class="fas fa-chart-pie"></i> Dashboard Estándares Mínimos SST - Consultor</h1>
                     <p class="mb-0">Vista consolidada de todos los clientes</p>
+                    <p class="mb-0"><i class="fas fa-user me-2"></i>Sesión: <strong><?= session()->get('nombre_usuario') ?? 'Usuario' ?></strong></p>
                 </div>
                 <div class="col-md-4 text-center">
                     <div class="puntaje-total">

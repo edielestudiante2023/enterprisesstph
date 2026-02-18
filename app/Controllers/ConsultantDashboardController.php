@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
+use App\Models\DashboardItemModel;
 use App\Models\ReporteModel;
 use CodeIgniter\Controller;
 
@@ -11,7 +12,12 @@ class ConsultantDashboardController extends Controller
 {
     public function index()
     {
-        return view('consultant/dashboard');
+        $model = new DashboardItemModel();
+        $data['items'] = $model->where('orden >=', 1)
+            ->where('orden <=', 5)
+            ->findAll();
+
+        return view('consultant/dashboard', $data);
     }
 
     public function addClient()

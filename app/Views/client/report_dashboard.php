@@ -143,6 +143,7 @@
     <!-- Tabla de Reportes -->
     <div class="table-container">
       <h2>Reportes</h2>
+      <p class="mb-2"><i class="fas fa-user me-2"></i>Sesión: <strong><?= session()->get('nombre_usuario') ?? 'Usuario' ?></strong></p>
       <div class="button-group">
         <!-- Botón para Restablecer Filtros del stateSave -->
         <button id="clearState" class="btn btn-danger btn-sm">Restablecer Filtros</button>

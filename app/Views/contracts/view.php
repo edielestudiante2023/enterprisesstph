@@ -356,6 +356,84 @@
                         </a>
                     </div>
 
+                    <!-- Firma Digital del Contrato -->
+                    <div class="info-card">
+                        <h5 class="mb-3"><i class="fas fa-pen-nib"></i> Firma Digital</h5>
+                        <?php
+                            $estadoFirma = $contract['estado_firma'] ?? 'sin_enviar';
+                        ?>
+
+                        <?php if ($estadoFirma === 'firmado'): ?>
+                            <div class="alert alert-success py-2 mb-2">
+                                <i class="fas fa-check-circle"></i> Contrato firmado por <?= esc($contract['firma_cliente_nombre'] ?? '') ?>
+                                <br><small>CC: <?= esc($contract['firma_cliente_cedula'] ?? '') ?></small>
+                                <br><small><?= !empty($contract['firma_cliente_fecha']) ? date('d/m/Y H:i', strtotime($contract['firma_cliente_fecha'])) : '' ?></small>
+                                <?php if (!empty($contract['firma_cliente_ip'])): ?>
+                                    <br><small class="text-muted">IP: <?= esc($contract['firma_cliente_ip']) ?></small>
+                                <?php endif; ?>
+                            </div>
+
+                            <?php if (!empty($contract['ruta_pdf_contrato'])): ?>
+                                <a href="<?= base_url($contract['ruta_pdf_contrato']) ?>" target="_blank"
+                                   class="btn btn-success w-100 mb-2">
+                                    <i class="fas fa-file-pdf"></i> Descargar PDF Firmado
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if (!empty($contract['firma_cliente_imagen'])): ?>
+                                <button class="btn btn-outline-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#modalFirmaCliente">
+                                    <i class="fas fa-signature"></i> Ver Firma del Cliente
+                                </button>
+                            <?php endif; ?>
+
+                            <button class="btn btn-outline-info w-100 mb-2" onclick="regenerarPDFConFirma()">
+                                <i class="fas fa-sync-alt"></i> Regenerar PDF con Firma
+                            </button>
+
+                            <?php if (!empty($contract['codigo_verificacion'])): ?>
+                                <hr class="my-2">
+                                <a href="<?= base_url('contrato/certificado-pdf/' . $contract['id_contrato']) ?>"
+                                   class="btn btn-outline-success w-100 mb-2" target="_blank">
+                                    <i class="fas fa-certificate"></i> Descargar Certificado de Firma
+                                </a>
+                                <a href="<?= base_url('contrato/verificar/' . $contract['codigo_verificacion']) ?>"
+                                   class="btn btn-outline-primary w-100 mb-2" target="_blank">
+                                    <i class="fas fa-shield-alt"></i> Ver Certificado Publico
+                                </a>
+                            <?php endif; ?>
+
+                        <?php elseif ($estadoFirma === 'pendiente_firma'): ?>
+                            <div class="alert alert-warning py-2 mb-2">
+                                <i class="fas fa-clock"></i> Pendiente de firma del cliente
+                            </div>
+                            <?php $linkFirma = base_url('contrato/firmar/' . ($contract['token_firma'] ?? '')); ?>
+                            <div class="btn-group w-100 mb-2">
+                                <button onclick="copiarLinkFirma()" class="btn btn-outline-info" title="Copiar enlace">
+                                    <i class="fas fa-copy"></i> Copiar Link
+                                </button>
+                                <a href="https://wa.me/?text=<?= urlencode('Firme el contrato SST: ' . $linkFirma) ?>"
+                                   target="_blank" class="btn btn-success" title="Enviar por WhatsApp">
+                                    <i class="fab fa-whatsapp"></i> WhatsApp
+                                </a>
+                            </div>
+                            <button onclick="reenviarFirma()" class="btn btn-outline-warning w-100 mb-2">
+                                <i class="fas fa-redo"></i> Reenviar por Email
+                            </button>
+
+                        <?php else: ?>
+                            <?php if (isset($contract['contrato_generado']) && $contract['contrato_generado']): ?>
+                                <button onclick="enviarAFirmar()" class="btn w-100 mb-2 text-white"
+                                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="fas fa-pen-nib"></i> Enviar a Firmar Digitalmente
+                                </button>
+                            <?php else: ?>
+                                <div class="alert alert-info py-2 mb-2">
+                                    <small><i class="fas fa-info-circle"></i> Primero genere el contrato PDF para habilitar la firma digital.</small>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+
                     <!-- Resumen del Cliente -->
                     <?php if (isset($history)): ?>
                         <div class="info-card">
@@ -390,6 +468,32 @@
                 </div>
             </div>
 
+        <!-- Modal: Ver Firma del Cliente -->
+        <?php if (($contract['estado_firma'] ?? '') === 'firmado' && !empty($contract['firma_cliente_imagen'])): ?>
+        <div class="modal fade" id="modalFirmaCliente" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title"><i class="fas fa-signature"></i> Firma Digital del Cliente</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="<?= base_url($contract['firma_cliente_imagen']) ?>" alt="Firma del cliente" class="img-fluid" style="max-height: 200px; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px;">
+                        <hr>
+                        <p class="mb-1"><strong><?= esc($contract['firma_cliente_nombre'] ?? '') ?></strong></p>
+                        <p class="text-muted mb-1">CC: <?= esc($contract['firma_cliente_cedula'] ?? '') ?></p>
+                        <p class="text-muted mb-0">
+                            <small>Firmado el <?= !empty($contract['firma_cliente_fecha']) ? date('d/m/Y H:i:s', strtotime($contract['firma_cliente_fecha'])) : '' ?></small>
+                            <?php if (!empty($contract['firma_cliente_ip'])): ?>
+                                <br><small>IP: <?= esc($contract['firma_cliente_ip']) ?></small>
+                            <?php endif; ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <?php else: ?>
             <div class="alert alert-danger">
                 <h4>Contrato no encontrado</h4>
@@ -402,6 +506,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Initialize Bootstrap toasts
         document.addEventListener('DOMContentLoaded', function() {
@@ -411,6 +516,168 @@
                 toast.show();
             });
         });
+
+        // === Firma Digital Functions ===
+        function enviarAFirmar() {
+            Swal.fire({
+                title: 'Enviar a Firmar',
+                text: 'Se enviará un correo al representante legal del cliente con el enlace para firmar el contrato digitalmente.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#667eea',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, enviar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Enviando...',
+                        text: 'Procesando solicitud de firma',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    fetch('<?= base_url('/contracts/enviar-firma') ?>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            id_contrato: <?= $contract['id_contrato'] ?? 0 ?>
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Enviado', data.message || 'Solicitud de firma enviada correctamente', 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message || 'No se pudo enviar la solicitud', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error', 'Error de conexión: ' + error.message, 'error');
+                    });
+                }
+            });
+        }
+
+        function copiarLinkFirma() {
+            const link = '<?= base_url('contrato/firmar/' . ($contract['token_firma'] ?? '')) ?>';
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(link).then(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Enlace copiado',
+                        text: 'El enlace de firma ha sido copiado al portapapeles',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                });
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = link;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Enlace copiado',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        }
+
+        function reenviarFirma() {
+            Swal.fire({
+                title: 'Reenviar enlace de firma',
+                text: 'Se generará un nuevo enlace y se enviará por correo al cliente. El enlace anterior quedará invalidado.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ffc107',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, reenviar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Reenviando...',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    fetch('<?= base_url('/contracts/enviar-firma') ?>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            id_contrato: <?= $contract['id_contrato'] ?? 0 ?>
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Reenviado', data.message || 'Enlace reenviado correctamente', 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message || 'No se pudo reenviar', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error', 'Error de conexión: ' + error.message, 'error');
+                    });
+                }
+            });
+        }
+
+        function regenerarPDFConFirma() {
+            Swal.fire({
+                title: 'Regenerar PDF',
+                text: 'Se regenerará el PDF del contrato incluyendo la firma digital del cliente.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#17a2b8',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, regenerar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Regenerando PDF...',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    fetch('<?= base_url('/contracts/regenerar-pdf-firmado') ?>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            id_contrato: <?= $contract['id_contrato'] ?? 0 ?>
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('PDF Regenerado', data.message || 'El PDF ha sido actualizado con la firma del cliente.', 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message || 'No se pudo regenerar el PDF', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error', 'Error de conexión: ' + error.message, 'error');
+                    });
+                }
+            });
+        }
     </script>
 </body>
 </html>

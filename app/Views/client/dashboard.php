@@ -374,6 +374,7 @@
             <div class="welcome-header text-center fade-in-up">
                 <h1><i class="fas fa-building"></i> ¡<?= esc($client['nombre_cliente']) ?>!</h1>
                 <p>Bienvenido a Enterprisesst, tu aplicativo especializado en SG-SST</p>
+                <p><i class="fas fa-user me-2"></i>Sesión: <strong><?= session()->get('nombre_usuario') ?? 'Usuario' ?></strong></p>
             </div>
 
             <!-- Quick Access Buttons -->

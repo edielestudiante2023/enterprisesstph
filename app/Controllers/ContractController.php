@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ContractModel;
 use App\Models\ClientModel;
+use App\Models\UserModel;
 use App\Libraries\ContractLibrary;
 use App\Libraries\ContractPDFGenerator;
 use CodeIgniter\Controller;
@@ -460,7 +461,7 @@ class ContractController extends Controller
             'banco' => $this->request->getPost('banco'),
             'tipo_cuenta' => $this->request->getPost('tipo_cuenta'),
             'cuenta_bancaria' => $this->request->getPost('cuenta_bancaria'),
-            'clausula_cuarta_duracion' => $this->request->getPost('clausula_cuarta_duracion')
+            'clausula_cuarta_duracion' => $this->request->getPost('clausula_cuarta_duracion'),
         ];
 
         // Actualizar el contrato con los nuevos datos
@@ -858,6 +859,862 @@ Genera únicamente el texto de la cláusula, listo para insertar en el contrato.
                 'message' => 'Error al enviar el reporte: ' . $e->getMessage()
             ]);
         }
+    }
+
+    // =========================================================================
+    // FIRMA DIGITAL DE CONTRATOS (Sistema independiente)
+    // =========================================================================
+
+    /**
+     * Envía solicitud de firma digital al representante legal del cliente
+     */
+    public function enviarFirma()
+    {
+        // Soportar tanto JSON (fetch) como form POST
+        $json = $this->request->getJSON(true);
+        $idContrato = $json['id_contrato'] ?? $this->request->getPost('id_contrato');
+        $isAjax = $this->request->isAJAX() || $this->request->getHeaderLine('Content-Type') === 'application/json';
+
+        $contract = $this->contractLibrary->getContractWithClient($idContrato);
+        if (!$contract) {
+            if ($isAjax) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Contrato no encontrado']);
+            }
+            return redirect()->to('/contracts')->with('error', 'Contrato no encontrado');
+        }
+
+        // Validar que tenga PDF generado
+        if (empty($contract['contrato_generado'])) {
+            $msg = 'Debe generar el PDF del contrato antes de enviarlo a firmar';
+            if ($isAjax) {
+                return $this->response->setJSON(['success' => false, 'message' => $msg]);
+            }
+            return redirect()->to('/contracts/view/' . $idContrato)->with('error', $msg);
+        }
+
+        // Validar que no esté ya firmado
+        if (($contract['estado_firma'] ?? '') === 'firmado') {
+            $msg = 'Este contrato ya fue firmado';
+            if ($isAjax) {
+                return $this->response->setJSON(['success' => false, 'message' => $msg]);
+            }
+            return redirect()->to('/contracts/view/' . $idContrato)->with('error', $msg);
+        }
+
+        // Validar email del cliente
+        $emailCliente = $contract['email_cliente'] ?? '';
+        if (empty($emailCliente)) {
+            $msg = 'El contrato no tiene email del representante legal del cliente';
+            if ($isAjax) {
+                return $this->response->setJSON(['success' => false, 'message' => $msg]);
+            }
+            return redirect()->to('/contracts/view/' . $idContrato)->with('error', $msg);
+        }
+
+        // Generar token
+        $token = bin2hex(random_bytes(32));
+        $expiracion = date('Y-m-d H:i:s', strtotime('+7 days'));
+
+        // Actualizar contrato
+        $this->contractModel->update($idContrato, [
+            'token_firma' => $token,
+            'token_firma_expiracion' => $expiracion,
+            'estado_firma' => 'pendiente_firma'
+        ]);
+
+        // URL de firma
+        $urlFirma = base_url("contrato/firmar/{$token}");
+        $nombreFirmante = $contract['nombre_rep_legal_cliente'] ?? 'Representante Legal';
+
+        // Enviar email principal al representante legal del cliente
+        $enviado = $this->enviarEmailFirmaContrato(
+            $emailCliente,
+            $nombreFirmante,
+            $contract,
+            $urlFirma,
+            'Se requiere su firma digital para el contrato de prestacion de servicios SST.',
+            false
+        );
+
+        if (!$enviado) {
+            // Revertir si falla el envío
+            $this->contractModel->update($idContrato, [
+                'token_firma' => null,
+                'token_firma_expiracion' => null,
+                'estado_firma' => 'sin_enviar'
+            ]);
+            $msg = 'Error al enviar el correo. Verifique la configuracion de SendGrid.';
+            if ($isAjax) {
+                return $this->response->setJSON(['success' => false, 'message' => $msg]);
+            }
+            return redirect()->to('/contracts/view/' . $idContrato)->with('error', $msg);
+        }
+
+        // Enviar copia informativa al responsable SG-SST si tiene email
+        $emailResponsable = $contract['email_responsable_sgsst'] ?? '';
+        if (!empty($emailResponsable) && $emailResponsable !== $emailCliente) {
+            $this->enviarEmailFirmaContrato(
+                $emailResponsable,
+                $contract['nombre_responsable_sgsst'] ?? 'Responsable SST',
+                $contract,
+                $urlFirma,
+                'El Representante Legal debe firmar este contrato. Se le envia copia informativa.',
+                true
+            );
+        }
+
+        $msg = 'Solicitud de firma enviada correctamente a ' . $emailCliente;
+        if ($isAjax) {
+            return $this->response->setJSON(['success' => true, 'message' => $msg]);
+        }
+        return redirect()->to('/contracts/view/' . $idContrato)->with('success', $msg);
+    }
+
+    /**
+     * Página pública de firma del contrato (sin auth)
+     */
+    public function paginaFirmaContrato($token)
+    {
+        $db = \Config\Database::connect();
+
+        $contrato = $db->table('tbl_contratos')
+            ->select('tbl_contratos.*, tbl_clientes.nombre_cliente, tbl_clientes.nit_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_contratos.id_cliente')
+            ->where('tbl_contratos.token_firma', $token)
+            ->get()->getRowArray();
+
+        if (!$contrato) {
+            return view('contracts/firma_error_contrato', [
+                'mensaje' => 'El enlace de firma no es valido o ya fue utilizado.'
+            ]);
+        }
+
+        // Verificar estado
+        $estadoFirma = $contrato['estado_firma'] ?? '';
+        if ($estadoFirma === 'firmado') {
+            return view('contracts/firma_error_contrato', [
+                'mensaje' => 'Este contrato ya fue firmado anteriormente.'
+            ]);
+        }
+
+        if ($estadoFirma !== 'pendiente_firma') {
+            return view('contracts/firma_error_contrato', [
+                'mensaje' => 'Este contrato no esta disponible para firma.'
+            ]);
+        }
+
+        // Verificar expiración
+        if (!empty($contrato['token_firma_expiracion']) && strtotime($contrato['token_firma_expiracion']) < time()) {
+            return view('contracts/firma_error_contrato', [
+                'mensaje' => 'El enlace de firma ha expirado. Solicite un nuevo enlace.'
+            ]);
+        }
+
+        // URL pública del PDF para visor embebido
+        $pdfUrl = '';
+        if (!empty($contrato['ruta_pdf_contrato'])) {
+            $pdfUrl = base_url($contrato['ruta_pdf_contrato']);
+        }
+
+        return view('contracts/contrato_firma', [
+            'contrato' => $contrato,
+            'token' => $token,
+            'pdfUrl' => $pdfUrl
+        ]);
+    }
+
+    /**
+     * Procesar firma digital del contrato (público, sin auth)
+     */
+    public function procesarFirmaContrato()
+    {
+        $token = $this->request->getPost('token');
+        $firmaNombre = $this->request->getPost('firma_nombre');
+        $firmaCedula = $this->request->getPost('firma_cedula');
+        $firmaImagen = $this->request->getPost('firma_imagen');
+
+        $db = \Config\Database::connect();
+
+        // Validar token
+        $contrato = $db->table('tbl_contratos')
+            ->where('token_firma', $token)
+            ->where('estado_firma', 'pendiente_firma')
+            ->get()->getRowArray();
+
+        if (!$contrato) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Token no valido']);
+        }
+
+        // Verificar expiración
+        if (!empty($contrato['token_firma_expiracion']) && strtotime($contrato['token_firma_expiracion']) < time()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'El enlace ha expirado']);
+        }
+
+        // Guardar imagen de firma
+        $rutaFirma = null;
+        if ($firmaImagen) {
+            $firmaData = explode(',', $firmaImagen);
+            $firmaDecoded = base64_decode(end($firmaData));
+            $nombreArchivo = 'firma_contrato_' . $contrato['id_contrato'] . '_' . time() . '.png';
+            $rutaFirma = 'uploads/firmas/' . $nombreArchivo;
+
+            if (!is_dir(FCPATH . 'uploads/firmas')) {
+                mkdir(FCPATH . 'uploads/firmas', 0755, true);
+            }
+
+            file_put_contents(FCPATH . $rutaFirma, $firmaDecoded);
+        }
+
+        // Generar código de verificación ANTES de anular el token
+        $hash = hash('sha256', $contrato['token_firma'] . '|' . $contrato['id_contrato'] . '|' . $firmaCedula);
+        $codigoVerificacion = strtoupper(substr($hash, 0, 12));
+
+        // Actualizar contrato
+        $db->table('tbl_contratos')
+            ->where('id_contrato', $contrato['id_contrato'])
+            ->update([
+                'estado_firma' => 'firmado',
+                'firma_cliente_nombre' => $firmaNombre,
+                'firma_cliente_cedula' => $firmaCedula,
+                'firma_cliente_imagen' => $rutaFirma,
+                'firma_cliente_ip' => $this->request->getIPAddress(),
+                'firma_cliente_fecha' => date('Y-m-d H:i:s'),
+                'codigo_verificacion' => $codigoVerificacion,
+                'token_firma' => null,
+                'token_firma_expiracion' => null
+            ]);
+
+        // Regenerar el PDF del contrato para incluir la firma del cliente
+        try {
+            $contractData = $this->contractLibrary->getContractWithClient($contrato['id_contrato']);
+            if ($contractData) {
+                $pdfGenerator = new ContractPDFGenerator();
+                $pdfGenerator->generateContract($contractData);
+
+                $uploadDir = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'contratos' . DIRECTORY_SEPARATOR;
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0775, true);
+                }
+
+                $fileName = 'contrato_' . $contractData['numero_contrato'] . '_firmado_' . date('Ymd_His') . '.pdf';
+                $filePath = realpath($uploadDir) . DIRECTORY_SEPARATOR . $fileName;
+                $pdfGenerator->save($filePath);
+
+                // Actualizar ruta del PDF firmado
+                $db->table('tbl_contratos')
+                    ->where('id_contrato', $contrato['id_contrato'])
+                    ->update([
+                        'ruta_pdf_contrato' => 'uploads/contratos/' . $fileName,
+                        'fecha_generacion_contrato' => date('Y-m-d H:i:s')
+                    ]);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error regenerando PDF con firma: ' . $e->getMessage());
+        }
+
+        // Enviar credenciales al cliente si no tiene usuario en tbl_usuarios
+        try {
+            $cliente = $db->table('tbl_clientes')
+                ->where('id_cliente', $contrato['id_cliente'])
+                ->get()->getRowArray();
+
+            if ($cliente && !empty($cliente['correo_cliente'])) {
+                $userModel = new UserModel();
+                $existeUsuario = $userModel->where('id_entidad', $contrato['id_cliente'])
+                    ->where('tipo_usuario', 'client')
+                    ->first();
+
+                if (!$existeUsuario) {
+                    // Verificar que el email no esté ya registrado
+                    $emailExiste = $userModel->findByEmail($cliente['correo_cliente']);
+                    if (!$emailExiste) {
+                        $tempPassword = 'Ent' . rand(10000, 99999) . '!';
+                        $userId = $userModel->createUser([
+                            'email' => $cliente['correo_cliente'],
+                            'password' => $tempPassword,
+                            'nombre_completo' => $cliente['nombre_cliente'],
+                            'tipo_usuario' => 'client',
+                            'id_entidad' => $contrato['id_cliente'],
+                            'estado' => 'activo',
+                        ]);
+
+                        if ($userId) {
+                            $this->enviarEmailCredenciales(
+                                $cliente['correo_cliente'],
+                                $cliente['nombre_cliente'],
+                                $tempPassword
+                            );
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error creando credenciales del cliente: ' . $e->getMessage());
+        }
+
+        // Notificar al equipo interno y al consultor que el contrato fue firmado
+        try {
+            $contractData = $contractData ?? $this->contractLibrary->getContractWithClient($contrato['id_contrato']);
+            if ($contractData) {
+                $this->enviarEmailNotificacionFirma($contractData, $firmaNombre, $firmaCedula);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error enviando notificacion de firma: ' . $e->getMessage());
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Contrato firmado correctamente'
+        ]);
+    }
+
+    /**
+     * Regenerar el PDF del contrato incluyendo la firma del cliente
+     * POST /contracts/regenerar-pdf-firmado
+     */
+    public function regenerarPDFFirmado()
+    {
+        $json = $this->request->getJSON(true);
+        $idContrato = $json['id_contrato'] ?? $this->request->getPost('id_contrato');
+
+        $contract = $this->contractLibrary->getContractWithClient($idContrato);
+        if (!$contract) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Contrato no encontrado']);
+        }
+
+        if (($contract['estado_firma'] ?? '') !== 'firmado') {
+            return $this->response->setJSON(['success' => false, 'message' => 'El contrato aún no ha sido firmado']);
+        }
+
+        try {
+            $pdfGenerator = new ContractPDFGenerator();
+            $pdfGenerator->generateContract($contract);
+
+            $uploadDir = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'contratos' . DIRECTORY_SEPARATOR;
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0775, true);
+            }
+
+            $fileName = 'contrato_' . $contract['numero_contrato'] . '_firmado_' . date('Ymd_His') . '.pdf';
+            $filePath = realpath($uploadDir) . DIRECTORY_SEPARATOR . $fileName;
+            $pdfGenerator->save($filePath);
+
+            $this->contractModel->update($idContrato, [
+                'ruta_pdf_contrato' => 'uploads/contratos/' . $fileName,
+                'fecha_generacion_contrato' => date('Y-m-d H:i:s')
+            ]);
+
+            return $this->response->setJSON(['success' => true, 'message' => 'PDF regenerado con la firma del cliente']);
+        } catch (\Exception $e) {
+            log_message('error', 'Error regenerando PDF firmado: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Error al regenerar el PDF: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Consultar estado de firma de un contrato (autenticado)
+     */
+    public function estadoFirma($idContrato)
+    {
+        $contract = $this->contractModel->find($idContrato);
+
+        if (!$contract) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Contrato no encontrado']);
+        }
+
+        $data = [
+            'success' => true,
+            'estado_firma' => $contract['estado_firma'] ?? 'sin_enviar',
+        ];
+
+        if (($contract['estado_firma'] ?? '') === 'firmado') {
+            $data['firma'] = [
+                'nombre' => $contract['firma_cliente_nombre'],
+                'cedula' => $contract['firma_cliente_cedula'],
+                'fecha' => $contract['firma_cliente_fecha'],
+                'ip' => $contract['firma_cliente_ip'],
+            ];
+        }
+
+        return $this->response->setJSON($data);
+    }
+
+    /**
+     * Envía email de solicitud de firma de contrato via SendGrid
+     */
+    private function enviarEmailFirmaContrato($email, $nombreFirmante, $contrato, $urlFirma, $mensaje, $esCopia = false)
+    {
+        $apiKey = env('SENDGRID_API_KEY');
+        if (empty($apiKey)) {
+            log_message('error', 'SENDGRID_API_KEY no configurada');
+            return false;
+        }
+
+        // Renderizar template de email
+        $htmlEmail = view('contracts/email_contrato_firma', [
+            'nombreFirmante' => $nombreFirmante,
+            'contrato' => $contrato,
+            'urlFirma' => $urlFirma,
+            'mensaje' => $mensaje,
+            'esCopia' => $esCopia
+        ]);
+
+        $subject = $esCopia
+            ? "[Copia] Solicitud de Firma: Contrato SST - {$contrato['nombre_cliente']}"
+            : "Solicitud de Firma: Contrato SST - {$contrato['nombre_cliente']}";
+
+        $fromEmail = env('SENDGRID_FROM_EMAIL', 'notificacion.cycloidtalent@cycloidtalent.com');
+        $fromName = env('SENDGRID_FROM_NAME', 'Enterprise SST');
+
+        $data = [
+            'personalizations' => [
+                [
+                    'to' => [['email' => $email, 'name' => $nombreFirmante]],
+                    'subject' => $subject
+                ]
+            ],
+            'from' => [
+                'email' => $fromEmail,
+                'name' => $fromName
+            ],
+            'content' => [
+                ['type' => 'text/html', 'value' => $htmlEmail]
+            ]
+        ];
+
+        $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($httpCode < 200 || $httpCode >= 300) {
+            log_message('error', "SendGrid Error (contrato firma) - HTTP {$httpCode}: {$response} | cURL: {$curlError}");
+        }
+
+        return $httpCode >= 200 && $httpCode < 300;
+    }
+
+    /**
+     * Enviar email con credenciales de acceso a la plataforma al cliente
+     */
+    private function enviarEmailCredenciales($email, $nombre, $password)
+    {
+        $apiKey = env('SENDGRID_API_KEY');
+        if (empty($apiKey)) {
+            return false;
+        }
+
+        $loginUrl = base_url('/login');
+
+        $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            <div style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); padding: 30px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 22px;">Bienvenido a EnterpriseSST</h1>
+                <p style="color: rgba(255,255,255,0.8); margin: 10px 0 0;">Su contrato ha sido firmado exitosamente</p>
+            </div>
+            <div style="padding: 30px;">
+                <p style="color: #333; font-size: 16px;">Estimado(a) <strong>' . htmlspecialchars($nombre) . '</strong>,</p>
+                <p style="color: #555;">Su contrato de prestacion de servicios SST ha sido firmado correctamente. A continuacion encontrara sus credenciales de acceso a la plataforma <strong>EnterpriseSST</strong>, donde podra consultar toda la documentacion, descargar el contrato firmado en PDF y hacer seguimiento a su sistema de gestion.</p>
+
+                <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+                    <h3 style="color: #28a745; margin-top: 0;">Sus Credenciales de Acceso</h3>
+                    <table style="margin: 0 auto; text-align: left;">
+                        <tr>
+                            <td style="padding: 8px 15px; color: #666; font-weight: bold;">Correo:</td>
+                            <td style="padding: 8px 15px; color: #333; font-size: 16px;">' . htmlspecialchars($email) . '</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px; color: #666; font-weight: bold;">Contrasena:</td>
+                            <td style="padding: 8px 15px;"><span style="font-size: 20px; font-weight: bold; color: #28a745; letter-spacing: 2px;">' . htmlspecialchars($password) . '</span></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="' . $loginUrl . '" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold;">Ingresar a la Plataforma</a>
+                </div>
+
+                <div style="background: #fff3cd; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                    <p style="color: #856404; margin: 0; font-size: 13px;"><strong>Importante:</strong> Por seguridad, le recomendamos cambiar su contrasena despues del primer inicio de sesion.</p>
+                </div>
+            </div>
+            <div style="background: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #eee;">
+                <p style="color: #999; font-size: 12px; margin: 0;">Enterprise SST - Sistema de Gestion de Seguridad y Salud en el Trabajo<br>Este es un mensaje automatico, por favor no responda a este correo.</p>
+            </div>
+        </div></body></html>';
+
+        $data = [
+            'personalizations' => [
+                [
+                    'to' => [['email' => $email, 'name' => $nombre]],
+                    'subject' => 'Bienvenido a EnterpriseSST - Sus Credenciales de Acceso'
+                ]
+            ],
+            'from' => [
+                'email' => env('SENDGRID_FROM_EMAIL', 'notificacion.cycloidtalent@cycloidtalent.com'),
+                'name' => env('SENDGRID_FROM_NAME', 'Enterprise SST')
+            ],
+            'content' => [
+                ['type' => 'text/html', 'value' => $html]
+            ]
+        ];
+
+        $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($httpCode < 200 || $httpCode >= 300) {
+            log_message('error', "SendGrid Error (credenciales cliente) - HTTP {$httpCode}: {$response} | cURL: {$curlError}");
+        }
+
+        return $httpCode >= 200 && $httpCode < 300;
+    }
+
+    // =========================================================================
+    // VERIFICACIÓN PÚBLICA Y CERTIFICADO PDF DE CONTRATOS
+    // =========================================================================
+
+    /**
+     * Verificación pública de contrato firmado
+     * GET /contrato/verificar/{codigo} — Pública, sin auth
+     */
+    public function verificarFirma($codigoVerificacion)
+    {
+        $contrato = $this->contractModel
+            ->where('codigo_verificacion', strtoupper($codigoVerificacion))
+            ->where('estado_firma', 'firmado')
+            ->first();
+
+        if (!$contrato) {
+            return view('contracts/verificacion_contrato', ['valido' => false]);
+        }
+
+        $cliente = $this->clientModel->find($contrato['id_cliente']);
+
+        $urlVerificacion = base_url("contrato/verificar/{$contrato['codigo_verificacion']}");
+        $qrImage = $this->generarQRContrato($urlVerificacion);
+
+        return view('contracts/verificacion_contrato', [
+            'valido'             => true,
+            'contrato'           => $contrato,
+            'cliente'            => $cliente,
+            'codigoVerificacion' => $contrato['codigo_verificacion'],
+            'qrImage'            => $qrImage,
+        ]);
+    }
+
+    /**
+     * Descargar Certificado PDF de firma del contrato
+     * GET /contrato/certificado-pdf/{id} — Pública
+     */
+    public function certificadoPDF($idContrato)
+    {
+        $contrato = $this->contractModel->find($idContrato);
+
+        if (!$contrato || ($contrato['estado_firma'] ?? '') !== 'firmado') {
+            return redirect()->back()->with('error', 'Contrato no encontrado o no firmado');
+        }
+
+        $cliente = $this->clientModel->find($contrato['id_cliente']);
+
+        $urlVerificacion = base_url("contrato/verificar/{$contrato['codigo_verificacion']}");
+        $qrImage = $this->generarQRContrato($urlVerificacion);
+
+        $html = view('contracts/certificado_pdf_contrato', [
+            'contrato'           => $contrato,
+            'cliente'            => $cliente,
+            'codigoVerificacion' => $contrato['codigo_verificacion'],
+            'qrImage'            => $qrImage,
+        ]);
+
+        $dompdf = new \Dompdf\Dompdf(['isRemoteEnabled' => true]);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('letter', 'portrait');
+        $dompdf->render();
+
+        $filename = "Certificado_Firma_Contrato_{$contrato['numero_contrato']}_{$contrato['codigo_verificacion']}.pdf";
+        $dompdf->stream($filename, ['Attachment' => true]);
+        exit;
+    }
+
+    /**
+     * Notifica al equipo interno y al consultor cuando se firma un contrato
+     */
+    private function enviarEmailNotificacionFirma($contrato, $firmaNombre, $firmaCedula)
+    {
+        $apiKey = env('SENDGRID_API_KEY');
+        if (empty($apiKey)) {
+            return;
+        }
+
+        $urlContrato = base_url('contracts/view/' . $contrato['id_contrato']);
+        $fechaFirma  = date('d/m/Y H:i:s');
+
+        $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            <div style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); padding: 25px; text-align: center;">
+                <h2 style="color: white; margin: 0; font-size: 20px;">&#10003; Contrato Firmado Digitalmente</h2>
+                <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Notificacion automatica del sistema EnterpriseSST</p>
+            </div>
+            <div style="padding: 30px;">
+                <p style="color: #333; font-size: 15px; margin-top: 0;">El siguiente contrato ha sido firmado digitalmente por el representante legal del cliente:</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 10px 15px; font-weight: bold; color: #555; width: 40%;">Numero de Contrato:</td>
+                        <td style="padding: 10px 15px; color: #333;">' . htmlspecialchars($contrato['numero_contrato']) . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px 15px; font-weight: bold; color: #555;">Cliente:</td>
+                        <td style="padding: 10px 15px; color: #333;">' . htmlspecialchars($contrato['nombre_cliente']) . '</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 10px 15px; font-weight: bold; color: #555;">Firmado por:</td>
+                        <td style="padding: 10px 15px; color: #333;">' . htmlspecialchars($firmaNombre) . ' (CC: ' . htmlspecialchars($firmaCedula) . ')</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px 15px; font-weight: bold; color: #555;">Fecha y Hora:</td>
+                        <td style="padding: 10px 15px; color: #333;">' . $fechaFirma . '</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 10px 15px; font-weight: bold; color: #555;">Vigencia:</td>
+                        <td style="padding: 10px 15px; color: #333;">' . date('d/m/Y', strtotime($contrato['fecha_inicio'])) . ' al ' . date('d/m/Y', strtotime($contrato['fecha_fin'])) . '</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px 15px; font-weight: bold; color: #555;">Valor:</td>
+                        <td style="padding: 10px 15px; color: #333;">$' . number_format($contrato['valor_contrato'], 0, ',', '.') . ' COP</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td style="padding: 10px 15px; font-weight: bold; color: #555;">Consultor:</td>
+                        <td style="padding: 10px 15px; color: #333;">' . htmlspecialchars($contrato['nombre_consultor'] ?? 'No asignado') . '</td>
+                    </tr>
+                </table>
+
+                <div style="text-align: center; margin: 25px 0;">
+                    <a href="' . $urlContrato . '" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 35px; text-decoration: none; border-radius: 8px; font-size: 15px; font-weight: bold;">Ver Contrato en el Sistema</a>
+                </div>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; text-align: center; border-top: 1px solid #eee;">
+                <p style="color: #999; font-size: 12px; margin: 0;">EnterpriseSST - Notificacion automatica. No responda este correo.</p>
+            </div>
+        </div></body></html>';
+
+        // Construir lista de destinatarios
+        $destinatarios = [
+            ['email' => 'diana.cuestas@cycloidtalent.com', 'name' => 'Diana Cuestas']
+        ];
+
+        // Agregar consultor si tiene email registrado
+        if (!empty($contrato['id_consultor_responsable'])) {
+            $consultorModel = new \App\Models\ConsultorModel();
+            $consultor = $consultorModel->find($contrato['id_consultor_responsable']);
+            if ($consultor && !empty($consultor['correo_consultor'])) {
+                $destinatarios[] = [
+                    'email' => $consultor['correo_consultor'],
+                    'name'  => $consultor['nombre_consultor'] ?? 'Consultor'
+                ];
+            }
+        }
+
+        $toList = array_map(fn($d) => ['email' => $d['email'], 'name' => $d['name']], $destinatarios);
+
+        $payload = [
+            'personalizations' => [[
+                'to'      => $toList,
+                'subject' => 'Contrato Firmado: ' . $contrato['numero_contrato'] . ' - ' . $contrato['nombre_cliente']
+            ]],
+            'from'    => [
+                'email' => env('SENDGRID_FROM_EMAIL', 'notificacion.cycloidtalent@cycloidtalent.com'),
+                'name'  => env('SENDGRID_FROM_NAME', 'Enterprise SST')
+            ],
+            'content' => [['type' => 'text/html', 'value' => $html]]
+        ];
+
+        $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($httpCode < 200 || $httpCode >= 300) {
+            log_message('error', "SendGrid Error (notificacion firma) - HTTP {$httpCode}: {$response} | cURL: {$curlError}");
+        }
+    }
+
+    /**
+     * Genera URL de QR code para verificación de contratos
+     */
+    private function generarQRContrato(string $url): string
+    {
+        return 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . urlencode($url);
+    }
+
+    // =========================================================================
+    // GENERACIÓN DE CLÁUSULAS CON IA (OpenAI via IADocumentacionService)
+    // =========================================================================
+
+    /**
+     * Genera Clausula Cuarta (Duracion) con IA
+     * POST /contracts/generar-clausula-ia
+     */
+    public function generarClausulaIA()
+    {
+        $json = $this->request->getJSON(true);
+
+        $idCliente = $json['id_cliente'] ?? null;
+        $plazoEjecucion = $json['plazo_ejecucion'] ?? '';
+        $duracionContrato = $json['duracion_contrato'] ?? '';
+        $fechaInicio = $json['fecha_inicio'] ?? '';
+        $fechaFin = $json['fecha_fin'] ?? '';
+        $porcentajeAnticipo = $json['porcentaje_anticipo'] ?? '';
+        $condicionesPago = $json['condiciones_pago'] ?? '';
+        $terminacionAnticipada = $json['terminacion_anticipada'] ?? '';
+        $obligacionesEspeciales = $json['obligaciones_especiales'] ?? '';
+        $contextoAdicional = $json['contexto_adicional'] ?? '';
+        $textoActual = $json['texto_actual'] ?? '';
+        $modoRefinamiento = $json['modo_refinamiento'] ?? false;
+
+        $fechaInicioF = $fechaInicio ? $this->formatearFechaLarga($fechaInicio) : '';
+        $fechaFinF = $fechaFin ? $this->formatearFechaLarga($fechaFin) : '';
+
+        $infoCliente = '';
+        if ($idCliente) {
+            $client = $this->clientModel->find($idCliente);
+            if ($client) {
+                $infoCliente = "Datos del cliente (EL CONTRATANTE): {$client['nombre_cliente']}, NIT: {$client['nit_cliente']}.";
+            }
+        }
+
+        if ($modoRefinamiento && !empty($textoActual)) {
+            $prompt = "Eres un abogado experto en contratos SST en Colombia.\n\n" .
+                "Tienes este texto de Clausula Cuarta:\n\n--- TEXTO ACTUAL ---\n{$textoActual}\n--- FIN ---\n\n" .
+                "Aplica estas modificaciones:\n{$contextoAdicional}\n\n" .
+                ($infoCliente ? $infoCliente . "\n\n" : "") .
+                "REGLAS: Partes en MAYUSCULAS (EL CONTRATANTE, EL CONTRATISTA). Fechas reales, nunca placeholders.\n" .
+                "Responde SOLO con el texto de la clausula.";
+        } else {
+            $acuerdos = [];
+            if ($plazoEjecucion) $acuerdos[] = "Plazo: {$plazoEjecucion}";
+            if ($duracionContrato) $acuerdos[] = "Duracion: {$duracionContrato}";
+            if ($fechaInicioF) $acuerdos[] = "Inicio: {$fechaInicioF}";
+            if ($fechaFinF) $acuerdos[] = "Fin: {$fechaFinF}";
+            if ($porcentajeAnticipo) $acuerdos[] = "Anticipo: {$porcentajeAnticipo}";
+            if ($condicionesPago) $acuerdos[] = "Pago: {$condicionesPago}";
+            if ($terminacionAnticipada) $acuerdos[] = "Terminacion anticipada: {$terminacionAnticipada}";
+            if ($obligacionesEspeciales) $acuerdos[] = "Obligaciones: {$obligacionesEspeciales}";
+
+            $prompt = "Eres un abogado experto en contratos de prestacion de servicios SST en Colombia.\n\n" .
+                "Genera la CLAUSULA CUARTA (Duracion y Plazo) con estos acuerdos:\n\n" .
+                ($infoCliente ? $infoCliente . "\n\n" : "") .
+                implode("\n", $acuerdos) . "\n\n" .
+                "Incluir: 1) Plazo de ejecucion 2) Duracion 3) PARAGRAFO PRIMERO (terminacion anticipada) 4) PARAGRAFO SEGUNDO (sin prorroga automatica)\n" .
+                "REGLAS: Partes en MAYUSCULAS. Fechas reales en espanol largo. Lenguaje juridico formal.\n" .
+                "Responde SOLO con el texto.";
+        }
+
+        try {
+            $iaService = new \App\Services\IADocumentacionService();
+            $texto = $iaService->generarContenido($prompt, 1500);
+            return $this->response->setJSON(['success' => true, 'texto' => trim($texto)]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()])->setStatusCode(500);
+        }
+    }
+
+    /**
+     * Genera Clausula Primera (Objeto) con IA
+     * POST /contracts/generar-clausula1-ia
+     */
+    public function generarClausula1IA()
+    {
+        $json = $this->request->getJSON(true);
+
+        $idCliente = $json['id_cliente'] ?? null;
+        $descripcion = $json['descripcion_servicio'] ?? 'Diseno e implementacion del SG-SST';
+        $tipoConsultor = $json['tipo_consultor'] ?? 'externo';
+        $nombre = $json['nombre_coordinador'] ?? '';
+        $cedula = $json['cedula_coordinador'] ?? '';
+        $licencia = $json['licencia_coordinador'] ?? '';
+        $contexto = $json['contexto_adicional'] ?? '';
+        $textoActual = $json['texto_actual'] ?? '';
+        $modoRefinar = $json['modo_refinamiento'] ?? false;
+
+        $infoCliente = '';
+        if ($idCliente) {
+            $client = $this->clientModel->find($idCliente);
+            if ($client) $infoCliente = "Cliente: {$client['nombre_cliente']}, NIT: {$client['nit_cliente']}.";
+        }
+
+        $infoCoord = $nombre ? "Profesional SST: {$nombre}, cedula {$cedula}, licencia {$licencia}." : '';
+
+        if ($modoRefinar && !empty($textoActual)) {
+            $prompt = "Eres abogado experto SST Colombia.\n\nTexto actual:\n{$textoActual}\n\nModificaciones:\n{$contexto}\n\n{$infoCliente}\n{$infoCoord}\n\nRespuesta: solo texto clausula.";
+        } else {
+            $delegacion = $tipoConsultor === 'externo'
+                ? "\nIMPORTANTE: Incluir parrafo de DELEGACION DE VISITAS (consultor externo puede delegar visitas a otros profesionales del equipo).\n"
+                : '';
+            $prompt = "Eres abogado experto SST Colombia.\n\nGenera CLAUSULA PRIMERA (Objeto) con:\n{$infoCliente}\nServicio: {$descripcion}\n{$infoCoord}\n{$delegacion}\n" .
+                "Mencionar plataforma EnterpriseSST. Referenciar Resolucion 0312 de 2019.\n" .
+                "Partes en MAYUSCULAS. Responde SOLO con texto.";
+        }
+
+        try {
+            $iaService = new \App\Services\IADocumentacionService();
+            $texto = $iaService->generarContenido($prompt, 1500);
+            return $this->response->setJSON(['success' => true, 'texto' => trim($texto)]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()])->setStatusCode(500);
+        }
+    }
+
+    /**
+     * Formatea fecha a español largo (ej: "15 de febrero de 2026")
+     */
+    private function formatearFechaLarga(string $fecha): string
+    {
+        $meses = [1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',5=>'mayo',6=>'junio',
+                  7=>'julio',8=>'agosto',9=>'septiembre',10=>'octubre',11=>'noviembre',12=>'diciembre'];
+        $ts = strtotime($fecha);
+        if (!$ts) return $fecha;
+        return (int)date('j',$ts) . ' de ' . $meses[(int)date('n',$ts)] . ' de ' . date('Y',$ts);
     }
 
     /**

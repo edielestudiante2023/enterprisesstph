@@ -90,15 +90,41 @@ class ContractLibrary
         // Marcar el contrato anterior como vencido
         $this->contractModel->update($idContrato, ['estado' => 'vencido']);
 
-        // Crear el nuevo contrato
+        // Crear el nuevo contrato heredando todos los campos del anterior
         $newContractData = [
-            'id_cliente' => $oldContract['id_cliente'],
-            'fecha_inicio' => date('Y-m-d'),
-            'fecha_fin' => $newEndDate,
-            'valor_contrato' => $valorContrato ?? $oldContract['valor_contrato'],
-            'tipo_contrato' => 'renovacion',
-            'estado' => 'activo',
-            'observaciones' => $observaciones ?? "Renovación del contrato {$oldContract['numero_contrato']}"
+            'id_cliente'                    => $oldContract['id_cliente'],
+            'fecha_inicio'                  => date('Y-m-d'),
+            'fecha_fin'                     => $newEndDate,
+            'valor_contrato'                => $valorContrato ?? $oldContract['valor_contrato'],
+            'tipo_contrato'                 => 'renovacion',
+            'estado'                        => 'activo',
+            'observaciones'                 => $observaciones ?? "Renovación del contrato {$oldContract['numero_contrato']}",
+            // Heredar datos del representante legal del cliente
+            'nombre_rep_legal_cliente'      => $oldContract['nombre_rep_legal_cliente'] ?? null,
+            'cedula_rep_legal_cliente'      => $oldContract['cedula_rep_legal_cliente'] ?? null,
+            'direccion_cliente'             => $oldContract['direccion_cliente'] ?? null,
+            'telefono_cliente'              => $oldContract['telefono_cliente'] ?? null,
+            'email_cliente'                 => $oldContract['email_cliente'] ?? null,
+            // Heredar datos del contratista
+            'nombre_rep_legal_contratista'  => $oldContract['nombre_rep_legal_contratista'] ?? null,
+            'cedula_rep_legal_contratista'  => $oldContract['cedula_rep_legal_contratista'] ?? null,
+            'email_contratista'             => $oldContract['email_contratista'] ?? null,
+            // Heredar consultor y responsable SST
+            'id_consultor_responsable'      => $oldContract['id_consultor_responsable'] ?? null,
+            'nombre_responsable_sgsst'      => $oldContract['nombre_responsable_sgsst'] ?? null,
+            'cedula_responsable_sgsst'      => $oldContract['cedula_responsable_sgsst'] ?? null,
+            'licencia_responsable_sgsst'    => $oldContract['licencia_responsable_sgsst'] ?? null,
+            'email_responsable_sgsst'       => $oldContract['email_responsable_sgsst'] ?? null,
+            // Heredar condiciones económicas y operativas
+            'valor_mensual'                 => $oldContract['valor_mensual'] ?? null,
+            'numero_cuotas'                 => $oldContract['numero_cuotas'] ?? null,
+            'frecuencia_visitas'            => $oldContract['frecuencia_visitas'] ?? null,
+            // Heredar datos bancarios
+            'banco'                         => $oldContract['banco'] ?? null,
+            'tipo_cuenta'                   => $oldContract['tipo_cuenta'] ?? null,
+            'cuenta_bancaria'               => $oldContract['cuenta_bancaria'] ?? null,
+            // Heredar cláusula primera si existe
+            'clausula_primera_objeto'       => $oldContract['clausula_primera_objeto'] ?? null,
         ];
 
         return $this->createContract($newContractData);

@@ -159,6 +159,7 @@
                 <i class="fas fa-rocket fa-3x mb-3"></i>
                 <h1><i class="fas fa-bolt me-2"></i>Dashboard de Acceso Rápido</h1>
                 <p>Accede a todas tus vistas de gestión con un solo clic</p>
+                <p><i class="fas fa-user me-2"></i>Sesión: <strong><?= session()->get('nombre_usuario') ?? 'Usuario' ?></strong></p>
             </div>
 
             <!-- Cliente Selector Card -->

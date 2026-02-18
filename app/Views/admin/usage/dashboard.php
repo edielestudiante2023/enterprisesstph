@@ -166,6 +166,7 @@
                 <div class="col-md-8">
                     <h2><i class="fas fa-chart-line mr-2"></i>Consumo de Plataforma</h2>
                     <p>Monitoreo de tiempo de uso y actividad de usuarios</p>
+                    <p class="mb-0"><i class="fas fa-user mr-2"></i>Sesión: <strong><?= session()->get('nombre_usuario') ?? 'Usuario' ?></strong></p>
                 </div>
                 <div class="col-md-4 text-right">
                     <i class="fas fa-clock" style="font-size: 4rem; opacity: 0.3;"></i>

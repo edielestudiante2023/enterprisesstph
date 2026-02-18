@@ -37,7 +37,9 @@
       "Bash(more:*)",
       "Bash(git fetch:*)",
       "Bash(git remote:*)",
-      "Bash(del c:xampphtdocsenterprisesstphcreate_audit_table_production.php)"
+      "Bash(del c:xampphtdocsenterprisesstphcreate_audit_table_production.php)",
+      "Bash(/c/xampp/mysql/bin/mysql:*)",
+      "Bash(/c/xampp/php/php.exe:*)"
     ]
   }
 }

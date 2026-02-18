@@ -650,6 +650,8 @@ $routes->get('/contracts/download-pdf/(:num)', 'ContractController::downloadPDF/
 
 // Generación de cláusula con IA
 $routes->post('/contracts/generate-clausula-ia', 'ContractController::generateClausulaIA');
+$routes->post('/contracts/generar-clausula-ia', 'ContractController::generarClausulaIA');
+$routes->post('/contracts/generar-clausula1-ia', 'ContractController::generarClausula1IA');
 
 // Descarga de documentación del contrato
 $routes->get('/contracts/documentacion/(:num)', 'DocumentacionContratoController::previsualizarDocumentacion/$1');
@@ -710,4 +712,36 @@ $routes->get('/setup-audit-table', 'SetupAuditTableController::index');
 $routes->post('/setup-audit-table/create-local', 'SetupAuditTableController::createLocal');
 $routes->post('/setup-audit-table/create-production', 'SetupAuditTableController::createProduction');
 $routes->get('/setup-audit-table/check-status', 'SetupAuditTableController::checkStatus');
+
+// ============================================================================
+// RUTAS DE FIRMA DIGITAL DE CONTRATOS (Sistema 1)
+// ============================================================================
+$routes->post('/contracts/enviar-firma', 'ContractController::enviarFirma');
+$routes->post('/contracts/regenerar-pdf-firmado', 'ContractController::regenerarPDFFirmado');
+$routes->get('/contracts/estado-firma/(:num)', 'ContractController::estadoFirma/$1');
+// Rutas públicas (sin autenticación) para firma de contratos
+$routes->get('/contrato/firmar/(:segment)', 'ContractController::paginaFirmaContrato/$1');
+$routes->post('/contrato/procesar-firma', 'ContractController::procesarFirmaContrato');
+$routes->get('contrato/verificar/(:any)', 'ContractController::verificarFirma/$1');
+$routes->get('contrato/certificado-pdf/(:num)', 'ContractController::certificadoPDF/$1');
+
+// ============================================================================
+// RUTAS DE FIRMA ELECTRÓNICA DE DOCUMENTOS SST (Sistema 2)
+// ============================================================================
+// Dashboard y gestión (requieren autenticación)
+$routes->get('/firma/dashboard', 'FirmaElectronicaController::dashboard');
+$routes->get('/firma/dashboard/(:num)', 'FirmaElectronicaController::dashboard/$1');
+$routes->get('/firma/solicitar/(:num)', 'FirmaElectronicaController::solicitar/$1');
+$routes->post('/firma/crear-solicitud', 'FirmaElectronicaController::crearSolicitud');
+$routes->get('/firma/estado/(:num)', 'FirmaElectronicaController::estado/$1');
+$routes->post('/firma/reenviar/(:num)', 'FirmaElectronicaController::reenviar/$1');
+$routes->post('/firma/cancelar/(:num)', 'FirmaElectronicaController::cancelar/$1');
+$routes->get('/firma/audit-log/(:num)', 'FirmaElectronicaController::auditLog/$1');
+$routes->get('/firma/certificado-pdf/(:num)', 'FirmaElectronicaController::certificadoPDF/$1');
+$routes->post('/firma/firmar-interno/(:num)', 'FirmaElectronicaController::firmarInterno/$1');
+// Rutas públicas (sin autenticación) para firma electrónica
+$routes->get('/firma/firmar/(:any)', 'FirmaElectronicaController::firmar/$1');
+$routes->post('/firma/procesar', 'FirmaElectronicaController::procesarFirma');
+$routes->get('/firma/confirmacion/(:any)', 'FirmaElectronicaController::confirmacion/$1');
+$routes->get('/firma/verificar/(:any)', 'FirmaElectronicaController::verificar/$1');
 

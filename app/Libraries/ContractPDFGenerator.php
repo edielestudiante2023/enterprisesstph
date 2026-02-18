@@ -168,13 +168,13 @@ class ContractPDFGenerator
     }
 
     /**
-     * Cláusula Primera - Objeto (con negritas en términos clave)
+     * Cláusula Primera - Objeto (texto fijo con datos del consultor asignado)
      */
     private function buildClausulaObjeto($data)
     {
         $texto = "<b>EL CONTRATISTA</b> se compromete a proporcionar servicios de consultoría para la gestión del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) a favor de <b>EL CONTRATANTE</b> mediante la plataforma <b>EnterpriseSST</b>. Esta plataforma facilita la gestión documental, la programación de actividades y el monitoreo en tiempo real de los planes de trabajo. ";
 
-        $texto .= "Además, se asignará al profesional SG-SST <b>" . $data['nombre_responsable_sgsst'] . "</b>, identificado con cédula de ciudadanía <b>" . $data['cedula_responsable_sgsst'] . "</b> y licencia ocupacional número <b>" . $data['licencia_responsable_sgsst'] . "</b>, para garantizar el cumplimiento de los estándares mínimos de la <b>Resolución 0312 de 2019</b>. ";
+        $texto .= "Además, se asignará al profesional SG-SST <b>" . ($data['nombre_responsable_sgsst'] ?? '') . "</b>, identificado con cédula de ciudadanía <b>" . ($data['cedula_responsable_sgsst'] ?? '') . "</b> y licencia ocupacional número <b>" . ($data['licencia_responsable_sgsst'] ?? '') . "</b>, para garantizar el cumplimiento de los estándares mínimos de la <b>Resolución 0312 de 2019</b>. ";
 
         $texto .= "Estos servicios incluirán la supervisión y seguimiento continuo del sistema, la capacitación a colaboradores en misión y la implementación de medidas preventivas que contribuyan a mejorar la seguridad laboral. A través de <b>EnterpriseSST</b>, se realizará una gestión integral, permitiendo la automatización de reportes, la programación de actividades preventivas y el seguimiento de indicadores de desempeño en tiempo real, asegurando que todas las acciones realizadas estén alineadas con los requisitos legales y los objetivos del sistema de gestión.";
 
@@ -231,8 +231,16 @@ class ContractPDFGenerator
     {
         // Si existe texto personalizado en clausula_cuarta_duracion, usar ese
         if (!empty($data['clausula_cuarta_duracion'])) {
+            $textoPersonalizado = $data['clausula_cuarta_duracion'];
+
+            // Convertir markdown **texto** → <b>texto</b>
+            $textoPersonalizado = preg_replace('/\*\*(.+?)\*\*/s', '<b>$1</b>', $textoPersonalizado);
+
+            // Eliminar prefijos de encabezado markdown (# ## ###)
+            $textoPersonalizado = preg_replace('/^#{1,4}\s*/m', '', $textoPersonalizado);
+
             // Convertir saltos de línea a <br> para HTML
-            $textoPersonalizado = nl2br($data['clausula_cuarta_duracion']);
+            $textoPersonalizado = nl2br($textoPersonalizado);
 
             // Aplicar formato de negritas a términos clave comunes
             $textoPersonalizado = $this->aplicarNegritasTerminosClave($textoPersonalizado);
@@ -441,8 +449,13 @@ class ContractPDFGenerator
             $this->pdf->Image($firmaContratista, $leftX + 15, $signatureY, 60, 0, '', '', '', false, 300);
         }
 
-        // Firma derecha (Cliente - EL CONTRATANTE) - NO poner firma aquí, es del representante legal del cliente
-        // Esta firma debe ser capturada del cliente, NO del consultor
+        // Firma derecha (Cliente - EL CONTRATANTE) - Firma digital si existe
+        if (!empty($data['firma_cliente_imagen'])) {
+            $firmaClientePath = FCPATH . $data['firma_cliente_imagen'];
+            if (file_exists($firmaClientePath)) {
+                $this->pdf->Image($firmaClientePath, $rightX + 15, $signatureY, 60, 0, '', '', '', false, 300);
+            }
+        }
 
         $this->pdf->Ln(25); // Espacio para las firmas
 
