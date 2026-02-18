@@ -90,6 +90,12 @@ $routes->get('/editClient/(:num)', 'ConsultantController::editClient/$1');
 $routes->post('/updateClient/(:num)', 'ConsultantController::updateClient/$1');
 $routes->get('/deleteClient/(:num)', 'ConsultantController::deleteClient/$1');
 $routes->post('/addClientPost', 'ConsultantController::addClientPost');
+
+// Acciones de estado del cliente
+$routes->post('/cliente/reactivar/(:num)',    'ConsultantController::reactivarCliente/$1');
+$routes->post('/cliente/retirar/(:num)',      'ConsultantController::retirarCliente/$1');
+$routes->post('/cliente/pendiente/(:num)',    'ConsultantController::marcarPendienteCliente/$1');
+$routes->post('/cliente/paz-y-salvo/(:num)', 'ConsultantController::emitirPazYSalvo/$1');
 $routes->get('/responsableSGSST/(:num)', 'SGSSTPlanear::responsableDelSGSST/$1');
 
 $routes->get('/error', 'ErrorController::index');
