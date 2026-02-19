@@ -41,7 +41,7 @@
 
             <!-- Tipo Servicio -->
             <div class="mb-3">
-                <label for="tipo_servicio" class="form-label">Tipo Servicio</label>
+                <label for="tipo_servicio" class="form-label">Fuente de la Actividad</label>
                 <input type="text" name="tipo_servicio" id="tipo_servicio" class="form-control">
             </div>
 

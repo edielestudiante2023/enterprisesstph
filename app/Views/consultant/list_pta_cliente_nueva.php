@@ -353,6 +353,153 @@
         .month-buttons {
             max-width: 200px;
         }
+
+        /* ============ TEXTO TRUNCADO EXPANDIBLE ============ */
+        .cell-truncate {
+            max-height: 60px;
+            overflow: hidden;
+            position: relative;
+            transition: max-height 0.3s ease;
+        }
+        .cell-truncate.expanded {
+            max-height: 2000px;
+        }
+        .btn-expand {
+            display: inline-block;
+            font-size: 11px;
+            color: #4e73df;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 2px;
+            user-select: none;
+        }
+        .btn-expand:hover {
+            color: #224abe;
+            text-decoration: underline;
+        }
+
+        /* ============ BADGES DE ESTADO ============ */
+        .estado-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        .estado-abierta { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+        .estado-cerrada { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .estado-gestionando { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+        .estado-cerrada-sin { background: #fce4ec; color: #c62828; border: 1px solid #ef9a9a; }
+
+        /* ============ MINI PROGRESS BAR ============ */
+        .mini-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 100px;
+        }
+        .mini-progress-bar {
+            flex: 1;
+            height: 14px;
+            background: #dee2e6;
+            border-radius: 7px;
+            overflow: hidden;
+            min-width: 60px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .mini-progress-fill {
+            height: 100%;
+            border-radius: 7px;
+            transition: width 0.3s ease;
+            min-width: 2px;
+        }
+        .mini-progress-text {
+            font-size: 13px;
+            font-weight: 800;
+            min-width: 40px;
+            text-align: right;
+            color: #333;
+        }
+
+        /* ============ BOTONES ACCIONES COMPACTOS ============ */
+        .btn-action {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 13px;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        .btn-action:hover { transform: scale(1.1); }
+        .btn-action-edit { background: #ffc107; color: #000; }
+        .btn-action-edit:hover { background: #ffca2c; color: #000; }
+        .btn-action-delete { background: #dc3545; color: #fff; }
+        .btn-action-delete:hover { background: #e04050; color: #fff; }
+        .action-group { display: flex; gap: 4px; justify-content: center; }
+
+        /* ============ FILAS COMPACTAS Y TABLA ESTILIZADA ============ */
+        #ptaTable {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        #ptaTable thead th {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 10px 8px;
+            white-space: nowrap;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        #ptaTable thead th:first-child { border-radius: 8px 0 0 0; }
+        #ptaTable thead th:last-child { border-radius: 0 8px 0 0; }
+        #ptaTable tbody td {
+            vertical-align: middle;
+            padding: 8px 8px;
+            font-size: 13px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        #ptaTable tbody tr:hover td {
+            background-color: #f0f4ff !important;
+        }
+        #ptaTable tbody tr:nth-child(even) td {
+            background-color: #f8f9fc;
+        }
+
+        /* ============ ACORDEON DE FILTROS ============ */
+        .filter-toggle-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .filter-toggle-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .filter-toggle-btn .fa-chevron-down {
+            transition: transform 0.3s ease;
+        }
+        .filter-toggle-btn.collapsed .fa-chevron-down {
+            transform: rotate(-90deg);
+        }
+        #cardFiltersPanel {
+            transition: all 0.35s ease;
+        }
     </style>
 </head>
 
@@ -455,173 +602,183 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Tarjetas de Año -->
+            <!-- Tarjetas de Año (dentro del accordion) -->
             <div class="col-lg-8">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="section-title mb-0">
-                        <i class="fas fa-calendar-alt"></i> Filtrar por Año
-                    </div>
+                <!-- Toggle de filtros por tarjetas -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <button class="filter-toggle-btn collapsed" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#cardFiltersPanel"
+                            aria-expanded="false">
+                        <i class="fas fa-layer-group me-2"></i>Filtros por Tarjetas (Año / Estado / Mes)
+                        <i class="fas fa-chevron-down ms-2"></i>
+                    </button>
                     <button type="button" id="btnClearCardFilters" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-times"></i> Limpiar Filtros de Tarjetas
+                        <i class="fas fa-times"></i> Limpiar Filtros
                     </button>
                 </div>
-                <div class="row mt-2" id="yearCards">
-                    <!-- Se generarán dinámicamente con JavaScript -->
-                </div>
             </div>
         </div>
 
-        <!-- Tarjetas de Estados (clickeables) -->
-        <div class="section-title">
-            <i class="fas fa-tasks"></i> Filtrar por Estado
-        </div>
-        <div class="row mb-4">
-            <div class="col-md-2">
-                <div class="card text-white bg-primary card-clickable card-status" data-status="ABIERTA">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Activas</h5>
-                        <p class="card-text display-6" id="countActivas">0</p>
-                    </div>
-                </div>
+        <div class="collapse" id="cardFiltersPanel">
+            <!-- Tarjetas de Año -->
+            <div class="section-title">
+                <i class="fas fa-calendar-alt"></i> Filtrar por Año
             </div>
-            <div class="col-md-2">
-                <div class="card text-white bg-danger card-clickable card-status" data-status="CERRADA">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Cerradas</h5>
-                        <p class="card-text display-6" id="countCerradas">0</p>
-                    </div>
-                </div>
+            <div class="row mt-2 mb-4" id="yearCards">
+                <!-- Se generarán dinámicamente con JavaScript -->
             </div>
-            <div class="col-md-2">
-                <div class="card text-white bg-warning card-clickable card-status" data-status="GESTIONANDO">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Gestionando</h5>
-                        <p class="card-text display-6" id="countGestionando">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-white bg-dark card-clickable card-status" data-status="CERRADA SIN EJECUCIÓN">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Cerradas Sin Ejecución</h5>
-                        <p class="card-text display-6" id="countCerradasSinEjecucion">0</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Tarjeta para total de actividades -->
-            <div class="col-md-3">
-                <div class="card text-white bg-secondary card-clickable card-status" data-status="ALL">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Total</h5>
-                        <p class="card-text display-6" id="countTotal">0</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Tarjetas mensuales (clickeables) -->
-        <div class="section-title">
-            <i class="fas fa-calendar-week"></i> Filtrar por Mes
-        </div>
-        <div class="row mb-4">
-            <!-- Cada tarjeta ocupa 1 columna en md y 6 en xs -->
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="1">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Enero</h6>
-                        <p class="card-text text-center" id="countEnero">0</p>
+            <!-- Tarjetas de Estados (clickeables) -->
+            <div class="section-title">
+                <i class="fas fa-tasks"></i> Filtrar por Estado
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-2">
+                    <div class="card text-white bg-primary card-clickable card-status" data-status="ABIERTA">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Activas</h5>
+                            <p class="card-text display-6" id="countActivas">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-white bg-danger card-clickable card-status" data-status="CERRADA">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Cerradas</h5>
+                            <p class="card-text display-6" id="countCerradas">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-white bg-warning card-clickable card-status" data-status="GESTIONANDO">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Gestionando</h5>
+                            <p class="card-text display-6" id="countGestionando">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-dark card-clickable card-status" data-status="CERRADA SIN EJECUCIÓN">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Cerradas Sin Ejecución</h5>
+                            <p class="card-text display-6" id="countCerradasSinEjecucion">0</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tarjeta para total de actividades -->
+                <div class="col-md-3">
+                    <div class="card text-white bg-secondary card-clickable card-status" data-status="ALL">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Total</h5>
+                            <p class="card-text display-6" id="countTotal">0</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="2">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Febrero</h6>
-                        <p class="card-text text-center" id="countFebrero">0</p>
+
+            <!-- Tarjetas mensuales (clickeables) -->
+            <div class="section-title">
+                <i class="fas fa-calendar-week"></i> Filtrar por Mes
+            </div>
+            <div class="row mb-4">
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="1">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Enero</h6>
+                            <p class="card-text text-center" id="countEnero">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="2">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Febrero</h6>
+                            <p class="card-text text-center" id="countFebrero">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="3">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Marzo</h6>
+                            <p class="card-text text-center" id="countMarzo">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="4">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Abril</h6>
+                            <p class="card-text text-center" id="countAbril">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="5">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Mayo</h6>
+                            <p class="card-text text-center" id="countMayo">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="6">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Junio</h6>
+                            <p class="card-text text-center" id="countJunio">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="7">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Julio</h6>
+                            <p class="card-text text-center" id="countJulio">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="8">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Agosto</h6>
+                            <p class="card-text text-center" id="countAgosto">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="9">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Sept.</h6>
+                            <p class="card-text text-center" id="countSeptiembre">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="10">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Oct.</h6>
+                            <p class="card-text text-center" id="countOctubre">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="11">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Nov.</h6>
+                            <p class="card-text text-center" id="countNoviembre">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-1">
+                    <div class="card text-white bg-info card-clickable card-month" data-month="12">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center mb-0">Dic.</h6>
+                            <p class="card-text text-center" id="countDiciembre">0</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="3">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Marzo</h6>
-                        <p class="card-text text-center" id="countMarzo">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="4">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Abril</h6>
-                        <p class="card-text text-center" id="countAbril">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="5">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Mayo</h6>
-                        <p class="card-text text-center" id="countMayo">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="6">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Junio</h6>
-                        <p class="card-text text-center" id="countJunio">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="7">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Julio</h6>
-                        <p class="card-text text-center" id="countJulio">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="8">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Agosto</h6>
-                        <p class="card-text text-center" id="countAgosto">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="9">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Sept.</h6>
-                        <p class="card-text text-center" id="countSeptiembre">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="10">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Oct.</h6>
-                        <p class="card-text text-center" id="countOctubre">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="11">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Nov.</h6>
-                        <p class="card-text text-center" id="countNoviembre">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-1">
-                <div class="card text-white bg-info card-clickable card-month" data-month="12">
-                    <div class="card-body p-2">
-                        <h6 class="card-title text-center mb-0">Dic.</h6>
-                        <p class="card-text text-center" id="countDiciembre">0</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </div><!-- Fin cardFiltersPanel collapse -->
 
         <h1 class="mb-4">Plan de Trabajo Anual Cliente</h1>
         
@@ -709,7 +866,7 @@
                             <th>Acciones</th>
                             <th>ID</th>
                             <th>Cliente</th>
-                            <th class="d-none">Tipo Servicio</th>
+                            <th class="d-none">Fuente de la Actividad</th>
                             <th>PHVA</th>
                             <th>Numeral Plan Trabajo</th>
                             <th>Actividad</th>
@@ -730,22 +887,58 @@
                         <?php foreach ($records as $row): ?>
                             <tr>
                                 <td>
-                                    <!-- Se incluyen los filtros en los enlaces de editar y eliminar -->
-                                    <a href="<?= base_url('/pta-cliente-nueva/edit/' . esc($row['id_ptacliente']) . '?' . http_build_query($filters)) ?>" class="btn btn-warning btn-sm">Editar</a>
-                                    <a href="<?= base_url('/pta-cliente-nueva/delete/' . esc($row['id_ptacliente']) . '?' . http_build_query($filters)) ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este registro?')">Eliminar</a>
+                                    <div class="action-group">
+                                        <a href="<?= base_url('/pta-cliente-nueva/edit/' . esc($row['id_ptacliente']) . '?' . http_build_query($filters)) ?>"
+                                           class="btn-action btn-action-edit" title="Editar">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <a href="<?= base_url('/pta-cliente-nueva/delete/' . esc($row['id_ptacliente']) . '?' . http_build_query($filters)) ?>"
+                                           class="btn-action btn-action-delete" title="Eliminar"
+                                           onclick="return confirm('¿Seguro que deseas eliminar este registro?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
                                 </td>
                                 <td><?= esc($row['id_ptacliente']) ?></td>
                                 <td class="editable"><?= esc($row['nombre_cliente']) ?></td>
                                 <td class="d-none"><?= esc($row['tipo_servicio']) ?></td>
                                 <td class="editable"><?= esc($row['phva_plandetrabajo']) ?></td>
                                 <td class="editable"><?= esc($row['numeral_plandetrabajo']) ?></td>
-                                <td class="editable"><?= esc($row['actividad_plandetrabajo']) ?></td>
+                                <td class="editable">
+                                    <div class="cell-truncate"><?= esc($row['actividad_plandetrabajo']) ?></div>
+                                </td>
                                 <td class="editable"><?= esc($row['responsable_sugerido_plandetrabajo']) ?></td>
                                 <td class="editable"><?= esc($row['fecha_propuesta']) ?></td>
                                 <td class="editable"><?= esc($row['fecha_cierre']) ?></td>
-                                <td class="editable"><?= esc($row['estado_actividad']) ?></td>
-                                <td class="editable"><?= esc($row['porcentaje_avance']) ?></td>
-                                <td class="editable"><?= esc($row['observaciones']) ?></td>
+                                <td class="editable">
+                                    <?php
+                                    $estado = $row['estado_actividad'];
+                                    $badgeClass = 'estado-abierta';
+                                    if ($estado === 'CERRADA') $badgeClass = 'estado-cerrada';
+                                    elseif ($estado === 'GESTIONANDO') $badgeClass = 'estado-gestionando';
+                                    elseif ($estado === 'CERRADA SIN EJECUCIÓN') $badgeClass = 'estado-cerrada-sin';
+                                    ?>
+                                    <span class="estado-badge <?= $badgeClass ?>"><?= esc($estado) ?></span>
+                                </td>
+                                <td class="editable">
+                                    <?php
+                                    $pct = (float)($row['porcentaje_avance'] ?? 0);
+                                    $barColor = '#e74a3b';
+                                    if ($pct >= 100) $barColor = '#1cc88a';
+                                    elseif ($pct >= 50) $barColor = '#4e73df';
+                                    elseif ($pct > 0) $barColor = '#f6c23e';
+                                    $barWidth = max($pct, 2);
+                                    ?>
+                                    <div class="mini-progress">
+                                        <div class="mini-progress-bar">
+                                            <div class="mini-progress-fill" style="width:<?= $barWidth ?>%;background:<?= $barColor ?>"></div>
+                                        </div>
+                                        <span class="mini-progress-text"><?= number_format($pct, 0) ?>%</span>
+                                    </div>
+                                </td>
+                                <td class="editable">
+                                    <div class="cell-truncate"><?= esc($row['observaciones']) ?></div>
+                                </td>
                                 <td class="d-none"><?= esc($row['responsable_definido_paralaactividad']) ?></td>
                                 <td class="d-none"><?= esc($row['semana']) ?></td>
                                 <td class="d-none"><?= esc($row['created_at']) ?></td>
@@ -939,7 +1132,8 @@
                 $.fn.dataTable.ext.search.push(
                     function(settings, data, dataIndex) {
                         var fechaPropuesta = data[8] || ''; // Columna 8: Fecha Propuesta
-                        var estadoActividad = data[10] || ''; // Columna 10: Estado
+                        // STRIP HTML del estado antes de comparar
+                        var estadoActividad = $('<div/>').html(data[10] || '').text().trim();
 
                         // Filtro por año
                         if (activeYear) {
@@ -1159,6 +1353,41 @@
 
             var table;
             if ($('#ptaTable').length) {
+                // Helper: extraer texto plano de HTML
+                function stripHtml(html) {
+                    return $('<div/>').html(html).text().trim();
+                }
+
+                // Construir badge de estado con la clase CSS correcta
+                function buildEstadoBadge(estado) {
+                    var cls = 'estado-abierta';
+                    if (estado === 'CERRADA') cls = 'estado-cerrada';
+                    else if (estado === 'GESTIONANDO') cls = 'estado-gestionando';
+                    else if (estado === 'CERRADA SIN EJECUCIÓN') cls = 'estado-cerrada-sin';
+                    return '<span class="estado-badge ' + cls + '">' + estado + '</span>';
+                }
+
+                // Construir progress bar con color segun porcentaje
+                function buildProgressBar(pct) {
+                    pct = parseFloat(pct) || 0;
+                    var color = '#e74a3b';
+                    if (pct >= 100) color = '#1cc88a';
+                    else if (pct >= 50) color = '#4e73df';
+                    else if (pct > 0) color = '#f6c23e';
+                    var w = Math.max(pct, 2);
+                    return '<div class="mini-progress">'
+                         + '<div class="mini-progress-bar">'
+                         + '<div class="mini-progress-fill" style="width:' + w + '%;background:' + color + '"></div>'
+                         + '</div>'
+                         + '<span class="mini-progress-text">' + pct + '%</span>'
+                         + '</div>';
+                }
+
+                // Construir celda truncada (escapa HTML del texto)
+                function buildTruncateCell(text) {
+                    return '<div class="cell-truncate">' + $('<span/>').text(text).html() + '</div>';
+                }
+
                 table = $('#ptaTable').DataTable({
                     "lengthChange": true,
                     "responsive": true,
@@ -1178,10 +1407,10 @@
                         charset: 'UTF-8',
                         bom: true,
                         exportOptions: {
-                            columns: ':visible',
+                            columns: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                             format: {
                                 body: function(data, row, column, node) {
-                                    // Decode HTML entities
+                                    // Limpia cualquier HTML (badges, progress bars, etc.)
                                     return $('<div/>').html(data).text();
                                 }
                             }
@@ -1224,16 +1453,16 @@
                         search: 'applied'
                     }).data().toArray();
                     var countActivas = data.filter(function(x) {
-                        return x.trim() === 'ABIERTA';
+                        return stripHtml(x) === 'ABIERTA';
                     }).length;
                     var countCerradas = data.filter(function(x) {
-                        return x.trim() === 'CERRADA';
+                        return stripHtml(x) === 'CERRADA';
                     }).length;
                     var countGestionando = data.filter(function(x) {
-                        return x.trim() === 'GESTIONANDO';
+                        return stripHtml(x) === 'GESTIONANDO';
                     }).length;
                     var countCerradasSinEjecucion = data.filter(function(x) {
-                        return x.trim() === 'CERRADA SIN EJECUCIÓN';
+                        return stripHtml(x) === 'CERRADA SIN EJECUCIÓN';
                     }).length;
                     $('#countActivas').text(countActivas);
                     $('#countCerradas').text(countCerradas);
@@ -1271,17 +1500,47 @@
                     });
                 }
 
+                // ===================================================================
+                // TEXTO TRUNCADO EXPANDIBLE
+                // ===================================================================
+                function initTruncateButtons() {
+                    $('.cell-truncate').each(function() {
+                        var $el = $(this);
+                        $el.next('.btn-expand').remove();
+                        $el.removeClass('expanded');
+                        if (this.scrollHeight > 65) {
+                            if ($el.next('.btn-expand').length === 0) {
+                                $el.after('<span class="btn-expand">ver m&aacute;s &#9660;</span>');
+                            }
+                        }
+                    });
+                }
+
+                $(document).on('click', '.btn-expand', function() {
+                    var $btn = $(this);
+                    var $cell = $btn.prev('.cell-truncate');
+                    if ($cell.hasClass('expanded')) {
+                        $cell.removeClass('expanded');
+                        $btn.html('ver m&aacute;s &#9660;');
+                    } else {
+                        $cell.addClass('expanded');
+                        $btn.html('ver menos &#9650;');
+                    }
+                });
+
                 table.on('draw', function() {
                     updateCardCounts();
                     updateMonthlyCounts();
+                    initTruncateButtons();
                 });
                 updateCardCounts();
                 updateMonthlyCounts();
-                generateYearCards(); // Generar tarjetas de año al inicializar
+                generateYearCards();
+                initTruncateButtons();
 
                 $('#ptaTable tbody').on('dblclick', 'td.editable', function() {
                     var cell = table.cell(this);
-                    var originalValue = cell.data();
+                    var originalHtml = cell.data();
                     var $td = $(this);
                     if ($td.find('input, select').length > 0) return;
                     var colIndex = table.cell($td).index().column;
@@ -1298,22 +1557,29 @@
                     };
                     var disallowed = [0, 1, 2, 3, 13, 14, 15, 16];
                     if (disallowed.indexOf(colIndex) !== -1 || !editableMapping.hasOwnProperty(colIndex)) {
-                        cell.data(originalValue).draw();
+                        cell.data(originalHtml).draw();
                         return;
                     }
 
+                    // Extraer valor plano segun la columna
+                    var plainValue = stripHtml(originalHtml);
+                    // Para porcentaje, quitar el '%'
+                    if (colIndex === 11) plainValue = plainValue.replace('%', '').trim();
+
                     var inputElement;
                     if (colIndex === 8 || colIndex === 9) {
-                        inputElement = $('<input type="date" class="form-control form-control-sm" />').val(originalValue);
+                        inputElement = $('<input type="date" class="form-control form-control-sm" />').val(plainValue);
                     } else if (colIndex === 10) {
                         inputElement = $('<select class="form-select form-select-sm"></select>');
                         var options = ["ABIERTA", "CERRADA", "GESTIONANDO", "CERRADA SIN EJECUCIÓN"];
                         $.each(options, function(i, option) {
-                            var selected = (originalValue === option) ? "selected" : "";
+                            var selected = (plainValue === option) ? "selected" : "";
                             inputElement.append('<option value="' + option + '" ' + selected + '>' + option + '</option>');
                         });
+                    } else if (colIndex === 11) {
+                        inputElement = $('<input type="number" class="form-control form-control-sm" min="0" max="100" step="1" />').val(plainValue);
                     } else {
-                        inputElement = $('<input type="text" class="form-control form-control-sm" />').val(originalValue);
+                        inputElement = $('<input type="text" class="form-control form-control-sm" />').val(plainValue);
                     }
 
                     $td.empty().append(inputElement);
@@ -1322,8 +1588,8 @@
                     inputElement.on('blur keydown', function(e) {
                         if (e.type === 'blur' || (e.type === 'keydown' && e.which === 13)) {
                             var newValue = (colIndex === 10) ? inputElement.find("option:selected").val() : $(this).val();
-                            if (newValue === originalValue) {
-                                cell.data(originalValue).draw();
+                            if (newValue === stripHtml(originalHtml).replace(colIndex === 11 ? '%' : '', '').trim()) {
+                                cell.data(originalHtml).draw();
                                 return;
                             }
                             var fieldName = editableMapping[colIndex];
@@ -1348,37 +1614,47 @@
                                 dataType: "json",
                                 success: function(response) {
                                     if (response.status === 'success') {
-                                        cell.data(newValue).draw();
+                                        // RECONSTRUIR HTML segun la columna
+                                        if (colIndex === 10) {
+                                            cell.data(buildEstadoBadge(newValue)).draw();
+                                        } else if (colIndex === 11) {
+                                            cell.data(buildProgressBar(newValue)).draw();
+                                        } else if (colIndex === 6 || colIndex === 12) {
+                                            cell.data(buildTruncateCell(newValue)).draw();
+                                        } else {
+                                            cell.data(newValue).draw();
+                                        }
 
-                                        // Si se cambió la fecha de cierre y se actualizó el estado, actualizar la celda de estado
+                                        // Fecha cierre -> estado CERRADA (actualizar badge)
                                         if (colIndex === 9 && newValue && newValue.trim() !== '') {
-                                            var estadoCell = table.cell($td.closest('tr'), 10); // Columna 10 es estado_actividad
-                                            estadoCell.data('CERRADA').draw();
+                                            var estadoCell = table.cell($td.closest('tr'), 10);
+                                            estadoCell.data(buildEstadoBadge('CERRADA')).draw();
                                         }
 
-                                        // Si se cambió el estado y se retornó un porcentaje, actualizar la celda del porcentaje
+                                        // Estado cambio -> actualizar progress bar
                                         if (fieldName === 'estado_actividad' && response.porcentaje_avance !== undefined) {
-                                            var porcentajeCell = table.cell($td.closest('tr'), 11); // Columna 11 es porcentaje_avance
-                                            porcentajeCell.data(response.porcentaje_avance).draw();
+                                            var porcentajeCell = table.cell($td.closest('tr'), 11);
+                                            porcentajeCell.data(buildProgressBar(response.porcentaje_avance)).draw();
                                         }
 
-                                        // Si se cambió la fecha de cierre y hay porcentaje en la respuesta, actualizarlo
+                                        // Fecha cierre -> actualizar progress bar
                                         if (colIndex === 9 && response.porcentaje_avance !== undefined) {
                                             var porcentajeCell = table.cell($td.closest('tr'), 11);
-                                            porcentajeCell.data(response.porcentaje_avance).draw();
+                                            porcentajeCell.data(buildProgressBar(response.porcentaje_avance)).draw();
                                         }
 
                                         updateCardCounts();
                                         updateMonthlyCounts();
+                                        initTruncateButtons();
                                     } else {
                                         alert('Error: ' + response.message);
-                                        cell.data(originalValue).draw();
+                                        cell.data(originalHtml).draw();
                                     }
                                 },
                                 error: function(xhr, status, error) {
-                                    console.error("AJAX error:", status, error);
-                                    alert('Error en la comunicación con el servidor.');
-                                    cell.data(originalValue).draw();
+                                    console.error("AJAX error:", status, error, xhr.responseText);
+                                    alert('Error en la comunicación con el servidor.\nStatus: ' + xhr.status + '\nError: ' + error + '\nRespuesta: ' + (xhr.responseText || '').substring(0, 300));
+                                    cell.data(originalHtml).draw();
                                 }
                             });
                         }
@@ -1401,7 +1677,7 @@
                 var ids = [];
                 table.rows().every(function() {
                     var data = this.data();
-                    if (data[10] === 'CERRADA') {
+                    if (stripHtml(data[10]) === 'CERRADA') {
                         ids.push(data[1]);
                     }
                 });
@@ -1422,8 +1698,8 @@
                         if (response.status === 'success') {
                             table.rows().every(function() {
                                 var data = this.data();
-                                if (data[10] === 'CERRADA') {
-                                    data[11] = '100';
+                                if (stripHtml(data[10]) === 'CERRADA') {
+                                    data[11] = buildProgressBar(100);
                                     this.data(data);
                                 }
                             });
@@ -1498,6 +1774,15 @@
                         $button.prop('disabled', false).css('opacity', '1');
                     }
                 });
+            });
+
+            // ===================================================================
+            // ACCORDION DE FILTROS - Toggle clase collapsed
+            // ===================================================================
+            $('#cardFiltersPanel').on('show.bs.collapse', function() {
+                $('.filter-toggle-btn').removeClass('collapsed');
+            }).on('hide.bs.collapse', function() {
+                $('.filter-toggle-btn').addClass('collapsed');
             });
         });
     </script>

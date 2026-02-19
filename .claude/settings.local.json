@@ -39,7 +39,9 @@
       "Bash(git remote:*)",
       "Bash(del c:xampphtdocsenterprisesstphcreate_audit_table_production.php)",
       "Bash(/c/xampp/mysql/bin/mysql:*)",
-      "Bash(/c/xampp/php/php.exe:*)"
+      "Bash(/c/xampp/php/php.exe:*)",
+      "Bash(DB_PROD_PASS=* php:*)",
+      "Bash(c:/xampp/mysql/bin/mysql:*)"
     ]
   }
 }
