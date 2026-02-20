@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\ContractModel;
 use App\Models\ClientModel;
 use App\Models\UserModel;
+use App\Models\ReporteModel;
 use App\Libraries\ContractLibrary;
 use App\Libraries\ContractPDFGenerator;
 use CodeIgniter\Controller;
@@ -1816,5 +1817,71 @@ Genera únicamente el texto de la cláusula, listo para insertar en el contrato.
             </div>";
 
         return $html;
+    }
+
+    /**
+     * Guardar el PDF firmado del contrato como reporte en tbl_reporte
+     */
+    public function guardarEnReportes($idContrato)
+    {
+        $contract = $this->contractLibrary->getContractWithClient($idContrato);
+
+        if (!$contract) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Contrato no encontrado']);
+        }
+
+        // Verificar que el contrato esté firmado
+        if (($contract['estado_firma'] ?? '') !== 'firmado') {
+            return $this->response->setJSON(['success' => false, 'message' => 'El contrato debe estar firmado para guardarlo en reportes']);
+        }
+
+        // Verificar que exista el PDF firmado
+        if (empty($contract['ruta_pdf_contrato'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No se encontró el PDF firmado del contrato']);
+        }
+
+        // Verificar permisos
+        $session = session();
+        $role = $session->get('role');
+        $idConsultor = $session->get('id_consultor');
+
+        if ($role === 'consultor') {
+            $client = $this->clientModel->find($contract['id_cliente']);
+            if ($client['id_consultor'] != $idConsultor) {
+                return $this->response->setJSON(['success' => false, 'message' => 'No tiene permisos']);
+            }
+        }
+
+        $reporteModel = new ReporteModel();
+
+        // Verificar si ya existe un reporte para este contrato (evitar duplicados)
+        $existente = $reporteModel->where('titulo_reporte', 'Contrato SST Firmado - ' . $contract['numero_contrato'])
+            ->where('id_cliente', $contract['id_cliente'])
+            ->first();
+
+        if ($existente) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Este contrato ya fue guardado en reportes']);
+        }
+
+        // Construir enlace al PDF
+        $enlace = base_url($contract['ruta_pdf_contrato']);
+
+        $data = [
+            'titulo_reporte'  => 'Contrato SST Firmado - ' . $contract['numero_contrato'],
+            'id_detailreport' => 20,
+            'id_report_type'  => 19,
+            'id_cliente'      => $contract['id_cliente'],
+            'estado'          => 'Entregado',
+            'observaciones'   => 'Contrato firmado digitalmente por ' . ($contract['firma_cliente_nombre'] ?? '') . ' el ' . ($contract['firma_cliente_fecha'] ?? ''),
+            'enlace'          => $enlace,
+            'created_at'      => date('Y-m-d H:i:s'),
+            'updated_at'      => date('Y-m-d H:i:s'),
+        ];
+
+        if ($reporteModel->save($data)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Contrato guardado en reportes exitosamente']);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'Error al guardar en reportes']);
     }
 }

@@ -400,6 +400,9 @@
                                    class="btn btn-outline-primary w-100 mb-2" target="_blank">
                                     <i class="fas fa-shield-alt"></i> Ver Certificado Publico
                                 </a>
+                                <button class="btn btn-outline-warning w-100 mb-2" onclick="guardarEnReportes()" id="btnGuardarReporte">
+                                    <i class="fas fa-archive"></i> Guardar en Reportes
+                                </button>
                             <?php endif; ?>
 
                         <?php elseif ($estadoFirma === 'pendiente_firma'): ?>
@@ -674,6 +677,51 @@
                     })
                     .catch(error => {
                         Swal.fire('Error', 'Error de conexión: ' + error.message, 'error');
+                    });
+                }
+            });
+        }
+
+        function guardarEnReportes() {
+            Swal.fire({
+                title: 'Guardar en Reportes',
+                text: 'El contrato firmado se guardará en la lista de reportes del cliente.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#e0a800',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-archive me-1"></i> Sí, guardar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const btn = document.getElementById('btnGuardarReporte');
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Guardando...';
+
+                    fetch('<?= base_url('/contracts/guardar-en-reportes/' . $contract['id_contrato']) ?>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Guardado', data.message, 'success');
+                            btn.innerHTML = '<i class="fas fa-check"></i> Guardado en Reportes';
+                            btn.classList.remove('btn-outline-warning');
+                            btn.classList.add('btn-success');
+                        } else {
+                            Swal.fire('Aviso', data.message, 'warning');
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-archive"></i> Guardar en Reportes';
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error', 'Error de conexión: ' + error.message, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-archive"></i> Guardar en Reportes';
                     });
                 }
             });

@@ -733,6 +733,7 @@ $routes->get('/contrato/firmar/(:segment)', 'ContractController::paginaFirmaCont
 $routes->post('/contrato/procesar-firma', 'ContractController::procesarFirmaContrato');
 $routes->get('contrato/verificar/(:any)', 'ContractController::verificarFirma/$1');
 $routes->get('contrato/certificado-pdf/(:num)', 'ContractController::certificadoPDF/$1');
+$routes->post('/contracts/guardar-en-reportes/(:num)', 'ContractController::guardarEnReportes/$1');
 
 // ============================================================================
 // RUTAS DE FIRMA ELECTRÓNICA DE DOCUMENTOS SST (Sistema 2)
