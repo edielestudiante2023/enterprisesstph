@@ -77,7 +77,7 @@ echo "  - codigo_verif: {$contrato['codigo_verificacion']}\n\n";
 
 // Resetear campos de firma
 $sql = "UPDATE tbl_contratos SET
-    estado_firma = 'pendiente',
+    estado_firma = 'sin_enviar',
     firma_cliente_nombre = NULL,
     firma_cliente_cedula = NULL,
     firma_cliente_imagen = NULL,
