@@ -277,6 +277,8 @@
         </div>
     </div>
 
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -326,8 +328,16 @@
         canvas.addEventListener('mousemove', dibujar);
         canvas.addEventListener('mouseup', terminarDibujo);
         canvas.addEventListener('mouseleave', terminarDibujo);
-        canvas.addEventListener('touchstart', iniciarDibujo);
-        canvas.addEventListener('touchmove', dibujar);
+        // Touch events — ignorar multi-touch (pinch-zoom) para evitar trazos accidentales
+        canvas.style.touchAction = 'none'; // Evitar scroll/zoom del navegador en el canvas
+        canvas.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) return; // Ignorar multi-touch
+            iniciarDibujo(e);
+        });
+        canvas.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) { terminarDibujo(); return; }
+            dibujar(e);
+        });
         canvas.addEventListener('touchend', terminarDibujo);
 
         document.getElementById('btnLimpiarFirma').addEventListener('click', function() {
@@ -416,39 +426,79 @@
                 return;
             }
 
-            if (!confirm('¿Esta seguro de firmar este contrato?\n\nEsta accion no se puede deshacer.')) {
-                return;
+            // Validar que la firma tenga trazos suficientes (evitar puntos accidentales)
+            const metodo = getMetodoActivo();
+            if (metodo === 'dibujar') {
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+                let pixelesOscuros = 0;
+                for (let i = 3; i < imgData.length; i += 4) {
+                    if (imgData[i] > 0) pixelesOscuros++;
+                }
+                if (pixelesOscuros < 100) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Firma muy pequena',
+                        text: 'Su firma parece ser solo un punto o trazo muy corto. Por favor, dibuje su firma completa.',
+                        confirmButtonColor: '#667eea'
+                    });
+                    return;
+                }
             }
 
-            const btn = this;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+            // Confirmación con preview de firma
+            Swal.fire({
+                title: '¿Confirmar firma del contrato?',
+                html: `
+                    <div class="text-start mb-3">
+                        <p class="mb-2"><strong>Nombre:</strong> ${nombre}</p>
+                        <p class="mb-2"><strong>Cedula:</strong> ${cedula}</p>
+                        <p class="mb-2"><strong>Vista previa de su firma:</strong></p>
+                        <div class="text-center p-2 border rounded" style="background:#fafafa;">
+                            <img src="${firmaImagen}" style="max-height:100px;max-width:100%;" alt="Firma">
+                        </div>
+                    </div>
+                    <p class="text-danger small mt-2"><i class="bi bi-exclamation-triangle me-1"></i>Esta accion no se puede deshacer.</p>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-pen me-1"></i> Si, firmar contrato',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true
+            }).then((result) => {
+                if (!result.isConfirmed) return;
 
-            const data = new FormData();
-            data.append('token', '<?= $token ?>');
-            data.append('firma_nombre', nombre);
-            data.append('firma_cedula', cedula);
-            data.append('firma_imagen', firmaImagen);
+                const btn = document.getElementById('btnFirmarContrato');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
 
-            fetch('<?= base_url("contrato/procesar-firma") ?>', {
-                method: 'POST',
-                body: data
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    const modal = new bootstrap.Modal(document.getElementById('modalExito'));
-                    modal.show();
-                } else {
-                    alert('Error: ' + (result.message || 'No se pudo procesar la firma'));
+                const data = new FormData();
+                data.append('token', '<?= $token ?>');
+                data.append('firma_nombre', nombre);
+                data.append('firma_cedula', cedula);
+                data.append('firma_imagen', firmaImagen);
+
+                fetch('<?= base_url("contrato/procesar-firma") ?>', {
+                    method: 'POST',
+                    body: data
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const modal = new bootstrap.Modal(document.getElementById('modalExito'));
+                        modal.show();
+                    } else {
+                        Swal.fire('Error', result.message || 'No se pudo procesar la firma', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="bi bi-pen me-2"></i>Aprobar y Firmar Contrato';
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'Error de conexion. Intente nuevamente.', 'error');
                     btn.disabled = false;
                     btn.innerHTML = '<i class="bi bi-pen me-2"></i>Aprobar y Firmar Contrato';
-                }
-            })
-            .catch(error => {
-                alert('Error de conexion. Intente nuevamente.');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-pen me-2"></i>Aprobar y Firmar Contrato';
+                });
             });
         });
     });

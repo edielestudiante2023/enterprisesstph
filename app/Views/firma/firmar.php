@@ -235,6 +235,8 @@
         </div>
     </div>
 
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // =============================================
@@ -268,9 +270,9 @@
         canvas.addEventListener('mouseup', terminarDibujo);
         canvas.addEventListener('mouseout', terminarDibujo);
 
-        // Touch events
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); iniciarDibujo(e.touches[0]); });
-        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); dibujar(e.touches[0]); });
+        // Touch events — ignorar multi-touch (pinch-zoom) para evitar trazos accidentales
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); if (e.touches.length > 1) return; iniciarDibujo(e.touches[0]); });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (e.touches.length > 1) { terminarDibujo(); return; } dibujar(e.touches[0]); });
         canvas.addEventListener('touchend', terminarDibujo);
 
         function getPos(e) {
@@ -503,31 +505,76 @@
         // =============================================
         document.getElementById('formFirma').addEventListener('submit', function(e) {
             e.preventDefault();
+            const form = this;
 
-            const btn = document.getElementById('btnFirmar');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+            // Validar que la firma tenga trazos suficientes (evitar puntos accidentales)
+            const tipoFirma = document.getElementById('tipoFirma').value;
+            if (tipoFirma === 'draw') {
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+                let pixelesOscuros = 0;
+                for (let i = 3; i < imgData.length; i += 4) {
+                    if (imgData[i] > 0) pixelesOscuros++;
+                }
+                if (pixelesOscuros < 100) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Firma muy pequena',
+                        text: 'Su firma parece ser solo un punto o trazo muy corto. Por favor, dibuje su firma completa.',
+                        confirmButtonColor: '#667eea'
+                    });
+                    return;
+                }
+            }
 
-            const formData = new FormData(this);
+            const firmaPreview = document.getElementById('firmaImagen').value;
 
-            fetch('<?= base_url('firma/procesar') ?>', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = '<?= base_url('firma/confirmacion/' . esc($token)) ?>';
-                } else {
-                    alert(data.error || 'Error al procesar la firma');
+            // Confirmación con preview de firma
+            Swal.fire({
+                title: '¿Confirmar firma del documento?',
+                html: `
+                    <div class="mb-3">
+                        <p class="mb-2"><strong>Vista previa de su firma:</strong></p>
+                        <div class="text-center p-2 border rounded" style="background:#fafafa;">
+                            <img src="${firmaPreview}" style="max-height:100px;max-width:100%;" alt="Firma">
+                        </div>
+                    </div>
+                    <p class="text-danger small mt-2"><i class="bi bi-exclamation-triangle me-1"></i>Esta accion no se puede deshacer.</p>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-pen me-1"></i> Si, firmar documento',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+
+                const btn = document.getElementById('btnFirmar');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+
+                const formData = new FormData(form);
+
+                fetch('<?= base_url('firma/procesar') ?>', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '<?= base_url('firma/confirmacion/' . esc($token)) ?>';
+                    } else {
+                        Swal.fire('Error', data.error || 'Error al procesar la firma', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="bi bi-pen me-2"></i>Firmar Documento';
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'Error de conexion. Intente nuevamente.', 'error');
                     btn.disabled = false;
                     btn.innerHTML = '<i class="bi bi-pen me-2"></i>Firmar Documento';
-                }
-            })
-            .catch(error => {
-                alert('Error de conexion. Intente nuevamente.');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-pen me-2"></i>Firmar Documento';
+                });
             });
         });
     </script>
