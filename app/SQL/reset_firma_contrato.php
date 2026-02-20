@@ -2,14 +2,16 @@
 /**
  * Script: Resetear firma de prueba de un contrato
  * Uso: DB_PROD_PASS=xxx php app/SQL/reset_firma_contrato.php production 74
+ *       DB_PROD_PASS=xxx php app/SQL/reset_firma_contrato.php production CONT-000057-002
  */
 
 $env = $argv[1] ?? 'local';
-$idContrato = $argv[2] ?? null;
+$identificador = $argv[2] ?? null;
 
-if (!$idContrato) {
-    echo "Uso: php reset_firma_contrato.php [local|production] <id_contrato>\n";
-    echo "Ejemplo: DB_PROD_PASS=xxx php app/SQL/reset_firma_contrato.php production 74\n";
+if (!$identificador) {
+    echo "Uso: php reset_firma_contrato.php [local|production] <id_contrato|numero_contrato>\n";
+    echo "Ejemplo: php reset_firma_contrato.php production 74\n";
+    echo "         php reset_firma_contrato.php production CONT-000057-002\n";
     exit(1);
 }
 
@@ -37,7 +39,7 @@ if (!isset($configs[$env])) {
 }
 
 $cfg = $configs[$env];
-echo "=== Reset firma contrato #{$idContrato} - Entorno: {$env} ===\n\n";
+echo "=== Reset firma contrato [{$identificador}] - Entorno: {$env} ===\n\n";
 
 $conn = new mysqli($cfg['host'], $cfg['user'], $cfg['pass'], $cfg['db'], $cfg['port'] ?? 3306);
 
@@ -52,6 +54,25 @@ if ($conn->connect_error) {
 }
 
 echo "Conectado a {$cfg['db']}@{$cfg['host']}\n\n";
+
+// Resolver id_contrato: puede ser numérico o numero_contrato (CONT-XXXXXX-XXX)
+if (is_numeric($identificador)) {
+    $idContrato = (int)$identificador;
+} else {
+    $stmt = $conn->prepare("SELECT id_contrato FROM tbl_contratos WHERE numero_contrato = ?");
+    $stmt->bind_param('s', $identificador);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $row = $res->fetch_assoc();
+    $stmt->close();
+    if (!$row) {
+        echo "ERROR: No se encontró contrato con número '{$identificador}'\n";
+        $conn->close();
+        exit(1);
+    }
+    $idContrato = (int)$row['id_contrato'];
+    echo "Número {$identificador} => id_contrato = {$idContrato}\n\n";
+}
 
 // Verificar contrato actual
 $stmt = $conn->prepare("SELECT id_contrato, estado_firma, firma_cliente_nombre, firma_cliente_cedula, firma_cliente_imagen, firma_cliente_fecha, codigo_verificacion FROM tbl_contratos WHERE id_contrato = ?");
