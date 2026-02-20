@@ -424,4 +424,52 @@ class AdminDashboardController extends Controller
             return redirect()->to('/listClients')->with('error', 'No puedes eliminar clientes que ya tienen registros grabados en la base de datos. Póngase en contacto con su administrador.');
         }
     }
+
+    public function deletePtaAbiertas()
+    {
+        $clientModel = new ClientModel();
+        $clients = $clientModel->where('estado', 'activo')->findAll();
+
+        return view('consultant/delete_pta_abiertas', ['clients' => $clients]);
+    }
+
+    public function countPtaAbiertas()
+    {
+        $idCliente = $this->request->getPost('id_cliente');
+
+        if (empty($idCliente)) {
+            return $this->response->setJSON(['error' => 'Debe seleccionar un cliente']);
+        }
+
+        $db = \Config\Database::connect();
+        $count = $db->table('tbl_pta_cliente')
+                    ->where('id_cliente', $idCliente)
+                    ->where('estado_actividad', 'ABIERTA')
+                    ->countAllResults();
+
+        return $this->response->setJSON(['count' => $count]);
+    }
+
+    public function deletePtaAbiertasPost()
+    {
+        $idCliente = $this->request->getPost('id_cliente');
+
+        if (empty($idCliente)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Debe seleccionar un cliente']);
+        }
+
+        $db = \Config\Database::connect();
+        $db->table('tbl_pta_cliente')
+           ->where('id_cliente', $idCliente)
+           ->where('estado_actividad', 'ABIERTA')
+           ->delete();
+
+        $affected = $db->affectedRows();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'deleted' => $affected,
+            'message' => "Se eliminaron {$affected} actividades ABIERTAS exitosamente."
+        ]);
+    }
 }

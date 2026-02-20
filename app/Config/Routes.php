@@ -47,6 +47,9 @@ $routes->get('consultant/dashboard-pendientes', 'ConsultantDashboardPendientesCo
 
 $routes->get('/dashboardconsultant', 'ConsultantController::index');
 $routes->get('/admindashboard', 'AdminDashboardController::index');
+$routes->get('/admin/delete-pta-abiertas', 'AdminDashboardController::deletePtaAbiertas');
+$routes->post('/admin/count-pta-abiertas', 'AdminDashboardController::countPtaAbiertas');
+$routes->post('/admin/delete-pta-abiertas', 'AdminDashboardController::deletePtaAbiertasPost');
 $routes->get('/quick-access', 'QuickAccessDashboardController::index');
 
 // Rutas para Ver Vista de Cliente (consultor y admin)
