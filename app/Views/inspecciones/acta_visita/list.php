@@ -6,9 +6,11 @@
         </a>
     </div>
 
-    <!-- Filtros -->
+    <!-- Filtro por cliente -->
     <div class="mb-3">
-        <input type="text" id="searchInput" class="form-control" placeholder="Buscar cliente...">
+        <select id="filterCliente" class="form-select" style="width:100%;">
+            <option value="">Todos los clientes</option>
+        </select>
     </div>
 
     <!-- Lista de actas -->
@@ -77,14 +79,37 @@
 </div>
 
 <script>
-document.getElementById('searchInput')?.addEventListener('input', function() {
-    const query = this.value.toLowerCase();
-    document.querySelectorAll('.acta-item').forEach(card => {
-        const cliente = card.dataset.cliente;
-        card.style.display = cliente.includes(query) ? '' : 'none';
+$(document).ready(function() {
+    // Cargar clientes en Select2
+    $.ajax({
+        url: '/inspecciones/api/clientes',
+        dataType: 'json',
+        success: function(data) {
+            var select = $('#filterCliente');
+            data.forEach(function(c) {
+                select.append('<option value="' + c.nombre_cliente.toLowerCase() + '">' + c.nombre_cliente + '</option>');
+            });
+            select.select2({ placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
+        },
+        error: function() {
+            $('#filterCliente').select2({ placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
+        }
+    });
+
+    // Filtrar actas por cliente seleccionado
+    $('#filterCliente').on('change', function() {
+        var selected = (this.value || '').toLowerCase();
+        $('.acta-item').each(function() {
+            if (!selected) {
+                $(this).show();
+            } else {
+                $(this).toggle($(this).data('cliente') === selected);
+            }
+        });
     });
 });
 
+// Confirmar eliminación
 document.querySelectorAll('.btn-delete').forEach(btn => {
     btn.addEventListener('click', function(e) {
         e.preventDefault();
