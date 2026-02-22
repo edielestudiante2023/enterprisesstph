@@ -452,6 +452,29 @@
 </head>
 
 <body>
+    <!-- Banner móvil para PWA Inspecciones -->
+    <div id="mobileBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:linear-gradient(135deg, #1c2437 0%, #2c3e50 100%); color:white; padding:16px 20px; box-shadow:0 -4px 20px rgba(0,0,0,0.3); border-top:3px solid #bd9751;">
+        <div style="display:flex; align-items:center; justify-content:space-between; max-width:600px; margin:0 auto;">
+            <div style="flex:1;">
+                <div style="font-weight:700; font-size:15px; margin-bottom:2px;">
+                    <i class="fas fa-mobile-alt me-2" style="color:#bd9751;"></i>App de Inspecciones
+                </div>
+                <div style="font-size:12px; opacity:0.8;">Accede a la version movil optimizada</div>
+            </div>
+            <a href="<?= base_url('/inspecciones') ?>" style="background:#bd9751; color:white; padding:10px 20px; border-radius:25px; text-decoration:none; font-weight:600; font-size:14px; white-space:nowrap; margin-left:12px;">
+                Abrir App <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+            <button onclick="document.getElementById('mobileBanner').style.display='none'" style="background:none; border:none; color:rgba(255,255,255,0.6); font-size:20px; padding:4px 8px; margin-left:8px; cursor:pointer;">&times;</button>
+        </div>
+    </div>
+    <script>
+    (function(){
+        if (/Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent)) {
+            document.getElementById('mobileBanner').style.display = 'block';
+        }
+    })();
+    </script>
+
     <!-- Cabecera -->
     <header>
         <nav class="navbar navbar-expand-lg navbar-custom">
@@ -509,8 +532,13 @@
                 </button>
             </a>
             <a href="<?= base_url('/audit-pta') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none;">
+                <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none;">
                     <i class="fas fa-history me-2"></i>Auditoría PTA
+                </button>
+            </a>
+            <a href="<?= base_url('/inspecciones') ?>" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;">
+                    <i class="fas fa-clipboard-check me-2"></i>Inspecciones SST
                 </button>
             </a>
         </div>
