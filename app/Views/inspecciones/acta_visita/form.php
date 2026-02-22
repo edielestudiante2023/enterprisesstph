@@ -98,7 +98,7 @@ $action = $isEdit ? '/inspecciones/acta-visita/update/' . $acta['id'] : '/inspec
                                     <div class="col-5">
                                         <select name="integrante_rol[]" class="form-select">
                                             <option value="">Rol...</option>
-                                            <?php foreach (['ADMINISTRADOR', 'CONSULTOR CYCLOID', 'VIGÍA SST', 'PRESIDENTE COPASST', 'REPRESENTANTE LEGAL', 'OTRO'] as $rol): ?>
+                                            <?php foreach (['ADMINISTRADOR', 'ASISTENTE DE ADMINISTRACIÓN', 'CONSULTOR CYCLOID', 'VIGÍA SST', 'OTRO'] as $rol): ?>
                                             <option value="<?= $rol ?>" <?= $integrante['rol'] === $rol ? 'selected' : '' ?>><?= $rol ?></option>
                                             <?php endforeach; ?>
                                         </select>
@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add integrante
     document.getElementById('btnAddIntegrante').addEventListener('click', function() {
-        const roles = ['ADMINISTRADOR', 'CONSULTOR CYCLOID', 'VIGÍA SST', 'PRESIDENTE COPASST', 'REPRESENTANTE LEGAL', 'OTRO'];
+        const roles = ['ADMINISTRADOR', 'ASISTENTE DE ADMINISTRACIÓN', 'CONSULTOR CYCLOID', 'VIGÍA SST', 'OTRO'];
         const options = roles.map(r => '<option value="' + r + '">' + r + '</option>').join('');
         const html = `
             <div class="row g-2 mb-2 integrante-row">
