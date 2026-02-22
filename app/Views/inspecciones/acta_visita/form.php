@@ -354,7 +354,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 html += '<ul style="font-size:13px; padding-left:20px;">';
                 pendientes.forEach(p => {
-                    html += '<li>' + p.tarea_actividad + ' - ' + (p.responsable || '') + ' (' + p.conteo_dias + ' dias)</li>';
+                    var fecha = p.fecha_asignacion ? p.fecha_asignacion.split('-').reverse().join('/') : '';
+                    var cierre = p.fecha_cierre ? ' → Cierre: ' + p.fecha_cierre.split('-').reverse().join('/') : '';
+                    html += '<li>' + p.tarea_actividad + ' - ' + (p.responsable || '') + '<br><small style="color:#888;">Asignado: ' + fecha + cierre + ' (' + p.conteo_dias + ' dias)</small></li>';
                 });
                 html += '</ul>';
             }
