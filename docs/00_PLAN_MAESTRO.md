@@ -154,3 +154,4 @@ $routes->group('inspecciones', ['filter' => 'auth'], function($routes) {
 - [05_ESTRATEGIA_OFFLINE.md](./05_ESTRATEGIA_OFFLINE.md) - IndexedDB, Background Sync, pre-carga y sincronizacion
 - [06_ESTRATEGIA_NOTIFICACIONES.md](./06_ESTRATEGIA_NOTIFICACIONES.md) - Web Push, SendGrid, recordatorios por cron
 - [07_ESTRATEGIA_PDF_UPLOAD.md](./07_ESTRATEGIA_PDF_UPLOAD.md) - Auto-cargue de PDF a tbl_reporte, reemplazo del pipeline n8n
+- [08_ESTRATEGIA_AUTOGUARDADO.md](./08_ESTRATEGIA_AUTOGUARDADO.md) - localStorage para recuperar formularios ante perdida de sesion

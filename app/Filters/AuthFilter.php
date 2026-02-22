@@ -14,7 +14,7 @@ class AuthFilter implements FilterInterface
      */
     private const TIMEOUT_BY_ROLE = [
         'client'     => 300,   // 5 minutos
-        'consultant' => 600,   // 10 minutos
+        'consultant' => 3600,  // 60 minutos
         'admin'      => 900,   // 15 minutos
     ];
 
