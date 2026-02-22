@@ -558,10 +558,10 @@ class ActaVisitaController extends BaseController
         // Logo del cliente
         $logoBase64 = '';
         if (!empty($cliente['logo'])) {
-            $logoPath = FCPATH . $cliente['logo'];
+            $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $ext = pathinfo($logoPath, PATHINFO_EXTENSION);
-                $logoBase64 = 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoMime = mime_content_type($logoPath);
+                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
             }
         }
 

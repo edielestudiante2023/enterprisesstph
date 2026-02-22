@@ -171,15 +171,9 @@
     <p class="content-text"><?= nl2br(esc($acta['observaciones'])) ?></p>
     <?php endif; ?>
 
-    <!-- 5. CARTERA -->
-    <?php if (!empty($acta['cartera'])): ?>
-    <div class="section-title">5. CARTERA</div>
-    <p class="content-text"><?= nl2br(esc($acta['cartera'])) ?></p>
-    <?php endif; ?>
-
-    <!-- 6. COMPROMISOS -->
+    <!-- 5. COMPROMISOS -->
     <?php if (!empty($compromisos)): ?>
-    <div class="section-title">6. COMPROMISOS</div>
+    <div class="section-title">5. COMPROMISOS</div>
     <table class="data-table">
         <thead>
             <tr>
@@ -198,17 +192,6 @@
             <?php endforeach; ?>
         </tbody>
     </table>
-    <?php endif; ?>
-
-    <!-- PRÓXIMA REUNIÓN -->
-    <?php if (!empty($acta['proxima_reunion_fecha'])): ?>
-    <div class="section-title">PROXIMA REUNION</div>
-    <p class="content-text">
-        <strong>Fecha:</strong> <?= date('d/m/Y', strtotime($acta['proxima_reunion_fecha'])) ?>
-        <?php if (!empty($acta['proxima_reunion_hora'])): ?>
-        &nbsp;&nbsp; <strong>Hora:</strong> <?= date('g:i A', strtotime($acta['proxima_reunion_hora'])) ?>
-        <?php endif; ?>
-    </p>
     <?php endif; ?>
 
     <!-- FIRMAS AL PIE -->
