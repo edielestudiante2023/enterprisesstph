@@ -88,7 +88,7 @@ class InspeccionesController extends BaseController
         $model = new VencimientosMantenimientoModel();
         $dateThreshold = date('Y-m-d', strtotime('+30 days'));
 
-        $mantenimientos = $model->select('tbl_vencimientos_mantenimientos.*, tbl_mantenimientos.descripcion_mantenimiento')
+        $mantenimientos = $model->select('tbl_vencimientos_mantenimientos.*, tbl_mantenimientos.detalle_mantenimiento')
             ->join('tbl_mantenimientos', 'tbl_mantenimientos.id_mantenimiento = tbl_vencimientos_mantenimientos.id_mantenimiento', 'left')
             ->where('tbl_vencimientos_mantenimientos.id_cliente', $idCliente)
             ->where('tbl_vencimientos_mantenimientos.estado_actividad', 'sin ejecutar')

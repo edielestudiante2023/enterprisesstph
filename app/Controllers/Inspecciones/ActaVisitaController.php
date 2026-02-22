@@ -535,7 +535,7 @@ class ActaVisitaController extends BaseController
         // Mantenimientos por vencer
         $dateThreshold = date('Y-m-d', strtotime('+30 days'));
         $mantenimientos = (new VencimientosMantenimientoModel())
-            ->select('tbl_vencimientos_mantenimientos.*, tbl_mantenimientos.descripcion_mantenimiento')
+            ->select('tbl_vencimientos_mantenimientos.*, tbl_mantenimientos.detalle_mantenimiento')
             ->join('tbl_mantenimientos', 'tbl_mantenimientos.id_mantenimiento = tbl_vencimientos_mantenimientos.id_mantenimiento', 'left')
             ->where('tbl_vencimientos_mantenimientos.id_cliente', $acta['id_cliente'])
             ->where('tbl_vencimientos_mantenimientos.estado_actividad', 'sin ejecutar')

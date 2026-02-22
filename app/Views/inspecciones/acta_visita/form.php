@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 html += '<ul style="font-size:13px; padding-left:20px;">';
                 mantenimientos.forEach(m => {
-                    html += '<li>' + (m.descripcion_mantenimiento || 'Mantenimiento') + ' - Vence: ' + m.fecha_vencimiento + '</li>';
+                    html += '<li>' + (m.detalle_mantenimiento || 'Mantenimiento') + ' - Vence: ' + m.fecha_vencimiento + '</li>';
                 });
                 html += '</ul>';
             }

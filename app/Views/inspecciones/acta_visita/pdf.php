@@ -132,7 +132,7 @@
             <tbody>
             <?php foreach ($mantenimientos as $m): ?>
                 <tr>
-                    <td><?= esc($m['descripcion_mantenimiento'] ?? 'Mantenimiento') ?></td>
+                    <td><?= esc($m['detalle_mantenimiento'] ?? 'Mantenimiento') ?></td>
                     <td><?= date('d/m/Y', strtotime($m['fecha_vencimiento'])) ?></td>
                 </tr>
             <?php endforeach; ?>
