@@ -399,29 +399,60 @@
 
         /* Responsive design */
         @media (max-width: 768px) {
+            .navbar-custom {
+                padding: 8px 0;
+            }
+
             .header-logos-custom {
-                flex-direction: column;
-                gap: 15px;
+                flex-direction: row;
+                gap: 8px;
+                justify-content: center;
             }
 
             .header-logos-custom img {
-                max-height: 50px;
+                max-height: 35px;
+                margin-right: 5px;
             }
 
             .content-wrapper-custom {
-                margin-top: 180px;
+                margin-top: 70px;
+            }
+
+            .welcome-banner-custom {
+                padding: 20px 15px;
+                margin-bottom: 20px;
             }
 
             .welcome-banner-custom h3 {
-                font-size: 2rem;
-            }
-
-            .welcome-banner-custom h4 {
                 font-size: 1.4rem;
             }
 
-            .welcome-banner-custom p {
+            .welcome-banner-custom h4 {
                 font-size: 1.1rem;
+            }
+
+            .welcome-banner-custom p {
+                font-size: 0.95rem;
+            }
+
+            .quick-access-buttons {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                text-align: center;
+            }
+
+            .quick-access-buttons a {
+                display: block;
+            }
+
+            .quick-access-buttons .btn-logout-custom {
+                width: 100%;
+                padding: 10px 6px;
+                font-size: 0.78rem;
+                letter-spacing: 0;
+                margin-right: 0 !important;
+                text-transform: none;
             }
 
             .table-container-custom {
@@ -436,7 +467,15 @@
 
         @media (max-width: 480px) {
             .welcome-banner-custom {
-                padding: 25px 20px;
+                padding: 15px 12px;
+            }
+
+            .welcome-banner-custom h3 {
+                font-size: 1.2rem;
+            }
+
+            .welcome-banner-custom h4 {
+                font-size: 1rem;
             }
 
             .table-container-custom {
@@ -446,6 +485,11 @@
             .btn-logout-custom {
                 padding: 12px 30px;
                 font-size: 1rem;
+            }
+
+            .quick-access-buttons .btn-logout-custom {
+                padding: 8px 4px;
+                font-size: 0.72rem;
             }
         }
     </style>
@@ -515,7 +559,12 @@
         </div>
 
         <!-- Botones de Acceso Rápido -->
-        <div class="text-center mb-4">
+        <div class="text-center mb-4 quick-access-buttons">
+            <a href="<?= base_url('/inspecciones') ?>" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;">
+                    <i class="fas fa-clipboard-check me-2"></i>Inspecciones SST
+                </button>
+            </a>
             <a href="<?= base_url('/quick-access') ?>" target="_blank" rel="noopener noreferrer">
                 <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary)); border: none;">
                     <i class="fas fa-bolt me-2"></i>Acceso Rápido
@@ -532,13 +581,8 @@
                 </button>
             </a>
             <a href="<?= base_url('/audit-pta') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none;">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none;">
                     <i class="fas fa-history me-2"></i>Auditoría PTA
-                </button>
-            </a>
-            <a href="<?= base_url('/inspecciones') ?>" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;">
-                    <i class="fas fa-clipboard-check me-2"></i>Inspecciones SST
                 </button>
             </a>
         </div>
