@@ -432,21 +432,58 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            body {
+                height: auto;
+                min-height: 100vh;
+                overflow: auto;
+                -webkit-overflow-scrolling: touch;
+                align-items: flex-start;
+                padding: 20px 0;
+            }
+
             .main-container {
                 flex-direction: column;
                 max-width: 95%;
+                min-height: auto;
             }
-            
+
             .logos-panel, .login-panel {
                 width: 100%;
             }
-            
+
             .logos-panel {
-                min-height: 200px;
+                min-height: auto;
+                padding: 20px;
             }
-            
+
+            .logo-image-wrapper {
+                max-width: 140px;
+                margin: 8px auto;
+                padding: 10px;
+            }
+
+            .login-panel {
+                padding: 30px 20px;
+            }
+
+            .login-header {
+                margin-bottom: 20px;
+            }
+
             .login-title {
                 font-size: 1.8rem;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .login-footer {
+                margin-top: 15px;
+            }
+
+            .particles, .waves {
+                display: none;
             }
         }
 
