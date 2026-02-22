@@ -215,31 +215,6 @@ $action = $isEdit ? '/inspecciones/acta-visita/update/' . $acta['id'] : '/inspec
                 </div>
             </div>
 
-            <!-- PRÓXIMA REUNIÓN -->
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#secProxima">
-                        Proxima Reunion
-                    </button>
-                </h2>
-                <div id="secProxima" class="accordion-collapse collapse" data-bs-parent="#accordionActa">
-                    <div class="accordion-body">
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <label class="form-label">Fecha</label>
-                                <input type="date" name="proxima_reunion_fecha" class="form-control"
-                                    value="<?= $acta['proxima_reunion_fecha'] ?? '' ?>">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">Hora</label>
-                                <input type="time" name="proxima_reunion_hora" class="form-control"
-                                    value="<?= $acta['proxima_reunion_hora'] ?? '' ?>">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- FOTOS Y SOPORTES -->
             <div class="accordion-item">
                 <h2 class="accordion-header">
