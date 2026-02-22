@@ -175,20 +175,6 @@ $action = $isEdit ? '/inspecciones/acta-visita/update/' . $acta['id'] : '/inspec
                 </div>
             </div>
 
-            <!-- CARTERA -->
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#secCartera">
-                        Cartera
-                    </button>
-                </h2>
-                <div id="secCartera" class="accordion-collapse collapse" data-bs-parent="#accordionActa">
-                    <div class="accordion-body">
-                        <textarea name="cartera" class="form-control" rows="3" placeholder="Estado de cartera..."><?= esc($acta['cartera'] ?? '') ?></textarea>
-                    </div>
-                </div>
-            </div>
-
             <!-- COMPROMISOS -->
             <div class="accordion-item">
                 <h2 class="accordion-header">
