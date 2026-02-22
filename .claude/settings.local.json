@@ -41,7 +41,11 @@
       "Bash(/c/xampp/mysql/bin/mysql:*)",
       "Bash(/c/xampp/php/php.exe:*)",
       "Bash(DB_PROD_PASS=* php:*)",
-      "Bash(c:/xampp/mysql/bin/mysql:*)"
+      "Bash(c:/xampp/mysql/bin/mysql:*)",
+      "Bash(while read file)",
+      "Bash(do if grep -q \"tbl_reporte\\\\|report_type_table\\\\|detail_report\" \"$file\")",
+      "Bash(then echo \"$file\")",
+      "Bash(fi)"
     ]
   }
 }

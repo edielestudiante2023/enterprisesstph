@@ -755,3 +755,29 @@ $routes->post('/firma/procesar', 'FirmaElectronicaController::procesarFirma');
 $routes->get('/firma/confirmacion/(:any)', 'FirmaElectronicaController::confirmacion/$1');
 $routes->get('/firma/verificar/(:any)', 'FirmaElectronicaController::verificar/$1');
 
+// ============================================================================
+// Módulo de Inspecciones SST (PWA)
+// ============================================================================
+$routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', 'filter' => 'auth'], function($routes) {
+    $routes->get('/', 'InspeccionesController::dashboard');
+
+    // Acta de Visita
+    $routes->get('acta-visita', 'ActaVisitaController::list');
+    $routes->get('acta-visita/create', 'ActaVisitaController::create');
+    $routes->get('acta-visita/create/(:num)', 'ActaVisitaController::create/$1');
+    $routes->post('acta-visita/store', 'ActaVisitaController::store');
+    $routes->get('acta-visita/edit/(:num)', 'ActaVisitaController::edit/$1');
+    $routes->post('acta-visita/update/(:num)', 'ActaVisitaController::update/$1');
+    $routes->get('acta-visita/view/(:num)', 'ActaVisitaController::view/$1');
+    $routes->get('acta-visita/firma/(:num)', 'ActaVisitaController::firma/$1');
+    $routes->post('acta-visita/save-firma/(:num)', 'ActaVisitaController::saveFirma/$1');
+    $routes->get('acta-visita/pdf/(:num)', 'ActaVisitaController::generatePdf/$1');
+    $routes->post('acta-visita/finalizar/(:num)', 'ActaVisitaController::finalizar/$1');
+    $routes->get('acta-visita/delete/(:num)', 'ActaVisitaController::delete/$1');
+
+    // API endpoints AJAX
+    $routes->get('api/clientes', 'InspeccionesController::getClientes');
+    $routes->get('api/pendientes/(:num)', 'InspeccionesController::getPendientes/$1');
+    $routes->get('api/mantenimientos/(:num)', 'InspeccionesController::getMantenimientos/$1');
+});
+

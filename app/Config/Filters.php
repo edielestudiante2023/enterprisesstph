@@ -206,6 +206,7 @@ class Filters extends BaseFilters
                 'asignacionResponsabilidades/*',
                 'viewPolicy/*',
                 'generatePdf*',
+                'inspecciones*',
                 // Y muchas más rutas de documentos...
             ],
         ],

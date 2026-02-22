@@ -38,12 +38,34 @@
 
         .dt-button-collection {
             padding: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .dt-button-collection .dt-button {
+            display: block !important;
+            padding: 6px 14px !important;
+            margin: 2px 0 !important;
+            width: 100%;
+            text-align: left;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .dt-button-collection .dt-button.active {
+            background: #4e73df !important;
+            color: #fff !important;
         }
 
         .dt-button {
             display: inline-block !important;
             padding: 8px 16px !important;
             margin: 5px !important;
+        }
+
+        .table-scroll-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .btn-warning {
@@ -452,7 +474,7 @@
         #ptaTable thead th {
             background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
             color: #fff;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 600;
             padding: 10px 8px;
             white-space: nowrap;
@@ -465,7 +487,7 @@
         #ptaTable tbody td {
             vertical-align: middle;
             padding: 8px 8px;
-            font-size: 13px;
+            font-size: 14.5px;
             border-bottom: 1px solid #e9ecef;
         }
         #ptaTable tbody tr:hover td {
@@ -859,14 +881,14 @@
 
         <!-- Mostrar la tabla solo si existen registros -->
         <?php if (!empty($records)): ?>
-            <div class="table-responsive">
+            <div class="table-scroll-wrapper">
                 <table id="ptaTable" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
                             <th>Acciones</th>
                             <th>ID</th>
                             <th>Cliente</th>
-                            <th class="d-none">Fuente de la Actividad</th>
+                            <th>Fuente de la Actividad</th>
                             <th>PHVA</th>
                             <th>Numeral Plan Trabajo</th>
                             <th>Actividad</th>
@@ -876,10 +898,10 @@
                             <th>Estado Actividad</th>
                             <th>Porcentaje Avance</th>
                             <th>Observaciones</th>
-                            <th class="d-none">Responsable Definido</th>
-                            <th class="d-none">Semana</th>
-                            <th class="d-none">Created At</th>
-                            <th class="d-none">Updated At</th>
+                            <th>Responsable Definido</th>
+                            <th>Semana</th>
+                            <th>Created At</th>
+                            <th>Updated At</th>
                             <th style="min-width: 200px;">📅 Gestión Rápida</th>
                         </tr>
                     </thead>
@@ -901,7 +923,7 @@
                                 </td>
                                 <td><?= esc($row['id_ptacliente']) ?></td>
                                 <td class="editable"><?= esc($row['nombre_cliente']) ?></td>
-                                <td class="d-none"><?= esc($row['tipo_servicio']) ?></td>
+                                <td><?= esc($row['tipo_servicio']) ?></td>
                                 <td class="editable"><?= esc($row['phva_plandetrabajo']) ?></td>
                                 <td class="editable"><?= esc($row['numeral_plandetrabajo']) ?></td>
                                 <td class="editable">
@@ -939,10 +961,10 @@
                                 <td class="editable">
                                     <div class="cell-truncate"><?= esc($row['observaciones']) ?></div>
                                 </td>
-                                <td class="d-none"><?= esc($row['responsable_definido_paralaactividad']) ?></td>
-                                <td class="d-none"><?= esc($row['semana']) ?></td>
-                                <td class="d-none"><?= esc($row['created_at']) ?></td>
-                                <td class="d-none"><?= esc($row['updated_at']) ?></td>
+                                <td><?= esc($row['responsable_definido_paralaactividad']) ?></td>
+                                <td><?= esc($row['semana']) ?></td>
+                                <td><?= esc($row['created_at']) ?></td>
+                                <td><?= esc($row['updated_at']) ?></td>
                                 <td class="text-center">
                                     <!-- Botones de meses (1-12) organizados en 3 filas de 4 -->
                                     <div class="month-buttons" style="display: grid; grid-template-columns: repeat(4, 32px); gap: 4px; justify-content: center;">
@@ -968,7 +990,7 @@
                             <th></th>
                             <th><input type="text" placeholder="Buscar ID" class="form-control form-control-sm"></th>
                             <th><input type="text" placeholder="Buscar Cliente" class="form-control form-control-sm"></th>
-                            <th class="d-none"></th>
+                            <th></th>
                             <th><input type="text" placeholder="Buscar PHVA" class="form-control form-control-sm"></th>
                             <th><input type="text" placeholder="Buscar Numeral Plan Trabajo" class="form-control form-control-sm"></th>
                             <th><input type="text" placeholder="Buscar Actividad" class="form-control form-control-sm"></th>
@@ -986,10 +1008,10 @@
                             </th>
                             <th><input type="text" placeholder="Buscar Porcentaje Avance" class="form-control form-control-sm"></th>
                             <th><input type="text" placeholder="Buscar Observaciones" class="form-control form-control-sm"></th>
-                            <th class="d-none"></th>
-                            <th class="d-none"></th>
-                            <th class="d-none"></th>
-                            <th class="d-none"></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
                             <th></th>
                         </tr>
                     </tfoot>
@@ -1026,6 +1048,7 @@
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.colVis.min.js"></script>
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
@@ -1390,7 +1413,8 @@
 
                 table = $('#ptaTable').DataTable({
                     "lengthChange": true,
-                    "responsive": true,
+                    "responsive": false,
+                    "scrollX": true,
                     "autoWidth": false,
                     "order": [
                         [10, 'asc'],
@@ -1398,8 +1422,18 @@
                         [4, 'asc'],
                         [6, 'asc']
                     ],
+                    "columnDefs": [
+                        { "visible": false, "targets": [0, 1, 2, 3, 4, 5, 13, 14, 15, 16] }
+                    ],
                     "dom": '<"row"<"col-sm-12"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
-                    "buttons": [{
+                    "buttons": [
+                    {
+                        extend: 'colvis',
+                        text: '<i class="fas fa-columns"></i> Columnas Visibles',
+                        className: 'btn btn-outline-primary',
+                        columns: ':not(:last-child)'
+                    },
+                    {
                         extend: 'excel',
                         text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
                         className: 'btn btn-success',
@@ -1407,10 +1441,9 @@
                         charset: 'UTF-8',
                         bom: true,
                         exportOptions: {
-                            columns: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                            columns: ':visible',
                             format: {
                                 body: function(data, row, column, node) {
-                                    // Limpia cualquier HTML (badges, progress bars, etc.)
                                     return $('<div/>').html(data).text();
                                 }
                             }
