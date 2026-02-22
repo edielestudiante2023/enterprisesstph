@@ -244,8 +244,13 @@ $action = $isEdit ? '/inspecciones/acta-visita/update/' . $acta['id'] : '/inspec
 
         </div><!-- /accordion -->
 
+        <!-- Indicador autoguardado -->
+        <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;">
+            <i class="fas fa-cloud"></i> Autoguardado activado
+        </div>
+
         <!-- Botones de acción -->
-        <div class="mt-3 mb-4">
+        <div class="mt-1 mb-4">
             <button type="submit" class="btn btn-pwa btn-pwa-outline">
                 <i class="fas fa-save"></i> Guardar borrador
             </button>
@@ -274,6 +279,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 select.appendChild(opt);
             });
             $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
+
+            // Restaurar cliente desde autoguardado si aplica
+            if (window._pendingClientRestore) {
+                $('#selectCliente').val(window._pendingClientRestore).trigger('change');
+                window._pendingClientRestore = null;
+            }
 
             // Si ya hay cliente seleccionado, cargar temas abiertos
             if (clienteId) loadTemasAbiertos(clienteId);
@@ -437,6 +448,151 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmButtonColor: '#bd9751',
             });
         }
+    });
+
+    // ============================================================
+    // AUTOGUARDADO EN LOCALSTORAGE
+    // ============================================================
+    const STORAGE_KEY = 'acta_draft_<?= $acta['id'] ?? 'new' ?>';
+    const isEdit = <?= $isEdit ? 'true' : 'false' ?>;
+
+    function collectFormData() {
+        const data = {};
+        // Campos simples
+        data.id_cliente = document.getElementById('selectCliente').value;
+        data.fecha_visita = document.querySelector('[name="fecha_visita"]').value;
+        data.hora_visita = document.querySelector('[name="hora_visita"]').value;
+        data.motivo = document.querySelector('[name="motivo"]').value;
+        data.modalidad = document.querySelector('[name="modalidad"]').value;
+        data.observaciones = document.querySelector('[name="observaciones"]').value;
+        data.ubicacion_gps = document.getElementById('ubicacionGps').value;
+
+        // Integrantes
+        data.integrantes = [];
+        document.querySelectorAll('.integrante-row').forEach(row => {
+            const nombre = row.querySelector('[name="integrante_nombre[]"]').value;
+            const rol = row.querySelector('[name="integrante_rol[]"]').value;
+            if (nombre || rol) data.integrantes.push({ nombre, rol });
+        });
+
+        // Temas
+        data.temas = [];
+        document.querySelectorAll('.tema-row textarea').forEach(ta => {
+            if (ta.value) data.temas.push(ta.value);
+        });
+
+        // Compromisos
+        data.compromisos = [];
+        document.querySelectorAll('.compromiso-row').forEach(row => {
+            const actividad = row.querySelector('[name="compromiso_actividad[]"]').value;
+            const fecha = row.querySelector('[name="compromiso_fecha[]"]').value;
+            const responsable = row.querySelector('[name="compromiso_responsable[]"]').value;
+            if (actividad) data.compromisos.push({ actividad, fecha, responsable });
+        });
+
+        data._savedAt = new Date().toISOString();
+        return data;
+    }
+
+    function saveToLocal() {
+        try {
+            const data = collectFormData();
+            // Solo guardar si hay algo significativo
+            if (data.id_cliente || data.motivo || data.integrantes.length || data.temas.length) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                document.getElementById('autoSaveStatus').innerHTML =
+                    '<i class="fas fa-check-circle text-success"></i> Guardado ' + new Date().toLocaleTimeString();
+            }
+        } catch(e) { /* localStorage lleno o no disponible */ }
+    }
+
+    function restoreFromLocal(data) {
+        // Cliente - se restaura después de que Select2 cargue
+        if (data.id_cliente) {
+            window._pendingClientRestore = data.id_cliente;
+        }
+        if (data.fecha_visita) document.querySelector('[name="fecha_visita"]').value = data.fecha_visita;
+        if (data.hora_visita) document.querySelector('[name="hora_visita"]').value = data.hora_visita;
+        if (data.motivo) document.querySelector('[name="motivo"]').value = data.motivo;
+        if (data.modalidad) document.querySelector('[name="modalidad"]').value = data.modalidad;
+        if (data.observaciones) document.querySelector('[name="observaciones"]').value = data.observaciones;
+        if (data.ubicacion_gps) document.getElementById('ubicacionGps').value = data.ubicacion_gps;
+
+        // Integrantes
+        const roles = ['ADMINISTRADOR', 'ASISTENTE DE ADMINISTRACIÓN', 'CONSULTOR CYCLOID', 'VIGÍA SST', 'OTRO'];
+        const roleOpts = roles.map(r => '<option value="' + r + '">' + r + '</option>').join('');
+        (data.integrantes || []).forEach(int => {
+            const html = '<div class="row g-2 mb-2 integrante-row"><div class="col-5"><input type="text" name="integrante_nombre[]" class="form-control" placeholder="Nombre" value="' + (int.nombre||'').replace(/"/g,'&quot;') + '"></div><div class="col-5"><select name="integrante_rol[]" class="form-select"><option value="">Rol...</option>' + roleOpts + '</select></div><div class="col-2 text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" style="min-height:44px;"><i class="fas fa-times"></i></button></div></div>';
+            document.getElementById('integrantesContainer').insertAdjacentHTML('beforeend', html);
+            if (int.rol) {
+                const rows = document.querySelectorAll('.integrante-row');
+                rows[rows.length - 1].querySelector('[name="integrante_rol[]"]').value = int.rol;
+            }
+        });
+
+        // Temas
+        (data.temas || []).forEach(t => {
+            const html = '<div class="mb-2 tema-row d-flex gap-2"><textarea name="tema[]" class="form-control" rows="2" placeholder="Descripcion del tema">' + t.replace(/</g,'&lt;') + '</textarea><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" style="min-width:44px;"><i class="fas fa-times"></i></button></div>';
+            document.getElementById('temasContainer').insertAdjacentHTML('beforeend', html);
+        });
+
+        // Compromisos
+        (data.compromisos || []).forEach(c => {
+            const html = '<div class="card mb-2 compromiso-row"><div class="card-body p-2"><input type="text" name="compromiso_actividad[]" class="form-control mb-1" placeholder="Actividad" value="' + (c.actividad||'').replace(/"/g,'&quot;') + '"><div class="row g-2"><div class="col-6"><input type="date" name="compromiso_fecha[]" class="form-control" value="' + (c.fecha||'') + '"></div><div class="col-5"><input type="text" name="compromiso_responsable[]" class="form-control" placeholder="Responsable" value="' + (c.responsable||'').replace(/"/g,'&quot;') + '"></div><div class="col-1 text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" style="min-height:44px;"><i class="fas fa-times"></i></button></div></div></div></div>';
+            document.getElementById('compromisosContainer').insertAdjacentHTML('beforeend', html);
+        });
+
+        updateCounts();
+    }
+
+    // Verificar si hay borrador guardado (solo en creación nueva sin datos previos del servidor)
+    if (!isEdit) {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                const savedTime = new Date(data._savedAt);
+                const hoursAgo = ((Date.now() - savedTime.getTime()) / 3600000).toFixed(1);
+
+                // Solo ofrecer restaurar si tiene menos de 24 horas
+                if (hoursAgo < 24) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Borrador recuperado',
+                        html: 'Tienes un borrador guardado hace <strong>' + hoursAgo + ' horas</strong>.<br>Deseas restaurarlo?',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, restaurar',
+                        cancelButtonText: 'No, empezar de cero',
+                        confirmButtonColor: '#bd9751',
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            restoreFromLocal(data);
+                        } else {
+                            localStorage.removeItem(STORAGE_KEY);
+                        }
+                    });
+                } else {
+                    localStorage.removeItem(STORAGE_KEY);
+                }
+            }
+        } catch(e) {}
+    }
+
+    // Auto-guardar cada 30 segundos
+    setInterval(saveToLocal, 30000);
+
+    // Guardar al cambiar cualquier campo
+    document.getElementById('actaForm').addEventListener('input', function() {
+        clearTimeout(window._autoSaveTimeout);
+        window._autoSaveTimeout = setTimeout(saveToLocal, 2000);
+    });
+    $('#selectCliente').on('change', function() {
+        setTimeout(saveToLocal, 500);
+    });
+
+    // Limpiar localStorage al enviar formulario exitosamente
+    document.getElementById('actaForm').addEventListener('submit', function() {
+        localStorage.removeItem(STORAGE_KEY);
     });
 });
 </script>
