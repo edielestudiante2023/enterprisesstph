@@ -58,6 +58,12 @@
         .firma-label { border-top: 1px solid #333; margin-top: 4px; padding-top: 3px; font-size: 8px; font-weight: bold; color: #555; }
 
         .page-break { page-break-before: always; }
+
+        /* Galeria de fotos */
+        .foto-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+        .foto-table td { padding: 5px; text-align: center; vertical-align: top; width: 33%; }
+        .foto-table img { max-width: 180px; max-height: 140px; border: 1px solid #ccc; }
+        .foto-desc { font-size: 8px; color: #555; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -218,6 +224,28 @@
             </tr>
             <?php endforeach; ?>
         </tbody>
+    </table>
+    <?php endif; ?>
+
+    <!-- 6. FOTOS Y SOPORTES -->
+    <?php if (!empty($fotos)): ?>
+    <div class="section-title">6. REGISTRO FOTOGRAFICO</div>
+    <table class="foto-table">
+        <?php foreach (array_chunk($fotos, 3) as $row): ?>
+        <tr>
+            <?php foreach ($row as $foto): ?>
+            <td>
+                <img src="<?= $foto['data'] ?>"><br>
+                <?php if (!empty($foto['descripcion'])): ?>
+                    <div class="foto-desc"><?= esc($foto['descripcion']) ?></div>
+                <?php endif; ?>
+            </td>
+            <?php endforeach; ?>
+            <?php for ($i = count($row); $i < 3; $i++): ?>
+            <td></td>
+            <?php endfor; ?>
+        </tr>
+        <?php endforeach; ?>
     </table>
     <?php endif; ?>
 

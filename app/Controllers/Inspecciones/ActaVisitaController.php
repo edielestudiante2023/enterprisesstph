@@ -572,6 +572,22 @@ class ActaVisitaController extends BaseController
         $consultantModel = new ConsultantModel();
         $consultor = $consultantModel->find($acta['id_consultor']);
 
+        // Fotos del acta convertidas a base64 para DOMPDF
+        $fotosBase64 = [];
+        $fotosModel = new ActaVisitaFotoModel();
+        $fotos = $fotosModel->getByActa($id);
+        foreach ($fotos as $foto) {
+            $fotoPath = FCPATH . $foto['ruta_archivo'];
+            if (file_exists($fotoPath)) {
+                $mime = mime_content_type($fotoPath);
+                $fotosBase64[] = [
+                    'data'        => 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fotoPath)),
+                    'descripcion' => $foto['descripcion'] ?? '',
+                    'tipo'        => $foto['tipo'] ?? 'foto',
+                ];
+            }
+        }
+
         $data = [
             'acta'                => $acta,
             'cliente'             => $cliente,
@@ -583,6 +599,7 @@ class ActaVisitaController extends BaseController
             'mantenimientos'      => $mantenimientos,
             'firmas'              => $firmas,
             'logoBase64'          => $logoBase64,
+            'fotos'               => $fotosBase64,
         ];
 
         $html = view('inspecciones/acta_visita/pdf', $data);
