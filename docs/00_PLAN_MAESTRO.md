@@ -155,3 +155,4 @@ $routes->group('inspecciones', ['filter' => 'auth'], function($routes) {
 - [06_ESTRATEGIA_NOTIFICACIONES.md](./06_ESTRATEGIA_NOTIFICACIONES.md) - Web Push, SendGrid, recordatorios por cron
 - [07_ESTRATEGIA_PDF_UPLOAD.md](./07_ESTRATEGIA_PDF_UPLOAD.md) - Auto-cargue de PDF a tbl_reporte, reemplazo del pipeline n8n
 - [08_ESTRATEGIA_AUTOGUARDADO.md](./08_ESTRATEGIA_AUTOGUARDADO.md) - localStorage para recuperar formularios ante perdida de sesion
+- [09_DISENO_PDF_ACTA.md](./09_DISENO_PDF_ACTA.md) - Diseno del PDF, restricciones DOMPDF, problemas conocidos

@@ -196,6 +196,15 @@ function cambiarPaso(dir) {
     document.getElementById('step-' + pasoActual).style.display = 'none';
     pasoActual += dir;
     document.getElementById('step-' + pasoActual).style.display = '';
+
+    // Re-setup canvas al hacerse visible (fix: canvas oculto tiene width=0)
+    Object.keys(canvases).forEach(tipo => {
+        var c = canvases[tipo];
+        if (c && c.canvas && c.canvas.offsetParent !== null && !c.hayDibujo) {
+            c.setup();
+        }
+    });
+
     updateNav();
 }
 
