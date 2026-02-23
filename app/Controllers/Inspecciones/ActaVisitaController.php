@@ -362,19 +362,22 @@ class ActaVisitaController extends BaseController
     }
 
     /**
-     * Ver/descargar PDF generado
+     * Ver/descargar PDF - siempre regenera desde el template actual
      */
     public function generatePdf($id)
     {
         $acta = $this->actaModel->find($id);
-        if (!$acta || empty($acta['ruta_pdf'])) {
-            return redirect()->to('/inspecciones/acta-visita/view/' . $id)->with('error', 'PDF no disponible');
+        if (!$acta) {
+            return redirect()->to('/inspecciones/acta-visita')->with('error', 'Acta no encontrada');
         }
 
-        $pdfPath = FCPATH . $acta['ruta_pdf'];
-        if (!file_exists($pdfPath)) {
-            return redirect()->back()->with('error', 'Archivo PDF no encontrado');
+        // Regenerar PDF desde template actual
+        $pdfRelPath = $this->generarPdfInterno($id);
+        if (!$pdfRelPath) {
+            return redirect()->back()->with('error', 'Error generando PDF');
         }
+
+        $pdfPath = FCPATH . $pdfRelPath;
 
         return $this->response
             ->setHeader('Content-Type', 'application/pdf')
