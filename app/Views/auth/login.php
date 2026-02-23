@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Inspecciones">
-    <link rel="manifest" href="/manifest_inspecciones.json?v=2">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png?v=2">
+    <link rel="manifest" href="/manifest_inspecciones.json?v=3">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png?v=3">
     <title>Login - Enterprise SST</title>
 
     <!-- Bootstrap 5 CSS -->
