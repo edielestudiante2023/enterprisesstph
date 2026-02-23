@@ -3,50 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <style>
+        @page {
+            margin: 60px 50px 50px 50px;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #333; line-height: 1.4; }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 10px;
+            color: #333;
+            line-height: 1.4;
+        }
 
-        .header-table { width: 100%; border-collapse: collapse; border: 1px solid #333; margin-bottom: 15px; }
-        .header-table td { border: 1px solid #333; padding: 6px 8px; vertical-align: middle; }
-        .header-logo { width: 100px; text-align: center; }
-        .header-logo img { max-width: 90px; max-height: 60px; }
-        .header-title { text-align: center; font-weight: bold; font-size: 11px; }
-        .header-code { width: 140px; font-size: 10px; }
+        /* Header corporativo */
+        .header-table { width: 100%; border-collapse: collapse; border: 1.5px solid #333; margin-bottom: 12px; }
+        .header-table td { border: 1px solid #333; padding: 5px 8px; vertical-align: middle; }
+        .header-logo { width: 110px; text-align: center; font-size: 9px; }
+        .header-logo img { max-width: 95px; max-height: 55px; }
+        .header-title { text-align: center; font-weight: bold; font-size: 10px; }
+        .header-code { width: 130px; font-size: 9px; }
 
-        .main-title { text-align: center; font-size: 13px; font-weight: bold; margin: 15px 0 10px; color: #1c2437; }
+        /* Titulo principal */
+        .main-title { text-align: center; font-size: 12px; font-weight: bold; margin: 10px 0 8px; color: #1c2437; }
 
-        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-        .info-table td { padding: 3px 6px; font-size: 11px; }
-        .info-label { font-weight: bold; color: #555; width: 100px; }
+        /* Tabla datos generales */
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; border: 1px solid #ccc; }
+        .info-table td { padding: 4px 8px; font-size: 10px; border: 1px solid #ccc; }
+        .info-label { font-weight: bold; color: #444; width: 90px; background: #f7f7f7; }
 
-        .section-title { background: #1c2437; color: white; padding: 5px 10px; font-weight: bold; font-size: 11px; margin: 12px 0 6px; }
+        /* Titulos de seccion */
+        .section-title { background: #1c2437; color: white; padding: 4px 10px; font-weight: bold; font-size: 10px; margin: 10px 0 5px; }
 
-        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-        .data-table th { background: #e8e8e8; border: 1px solid #aaa; padding: 5px 8px; font-size: 10px; text-align: left; }
-        .data-table td { border: 1px solid #ccc; padding: 4px 8px; font-size: 10px; }
+        /* Tablas de datos */
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+        .data-table th { background: #e8e8e8; border: 1px solid #aaa; padding: 4px 6px; font-size: 9px; text-align: left; }
+        .data-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 9px; }
 
-        .firma-img { max-width: 120px; max-height: 50px; }
-        .firma-block { display: inline-block; text-align: center; width: 30%; margin: 10px 1%; vertical-align: top; }
-        .firma-block .line { border-top: 1px solid #333; margin-top: 5px; padding-top: 3px; font-size: 9px; }
+        /* Firmas en tabla integrantes */
+        .firma-inline { max-width: 70px; max-height: 30px; }
 
-        .status-ok { color: #28a745; }
-        .status-warn { color: #dc3545; }
+        /* Sub-titulos dentro de secciones */
+        .sub-title { font-weight: bold; font-size: 10px; margin: 6px 0 3px; }
 
-        .content-text { font-size: 11px; line-height: 1.5; margin-bottom: 8px; }
+        /* Texto sin datos */
+        .empty-text { color: #888; font-style: italic; font-size: 9px; margin-bottom: 6px; }
+
+        /* Texto contenido */
+        .content-text { font-size: 10px; line-height: 1.5; margin-bottom: 6px; }
+
+        /* Firmas al pie - usar tabla */
+        .firma-table { width: 100%; border-collapse: collapse; margin-top: 25px; }
+        .firma-table td { text-align: center; vertical-align: bottom; padding: 5px 10px; width: 33%; }
+        .firma-table img { max-width: 100px; max-height: 45px; }
+        .firma-label { border-top: 1px solid #333; margin-top: 4px; padding-top: 3px; font-size: 8px; font-weight: bold; color: #555; }
 
         .page-break { page-break-before: always; }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
+    <!-- HEADER CORPORATIVO -->
     <table class="header-table">
         <tr>
             <td class="header-logo" rowspan="3">
                 <?php if (!empty($logoBase64)): ?>
                     <img src="<?= $logoBase64 ?>">
                 <?php else: ?>
-                    <strong><?= esc($cliente['nombre_cliente'] ?? '') ?></strong>
+                    <strong style="font-size:8px;"><?= esc($cliente['nombre_cliente'] ?? '') ?></strong>
                 <?php endif; ?>
             </td>
             <td class="header-title">SISTEMA DE GESTION DE SEGURIDAD Y SALUD EN EL TRABAJO</td>
@@ -82,7 +104,7 @@
         <?php if (!empty($acta['modalidad'])): ?>
         <tr>
             <td class="info-label">MODALIDAD:</td>
-            <td colspan="3"><?= esc($acta['modalidad']) ?></td>
+            <td colspan="3"><?= esc(ucfirst($acta['modalidad'])) ?></td>
         </tr>
         <?php endif; ?>
     </table>
@@ -102,15 +124,17 @@
             <tr>
                 <td><?= esc($int['nombre']) ?></td>
                 <td><?= esc($int['rol']) ?></td>
-                <td style="text-align:center;">
+                <td style="text-align:center; padding: 2px;">
                     <?php
                     $rol = strtoupper($int['rol']);
                     if ($rol === 'ADMINISTRADOR' && !empty($firmas['administrador'])) {
-                        echo '<img src="' . $firmas['administrador'] . '" class="firma-img">';
+                        echo '<img src="' . $firmas['administrador'] . '" class="firma-inline">';
+                    } elseif (stripos($rol, 'ASISTENTE') !== false && !empty($firmas['administrador'])) {
+                        echo '<img src="' . $firmas['administrador'] . '" class="firma-inline">';
                     } elseif (stripos($rol, 'VIG') !== false && !empty($firmas['vigia'])) {
-                        echo '<img src="' . $firmas['vigia'] . '" class="firma-img">';
+                        echo '<img src="' . $firmas['vigia'] . '" class="firma-inline">';
                     } elseif (stripos($rol, 'CONSULTOR') !== false && !empty($firmas['consultor'])) {
-                        echo '<img src="' . $firmas['consultor'] . '" class="firma-img">';
+                        echo '<img src="' . $firmas['consultor'] . '" class="firma-inline">';
                     }
                     ?>
                 </td>
@@ -119,16 +143,16 @@
         </tbody>
     </table>
 
-    <!-- TEMAS ABIERTOS Y VENCIDOS -->
-    <div class="section-title">TEMAS ABIERTOS Y VENCIDOS</div>
+    <!-- 2. TEMAS ABIERTOS Y VENCIDOS -->
+    <div class="section-title">2. TEMAS ABIERTOS Y VENCIDOS</div>
 
     <!-- Mantenimientos -->
-    <p style="font-weight:bold; margin:6px 0 3px;">MANTENIMIENTOS:</p>
+    <p class="sub-title">MANTENIMIENTOS:</p>
     <?php if (empty($mantenimientos)): ?>
-        <p class="status-ok">Sin mantenimientos por vencer en los proximos 30 dias.</p>
+        <p class="empty-text">Sin mantenimientos por vencer en los proximos 30 dias.</p>
     <?php else: ?>
         <table class="data-table">
-            <thead><tr><th>MANTENIMIENTO</th><th>VENCIMIENTO</th></tr></thead>
+            <thead><tr><th>MANTENIMIENTO</th><th style="width:100px;">VENCIMIENTO</th></tr></thead>
             <tbody>
             <?php foreach ($mantenimientos as $m): ?>
                 <tr>
@@ -141,29 +165,35 @@
     <?php endif; ?>
 
     <!-- Pendientes -->
-    <p style="font-weight:bold; margin:6px 0 3px;">PENDIENTES ABIERTOS:</p>
+    <p class="sub-title">PENDIENTES ABIERTOS:</p>
     <?php if (empty($pendientesAbiertos)): ?>
-        <p class="status-ok">Sin pendientes abiertos.</p>
+        <p class="empty-text">Sin pendientes abiertos.</p>
     <?php else: ?>
         <table class="data-table">
-            <thead><tr><th>ACTIVIDAD</th><th>RESPONSABLE</th><th>DIAS</th></tr></thead>
+            <thead><tr><th>ACTIVIDAD</th><th>RESPONSABLE</th><th style="width:55px;">ASIGNADO</th><th style="width:55px;">CIERRE</th><th style="width:35px;">DIAS</th></tr></thead>
             <tbody>
             <?php foreach ($pendientesAbiertos as $p): ?>
                 <tr>
                     <td><?= esc($p['tarea_actividad']) ?></td>
                     <td><?= esc($p['responsable'] ?? '') ?></td>
-                    <td><?= $p['conteo_dias'] ?? '-' ?></td>
+                    <td><?= !empty($p['fecha_asignacion']) ? date('d/m/Y', strtotime($p['fecha_asignacion'])) : '-' ?></td>
+                    <td><?= !empty($p['fecha_cierre']) ? date('d/m/Y', strtotime($p['fecha_cierre'])) : '-' ?></td>
+                    <td style="text-align:center;"><?= $p['conteo_dias'] ?? '-' ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
         </table>
     <?php endif; ?>
 
-    <!-- 2. TEMAS -->
-    <div class="section-title">2. TEMAS</div>
-    <?php foreach ($temas as $i => $tema): ?>
-        <p class="content-text"><strong>TEMA <?= $i + 1 ?>:</strong> <?= esc($tema['descripcion']) ?></p>
-    <?php endforeach; ?>
+    <!-- 3. TEMAS TRATADOS -->
+    <div class="section-title">3. TEMAS TRATADOS</div>
+    <?php if (!empty($temas)): ?>
+        <?php foreach ($temas as $i => $tema): ?>
+            <p class="content-text"><strong>TEMA <?= $i + 1 ?>:</strong> <?= esc($tema['descripcion']) ?></p>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p class="empty-text">No se registraron temas.</p>
+    <?php endif; ?>
 
     <!-- 4. OBSERVACIONES -->
     <?php if (!empty($acta['observaciones'])): ?>
@@ -178,7 +208,7 @@
         <thead>
             <tr>
                 <th>ACTIVIDAD</th>
-                <th>FECHA DE CIERRE</th>
+                <th style="width:80px;">FECHA CIERRE</th>
                 <th>RESPONSABLE</th>
             </tr>
         </thead>
@@ -195,28 +225,30 @@
     <?php endif; ?>
 
     <!-- FIRMAS AL PIE -->
-    <div style="margin-top: 30px; text-align: center;">
-        <?php if (!empty($firmas['administrador'])): ?>
-        <div class="firma-block">
-            <img src="<?= $firmas['administrador'] ?>" class="firma-img"><br>
-            <div class="line">ADMINISTRADOR</div>
-        </div>
-        <?php endif; ?>
+    <table class="firma-table">
+        <tr>
+            <?php if (!empty($firmas['administrador'])): ?>
+            <td>
+                <img src="<?= $firmas['administrador'] ?>"><br>
+                <div class="firma-label">ADMINISTRADOR</div>
+            </td>
+            <?php endif; ?>
 
-        <?php if (!empty($firmas['vigia'])): ?>
-        <div class="firma-block">
-            <img src="<?= $firmas['vigia'] ?>" class="firma-img"><br>
-            <div class="line">VIGIA SST</div>
-        </div>
-        <?php endif; ?>
+            <?php if (!empty($firmas['vigia'])): ?>
+            <td>
+                <img src="<?= $firmas['vigia'] ?>"><br>
+                <div class="firma-label">VIGIA SST</div>
+            </td>
+            <?php endif; ?>
 
-        <?php if (!empty($firmas['consultor'])): ?>
-        <div class="firma-block">
-            <img src="<?= $firmas['consultor'] ?>" class="firma-img"><br>
-            <div class="line">CONSULTOR - <?= esc($consultor['nombre_consultor'] ?? '') ?></div>
-        </div>
-        <?php endif; ?>
-    </div>
+            <?php if (!empty($firmas['consultor'])): ?>
+            <td>
+                <img src="<?= $firmas['consultor'] ?>"><br>
+                <div class="firma-label">CONSULTOR - <?= esc($consultor['nombre_consultor'] ?? '') ?></div>
+            </td>
+            <?php endif; ?>
+        </tr>
+    </table>
 
 </body>
 </html>
