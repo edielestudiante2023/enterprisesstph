@@ -587,7 +587,10 @@ class ActaVisitaController extends BaseController
 
         $html = view('inspecciones/acta_visita/pdf', $data);
 
-        $dompdf = new Dompdf();
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html);
         $dompdf->setPaper('letter', 'portrait');
         $dompdf->render();
