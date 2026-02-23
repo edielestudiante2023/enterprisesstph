@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1c2437">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Inspecciones">
+    <link rel="manifest" href="/manifest_inspecciones.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <title>Login - Enterprise SST</title>
-    
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -735,6 +741,13 @@
         
         // El formulario se enviará normalmente al servidor
     });
+</script>
+
+<!-- Service Worker Registration (PWA) -->
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw_inspecciones.js', { scope: '/' });
+}
 </script>
 
 </body>
