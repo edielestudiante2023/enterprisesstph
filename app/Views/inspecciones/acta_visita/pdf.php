@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <style>
         @page {
-            margin: 70px 60px 60px 60px;
+            margin: 2.5cm 2cm 2.5cm 3cm;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -12,7 +12,6 @@
             font-size: 10px;
             color: #333;
             line-height: 1.4;
-            padding: 10px 15px;
         }
 
         /* Header corporativo */
@@ -65,7 +64,7 @@
     <!-- HEADER CORPORATIVO -->
     <table class="header-table">
         <tr>
-            <td class="header-logo" rowspan="3">
+            <td class="header-logo" rowspan="2">
                 <?php if (!empty($logoBase64)): ?>
                     <img src="<?= $logoBase64 ?>">
                 <?php else: ?>
@@ -73,14 +72,10 @@
                 <?php endif; ?>
             </td>
             <td class="header-title">SISTEMA DE GESTION DE SEGURIDAD Y SALUD EN EL TRABAJO</td>
-            <td class="header-code">Codigo: FT-SST-007</td>
+            <td class="header-code">Codigo: FT-SST-007<br>Version: 001</td>
         </tr>
         <tr>
-            <td class="header-title">ACTA DE REUNION</td>
-            <td class="header-code">Version: 001</td>
-        </tr>
-        <tr>
-            <td class="header-title">&nbsp;</td>
+            <td class="header-title" style="font-size:11px;">ACTA DE REUNION</td>
             <td class="header-code">Fecha: <?= date('d/m/Y', strtotime($acta['fecha_visita'])) ?></td>
         </tr>
     </table>
