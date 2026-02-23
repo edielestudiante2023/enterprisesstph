@@ -787,6 +787,18 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('inspeccion-locativa/finalizar/(:num)', 'InspeccionLocativaController::finalizar/$1');
     $routes->get('inspeccion-locativa/delete/(:num)', 'InspeccionLocativaController::delete/$1');
 
+    // Inspección Señalización
+    $routes->get('senalizacion', 'InspeccionSenalizacionController::list');
+    $routes->get('senalizacion/create', 'InspeccionSenalizacionController::create');
+    $routes->get('senalizacion/create/(:num)', 'InspeccionSenalizacionController::create/$1');
+    $routes->post('senalizacion/store', 'InspeccionSenalizacionController::store');
+    $routes->get('senalizacion/edit/(:num)', 'InspeccionSenalizacionController::edit/$1');
+    $routes->post('senalizacion/update/(:num)', 'InspeccionSenalizacionController::update/$1');
+    $routes->get('senalizacion/view/(:num)', 'InspeccionSenalizacionController::view/$1');
+    $routes->get('senalizacion/pdf/(:num)', 'InspeccionSenalizacionController::generatePdf/$1');
+    $routes->post('senalizacion/finalizar/(:num)', 'InspeccionSenalizacionController::finalizar/$1');
+    $routes->get('senalizacion/delete/(:num)', 'InspeccionSenalizacionController::delete/$1');
+
     // API endpoints AJAX
     $routes->get('api/clientes', 'InspeccionesController::getClientes');
     $routes->get('api/pendientes/(:num)', 'InspeccionesController::getPendientes/$1');

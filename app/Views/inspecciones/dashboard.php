@@ -74,6 +74,34 @@
     <?php endforeach; ?>
     <?php endif; ?>
 
+    <!-- Pendientes señalización -->
+    <?php if (!empty($pendientesSenalizacion)): ?>
+    <?php foreach ($pendientesSenalizacion as $sen): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Senalizacion - <?= esc($sen['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($sen['fecha_inspeccion'])) ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/senalizacion/edit/<?= $sen['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
     <!-- Grid de inspecciones -->
     <div class="section-title">Inspecciones</div>
     <div class="grid-inspecciones mb-4">
@@ -82,11 +110,11 @@
             <div><strong>Actas de Visita</strong></div>
             <div class="count">(<?= $totalActas ?>)</div>
         </a>
-        <div class="card-tipo disabled">
+        <a href="/inspecciones/senalizacion" class="card-tipo">
             <i class="fas fa-search"></i>
             <div><strong>Senalizacion</strong></div>
-            <div class="count">(---)</div>
-        </div>
+            <div class="count">(<?= $totalSenalizacion ?>)</div>
+        </a>
         <a href="/inspecciones/inspeccion-locativa" class="card-tipo">
             <i class="fas fa-hard-hat"></i>
             <div><strong>Locativas</strong></div>

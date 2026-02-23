@@ -5,6 +5,7 @@ namespace App\Controllers\Inspecciones;
 use App\Controllers\BaseController;
 use App\Models\ActaVisitaModel;
 use App\Models\InspeccionLocativaModel;
+use App\Models\InspeccionSenalizacionModel;
 use App\Models\ClientModel;
 use App\Models\PendientesModel;
 use App\Models\VencimientosMantenimientoModel;
@@ -46,12 +47,32 @@ class InspeccionesController extends BaseController
             $pendientesLocativas = $locativaModel->getPendientesByConsultor($userId);
         }
 
+        // Conteo de señalización completas
+        $senalizacionModel = new InspeccionSenalizacionModel();
+        $totalSenalizacion = $senalizacionModel->where('id_consultor', $userId)
+            ->where('estado', 'completo')
+            ->countAllResults();
+
+        // Pendientes de señalización (borradores)
+        if ($role === 'admin') {
+            $pendientesSenalizacion = $senalizacionModel
+                ->select('tbl_inspeccion_senalizacion.*, tbl_clientes.nombre_cliente')
+                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_inspeccion_senalizacion.id_cliente', 'left')
+                ->where('tbl_inspeccion_senalizacion.estado', 'borrador')
+                ->orderBy('tbl_inspeccion_senalizacion.updated_at', 'DESC')
+                ->findAll();
+        } else {
+            $pendientesSenalizacion = $senalizacionModel->getPendientesByConsultor($userId);
+        }
+
         $data = [
             'title'            => 'Inspecciones SST',
             'pendientes'       => $pendientes,
             'pendientesLocativas' => $pendientesLocativas,
+            'pendientesSenalizacion' => $pendientesSenalizacion,
             'totalActas'       => $totalActas,
             'totalLocativas'   => $totalLocativas,
+            'totalSenalizacion' => $totalSenalizacion,
             'nombre'           => session()->get('nombre_usuario'),
         ];
 
