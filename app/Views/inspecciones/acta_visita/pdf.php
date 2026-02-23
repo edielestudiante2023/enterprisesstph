@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <style>
         @page {
-            margin: 2.5cm 2cm 2.5cm 3cm;
+            margin: 100px 70px 80px 90px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -12,6 +12,7 @@
             font-size: 10px;
             color: #333;
             line-height: 1.4;
+            padding: 15px 20px;
         }
 
         /* Header corporativo */
