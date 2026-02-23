@@ -97,7 +97,8 @@ $action = $isEdit ? '/inspecciones/inspeccion-locativa/update/' . $inspeccion['i
                                                         <img src="<?= base_url($h['imagen']) ?>" class="img-fluid rounded" style="max-height:80px; object-fit:cover; cursor:pointer;" onclick="openPhoto(this.src)">
                                                     </div>
                                                 <?php endif; ?>
-                                                <input type="file" name="hallazgo_imagen[]" class="form-control form-control-sm" accept="image/*" capture="environment">
+                                                <input type="file" name="hallazgo_imagen[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                                                <div class="preview-img mt-1"></div>
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label" style="font-size:12px;">Foto correccion</label>
@@ -106,7 +107,8 @@ $action = $isEdit ? '/inspecciones/inspeccion-locativa/update/' . $inspeccion['i
                                                         <img src="<?= base_url($h['imagen_correccion']) ?>" class="img-fluid rounded" style="max-height:80px; object-fit:cover; cursor:pointer;" onclick="openPhoto(this.src)">
                                                     </div>
                                                 <?php endif; ?>
-                                                <input type="file" name="hallazgo_correccion[]" class="form-control form-control-sm" accept="image/*" capture="environment">
+                                                <input type="file" name="hallazgo_correccion[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                                                <div class="preview-img mt-1"></div>
                                             </div>
                                         </div>
 
@@ -227,11 +229,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="row g-2 mb-2">
                         <div class="col-6">
                             <label class="form-label" style="font-size:12px;">Foto hallazgo</label>
-                            <input type="file" name="hallazgo_imagen[]" class="form-control form-control-sm" accept="image/*" capture="environment">
+                            <input type="file" name="hallazgo_imagen[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                            <div class="preview-img mt-1"></div>
                         </div>
                         <div class="col-6">
                             <label class="form-label" style="font-size:12px;">Foto correccion</label>
-                            <input type="file" name="hallazgo_correccion[]" class="form-control form-control-sm" accept="image/*" capture="environment">
+                            <input type="file" name="hallazgo_correccion[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                            <div class="preview-img mt-1"></div>
                         </div>
                     </div>
 
@@ -258,6 +262,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const secHallazgos = document.getElementById('secHallazgos');
         if (!secHallazgos.classList.contains('show')) {
             new bootstrap.Collapse(secHallazgos, { toggle: true });
+        }
+    });
+
+    // --- Preview de fotos al seleccionar/tomar ---
+    document.addEventListener('change', function(e) {
+        if (!e.target.classList.contains('file-preview')) return;
+        const input = e.target;
+        const previewDiv = input.nextElementSibling;
+        if (!previewDiv || !previewDiv.classList.contains('preview-img')) return;
+
+        previewDiv.innerHTML = '';
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                previewDiv.innerHTML = '<img src="' + ev.target.result + '" class="img-fluid rounded" style="max-height:80px; object-fit:cover; cursor:pointer; border:2px solid #28a745;" onclick="openPhoto(this.src)">' +
+                    '<div style="font-size:11px; color:#28a745; margin-top:2px;"><i class="fas fa-check-circle"></i> Foto lista</div>';
+            };
+            reader.readAsDataURL(input.files[0]);
         }
     });
 
