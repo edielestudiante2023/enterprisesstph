@@ -429,6 +429,16 @@ $routes->get('/client/lista-matrices', 'ClientMatrices::index');
 $routes->get('client/panel', 'ClientPanelController::showPanel');
 $routes->get('client/panel/(:num)', 'ClientPanelController::showPanel/$1');
 
+// Client Inspections (read-only web views)
+$routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
+    $routes->get('/', 'ClientInspeccionesController::dashboard');
+    $routes->get('actas-visita', 'ClientInspeccionesController::listActas');
+    $routes->get('actas-visita/(:num)', 'ClientInspeccionesController::viewActa/$1');
+    $routes->get('locativas', 'ClientInspeccionesController::listLocativas');
+    $routes->get('locativas/(:num)', 'ClientInspeccionesController::viewLocativa/$1');
+    $routes->get('senalizacion', 'ClientInspeccionesController::listSenalizacion');
+    $routes->get('senalizacion/(:num)', 'ClientInspeccionesController::viewSenalizacion/$1');
+});
 
 $routes->get('/detailreportlist', 'DetailReportController::detailReportList');
 $routes->get('/detailreportadd', 'DetailReportController::detailReportAdd');
@@ -798,6 +808,18 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('senalizacion/pdf/(:num)', 'InspeccionSenalizacionController::generatePdf/$1');
     $routes->post('senalizacion/finalizar/(:num)', 'InspeccionSenalizacionController::finalizar/$1');
     $routes->get('senalizacion/delete/(:num)', 'InspeccionSenalizacionController::delete/$1');
+
+    // Inspección Extintores
+    $routes->get('extintores', 'InspeccionExtintoresController::list');
+    $routes->get('extintores/create', 'InspeccionExtintoresController::create');
+    $routes->get('extintores/create/(:num)', 'InspeccionExtintoresController::create/$1');
+    $routes->post('extintores/store', 'InspeccionExtintoresController::store');
+    $routes->get('extintores/edit/(:num)', 'InspeccionExtintoresController::edit/$1');
+    $routes->post('extintores/update/(:num)', 'InspeccionExtintoresController::update/$1');
+    $routes->get('extintores/view/(:num)', 'InspeccionExtintoresController::view/$1');
+    $routes->get('extintores/pdf/(:num)', 'InspeccionExtintoresController::generatePdf/$1');
+    $routes->post('extintores/finalizar/(:num)', 'InspeccionExtintoresController::finalizar/$1');
+    $routes->get('extintores/delete/(:num)', 'InspeccionExtintoresController::delete/$1');
 
     // API endpoints AJAX
     $routes->get('api/clientes', 'InspeccionesController::getClientes');

@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\ActaVisitaModel;
 use App\Models\InspeccionLocativaModel;
 use App\Models\InspeccionSenalizacionModel;
+use App\Models\InspeccionExtintoresModel;
 use App\Models\ClientModel;
 use App\Models\PendientesModel;
 use App\Models\VencimientosMantenimientoModel;
@@ -65,14 +66,34 @@ class InspeccionesController extends BaseController
             $pendientesSenalizacion = $senalizacionModel->getPendientesByConsultor($userId);
         }
 
+        // Conteo de extintores completas
+        $extintoresModel = new InspeccionExtintoresModel();
+        $totalExtintores = $extintoresModel->where('id_consultor', $userId)
+            ->where('estado', 'completo')
+            ->countAllResults();
+
+        // Pendientes de extintores (borradores)
+        if ($role === 'admin') {
+            $pendientesExtintores = $extintoresModel
+                ->select('tbl_inspeccion_extintores.*, tbl_clientes.nombre_cliente')
+                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_inspeccion_extintores.id_cliente', 'left')
+                ->where('tbl_inspeccion_extintores.estado', 'borrador')
+                ->orderBy('tbl_inspeccion_extintores.updated_at', 'DESC')
+                ->findAll();
+        } else {
+            $pendientesExtintores = $extintoresModel->getPendientesByConsultor($userId);
+        }
+
         $data = [
             'title'            => 'Inspecciones SST',
             'pendientes'       => $pendientes,
             'pendientesLocativas' => $pendientesLocativas,
             'pendientesSenalizacion' => $pendientesSenalizacion,
+            'pendientesExtintores' => $pendientesExtintores,
             'totalActas'       => $totalActas,
             'totalLocativas'   => $totalLocativas,
             'totalSenalizacion' => $totalSenalizacion,
+            'totalExtintores'  => $totalExtintores,
             'nombre'           => session()->get('nombre_usuario'),
         ];
 
