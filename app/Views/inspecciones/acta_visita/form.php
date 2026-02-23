@@ -236,7 +236,7 @@ $action = $isEdit ? '/inspecciones/acta-visita/update/' . $acta['id'] : '/inspec
                         <?php endif; ?>
 
                         <label class="form-label">Agregar fotos</label>
-                        <input type="file" name="fotos[]" class="form-control" accept="image/*" capture="environment" multiple>
+                        <input type="file" name="fotos[]" class="form-control" accept="image/*" multiple>
                         <small class="text-muted">Puedes tomar fotos con la camara o seleccionar de la galeria</small>
                     </div>
                 </div>

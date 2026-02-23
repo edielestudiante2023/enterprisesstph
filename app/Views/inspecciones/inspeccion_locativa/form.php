@@ -97,7 +97,7 @@ $action = $isEdit ? '/inspecciones/inspeccion-locativa/update/' . $inspeccion['i
                                                         <img src="<?= base_url($h['imagen']) ?>" class="img-fluid rounded" style="max-height:80px; object-fit:cover; cursor:pointer;" onclick="openPhoto(this.src)">
                                                     </div>
                                                 <?php endif; ?>
-                                                <input type="file" name="hallazgo_imagen[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                                                <input type="file" name="hallazgo_imagen[]" class="form-control form-control-sm file-preview" accept="image/*">
                                                 <div class="preview-img mt-1"></div>
                                             </div>
                                             <div class="col-6">
@@ -107,7 +107,7 @@ $action = $isEdit ? '/inspecciones/inspeccion-locativa/update/' . $inspeccion['i
                                                         <img src="<?= base_url($h['imagen_correccion']) ?>" class="img-fluid rounded" style="max-height:80px; object-fit:cover; cursor:pointer;" onclick="openPhoto(this.src)">
                                                     </div>
                                                 <?php endif; ?>
-                                                <input type="file" name="hallazgo_correccion[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                                                <input type="file" name="hallazgo_correccion[]" class="form-control form-control-sm file-preview" accept="image/*">
                                                 <div class="preview-img mt-1"></div>
                                             </div>
                                         </div>
@@ -240,12 +240,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="row g-2 mb-2">
                         <div class="col-6">
                             <label class="form-label" style="font-size:12px;">Foto hallazgo</label>
-                            <input type="file" name="hallazgo_imagen[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                            <input type="file" name="hallazgo_imagen[]" class="form-control form-control-sm file-preview" accept="image/*">
                             <div class="preview-img mt-1"></div>
                         </div>
                         <div class="col-6">
                             <label class="form-label" style="font-size:12px;">Foto correccion</label>
-                            <input type="file" name="hallazgo_correccion[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                            <input type="file" name="hallazgo_correccion[]" class="form-control form-control-sm file-preview" accept="image/*">
                             <div class="preview-img mt-1"></div>
                         </div>
                     </div>
@@ -398,12 +398,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="row g-2 mb-2">
                             <div class="col-6">
                                 <label class="form-label" style="font-size:12px;">Foto hallazgo</label>
-                                <input type="file" name="hallazgo_imagen[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                                <input type="file" name="hallazgo_imagen[]" class="form-control form-control-sm file-preview" accept="image/*">
                                 <div class="preview-img mt-1"></div>
                             </div>
                             <div class="col-6">
                                 <label class="form-label" style="font-size:12px;">Foto correccion</label>
-                                <input type="file" name="hallazgo_correccion[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                                <input type="file" name="hallazgo_correccion[]" class="form-control form-control-sm file-preview" accept="image/*">
                                 <div class="preview-img mt-1"></div>
                             </div>
                         </div>
