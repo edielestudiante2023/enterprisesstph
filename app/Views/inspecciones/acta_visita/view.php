@@ -93,6 +93,51 @@
     </div>
     <?php endif; ?>
 
+    <!-- Fotos y Soportes -->
+    <?php if (!empty($fotos)): ?>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title" style="font-size:14px; color:#999;">REGISTRO FOTOGRAFICO</h6>
+            <div class="row g-2">
+                <?php foreach ($fotos as $foto): ?>
+                <div class="col-4">
+                    <img src="/<?= esc($foto['ruta_archivo']) ?>"
+                         class="img-fluid rounded"
+                         style="width:100%; height:100px; object-fit:cover; cursor:pointer; border:1px solid #ddd;"
+                         onclick="openPhoto(this.src, '<?= esc($foto['descripcion'] ?? '', 'js') ?>')"
+                         alt="<?= esc($foto['descripcion'] ?? 'Foto') ?>">
+                    <?php if (!empty($foto['descripcion'])): ?>
+                        <small class="text-muted d-block text-center" style="font-size:11px;"><?= esc($foto['descripcion']) ?></small>
+                    <?php endif; ?>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Modal para ver foto ampliada -->
+    <div class="modal fade" id="photoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark">
+                <div class="modal-header border-0 py-1">
+                    <small class="text-light" id="photoDesc"></small>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-1 text-center">
+                    <img id="photoFull" src="" class="img-fluid" style="max-height:80vh;">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    function openPhoto(src, desc) {
+        document.getElementById('photoFull').src = src;
+        document.getElementById('photoDesc').textContent = desc || '';
+        new bootstrap.Modal(document.getElementById('photoModal')).show();
+    }
+    </script>
+
     <!-- Acciones -->
     <div class="mb-4">
         <?php if ($acta['estado'] === 'completo' && !empty($acta['ruta_pdf'])): ?>
