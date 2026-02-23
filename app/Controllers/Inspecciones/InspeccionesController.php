@@ -4,6 +4,7 @@ namespace App\Controllers\Inspecciones;
 
 use App\Controllers\BaseController;
 use App\Models\ActaVisitaModel;
+use App\Models\InspeccionLocativaModel;
 use App\Models\ClientModel;
 use App\Models\PendientesModel;
 use App\Models\VencimientosMantenimientoModel;
@@ -32,11 +33,26 @@ class InspeccionesController extends BaseController
             ->where('estado', 'completo')
             ->countAllResults();
 
+        // Conteo de locativas completas
+        $locativaModel = new InspeccionLocativaModel();
+        $totalLocativas = $locativaModel->where('id_consultor', $userId)
+            ->where('estado', 'completo')
+            ->countAllResults();
+
+        // Pendientes de locativas (borradores)
+        if ($role === 'admin') {
+            $pendientesLocativas = $locativaModel->getAllPendientes();
+        } else {
+            $pendientesLocativas = $locativaModel->getPendientesByConsultor($userId);
+        }
+
         $data = [
-            'title'      => 'Inspecciones SST',
-            'pendientes' => $pendientes,
-            'totalActas' => $totalActas,
-            'nombre'     => session()->get('nombre_usuario'),
+            'title'            => 'Inspecciones SST',
+            'pendientes'       => $pendientes,
+            'pendientesLocativas' => $pendientesLocativas,
+            'totalActas'       => $totalActas,
+            'totalLocativas'   => $totalLocativas,
+            'nombre'           => session()->get('nombre_usuario'),
         ];
 
         return view('inspecciones/layout_pwa', [

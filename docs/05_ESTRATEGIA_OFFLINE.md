@@ -144,7 +144,7 @@ const STORES = {
 {
     id_vencimientos_mmttos: 456,
     id_cliente: 44,
-    descripcion_mantenimiento: 'Mantenimiento ascensor',
+    detalle_mantenimiento: 'Mantenimiento ascensor', // OJO: columna es detalle_mantenimiento, NO descripcion_mantenimiento
     fecha_vencimiento: '2026-03-15',
     estado_actividad: 'sin ejecutar'
 }

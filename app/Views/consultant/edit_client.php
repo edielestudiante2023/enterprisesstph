@@ -352,6 +352,7 @@
         <!-- ═══ FORMULARIO DE EDICIÓN ══════════════════════════════════════ -->
         <div class="form-body">
             <form action="<?= base_url('/updateClient/' . $client['id_cliente']) ?>" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="estado" value="<?= esc($client['estado']) ?>">
 
                 <!-- SECCIÓN 1 — Información Básica -->
                 <div class="section-card">

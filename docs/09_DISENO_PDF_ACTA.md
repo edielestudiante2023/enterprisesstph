@@ -1,41 +1,65 @@
 # 09 - Diseno del PDF Acta de Visita (DOMPDF)
 
-## Estado actual: REQUIERE MEJORAS
+## Estado actual: FUNCIONAL v2 (2026-02-23)
 
-El PDF generado actualmente tiene problemas visuales que lo hacen ver poco profesional. Este documento define el diseno objetivo y las restricciones tecnicas de DOMPDF.
+PDF funcional con logo, secciones numeradas 1-6, margenes ICONTEC, compromisos y registro fotografico. Este documento define el diseno, restricciones tecnicas de DOMPDF y bugs resueltos.
 
 ---
 
-## Problemas detectados (v1 actual)
+## Problemas detectados y resueltos
 
-### 1. Encabezado sin logo
-- Cuando el cliente no tiene logo en `tbl_clientes.logo`, se muestra el nombre en texto plano dentro de la celda. Se ve desproporcional.
-- **Fix aplicado:** La ruta del logo era incorrecta (`FCPATH . $cliente['logo']` → `FCPATH . 'uploads/' . $cliente['logo']`). Clientes con logo ahora lo muestran correctamente.
-- **Pendiente:** Para clientes sin logo, mostrar un placeholder visual (iniciales del cliente o logo generico de Cycloid).
+### 1. Encabezado sin logo - RESUELTO
+- **Bug:** `FCPATH . $cliente['logo']` buscaba en raiz en vez de `uploads/`.
+- **Fix:** `FCPATH . 'uploads/' . $cliente['logo']` + deteccion MIME con `mime_content_type()`.
+- **Pendiente:** Para clientes sin logo, mostrar placeholder (iniciales o logo Cycloid).
 
-### 2. Numeracion de secciones inconsistente
-- Salta de `1. INTEGRANTES` a `TEMAS ABIERTOS` (sin numero) a `2. TEMAS` a `4. OBSERVACIONES` a `5. COMPROMISOS`.
-- Se eliminaron Cartera (seccion 3) y Proxima Reunion pero no se renumeraron las secciones restantes.
+### 2. Numeracion de secciones - RESUELTO
+- **Bug:** Saltaba de 1 a sin-num a 2 a 4 a 5.
+- **Fix:** Renumerado correctamente 1-5 (Integrantes, Temas Abiertos, Temas Tratados, Observaciones, Compromisos).
 
-### 3. Tabla de datos generales sin bordes
-- La tabla MOTIVO/CLIENTE/FECHA no tiene bordes, se ve suelta y desalineada.
-- Las columnas de label (MOTIVO:, CLIENTE:) no tienen ancho fijo consistente.
+### 3. Tabla de datos generales sin bordes - RESUELTO
+- **Fix:** Clase `.info-table` con `border: 1px solid #ccc` y `.info-label` con fondo gris.
 
-### 4. Firmas en tabla de integrantes
-- Las imagenes de firma dentro de la tabla de integrantes son muy grandes.
-- Se desbordan visualmente de las celdas.
+### 4. Firmas en tabla de integrantes - RESUELTO
+- **Fix:** Reducidas a `max-width:70px; max-height:30px` con clase `.firma-inline`.
 
-### 5. Secciones vacias con texto verde
-- "Sin mantenimientos por vencer" en verde se ve fuera de contexto en un documento formal.
-- Mejor: texto gris neutro o simplemente omitir la seccion si esta vacia.
+### 5. Secciones vacias con texto verde - RESUELTO
+- **Fix:** Clase `.empty-text` con `color: #888; font-style: italic`.
 
-### 6. Espaciado general
-- Margenes muy ajustados, el contenido se siente apretado.
-- Falta padding en body.
+### 6. Margenes y espaciado - RESUELTO
+- **Bug critico:** Unidades `cm` en `@page` NO funcionan en DOMPDF 3.0.0 — se rompen los margenes.
+- **Fix:** Usar siempre `px`: `@page { margin: 100px 70px 80px 90px; }` + body `padding: 15px 20px`.
+- Se probaron varias combinaciones; `2.5cm 2cm 2.5cm 3cm` (ICONTEC) rompio todo.
 
-### 7. Firmas al pie
-- Bloque de firmas finales usa `display: inline-block` que DOMPDF soporta con limitaciones.
-- Mejor usar tabla para garantizar alineacion.
+### 7. Firmas al pie - RESUELTO
+- **Fix:** Tabla 3 columnas (`.firma-table`) reemplaza `inline-block`.
+
+### 8. Encabezado con fila vacia - RESUELTO
+- **Bug:** Header tenia 3 filas con una fila vacia innecesaria.
+- **Fix:** Reducido a 2 filas, Codigo+Version unido en una celda.
+
+### 9. PDF cacheado mostrando version vieja - RESUELTO
+- **Bug:** `generatePdf()` servia archivo de disco si ya existia.
+- **Fix:** Siempre regenera el PDF desde el template y lo sirve con headers inline.
+
+### 10. Compromisos no se imprimian - RESUELTO
+- **Causa:** No habia datos de prueba (0 pendientes con `id_acta_visita` asignado).
+- **Fix:** Se insertaron 6 compromisos de prueba (3 por acta) en produccion.
+
+### 11. Fotos no aparecian en el PDF - RESUELTO (2026-02-23)
+
+- **Bug:** `generarPdfInterno()` no incluia fotos en `$data`. Template PDF no tenia seccion de fotos.
+- **Fix:** Se cargan fotos de `tbl_acta_visita_fotos` via `ActaVisitaFotoModel::getByActa()`, se convierten a base64 con `mime_content_type()` + `file_get_contents()`, y se pasan como `'fotos'` en el array `$data`.
+- **Template:** Nueva seccion "6. REGISTRO FOTOGRAFICO" con tabla 3 columnas usando `array_chunk($fotos, 3)`.
+- **CSS:** `.foto-table img { max-width: 180px; max-height: 140px; border: 1px solid #ccc; }`
+
+### 12. Fotos no se veian en vista web (view.php) - RESUELTO (2026-02-23)
+
+- **Bug:** `view.php` no renderizaba las fotos aunque el controlador ya las pasaba.
+- **Fix:** Seccion "REGISTRO FOTOGRAFICO" con grid Bootstrap `row g-2` + `col-4`.
+- Miniaturas con `object-fit:cover; height:100px; cursor:pointer`.
+- Clic abre modal Bootstrap oscuro (`bg-dark`) con imagen completa (`max-height:80vh`).
+- Funcion JS: `openPhoto(src, desc)` crea instancia de `bootstrap.Modal`.
 
 ---
 
@@ -87,6 +111,12 @@ El PDF generado actualmente tiene problemas visuales que lo hacen ver poco profe
 │  │ ACTIVIDAD    │ FECHA CIERRE │ RESPONSABLE  │         │
 │  └──────────────┴──────────────┴──────────────┘         │
 ├─────────────────────────────────────────────────────────┤
+│  6. REGISTRO FOTOGRAFICO                                │
+│  ┌──────────┬──────────┬──────────┐                     │
+│  │ [foto 1] │ [foto 2] │ [foto 3] │                     │
+│  │  desc.   │  desc.   │  desc.   │                     │
+│  └──────────┴──────────┴──────────┘                     │
+├─────────────────────────────────────────────────────────┤
 │  FIRMAS                                                 │
 │                                                         │
 │  _______________  _______________  _______________       │
@@ -99,7 +129,7 @@ El PDF generado actualmente tiene problemas visuales que lo hacen ver poco profe
 
 | Seccion | Antes | Despues |
 |---------|-------|---------|
-| Numeracion | 1, (sin num), 2, 4, 5 | 1, 2, 3, 4, 5 |
+| Numeracion | 1, (sin num), 2, 4, 5 | 1, 2, 3, 4, 5, 6 |
 | Integrantes | Incluye columna FIRMA | Quitar firma de integrantes, mover a seccion final |
 | Integrantes | Nombre + Rol | Nombre + Cargo + Rol (3 columnas) |
 | Pendientes | Actividad, Responsable, Dias | Actividad, Responsable, F.Asignacion, F.Cierre, Dias |
@@ -107,6 +137,7 @@ El PDF generado actualmente tiene problemas visuales que lo hacen ver poco profe
 | Firmas | inline-block divs | Tabla 3 columnas con nombre debajo |
 | Datos generales | Sin bordes | Con bordes completos |
 | Secciones vacias | Texto verde | Texto gris o seccion omitida |
+| Fotos | No incluidas en PDF | Seccion 6 con miniaturas en grid 3 cols |
 
 ---
 
@@ -146,7 +177,16 @@ El PDF generado actualmente tiene problemas visuales que lo hacen ver poco profe
 - `isRemoteEnabled: true` necesario para URLs externas
 - Formato: PNG, JPEG. SVG tiene soporte limitado.
 
+### Unidades CSS en @page (BUG CRITICO DOMPDF 3.0.0)
+
+- **`px` funciona correctamente** — usar siempre `px` para margenes de pagina
+- **`cm` NO funciona** — rompe completamente los margenes (probado 2026-02-22)
+- **`mm`, `in` no probados** — evitar por seguridad
+- Margenes actuales: `@page { margin: 100px 70px 80px 90px; }` (aprox. ICONTEC)
+- Body padding adicional: `padding: 15px 20px;`
+
 ### Tamano de papel
+
 - Usamos `letter` (carta 8.5x11") — consistente con los demas PDFs del sistema
 - Margenes default de DOMPDF: ~1cm por lado
 
@@ -207,6 +247,7 @@ $data = [
     'mantenimientos'     => [],  // tbl_vencimientos_mantenimientos + detalle
     'firmas'             => [],  // ['administrador' => base64, 'vigia' => base64, 'consultor' => base64]
     'logoBase64'         => '',  // Logo del cliente en base64
+    'fotos'              => [],  // [{data: base64, descripcion: str, tipo: str}, ...] desde tbl_acta_visita_fotos
 ];
 ```
 
@@ -226,8 +267,11 @@ Los logos en la BD son solo el filename (ej: `1736474559_f5b66b4b5d9f2f2d36e7.pn
 
 | Archivo | Rol |
 |---------|-----|
-| `app/Views/inspecciones/acta_visita/pdf.php` | Template HTML del PDF |
-| `app/Controllers/Inspecciones/ActaVisitaController.php` | Metodo `generarPdfInterno()` — carga datos, genera PDF |
+| `app/Views/inspecciones/acta_visita/pdf.php` | Template HTML del PDF (secciones 1-6 + firmas) |
+| `app/Views/inspecciones/acta_visita/view.php` | Vista web del acta (galeria fotos con modal ampliar) |
+| `app/Controllers/Inspecciones/ActaVisitaController.php` | Metodo `generarPdfInterno()` — carga datos + fotos base64, genera PDF |
+| `app/Models/ActaVisitaFotoModel.php` | Modelo fotos: `getByActa($id, $tipo)` desde `tbl_acta_visita_fotos` |
 | `public/uploads/` | Carpeta donde estan los logos de clientes |
 | `uploads/inspecciones/firmas/` | Firmas digitales PNG |
+| `uploads/inspecciones/fotos/` | Fotos adjuntas al acta (JPG/PNG) |
 | `uploads/inspecciones/pdfs/` | PDFs generados |

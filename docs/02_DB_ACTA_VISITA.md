@@ -140,10 +140,10 @@ CREATE TABLE tbl_acta_visita_temas (
 `<<Start: [Related tbl_pendientes]>>` — los compromisos **SON** pendientes directamente.
 Columna 42 de AppSheet: `Related tbl_pendientes` (List, `REF_ROWS("tbl_pend...")`).
 
-**NO se crea tabla separada.** Se agrega una columna FK a `tbl_pendientes`:
+**NO se crea tabla separada.** Se agrego la columna FK `id_acta_visita` a `tbl_pendientes` (ya aplicado en produccion).
 
 ```sql
--- Migración: agregar columna id_acta_visita a tbl_pendientes
+-- Migración ya aplicada
 ALTER TABLE tbl_pendientes
     ADD COLUMN id_acta_visita INT NULL DEFAULT NULL
     COMMENT 'FK al acta de visita que generó este pendiente (nullable)',
@@ -153,13 +153,36 @@ ALTER TABLE tbl_pendientes
         ON DELETE SET NULL ON UPDATE CASCADE;
 ```
 
-**Cómo funciona:**
+**IMPORTANTE - Columna `id_acta` (varchar, NOT NULL):**
 
-- Al llenar "Compromisos" en el acta, se insertan filas en `tbl_pendientes` con `id_acta_visita` = id del acta
+La tabla `tbl_pendientes` tiene una columna `id_acta` (varchar 255, NOT NULL, sin default) que es el identificador del acta que genero el pendiente (legacy, usada por el modulo existente de pendientes). Al insertar compromisos desde el Acta de Visita, se debe llenar con un valor como `'AV-{id_acta_visita}'` para evitar error SQL.
+
+Estructura completa de `tbl_pendientes` en produccion (2026-02-22):
+
+| Columna | Tipo | Null | Default |
+|---------|------|------|---------|
+| id_pendientes | int | NO | AUTO_INCREMENT |
+| id_cliente | int | NO | - |
+| id_acta | varchar(255) | NO | - |
+| responsable | varchar(255) | NO | - |
+| tarea_actividad | text | NO | - |
+| fecha_asignacion | datetime | SI | CURRENT_TIMESTAMP |
+| fecha_cierre | date | SI | NULL |
+| estado | enum('ABIERTA','CERRADA','SIN RESPUESTA DEL CLIENTE','CERRADA POR FIN CONTRATO') | NO | ABIERTA |
+| estado_avance | varchar(255) | SI | NULL |
+| evidencia_para_cerrarla | text | SI | NULL |
+| conteo_dias | int | SI | 0 |
+| created_at | datetime | SI | CURRENT_TIMESTAMP |
+| updated_at | datetime | SI | CURRENT_TIMESTAMP |
+| id_acta_visita | int | SI | NULL |
+
+**Como funciona:**
+
+- Al llenar "Compromisos" en el acta, se insertan filas en `tbl_pendientes` con `id_acta_visita` = id del acta y `id_acta` = 'AV-{id}'
 - El PDF lista compromisos con: `SELECT * FROM tbl_pendientes WHERE id_acta_visita = ?`
-- Los pendientes creados desde el acta también aparecen en el módulo de pendientes existente
+- Los pendientes creados desde el acta tambien aparecen en el modulo de pendientes existente
 - Si se borra el acta, `id_acta_visita` se pone NULL (ON DELETE SET NULL), el pendiente sobrevive
-- Campos usados: `tarea_actividad`, `fecha_cierre`, `responsable`, `id_cliente`, `estado` = 'ABIERTA'
+- Campos usados: `tarea_actividad`, `fecha_cierre`, `responsable`, `id_cliente`, `id_acta`, `estado` = 'ABIERTA'
 
 ---
 

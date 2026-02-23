@@ -55,9 +55,9 @@ enterprisesstph/                          (proyecto existente CI4)
 
 ## Inspecciones a Implementar (Roadmap)
 
-| #  | Inspección              | Prioridad | Estado    |
-|----|-------------------------|-----------|-----------|
-| 1  | **Acta de Visita**      | ALTA      | EN DISEÑO |
+| #  | Inspección              | Prioridad | Estado       |
+|----|-------------------------|-----------|--------------|
+| 1  | **Acta de Visita**      | ALTA      | FUNCIONAL v1 |
 | 2  | Señalización            | Media     | Pendiente |
 | 3  | Locativas               | Media     | Pendiente |
 | 4  | Botiquín                | Media     | Pendiente |
@@ -71,11 +71,13 @@ Cada inspección se documenta en su propio archivo (`01_ACTA_DE_VISITA.md`, `04_
 
 ## Decisiones Arquitectónicas
 
-### 1. PWA (Progressive Web App)
-- `manifest.json` con `start_url: "/inspecciones"` y `scope: "/inspecciones/"`
-- Service Worker para cache de assets (CSS, JS, iconos) - **NO cache de datos**
-- Prompt de instalación "Agregar a pantalla de inicio"
-- Layout propio `layout_pwa.php` mobile-first, sin sidebar de admin
+### 1. PWA (Progressive Web App) - IMPLEMENTADO
+- `manifest_inspecciones.json` con `start_url: "/inspecciones"`, `scope: "/"`, `display: standalone`
+- **Scope `/`** (no `/inspecciones/`) para que el SW intercepte login y otras rutas necesarias
+- Service Worker `sw_inspecciones.js`: cache-first para CDN, network-first para paginas locales
+- Iconos PWA en `public/icons/` (192x192 y 512x512) generados desde logo Cycloid
+- Layout propio `layout_pwa.php` mobile-first con `<link rel="manifest">`, `apple-touch-icon` y registro del SW
+- Meta tags iOS: `apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style`, `apple-mobile-web-app-title`
 
 ### 2. Autenticación
 - Mismo login del sistema (`/login`)

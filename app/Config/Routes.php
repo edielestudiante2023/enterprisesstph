@@ -775,6 +775,18 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('acta-visita/finalizar/(:num)', 'ActaVisitaController::finalizar/$1');
     $routes->get('acta-visita/delete/(:num)', 'ActaVisitaController::delete/$1');
 
+    // Inspección Locativa
+    $routes->get('inspeccion-locativa', 'InspeccionLocativaController::list');
+    $routes->get('inspeccion-locativa/create', 'InspeccionLocativaController::create');
+    $routes->get('inspeccion-locativa/create/(:num)', 'InspeccionLocativaController::create/$1');
+    $routes->post('inspeccion-locativa/store', 'InspeccionLocativaController::store');
+    $routes->get('inspeccion-locativa/edit/(:num)', 'InspeccionLocativaController::edit/$1');
+    $routes->post('inspeccion-locativa/update/(:num)', 'InspeccionLocativaController::update/$1');
+    $routes->get('inspeccion-locativa/view/(:num)', 'InspeccionLocativaController::view/$1');
+    $routes->get('inspeccion-locativa/pdf/(:num)', 'InspeccionLocativaController::generatePdf/$1');
+    $routes->post('inspeccion-locativa/finalizar/(:num)', 'InspeccionLocativaController::finalizar/$1');
+    $routes->get('inspeccion-locativa/delete/(:num)', 'InspeccionLocativaController::delete/$1');
+
     // API endpoints AJAX
     $routes->get('api/clientes', 'InspeccionesController::getClientes');
     $routes->get('api/pendientes/(:num)', 'InspeccionesController::getPendientes/$1');

@@ -1,52 +1,82 @@
-# PWA & Layout Móvil - Módulo de Inspecciones
+# PWA & Layout Movil - Modulo de Inspecciones
+
+## Estado: IMPLEMENTADO (2026-02-23)
 
 ---
 
-## 1. Progressive Web App (PWA)
+## 1. Progressive Web App (PWA) - IMPLEMENTADO
 
-### manifest.json
+### manifest_inspecciones.json (en `public/`)
 
 ```json
 {
     "name": "Inspecciones SST - Cycloid",
     "short_name": "Inspecciones",
-    "description": "Módulo de inspecciones de seguridad y salud en el trabajo",
     "start_url": "/inspecciones",
-    "scope": "/inspecciones/",
+    "scope": "/",
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#1c2437",
     "theme_color": "#1c2437",
     "icons": [
-        {
-            "src": "/assets/icons/icon-192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "/assets/icons/icon-512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
+        { "src": "/icons/icon-192.png?v=3", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-192.png?v=3", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+        { "src": "/icons/icon-512.png?v=3", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-512.png?v=3", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
     ]
 }
 ```
 
-### Service Worker (sw_inspecciones.js)
+**Decisiones de implementacion:**
 
-Estrategia: **Cache First** para assets estáticos, **Network First** para datos.
+- **`scope: "/"`** en vez de `"/inspecciones/"` — necesario para que el SW intercepte `/login` y otras rutas del sistema. Si el scope se limita a `/inspecciones/`, el login redirige fuera del scope y la PWA se abre en el navegador.
+- **Iconos en `/icons/`** (no `/assets/icons/`) — carpeta dedicada en `public/icons/`
+- **Purposes separados:** Usar entradas separadas para `"any"` y `"maskable"` — combinar `"any maskable"` en una sola entrada puede causar problemas en algunos launchers.
+- **Cache busting `?v=N`:** Los iconos PWA se cachean agresivamente. Bumpar `?v=N` en manifest, login.php y layout_pwa.php al cambiar iconos.
+- Iconos generados con PHP GD desde `uploads/logoenterprisesstdorado.jpg` (script `generate_icons.php`), logo full-bleed sin fondo blanco.
+
+### Login como PWA (CRITICO)
+
+Chrome detecta la PWA en la pagina visible al momento de "Agregar a pantalla de inicio", NO en la `start_url`. Como el usuario aterriza en `/login` primero, **login.php DEBE tener**:
+
+```html
+<meta name="theme-color" content="#1c2437">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Inspecciones">
+<link rel="manifest" href="/manifest_inspecciones.json?v=3">
+<link rel="apple-touch-icon" href="/icons/icon-192.png?v=3">
+```
+
+Y registro del SW antes de `</body>`:
+
+```html
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw_inspecciones.js', { scope: '/' });
+}
+</script>
+```
+
+Sin esto, la app se abre como pestaña web en vez de standalone.
+
+### Service Worker (sw_inspecciones.js) - IMPLEMENTADO
+
+Estrategia: **Cache First** para CDN assets, **Network First** para paginas locales.
 
 ```javascript
-const CACHE_NAME = 'inspecciones-v1';
-const STATIC_ASSETS = [
+const CACHE_NAME = 'inspecciones-v3';
+const ASSETS_TO_CACHE = [
     '/inspecciones',
-    // Bootstrap CSS CDN
-    // Font Awesome CDN
-    // SweetAlert2 CDN
-    // Iconos propios
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+    'https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css',
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js',
+    'https://cdn.jsdelivr.net/npm/sweetalert2@11',
+    'https://code.jquery.com/jquery-3.7.0.min.js'
 ];
 
-// Cache estáticos al instalar
+// Cache estaticos al instalar
 self.addEventListener('install', event => { ... });
 
 // Network First para API calls, Cache First para assets
@@ -57,19 +87,46 @@ self.addEventListener('fetch', event => { ... });
 
 ### Instalación
 
-El `layout_pwa.php` incluye el banner de instalación:
+El `layout_pwa.php` incluye registro del SW y meta tags de iOS:
+
+```html
+<!-- En <head> -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Inspecciones">
+<link rel="manifest" href="/manifest_inspecciones.json?v=3">
+<link rel="apple-touch-icon" href="/icons/icon-192.png?v=3">
+```
+
+```javascript
+// Antes de </body>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw_inspecciones.js', { scope: '/' })
+            .then(function(reg) {
+                console.log('SW registrado, scope:', reg.scope);
+            })
+            .catch(function(err) {
+                console.log('SW error:', err);
+            });
+    });
+}
+```
+
+**Banner de instalacion (pendiente implementar):**
+
 ```javascript
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    // Mostrar botón "Instalar app"
+    // Mostrar boton "Instalar app"
 });
 ```
 
 ---
 
-## 2. Layout PWA (`layout_pwa.php`)
+## 2. Layout PWA (`layout_pwa.php`) - IMPLEMENTADO
 
 ### Estructura HTML
 
@@ -82,7 +139,9 @@ window.addEventListener('beforeinstallprompt', (e) => {
     <meta name="theme-color" content="#1c2437">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Inspecciones">
     <link rel="manifest" href="/manifest_inspecciones.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
 
     <!-- Bootstrap 5.3 -->
     <!-- Font Awesome 6 -->

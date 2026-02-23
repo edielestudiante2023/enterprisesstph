@@ -304,6 +304,14 @@ El PDF mantiene el mismo formato profesional del actual (FT-SST-007) pero genera
 │  ACTIVIDAD        │ FECHA DE CIERRE │ RESPONSABLE       │
 │  [actividad 1]    │ [fecha]         │ [responsable]     │
 │  ...              │ ...             │ ...               │
+├─── 7. REGISTRO FOTOGRAFICO ────────────────────────────┤
+│  [foto1]  [foto2]  [foto3]                              │
+│   desc.    desc.    desc.                               │
+│  (3 columnas, solo si hay fotos adjuntas)               │
+├─────────────────────────────────────────────────────────┤
+│  FIRMAS                                                 │
+│  _______________  _______________  _______________       │
+│  ADMINISTRADOR    VIGIA SST        CONSULTOR            │
 └─────────────────────────────────────────────────────────┘
 ```
 
