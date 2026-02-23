@@ -95,13 +95,26 @@
     <!-- TEXTO INTRODUCTORIO -->
     <div class="section-title">INTRODUCCION</div>
     <p class="intro-text">
-        Las inspecciones de condiciones locativas son una herramienta fundamental dentro del Sistema de Gestion de Seguridad y Salud en el Trabajo (SG-SST), cuyo objetivo es identificar, evaluar y controlar los riesgos asociados al estado fisico de las instalaciones, estructuras, pisos, techos, escaleras, areas comunes y demas elementos que conforman el entorno de trabajo.
+        Las inspecciones locativas en el ambito de la propiedad horizontal desempenan un papel critico en la gestion integral de la seguridad y la salud en el trabajo (SST), asi como en la proteccion del bienestar de todos los residentes y proveedores que interactuan con estas instalaciones. Cycloid Talent SAS, como experto en la gestion de talento y SST, destaca la importancia de estas inspecciones como una herramienta fundamental para mantener la seguridad de todos los actores involucrados. Estas inspecciones permiten una identificacion proactiva y una mitigacion oportuna de riesgos que, si no son gestionados adecuadamente, podrian derivar en incidentes que comprometan tanto la integridad fisica de las personas como la infraestructura misma.
     </p>
     <p class="intro-text">
-        Estas inspecciones permiten detectar de manera oportuna condiciones subestandar que puedan generar accidentes de trabajo o enfermedades laborales, tales como pisos en mal estado, grietas en paredes o techos, falta de señalizacion, iluminacion deficiente, obstruccion de rutas de evacuacion, entre otros factores que afectan la seguridad de los trabajadores, residentes y visitantes.
+        El analisis sistematico de los elementos estructurales y operativos de las propiedades horizontales facilita la adopcion de estrategias preventivas que minimicen el impacto de posibles peligros, convirtiendo a las inspecciones en un componente esencial de la gestion de riesgos y en un requisito indispensable para la sostenibilidad del entorno construido. Ademas, este proceso contribuye a la mejora continua del ambiente laboral, impulsando la implementacion de practicas seguras y garantizando el cumplimiento de las normativas vigentes en materia de SST, lo cual es crucial para la reduccion de accidentes y enfermedades laborales.
+    </p>
+
+    <div class="section-title">IDENTIFICACION DE RIESGOS COMUNES</div>
+    <p class="intro-text">
+        La identificacion de riesgos en la propiedad horizontal revela una amplia variedad de peligros que requieren una intervencion rigurosa y tecnica. Entre los hallazgos mas frecuentes se encuentran pisos rotos, cables electricos sueltos, vidrios peligrosos, y otros elementos que se encuentran deteriorados o mal instalados. Estos elementos constituyen amenazas significativas para la seguridad de residentes y trabajadores. Cycloid Talent SAS hace enfasis en la importancia de abordar estos riesgos de manera estructurada y tecnica, con el fin de garantizar la seguridad integral de todas las personas que habitan o trabajan en la propiedad.
+    </p>
+
+    <div class="section-title">ENFOQUE PREVENTIVO EN SST</div>
+    <p class="intro-text">
+        Desde la perspectiva de la gestion en SST, resulta fundamental adoptar un enfoque preventivo, con inspecciones regulares y sistematicas orientadas a la identificacion, evaluacion y control de riesgos antes de que estos se materialicen en danos. Dichas inspecciones deben llevarse a cabo mediante una metodologia rigurosa que permita no solo el levantamiento detallado de los riesgos presentes, sino tambien la priorizacion de estos en funcion de su severidad y probabilidad de ocurrencia. Ademas, es esencial involucrar a personal capacitado en la realizacion de estas inspecciones, lo cual garantiza un analisis tecnico adecuado y recomendaciones precisas para la mitigacion de riesgos.
     </p>
     <p class="intro-text">
-        La realizacion periodica de estas inspecciones es un requisito establecido en la normatividad colombiana vigente, en particular en el Decreto 1072 de 2015 y la Resolucion 0312 de 2019, que establecen la obligacion de implementar acciones de identificacion de peligros, evaluacion y valoracion de riesgos, asi como la adopcion de medidas preventivas y correctivas.
+        La implementacion de medidas correctivas debe incluir la reparacion inmediata de elementos deteriorados, la senalizacion adecuada de areas peligrosas, y la ejecucion de acciones de mantenimiento preventivo que garanticen la funcionalidad y seguridad de las instalaciones. Estas acciones preventivas no solo aseguran el bienestar de los residentes y proveedores, sino que tambien contribuyen a la optimizacion de los recursos al reducir costos asociados a indemnizaciones, responsabilidades legales, y deterioro de la reputacion de la administracion.
+    </p>
+    <p class="intro-text">
+        El enfoque preventivo en SST tambien implica la capacitacion continua de los trabajadores y la sensibilizacion de los residentes en temas de seguridad. La formacion en el reconocimiento de riesgos y en el reporte oportuno de condiciones peligrosas es una herramienta poderosa para la prevencion de accidentes. La educacion de los residentes y el personal de servicio respecto a practicas seguras no solo mejora la capacidad de respuesta ante emergencias, sino que tambien fomenta una actitud proactiva hacia la seguridad, haciendo de cada individuo un agente activo en la prevencion de riesgos.
     </p>
 
     <!-- HALLAZGOS -->
