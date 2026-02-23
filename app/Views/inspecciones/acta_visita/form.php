@@ -236,8 +236,15 @@ $action = $isEdit ? '/inspecciones/acta-visita/update/' . $acta['id'] : '/inspec
                         <?php endif; ?>
 
                         <label class="form-label">Agregar fotos</label>
-                        <input type="file" name="fotos[]" class="form-control" accept="image/*" multiple>
-                        <small class="text-muted">Puedes tomar fotos con la camara o seleccionar de la galeria</small>
+                        <div class="photo-input-group">
+                            <input type="file" name="fotos[]" class="file-preview" accept="image/*" multiple style="display:none;">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera"><i class="fas fa-camera"></i> Camara</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Galeria</button>
+                            </div>
+                            <div class="preview-img mt-1"></div>
+                        </div>
+                        <small class="text-muted">Usa Camara para tomar foto o Galeria para seleccionar existentes</small>
                     </div>
                 </div>
             </div>
@@ -593,6 +600,47 @@ document.addEventListener('DOMContentLoaded', function() {
     // Limpiar localStorage al enviar formulario exitosamente
     document.getElementById('actaForm').addEventListener('submit', function() {
         localStorage.removeItem(STORAGE_KEY);
+    });
+
+    // --- Botones Camara / Galeria ---
+    document.addEventListener('click', function(e) {
+        const cameraBtn = e.target.closest('.btn-photo-camera');
+        const galleryBtn = e.target.closest('.btn-photo-gallery');
+        if (!cameraBtn && !galleryBtn) return;
+
+        const group = (cameraBtn || galleryBtn).closest('.photo-input-group');
+        const input = group.querySelector('input[type="file"]');
+
+        if (cameraBtn) {
+            input.setAttribute('capture', 'environment');
+        } else {
+            input.removeAttribute('capture');
+        }
+        input.click();
+    });
+
+    // --- Preview de fotos al seleccionar/tomar ---
+    document.addEventListener('change', function(e) {
+        if (!e.target.classList.contains('file-preview')) return;
+        const input = e.target;
+        const group = input.closest('.photo-input-group');
+        const previewDiv = group ? group.querySelector('.preview-img') : null;
+        if (!previewDiv) return;
+
+        previewDiv.innerHTML = '';
+        if (input.files && input.files[0]) {
+            // Para inputs multiple, mostrar conteo
+            if (input.files.length > 1) {
+                previewDiv.innerHTML = '<div style="font-size:11px; color:#28a745; margin-top:2px;"><i class="fas fa-check-circle"></i> ' + input.files.length + ' fotos seleccionadas</div>';
+            } else {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    previewDiv.innerHTML = '<img src="' + ev.target.result + '" class="img-fluid rounded" style="max-height:80px; object-fit:cover; cursor:pointer; border:2px solid #28a745;">' +
+                        '<div style="font-size:11px; color:#28a745; margin-top:2px;"><i class="fas fa-check-circle"></i> Foto lista</div>';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
     });
 });
 </script>
