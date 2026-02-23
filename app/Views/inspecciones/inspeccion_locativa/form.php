@@ -141,6 +141,11 @@ $action = $isEdit ? '/inspecciones/inspeccion-locativa/update/' . $inspeccion['i
 
         </div><!-- /accordion -->
 
+        <!-- Indicador autoguardado -->
+        <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;">
+            <i class="fas fa-cloud"></i> Autoguardado activado
+        </div>
+
         <!-- Botones de accion -->
         <div class="mt-3 mb-4">
             <button type="submit" class="btn btn-pwa btn-pwa-outline">
@@ -187,6 +192,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 select.appendChild(opt);
             });
             $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
+
+            // Restaurar cliente desde autoguardado si aplica
+            if (window._pendingClientRestore) {
+                $('#selectCliente').val(window._pendingClientRestore).trigger('change');
+                window._pendingClientRestore = null;
+            }
         }
     });
 
@@ -322,6 +333,155 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('locativaForm').submit();
             }
         });
+    });
+
+    // ============================================================
+    // AUTOGUARDADO EN LOCALSTORAGE
+    // ============================================================
+    const STORAGE_KEY = 'locativa_draft_<?= $inspeccion['id'] ?? 'new' ?>';
+    const isEdit = <?= $isEdit ? 'true' : 'false' ?>;
+
+    function collectFormData() {
+        const data = {};
+        data.id_cliente = document.getElementById('selectCliente').value;
+        data.fecha_inspeccion = document.querySelector('[name="fecha_inspeccion"]').value;
+        data.observaciones = document.querySelector('[name="observaciones"]').value;
+
+        // Hallazgos (solo texto, no fotos)
+        data.hallazgos = [];
+        document.querySelectorAll('.hallazgo-row').forEach(row => {
+            const desc = row.querySelector('[name="hallazgo_descripcion[]"]').value;
+            const estado = row.querySelector('[name="hallazgo_estado[]"]').value;
+            const obs = row.querySelector('[name="hallazgo_observaciones[]"]').value;
+            const hId = row.querySelector('[name="hallazgo_id[]"]').value;
+            if (desc) data.hallazgos.push({ id: hId, descripcion: desc, estado, observaciones: obs });
+        });
+
+        data._savedAt = new Date().toISOString();
+        return data;
+    }
+
+    function saveToLocal() {
+        try {
+            const data = collectFormData();
+            if (data.id_cliente || data.hallazgos.length) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                document.getElementById('autoSaveStatus').innerHTML =
+                    '<i class="fas fa-check-circle text-success"></i> Guardado ' + new Date().toLocaleTimeString();
+            }
+        } catch(e) { /* localStorage lleno o no disponible */ }
+    }
+
+    function restoreFromLocal(data) {
+        if (data.id_cliente) {
+            window._pendingClientRestore = data.id_cliente;
+        }
+        if (data.fecha_inspeccion) document.querySelector('[name="fecha_inspeccion"]').value = data.fecha_inspeccion;
+        if (data.observaciones) document.querySelector('[name="observaciones"]').value = data.observaciones;
+
+        // Restaurar hallazgos
+        (data.hallazgos || []).forEach(h => {
+            const num = document.querySelectorAll('.hallazgo-row').length + 1;
+            const html = `
+                <div class="card mb-3 hallazgo-row">
+                    <div class="card-body p-2">
+                        <input type="hidden" name="hallazgo_id[]" value="${(h.id||'').replace(/"/g,'&quot;')}">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong style="font-size:13px;">Hallazgo #<span class="hallazgo-num">${num}</span></strong>
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-hallazgo" style="min-height:32px;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mb-2">
+                            <textarea name="hallazgo_descripcion[]" class="form-control" rows="2" placeholder="Descripcion del hallazgo" required>${(h.descripcion||'').replace(/</g,'&lt;')}</textarea>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label" style="font-size:12px;">Foto hallazgo</label>
+                                <input type="file" name="hallazgo_imagen[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                                <div class="preview-img mt-1"></div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" style="font-size:12px;">Foto correccion</label>
+                                <input type="file" name="hallazgo_correccion[]" class="form-control form-control-sm file-preview" accept="image/*" capture="environment">
+                                <div class="preview-img mt-1"></div>
+                            </div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label" style="font-size:12px;">Estado</label>
+                                <select name="hallazgo_estado[]" class="form-select form-select-sm">
+                                    <option value="ABIERTO">ABIERTO</option>
+                                    <option value="CERRADO">CERRADO</option>
+                                    <option value="TIEMPO EXCEDIDO SIN RESPUESTA">TIEMPO EXCEDIDO</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" style="font-size:12px;">Observaciones</label>
+                                <input type="text" name="hallazgo_observaciones[]" class="form-control form-control-sm" placeholder="Obs..." value="${(h.observaciones||'').replace(/"/g,'&quot;')}">
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('hallazgosContainer').insertAdjacentHTML('beforeend', html);
+            // Restaurar estado del select
+            if (h.estado) {
+                const rows = document.querySelectorAll('.hallazgo-row');
+                const lastRow = rows[rows.length - 1];
+                lastRow.querySelector('[name="hallazgo_estado[]"]').value = h.estado;
+            }
+        });
+
+        updateHallazgos();
+    }
+
+    // Verificar borrador guardado (solo en creacion nueva)
+    if (!isEdit) {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                const savedTime = new Date(data._savedAt);
+                const hoursAgo = ((Date.now() - savedTime.getTime()) / 3600000).toFixed(1);
+
+                if (hoursAgo < 24) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Borrador recuperado',
+                        html: 'Tienes un borrador guardado hace <strong>' + hoursAgo + ' horas</strong>.<br>Deseas restaurarlo?',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, restaurar',
+                        cancelButtonText: 'No, empezar de cero',
+                        confirmButtonColor: '#bd9751',
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            restoreFromLocal(data);
+                        } else {
+                            localStorage.removeItem(STORAGE_KEY);
+                        }
+                    });
+                } else {
+                    localStorage.removeItem(STORAGE_KEY);
+                }
+            }
+        } catch(e) {}
+    }
+
+    // Auto-guardar cada 30 segundos
+    setInterval(saveToLocal, 30000);
+
+    // Guardar al cambiar cualquier campo (debounce 2s)
+    document.getElementById('locativaForm').addEventListener('input', function() {
+        clearTimeout(window._autoSaveTimeout);
+        window._autoSaveTimeout = setTimeout(saveToLocal, 2000);
+    });
+    $('#selectCliente').on('change', function() {
+        setTimeout(saveToLocal, 500);
+    });
+
+    // Limpiar localStorage al enviar formulario
+    document.getElementById('locativaForm').addEventListener('submit', function() {
+        localStorage.removeItem(STORAGE_KEY);
     });
 });
 </script>
