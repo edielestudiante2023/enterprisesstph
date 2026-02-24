@@ -901,6 +901,19 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('matriz-vulnerabilidad/finalizar/(:num)', 'MatrizVulnerabilidadController::finalizar/$1');
     $routes->get('matriz-vulnerabilidad/delete/(:num)', 'MatrizVulnerabilidadController::delete/$1');
 
+    // Plan de Emergencia
+    $routes->get('plan-emergencia', 'PlanEmergenciaController::list');
+    $routes->get('plan-emergencia/create', 'PlanEmergenciaController::create');
+    $routes->get('plan-emergencia/create/(:num)', 'PlanEmergenciaController::create/$1');
+    $routes->post('plan-emergencia/store', 'PlanEmergenciaController::store');
+    $routes->get('plan-emergencia/edit/(:num)', 'PlanEmergenciaController::edit/$1');
+    $routes->post('plan-emergencia/update/(:num)', 'PlanEmergenciaController::update/$1');
+    $routes->get('plan-emergencia/view/(:num)', 'PlanEmergenciaController::view/$1');
+    $routes->get('plan-emergencia/pdf/(:num)', 'PlanEmergenciaController::generatePdf/$1');
+    $routes->post('plan-emergencia/finalizar/(:num)', 'PlanEmergenciaController::finalizar/$1');
+    $routes->get('plan-emergencia/delete/(:num)', 'PlanEmergenciaController::delete/$1');
+    $routes->get('plan-emergencia/check-inspecciones/(:num)', 'PlanEmergenciaController::checkInspeccionesCompletas/$1');
+
     // Gestión de Pendientes (compromisos)
     $routes->get('pendientes', 'PendientesPwaController::list');
     $routes->get('pendientes/cliente/(:num)', 'PendientesPwaController::list/$1');

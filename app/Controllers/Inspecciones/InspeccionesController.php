@@ -17,6 +17,7 @@ use App\Models\ClientModel;
 use App\Models\PendientesModel;
 use App\Models\VencimientosMantenimientoModel;
 use App\Models\CartaVigiaModel;
+use App\Models\PlanEmergenciaModel;
 
 class InspeccionesController extends BaseController
 {
@@ -174,6 +175,19 @@ class InspeccionesController extends BaseController
             $pendientesMatrizVul = $matrizVulModel->getPendientesByConsultor($userId);
         }
 
+        // Conteo de plan emergencia completas
+        $planEmgModel = new PlanEmergenciaModel();
+        $totalPlanEmergencia = $planEmgModel->where('id_consultor', $userId)
+            ->where('estado', 'completo')
+            ->countAllResults();
+
+        // Pendientes de plan emergencia (borradores)
+        if ($role === 'admin') {
+            $pendientesPlanEmg = $planEmgModel->getAllPendientes();
+        } else {
+            $pendientesPlanEmg = $planEmgModel->getPendientesByConsultor($userId);
+        }
+
         // Conteo de vencimientos de mantenimiento sin ejecutar
         $vencimientoModel = new VencimientosMantenimientoModel();
         $vencBuilder = $vencimientoModel->where('estado_actividad', 'sin ejecutar');
@@ -211,6 +225,7 @@ class InspeccionesController extends BaseController
             'pendientesRecursosSeg' => $pendientesRecursosSeg,
             'pendientesProbPeligros' => $pendientesProbPeligros,
             'pendientesMatrizVul' => $pendientesMatrizVul,
+            'pendientesPlanEmg' => $pendientesPlanEmg,
             'totalActas'       => $totalActas,
             'totalLocativas'   => $totalLocativas,
             'totalSenalizacion' => $totalSenalizacion,
@@ -221,6 +236,7 @@ class InspeccionesController extends BaseController
             'totalRecursosSeg' => $totalRecursosSeg,
             'totalProbPeligros' => $totalProbPeligros,
             'totalMatrizVul'   => $totalMatrizVul,
+            'totalPlanEmergencia' => $totalPlanEmergencia,
             'totalVencimientos' => $totalVencimientos,
             'totalPendientesAbiertos' => $totalPendientesAbiertos,
             'totalCartasVigiaPend' => $totalCartasVigiaPend,

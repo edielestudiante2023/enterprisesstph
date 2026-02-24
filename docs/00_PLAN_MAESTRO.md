@@ -20,7 +20,13 @@ enterprisesstph/                          (proyecto existente CI4)
 │   │   │   ├── InspeccionLocativaController.php  (CRUD inspección locativa)
 │   │   │   ├── InspeccionSenalizacionController.php (37 ítems fijos, calificación)
 │   │   │   ├── InspeccionExtintoresController.php   (N extintores dinámico, 12 criterios)
-│   │   │   └── InspeccionBotiquinController.php     (32 elementos fijos, cantidades)
+│   │   │   ├── InspeccionBotiquinController.php     (32 elementos fijos, cantidades)
+│   │   │   ├── InspeccionGabineteController.php     (N gabinetes dinámico, 12 criterios)
+│   │   │   ├── InspeccionComunicacionController.php (equipos comunicaciones, plano)
+│   │   │   ├── InspeccionRecursosSeguridadController.php (recursos seguridad, plano)
+│   │   │   ├── ProbabilidadPeligrosController.php   (probabilidad ocurrencia, 11 peligros)
+│   │   │   ├── MatrizVulnerabilidadController.php   (25 criterios A/B/C, score 0-100)
+│   │   │   └── PlanEmergenciaController.php         (doc maestro, ~80 cols, 19 fotos, consolida todo)
 │   │   └── ClientInspeccionesController.php (portal cliente: vista read-only de inspecciones)
 │   ├── Views/
 │   │   ├── inspecciones/                    (vistas consultor - PWA)
@@ -30,7 +36,13 @@ enterprisesstph/                          (proyecto existente CI4)
 │   │   │   ├── inspeccion_locativa/            (list, form, view, pdf)
 │   │   │   ├── senalizacion/                   (list, form, view, pdf)
 │   │   │   ├── extintores/                     (list, form, view, pdf)
-│   │   │   └── botiquin/                       (list, form, view, pdf)
+│   │   │   ├── botiquin/                       (list, form, view, pdf)
+│   │   │   ├── gabinetes/                      (list, form, view, pdf)
+│   │   │   ├── comunicaciones/                 (list, form, view, pdf)
+│   │   │   ├── recursos-seguridad/             (list, form, view, pdf)
+│   │   │   ├── probabilidad-peligros/          (list, form, view, pdf)
+│   │   │   ├── matriz-vulnerabilidad/          (list, form, view, pdf)
+│   │   │   └── plan-emergencia/                (list, form, view, pdf — doc maestro)
 │   │   └── client/inspecciones/             (vistas cliente - portal read-only)
 │   │       ├── dashboard.php                   (hub con cards por tipo)
 │   │       ├── actas/, locativas/, senalizacion/, extintores/, botiquin/
@@ -39,8 +51,14 @@ enterprisesstph/                          (proyecto existente CI4)
 │   │   ├── ActaVisitaModel.php, ActaVisitaIntegranteModel.php, ActaVisitaTemaModel.php
 │   │   ├── InspeccionLocativaModel.php, HallazgoLocativoModel.php
 │   │   ├── InspeccionSenalizacionModel.php
-│   │   ├── InspeccionExtintoresModel.php
-│   │   └── InspeccionBotiquinModel.php, ElementoBotiquinModel.php
+│   │   ├── InspeccionExtintoresModel.php, ExtintorDetalleModel.php
+│   │   ├── InspeccionBotiquinModel.php, ElementoBotiquinModel.php
+│   │   ├── InspeccionGabineteModel.php, GabineteDetalleModel.php
+│   │   ├── InspeccionComunicacionModel.php
+│   │   ├── InspeccionRecursosSeguridadModel.php
+│   │   ├── ProbabilidadPeligrosModel.php
+│   │   ├── MatrizVulnerabilidadModel.php
+│   │   └── PlanEmergenciaModel.php
 │   └── Config/
 │       └── Routes.php                    (grupos /inspecciones/* y /client/inspecciones/*)
 ├── public/
@@ -52,8 +70,14 @@ enterprisesstph/                          (proyecto existente CI4)
 │           ├── fotos/                        (fotos actas de visita)
 │           ├── locativas/hallazgos/          (fotos hallazgos locativos)
 │           ├── senalizacion/                 (PDFs señalización)
-│           ├── extintores/                   (PDFs extintores)
+│           ├── extintores/                   (fotos + PDFs extintores)
 │           ├── botiquin/                     (PDFs botiquín)
+│           ├── gabinetes/                    (fotos + PDFs gabinetes)
+│           ├── comunicaciones/               (fotos + PDFs comunicaciones)
+│           ├── recursos-seguridad/           (fotos + PDFs recursos seguridad)
+│           ├── probabilidad-peligros/        (PDFs probabilidad peligros)
+│           ├── matriz-vulnerabilidad/        (PDFs matriz vulnerabilidad)
+│           ├── plan-emergencia/              (19 fotos + PDFs plan emergencia)
 │           └── pdfs/                         (PDFs actas de visita + locativas)
 ```
 
@@ -61,18 +85,19 @@ enterprisesstph/                          (proyecto existente CI4)
 
 ## Inspecciones a Implementar (Roadmap)
 
-| #  | Inspección              | Prioridad | Estado              | id_detailreport |
-|----|-------------------------|-----------|---------------------|-----------------|
-| 1  | **Acta de Visita**      | ALTA      | FUNCIONAL v2        | 9               |
-| 2  | **Inspección Locativa** | ALTA      | FUNCIONAL           | 10              |
-| 3  | **Señalización**        | ALTA      | FUNCIONAL           | 11              |
-| 4  | **Extintores**          | ALTA      | FUNCIONAL           | 12              |
-| 5  | **Botiquín**            | ALTA      | FUNCIONAL           | 13              |
-| 6  | Gabinetes               | Media     | Pendiente           | —               |
-| 7  | Comunicaciones          | Media     | Pendiente           | —               |
-| 8  | Recursos de Seguridad   | Media     | Pendiente           | —               |
-| 9  | Matriz Vulnerabilidad   | Media     | Pendiente           | —               |
-| 10 | **Plan de Emergencia**  | Baja      | Pendiente (doc maestro) | —           |
+| # | Inspección | Patron | Estado | id_detailreport |
+|---|------------|--------|--------|-----------------|
+| 1 | **Acta de Visita** | Especial (firmas) | FUNCIONAL v2 | 9 |
+| 2 | **Inspección Locativa** | N-Items (hallazgos) | FUNCIONAL | 10 |
+| 3 | **Señalización** | N-Items fijos | FUNCIONAL | 11 |
+| 4 | **Extintores** | N-Items dinámico | FUNCIONAL | 12 |
+| 5 | **Botiquín** | Plana | FUNCIONAL | 13 |
+| 6 | **Gabinetes** | N-Items dinámico | FUNCIONAL | 14 |
+| 7 | **Comunicaciones** | Plana | FUNCIONAL | 15 |
+| 8 | **Recursos de Seguridad** | Plana | FUNCIONAL | 16 |
+| 9 | **Probabilidad Peligros** | Plana (ENUMs) | FUNCIONAL | 17 |
+| 10 | **Matriz Vulnerabilidad** | Plana (ENUMs) | FUNCIONAL | 18 |
+| 11 | **Plan de Emergencia** | Doc Maestro | FUNCIONAL | 19 |
 
 **Portal cliente:** `ClientInspeccionesController` ofrece vista read-only de todas las inspecciones completadas por módulo, accesible desde `/client/inspecciones/`.
 
@@ -128,11 +153,17 @@ $routes->group('inspecciones', ['filter' => 'auth', 'namespace' => 'App\Controll
     $routes->get('/', 'InspeccionesController::dashboard');
 
     // Cada módulo tiene: list, create, store, edit, update, view, generatePdf, finalizar, delete
-    // Acta de Visita: /inspecciones/acta-visita/*
-    // Locativa:       /inspecciones/inspeccion-locativa/*
-    // Señalización:   /inspecciones/senalizacion/*
-    // Extintores:     /inspecciones/extintores/*
-    // Botiquín:       /inspecciones/botiquin/*
+    // Acta de Visita:         /inspecciones/acta-visita/*
+    // Locativa:               /inspecciones/inspeccion-locativa/*
+    // Señalización:           /inspecciones/senalizacion/*
+    // Extintores:             /inspecciones/extintores/*
+    // Botiquín:               /inspecciones/botiquin/*
+    // Gabinetes:              /inspecciones/gabinetes/*
+    // Comunicaciones:         /inspecciones/comunicaciones/*
+    // Recursos Seguridad:     /inspecciones/recursos-seguridad/*
+    // Probabilidad Peligros:  /inspecciones/probabilidad-peligros/*
+    // Matriz Vulnerabilidad:  /inspecciones/matriz-vulnerabilidad/*
+    // Plan de Emergencia:     /inspecciones/plan-emergencia/*
 
     // API endpoints AJAX
     $routes->get('api/clientes', 'InspeccionesController::getClientes');
@@ -166,16 +197,26 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
 
 ## Documentos Relacionados
 
-### Implementados
+### Inspecciones y Modulos
 
 - [01_ACTA_DE_VISITA.md](./01_ACTA_DE_VISITA.md) - Especificacion completa del Acta de Visita
 - [02_DB_ACTA_VISITA.md](./02_DB_ACTA_VISITA.md) - Diseno de base de datos
+- [10_INSPECCION_LOCATIVA.md](./10_INSPECCION_LOCATIVA.md) - Inspeccion locativa (hallazgos con fotos)
+- [14_PLAN_EMERGENCIA.md](./14_PLAN_EMERGENCIA.md) - Plan de Emergencia (doc maestro, ~80 cols, 19 fotos, 8 ENUMs)
+
+### Patrones Reutilizables
+
+- [12_PATRON_INSPECCION_PLANA.md](./12_PATRON_INSPECCION_PLANA.md) - Patron: 1 tabla, campos fijos (Botiquin, Comunicaciones, Recursos, Prob. Peligros, Matriz Vuln.)
+- [13_PATRON_INSPECCION_NITEMS.md](./13_PATRON_INSPECCION_NITEMS.md) - Patron: master+detalle, filas dinamicas (Extintores, Gabinetes)
+- [15_PATRON_DOCUMENTO_MAESTRO.md](./15_PATRON_DOCUMENTO_MAESTRO.md) - Patron: doc consolidado que jala datos de TODAS las inspecciones (Plan Emergencia)
+
+### Estrategias Tecnicas
+
 - [03_PWA_LAYOUT.md](./03_PWA_LAYOUT.md) - Diseno del layout PWA y flujo mobile
 - [04_ESTRATEGIA_FIRMAS.md](./04_ESTRATEGIA_FIRMAS.md) - Canvas, almacenamiento y flujo presencial de firmas
 - [07_ESTRATEGIA_PDF_UPLOAD.md](./07_ESTRATEGIA_PDF_UPLOAD.md) - Auto-cargue de PDF a tbl_reporte, reemplazo del pipeline n8n
 - [08_ESTRATEGIA_AUTOGUARDADO.md](./08_ESTRATEGIA_AUTOGUARDADO.md) - localStorage para recuperar formularios ante perdida de sesion
 - [09_DISENO_PDF_ACTA.md](./09_DISENO_PDF_ACTA.md) - Diseno del PDF, restricciones DOMPDF, problemas conocidos
-- [10_INSPECCION_LOCATIVA.md](./10_INSPECCION_LOCATIVA.md) - Inspeccion locativa (hallazgos con fotos)
 - [11_INPUT_FILE_CAMARA_GALERIA.md](./11_INPUT_FILE_CAMARA_GALERIA.md) - Patron dos botones Camara/Galeria para inputs de foto
 
 ### Pendientes de implementacion (diseno futuro)

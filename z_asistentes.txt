@@ -1,0 +1,138 @@
+Tema:     <<[TEMA]>> 
+Lugar:  <<[LUGAR]>>
+Fecha: <<[FECHA]>> 
+Objetivo: <<[OBJETIVO]>>
+Material: <<[MATERIAL]>>   
+Tipo:   <<[TIPO DE CHARLA]>>                                                
+Tiempo en Horas: <<[TIEMPO]>>   
+Capacitador: <<[CAPACITADOR]>>   
+
+
+NOMBRE
+CEDULA
+CARGO
+FIRMA
+
+
+<<[NOMBRE1]>>
+ <<[CEDULA1]>>
+ <<[CARGO1]>>
+<<[FIRMA1]>>
+<<[NOMBRE2]>>
+ <<[CEDULA2]>>
+ <<[CARGO2]>>
+<<[FIRMA2]>>
+<<[NOMBRE3]>>
+ <<[CEDULA3]>>
+ <<[CARGO3]>>
+<<[FIRMA3]>>
+<<[NOMBRE4]>>
+ <<[CEDULA4]>>
+ <<[CARGO4]>>
+<<[FIRMA4]>>
+<<[NOMBRE5]>>
+ <<[CEDULA5]>>
+ <<[CARGO5]>>
+<<[FIRMA5]>>
+<<[NOMBRE6]>>
+ <<[CEDULA6]>>
+ <<[CARGO6]>>
+<<[FIRMA6]>>
+<<[NOMBRE7]>>
+ <<[CEDULA7]>>
+ <<[CARGO7]>>
+<<[FIRMA7]>>
+<<[NOMBRE8]>>
+ <<[CEDULA8]>>
+ <<[CARGO8]>>
+<<[FIRMA8]>>
+<<[NOMBRE9]>>
+ <<[CEDULA9]>>
+ <<[CARGO9]>>
+<<[FIRMA9]>>
+<<[NOMBRE10]>>
+ <<[CEDULA10]>>
+ <<[CARGO10]>>
+<<[FIRMA10]>>
+<<[NOMBRE11]>>
+ <<[CEDULA11]>>
+ <<[CARGO11]>>
+<<[FIRMA11]>>
+<<[NOMBRE12]>>
+ <<[CEDULA12]>>
+ <<[CARGO12]>>
+<<[FIRMA12]>>
+<<[NOMBRE13]>>
+ <<[CEDULA13]>>
+ <<[CARGO13]>>
+<<[FIRMA13]>>
+<<[NOMBRE14]>>
+ <<[CEDULA14]>>
+ <<[CARGO14]>>
+<<[FIRMA14]>>
+<<[NOMBRE15]>>
+ <<[CEDULA15]>>
+ <<[CARGO15]>>
+<<[FIRMA15]>>
+<<[NOMBRE16]>>
+ <<[CEDULA16]>>
+ <<[CARGO16]>>
+<<[FIRMA16]>>
+<<[NOMBRE17]>>
+ <<[CEDULA17]>>
+ <<[CARGO17]>>
+<<[FIRMA17]>>
+<<[NOMBRE18]>>
+ <<[CEDULA18]>>
+ <<[CARGO18]>>
+<<[FIRMA18]>>
+<<[NOMBRE19]>>
+ <<[CEDULA19]>>
+ <<[CARGO19]>>
+<<[FIRMA19]>>
+<<[NOMBRE20]>>
+ <<[CEDULA20]>>
+ <<[CARGO20]>>
+<<[FIRMA20]>>
+<<[NOMBRE21]>>
+ <<[CEDULA21]>>
+ <<[CARGO21]>>
+<<[FIRMA21]>>
+<<[NOMBRE22]>>
+ <<[CEDULA22]>>
+ <<[CARGO22]>>
+<<[FIRMA22]>>
+<<[NOMBRE23]>>
+ <<[CEDULA23]>>
+ <<[CARGO23]>>
+<<[FIRMA23]>>
+<<[NOMBRE24]>>
+ <<[CEDULA24]>>
+ <<[CARGO24]>>
+<<[FIRMA24]>>
+<<[NOMBRE25]>>
+ <<[CEDULA25]>>
+ <<[CARGO25]>>
+<<[FIRMA25]>>
+<<[NOMBRE26]>>
+ <<[CEDULA26]>>
+ <<[CARGO26]>>
+<<[FIRMA26]>>
+<<[NOMBRE27]>>
+ <<[CEDULA27]>>
+ <<[CARGO27]>>
+<<[FIRMA27]>>
+<<[NOMBRE28]>>
+ <<[CEDULA28]>>
+ <<[CARGO28]>>
+<<[FIRMA28]>>
+<<[NOMBRE29]>>
+ <<[CEDULA29]>>
+ <<[CARGO29]>>
+<<[FIRMA29]>>
+<<[NOMBRE30]>>
+ <<[CEDULA30]>>
+ <<[CARGO30]>>
+<<[FIRMA30]>>
+
+

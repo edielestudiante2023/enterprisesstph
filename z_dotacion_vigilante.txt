@@ -1,0 +1,90 @@
+Reporte de Inspección de Dotaciones 
+Introducción
+Cycloid Talent, como empresa comprometida con la seguridad y bienestar de sus colaboradores, establece el presente marco teórico como base fundamental para la realización de inspecciones de dotaciones de seguridad. Este documento tiene como objetivo principal consolidar los fundamentos legales y conceptuales que rigen la dotación de elementos de protección personal (EPP) en el contexto laboral colombiano, en concordancia con las políticas internas de la organización.
+Artículo 230 del Código Sustantivo del Trabajo: Este artículo establece que es obligación del empleador proporcionar a sus trabajadores los elementos de protección personal (EPP) necesarios para garantizar su seguridad y salud en el trabajo.
+Legislación Colombiana sobre Dotaciones de Seguridad Cycloid Talent, en cumplimiento de la normativa colombiana vigente, se adhiere a los siguientes lineamientos legales en materia de dotaciones de seguridad:
+Ley 1072 de 2011: Esta ley establece la obligación legal del empleador de suministrar a sus trabajadores los EPP necesarios para desarrollar sus labores de manera segura y saludable.
+Decreto 1443 de 2014: Este decreto reglamenta el Sistema General de Riesgos Profesionales y define los requisitos mínimos de los EPP.
+Resolución 1072 de 2018: Esta resolución establece los estándares técnicos mínimos para la fabricación, importación y comercialización de EPP
+El Programa de Elementos de Protección Personal (EPP) del Ministerio de Salud y Protección Social, publicado en Bogotá en septiembre de 2017, establece diversas Normas Técnicas Colombianas (NTC) para asegurar la seguridad y eficacia de los EPP utilizados en el país. Entre estas normativas se incluyen:
+NTC 1523: Higiene y Seguridad. Cascos de Seguridad Industrial.
+NTC 1726: Guantes de Caucho para Uso Industrial.
+NTC 1825: Higiene y Seguridad. Protectores Individuales de Ojos.
+NTC 2190: Guantes de protección. Requisitos Generales y Métodos de Ensayo.
+NTC 3610: Higiene y Seguridad. Caretas para Soldar y Protectores Faciales.
+NTC 1826: Higiene y Seguridad. Protectores Individuales de Ojos. Métodos de Ensayo No Ópticos.
+NTC 2859-10: Procedimientos de Muestreo para Inspección por Atributos Parte 10.
+NTC 1584: Equipos de Protección Respiratoria. Definiciones y Clasificación.
+NTC 1589: Higiene y Seguridad. Equipos de Protección Respiratoria. Métodos de Ensayo.
+NTC 1771: Higiene y Seguridad. Protectores de Ojos. Vocabulario.
+NTC 2307: Cuero de Ganado Bovino para la Fabricación de Guantes de Seguridad para Uso Industrial.
+NTC 3398: Ropa Protectora. Protección Contra Sustancias Químicas Líquidas.
+NTC 5684: Guantes de Protección Contra Riesgos Mecánicos.
+
+Conceptos Básicos
+Elementos de Protección Personal (EPP): Cycloid Talent define los EPP como equipos o dispositivos diseñados para proteger a sus colaboradores de los riesgos laborales. Estos se clasifican en tres categorías:
+Primera categoría: Protegen contra riesgos de bajo impacto (golpes, cortes, raspaduras).
+Segunda categoría: Protegen contra riesgos de mediano impacto (caídas de altura, proyección de partículas, productos químicos).
+Tercera categoría: Protegen contra riesgos de alto impacto (gases tóxicos, radiaciones, ambientes confinados).
+Dotación de Seguridad: Cycloid Talent entiende la dotación de seguridad como el conjunto de EPP que se suministran a los trabajadores de acuerdo a los riesgos específicos de su labor.
+Inspección de Dotaciones: Cycloid Talent establece la inspección de dotaciones como un proceso fundamental para verificar el cumplimiento de la normativa legal sobre la dotación de seguridad, así como el estado y condiciones de los EPP suministrados a los colaboradores.
+Importancia de la Inspección de Dotaciones en Cycloid Talent
+Cycloid Talent considera las inspecciones de dotaciones como un pilar fundamental para garantizar la seguridad y salud de su talento humano asignado por terceros y proveedores dentro de la copropiedad, ya que permiten:
+Verificar el cumplimiento de la normativa legal: Se comprueba que la empresa contratista esté suministrando los EPP adecuados y en cantidad suficiente a sus trabajadores.
+Evaluar el estado de los EPP: Se inspecciona que los EPP se encuentren en buen estado de conservación, funcionamiento y limpieza.
+Capacitar a los colaboradores de los contratistas: Se brinda información a los trabajadores sobre el uso correcto y mantenimiento de los EPP.
+Prevenir accidentes de trabajo y enfermedades profesionales: Al garantizar el uso adecuado de los EPP, se reduce la probabilidad de que los trabajadores sufran accidentes o enfermedades relacionadas con su trabajo.
+Aspectos a Considerar en la Inspección de Dotaciones en Cycloid Talent
+Cycloid Talent establece los siguientes aspectos como elementos clave a considerar en la inspección de dotaciones:
+Identificación de los riesgos laborales: Se deben identificar los riesgos específicos a los que están expuestos los colaboradores en cada área de trabajo.
+Selección de los EPP: De acuerdo a los riesgos identificados, se deben seleccionar los EPP adecuados para cada colaborador, considerando las características específicas de cada puesto de trabajo.
+Verificación del estado de los EPP: Se debe inspeccionar que los EPP se encuentren en buen estado de conservación, funcionamiento y limpieza, siguiendo las instrucciones del fabricante y las políticas internas de la empresa.
+Capacitación sobre el uso y mantenimiento de los EPP: Se debe brindar a los colaboradores información clara y actualizada sobre el uso correcto y mantenimiento de los EPP, incluyendo sesiones de entrenamiento y material informativo.
+Registro de la inspección: Se debe realizar un registro detallado de la inspección que incluya la fecha, el nombre del responsable, los hallazgos encontrados, las acciones correctivas tomadas y las recomendaciones para futuras inspecciones.
+
+
+
+Fecha Del Registro
+ <<[FECHA DEL REGISTRO]>>
+Fecha De La Inspección
+ <<[FECHA DE LA INSPECCION]>>
+Nombre Del Responsable De La Inspección
+ <<[NOMBRE DEL RESPONSABLE DE LA INSPECCION]>>
+Cliente
+ <<[CLIENTE]>>
+Contratista
+ <<[CONTRATISTA]>>
+Servicio
+ <<[SERVICIO]>>
+Nombre Del Cargo
+ <<[NOMBRE DEL CARGO]>>
+Tres Actividades Más Frecuentes
+ <<[TRES ACTIVIDADES MAS FRECUENTES]>>
+Foto De Cuerpo Completo
+ <<[FOTO DE CUERPO COMPLETO]>>
+Foto Cuarto De Almacenamiento Epps O de Personal Uniformado.
+ <<[FOTO CUARTO DE ALMACENAMIENTO EPPS]>>
+Uniforme Camisa, Pantalón Y Corbata/Pañoleta
+ <<[Uniforme Camisa, pantalón y corbata/pañoleta]>>
+Chaqueta
+ <<[Chaqueta]>>
+Radio De Onda Corta
+ <<[Radio de onda corta]>>
+Bastón Tonfa
+ <<[Bastón Tonfa]>>
+Calzado
+ <<[Calzado]>>
+Gorra
+ <<[Gorra]>>
+Carné
+ <<[Carné]>>
+Concepto Final Del Inspector Sst
+ <<[Concepto Final del Inspector SST]>>
+
+
+Cordialmente,
+
+
+
+
+

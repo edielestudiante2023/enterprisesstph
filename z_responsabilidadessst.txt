@@ -1,0 +1,184 @@
+NOMBRE DE LA PROPIEDAD HORIZONTAL: <<[NOMBRE DEL CLIENTE]>>
+FECHA: <<[FECHA]>>
+OBJETO DEL ACTA: El presente documento tiene como finalidad formalizar la entrega y aceptación de responsabilidades en materia de Seguridad y Salud en el Trabajo (SST) dentro de la PROPIEDAD HORIZONTAL, de acuerdo con la normativa vigente y con el objetivo de garantizar la gestión efectiva de los riesgos laborales y la protección de los trabajadores y contratistas.
+
+1. RESPONSABILIDADES DEL ADMINISTRADOR
+Definir, firmar y divulgar la política de Seguridad y Salud en el Trabajo, asegurando su cumplimiento y revisión periódica.
+Asignar y comunicar las responsabilidades específicas en SST a todos los niveles de la PROPIEDAD HORIZONTAL.
+Presentar informes de rendición de cuentas sobre el desempeño en SST ante el consejo y la comunidad.
+Garantizar los recursos necesarios (financieros, técnicos y de personal) para el diseño, implementación y mejora del SG-SST.
+Asegurar la consulta y participación del asesor en SST y del vigía en la identificación de peligros y la implementación de medidas de control.
+Revisar el cumplimiento del plan de trabajo anual de SST y la ejecución de los recursos asignados.
+Evaluar al menos una vez al año la gestión de SST e implementar mejoras necesarias.
+Garantizar la disponibilidad de personal competente para liderar el SG-SST.
+Asegurar la ejecución de programas de capacitación en SST, incluyendo inducción y entrenamiento a contratistas.
+Realizar auditorías internas anuales al SG-SST.
+
+2. RESPONSABILIDADES DEL RESPONSABLE DEL SG-SST
+Elaborar y ejecutar el programa anual de capacitación en prevención de riesgos laborales.
+Reportar al administrador cualquier situación que pueda afectar la seguridad y salud de los trabajadores.
+Gestionar la documentación requerida a contratistas en materia de SST.
+Actualizar la matriz de riesgos y asegurar su aplicación efectiva.
+Realizar inspecciones programadas y no programadas para verificar el cumplimiento de SST.
+Participar en la investigación de incidentes, accidentes y enfermedades laborales, asegurando la implementación de correctivos.
+Atender auditorías externas y visitas de entes reguladores.
+Preparar y presentar el Plan Anual de SST para su aprobación.
+Ejecutar planes de acción derivados de auditorías e inspecciones.
+Mantener actualizado el sistema de indicadores de SST.
+
+3. RESPONSABILIDADES DEL VIGÍA DE SEGURIDAD Y SALUD EN EL TRABAJO
+Proponer actividades para mejorar las condiciones de seguridad y salud en el trabajo.
+Participar en actividades de capacitación en SST y promover su cumplimiento.
+Colaborar con autoridades en inspecciones y auditorías.
+Vigilar el cumplimiento de las normas de SST en la PROPIEDAD HORIZONTAL.
+Reportar condiciones de riesgo y sugerir medidas de control.
+Servir de enlace entre la administración y los contratistas en temas de SST.
+Apoyar la revisión de estadísticas de accidentalidad y enfermedades laborales.
+Mantener registros de actividades realizadas en SST.
+Coordinar acciones de respuesta ante emergencias.
+Cumplir con las demás funciones establecidas en la normativa de SST.
+
+4. RESPONSABILIDADES DE LOS TRABAJADORES Y CONTRATISTAS
+Conocer, entender y aplicar la política de SST.
+Identificar y reportar peligros y riesgos en su entorno de trabajo.
+Utilizar correctamente los Elementos de Protección Personal (EPP).
+Asistir a capacitaciones y entrenamientos en SST.
+Cumplir con las normas de seguridad establecidas.
+Informar de inmediato cualquier accidente o incidente de trabajo.
+Mantener el orden y la limpieza en su área de trabajo.
+Aplicar los procedimientos establecidos en emergencias.
+Participar en la evaluación de peligros y riesgos en el lugar de trabajo.
+Colaborar en la implementación de medidas de prevención y control.
+
+5. FIRMA DE ACEPTACIÓN DE RESPONSABILIDADES
+Con la firma de este documento, cada una de las partes acepta las responsabilidades establecidas en materia de Seguridad y Salud en el Trabajo dentro de la PROPIEDAD HORIZONTAL.
+
+NOMBRE
+CEDULA
+CARGO
+FIRMA
+
+
+<<[NOMBRE1]>>
+ <<[CEDULA1]>>
+ <<[CARGO1]>>
+<<[FIRMA1]>>
+<<[NOMBRE2]>>
+ <<[CEDULA2]>>
+ <<[CARGO2]>>
+<<[FIRMA2]>>
+<<[NOMBRE3]>>
+ <<[CEDULA3]>>
+ <<[CARGO3]>>
+<<[FIRMA3]>>
+<<[NOMBRE4]>>
+ <<[CEDULA4]>>
+ <<[CARGO4]>>
+<<[FIRMA4]>>
+<<[NOMBRE5]>>
+ <<[CEDULA5]>>
+ <<[CARGO5]>>
+<<[FIRMA5]>>
+<<[NOMBRE6]>>
+ <<[CEDULA6]>>
+ <<[CARGO6]>>
+<<[FIRMA6]>>
+<<[NOMBRE7]>>
+ <<[CEDULA7]>>
+ <<[CARGO7]>>
+<<[FIRMA7]>>
+<<[NOMBRE8]>>
+ <<[CEDULA8]>>
+ <<[CARGO8]>>
+<<[FIRMA8]>>
+<<[NOMBRE9]>>
+ <<[CEDULA9]>>
+ <<[CARGO9]>>
+<<[FIRMA9]>>
+<<[NOMBRE10]>>
+ <<[CEDULA10]>>
+ <<[CARGO10]>>
+<<[FIRMA10]>>
+<<[NOMBRE11]>>
+ <<[CEDULA11]>>
+ <<[CARGO11]>>
+<<[FIRMA11]>>
+<<[NOMBRE12]>>
+ <<[CEDULA12]>>
+ <<[CARGO12]>>
+<<[FIRMA12]>>
+<<[NOMBRE13]>>
+ <<[CEDULA13]>>
+ <<[CARGO13]>>
+<<[FIRMA13]>>
+<<[NOMBRE14]>>
+ <<[CEDULA14]>>
+ <<[CARGO14]>>
+<<[FIRMA14]>>
+<<[NOMBRE15]>>
+ <<[CEDULA15]>>
+ <<[CARGO15]>>
+<<[FIRMA15]>>
+<<[NOMBRE16]>>
+ <<[CEDULA16]>>
+ <<[CARGO16]>>
+<<[FIRMA16]>>
+<<[NOMBRE17]>>
+ <<[CEDULA17]>>
+ <<[CARGO17]>>
+<<[FIRMA17]>>
+<<[NOMBRE18]>>
+ <<[CEDULA18]>>
+ <<[CARGO18]>>
+<<[FIRMA18]>>
+<<[NOMBRE19]>>
+ <<[CEDULA19]>>
+ <<[CARGO19]>>
+<<[FIRMA19]>>
+<<[NOMBRE20]>>
+ <<[CEDULA20]>>
+ <<[CARGO20]>>
+<<[FIRMA20]>>
+<<[NOMBRE21]>>
+ <<[CEDULA21]>>
+ <<[CARGO21]>>
+<<[FIRMA21]>>
+<<[NOMBRE22]>>
+ <<[CEDULA22]>>
+ <<[CARGO22]>>
+<<[FIRMA22]>>
+<<[NOMBRE23]>>
+ <<[CEDULA23]>>
+ <<[CARGO23]>>
+<<[FIRMA23]>>
+<<[NOMBRE24]>>
+ <<[CEDULA24]>>
+ <<[CARGO24]>>
+<<[FIRMA24]>>
+<<[NOMBRE25]>>
+ <<[CEDULA25]>>
+ <<[CARGO25]>>
+<<[FIRMA25]>>
+<<[NOMBRE26]>>
+ <<[CEDULA26]>>
+ <<[CARGO26]>>
+<<[FIRMA26]>>
+<<[NOMBRE27]>>
+ <<[CEDULA27]>>
+ <<[CARGO27]>>
+<<[FIRMA27]>>
+<<[NOMBRE28]>>
+ <<[CEDULA28]>>
+ <<[CARGO28]>>
+<<[FIRMA28]>>
+<<[NOMBRE29]>>
+ <<[CEDULA29]>>
+ <<[CARGO29]>>
+<<[FIRMA29]>>
+<<[NOMBRE30]>>
+ <<[CEDULA30]>>
+ <<[CARGO30]>>
+<<[FIRMA30]>>
+
+
+
