@@ -1,5 +1,7 @@
 # Estrategia Offline - Modulo de Inspecciones
 
+> **Estado: PENDIENTE DE IMPLEMENTACION** — Este documento es un diseno a futuro. Actualmente solo esta implementado el cache basico de assets via Service Worker (`sw_inspecciones.js`, cache `inspecciones-v3`). La funcionalidad completa de IndexedDB, Background Sync y modo offline NO esta implementada aun.
+
 ---
 
 ## 1. El Problema Real
@@ -837,7 +839,7 @@ if (navigator.storage && navigator.storage.estimate) {
 ```javascript
 // sw_inspecciones.js
 
-const CACHE_NAME = 'inspecciones-v1';
+const CACHE_NAME = 'inspecciones-v3'; // Debe coincidir con sw_inspecciones.js actual
 const STATIC_ASSETS = [
     '/inspecciones',
     '/inspecciones/acta-visita/create',

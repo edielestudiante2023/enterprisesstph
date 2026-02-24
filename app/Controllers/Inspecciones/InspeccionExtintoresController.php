@@ -8,6 +8,8 @@ use App\Models\ExtintorDetalleModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Models\MantenimientoModel;
+use App\Models\VencimientosMantenimientoModel;
 use Dompdf\Dompdf;
 
 class InspeccionExtintoresController extends BaseController
@@ -233,6 +235,7 @@ class InspeccionExtintoresController extends BaseController
 
         $inspeccion = $this->inspeccionModel->find($id);
         $this->uploadToReportes($inspeccion, $pdfPath);
+        $this->syncVencimiento($inspeccion);
 
         return redirect()->to('/inspecciones/extintores/view/' . $id)
             ->with('msg', 'Inspeccion finalizada y PDF generado');
@@ -450,5 +453,57 @@ class InspeccionExtintoresController extends BaseController
 
         $data['created_at'] = date('Y-m-d H:i:s');
         return $reporteModel->save($data);
+    }
+
+    /**
+     * Sincroniza fecha_vencimiento_global con tbl_vencimientos_mantenimientos.
+     * UPSERT: actualiza si existe un vencimiento "sin ejecutar" para el mismo cliente+tipo,
+     * crea uno nuevo si no existe.
+     */
+    private function syncVencimiento(array $inspeccion): void
+    {
+        $fechaVencimiento = $inspeccion['fecha_vencimiento_global'] ?? null;
+        if (empty($fechaVencimiento)) {
+            return;
+        }
+
+        $mantenimientoModel = new MantenimientoModel();
+        $vencimientoModel = new VencimientosMantenimientoModel();
+
+        // Buscar tipo de mantenimiento que contenga "extintor"
+        $mantenimiento = $mantenimientoModel
+            ->like('detalle_mantenimiento', 'extintor', 'both')
+            ->first();
+
+        if (!$mantenimiento) {
+            log_message('warning', "syncVencimiento: No se encontro tipo de mantenimiento con keyword 'extintor' en tbl_mantenimientos");
+            return;
+        }
+
+        $idMantenimiento = $mantenimiento['id_mantenimiento'];
+
+        // Buscar vencimiento existente (sin ejecutar) para este cliente + tipo
+        $existente = $vencimientoModel
+            ->where('id_cliente', $inspeccion['id_cliente'])
+            ->where('id_mantenimiento', $idMantenimiento)
+            ->where('estado_actividad', 'sin ejecutar')
+            ->first();
+
+        if ($existente) {
+            $vencimientoModel->update($existente['id_vencimientos_mmttos'], [
+                'fecha_vencimiento' => $fechaVencimiento,
+                'id_consultor'      => $inspeccion['id_consultor'],
+                'observaciones'     => 'Actualizado desde inspeccion extintores #' . $inspeccion['id'],
+            ]);
+        } else {
+            $vencimientoModel->insert([
+                'id_mantenimiento'  => $idMantenimiento,
+                'id_cliente'        => $inspeccion['id_cliente'],
+                'id_consultor'      => $inspeccion['id_consultor'],
+                'fecha_vencimiento' => $fechaVencimiento,
+                'estado_actividad'  => 'sin ejecutar',
+                'observaciones'     => 'Auto-generado desde inspeccion extintores #' . $inspeccion['id'],
+            ]);
+        }
     }
 }

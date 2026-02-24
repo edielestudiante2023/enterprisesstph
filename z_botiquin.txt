@@ -1,0 +1,187 @@
+INSPECCIÓN DE BOTIQUÍN TIPO B 
+<<[CLIENTE]>>
+
+Fundamentación de la obligatoriedad de botiquines tipo B en propiedades horizontales en Colombia:
+1. Perspectiva de salud pública:
+Reducción de morbilidad y mortalidad: La atención oportuna y eficaz de lesiones y urgencias médicas puede disminuir la morbilidad y mortalidad asociada a estas situaciones.
+Prevención de complicaciones: Un botiquín tipo B bien dotado permite prevenir complicaciones derivadas de lesiones o urgencias, lo que reduce la necesidad de atención médica especializada y los costos asociados a la misma.
+Promoción de la salud: La presencia de un botiquín tipo B puede incentivar la adopción de prácticas de autocuidado y primeros auxilios, lo que contribuye a promover la salud individual y colectiva en la comunidad.
+2. Enfoque de seguridad y bienestar:
+Minimización de riesgos: Un botiquín tipo B bien dotado minimiza los riesgos asociados a accidentes, lesiones o urgencias médicas en la propiedad horizontal.
+Protección de la integridad física: Permite brindar atención inmediata a las personas afectadas, protegiendo su integridad física y reduciendo el impacto psicológico de las situaciones de emergencia.
+Generación de un ambiente seguro: La disponibilidad de un botiquín tipo B contribuye a crear un ambiente más seguro para todos los residentes, visitantes y personal del conjunto residencial.
+3. Aspectos legales y normativos:
+Cumplimiento de la Ley 1801 de 2016 y el Decreto 1076 de 2015: La normativa colombiana establece la obligatoriedad de contar con un botiquín tipo B en las propiedades horizontales como requisito mínimo de seguridad.
+Responsabilidad civil: La ausencia de un botiquín tipo B o su mal estado puede generar responsabilidad civil para la administración del conjunto residencial en caso de un accidente o una urgencia médica.
+Promoción de una cultura de cumplimiento legal: El cumplimiento de la normativa sobre botiquines tipo B contribuye a fortalecer una cultura de cumplimiento legal en las propiedades horizontales.
+4. Consideraciones éticas y de responsabilidad social:
+Derecho a la salud: La disponibilidad de un botiquín tipo B garantiza el derecho fundamental a la salud de las personas que habitan o frecuentan la propiedad horizontal.
+Protección de la vida y la integridad física: Brindar atención inmediata a las personas en situación de emergencia es un deber ético de la administración del conjunto residencial.
+Compromiso con el bienestar social: Dotar a la propiedad horizontal con un botiquín tipo B demuestra el compromiso social de la administración con el bienestar de las personas que viven, trabajan o visitan el lugar.
+5. Fundamentación científica y técnica:
+Norma NTC 4198: La Norma NTC 4198 establece los requisitos de dotación y funcionamiento de los botiquines de primeros auxilios, garantizando su calidad, eficacia y seguridad.
+Guías de primeros auxilios: Existen guías y protocolos reconocidos internacionalmente para el uso adecuado de los botiquines de primeros auxilios, asegurando una atención oportuna y correcta.
+Evidencia empírica: Estudios científicos demuestran la efectividad de los botiquines de primeros auxilios en la reducción de la morbilidad y mortalidad asociadas a lesiones y urgencias médicas.
+
+FECHA DE LA INSPECCIÓN:
+<<[FECHA DE LA INSPECCION]>>
+UBICACIÓN DEL BOTIQUÍN: 
+<<[UBICACION DEL BOTIQUIN]>>
+<<[FOTO 1 DEL BOTIQUIN]>>
+<<[FOTO 2 DEL BOTIQUIN]>>
+
+
+
+¿EL BOTIQUÍN SE ENCUENTRA INSTALADO EN LA PARED?
+ <<[¿EL BOTIQUÍN SE ENCUENTRA INSTALADO EN LA PARED?]>>
+¿EL BOTIQUÍN SE ENCUENTRA LIBRE DE OBSTÁCULOS?
+ <<[¿EL BOTIQUÍN SE ENCUENTRA LIBRE DE OBSTÁCULOS?]>>
+¿LOCALIZADO EN LUGAR VISIBLE?
+ <<[¿LOCALIZADO EN LUGAR VISIBLE?]>>
+¿EL BOTIQUÍN SE ENCUENTRA CON SEÑALIZACIÓN?
+ <<[¿EL BOTIQUÍN SE ENCUENTRA CON SEÑALIZACIÓN?]>>
+¿EL BOTIQUÍN ES DE?
+ <<[¿EL BOTIQUÍN ES DE?]>>
+ESTADO DEL BOTIQUÍN
+ <<[ESTADO DEL BOTIQUÍN]>>
+CANTIDAD GASAS LIMPIAS PAQUETE - Paquete X 100 1
+ <<[CANTIDAD GASAS LIMPIAS PAQUETE - Paquete X 100 1]>>
+ESTADO GASAS LIMPIAS PAQUETE - Paquete X 100 1
+ <<[ESTADO GASAS LIMPIAS PAQUETE - Paquete X 100 1]>>
+CANTIDAD GASAS ESTÉRILES PAQUETE - Paquete por 3 20
+ <<[CANTIDAD GASAS ESTÉRILES PAQUETE - Paquete por 3 20]>>
+ESTADO GASAS ESTÉRILES PAQUETE - Paquete por 3 20
+ <<[ESTADO GASAS ESTÉRILES PAQUETE - Paquete por 3 20]>>
+CANTIDAD APÓSITO o COMPRESAS NO ESTÉRILES - Unidad 4
+ <<[CANTIDAD APÓSITO o COMPRESAS NO ESTÉRILES - Unidad 4]>>
+ESTADO APÓSITO o COMPRESAS NO ESTÉRILES - Unidad 4
+ <<[ESTADO APÓSITO o COMPRESAS NO ESTÉRILES - Unidad 4]>>
+CANTIDAD ESPARADRAPO DE TELA ROLLO 4″ - Unidad 2
+ <<[CANTIDAD ESPARADRAPO DE TELA ROLLO 4″ - Unidad 2]>>
+ESTADO ESPARADRAPO DE TELA ROLLO 4″ - Unidad 2
+ <<[ESTADO ESPARADRAPO DE TELA ROLLO 4″ - Unidad 2]>>
+CANTIDAD BAJALENGUAS - Paquete por 20 2
+ <<[CANTIDAD BAJALENGUAS - Paquete por 20 2]>>
+ESTADO BAJALENGUAS - Paquete por 20 2
+ <<[ESTADO BAJALENGUAS - Paquete por 20 2]>>
+CANTIDAD VENDA ELÁSTICA 2 X 5 YARDAS – Unidad 2
+ <<[CANTIDAD VENDA ELÁSTICA 2 X 5 YARDAS – Unidad 2]>>
+ESTADO VENDA ELÁSTICA 2 X 5 YARDAS – Unidad 2
+ <<[ESTADO VENDA ELÁSTICA 2 X 5 YARDAS – Unidad 2]>>
+CANTIDAD VENDA ELÁSTICA 3 X 5 YARDAS – Unidad 2
+ <<[CANTIDAD VENDA ELÁSTICA 3 X 5 YARDAS – Unidad 2]>>
+ESTADO VENDA ELÁSTICA 3 X 5 YARDAS – Unidad 2
+ <<[ESTADO VENDA ELÁSTICA 3 X 5 YARDAS – Unidad 2]>>
+CANTIDAD VENDA ELÁSTICA 5 X 5 YARDAS – Unidad 2
+ <<[CANTIDAD VENDA ELÁSTICA 5 X 5 YARDAS – Unidad 2]>>
+ESTADO VENDA ELÁSTICA 5 X 5 YARDAS – Unidad 2
+ <<[ESTADO VENDA ELÁSTICA 5 X 5 YARDAS – Unidad 2]>>
+CANTIDAD VENDA DE ALGODÓN 3 X 5 YARDAS – Unidad 2
+ <<[CANTIDAD VENDA DE ALGODÓN 3 X 5 YARDAS – Unidad 2]>>
+ESTADO VENDA DE ALGODÓN 3 X 5 YARDAS – Unidad 2
+ <<[ESTADO VENDA DE ALGODÓN 3 X 5 YARDAS – Unidad 2]>>
+CANTIDAD VENDA DE ALGODÓN 5 X 5 YARDAS – Unidad 2
+ <<[CANTIDAD VENDA DE ALGODÓN 5 X 5 YARDAS – Unidad 2]>>
+ESTADO VENDA DE ALGODÓN 5 X 5 YARDAS – Unidad 2
+ <<[ESTADO VENDA DE ALGODÓN 5 X 5 YARDAS – Unidad 2]>>
+CANTIDAD CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1
+ <<[CANTIDAD CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1]>>
+ESTADO CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1
+ <<[ESTADO CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1]>>
+FECHA VENCIMIENTO CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1
+ <<[FECHA VENCIMIENTO CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1]>>
+CANTIDAD SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5
+ <<[CANTIDAD SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5]>>
+ESTADO SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5
+ <<[ESTADO SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5]>>
+FECHA DE VENCIMIENTO SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5
+ <<[FECHA DE VENCIMIENTO SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5]>>
+CANTIDAD GUANTES DE LÁTEX PARA EXAMEN - Caja por 100 1
+ <<[CANTIDAD GUANTES DE LÁTEX PARA EXAMEN - Caja por 100 1]>>
+ESTADO GUANTES DE LÁTEX PARA EXAMEN - Caja por 100 1
+ <<[ESTADO GUANTES DE LÁTEX PARA EXAMEN - Caja por 100 1]>>
+CANTIDAD ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1
+ <<[CANTIDAD ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1]>>
+ESTADO ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1
+ <<[ESTADO ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1]>>
+FECHA DE VENCIMIENTO ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1
+ <<[FECHA DE VENCIMIENTO ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1]>>
+CANTIDAD TERMÓMETRO DE MERCURIO ó DIGITAL – Unidad 1
+ <<[CANTIDAD TERMÓMETRO DE MERCURIO ó DIGITAL – Unidad 1]>>
+ESTADO TERMÓMETRO DE MERCURIO ó DIGITAL – Unidad 1
+ <<[ESTADO TERMÓMETRO DE MERCURIO ó DIGITAL – Unidad 1]>>
+CANTIDAD TIJERAS – Unidad 1
+ <<[CANTIDAD TIJERAS – Unidad 1]>>
+ESTADO TIJERAS – Unidad 1
+ <<[ESTADO TIJERAS – Unidad 1]>>
+CANTIDAD LINTERNA – Unidad 1
+ <<[CANTIDAD LINTERNA – Unidad 1]>>
+ESTADO LINTERNA – Unidad 1
+ <<[ESTADO LINTERNA – Unidad 1]>>
+CANTIDAD PILAS DE REPUESTO – Par 4
+ <<[CANTIDAD PILAS DE REPUESTO – Par 4]>>
+ESTADO PILAS DE REPUESTO – Par 4
+ <<[ESTADO PILAS DE REPUESTO – Par 4]>>
+CANTIDAD TABLA ESPINAL LARGA Camilla – Unidad 1
+ <<[CANTIDAD TABLA ESPINAL LARGA Camilla – Unidad 1]>>
+FOTO TABLA ESPINAL LARGA Camilla – Unidad 1
+ <<[FOTO TABLA ESPINAL LARGA Camilla – Unidad 1]>>
+OBSERVACIONES TABLA ESPINAL LARGA Camilla – Unidad 1
+ <<[OBSERVACIONES TABLA ESPINAL LARGA Camilla – Unidad 1]>>
+CANTIDAD COLLAR CERVICAL ADULTO – Unidad 2
+ <<[CANTIDAD COLLAR CERVICAL ADULTO – Unidad 2]>>
+CANTIDAD COLLAR CERVICAL NIÑO – Unidad 2
+ <<[CANTIDAD COLLAR CERVICAL NIÑO – Unidad 2]>>
+ESTADO COLLARES CERVICALES
+ <<[ESTADO COLLARES CERVICALES]>>
+FOTO COLLARES CERVICALES
+ <<[FOTO COLLARES CERVICALES]>>
+CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS SUPERIORES ADULTO – Unidad 1
+ <<[CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS SUPERIORES ADULTO – Unidad 1]>>
+CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS INFERIORES ADULTO – Unidad 1
+ <<[CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS INFERIORES ADULTO – Unidad 1]>>
+CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS SUPERIORES NIÑO – Unidad 1
+ <<[CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS SUPERIORES NIÑO – Unidad 1]>>
+CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS INFERIORES NIÑO – Unidad 1
+ <<[CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS INFERIORES NIÑO – Unidad 1]>>
+ESTADO INMOVILIZADORES
+ <<[ESTADO INMOVILIZADORES]>>
+FOTO INMOVILIZADORES
+ <<[FOTO INMOVILIZADORES]>>
+CANTIDAD VASOS DESECHABLES - Paquete por 25 1
+ <<[CANTIDAD VASOS DESECHABLES - Paquete por 25 1]>>
+ESTADO VASOS DESECHABLES - Paquete por 25 1
+ <<[ESTADO VASOS DESECHABLES - Paquete por 25 1]>>
+CANTIDAD TENSIÓMETRO – Unidad 1
+ <<[CANTIDAD TENSIÓMETRO – Unidad 1]>>
+ESTADO TENSIÓMETRO – Unidad 1
+ <<[ESTADO TENSIÓMETRO – Unidad 1]>>
+CANTIDAD FONENDOSCOPIO – Unidad 1
+ <<[CANTIDAD FONENDOSCOPIO – Unidad 1]>>
+ESTADO FONENDOSCOPIO – Unidad 1
+ <<[ESTADO FONENDOSCOPIO – Unidad 1]>>
+CANTIDAD ACETAMINOFÉN TABLETAS POR 500 mg - Sobre por 10 2
+ <<[CANTIDAD ACETAMINOFÉN TABLETAS POR 500 mg - Sobre por 10 2]>>
+ESTADO ACETAMINOFÉN TABLETAS POR 500 mg - Sobre por 10 2
+ <<[ESTADO ACETAMINOFÉN TABLETAS POR 500 mg - Sobre por 10 2]>>
+CANTIDAD HIDRÓXIDO DE ALUMINIO TABLETAS Sobre por 10 1
+ <<[CANTIDAD HIDRÓXIDO DE ALUMINIO TABLETAS Sobre por 10 1]>>
+ESTADO HIDRÓXIDO DE ALUMINIO TABLETAS Sobre por 10 1
+ <<[ESTADO HIDRÓXIDO DE ALUMINIO TABLETAS Sobre por 10 1]>>
+CANTIDAD ASA TABLETAS POR 100 mg - Sobre por 10 1
+ <<[CANTIDAD ASA TABLETAS POR 100 mg - Sobre por 10 1]>>
+ESTADO ASA TABLETAS POR 100 mg - Sobre por 10 1
+ <<[ESTADO ASA TABLETAS POR 100 mg - Sobre por 10 1]>>
+CANTIDAD ELEMENTO DE BARRERA ó MÁSCARA PARA RCP – Unidad 2
+ <<[CANTIDAD ELEMENTO DE BARRERA ó MÁSCARA PARA RCP – Unidad 2]>>
+ESTADO ELEMENTO DE BARRERA ó MÁSCARA PARA RCP – Unidad 2
+ <<[ESTADO ELEMENTO DE BARRERA ó MÁSCARA PARA RCP – Unidad 2]>>
+RECOMENDACIONES DE LA INSPECCIÓN
+ <<[RECOMENDACIONES DE LA INSPECCIÓN]>>
+
+
+COMPRA DE ELEMENTOS REQUERIDOS POR EL CLIENTE PARA CUMPLIMIENTO DEL BOTIQUÍN:
+ <<[COMPRA DE ELEMENTOS REQUERIDOS POR EL CLIENTE PARA CUMPLIMIENTO DEL BOTIQUIN]>>
+
+
+

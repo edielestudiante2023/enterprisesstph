@@ -14,58 +14,69 @@ Nuevo módulo dentro de `enterprisesstph` para gestionar inspecciones de segurid
 enterprisesstph/                          (proyecto existente CI4)
 ├── app/
 │   ├── Controllers/
-│   │   └── Inspecciones/                 ← NUEVO directorio
-│   │       ├── InspeccionesController.php     (dashboard PWA, listados)
-│   │       ├── ActaVisitaController.php       (CRUD acta de visita)
-│   │       ├── InspeccionSenalizacionController.php  (futuro)
-│   │       ├── InspeccionLocativaController.php      (futuro)
-│   │       ├── BotiquinController.php                (futuro)
-│   │       ├── ExtintoresController.php              (futuro)
-│   │       └── ...
+│   │   ├── Inspecciones/                    (módulos del consultor - PWA)
+│   │   │   ├── InspeccionesController.php       (dashboard PWA, listados, API AJAX)
+│   │   │   ├── ActaVisitaController.php         (CRUD acta de visita + firmas)
+│   │   │   ├── InspeccionLocativaController.php  (CRUD inspección locativa)
+│   │   │   ├── InspeccionSenalizacionController.php (37 ítems fijos, calificación)
+│   │   │   ├── InspeccionExtintoresController.php   (N extintores dinámico, 12 criterios)
+│   │   │   └── InspeccionBotiquinController.php     (32 elementos fijos, cantidades)
+│   │   └── ClientInspeccionesController.php (portal cliente: vista read-only de inspecciones)
 │   ├── Views/
-│   │   └── inspecciones/                 ← NUEVO directorio
-│   │       ├── layout_pwa.php                (layout mobile-first, NO sidebar admin)
-│   │       ├── dashboard.php                 (menú principal inspecciones)
-│   │       ├── acta_visita/
-│   │       │   ├── list.php                  (listado de actas)
-│   │       │   ├── create.php                (formulario nueva acta)
-│   │       │   ├── edit.php                  (editar acta existente)
-│   │       │   ├── view.php                  (vista previa acta)
-│   │       │   ├── firma.php                 (canvas de firma)
-│   │       │   └── pdf.php                   (template DOMPDF)
-│   │       ├── senalizacion/                 (futuro)
-│   │       └── ...
+│   │   ├── inspecciones/                    (vistas consultor - PWA)
+│   │   │   ├── layout_pwa.php                  (layout mobile-first, NO sidebar admin)
+│   │   │   ├── dashboard.php                   (menú principal inspecciones)
+│   │   │   ├── acta_visita/                    (list, form, view, pdf)
+│   │   │   ├── inspeccion_locativa/            (list, form, view, pdf)
+│   │   │   ├── senalizacion/                   (list, form, view, pdf)
+│   │   │   ├── extintores/                     (list, form, view, pdf)
+│   │   │   └── botiquin/                       (list, form, view, pdf)
+│   │   └── client/inspecciones/             (vistas cliente - portal read-only)
+│   │       ├── dashboard.php                   (hub con cards por tipo)
+│   │       ├── actas/, locativas/, senalizacion/, extintores/, botiquin/
+│   │       └── (list + view por cada tipo)
 │   ├── Models/
-│   │   ├── ActaVisitaModel.php           ← NUEVO
-│   │   ├── ActaVisitaIntegranteModel.php ← NUEVO
-│   │   └── ActaVisitaTemaModel.php       ← NUEVO
+│   │   ├── ActaVisitaModel.php, ActaVisitaIntegranteModel.php, ActaVisitaTemaModel.php
+│   │   ├── InspeccionLocativaModel.php, HallazgoLocativoModel.php
+│   │   ├── InspeccionSenalizacionModel.php
+│   │   ├── InspeccionExtintoresModel.php
+│   │   └── InspeccionBotiquinModel.php, ElementoBotiquinModel.php
 │   └── Config/
-│       └── Routes.php                    (agregar grupo /inspecciones/*)
+│       └── Routes.php                    (grupos /inspecciones/* y /client/inspecciones/*)
 ├── public/
-│   ├── manifest_inspecciones.json        ← NUEVO (PWA manifest)
-│   ├── sw_inspecciones.js                ← NUEVO (Service Worker)
+│   ├── manifest_inspecciones.json        (PWA manifest)
+│   ├── sw_inspecciones.js                (Service Worker, cache: inspecciones-v3)
 │   └── uploads/
-│       └── inspecciones/                 ← NUEVO
-│           ├── firmas/                       (imágenes de firma)
-│           ├── fotos/                        (fotos tomadas en campo)
-│           └── pdfs/                         (PDFs generados)
+│       └── inspecciones/
+│           ├── firmas/                       (firmas PNG de actas de visita)
+│           ├── fotos/                        (fotos actas de visita)
+│           ├── locativas/hallazgos/          (fotos hallazgos locativos)
+│           ├── senalizacion/                 (PDFs señalización)
+│           ├── extintores/                   (PDFs extintores)
+│           ├── botiquin/                     (PDFs botiquín)
+│           └── pdfs/                         (PDFs actas de visita + locativas)
 ```
 
 ---
 
 ## Inspecciones a Implementar (Roadmap)
 
-| #  | Inspección              | Prioridad | Estado       |
-|----|-------------------------|-----------|--------------|
-| 1  | **Acta de Visita**      | ALTA      | FUNCIONAL v1 |
-| 2  | Señalización            | Media     | Pendiente |
-| 3  | Locativas               | Media     | Pendiente |
-| 4  | Botiquín                | Media     | Pendiente |
-| 5  | Extintores              | Media     | Pendiente |
-| 6  | Gabinetes               | Media     | Pendiente |
-| 7  | Comunicaciones          | Media     | Pendiente |
+| #  | Inspección              | Prioridad | Estado              | id_detailreport |
+|----|-------------------------|-----------|---------------------|-----------------|
+| 1  | **Acta de Visita**      | ALTA      | FUNCIONAL v2        | 9               |
+| 2  | **Inspección Locativa** | ALTA      | FUNCIONAL           | 10              |
+| 3  | **Señalización**        | ALTA      | FUNCIONAL           | 11              |
+| 4  | **Extintores**          | ALTA      | FUNCIONAL           | 12              |
+| 5  | **Botiquín**            | ALTA      | FUNCIONAL           | 13              |
+| 6  | Gabinetes               | Media     | Pendiente           | —               |
+| 7  | Comunicaciones          | Media     | Pendiente           | —               |
+| 8  | Recursos de Seguridad   | Media     | Pendiente           | —               |
+| 9  | Matriz Vulnerabilidad   | Media     | Pendiente           | —               |
+| 10 | **Plan de Emergencia**  | Baja      | Pendiente (doc maestro) | —           |
 
-Cada inspección se documenta en su propio archivo (`01_ACTA_DE_VISITA.md`, `04_SENALIZACION.md`, etc.)
+**Portal cliente:** `ClientInspeccionesController` ofrece vista read-only de todas las inspecciones completadas por módulo, accesible desde `/client/inspecciones/`.
+
+Cada inspección se documenta en su propio archivo (`01_ACTA_DE_VISITA.md`, `10_INSPECCION_LOCATIVA.md`, etc.)
 
 ---
 
@@ -85,11 +96,12 @@ Cada inspección se documenta en su propio archivo (`01_ACTA_DE_VISITA.md`, `04_
 - El consultor se loguea una vez, la sesión persiste
 - **NO se crean roles nuevos**: el consultor accede a `/inspecciones` desde su celular y al panel admin desde PC
 
-### 3. Generación de PDF
-- **DOMPDF** (mismo patrón que los controladores `Pz*` existentes)
-- Template dedicado por tipo de inspección (`pdf.php`)
-- PDF incluye: header con logo del cliente, datos del SGSST, contenido del acta, firmas
-- Se guarda en `uploads/inspecciones/pdfs/` y queda linkeable desde el panel admin
+### 3. Generación de PDF - IMPLEMENTADO
+
+- **DOMPDF** con template dedicado `pdf.php` por tipo de inspección
+- Header con logo del cliente (base64), datos del SGSST, contenido, firmas (solo Acta de Visita)
+- Se guarda en `uploads/inspecciones/{tipo}/` y se auto-registra en `tbl_reporte` via `uploadToReportes()`
+- Cada módulo usa su propio `id_detailreport` (ver tabla de roadmap)
 
 ### 4. Firmas Digitales
 - Canvas HTML5 (mismo patrón de `contrato_firma.php`)
@@ -98,6 +110,7 @@ Cada inspección se documenta en su propio archivo (`01_ACTA_DE_VISITA.md`, `04_
 - Se incrustan en el PDF generado
 
 ### 5. Integración con Datos Existentes
+
 El Acta de Visita jala datos automáticamente de tablas existentes:
 - `tbl_clientes` → nombre del cliente, logo
 - `tbl_pendientes` → pendientes abiertos del cliente
@@ -105,28 +118,32 @@ El Acta de Visita jala datos automáticamente de tablas existentes:
 - `tbl_hallazgos` → hallazgos locativos abiertos (si existe)
 - `tbl_pta_cliente` → actividades del plan de trabajo
 
-### 6. Rutas CI4
+Botiquín y Extintores sincronizan vencimientos a `tbl_vencimientos_mantenimientos` al finalizar.
+
+### 6. Rutas CI4 - IMPLEMENTADO
 
 ```php
-// Grupo de inspecciones (protegido por AuthFilter)
-$routes->group('inspecciones', ['filter' => 'auth'], function($routes) {
-    $routes->get('/', 'Inspecciones\InspeccionesController::dashboard');
+// Consultor PWA (protegido por AuthFilter)
+$routes->group('inspecciones', ['filter' => 'auth', 'namespace' => 'App\Controllers\Inspecciones'], function($routes) {
+    $routes->get('/', 'InspeccionesController::dashboard');
 
-    // Acta de Visita
-    $routes->get('acta-visita', 'Inspecciones\ActaVisitaController::list');
-    $routes->get('acta-visita/create', 'Inspecciones\ActaVisitaController::create');
-    $routes->get('acta-visita/create/(:num)', 'Inspecciones\ActaVisitaController::create/$1');
-    $routes->post('acta-visita/store', 'Inspecciones\ActaVisitaController::store');
-    $routes->get('acta-visita/edit/(:num)', 'Inspecciones\ActaVisitaController::edit/$1');
-    $routes->post('acta-visita/update/(:num)', 'Inspecciones\ActaVisitaController::update/$1');
-    $routes->get('acta-visita/view/(:num)', 'Inspecciones\ActaVisitaController::view/$1');
-    $routes->get('acta-visita/pdf/(:num)', 'Inspecciones\ActaVisitaController::generatePdf/$1');
-    $routes->post('acta-visita/firma/(:num)', 'Inspecciones\ActaVisitaController::saveFirma/$1');
+    // Cada módulo tiene: list, create, store, edit, update, view, generatePdf, finalizar, delete
+    // Acta de Visita: /inspecciones/acta-visita/*
+    // Locativa:       /inspecciones/inspeccion-locativa/*
+    // Señalización:   /inspecciones/senalizacion/*
+    // Extintores:     /inspecciones/extintores/*
+    // Botiquín:       /inspecciones/botiquin/*
 
     // API endpoints AJAX
-    $routes->get('api/clientes', 'Inspecciones\InspeccionesController::getClientes');
-    $routes->get('api/pendientes/(:num)', 'Inspecciones\InspeccionesController::getPendientes/$1');
-    $routes->get('api/mantenimientos/(:num)', 'Inspecciones\InspeccionesController::getMantenimientos/$1');
+    $routes->get('api/clientes', 'InspeccionesController::getClientes');
+    $routes->get('api/pendientes/(:num)', 'InspeccionesController::getPendientes/$1');
+    $routes->get('api/mantenimientos/(:num)', 'InspeccionesController::getMantenimientos/$1');
+});
+
+// Portal cliente (read-only)
+$routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
+    $routes->get('/', 'ClientInspeccionesController::dashboard');
+    // Cada tipo: list + view (actas-visita, locativas, senalizacion, extintores, botiquin)
 });
 ```
 
@@ -149,12 +166,19 @@ $routes->group('inspecciones', ['filter' => 'auth'], function($routes) {
 
 ## Documentos Relacionados
 
+### Implementados
+
 - [01_ACTA_DE_VISITA.md](./01_ACTA_DE_VISITA.md) - Especificacion completa del Acta de Visita
 - [02_DB_ACTA_VISITA.md](./02_DB_ACTA_VISITA.md) - Diseno de base de datos
 - [03_PWA_LAYOUT.md](./03_PWA_LAYOUT.md) - Diseno del layout PWA y flujo mobile
 - [04_ESTRATEGIA_FIRMAS.md](./04_ESTRATEGIA_FIRMAS.md) - Canvas, almacenamiento y flujo presencial de firmas
-- [05_ESTRATEGIA_OFFLINE.md](./05_ESTRATEGIA_OFFLINE.md) - IndexedDB, Background Sync, pre-carga y sincronizacion
-- [06_ESTRATEGIA_NOTIFICACIONES.md](./06_ESTRATEGIA_NOTIFICACIONES.md) - Web Push, SendGrid, recordatorios por cron
 - [07_ESTRATEGIA_PDF_UPLOAD.md](./07_ESTRATEGIA_PDF_UPLOAD.md) - Auto-cargue de PDF a tbl_reporte, reemplazo del pipeline n8n
 - [08_ESTRATEGIA_AUTOGUARDADO.md](./08_ESTRATEGIA_AUTOGUARDADO.md) - localStorage para recuperar formularios ante perdida de sesion
 - [09_DISENO_PDF_ACTA.md](./09_DISENO_PDF_ACTA.md) - Diseno del PDF, restricciones DOMPDF, problemas conocidos
+- [10_INSPECCION_LOCATIVA.md](./10_INSPECCION_LOCATIVA.md) - Inspeccion locativa (hallazgos con fotos)
+- [11_INPUT_FILE_CAMARA_GALERIA.md](./11_INPUT_FILE_CAMARA_GALERIA.md) - Patron dos botones Camara/Galeria para inputs de foto
+
+### Pendientes de implementacion (diseno futuro)
+
+- [05_ESTRATEGIA_OFFLINE.md](./05_ESTRATEGIA_OFFLINE.md) - IndexedDB, Background Sync, pre-carga y sincronizacion
+- [06_ESTRATEGIA_NOTIFICACIONES.md](./06_ESTRATEGIA_NOTIFICACIONES.md) - Web Push, SendGrid, recordatorios por cron

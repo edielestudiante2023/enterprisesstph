@@ -438,6 +438,14 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
     $routes->get('locativas/(:num)', 'ClientInspeccionesController::viewLocativa/$1');
     $routes->get('senalizacion', 'ClientInspeccionesController::listSenalizacion');
     $routes->get('senalizacion/(:num)', 'ClientInspeccionesController::viewSenalizacion/$1');
+    $routes->get('botiquin', 'ClientInspeccionesController::listBotiquin');
+    $routes->get('botiquin/(:num)', 'ClientInspeccionesController::viewBotiquin/$1');
+    $routes->get('extintores', 'ClientInspeccionesController::listExtintores');
+    $routes->get('extintores/(:num)', 'ClientInspeccionesController::viewExtintores/$1');
+    $routes->get('comunicaciones', 'ClientInspeccionesController::listComunicaciones');
+    $routes->get('comunicaciones/(:num)', 'ClientInspeccionesController::viewComunicacion/$1');
+    $routes->get('gabinetes', 'ClientInspeccionesController::listGabinetes');
+    $routes->get('gabinetes/(:num)', 'ClientInspeccionesController::viewGabinete/$1');
 });
 
 $routes->get('/detailreportlist', 'DetailReportController::detailReportList');
@@ -821,9 +829,118 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('extintores/finalizar/(:num)', 'InspeccionExtintoresController::finalizar/$1');
     $routes->get('extintores/delete/(:num)', 'InspeccionExtintoresController::delete/$1');
 
+    // Inspección Botiquín
+    $routes->get('botiquin', 'InspeccionBotiquinController::list');
+    $routes->get('botiquin/create', 'InspeccionBotiquinController::create');
+    $routes->get('botiquin/create/(:num)', 'InspeccionBotiquinController::create/$1');
+    $routes->post('botiquin/store', 'InspeccionBotiquinController::store');
+    $routes->get('botiquin/edit/(:num)', 'InspeccionBotiquinController::edit/$1');
+    $routes->post('botiquin/update/(:num)', 'InspeccionBotiquinController::update/$1');
+    $routes->get('botiquin/view/(:num)', 'InspeccionBotiquinController::view/$1');
+    $routes->get('botiquin/pdf/(:num)', 'InspeccionBotiquinController::generatePdf/$1');
+    $routes->post('botiquin/finalizar/(:num)', 'InspeccionBotiquinController::finalizar/$1');
+    $routes->get('botiquin/delete/(:num)', 'InspeccionBotiquinController::delete/$1');
+
+    // Inspección Gabinetes
+    $routes->get('gabinetes', 'InspeccionGabineteController::list');
+    $routes->get('gabinetes/create', 'InspeccionGabineteController::create');
+    $routes->get('gabinetes/create/(:num)', 'InspeccionGabineteController::create/$1');
+    $routes->post('gabinetes/store', 'InspeccionGabineteController::store');
+    $routes->get('gabinetes/edit/(:num)', 'InspeccionGabineteController::edit/$1');
+    $routes->post('gabinetes/update/(:num)', 'InspeccionGabineteController::update/$1');
+    $routes->get('gabinetes/view/(:num)', 'InspeccionGabineteController::view/$1');
+    $routes->get('gabinetes/pdf/(:num)', 'InspeccionGabineteController::generatePdf/$1');
+    $routes->post('gabinetes/finalizar/(:num)', 'InspeccionGabineteController::finalizar/$1');
+    $routes->get('gabinetes/delete/(:num)', 'InspeccionGabineteController::delete/$1');
+
+    // Inspección Comunicaciones
+    $routes->get('comunicaciones', 'InspeccionComunicacionController::list');
+    $routes->get('comunicaciones/create', 'InspeccionComunicacionController::create');
+    $routes->get('comunicaciones/create/(:num)', 'InspeccionComunicacionController::create/$1');
+    $routes->post('comunicaciones/store', 'InspeccionComunicacionController::store');
+    $routes->get('comunicaciones/edit/(:num)', 'InspeccionComunicacionController::edit/$1');
+    $routes->post('comunicaciones/update/(:num)', 'InspeccionComunicacionController::update/$1');
+    $routes->get('comunicaciones/view/(:num)', 'InspeccionComunicacionController::view/$1');
+    $routes->get('comunicaciones/pdf/(:num)', 'InspeccionComunicacionController::generatePdf/$1');
+    $routes->post('comunicaciones/finalizar/(:num)', 'InspeccionComunicacionController::finalizar/$1');
+    $routes->get('comunicaciones/delete/(:num)', 'InspeccionComunicacionController::delete/$1');
+
+    // Inspección Recursos de Seguridad
+    $routes->get('recursos-seguridad', 'InspeccionRecursosSeguridadController::list');
+    $routes->get('recursos-seguridad/create', 'InspeccionRecursosSeguridadController::create');
+    $routes->get('recursos-seguridad/create/(:num)', 'InspeccionRecursosSeguridadController::create/$1');
+    $routes->post('recursos-seguridad/store', 'InspeccionRecursosSeguridadController::store');
+    $routes->get('recursos-seguridad/edit/(:num)', 'InspeccionRecursosSeguridadController::edit/$1');
+    $routes->post('recursos-seguridad/update/(:num)', 'InspeccionRecursosSeguridadController::update/$1');
+    $routes->get('recursos-seguridad/view/(:num)', 'InspeccionRecursosSeguridadController::view/$1');
+    $routes->get('recursos-seguridad/pdf/(:num)', 'InspeccionRecursosSeguridadController::generatePdf/$1');
+    $routes->post('recursos-seguridad/finalizar/(:num)', 'InspeccionRecursosSeguridadController::finalizar/$1');
+    $routes->get('recursos-seguridad/delete/(:num)', 'InspeccionRecursosSeguridadController::delete/$1');
+
+    // Probabilidad de Ocurrencia de Peligros
+    $routes->get('probabilidad-peligros', 'ProbabilidadPeligrosController::list');
+    $routes->get('probabilidad-peligros/create', 'ProbabilidadPeligrosController::create');
+    $routes->get('probabilidad-peligros/create/(:num)', 'ProbabilidadPeligrosController::create/$1');
+    $routes->post('probabilidad-peligros/store', 'ProbabilidadPeligrosController::store');
+    $routes->get('probabilidad-peligros/edit/(:num)', 'ProbabilidadPeligrosController::edit/$1');
+    $routes->post('probabilidad-peligros/update/(:num)', 'ProbabilidadPeligrosController::update/$1');
+    $routes->get('probabilidad-peligros/view/(:num)', 'ProbabilidadPeligrosController::view/$1');
+    $routes->get('probabilidad-peligros/pdf/(:num)', 'ProbabilidadPeligrosController::generatePdf/$1');
+    $routes->post('probabilidad-peligros/finalizar/(:num)', 'ProbabilidadPeligrosController::finalizar/$1');
+    $routes->get('probabilidad-peligros/delete/(:num)', 'ProbabilidadPeligrosController::delete/$1');
+
+    // Matriz de Vulnerabilidad
+    $routes->get('matriz-vulnerabilidad', 'MatrizVulnerabilidadController::list');
+    $routes->get('matriz-vulnerabilidad/create', 'MatrizVulnerabilidadController::create');
+    $routes->get('matriz-vulnerabilidad/create/(:num)', 'MatrizVulnerabilidadController::create/$1');
+    $routes->post('matriz-vulnerabilidad/store', 'MatrizVulnerabilidadController::store');
+    $routes->get('matriz-vulnerabilidad/edit/(:num)', 'MatrizVulnerabilidadController::edit/$1');
+    $routes->post('matriz-vulnerabilidad/update/(:num)', 'MatrizVulnerabilidadController::update/$1');
+    $routes->get('matriz-vulnerabilidad/view/(:num)', 'MatrizVulnerabilidadController::view/$1');
+    $routes->get('matriz-vulnerabilidad/pdf/(:num)', 'MatrizVulnerabilidadController::generatePdf/$1');
+    $routes->post('matriz-vulnerabilidad/finalizar/(:num)', 'MatrizVulnerabilidadController::finalizar/$1');
+    $routes->get('matriz-vulnerabilidad/delete/(:num)', 'MatrizVulnerabilidadController::delete/$1');
+
+    // Gestión de Pendientes (compromisos)
+    $routes->get('pendientes', 'PendientesPwaController::list');
+    $routes->get('pendientes/cliente/(:num)', 'PendientesPwaController::list/$1');
+    $routes->get('pendientes/create/(:num)', 'PendientesPwaController::create/$1');
+    $routes->post('pendientes/store', 'PendientesPwaController::store');
+    $routes->get('pendientes/edit/(:num)', 'PendientesPwaController::edit/$1');
+    $routes->post('pendientes/update/(:num)', 'PendientesPwaController::update/$1');
+    $routes->post('pendientes/estado/(:num)', 'PendientesPwaController::changeEstado/$1');
+    $routes->get('pendientes/delete/(:num)', 'PendientesPwaController::delete/$1');
+
+    // Gestión de Mantenimientos (vencimientos)
+    $routes->get('mantenimientos', 'MantenimientosPwaController::list');
+    $routes->get('mantenimientos/cliente/(:num)', 'MantenimientosPwaController::list/$1');
+    $routes->get('mantenimientos/create/(:num)', 'MantenimientosPwaController::create/$1');
+    $routes->post('mantenimientos/store', 'MantenimientosPwaController::store');
+    $routes->get('mantenimientos/edit/(:num)', 'MantenimientosPwaController::edit/$1');
+    $routes->post('mantenimientos/update/(:num)', 'MantenimientosPwaController::update/$1');
+    $routes->post('mantenimientos/ejecutado/(:num)', 'MantenimientosPwaController::markEjecutado/$1');
+    $routes->get('mantenimientos/delete/(:num)', 'MantenimientosPwaController::delete/$1');
+
+    // Carta Vigía SST
+    $routes->get('carta-vigia', 'CartaVigiaPwaController::list');
+    $routes->get('carta-vigia/cliente/(:num)', 'CartaVigiaPwaController::list/$1');
+    $routes->get('carta-vigia/create/(:num)', 'CartaVigiaPwaController::create/$1');
+    $routes->post('carta-vigia/store', 'CartaVigiaPwaController::store');
+    $routes->get('carta-vigia/delete/(:num)', 'CartaVigiaPwaController::delete/$1');
+    $routes->post('carta-vigia/reenviar/(:num)', 'CartaVigiaPwaController::reenviar/$1');
+    $routes->get('carta-vigia/pdf/(:num)', 'CartaVigiaPwaController::verPdf/$1');
+
     // API endpoints AJAX
     $routes->get('api/clientes', 'InspeccionesController::getClientes');
     $routes->get('api/pendientes/(:num)', 'InspeccionesController::getPendientes/$1');
     $routes->get('api/mantenimientos/(:num)', 'InspeccionesController::getMantenimientos/$1');
+    $routes->get('api/mantenimientos-catalog', 'MantenimientosPwaController::apiCatalog');
+    $routes->post('api/mantenimientos-catalog', 'MantenimientosPwaController::apiAddCatalog');
+    $routes->get('api/vencimientos/(:num)', 'MantenimientosPwaController::apiVencimientos/$1');
 });
+
+// Rutas públicas Carta Vigía (sin autenticación, patrón de firma contratos)
+$routes->get('carta-vigia/firmar/(:any)', 'Inspecciones\CartaVigiaPwaController::firmar/$1');
+$routes->post('carta-vigia/procesar-firma', 'Inspecciones\CartaVigiaPwaController::procesarFirma');
+$routes->get('carta-vigia/verificar/(:any)', 'Inspecciones\CartaVigiaPwaController::verificar/$1');
 

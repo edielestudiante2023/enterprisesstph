@@ -1,0 +1,187 @@
+INTRODUCCIÓN
+
+En cumplimiento de los lineamientos establecidos por el Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) y con base en la normativa vigente en Colombia, se realizó el día 6 de octubre de 2025 una inspección técnica de señalización en las instalaciones de  <<[CLIENTE]>>. Esta actividad hace parte de las acciones planificadas para la identificación de condiciones inseguras y la verificación del cumplimiento de los requisitos mínimos de seguridad en infraestructura, enmarcados en el Decreto 1072 de 2015 y la Resolución 0312 de 2019.
+
+El propósito de la inspección fue evaluar la adecuación, visibilidad y estado de los elementos de señalización preventiva, informativa y de emergencia en las zonas comunes de la copropiedad, considerando su impacto directo en la prevención de accidentes, la orientación de residentes y visitantes, y la adecuada respuesta ante situaciones de emergencia. Se incluyeron elementos como rutas de evacuación, salidas de emergencia, señalización de extintores, botiquines, camillas, puntos de encuentro, alarmas, gabinetes contra incendio, así como señalización vial interna y de seguridad en piscinas y cuartos técnicos.
+
+Esta labor fue liderada por Cycloid Talent SAS, siguiendo criterios técnicos definidos en el Formato FT-SST-224 – Versión 001, con el fin de garantizar la trazabilidad del proceso y la mejora continua del sistema de gestión en la copropiedad.
+
+JUSTIFICACIÓN
+
+La señalización adecuada en espacios residenciales no es únicamente un requerimiento normativo, sino una herramienta esencial en la prevención de riesgos y en la protección de la vida e integridad de las personas que habitan, trabajan o visitan el conjunto residencial. Según el Decreto 1072 de 2015 y sus normas complementarias, las organizaciones deben implementar medidas que garanticen ambientes de trabajo y convivencia seguros, entre ellas, la correcta señalización de zonas de riesgo y equipos de emergencia.
+
+En entornos como los conjuntos residenciales, donde confluyen personas de todas las edades y niveles de conocimiento en seguridad, la señalización cumple una función clave en la orientación frente a riesgos eléctricos, químicos, físicos, o ante situaciones de evacuación. Una señalización deficiente o inexistente puede generar confusión, retrasos en la respuesta a emergencias, aumento de accidentes y, en casos graves, consecuencias legales por negligencia administrativa.
+
+Por tanto, este informe técnico permite establecer un diagnóstico claro del estado actual de la señalización, identificando fortalezas y oportunidades de mejora, para que la administración del conjunto <<[CLIENTE]>> implemente planes de acción correctivos, preventivos o de mejora que aseguren el cumplimiento de los estándares mínimos en SST, protejan a la comunidad y fortalezcan la cultura del autocuidado y la prevención.
+
+HALLAZGOS
+
+Fecha
+ <<[FECHA DE LA INSPECCION]>>
+Cliente
+ <<[CLIENTE]>>
+Rutas De Evacuacion
+ <<[Rutas de evacuacion]>>
+Rutas De Evacuacion Foto
+ <<[Rutas de evacuacion foto]>>
+Salidas De Emergencia
+ <<[Salidas de emergencia]>>
+Salidas De Emergencia Foto
+ <<[Salidas de emergencia foto]>>
+Punto De Encuentro
+ <<[Punto de encuentro]>>
+Punto De Encuentro Foto
+ <<[Punto de encuentro foto]>>
+Planos De Evacuacion
+ <<[Planos de evacuacion]>>
+Planos De Evacuacion Foto
+ <<[Planos de evacuacion foto]>>
+Extintores Senalizacion
+ <<[Extintores senalizacion]>>
+Extintores Senalizacion Foto
+ <<[Extintores senalizacion foto]>>
+Gabinetes Contra Incendio
+ <<[Gabinetes contra incendio]>>
+Gabinetes Contra Incendio Foto
+ <<[Gabinetes contra incendio foto]>>
+Alarmas Contra Incendios
+ <<[Alarmas contra incendios]>>
+Alarmas Contra Incendios Foto
+ <<[Alarmas contra incendios foto]>>
+Botiquin De Primeros Auxilios
+ <<[Botiquin de primeros auxilios]>>
+Botiquin De Primeros Auxilios Foto
+ <<[Botiquin de primeros auxilios foto]>>
+Camilla De Emergencia
+ <<[Camilla de emergencia]>>
+Camilla De Emergencia Foto
+ <<[Camilla de emergencia foto]>>
+Numeros De Emergencia
+ <<[Numeros de emergencia]>>
+Numeros De Emergencia Foto
+ <<[Numeros de emergencia foto]>>
+Libres De Humo De Tabaco
+ <<[Libres de humo de tabaco]>>
+Libres De Humo De Tabaco Foto
+ <<[Libres de humo de tabaco foto]>>
+Prohibido Fumar
+ <<[Prohibido fumar]>>
+Prohibido Fumar Foto
+ <<[Prohibido fumar foto]>>
+Cerca Perimetral
+ <<[cerca_perimetral]>>
+Cerca Perimetral Foto
+ <<[cerca_perimetral foto]>>
+Cebo De La Desratización
+ <<[cebo_desratizacion]>>
+Cebo De La Desratización Foto
+ <<[cebo_desratizacion foto]>>
+Manejo De Mascotas
+ <<[Manejo de mascotas]>>
+Manejo De Mascotas Foto
+ <<[Manejo de mascotas foto]>>
+Videovigilancia
+ <<[Videovigilancia]>>
+Videovigilancia Foto
+ <<[Videovigilancia foto]>>
+Limite De Velocidad
+ <<[Limite de velocidad]>>
+Limite De Velocidad Foto
+ <<[Limite de velocidad foto]>>
+Senales De Transito Internas
+ <<[Senales de transito internas]>>
+Senales De Transito Internas Foto
+ <<[Senales de transito internas foto]>>
+Parqueaderos Discapacidad
+ <<[Parqueaderos discapacidad]>>
+Parqueaderos Discapacidad Foto
+ <<[Parqueaderos discapacidad foto]>>
+Zona De Carga Vehiculos Electricos
+ <<[Zona de carga vehiculos electricos]>>
+Zona De Carga Vehiculos Electricos Foto
+ <<[Zona de carga vehiculos electricos foto]>>
+Identificacion Oficina De Administracion
+ <<[Identificacion oficina de administracion]>>
+Identificacion Oficina De Administracion Foto
+ <<[Identificacion oficina de administracion foto]>>
+Identificacion Zonas Sociales O Comunales
+ <<[identificacion zonas sociales o comunales]>>
+Identificacion Zonas Sociales O Comunales Foto
+ <<[identificacion zonas sociales o comunales foto]>>
+Servicios Sanitarios Comunes
+ <<[Servicios sanitarios comunes]>>
+Servicios Sanitarios Comunes Foto
+ <<[Servicios sanitarios comunes foto]>>
+Cuarto De Basuras Y Reciclaje
+ <<[Cuarto de basuras y reciclaje]>>
+Cuarto De Basuras Y Reciclaje Foto
+ <<[Cuarto de basuras y reciclaje foto]>>
+Residuos Ordinarios
+ <<[Residuos Ordinarios]>>
+Residuos Ordinarios Foto
+ <<[Residuos Ordinarios foto]>>
+Residuos Reciclables
+ <<[Residuos Reciclables]>>
+Residuos Reciclables Foto
+ <<[Residuos Reciclables foto]>>
+Cuarto De Bombas
+ <<[cuarto de bombas]>>
+Cuarto De Bombas Foto
+ <<[cuarto de bombas foto]>>
+Cuarto Electrico
+ <<[Cuarto electrico]>>
+Cuarto Electrico Foto
+ <<[Cuarto electrico foto]>>
+Planta Electrica
+ <<[planta electrica]>>
+Planta Electrica Foto
+ <<[planta electrica foto]>>
+No Ingresar Solo Personal Autorizado
+ <<[No ingresar Solo personal autorizado]>>
+No Ingresar Solo Personal Autorizado Foto
+ <<[No ingresar Solo personal autorizado foto]>>
+Alto Voltaje Peligro
+ <<[Alto voltaje Peligro]>>
+Alto Voltaje Peligro Foto
+ <<[Alto voltaje Peligro foto]>>
+Capacidad Maxima Del Ascensor
+ <<[Capacidad maxima del ascensor]>>
+Capacidad Maxima Del Ascensor Foto
+ <<[Capacidad maxima del ascensor foto]>>
+Certificado Revision Ascensor
+ <<[certificado revision ascensor]>>
+Certificado Revision Ascensor Foto
+ <<[certificado revision ascensor foto]>>
+No Usar Ascensor En Caso De Incendio
+ <<[No usar ascensor en caso de incendio]>>
+No Usar Ascensor En Caso De Incendio Foto
+ <<[No usar ascensor en caso de incendio foto]>>
+Piscinas Profundidades Visibles
+ <<[Piscinas Profundidades visibles]>>
+Piscinas Profundidades Visibles Foto
+ <<[Piscinas Profundidades visibles foto]>>
+Piscinas Equipos De Rescate
+ <<[Piscinas Equipos de rescate]>>
+Piscinas Equipos De Rescate Foto
+ <<[Piscinas Equipos de rescate foto]>>
+Piscinas Aforo
+ <<[Piscinas Aforo]>>
+Piscinas Aforo Foto
+ <<[Piscinas Aforo foto]>>
+Ítems Que No Aplican
+ <<[NO APLICA]>>
+Ítems Que No Cumple
+ <<[NO CUMPLE]>>
+Ítems Que Cumple Parcialmente
+ <<[CUMPLE PARCIALMENTE]>>
+Ítems Que Cumple Totalmente
+ <<[CUMPLE TOTALMENTE]>>
+Calificación
+ <<[CALIFICACION]>>
+Descripción De La Calificación
+ <<[DESCRIPCION CUALITATIVA]>>
+Observaciones
+ <<[Observaciones]>>
+
+
+

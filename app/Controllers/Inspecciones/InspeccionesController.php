@@ -7,9 +7,16 @@ use App\Models\ActaVisitaModel;
 use App\Models\InspeccionLocativaModel;
 use App\Models\InspeccionSenalizacionModel;
 use App\Models\InspeccionExtintoresModel;
+use App\Models\InspeccionBotiquinModel;
+use App\Models\InspeccionGabineteModel;
+use App\Models\InspeccionComunicacionModel;
+use App\Models\InspeccionRecursosSeguridadModel;
+use App\Models\ProbabilidadPeligrosModel;
+use App\Models\MatrizVulnerabilidadModel;
 use App\Models\ClientModel;
 use App\Models\PendientesModel;
 use App\Models\VencimientosMantenimientoModel;
+use App\Models\CartaVigiaModel;
 
 class InspeccionesController extends BaseController
 {
@@ -84,16 +91,139 @@ class InspeccionesController extends BaseController
             $pendientesExtintores = $extintoresModel->getPendientesByConsultor($userId);
         }
 
+        // Conteo de botiquín completas
+        $botiquinModel = new InspeccionBotiquinModel();
+        $totalBotiquin = $botiquinModel->where('id_consultor', $userId)
+            ->where('estado', 'completo')
+            ->countAllResults();
+
+        // Pendientes de botiquín (borradores)
+        if ($role === 'admin') {
+            $pendientesBotiquin = $botiquinModel
+                ->select('tbl_inspeccion_botiquin.*, tbl_clientes.nombre_cliente')
+                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_inspeccion_botiquin.id_cliente', 'left')
+                ->where('tbl_inspeccion_botiquin.estado', 'borrador')
+                ->orderBy('tbl_inspeccion_botiquin.updated_at', 'DESC')
+                ->findAll();
+        } else {
+            $pendientesBotiquin = $botiquinModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de gabinetes completas
+        $gabineteModel = new InspeccionGabineteModel();
+        $totalGabinetes = $gabineteModel->where('id_consultor', $userId)
+            ->where('estado', 'completo')
+            ->countAllResults();
+
+        // Pendientes de gabinetes (borradores)
+        if ($role === 'admin') {
+            $pendientesGabinetes = $gabineteModel->getAllPendientes();
+        } else {
+            $pendientesGabinetes = $gabineteModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de comunicaciones completas
+        $comunicacionModel = new InspeccionComunicacionModel();
+        $totalComunicaciones = $comunicacionModel->where('id_consultor', $userId)
+            ->where('estado', 'completo')
+            ->countAllResults();
+
+        // Pendientes de comunicaciones (borradores)
+        if ($role === 'admin') {
+            $pendientesComunicaciones = $comunicacionModel->getAllPendientes();
+        } else {
+            $pendientesComunicaciones = $comunicacionModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de recursos seguridad completas
+        $recursosSeguridadModel = new InspeccionRecursosSeguridadModel();
+        $totalRecursosSeg = $recursosSeguridadModel->where('id_consultor', $userId)
+            ->where('estado', 'completo')
+            ->countAllResults();
+
+        // Pendientes de recursos seguridad (borradores)
+        if ($role === 'admin') {
+            $pendientesRecursosSeg = $recursosSeguridadModel->getAllPendientes();
+        } else {
+            $pendientesRecursosSeg = $recursosSeguridadModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de probabilidad peligros completas
+        $probPeligrosModel = new ProbabilidadPeligrosModel();
+        $totalProbPeligros = $probPeligrosModel->where('id_consultor', $userId)
+            ->where('estado', 'completo')
+            ->countAllResults();
+
+        // Pendientes de probabilidad peligros (borradores)
+        if ($role === 'admin') {
+            $pendientesProbPeligros = $probPeligrosModel->getAllPendientes();
+        } else {
+            $pendientesProbPeligros = $probPeligrosModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de matriz vulnerabilidad completas
+        $matrizVulModel = new MatrizVulnerabilidadModel();
+        $totalMatrizVul = $matrizVulModel->where('id_consultor', $userId)
+            ->where('estado', 'completo')
+            ->countAllResults();
+
+        // Pendientes de matriz vulnerabilidad (borradores)
+        if ($role === 'admin') {
+            $pendientesMatrizVul = $matrizVulModel->getAllPendientes();
+        } else {
+            $pendientesMatrizVul = $matrizVulModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de vencimientos de mantenimiento sin ejecutar
+        $vencimientoModel = new VencimientosMantenimientoModel();
+        $vencBuilder = $vencimientoModel->where('estado_actividad', 'sin ejecutar');
+        if ($role !== 'admin') {
+            $vencBuilder->where('id_consultor', $userId);
+        }
+        $totalVencimientos = $vencBuilder->countAllResults();
+
+        // Conteo de pendientes (compromisos) abiertos
+        $pendientesCountModel = new PendientesModel();
+        $pendCountBuilder = $pendientesCountModel->where('estado', 'ABIERTA');
+        if ($role !== 'admin') {
+            $pendCountBuilder->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_pendientes.id_cliente')
+                ->where('tbl_clientes.id_consultor', $userId);
+        }
+        $totalPendientesAbiertos = $pendCountBuilder->countAllResults();
+
+        // Conteo de cartas vigía pendientes de firma
+        $cartaVigiaModel = new CartaVigiaModel();
+        $cartaBuilder = $cartaVigiaModel->where('estado_firma', 'pendiente_firma');
+        if ($role !== 'admin') {
+            $cartaBuilder->where('id_consultor', $userId);
+        }
+        $totalCartasVigiaPend = $cartaBuilder->countAllResults();
+
         $data = [
             'title'            => 'Inspecciones SST',
             'pendientes'       => $pendientes,
             'pendientesLocativas' => $pendientesLocativas,
             'pendientesSenalizacion' => $pendientesSenalizacion,
             'pendientesExtintores' => $pendientesExtintores,
+            'pendientesBotiquin' => $pendientesBotiquin,
+            'pendientesGabinetes' => $pendientesGabinetes,
+            'pendientesComunicaciones' => $pendientesComunicaciones,
+            'pendientesRecursosSeg' => $pendientesRecursosSeg,
+            'pendientesProbPeligros' => $pendientesProbPeligros,
+            'pendientesMatrizVul' => $pendientesMatrizVul,
             'totalActas'       => $totalActas,
             'totalLocativas'   => $totalLocativas,
             'totalSenalizacion' => $totalSenalizacion,
             'totalExtintores'  => $totalExtintores,
+            'totalBotiquin'    => $totalBotiquin,
+            'totalGabinetes'   => $totalGabinetes,
+            'totalComunicaciones' => $totalComunicaciones,
+            'totalRecursosSeg' => $totalRecursosSeg,
+            'totalProbPeligros' => $totalProbPeligros,
+            'totalMatrizVul'   => $totalMatrizVul,
+            'totalVencimientos' => $totalVencimientos,
+            'totalPendientesAbiertos' => $totalPendientesAbiertos,
+            'totalCartasVigiaPend' => $totalCartasVigiaPend,
             'nombre'           => session()->get('nombre_usuario'),
         ];
 

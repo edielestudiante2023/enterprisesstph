@@ -242,13 +242,13 @@ Esta tabla mapea los documentos que antes se enviaban via n8n/AppSheet a sus IDs
 
 | Documento | id_report_type | id_detailreport | Estado |
 |-----------|---------------|-----------------|--------|
-| **ACTA DE VISITA** | **6** | **9** | **Implementando** |
-| INSPECCION BOTIQUINES | 6 | 9 | Futuro (roadmap #4) |
-| INSPECCION EXTINTORES | 6 | 9 | Futuro (roadmap #5) |
-| INSPECCION GABINETES CONTRAINCENDIO | 6 | 9 | Futuro (roadmap #6) |
-| INSPECCION LOCATIVAS | 6 | 9 | Futuro (roadmap #3) |
-| INSPECCION SENALIZACION | 6 | 9 | Futuro (roadmap #2) |
-| COMUNICACIONES | 6 | 9 | Futuro (roadmap #7) |
+| **ACTA DE VISITA** | **6** | **9** | FUNCIONAL |
+| **INSPECCION LOCATIVAS** | **6** | **10** | FUNCIONAL |
+| **INSPECCION SENALIZACION** | **6** | **11** | FUNCIONAL |
+| **INSPECCION EXTINTORES** | **6** | **12** | FUNCIONAL |
+| **INSPECCION BOTIQUINES** | **6** | **13** | FUNCIONAL |
+| INSPECCION GABINETES CONTRAINCENDIO | 6 | — | Pendiente (roadmap #6) |
+| COMUNICACIONES | 6 | — | Pendiente (roadmap #7) |
 
 ### Tabla completa de tipos de reporte (referencia)
 
@@ -403,7 +403,9 @@ Una vez que el modulo de Acta de Visita este en produccion:
 
 ## 10. Reutilizacion para Futuras Inspecciones
 
-El metodo `uploadToReportes()` se puede extraer a un **Trait o Helper** reutilizable:
+> **Nota (2026-02-24):** La clase `ReporteAutoUpload` descrita abajo NO se implemento como libreria compartida. En su lugar, cada controlador de inspeccion tiene su propio metodo privado `uploadToReportes()` con la misma logica pero `id_detailreport` especifico (9-13). Funciona bien — extraer a libreria queda como refactor opcional.
+
+El metodo `uploadToReportes()` se podria extraer a un **Trait o Helper** reutilizable:
 
 ```php
 // app/Libraries/ReporteAutoUpload.php

@@ -306,9 +306,9 @@
         <a href="/inspecciones/acta-visita/create" class="btn-create">
             <i class="fas fa-plus-circle"></i>
         </a>
-        <a href="#" class="disabled">
-            <i class="fas fa-list"></i>
-            <span>Otras</span>
+        <a href="/inspecciones/mantenimientos" class="<?= strpos(current_url(), 'mantenimientos') !== false ? 'active' : '' ?>">
+            <i class="fas fa-wrench"></i>
+            <span>Mmtos</span>
         </a>
         <a href="/logout">
             <i class="fas fa-sign-out-alt"></i>

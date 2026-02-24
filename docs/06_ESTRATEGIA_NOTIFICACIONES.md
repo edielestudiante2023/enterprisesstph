@@ -1,5 +1,7 @@
 # Estrategia de Notificaciones - Modulo de Inspecciones
 
+> **Estado: PENDIENTE DE IMPLEMENTACION** — Este documento es un diseno a futuro. No se ha instalado `minishlink/web-push`, no existe la tabla `tbl_push_subscriptions`, ni los archivos JS/PHP descritos aqui. Actualmente solo se usa email via SendGrid (sin integracion con el modulo de inspecciones).
+
 ---
 
 ## 1. Estado Actual del Proyecto

@@ -1,0 +1,91 @@
+INSPECCIÓN DE GABINETES CONTRA INCENDIO
+Norma Técnica Colombiana para Gabinetes Contra Incendios en Propiedad Horizontal
+Introducción
+En el contexto de la propiedad horizontal en Colombia, la seguridad contra incendios cobra especial relevancia debido a la concentración de personas y bienes en un mismo espacio. La Norma Técnica Colombiana (NTC) 1800, que establece los requisitos mínimos para los gabinetes contra incendios, se convierte en un elemento crucial para garantizar la protección de las personas y bienes en este tipo de edificaciones.
+Alcance y Aplicación de la Norma NTC 1800 en Propiedad Horizontal
+La NTC 1800 se aplica a los gabinetes contra incendios tipo I, II y III instalados en edificios de propiedad horizontal en Colombia. Estos gabinetes, al igual que en otros tipos de edificaciones, se conectan a la red de tuberías de agua contra incendios y permiten combatir incendios de manera efectiva.
+Componentes Esenciales de los Gabinetes Contra Incendios en Propiedad Horizontal
+En el contexto de la propiedad horizontal, la NTC 1800 establece los mismos componentes esenciales para los gabinetes contra incendios que en otros tipos de edificaciones:
+Manguera: La manguera es indispensable para dirigir un chorro de agua hacia la base del fuego. Su longitud y tipo dependerán del tamaño del edificio, el número de unidades y el nivel de riesgo de incendio.
+
+
+Hacha: El hacha es una herramienta multifuncional que puede ser utilizada para romper obstáculos, derribar escombros e incluso cortar materiales en caso de ser necesario.
+
+
+Válvula: La válvula permite controlar el flujo de agua desde la red contra incendios hacia la manguera. Debe ser fácil de operar y estar claramente identificada.
+
+
+Boquilla: La boquilla permite ajustar el tipo de chorro de agua (recto, nebulizado, etc.) que se dirige hacia el fuego.
+
+
+Soporte para manguera: El soporte para manguera permite almacenar la manguera de forma ordenada y segura dentro del gabinete.
+
+
+Gabinete: El gabinete alberga todos los componentes del sistema contra incendios y debe ser fabricado con materiales resistentes al fuego y a la corrosión. Su tamaño debe ser adecuado para albergar todo el equipo necesario.
+
+
+Señalización: El gabinete debe estar claramente identificado con la señal de "Gabinete contra incendios" para facilitar su ubicación en caso de una emergencia.
+
+
+Requisitos Adicionales para los Gabinetes Contra Incendios en Propiedad Horizontal
+Además de los componentes esenciales, la NTC 1800 establece requisitos adicionales para los gabinetes contra incendios en propiedad horizontal, tomando en cuenta las características específicas de este tipo de edificaciones:
+Ubicación estratégica: Los gabinetes contra incendios deben ubicarse en puntos estratégicos de la edificación, considerando las vías de evacuación y los accesos a las unidades habitacionales.
+
+
+Accesibilidad: Los gabinetes deben ser fácilmente accesibles para todos los residentes, incluyendo personas con movilidad reducida.
+
+
+Señalización clara: La señalización de los gabinetes debe ser clara, visible y comprensible para todas las personas, utilizando símbolos universales y lenguaje sencillo.
+
+
+Capacitación y entrenamiento: Es fundamental que los residentes reciban capacitación y entrenamiento en el uso correcto de los gabinetes contra incendios, incluyendo la operación de la manguera, la válvula y la boquilla.
+
+
+Planes de emergencia: La propiedad horizontal debe contar con planes de emergencia que incluyan procedimientos específicos para la utilización de los gabinetes contra incendios en caso de un incendio.
+
+
+Importancia de la Norma NTC 1800 en Propiedad Horizontal
+El cumplimiento de la NTC 1800 en propiedad horizontal es de vital importancia para garantizar la seguridad contra incendios en este tipo de edificaciones. Los gabinetes contra incendios, diseñados y mantenidos de acuerdo con la norma, pueden ser la clave para salvar vidas y proteger bienes en caso de un incendio.
+Responsabilidades en la Propiedad Horizontal
+En el contexto de la propiedad horizontal, la responsabilidad del cumplimiento de la NTC 1800 recae en la administración de la unidad residencial, quien debe velar por la instalación, inspección, mantenimiento y pruebas periódicas de los gabinetes contra incendios.
+
+FECHA DE LA INSPECCIÓN
+ <<[FECHA DE LA INSPECCION]>>
+CLIENTE
+ <<[CLIENTE]>>
+EL CONJUNTO CUENTA CON GABINETES PARA LA EXTINCIÓN DE INCENDIOS?
+ <<[EL CONJUNTO CUENTA CON GABINETES PARA LA EXTINCIÓN DE INCENDIOS?]>>
+ESTOS DISPOSITIVOS YA FUERON ENTREGADOS POR LA CONSTRUCTORA Y ESTÁN ACTIVOS PARA LA COPROPIEDAD?
+ <<[ESTOS DISPOSITIVOS YA FUERON ENTREGADOS POR LA CONSTRUCTORA Y ESTÁN ACTIVOS PARA LA COPROPIEDAD?]>>
+CUANTOS GABINETES DE EXTINCIÓN DE INCENDIOS HAY?
+ <<[CUANTOS GABINETES DE EXTINCIÓN DE INCENDIOS HAY?]>>
+LISTE LOS ELEMENTOS QUE CONTIENE CADA GABINETE
+ <<[LISTE LOS ELEMENTOS QUE CONTIENE CADA GABINETE]>>
+MENCIONE LA UBICACIÓN DE LOS GABINETES DENTRO DE LA COPROPIEDAD DE MANERA DETALLADA
+ <<[MENCIONE LA UBICACIÓN DE LOS GABINETES DENTRO DE LA COPROPIEDAD DE MANERA DETALLADA]>>
+INDIQUE EL ESTADO DE LA SEÑALIZACIÓN AL RESPECTO DE LOS GABINETES
+ <<[INDIQUE EL ESTADO DE LA SEÑALIZACIÓN AL RESPECTO DE LOS GABINETES]>>
+FOTO 1
+ <<[FOTO 1]>>
+FOTO 2
+ <<[FOTO 2]>>
+OBSERVACIONES Y RECOMENDACIONES FRENTE A LOS GABINETES DE EXTICIÓN DE INCENDIOS
+ <<[OBSERVACIONES Y RECOMENDACIONES FRENTE A LOS GABINETES DE EXTICIÓN DE INCENDIOS]>>
+EN LA COPROPIEDAD EXISTEN EQUIPOS DE DETECCIÓN DE HUMO
+ <<[EN LA COPROPIEDAD EXISTEN EQUIPOS DE DETECCIÓN DE HUMO]>>
+ESTOS DISPOSITIVOS YA FUERON ENTREGADOS POR LA CONSTRUCTORA Y ESTÁN ACTIVOS PARA LA COPROPIEDAD?
+ <<[ESTOS DISPOSITIVOS YA FUERON ENTREGADOS POR LA CONSTRUCTORA Y ESTAN ACTIVOS PARA LA COPROPIEDAD?]>>
+CUÁNTOS DETECTORES DE HUMO TIENE LA COPROPIEDAD
+ <<[CUANTOS DETECTORES DE HUMO TIENE LA COPROPIEDAD]>>
+MENCIONE LAS PARTES DE LA COPROPIEDAD QUE CUENTAN CON DISPOSITIVOS DE DETECCIÓN DE HUMO
+ <<[MENCIONE LAS PARTES DE LA COPROPIEDAD QUE CUENTAN CON DISPOSITIVOS DE DETECCIÓN DE HUMO]>>
+FOTO 1
+ <<[FOTO 3]>>
+FOTO 2
+ <<[FOTO 4]>>
+OBSERVACIONES O RECOMENDACIONES
+ <<[OBSERVACIONES O RECOMENDACIONES]>>
+
+
+
+

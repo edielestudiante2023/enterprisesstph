@@ -1,0 +1,1972 @@
+PLAN DE EMERGENCIA
+<<[NOMBRE DEL CLIENTE]>>
+<<[FOTO FACHADA CONJUNTO]>>
+
+
+
+
+INTRODUCCIÓN
+
+De acuerdo con la Ley 675 de 2001, se considera edificio a una construcción de uno o varios pisos levantados sobre un lote o terreno, cuya estructura comprende un número plural de unidades independientes; y conjunto al desarrollo inmobiliario conformado por varios edificios levantados sobre uno o varios lotes de terreno, que comparten áreas y servicios de uso y utilidad general, como vías internas, estacionamiento, zonas verdes, muros de cerramiento, porterías, entre otros. Cuando uno u otro se destina a la vivienda de las personas, se denomina edificio o conjunto de uso residencial (Congreso de Colombia Ley 675/01, 2001).
+
+Es posible que todo edificio o instalación que albergue personas se convierta en un lugar de desastre en el evento que se produzca una emergencia repentina que adolezca de la oportuna y óptima intervención de esta. La emergencia puede agravarse con el pánico que usualmente se despierta cuando se carece de la preparación adecuada para afrontar un suceso.
+
+Todas las entidades ya sean del sector público o privado tienen la responsabilidad de administrar situaciones generadas por los desastres o por las emergencias que puedan presentarse, como consecuencia del riesgo al cual se encuentran expuestos.
+ 
+Un plan de emergencia es el conjunto de medidas anticipadas a una emergencia, que permite a sus usuarios la posibilidad de no ser afectados si esta sucede. Su propósito es proporcionar los elementos necesarios a todos los miembros que hacen parte del Conjunto residencial, criterios básicos que le permitan responder de forma adecuada a los eventos catastróficos que en una edificación pueden ocurrir.
+
+Existe la responsabilidad de estar preparados para hacerle frente a las situaciones adversas, las cuales pueden ser de diferente origen: naturales (vendavales, inundaciones, sismos, tormentas eléctricas, y algunos otros), tecnológicas (incendios, explosiones, derrames de combustibles, fallas eléctricas, fallas estructurales, entre otras) y sociales (atentados, vandalismo, terrorismos, amenazas de diferente índole y otras acciones). Lo anterior muestra la variedad de emergencias que en cualquier momento pueden afectar de manera individual o colectiva el cotidiano vivir de los residentes con resultados como lesiones o muerte, daño a bienes, afectación del medio ambiente, alteración del funcionamiento del conjunto y pérdidas económicas.
+
+
+
+
+JUSTIFICACIÓN
+
+La gestión del riesgo, de acuerdo con la Ley 1523 de 2012, es un proceso social orientado a la formulación, ejecución, seguimiento y evaluación de políticas, estrategias, planes, programas, regulaciones, instrumentos, medidas y acciones permanentes para el conocimiento y la reducción del riesgo, y para el manejo de desastres, con el propósito explícito de contribuir a la seguridad, el bienestar, la calidad de vida de las personas y al desarrollo sostenible.
+
+Frente a la imposibilidad de eliminar por completo la probabilidad de ocurrencia de una situación de emergencia, se ha evidenciado la necesidad de establecer un proceso que permita contrarrestar y minimizar las consecuencias adversas que se presentan en una situación de crisis. Este proceso es conocido como “Plan de preparación para emergencias y contingencias”, el cual es empleado para prevenir y controlar aquellos eventos que puedan catalogarse como un riesgo.
+
+El plan de emergencias es una herramienta que permite poner en conocimiento todos los factores de riesgo (amenaza y vulnerabilidad) frente a las personas y los bienes. Así mismo, debe ser divulgado a todas las personas que intervienen en él, e implementarlo por medio de simulacros periódicos, por esto se hace necesaria la participación de todos los miembros de <<[NOMBRE DEL CLIENTE]>>
+La mitigación de la afectación en la salud de las personas es el principal factor del plan de emergencias del conjunto residencial, es por esto por lo que se planteó un panorama de riesgos que permite evaluar cada una de las estructuras que hacen parte de este.
+
+<<[NOMBRE DEL CLIENTE]>> implementará el plan de emergencias con la seguridad de que su aplicación le permitirá disponer de una herramienta de trabajo ágil en la planificación de tratamientos de emergencias. Se deberán considerar las políticas y procedimientos, ya que en algún momento cada persona tendrá funciones y responsabilidades en cooperación con la Administración del Conjunto; debido a lo anterior, se conformarán brigadas de emergencia con sus diferentes acciones y responsabilidades, el equipo de evacuación, el equipo de primeros auxilios y el equipo control de incendios, con el fin de contar con un ambiente seguro, con la protección adecuada para la salud de los residentes y sus trabajadores, brindando una atención de emergencias de manera eficiente y eficaz.
+
+OBJETIVOS
+
+OBJETIVO GENERAL
+Elaborar el Plan de Emergencias de <<[NOMBRE DEL CLIENTE]>> para que sirva como guía en el desarrollo de actividades orientadas en la prevención y atención de eventos que pueden ocasionar lesiones a los residentes y trabajadores y de igual forma a la infraestructura del conjunto.
+
+OBJETIVOS ESPECÍFICOS
+Proporcionar a los residentes de <<[NOMBRE DEL CLIENTE]>> los elementos adecuados que les permitan responder con eficacia en la prevención y atención de emergencias para reducir el impacto al interior del conjunto residencial.
+Contar con una estructura organizativa eficiente y preparada para actuar en situaciones de emergencia, permitiendo la identificación oportuna de amenazas, la evaluación de vulnerabilidades y la definición precisa de niveles de riesgo. El objetivo primordial es reducir al máximo las posibles pérdidas humanas y económicas que pudieran derivarse para las instalaciones y equipos involucrados.
+Minimizar los daños a la comunidad y su ambiente.
+ 
+ALCANCE
+
+Este documento, denominado Plan de Preparación y Respuesta ante Situaciones de Emergencia (PPRSE), tiene como enfoque principal todas las áreas pertenecientes a la copropiedad. Además, abarca a todo el personal que forma parte de esta comunidad, incluyendo servidores públicos, contratistas, pasantes, judiciales, visitantes y otras partes interesadas.
+
+
+
+
+
+CONCEPTOS
+De acuerdo con el artículo 4 de la Ley 675 de 2001 por medio de la cual se expide el Régimen de Propiedad Horizontal, cada edificio o conjunto de uso residencial debe constituirse en persona jurídica, por tanto, la legislación colombiana alrededor del tema de Seguridad y Salud en el Trabajo es perfectamente aplicable a las administraciones y consejos de administración, motivo por el cual se hará uso de la terminología del Sistema de Gestión de Seguridad y Salud en el Trabajo.
+
+Para mayor comprensión de la diferente terminología que se va a tratar en el documento, se describe a continuación algunos de los conceptos:
+
+ALARMA O PITO: Sistema sonoro que permite avisar inmediatamente se accione a la comunidad la presencia de un riesgo que pone en grave peligro sus vidas.
+
+ALERTA: Acciones de respuesta especificas frente a una emergencia.
+
+AMENAZA: Factor externo de origen natural, tecnológico o social que puede afectar a la comunidad y a la copropiedad, provocando lesiones y/o muerte a las personas o daños a la infraestructura física y económica.
+
+ANÁLISIS DE VULNERABILIDAD: Es la medida o grado de ser afectado por amenazas o riesgos SEGÚN la frecuencia y la severidad de estos. La vulnerabilidad depende de varios factores entre otros: la posibilidad de ocurrencia del evento, la frecuencia de la ocurrencia de este, los planes y programas preventivos existentes y la posibilidad de programación anual entre otros.
+
+AYUDA INSTITUCIONAL: Es aquélla prestada por entidades PÚBlicas y/o privadas de carácter comunitario, organizados con el fin específico de responder de oficio a los desastres.
+
+COMBUSTIÓN: Reacción mediante la cual una sustancia denominada combustible interactúa químicamente con otra llamada oxidante o comburente y da como resultado gases tóxicos irritantes y asfixiantes, humo que obstaculiza la visibilidad y afecta la respiración, llamas y calor que generan lesiones de diversa intensidad en las personas.
+
+CONTINGENCIA: Evento que puede suceder o no suceder para el cual debemos estar preparados.
+
+CONTROL: Acción de eliminar o limitar el desarrollo de un siniestro, para evitar o minimizar sus consecuencias.
+
+DESASTRE: Es el daño o alteración grave de las condiciones normales de la vida, causado por fenómenos naturales o acción del hombre en forma accidental.
+
+EMERGENCIA: Estado de alteración parcial o total de las actividades de una propiedad horizontal, ocasionado por la ocurrencia de un evento que genera peligro inminente y cuyo control supera la capacidad de respuesta de las personas y de las organizaciones.
+
+ESCENARIO: se refiere a una representación o descripción detallada de una situación o conjunto de circunstancias hipotéticas, ya sea en el presente o en el futuro. Los escenarios se utilizan comúnmente en diversas áreas, como la planificación estratégica, la toma de decisiones, la gestión de riesgos y la narrativa, para explorar posibles resultados o eventos. Pueden ser utilizados como herramientas para analizar y comprender mejor las implicaciones de diferentes cursos de acción, identificar desafíos potenciales y prepararse para diversas contingencias. En el contexto de un plan de emergencias, un escenario podría ser una representación detallada de una situación de emergencia hipotética que se utiliza como base para la planificación y preparación de respuestas.  
+
+EVENTO: Descripción de un fenómeno natural, tecnológico o provocado por el hombre en términos de sus características, su severidad, ubicación y área de influencia.
+
+EVACUACIÓN: Es el conjunto de acciones tendientes a desplazar las personas de una zona de mayor amenaza a otra de menor peligro.
+
+IMPACTO: Acción directa de una amenaza o un riesgo en un grupo de personas.
+
+MITIGACIÓN: Acciones desarrolladas antes, durante y después de un siniestro, tendientes a contrarrestar sus efectos críticos, y asegurar la supervivencia del sistema hasta tanto se efectúe la recuperación.
+
+PLAN DE ACCIÓN: Es un trabajo colectivo que establece en un documento las medidas preventivas para evitar los posibles desastres específicos de cada comunidad y que indica las operaciones, tareas, y responsabilidades de toda la comunidad para situaciones de inminente peligro.
+
+PLAN DE CONTINGENCIAS: Componente del plan de emergencias y desastres que contiene los procedimientos para la pronta respuesta en caso de presentarse un evento específico.
+
+PLAN DE EMERGENCIAS: Definición de políticas, organizaciones y métodos que indican la manera de enfrentar una situación de emergencia o desastre, en lo general y en lo particular, en sus distintas fases.
+
+PREPARACIÓN: Se lleva a cabo mediante la organización institucional, predicción de eventos y planificación de acciones de alerta, búsqueda, rescate, traslado, evacuación y asistencia de personas, salvamento de bienes y de rehabilitación y reconstrucción de la copropiedad o comunidad.
+
+PREVENCIÓN: Acción para evitar la ocurrencia de desastres.
+
+RECUPERACIÓN: Actividad final en el proceso de respuesta a una emergencia. Consiste en restablecer la operatividad de un sistema interferido.
+
+RIESGO: Una amenaza evaluada en cuanto su probabilidad de ocurrencia y su gravedad potencial esperada.
+
+SALVAMENTO: Acciones o actividades desarrolladas individualmente o por grupos, tendientes a proteger los bienes materiales y/o activos de una compañía, que pueden versen afectados en caso de una emergencia en sus instalaciones.
+
+SIMULACRO: Ejercicio de juego de roles que se lleva a cabo en un escenario real o construcción en la forma posible para asemejarlo.
+
+SINIESTRO: Es un evento no deseado, no esperado, que puede producir efectos negativos en las personas y en los bienes materiales. El siniestro genera la emergencia si la capacidad de respuesta es insuficiente para controlarlo.
+
+VÍA DE EVACUACIÓN: Se usa normalmente como vía de ingreso y de salida en los edificios. Su tramo seguro puede estar estructurado como zona vertical de seguridad.
+
+VULNERABILIDAD: Condiciones en las que se encuentran las personas y los bienes expuestos a una amenaza. Se relaciona con la incapacidad de una comunidad para afrontar con sus propios recursos una situación de emergencia.
+
+VULNERABILIDAD FÍSICA O ESTRUCTURAL: Se refiere a la construcción misma de la edificación y a las características de seguridad o inseguridad que ofrece a los trabajadores que permanecen en ella durante la jornada laboral.
+
+VULNERABILIDAD FUNCIONAL: Se refiere a la existencia o no de los recursos para enfrentar situaciones de emergencia como, extintores, sistemas de control de fuentes de agua, combustible, herramientas para usar en situaciones de emergencia.
+
+VULNERABILIDAD SOCIAL: Se refiere al conocimiento y entrenamiento del personal para afrontar situaciones de emergencia.
+INFORMACIÓN GENERAL DEL CONJUNTO RESIDENCIAL
+
+UBICACIÓN
+<<[NOMBRE DEL CLIENTE]>> se encuentra localizado en la Dirección: <<[DIRECCION]>>
+VISTA DE PANORAMA
+
+
+<<[VISTA DE PANORAMA]>>
+
+
+
+DESCRIPCIÓN DETALLADA DE LAS INSTALACIONES Y SERVICIOS EN EL CONJUNTO RESIDENCIAL
+
+TIPO DE INMUEBLE: <<[CASAS O APARTAMENTOS]>>
+
+<<If: [CASAS O APARTAMENTOS] = "APARTAMENTOS">>
+NÚMERO DE TORRES: <<[NUMERO DE TORRES]>>
+<<EndIf>>
+
+<<If: [CASAS O APARTAMENTOS] = "CASAS">>
+CASAS DE CUANTOS PISOS: <<[SI SON CASAS DE CUANTOS PISOS]>>
+<<EndIf>>
+
+
+LA ESTRUCTURA ES SISMO RESISTENTE?:
+<<[LA ESTRUCTURA ES SISMO RESISTENTE]>>
+AÑO DE CONSTRUCCIÓN:
+<<[ANIO DE CONSTRUCCION]>>
+NÚMERO TOTAL DE UNIDADES HABITACIONALES:
+<<[NUMERO TOTAL DE UNIDADES HABITACIONALES]>> 
+CANTIDAD DE PARQUEADEROS DE CARROS RESIDENTES:
+<<[CANTIDAD DE PARQUEADEROS DE CARROS RESIDENTES]>>
+CANTIDAD DE PARQUEADEROS DE CARROS VISITANTES:
+<<[CANTIDAD DE PARQUEADEROS DE CARROS VISITANTES]>>
+CANTIDAD DE PARQUEADEROS DE MOTO RESIDENTES:
+<<[CANTIDAD DE PARQUEADEROS DE MOTO RESIDENTES]>>
+CANTIDAD DE PARQUEADEROS DE MOTO VISITANTES:
+<<[CANTIDAD DE PARQUEADEROS DE MOTO VISITANTES]>>
+HAY PROPIETARIOS CON PARQUEADERO PRIVADO?:
+<<[HAY PROPIETARIOS CON PARQUEADERO PRIVADO]>>
+<<[FOTO 1 DE TORRES O CASAS]>>
+<<[FOTO 2 DE TORRES O CASAS]>>
+<<[FOTO PARQUEADEROS CARROS]>>
+<<[FOTO PARQUEADEROS MOTOS]>>
+CANTIDAD DE SALONES COMUNALES:
+<<[CANTIDAD DE SALONES COMUNALES]>>
+CANTIDAD DE LOCALES COMERCIALES: 
+<<[CANTIDAD DE LOCALES COMERCIALES]>>
+TIENE OFICINA DE ADMINISTRACIÓN?: 
+<<[TIENE OFICINA DE ADMINISTRACION]>>
+<<If: [TIENE OFICINA DE ADMINISTRACION] = "SI">><<[FOTO OFICINA DE ADMINISTRACION]>> <<EndIf>>
+CUENTA CON TANQUE DE ALMACENAMIENTO DE AGUA? CUANTOS?:
+<<[CUENTA CON TANQUE DE ALMACENAMIENTO DE AGUA DETALLE]>>
+
+
+CUENTA CON PLANTA ELÉCTRICA? CUANTAS?:
+<<[CUENTA CON PLANTA ELECTRICA DETALLE]>>
+DESCRIPCIÓN DE LAS ZONAS VEHICULARES:
+<<[DESCRIBA LAS ZONAS DE CIRCULACION VEHICULAR]>>
+<<[FOTO ZONA DE CIRCULACION VEHICULAR]>>
+DESCRIPCIÓN DE LAS ZONAS PEATONALES:
+<<[DESCRIBA LAS ZONAS DE CIRCULACION PEATONAL]>>
+<<[FOTO 1 CIRCULACION PEATONAL]>>
+<<[FOTO 2 CIRCULACION PEATONAL]>>
+CUANTAS SALIDAS DE EMERGENCIA TIENE LA COPROPIEDAD Y CUALES SON:
+<<[CUANTAS SALIDAS DE EMERGENCIA TIENE LA COPROPIEDAD Y CUALES SON]>>
+<<[FOTO 1 SALIDA EMERGENCIA]>>
+<<[FOTO 2 SALIDA DE EMERGENCIA]>>
+DESCRIPCIÓN DE LOS INGRESOS PEATONALES
+<<[DESCRIBA LOS INGRESOS PEATONALES]>>
+
+
+<<[FOTO INGRESOS PEATONALES]>>
+DESCRIPCIÓN DE LOS ACCESOS VEHICULARES:
+<<[DESCRIBA LOS ACCESOS VEHICULARES]>>
+<<[FOTO 1 ACCESO VEHICULAR]>>
+<<[FOTO 2 ACCESO VEHICULAR]>>
+CONCEPTO DE CONSULTOR DE LAS ENTRADAS Y SALIDAS ANTE UNA EMERGENCIA:
+<<[DE UN CONCEPTO DE LAS ENTRADAS Y SALIDAS ANTE UNA EMERGENCIA]>>
+CONCEPTO DEL CONSULTOR AL RESPECTO DE LOS HIDRANTES:
+<<[DESCRIBA AL RESPECTO DE LOS HIDRANTES, CANTIDAD Y UBICACION]>>
+CAI MÁS CERCANO:
+<<[CUAL ES EL CAI MAS CERCANO]>>
+ESTACIÓN DE BOMBEROS MÁS CERCANA:
+<<[CUAL ES LA ESTACION DE BOMBEROS MAS CERCANA]>>
+
+
+
+
+LEGISLACIÓN
+
+LEGISLACIÓN NACIONAL
+
+LEY 9 DE 1979 Código Sanitario Titulo III: Relativo a la salud ocupacional, establece para los empleadores las siguientes exigencias relacionadas con emergencias: Art.93 – Áreas de Circulación: Claramente demarcadas, tener amplitud suficiente para el tránsito seguros de las personas y provistas de señalización adecuada. Art.93 – Puertas de Salida: En NÚmero suficiente y de características apropiadas para facilitar la evacuación del personal en caso de emergencia, las cuales no podrán mantenerse obstruidas o con seguro durante la jornada de trabajo. Art.114 – Prevención y Extinción de Incendios: Disponer de personal capacitado, métodos, equipos y materiales adecuados y suficientes. Art. 116 – Equipos y dispositivos para la Extinción de Incendios: Con diseño, construcción y mantenimiento que permita su uso inmediato con la máxima eficiencia. Art. 117 – Equipos, herramientas, instalaciones y redes eléctricas: Diseñados, construidos, instalados, mantenidos, accionados y señalizados de manera que prevenga los riesgos de incendio o contacto con elementos sometidos a tensión. Art. 127 – Todo lugar de trabajo tendrá las facilidades y los recursos necesarios para la prestación de los primeros auxilios a los trabajadores.
+
+LEY 9 DE 1979 Código Sanitario Título VIII - Desastres. Art 501- Cada Comité de Emergencias, deberá elaborar un plan de contingencia para su respectiva jurisdicción con los resultados obtenidos en los análisis de vulnerabilidad. Además, deberán considerarse los diferentes tipos de desastre que puedan presentarse en la comunidad respectiva. El Comité Nacional de Emergencias elaborará, para aprobación del Ministerio de Salud, un modelo con instrucciones que aparecerá en los planes de contingencia. Art 502 - El Ministerio de Salud coordinará los programas de entrenamiento y capacitación para planes de contingencia en los aspectos sanitarios vinculados a urgencias o desastres. Parágrafo. El Comité Nacional de Emergencias, deberá vigilar y controlar las labores de capacitación y de entrenamiento que se realicen para el correcto funcionamiento de los planes de contingencia.
+
+RESOLUCIÓN 2400 DE 1979, “Por el cual se establecen disposiciones sobre vivienda, higiene y seguridad industrial en los establecimientos de trabajo” Art. 2 - Todos los empleadores están obligados a Organizar y desarrollar programas permanentes de Medicina Preventiva, Higiene y Seguridad Industrial” Art. 4 – Edificios y Locales: Construcción segura y firme, techos o cerchas con suficiente resistencia a los efectos del viento y su propia carga; cimiento piso sin sobrecarga; factor de seguridad acero estructural (4 para cargas estáticas y 6 en dinámicas). Art. 14 – Escaleras de Comunicación entre plantas del edificio: Espaciosas, con condiciones de solidez, estabilidad y seguridad, preferiblemente de materiales incombustibles. Art. 205 – Peligro de Incendio o explosión en centros de trabajo: Provistos de tomas de agua con sus correspondientes mangueras, tanques de reserva y extintores. Art. 206 – Construcciones bajo riesgo de Incendio o Explosión: Dotadas de muros corta – fuegos para impedir la propagación del incendio entre un local de trabajo y otros. Art. 207 – Salidas de Emergencia: Suficientes, libres de obstáculos y convenientemente construidas. Art. 220 – Extintores: Adecuados SEGÚN combustible utilizado y clase de incendio. Art. 223 – Brigada contra Incendio: Debidamente entrenada y preparada.
+
+CONPES 3146 de 2001. Estrategia para consolidar la ejecución del Plan Nacional para la Prevención y Atención de Desastres – PNPAD, en el corto y mediano plazo.
+LEY 46 /88. “Por la cual se crea y organiza el Sistema Nacional para la Prevención y Atención de Desastres, se otorga facultades extraordinarias al Presidente de la República y se dictan otras disposiciones” Art. 3- Plan Nacional para la Prevención y Atención de Desastres La Oficina Nacional para la Atención de Desastres, elaborará un Plan Nacional para la Prevención y Atención de Desastres, el cual, una vez aprobado por el Comité Nacional para la Prevención y Atención de Desastres, será adoptado mediante decreto del Gobierno Nacional.
+•El Plan incluirá y determinará todas las orientaciones, acciones, programas y proyectos, tanto de carácter sectorial como del orden nacional, regional y local que se refieran, entre otros a los siguientes aspectos:
+•Las fases de prevención, atención inmediata, reconstrucción y desarrollo en relación con los diferentes tipos de desastres.
+•Los temas de orden técnico, científico, económico, de financiación, comunitario, jurídico e institucional.
+•La educación, capacitación y participación comunitaria.
+•Los sistemas integrados de información y comunicación a nivel nacional, regional y local.
+•La función que corresponde a los medios masivos de comunicación.
+•Los recursos humanos y físicos de orden técnico y operativo.
+•La coordinación interinstitucional e intersectorial.
+•La investigación científica y estudios técnicos necesarios.
+•Los sistemas y procedimientos de control y evaluación de los procesos de prevención y atención.
+
+LEY 46 /88. “Por la cual se crea y organiza el Sistema Nacional para la Prevención y Atención de Desastres, se otorga facultades extraordinarias al Presidente de la República y se dictan otras disposiciones” Art. 14- Plan de Acción Específico para la Atención de Desastre Declarada una situación de desastre de carácter nacional, la Oficina Nacional para la Atención de Desastres, procederá a elaborar, con base en el plan nacional, un plan de acción específico para el manejo de la situación de Desastre declarada, que será de obligatorio cumplimiento por todas las entidades públicas o privadas que deban contribuir a su ejecución, en los términos señalados en el decreto de declaratoria. Cuando se trate de situaciones calificadas como departamentales, distritales o municipales, el plan de acción será elaborado y coordinado en su ejecución por el Comité Regional u Operativo Local respectivo, de acuerdo con las orientaciones establecidas en el decreto de declaratoria y con las instrucciones que impartan el Comité Nacional y la Oficina Nacional para la Atención de Desastres.
+
+DECRETO LEY 919 /89. "Por el cual se organiza el Sistema Nacional para la Prevención y Atención de Desastres y se dictan otras disposiciones". Art. 3- Plan Nacional para la Prevención y Atención de Desastres. La Oficina Nacional para la Atención de Desastres elaborará un Plan Nacional para la Prevención y Atención de Desastres, el cual, una vez aprobado por el comité Nacional para la Prevención y Atención de Desastres, será adoptado mediante decreto del Gobierno Nacional. El Plan incluirá y determinará todas las políticas, acciones y programas, tanto de carácter sectorial como del orden nacional, regional y local que se refieran, entre otros, a los siguientes aspectos:
+•Las fases de prevención, atención inmediata, reconstrucción y desarrollo en relación con los diferentes tipos de desastres y calamidades públicas.
+•Los temas de orden económico, financiero, comunitario, jurídico e institucional.
+•La educación, capacitación y participación comunitaria.
+•Los sistemas integrados de información y comunicación a nivel nacional, regional y local.
+•La coordinación interinstitucional e intersectorial.
+•La investigación científica y los estudios técnicos necesarios.
+•Los sistemas y procedimientos de control y evaluación de los procesos de prevención y atención.
+
+DECRETO LEY 919 /89. "Por el cual se organiza el Sistema Nacional para la Prevención y Atención de Desastres y se dictan otras disposiciones" Art. 13- Planes de contingencia. El Comité Técnico Nacional y los Comités Regionales y Locales para la Prevención y Atención de Desastres, según el caso, elaborarán, con base en los análisis de vulnerabilidad, planes de contingencia para facilitar la prevención o para atender adecuada y oportunamente los desastres probables. Para este efecto, la Oficina Nacional para la Atención de Desastres preparará un modelo instructivo para la elaboración de los planes de contingencia. Art. 14- Aspectos sanitarios de los planes de contingencia. El Ministerio de Salud coordinará los programas de entrenamiento y capacitación para planes de contingencia en los aspectos de orden sanitaria, bajo la vigilancia y control del Comité Técnico Nacional.
+
+DECRETO 1295/94. “Por el cual se determina la organización y administración del Sistema General de Riesgos Profesionales” Art. 2- Objetivos del Sistema General de Riesgos Profesionales. Establecer las actividades de promoción y prevención tendientes a mejorar las condiciones de trabajo y salud de la población trabajadora, protegiéndola contra los riesgos derivados de la organización del trabajo que puedan afectar la salud individual o colectiva en los lugares de trabajo tales como los físicos, químicos, biológicos, ergonómicos, de saneamiento y de seguridad.
+
+LEY 322 DE 1996. SISTEMA NACIONAL DE BOMBEROS. Art. 1- La prevención de incendios es responsabilidad de todas las autoridades y los habitantes del territorio colombiano. En cumplimiento de esta responsabilidad los organismos públicos y privados deberán contemplar la contingencia de este riesgo en los bienes inmuebles tales como parques naturales, construcciones, programas y proyectos tendientes a disminuir su vulnerabilidad.
+
+LEY 769 DE 2002. CÓDIGO NACIONAL DE TRÁNSITO. Art. 1- Ámbito de aplicación y principios. Las normas del presente código rigen en todo el territorio nacional y regulan la circulación de los peatones, usuarios, pasajeros, conductores, motociclistas, ciclistas, agentes de tránsito y vehículos por las vías públicas o privadas que estén abiertas al público, o en las vías privadas, que internamente circulen vehículos; así como la actuación y procedimientos en las autoridades de tránsito.
+
+DECRETO No. 3888 /07. Por el cual se adopta el Plan Nacional de Emergencias y Contingencia para Eventos de Afluencia Masiva de Público y se conforma la Comisión Nacional Asesora de Programas Masivos y se dictan otras disposiciones Art. 2- El objetivo del Plan Nacional de Emergencias y Contingencia para Eventos de Afluencia Masiva de Público es servir como instrumento rector para el diseño y realización de actividades dirigidas a prevenir, mitigar y dotar al Sistema Nacional para la Prevención y Atención de Desastres de una herramienta que permita coordinar y planear el control y atención de riesgos y sus efectos asociados sobre las personas, el ambiente y las instalaciones en esta clase de eventos. Este Plan se complementará con las disposiciones regionales y locales existentes. Art. 5- Actualización del Plan. Cuando las circunstancias lo ameriten, el Plan Nacional de Emergencias y Contingencia para Eventos de Afluencia Masiva de Público deberá ser actualizado por el Comité Nacional para la Prevención y Atención de Desastres o por el Comité Técnico Nacional, por delegación que haya recibido de aquél, en todo caso, con la asesoría de la Comisión Nacional Asesora de Programas Masivos creada por este decreto. Art. 20- Planes institucionales. Los organismos operativos del Sistema Nacional para la Prevención y Atención de Desastres elaborarán sus propios planes institucionales para la atención de los eventos de afluencia masiva de público, los cuales se articulará con los Planes Locales de Emergencias y Contingencia para Eventos de Afluencia Masiva de Público.
+
+DECRETO 1347 DEL 26 DE OCTUBRE DE 2021: Por el cual se adiciona el Capítulo 12 al Título 4 de la Parte 2 del Libro 2 del Decreto 1072 de 2015, Decreto Único Reglamentario del Sector Trabajo, para adoptar el Programa de Prevención de Accidentes Mayores – PPAM
+
+DECRETO 4272 DEL 27 DE DICIEMBRE DE 2021, Por el cual se establecen requisitos mínimos de seguridad para el desarrollo de trabajo en alturas
+RESOLUCIÓN 20223040040595 DEL 12 DE JULIO DE 2022 por la cual se adopta la metodología para el diseño, implementación y verificación de los Planes Estratégicos de Seguridad Vial y se dictan otras disposiciones.
+DECRETO 1478 DEL 03 DE AGOSTO DE 2022 Por medio del cual se adopta la actualización del Plan Nacional de Gestión del Riesgo de Desastres y se modifica el Artículo 2.3.1.2.2.4.3 de la Subsección 4, Sección 2, Capítulo 2, Título 1, Libro 2, del Decreto Único Presidencial 1081 de 2015.
+
+
+LEGISLACIÓN DISTRITAL
+
+RESOLUCIÓN 1428 DE 2002. "Por la cual se adoptan los Planes Tipo de Emergencias en seis escenarios Distritales, se modifica y adiciona la Resolución 0151 del 06 de febrero de 2002".
+DECRETO 332 /04. “Por el cual se organiza el régimen y el Sistema para la Prevención y Atención de Emergencias en y se dictan otras disposiciones” Art. 7- Planes de Emergencias. Se adoptarán para cada una de las entidades y comités sectoriales, y establecerán con claridad cuáles son las funciones de respuesta, autoridades responsables de cumplirlos y los recursos que se pueden y deben utilizar. Parágrafo. La adopción de los planes corresponderá por comités sectoriales, al tenor del Decreto 87/03 y a los representantes legales de las entidades en los demás casos. Art. 8– Planes de Contingencia. Son aquellos que deben adoptarse para el Distrito Capital en su conjunto, sus entidades y sectores, por las mismas autoridades señaladas en el parágrafo del artículo 7 precedente, para responder específicamente a un tipo determinado de situación de calamidad, desastre o emergencia.
+DECRETO 423 /06. “Por el cual se adopta el Plan Distrital para la prevención y Atención de Emergencias para Soacha Cundinamarca. Art. 18 - Planes de Emergencias. En armonía con el artículo 7º del decreto332 de 2004 los Planes de Emergencias son instrumentos para la coordinación general y actuación frente a situaciones de calamidad, desastre o emergencia. Definen las funciones y actividades, responsables, procedimientos, organización y recursos aplicables para la atención de las emergencias independientemente de su origen o naturaleza. Art. 19 – Planes de Contingencia. En armonía con el artículo 8º del Decreto 332 de 2004, los Planes de Contingencia son instrumentos complementarios a los planes de emergencias, que proveen información específica para la atención de desastres o emergencias derivadas de un riesgo o territorio en particular. Un plan de contingencia desarrolla en detalle aspectos pertinentes para la respuesta que solo son propios del riesgo y el territorio al que este referido. Los planes de contingencia se organizan por tipo de riesgo, tales como deslizamientos, inundaciones, incendios forestales, materiales peligrosos y aglomeraciones de público, entre otros. Los planes de continencia pueden ser desarrollados por la Administración Distrital en sus diferentes niveles (central, institucional o local), por el sector privado y por la comunidad.
+RESOLUCIÓN No. 375 /06. “Por la cual se establecen las condiciones básicas para la copropiedad que prestan el servicio de logística en las aglomeraciones de público en el Distrito Capital”. Art. 2- Numeral 3.Capacitación mínima del personal.
+RESOLUCIÓN No. 137 /07. “Por medio de la cual se establecen los parámetros e instrucciones y se definen políticas, sistemas de organización y procedimientos interinstitucionales para la administración de emergencias en Bogotá, Distrito Capital – Plan de Emergencias de Bogotá” Capítulo 2.2. Fortalecimiento de las operaciones de emergencias.
+DECRETO 633 /07. “Por el cual se dictan disposiciones en materia de prevención de riesgos en los lugares donde se presenten aglomeraciones de público y se deroga el Decreto 043 de 2006 el cual regulaba antes la materia” Art. 5- Planes de Contingencia. De conformidad con lo previsto en los artículos 8º y 9º del Decreto Extraordinario 919 /89 y en el artículo 15 del Decreto Distrital 332 /04, todas las entidades o personas públicas o privadas responsables de edificaciones, instalaciones o espacios en los cuales se realicen aglomeraciones de público, deberán preparar y observar planes de contingencia que incluyan los análisis de riesgos y las medidas de prevención, preparación y mitigación, en forma y condiciones que establezca la DPAE.
+NORMAS TÉCNICAS COLOMBIANAS
+NTC-5254: Gestión de Riesgo. Guía Técnica Colombiana 202/06: Sistema de Gestión de Continuidad del Negocio.
+NTC-1700: Higiene y Seguridad. Medidas de Seguridad en Edificaciones. Medios de Evacuación y Código NFPA 101. 
+Código de Seguridad Humana. Establece cuales son los requerimientos que debe cumplir las edificaciones en cuanto a salidas de evacuación, escaleras de emergencia, iluminación de evacuación, sistema de protección especiales, número de personas máximo por unidad de área, entre otros requerimientos; parámetros que son analizados con base en el uso de los edificios es decir comercial, instituciones educativas, hospitales, industrias, entre otros.
+NTC-2885: Higiene y Seguridad. Extintores Portátiles. Establece en uno de sus apartes los requisitos para la inspección y mantenimiento de portátiles, igualmente el código 25 de la NFPA Standard for the inspection, testing and maintenance of Water – Based fire protection systems USA: 2002. Establece la periodicidad y pruebas que se deben realizar sobre cada una de las partes componentes de un sistema hidráulico contra incendio.
+NTC-4764: Cruces peatonales a nivel y elevados o puentes peatonales. 
+NTC-4140: Edificios. Pasillos y corredores.
+NTC-4143: Edificios. Rampas fijas. 
+NTC-4144: Edificios. Señalización. NTC-4145: Edificios. Escaleras.
+NTC-4201: Edificios. Equipamientos, bordillos, pasamanos y agarraderas. NTC-4279: Vías de circulación peatonal planas.
+NTC-4695: Señalización para tránsito peatonal en el espacio público urbano. NTC-2388: Símbolos para la información del público.NTC-1867: Sistemas de señales contra incendio, instalaciones, mantenimiento y usos.
+OTRAS NORMAS
+NFPA 101 /06. Life Satefy Code. (Código de Seguridad Humana).NFPA 1600 /07. Standard en Disaster/Emergency Management and Business Continuity Programs. (Norma sobre manejo de Desastres, Emergencias y Programas para la Continuidad del Negocio).
+
+
+REALIZACIÓN DEL ANÁLISIS DE RIESGOS
+
+Objetivo: Identificar y evaluar cuales son aquellos eventos o condiciones que pueden llegar a ocasionar una emergencia en <<[NOMBRE DEL CLIENTE]>>, de tal manera que este análisis se convierta en una herramienta para establecer las medidas de prevención y control de los riesgos asociados a las diferentes actividades realizadas en el conjunto residencial, de acuerdo con el entorno físico, ambiental y social en el cual se desarrolla.
+
+
+IDENTIFICACIÓN Y CARACTERIZACIÓN DE LOS PELIGROS Y LAS AMENAZAS
+
+
+ORIGEN
+PELIGRO
+ 
+NATURAL
+Presencia de una falla geológica (Terremotos, sismos)
+Condiciones atmosféricas adversas a la zona (inundaciones, vendavales)
+Incendios Forestales
+SOCIAL
+Condiciones sociales insatisfechas (atentados terroristas, amenazas)
+Condiciones políticas y sociales de la región (robos)
+ 
+ 
+TECNOLÓGICO
+Presencia copropiedades vecinas (Explosiones, incendios)
+Almacenamiento de gases tóxicos (fugas de sustancias nocivas)
+Inflamabilidad de una sustancia (incendios, explosiones)
+Presencia Aeropuerto (paso de aviones)
+Movilidad vehículos automotores
+
+
+
+PROBABILIDAD DE OCURRENCIA DE LOS PELIGROS
+
+
+ORIGEN
+TIPO
+FRECUENCIA
+PP
+P
+MP
+ 
+NATURALES
+SISMOS, CAIDAS DE ESTRUCTURAS
+ 
+X
+ 
+INUNDACIONES
+X
+ 
+ 
+VENDAVALES
+X
+ 
+ 
+ 
+SOCIALES
+ATENTADOS TERRORISTAS
+ 
+X
+ 
+ASALTO, HURTO
+ 
+X
+ 
+VANDALISMO
+ 
+X
+ 
+ 
+ 
+TECNOLÓGICOS
+INCENDIOS
+ 
+ 
+X
+EXPLOSIONES
+ 
+ 
+X
+INHALACIÓN GASES
+X
+ 
+ 
+FALLA ESTRUCTURAL
+X
+ 
+ 
+PP = POCO PROBABLE, P= PROBABLE, MP = MUY PROBABLE
+
+
+
+RIESGOS NATURALES
+
+SISMOS, CAÍDA DE ESTRUCTURAS: Ninguna edificación, aún las construidas recientemente, se encuentran exentas de ser afectadas por la acción de las vibraciones derivadas del choque de las placas que forman la superficie de la tierra y que se mueven continuamente en direcciones diferentes acumulando y liberando energía que sacude la superficie, fenómeno que se conoce como terremoto, sismo o temblor de tierra.
+La magnitud e intensidad, las características del suelo (suelos blandos o rellenos pueden aumentar la capacidad destructiva en determinadas edificaciones), la resistencia de las edificaciones (una falla estructural de planta física puede hacer colapsar de manera parcial o total estructuras de la edificación con alteración directa de su capacidad portante y daño a sus elementos y ocupantes), y la preparación que se tenga por parte de las personas e instituciones para actuar y reaccionar en forma adecuada, antes, durante y después del fenómeno, dependen los daños que este cauce. 
+CLASIFICACIÓN DEL RIESGO: PROBABLE
+
+VENDAVALES, GRANIZADA Y TORMENTAS ELÉCTRICAS: Los cambios climáticos y meteorológicos se pueden encontrar acompañados de vientos, lluvias, granizadas, tormentas eléctricas. La acción de vientos fuertes no solo puede romper ventanales y levantar tejas en las cubiertas, sino hacer caer antenas y pararrayos. Las tormentas eléctricas cuando no existe la protección de las edificaciones e instalaciones con pararrayos debidamente conectados a tierra pueden traer como consecuencia accidentes fatales de trabajadores y la probabilidad de incendios con pérdidas materiales.
+CLASIFICACIÓN DEL RIESGO: POCO PROBABLE
+
+INUNDACIONES: Se presentan generalmente después de una lluvia fuerte o una granizada, por sustracción de drenajes, por taponamiento de sifones, de desagües o de bajantes de canales; cuando se presenta acumulación de residuos o basuras o por diámetros muy reducidos de los tubos de la cañería; por mala inclinación de los desniveles hacia los respectivos desagües, o por estar la edificación en zonas bajas inundables como cerca de ríos, lagos o por estar construida en zonas pantanosas. Por presentarse en la capital épocas de fuertes y prolongados inviernos, es muy probable que se presenten este tipo de amenazas.
+CLASIFICACIÓN DEL RIESGO: POCO PROBABLE
+
+RIESGOS TECNOLÓGICOS
+
+INCENDIO: Entre las amenazas más importantes se hace referencia a las de incendio, la cual es característica de toda edificación cuya destinación sea de carácter industrial, comercial, de servicios o residencia. Esta amenaza no solamente se presenta por una eventual vecindad a fuentes de ignición o detonación, fuentes de calor, fuentes eléctricas, presencia de cargas estáticas y también por diferentes cargas combustibles de materiales sólidos presentes en las instalaciones del conjunto residencial y a los trabajos que en él se realicen. Debido a que en el conjunto se almacenan diferentes combustibles como vestuario, telones, madera, alfombras, cartón, plásticos, equipos de oficina; presencia de gas natural y demás combustibles que pueden ocasionar un incendio de grandes proporciones.
+CLASIFICACIÓN DEL RIESGO: MUY PROBABLE
+
+EXPLOSION: es un riesgo que viene relacionado con el manejo de cargas combustibles del tipo B como el almacenamiento y manipulación de líquidos y gases inflamables, la reactividad por escape de gases comprimidos como el caso de gas natural, y en el manejo de solventes, lacas, pinturas, Varsol que normalmente emanan gases con propiedades inflamables detonantes lo mismo que eventualmente lo podría hacer pero con menos posibilidad el ACPM.
+CLASIFICACIÓN DEL RIESGO: MUY  PROBABLE
+
+FALLA ESTRUCTURAL: La vulnerabilidad estructural se encuentra determinada por la capacidad de soporte vertical y resistencia a cargas horizontales de la edificación, la cual en términos generales presenta buen aspecto. Un gran porcentaje de las instalaciones está construido en muros de ladrillo y cemento, pisos en cemento, techos en placa de concreto. Con el objeto de determinar la capacidad sismo resistente de las edificaciones se recomienda realizar un estudio técnico de las mismas y conforme a su valoración reforzar las estructuras o realizar las modificaciones arquitectónicas necesarias, en consonancia con las exigencias del código colombiano de construcciones sismo resistentes, adoptado por el Decreto 400 con vigencia desde el año de 1984 y actualizado por la Ley 400 de 1997 y el Decreto 33 de 1998.
+CLASIFICACIÓN DEL RIESGO: POCO PROBABLE.
+
+INTOXICACIONES POR INHALACIÓN DE VAPORES: Estas afectaciones en la salud se pueden causar debido a la acumulación de gases nocivos para las personas, esto se puede agravar en el caso del parqueadero de vehículos del conjunto residencial si no se cuenta con la cultura de la revisión periódica de los vehículos automotores y si las personas se quedan bajo periodos largos en este sitio, para lo cual se hace necesario implementar la cultura de esperar que los propietarios de los vehículos realicen el calentamiento del motor en un área ventilada.
+CLASIFICACIÓN DEL RIESGO: POCO PROBABLE
+
+RIESGOS SOCIALES
+
+VANDALISMO: Por la gran descomposición social que se vive hoy en día esta es una de las amenazas con un riesgo de probabilidad considerable sin que tenga que ver el tipo de copropiedad o área habitacional que pueda ser afectada es simplemente el deseo de producir pánico y sembrar el miedo entre la población. La probabilidad que suceda esta amenaza es poco probable debido a la ubicación que presenta el conjunto residencial, sin embargo, se debe considerar que existen muchas formas de hacerlo: a través de paquetes, de sobres, de vehículos y de variedad de artículos incluyendo extintores.
+CLASIFICACIÓN DEL RIESGO: PROBABLE.
+
+ATENTADOS TERRORISTAS: En este se incluyen aquellas acciones en que además de bombas, o proyectiles dirigidos desde cierta distancia hacia algún objetivo en particular y que generalmente puede afectar instalaciones o viviendas aledañas y ajenas a las que se proponían hacer daño sin que por eso importe algo también puede tratarse de acciones de que inciten a sembrar terror en la población esto puede incluir acciones como el secuestro ya sea por grupos organizados como la guerrilla o bandas criminales.
+CLASIFICACIÓN DEL RIESGO: PROBABLE.
+
+ASALTO Y HURTO: Existe la posibilidad de tener este riesgo principalmente en horas nocturnas ocasionado por la gran inseguridad que se presenta en la actualidad en el Distrito Capital, pero es importante acotar que el conjunto residencial cuenta con un sistema de vigilancia privado contratado para salvaguardar los bienes y servicios de los residentes pero esto se limita solo a la propiedad horizontal, esto no desconoce la problemática que se presenta en las áreas perimetrales del sector del conjunto residencial.
+CLASIFICACIÓN EL RIESGO: PROBABLE.
+
+
+CARGA COMBUSTIBLE
+
+La edificación presenta diferentes tipos de material combustible, según sus características se distribuyen de la siguiente forma:
+
+CLASE A:
+Papel: en documentos, informes, papelería, archivo en oficinas administrativas (facturación, contabilidad, tesorería y recepción) y demás documentos que hagan parte del personal administrativo y de los residentes.
+Cartón: En los puntos de acopio de los residuos sólidos, y en los diferentes empaques que se encuentren en el conjunto residencial.
+Telas: En | como apartamento, salones de recepción y áreas de atención al PÚblico dentro del conjunto residencial.
+Madera: en muebles, sillas, puertas, divisiones, en las áreas de los apartamentos, áreas de recreación, administración y recepción.
+Materiales acrílicos: en computadores, impresoras, teléfonos, calculadoras.
+
+Cuero: en algunas sillas de los apartamentos.
+
+CLASE B:
+
+Solventes, pinturas, esmaltes, vinilos, químicos (área piscina y/o contratistas de aseo y mantenimiento).
+Líquidos inflamables (Gasolina, ACPM).
+Gas natural el cual se distribuye a todos los apartamentos y demás equipos que funcionan en el conjunto residencial.
+
+CLASE C.
+
+Redes eléctricas energizadas, tomas, interruptores y luminarias en todas las instalaciones. Cuarto de contadores en el parqueadero.
+Computadores, impresoras, teléfonos, televisores, DVD entre otros. Área de materiales con los que se realizan los arreglos locativos. Equipos de bombeo del agua.
+Planta eléctrica en el parqueadero.
+
+RECOMENDACIONES SEGÚN EL TIPO DE COMBUSTIBLE
+
+Las siguientes recomendaciones están encaminadas a disminuir el riesgo de presentarse una emergencia en el conjunto residencial, la cual debe ser aplicada por todo el personal que reside y realiza diferentes actividades propias o derivadas de su oficio.
+
+PARA RIESGO CLASE A:
+
+Evitar cajas con papelería y documentos bajo las mesas. Utilizar archivadores y bibliotecas únicamente.
+No almacenar cajas con material tipo A cerca de bombillos incandescentes (mínimo 50 CMS de distancia).
+No dejar trapos, pedazos de estopa con grasa, cera o Varsol por fuera de recipientes metálicos cerrados.
+No dejar cerca de estufas, grecas, hornos o cafeteras prendidas: limpiones, trapos o coge ollas.
+No usar papeles para encender la estufa.
+No almacenar papeles impregnados de líquidos inflamables (Gasolina, ACPM, Varsol, Pinturas, Grasa y demás elementos que pueda ocasionar una ignición o incendio.
+PARA RIESGOS CLASE B.
+
+Disponer de un lugar ventilado y en buenas condiciones de orden y aseo para almacenar todos los elementos que se requieren en el conjunto residencial para labores de mantenimiento.
+Guardar todos los materiales inflamables en recipientes herméticos y dentro de gabinetes metálicos con puerta.
+Todo recipiente que contenga algún líquido inflamable debe encontrarse rotulado especificando su nombre comercial y en lo posible las fichas de seguridad de los productos esto para el caso de los químicos utilizados en el área de la piscina y/o productos de limpieza.
+Mantener materiales inflamables en lugares aireados y alejados de fuentes de calor o de tomas o instalaciones eléctricas de riesgo.
+Evitar el uso de gas propano en áreas cerradas.
+Se debe tener un kit anti derrames en el conjunto en caso de presentarse un derrame especialmente en el área del parqueadero, debido a que es allí donde se encuentran las bombas del tanque de reserva de agua potable, la planta eléctrica que funciona con ACPM y los vehículos de los residentes.
+
+PARA RIESGOS CLASE C:
+
+Evitar el uso de elementos para producción de calor en áreas donde pueda acumularse material combustible como papel, plásticos, telas y madera principalmente, y dejarlos desconectados en horas de la noche, los equipos eléctricos.
+Identificar cajas de tacos de corriente en todos los lugares donde se ubiquen.
+Restringir la entrada a las áreas de cuartos eléctricos de mediana o alta tensión.
+Realizar revisiones periódicas de posibles humedades que se encuentren en cercanía a algún elemento eléctrico esto se puede presentar en las áreas comunes como al interior de los apartamentos o casas.
+
+
+PROCEDIMIENTO OPERATIVO NORMALIZADO (PON)
+
+Código 7 – Falla de ascensor con personas en su interior
+
+🔹 Código de Emergencia:
+
+CÓDIGO 7 – Persona(s) atrapada(s) en ascensor
+
+🔹 Introducción:
+En edificaciones residenciales y comerciales que cuentan con ascensores, es posible que se presenten fallas técnicas, cortes eléctricos u otros incidentes que provoquen la detención del equipo con ocupantes en su interior. Este procedimiento operativo establece las acciones específicas para responder de manera rápida, segura y coordinada, minimizando riesgos y evitando daños físicos o psicológicos a las personas involucradas.
+
+🔹 Objetivo:
+Establecer el procedimiento seguro y estandarizado para la atención de emergencias por fallas de ascensor con personas atrapadas, asegurando la protección de la vida, la salud y la integridad de los ocupantes, así como la coordinación con organismos de socorro y personal técnico especializado.
+
+🔹 Alcance:
+Aplica para todo el personal de vigilancia, administración, brigadas de emergencia, personal de mantenimiento y demás personas que participen en la atención de emergencias dentro del conjunto residencial o edificio.
+
+🔹 Definiciones clave:
+Falla de ascensor: Cese repentino o irregular del funcionamiento del ascensor por razones mecánicas, eléctricas o electrónicas.
+
+Rescate técnico: Intervención de personal calificado para liberar de forma segura a las personas atrapadas.
+
+Emergencia crítica: Situación en la que la vida o la salud de los ocupantes está en riesgo inmediato.
+
+🔹 Responsables de la ejecución:
+Personal de vigilancia.
+Administrador del conjunto.
+Brigada de emergencias (si aplica).
+Empresa mantenedora del ascensor.
+Organismos de socorro (Bomberos, Defensa Civil, etc., si es necesario).
+
+🔹 Procedimiento:
+
+Activación del Código 7:
+
+Ante el aviso de personas atrapadas, el personal que reciba la alerta debe anunciar por el canal de comunicación interna:
+“Código 7 activo en el piso y lugar donde se presentó la novedad”.
+Registrar la hora y ubicación exacta en la minuta de seguridad.
+
+Evaluación inicial:
+
+Confirmar cuántas personas están atrapadas.
+
+Identificar si hay menores de edad, personas con discapacidad, adultos mayores o embarazadas.
+Determinar si existe riesgo inminente (falta de aire, humo, fuego, agua, lesiones graves).
+
+Comunicación con los ocupantes:
+
+Mantener contacto verbal desde el exterior o por intercomunicador.
+Indicar que el rescate está en proceso.
+Recomendar mantener la calma, no forzar puertas ni intentar salir por sus medios.
+
+Corte de energía:
+
+Desconectar el ascensor desde el tablero eléctrico, únicamente si se tiene claridad y autorización para hacerlo.
+Esto evita movimientos involuntarios durante el rescate.
+
+Notificación inmediata a:
+
+Empresa de mantenimiento (número visible en portería).
+Administración del conjunto.
+Bomberos, si hay riesgo vital o el tiempo de espera excede 20 minutos.
+
+Esperar personal capacitado:
+
+No realizar maniobras improvisadas de apertura.
+Asegurar que los ocupantes cuenten con ventilación adecuada hasta que llegue el personal técnico.
+
+Rescate asistido (solo con personal autorizado):
+
+Coordinado por empresa mantenedora o bomberos.
+Verificar alineación del ascensor con el piso antes de abrir puertas.
+Garantizar que las personas salgan de forma controlada.
+
+Atención posterior al rescate:
+
+Verificar condición física y emocional de los ocupantes.
+Ofrecer primeros auxilios y asistencia psicológica si es necesario.
+
+Cierre del evento:
+
+Levantar informe detallado con hora de inicio, tiempo de respuesta, personal interviniente, causa probable y medidas correctivas.
+Prohibir el uso del ascensor hasta que la empresa mantenedora emita certificación de funcionamiento seguro.
+
+🔹 Medidas preventivas:
+
+Mantener al día el mantenimiento preventivo y correctivo del ascensor.
+Contar con señalización visible de contacto de emergencia.
+Capacitar al personal sobre este PON al menos una vez al año.
+Incluir simulacros de procedimiento en el plan de emergencias.
+
+🔹 Recomendaciones:
+No permitir que personal no capacitado intente rescates.
+Garantizar que el tablero de códigos de emergencia incluya: “Código 7 – Falla de ascensor con personas en su interior”.
+Verificar periódicamente la operatividad del sistema de comunicación interna del ascensor.
+
+ANEXOS PARA LA DEFINICIÓN DE AMENAZAS
+
+Evaluación de Elementos de Seguridad para la Elaboración del Plan de Emergencias en Propiedad Horizontal
+La gestión eficiente de la seguridad en propiedades horizontales requiere un enfoque integral que permita identificar y mitigar los riesgos a los que están expuestos los residentes, visitantes y trabajadores. Como parte de este proceso, Cycloid Talent SAS ha llevado a cabo una revisión exhaustiva de los principales elementos de seguridad, necesarios para la creación de un Plan de Emergencias acorde a las normativas vigentes y adaptado a las necesidades particulares de la propiedad.
+Entre los componentes evaluados se incluyen la inspección general de las áreas comunes, la elaboración de una matriz de vulnerabilidad, la identificación de la ocurrencia de peligros, así como el estado de los extintores, botiquines y otros recursos esenciales para la seguridad, tales como los equipos de comunicación y sistemas de monitoreo. Esta evaluación garantiza que la propiedad cuente con las herramientas necesarias para la prevención de incidentes y la respuesta eficaz ante situaciones de emergencia.
+Inspección Locativa General: En el contexto de una propiedad horizontal, la inspección general se refiere a la revisión periódica de todas las áreas comunes (como parqueaderos, escaleras, techos, ascensores, sistemas eléctricos, etc.) con el fin de identificar posibles riesgos para la seguridad de los residentes, visitantes y trabajadores. Estas inspecciones ayudan a mantener un entorno seguro y prevenir accidentes.
+HALLAZGO IDENTIFICADO
+IMAGEN DEL HALLAZGO
+FECHA
+<<Start: [HALLAZGOS_DE_LA_ULTIMA_INSP_LOCATIVA]>><<[DESCRIPCION_IMAGEN]>>
+<<[IMAGEN]>>
+<<[FECHA_REGISTRO]>><<End>>
+
+
+Matriz de Vulnerabilidad: Es una herramienta utilizada para evaluar los riesgos a los que está expuesta una copropiedad. Se centra en analizar aspectos como la seguridad física (cercas, cámaras, controles de acceso), infraestructura (estado de las construcciones, techos, sistemas de drenaje) y procesos de mantenimiento, entre otros, para identificar puntos vulnerables que podrían afectar la seguridad de los residentes y el personal.
+Componentes Clave de la Matriz:
+Amenazas: Se identifican y clasifican las amenazas potenciales a las que está expuesta la edificación, considerando su probabilidad de ocurrencia y severidad.
+
+
+Vulnerabilidades: Se evalúan las características de la edificación que la hacen susceptible a los daños causados por las amenazas identificadas. Esto incluye aspectos como el diseño, la calidad de los materiales, la antigüedad y el estado de mantenimiento.
+
+
+Nivel de Riesgo: Se combina la información sobre las amenazas y las vulnerabilidades para determinar el nivel de riesgo general que enfrenta la edificación.
+
+
+Tabla de Comparación del Nivel de Vulnerabilidad:
+La tabla que mencionas presenta una clasificación del nivel de vulnerabilidad en función de un rango numérico, asignando acciones a seguir para cada rango:
+0-50: Alta vulnerabilidad funcional. Se requiere una revisión exhaustiva de todos los aspectos que puedan representar un riesgo para las personas en caso de emergencia.
+
+
+51-70: Vulnerabilidad media-alta y plan de emergencia incompleto. El plan podría activarse parcialmente en una emergencia, pero se requieren mejoras significativas.
+
+
+71-90: Baja vulnerabilidad y plan de emergencia apenas funcional. Se recomienda optimizar el plan para garantizar su efectividad.
+
+
+91-100: Vulnerabilidad mínima y plan de emergencia en óptimas condiciones. Se deben mantener las medidas preventivas y realizar revisiones periódicas para asegurar este nivel de seguridad.
+
+
+Importancia de la Matriz:
+La matriz de vulnerabilidad por amenaza es una herramienta esencial para la gestión del riesgo en las edificaciones. Permite:
+Priorizar las acciones de mitigación: Enfocarse en las amenazas y vulnerabilidades que representan el mayor riesgo para la seguridad de la edificación y sus ocupantes.
+
+
+Asignar recursos de manera eficiente: Optimizar el uso de recursos disponibles para implementar las medidas de prevención y protección más adecuadas.
+
+
+Tomar decisiones informadas: Basar las decisiones sobre la seguridad de la edificación en datos concretos y análisis objetivos.
+
+
+Mejorar la comunicación: Facilitar la comunicación entre diferentes actores involucrados en la gestión del riesgo, como propietarios, inquilinos, autoridades y profesionales de la ingeniería.
+
+
+Cumplir con regulaciones: Asegurar el cumplimiento de las normas y códigos de construcción vigentes relacionados con la seguridad estructural.
+<<Start: [ULTIMA_MATRIZ_LISTA]>>
+
+ITEM
+CALIFICACION
+1- EL PLAN DE EVACUACIÓN
+ <<[1- EL PLAN DE EVACUACIÓN]>>
+2. ALARMA PARA EVACUACIÓN
+ <<[2. ALARMA PARA EVACUACIÓN]>>
+3. RUTA DE EVACUACIÓN
+ <<[3. RUTA DE EVACUACIÓN]>>
+4. LOS VISITANTES DEL CONJUNTO CONOCEN LAS RUTAS DE EVACUACIÓN
+ <<[4. LOS VISITANTES DEL CONJUNTO CONOCEN LAS RUTAS DE EVACUACIÓN]>>
+5. LOS PUNTOS DE REUNIÓN EN UNA EVACUACIÓN
+ <<[5. LOS PUNTOS DE REUNIÓN EN UNA EVACUACIÓN]>>
+6. LOS PUNTOS DE REUNIÓN EN UNA EVACUACIÓN (PARTE 2)
+ <<[6. LOS PUNTOS DE REUNIÓN EN UNA EVACUACIÓN (PARTE 2)]>>
+7. LA SEÑALIZACIÓN PARA EVACUACIÓN
+ <<[7. LA SEÑALIZACIÓN PARA EVACUACIÓN]>>
+8. LAS RUTAS DE EVACUACIÓN SON
+ <<[8. LAS RUTAS DE EVACUACIÓN SON]>>
+9. LA RUTA PRINCIPAL DE EVACUACIÓN
+ <<[9. LA RUTA PRINCIPAL DE EVACUACIÓN]>>
+10. LA SEÑAL DE ALARMA
+ <<[10. LA SEÑAL DE ALARMA]>>
+11. SISTEMA DE DETECCIÓN
+ <<[11. SISTEMA DE DETECCIÓN]>>
+12. EL SISTEMA DE ILUMINACIÓN
+ <<[12. EL SISTEMA DE ILUMINACIÓN]>>
+13. EL SISTEMA DE ILUMINACIÓN DE EMERGENCIA
+ <<[13. EL SISTEMA DE ILUMINACIÓN DE EMERGENCIA]>>
+14. EL SISTEMA CONTRA INCENDIO
+ <<[14. EL SISTEMA CONTRA INCENDIO]>>
+15. LOS EXTINTORES PARA INCENDIO
+ <<[15. LOS EXTINTORES PARA INCENDIO]>>
+16. DIVULGACIÓN DEL PLAN DE EMERGENCIA A LOS EMPLEADOS
+ <<[16. DIVULGACIÓN DEL PLAN DE EMERGENCIA A LOS EMPLEADOS]>>
+17. COORDINADOR DEL PLAN DE EMERGENCIA
+ <<[17. COORDINADOR DEL PLAN DE EMERGENCIA]>>
+18. LA BRIGADA DE EMERGENCIA
+ <<[18. LA BRIGADA DE EMERGENCIA]>>
+19. SE HAN REALIZADO SIMULACROS
+ <<[19. SE HAN REALIZADO SIMULACROS]>>
+20.
+  ENTIDADES DE SOCORRO EXTERNAS
+ <<[20. ENTIDADES DE SOCORRO EXTERNAS]>>
+21. LOS OCUPANTES DEL CONJUNTO SON
+ <<[21. LOS OCUPANTES DEL CONJUNTO SON]>>
+22. EN LA ENTRADA DEL CONJUNTO O EN CADA PISO
+ <<[22. EN LA ENTRADA DEL CONJUNTO O EN CADA PISO]>>
+23. LAS RUTAS DE CIRCULACIÓN
+ <<[23. LAS RUTAS DE CIRCULACIÓN]>>
+24. LAS PUERTAS DE SALIDA DEL CONJUNTO
+ <<[24. LAS PUERTAS DE SALIDA DEL CONJUNTO]>>
+25. ESTRUCTURA Y TIPO DE CONSTRUCCIÓN
+ <<[25. ESTRUCTURA Y TIPO DE CONSTRUCCIÓN]>>
+RESULTADO DE LA EVALUACIÓN
+SUMAN  <<[SUMAN]>>
+ <<[RESULTADO DE LA EVALUCACIÓN]>>
+OBSERVACIONES DEL CONSULTOR
+ <<[OBSERVACIONES DEL CONSULTOR]>>
+
+
+<<End>>
+
+Ocurrencia de Peligros: En una propiedad horizontal, la ocurrencia de peligros se refiere a la probabilidad de que sucedan situaciones que puedan comprometer la seguridad, como incendios, inundaciones, fallos eléctricos o robos. Este análisis permite a los administradores tomar medidas preventivas y establecer planes de contingencia para minimizar los riesgos.
+Origen del peligro
+Se identifican cuatro orígenes de los peligros:
+Natural: Incluye eventos como terremotos, inundaciones, vendavales e incendios forestales.
+Social: Comprende situaciones como atentados terroristas, amenazas y robos.
+Tecnológico: Abarca riesgos asociados a la presencia de empresas vecinas, almacenamiento de gases tóxicos, inflamabilidad de sustancias, operación de aeropuertos y la movilidad vehicular.
+
+ORIGEN
+PELIGRO
+NATURAL
+Presencia de una falla geológica(Terremotos, sismos)
+Condiciones atmosféricas adversas a la zona (inundaciones, vendavales)
+Incendios Forestales
+SOCIAL
+Condiciones sociales insatisfechas (atentados terroristas, amenazas)
+Condiciones políticas y sociales de la región (robos)
+TECNOLÓGICO
+Presencia empresas vecinas(Explosiones, incendios)
+Almacenamiento de gases tóxicos (fugas de sustancias nocivas)
+Inflamabilidad de una sustancia (incendios, explosiones)
+Presencia Aeropuerto (paso de aviones)
+Movilidad vehículos automotores
+
+
+Ejemplo de caracterización de un peligro
+Peligro: Inundación
+Descripción: Desbordamiento de un río o arroyo que causa la inundación de áreas aledañas.
+Ubicación: Zonas bajas aledañas al río o arroyo.
+Magnitud: Daños a viviendas, infraestructura, cultivos y pérdidas económicas.
+Probabilidad de ocurrencia: Depende de la frecuencia de las precipitaciones intensas y el estado de los cauces de agua.
+Vulnerabilidad: Depende de la altura de las viviendas, la existencia de sistemas de drenaje y la preparación de la comunidad para enfrentar una inundación.
+Definición de los niveles de probabilidad: Poco probable, Probable y Muy probable
+Los términos "Poco probable", "Probable" y "Muy probable" se utilizan para expresar la certeza o confianza que se tiene sobre la ocurrencia de un evento o fenómeno. Se emplean en diversos contextos, incluyendo la gestión de riesgos.
+A continuación, se presenta una definición más precisa de cada nivel:
+Poco probable:
+Definición: Se refiere a un evento o fenómeno que tiene baja probabilidad de ocurrir. Es decir, existe una alta posibilidad de que no suceda.
+Equivalentes: Se puede expresar de manera similar como "improbable", "con baja probabilidad", "con pocas posibilidades de ocurrir" o "es dudoso que suceda".
+Rango de probabilidad: En términos numéricos, se podría considerar un evento poco probable como aquel que tiene una probabilidad de ocurrencia entre 10% y 33%.
+Probable:
+Definición: Indica un evento o fenómeno que tiene moderada probabilidad de ocurrir. Es decir, existe una posibilidad razonable de que suceda.
+Equivalentes: Se puede expresar de manera similar como "con posibilidades de ocurrir", "es posible que suceda", "hay chances de que ocurra" o "no se puede descartar su ocurrencia".
+Rango de probabilidad: En términos numéricos, se podría considerar un evento probable como aquel que tiene una probabilidad de ocurrencia entre 33% y 66%.
+Muy probable:
+Definición: Se refiere a un evento o fenómeno que tiene alta probabilidad de ocurrir. Es decir, existe una gran posibilidad de que suceda.
+Equivalentes: Se puede expresar de manera similar como "altamente probable", "con alta probabilidad", "es muy probable que ocurra" o "es casi seguro que suceda".
+Rango de probabilidad: En términos numéricos, se podría considerar un evento muy probable como aquel que tiene una probabilidad de ocurrencia entre 66% y 99%.
+<<Start: [ULTIMA_PROBABILIDAD_LISTA]>>
+ORIGEN
+TIPO
+FRECUENCIA
+NATURALES
+SISMOS, CAÍDAS DE ESTRUCTURAS(TIPO DE PELIGRO) -  ORIGEN DEL PELIGRO(NATURALES)
+ <<[SISMOS, CAIDAS DE ESTRUCTURAS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)]>>
+INUNDACIONES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)
+ <<[INUNDACIONES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)]>>
+VENDAVALES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)
+ <<[VENDAVALES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)]>>
+SOCIALES
+ATENTADOS TERRORISTAS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)
+ <<[ATENTADOS TERRORISTAS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)]>>
+ASALTO, HURTO(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)
+ <<[ASALTO, HURTO(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)]>>
+VANDALISMO(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)
+ <<[VANDALISMO(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)]>>
+TECNOLOGICOS
+INCENDIOS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)
+ <<[INCENDIOS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)]>>
+EXPLOSIONES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)
+ <<[EXPLOSIONES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)]>>
+INHALACIÓN GASES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)
+ <<[INHALACION GASES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)]>>
+FALLA ESTRUCTURAL(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLÓGICOS)
+ <<[FALLA ESTRUCTURAL(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLOGICOS)]>>
+INTOXICACIÓN POR ALIMENTOS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLÓGICOS)
+ <<[INTOXICACION POR ALIMENTOS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLOGICOS)]>>
+DENSIDAD POBLACIONAL(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLÓGICOS)
+ <<[DENSIDAD POBLACIONAL(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLOGICOS)]>>
+
+
+OBSERVACIONES DEL CONSULTOR:  <<[OBSERVACIONES DEL CONSULTOR]>>
+
+SISMOS, CAÍDA DE ESTRUCTURAS: Ninguna edificación, aún las construidas recientemente, se encuentran exentas de ser afectadas por la acción de las vibraciones derivadas del choque de las placas que forman la superficie de la tierra y que se mueven continuamente en direcciones diferentes acumulando y liberando energía que sacude la superficie, fenómeno que se conoce como terremoto, sismo o temblor de tierra. La magnitud e intensidad, las características del suelo (suelos blandos o rellenos pueden aumentar la capacidad destructiva en determinadas edificaciones), la resistencia de las edificaciones (una falla estructural de planta física puede hacer colapsar de manera parcial o total estructuras de la edificación con alteración directa de su capacidad portante y daño a sus elementos y ocupantes), y la preparación que se tenga por parte de las personas e instituciones para actuar y reaccionar en forma adecuada, antes, durante y después del fenómeno, dependen los daños que este cause. Es de anotar que la ciudad de Bogotá D.C. y sus alrededores están asentados en una zona de riesgo sísmico intermedio.
+INUNDACIONES: Se presentan generalmente después de una lluvia fuerte o una granizada, por sustracción de drenajes, por taponamiento de sifones, de desagües o de bajantes de canales; cuando se presenta acumulación de residuos o basuras o por diámetros muy reducidos de los tubos de la cañería; por mala inclinación de los desniveles hacia los respectivos desagües, o por estar la edificación en zonas bajas inundables como cerca de ríos, lagos o por estar construida en zonas pantanosas. Por presentarse en la capital épocas de fuertes y prolongados inviernos, es muy probable que se presenten este tipo de amenazas.
+VENDAVALES, GRANIZADA Y TORMENTAS ELÉCTRICAS: Los cambios climáticos y meteorológicos se pueden encontrar acompañados de vientos, lluvias, granizadas, tormentas eléctricas. La acción de vientos fuertes no solo puede romper ventanales y levantar tejas en las cubiertas, sino hacer caer antenas y pararrayos. Las tormentas eléctricas pueden traer como consecuencia accidentes fatales de trabajadores y la probabilidad de incendios con pérdidas materiales.
+ATENTADOS TERRORISTAS: En este se incluyen aquellas acciones en que además de bombas, o proyectiles dirigidos desde cierta distancia hacia algún objetivo en particular y que generalmente puede afectar instalaciones o viviendas aledañas y ajenas a las que se proponían hacer daño sin que por eso importe algo también puede tratarse de acciones de que inciten a sembrar terror en la población esto puede incluir acciones como el secuestro ya sea por grupos organizados como la guerrilla o bandas criminales.
+ASALTO Y HURTO: Existe la posibilidad de tener este riesgo principalmente en horas nocturnas ocasionado por la gran inseguridad que se presenta en la actualidad en el Distrito Capital, pero es importante acotar que el conjunto residencial cuenta con un sistema de vigilancia privado contratado para salvaguardar los bienes y servicios de los residentes pero esto se limita solo a la propiedad horizontal, esto no desconoce la problemática que se presenta en las áreas perimetrales del sector del conjunto residencial.
+VANDALISMO: Por la gran descomposición social que se vive hoy en día esta es una de las amenazas con un riesgo de probabilidad considerable sin que tenga que ver el tipo de empresa o área habitacional que pueda ser afectada es simplemente el deseo de producir pánico y sembrar el miedo entre la población. La probabilidad de que suceda esta amenaza es poco probable debido a la ubicación que presenta el conjunto residencial, sin embargo se debe considerar que existen muchas formas de hacerlo: a través de paquetes, de sobres, de vehículos y de variedad de artículos incluyendo extintores.
+INCENDIOS: Entre las amenazas más importantes se hace referencia a las de incendio, la cual es característica de toda edificación cuya destinación sea de carácter industrial, comercial, de servicios o residencia. Esta amenaza no solamente se presenta por una eventual vecindad a fuentes de ignición o detonación, fuentes de calor, fuentes eléctricas, presencia de cargas estáticas y también por diferentes cargas combustibles de materiales sólidos presentes en las instalaciones del conjunto residencial y a los trabajos que en él se realicen. Debido a que el conjunto se almacenan diferentes combustibles como vestuario, telones, madera, alfombras, cartón, plásticos, equipos de oficina; presencia de gas natural y demás combustibles que pueden ocasionar un incendio de grandes proporciones.
+EXPLOSIONES: Es un riesgo que viene relacionado con el manejo de cargas combustibles del tipo B como el almacenamiento y manipulación de líquidos y gases inflamables, la reactividad por escape de gases comprimidos como el caso de gas natural, y en el manejo de solventes, lacas, pinturas, varsol que normalmente emanan gases con propiedades inflamables detonantes lo mismo que eventualmente lo podría hacer pero con menos posibilidad el ACPM.
+INHALACIÓN DE GASES: Estas afectaciones en la salud se pueden causar debido a la acumulación de gases nocivos para las personas, esto se puede agravar en el caso del parqueadero de vehículos del conjunto residencial si no se cuenta con la cultura de la revisión periódica de los vehículos automotores y si las personas se quedan bajo periodos largos en este sitio, para lo cual se hace necesario implementar la cultura de esperar que los propietarios de los vehículos realicen el calentamiento del motor en un área ventilada.
+FALLA ESTRUCTURAL: La vulnerabilidad estructural se encuentra determinada por la capacidad de soporte vertical y resistencia a cargas horizontales de la edificación, la cual en términos generales presenta buen aspecto. Un gran porcentaje de las instalaciones está construida en muros de ladrillo y cemento, pisos en cemento, techos en placa de concreto. Con el objeto de determinar la capacidad sismo resistente de las edificaciones se recomienda realizar un estudio técnico de las mismas y conforme a su valoración reforzar las estructuras o realizar las modificaciones arquitectónicas necesarias, en consonancia con las exigencias del código colombiano de construcciones sismo resistentes, adoptado por el Decreto 400 con vigencia desde el año de 1984 y actualizado por la Ley 400 de 1997 y el Decreto 33 de 1998.
+INTOXICACIÓN POR ALIMENTOS: Esta amenaza representa un peligro biológico (o químico, según el caso). Se refiere a las afectaciones en la salud causadas por la ingesta de alimentos contaminados con microorganismos patógenos, toxinas o sustancias químicas perjudiciales.
+DENSIDAD POBLACIONAL: Este riesgo se considera de origen social o organizacional. Se refiere al riesgo asociado con la alta concentración de personas en un área determinada, lo que puede aumentar la probabilidad de accidentes, propagación de enfermedades contagiosas y dificultades para ejecutar evacuaciones en caso de emergencia.
+
+RESULTADOS CONSOLIDADOS
+
+POCO  PROBABLE
+ <<[POCO PROBABLE]>>
+PROBABLE
+ <<[PROBABLE]>>
+MUY  PROBABLE
+ <<[MUY PROBABLE]>>
+
+
+<<End>>
+Extintores: Los extintores son equipos de seguridad obligatorios en propiedades horizontales, ubicados estratégicamente en áreas comunes como escaleras, parqueaderos y sótanos. Deben ser inspeccionados y mantenidos regularmente para asegurar que estén operativos en caso de incendios, y los residentes y empleados deben estar capacitados para su uso adecuado.
+Los extintores portátiles contra incendios son un equipo esencial para la seguridad contra incendios. En caso de incendio, un extintor portátil puede ayudar a controlar o extinguir el fuego, lo que puede salvar vidas y proteger la propiedad. Sin embargo, para que un extintor funcione correctamente, debe inspeccionarse y mantenerse regularmente.
+¿Qué se debe revisar en una inspección de extintor?
+La norma técnica colombiana NTC 2885 establece los requisitos mínimos que deben cumplirse en la inspección de extintores portátiles contra incendios. A continuación, se presenta un resumen de los aspectos que se deben revisar en una inspección:
+1. Condiciones generales del extintor:
+Verifique que el extintor no esté dañado, corroído o presente fugas.
+Revise que la manguera, la boquilla y el manómetro estén en buen estado.
+Asegúrese de que el extintor esté montado correctamente en su soporte.
+2. Presión del agente extintor:
+Verifique que la presión del agente extintor esté dentro del rango adecuado. La mayoría de los extintores tienen un indicador de presión que muestra si la presión es demasiado baja, demasiado alta o correcta.
+Si el indicador de presión muestra que la presión es demasiado baja, el extintor debe ser recargado o reparado.
+3. Peso del extintor:
+Verifique que el peso del extintor sea el correcto. El peso del extintor está indicado en una etiqueta en el costado del extintor.
+Si el peso del extintor es incorrecto, el extintor debe ser retirado del servicio.
+4. Etiquetado:
+Verifique que el extintor esté correctamente etiquetado, con la información del fabricante, el tipo de agente extintor, la capacidad y las instrucciones de uso.
+La etiqueta debe estar legible y en buen estado.
+5. Funcionamiento del extintor:
+No es necesario descargar completamente el extintor para verificar su funcionamiento.
+Simplemente descargue una pequeña cantidad de agente extintor para asegurarse de que el extintor funciona correctamente.
+Frecuencia de las inspecciones
+La norma NTC 2885 establece que las inspecciones de los extintores portátiles contra incendios se deben realizar como mínimo una vez al año. Sin embargo, en algunas instalaciones, como las de alto riesgo, las inspecciones se pueden realizar con mayor frecuencia, de acuerdo con lo establecido en el plan de seguridad contra incendios.
+¿Quién debe realizar las inspecciones?
+Las inspecciones de los extintores portátiles contra incendios deben ser realizadas por personal calificado y capacitado. El personal inspector debe registrar los resultados de la inspección en un formato adecuado.
+Importancia de las inspecciones
+Las inspecciones de los extintores portátiles contra incendios son importantes para garantizar que estos equipos funcionen correctamente en caso de incendio. Una inspección regular puede ayudar a detectar y corregir problemas que podrían impedir que el extintor apague un fuego.
+<<Start: [ULTIMO_INVENTARIO_EXTINCION_LISTA]>> 
+FECHA DE LA INSPECCIÓN
+ <<[FECHA DE LA INSPECCION]>>
+FECHA DE VENCIMIENTO GLOBAL
+ <<[FECHA DE VENCIMIENTO GLOBAL]>>
+NÚMERO DE EXTINTORES TOTALES
+ <<[NÚMERO DE EXTINTORES TOTALES]>>
+CANTIDAD ABC (MULTIPROPOSITO)
+ <<[CANTIDAD ABC (MULTIPROPOSITO)]>>
+CANTIDAD CO2 (DIÓXIDO DE CARBONO)
+ <<[CANTIDAD CO2 (DIOXIDO DE CARBONO)]>>
+CANTIDAD SOLKAFLAM 123
+ <<[CANTIDAD SOLKAFLAM 123]>>
+CANTIDAD EXTINTORES DE AGUA
+ <<[CANTIDAD EXTINTORES DE AGUA]>>
+CAPACIDAD DE LOS EXTINTORES (LIBRAS)
+ <<[CAPACIDAD DE LOS EXTINTORES (LIBRAS)]>>
+CANTIDAD EXTINTORES EN UNIDADES RESIDENCIALES
+ <<[CANTIDAD EXTINTORES EN UNIDADES RESIDENCIALES]>>
+CANTIDAD DE EXTINTORES PORTERÍA
+ <<[CANTIDAD DE EXTINTORES PORTERIA]>>
+CANTIDAD DE EXTINTORES OFICINA ADMINISTRACIÓN
+ <<[CANTIDAD DE EXTINTORES OFICINA ADMINISTRACIÓN]>>
+CANTIDAD DE EXTINTORES SHUT DE BASURAS
+ <<[CANTIDAD DE EXTINTORES SHUT DE BASURAS]>>
+CANTIDAD DE EXTINTORES SALONES COMUNALES
+ <<[CANTIDAD DE EXTINTORES SALONES COMUNALES]>>
+CANTIDAD DE EXTINTORES CUARTO DE BOMBAS DE AGUA
+ <<[CANTIDAD DE EXTINTORES CUARTO DE BOMBAS DE AGUA]>>
+CANTIDAD DE EXTINTORES PLANTA ELÉCTRICA
+ <<[CANTIDAD DE EXTINTORES PLANTA ELÉCTRICA]>>
+INSPECCIÓN 1 PRUEBA HIDROSTÁTICA
+ <<[INSPECCIÓN 1 PRUEBA HIDROSTÁTICA]>>
+INSPECCIÓN 1 PINTURA DE CILINDRO
+ <<[INSPECCIÓN 1 PINTURA DE CILINDRO]>>
+INSPECCIÓN 1 GOLPES EN EL EXTINTOR
+ <<[INSPECCIÓN 1 GOLPES EN EL EXTINTOR]>>
+INSPECCIÓN 1 AUTO-ADHESIVO FECHA/TIPO
+ <<[INSPECCIÓN 1 AUTO-ADHESIVO FECHA/TIPO]>>
+INSPECCIÓN 1 MANIJA DE TRANSPORTE
+ <<[INSPECCIÓN 1 MANIJA DE TRANSPORTE]>>
+INSPECCIÓN 1 PALANCA DE ACCIONAMIENTO
+ <<[INSPECCIÓN 1 PALANCA DE ACCIONAMIENTO]>>
+INSPECCIÓN 1 PRESIÓN
+ <<[INSPECCIÓN 1 PRESIÓN]>>
+INSPECCIÓN 1 MANÓMETRO
+ <<[INSPECCIÓN 1 MANÓMETRO]>>
+INSPECCIÓN 1 BOQUILLA
+ <<[INSPECCIÓN 1 BOQUILLA]>>
+INSPECCIÓN 1 MANGUERA
+ <<[INSPECCIÓN 1 MANGUERA]>>
+INSPECCIÓN 1 RING O ARO DE SEGURIDAD
+ <<[INSPECCIÓN 1 RING O ARO DE SEGURIDAD]>>
+INSPECCIÓN 1 SEÑALIZACIÓN
+ <<[INSPECCIÓN 1 SEÑALIZACIÓN]>>
+INSPECCIÓN 1 SOPORTE
+ <<[INSPECCIÓN 1 SOPORTE]>>
+INSPECCIÓN 1 FECHA DE VENCIMIENTO
+ <<[INSPECCIÓN 1 FECHA DE VENCIMIENTO]>>
+INSPECCIÓN 1 FOTO
+ <<[INSPECCIÓN 1 FOTO]>>
+INSPECCIÓN 1 OBSERVACIONES
+ <<[INSPECCIÓN 1 OBSERVACIONES]>>
+INSPECCIÓN 2 PRUEBA HIDROSTÁTICA
+ <<[INSPECCIÓN 2 PRUEBA HIDROSTÁTICA]>>
+INSPECCIÓN 2 PINTURA DE CILINDRO
+ <<[INSPECCIÓN 2 PINTURA DE CILINDRO]>>
+INSPECCIÓN 2 GOLPES EN EL EXTINTOR
+ <<[INSPECCIÓN 2 GOLPES EN EL EXTINTOR]>>
+INSPECCIÓN 2 AUTO-ADHESIVO FECHA/TIPO
+ <<[INSPECCIÓN 2 AUTO-ADHESIVO FECHA/TIPO]>>
+INSPECCIÓN 2 MANIJA DE TRANSPORTE
+ <<[INSPECCIÓN 2 MANIJA DE TRANSPORTE]>>
+INSPECCIÓN 2 PALANCA DE ACCIONAMIENTO
+ <<[INSPECCIÓN 2 PALANCA DE ACCIONAMIENTO]>>
+INSPECCIÓN 2 PRESIÓN
+ <<[INSPECCIÓN 2 PRESIÓN]>>
+INSPECCIÓN 2 MANÓMETRO
+ <<[INSPECCIÓN 2 MANÓMETRO]>>
+INSPECCIÓN 2 BOQUILLA
+ <<[INSPECCIÓN 2 BOQUILLA]>>
+INSPECCIÓN 2 MANGUERA
+ <<[INSPECCIÓN 2 MANGUERA]>>
+INSPECCIÓN 2 RING O ARO DE SEGURIDAD
+ <<[INSPECCIÓN 2 RING O ARO DE SEGURIDAD]>>
+INSPECCIÓN 2 SEÑALIZACIÓN
+ <<[INSPECCIÓN 2 SEÑALIZACIÓN]>>
+INSPECCIÓN 2 SOPORTE
+ <<[INSPECCIÓN 2 SOPORTE]>>
+INSPECCIÓN 2 FECHA DE VENCIMIENTO
+ <<[INSPECCIÓN 2 FECHA DE VENCIMIENTO]>>
+INSPECCIÓN 2 FOTO
+ <<[INSPECCIÓN 2 FOTO]>>
+INSPECCIÓN 2 OBSERVACIONES
+ <<[INSPECCIÓN 2 OBSERVACIONES]>>
+INSPECCIÓN 3 PRUEBA HIDROSTÁTICA
+ <<[INSPECCIÓN 3 PRUEBA HIDROSTÁTICA]>>
+INSPECCIÓN 3 PINTURA DE CILINDRO
+ <<[INSPECCIÓN 3 PINTURA DE CILINDRO]>>
+INSPECCIÓN 3 GOLPES EN EL EXTINTOR
+ <<[INSPECCIÓN 3 GOLPES EN EL EXTINTOR]>>
+INSPECCIÓN 3 AUTO-ADHESIVO FECHA/TIPO
+ <<[INSPECCIÓN 3 AUTO-ADHESIVO FECHA/TIPO]>>
+INSPECCIÓN 3 MANIJA DE TRANSPORTE
+ <<[INSPECCIÓN 3 MANIJA DE TRANSPORTE]>>
+INSPECCIÓN 3 PALANCA DE ACCIONAMIENTO
+ <<[INSPECCIÓN 3 PALANCA DE ACCIONAMIENTO]>>
+INSPECCIÓN 3 PRESIÓN
+ <<[INSPECCIÓN 3 PRESIÓN]>>
+INSPECCIÓN 3 MANÓMETRO
+ <<[INSPECCIÓN 3 MANÓMETRO]>>
+INSPECCIÓN 3 BOQUILLA
+ <<[INSPECCIÓN 3 BOQUILLA]>>
+INSPECCIÓN 3 MANGUERA
+ <<[INSPECCIÓN 3 MANGUERA]>>
+INSPECCIÓN 3 RING O ARO DE SEGURIDAD
+ <<[INSPECCIÓN 3 RING O ARO DE SEGURIDAD]>>
+INSPECCIÓN 3 SEÑALIZACIÓN
+ <<[INSPECCIÓN 3 SEÑALIZACIÓN]>>
+INSPECCIÓN 3 SOPORTE
+ <<[INSPECCIÓN 3 SOPORTE]>>
+INSPECCIÓN 3 FECHA DE VENCIMIENTO
+ <<[INSPECCIÓN 3 FECHA DE VENCIMIENTO]>>
+INSPECCIÓN 3 FOTO
+ <<[INSPECCIÓN 3 FOTO]>>
+INSPECCIÓN 3 OBSERVACIONES
+ <<[INSPECCIÓN 3 OBSERVACIONES]>>
+
+
+RECOMENDACIONES GENERALES DE LA INSPECCIÓN: <<[RECOMENDACIONES GENERALES DE LA INSPECCION]>>
+<<End>>
+Botiquines: Los botiquines en propiedades horizontales suelen estar ubicados en las áreas comunes o administrativas. Deben estar equipados con los suministros de primeros auxilios necesarios para atender emergencias menores que puedan ocurrir en la copropiedad, garantizando una respuesta rápida ante accidentes hasta que llegue la asistencia médica profesional.
+1. Perspectiva de salud pública:
+Reducción de morbilidad y mortalidad: La atención oportuna y eficaz de lesiones y urgencias médicas puede disminuir la morbilidad y mortalidad asociada a estas situaciones.
+Prevención de complicaciones: Un botiquín tipo B bien dotado permite prevenir complicaciones derivadas de lesiones o urgencias, lo que reduce la necesidad de atención médica especializada y los costos asociados a la misma.
+Promoción de la salud: La presencia de un botiquín tipo B puede incentivar la adopción de prácticas de autocuidado y primeros auxilios, lo que contribuye a promover la salud individual y colectiva en la comunidad.
+2. Enfoque de seguridad y bienestar:
+Minimización de riesgos: Un botiquín tipo B bien dotado minimiza los riesgos asociados a accidentes, lesiones o urgencias médicas en la propiedad horizontal.
+Protección de la integridad física: Permite brindar atención inmediata a las personas afectadas, protegiendo su integridad física y reduciendo el impacto psicológico de las situaciones de emergencia.
+Generación de un ambiente seguro: La disponibilidad de un botiquín tipo B contribuye a crear un ambiente más seguro para todos los residentes, visitantes y personal del conjunto residencial.
+3. Aspectos legales y normativos:
+Cumplimiento de la Ley 1801 de 2016 y el Decreto 1076 de 2015: La normativa colombiana establece la obligatoriedad de contar con un botiquín tipo B en las propiedades horizontales como requisito mínimo de seguridad.
+Responsabilidad civil: La ausencia de un botiquín tipo B o su mal estado puede generar responsabilidad civil para la administración del conjunto residencial en caso de un accidente o una urgencia médica.
+Promoción de una cultura de cumplimiento legal: El cumplimiento de la normativa sobre botiquines tipo B contribuye a fortalecer una cultura de cumplimiento legal en las propiedades horizontales.
+4. Consideraciones éticas y de responsabilidad social:
+Derecho a la salud: La disponibilidad de un botiquín tipo B garantiza el derecho fundamental a la salud de las personas que habitan o frecuentan la propiedad horizontal.
+Protección de la vida y la integridad física: Brindar atención inmediata a las personas en situación de emergencia es un deber ético de la administración del conjunto residencial.
+Compromiso con el bienestar social: Dotar a la propiedad horizontal con un botiquín tipo B demuestra el compromiso social de la administración con el bienestar de las personas que viven, trabajan o visitan el lugar.
+5. Fundamentación científica y técnica:
+Norma NTC 4198: La Norma NTC 4198 establece los requisitos de dotación y funcionamiento de los botiquines de primeros auxilios, garantizando su calidad, eficacia y seguridad.
+Guías de primeros auxilios: Existen guías y protocolos reconocidos internacionalmente para el uso adecuado de los botiquines de primeros auxilios, asegurando una atención oportuna y correcta.
+Evidencia empírica: Estudios científicos demuestran la efectividad de los botiquines de primeros auxilios en la reducción de la morbilidad y mortalidad asociadas a lesiones y urgencias médicas.
+<<Start: [ULTIMA_INSP_BOTIQUIN]>> 
+
+FECHA DE LA INSPECCIÓN:
+<<[FECHA DE LA INSPECCION]>>
+UBICACIÓN DEL BOTIQUÍN: 
+<<[UBICACION DEL BOTIQUIN]>>
+<<[FOTO 1 DEL BOTIQUIN]>>
+<<[FOTO 2 DEL BOTIQUIN]>>
+
+
+
+¿EL BOTIQUÍN SE ENCUENTRA INSTALADO EN LA PARED?
+ <<[¿EL BOTIQUÍN SE ENCUENTRA INSTALADO EN LA PARED?]>>
+¿EL BOTIQUÍN SE ENCUENTRA LIBRE DE OBSTÁCULOS?
+ <<[¿EL BOTIQUÍN SE ENCUENTRA LIBRE DE OBSTÁCULOS?]>>
+¿LOCALIZADO EN LUGAR VISIBLE?
+ <<[¿LOCALIZADO EN LUGAR VISIBLE?]>>
+¿EL BOTIQUÍN SE ENCUENTRA CON SEÑALIZACIÓN?
+ <<[¿EL BOTIQUÍN SE ENCUENTRA CON SEÑALIZACIÓN?]>>
+¿EL BOTIQUÍN ES DE?
+ <<[¿EL BOTIQUÍN ES DE?]>>
+ESTADO DEL BOTIQUÍN
+ <<[ESTADO DEL BOTIQUÍN]>>
+CANTIDAD GASAS LIMPIAS PAQUETE - Paquete X 100 1
+ <<[CANTIDAD GASAS LIMPIAS PAQUETE - Paquete X 100 1]>>
+ESTADO GASAS LIMPIAS PAQUETE - Paquete X 100 1
+ <<[ESTADO GASAS LIMPIAS PAQUETE - Paquete X 100 1]>>
+CANTIDAD GASAS ESTÉRILES PAQUETE - Paquete por 3 20
+ <<[CANTIDAD GASAS ESTÉRILES PAQUETE - Paquete por 3 20]>>
+ESTADO GASAS ESTÉRILES PAQUETE - Paquete por 3 20
+ <<[ESTADO GASAS ESTÉRILES PAQUETE - Paquete por 3 20]>>
+CANTIDAD APÓSITO o COMPRESAS NO ESTÉRILES - Unidad 4
+ <<[CANTIDAD APÓSITO o COMPRESAS NO ESTÉRILES - Unidad 4]>>
+ESTADO APÓSITO o COMPRESAS NO ESTÉRILES - Unidad 4
+ <<[ESTADO APÓSITO o COMPRESAS NO ESTÉRILES - Unidad 4]>>
+CANTIDAD ESPARADRAPO DE TELA ROLLO 4″ - Unidad 2
+ <<[CANTIDAD ESPARADRAPO DE TELA ROLLO 4″ - Unidad 2]>>
+ESTADO ESPARADRAPO DE TELA ROLLO 4″ - Unidad 2
+ <<[ESTADO ESPARADRAPO DE TELA ROLLO 4″ - Unidad 2]>>
+CANTIDAD BAJALENGUAS - Paquete por 20 2
+ <<[CANTIDAD BAJALENGUAS - Paquete por 20 2]>>
+ESTADO BAJALENGUAS - Paquete por 20 2
+ <<[ESTADO BAJALENGUAS - Paquete por 20 2]>>
+CANTIDAD VENDA ELÁSTICA 2 X 5 YARDAS – Unidad 2
+ <<[CANTIDAD VENDA ELÁSTICA 2 X 5 YARDAS – Unidad 2]>>
+ESTADO VENDA ELÁSTICA 2 X 5 YARDAS – Unidad 2
+ <<[ESTADO VENDA ELÁSTICA 2 X 5 YARDAS – Unidad 2]>>
+CANTIDAD VENDA ELÁSTICA 3 X 5 YARDAS – Unidad 2
+ <<[CANTIDAD VENDA ELÁSTICA 3 X 5 YARDAS – Unidad 2]>>
+ESTADO VENDA ELÁSTICA 3 X 5 YARDAS – Unidad 2
+ <<[ESTADO VENDA ELÁSTICA 3 X 5 YARDAS – Unidad 2]>>
+CANTIDAD VENDA ELÁSTICA 5 X 5 YARDAS – Unidad 2
+ <<[CANTIDAD VENDA ELÁSTICA 5 X 5 YARDAS – Unidad 2]>>
+ESTADO VENDA ELÁSTICA 5 X 5 YARDAS – Unidad 2
+ <<[ESTADO VENDA ELÁSTICA 5 X 5 YARDAS – Unidad 2]>>
+CANTIDAD VENDA DE ALGODÓN 3 X 5 YARDAS – Unidad 2
+ <<[CANTIDAD VENDA DE ALGODÓN 3 X 5 YARDAS – Unidad 2]>>
+ESTADO VENDA DE ALGODÓN 3 X 5 YARDAS – Unidad 2
+ <<[ESTADO VENDA DE ALGODÓN 3 X 5 YARDAS – Unidad 2]>>
+CANTIDAD VENDA DE ALGODÓN 5 X 5 YARDAS – Unidad 2
+ <<[CANTIDAD VENDA DE ALGODÓN 5 X 5 YARDAS – Unidad 2]>>
+ESTADO VENDA DE ALGODÓN 5 X 5 YARDAS – Unidad 2
+ <<[ESTADO VENDA DE ALGODÓN 5 X 5 YARDAS – Unidad 2]>>
+CANTIDAD CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1
+ <<[CANTIDAD CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1]>>
+ESTADO CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1
+ <<[ESTADO CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1]>>
+FECHA VENCIMIENTO CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1
+ <<[FECHA VENCIMIENTO CLORHEXIDINA O YODOPOVIDONA JABÓN QUIRÚRGICO – Galón 1]>>
+CANTIDAD SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5
+ <<[CANTIDAD SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5]>>
+ESTADO SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5
+ <<[ESTADO SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5]>>
+FECHA DE VENCIMIENTO SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5
+ <<[FECHA DE VENCIMIENTO SOLUCIÓN SALINA 250 cc ó 500 cc – Unidad 5]>>
+CANTIDAD GUANTES DE LÁTEX PARA EXAMEN - Caja por 100 1
+ <<[CANTIDAD GUANTES DE LÁTEX PARA EXAMEN - Caja por 100 1]>>
+ESTADO GUANTES DE LÁTEX PARA EXAMEN - Caja por 100 1
+ <<[ESTADO GUANTES DE LÁTEX PARA EXAMEN - Caja por 100 1]>>
+CANTIDAD ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1
+ <<[CANTIDAD ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1]>>
+ESTADO ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1
+ <<[ESTADO ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1]>>
+FECHA DE VENCIMIENTO ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1
+ <<[FECHA DE VENCIMIENTO ALCOHOL ANTISÉPTICO FRASCO POR 275 ml – Unidad 1]>>
+CANTIDAD TERMÓMETRO DE MERCURIO o DIGITAL – Unidad 1
+ <<[CANTIDAD TERMÓMETRO DE MERCURIO ó DIGITAL – Unidad 1]>>
+ESTADO TERMÓMETRO DE MERCURIO ó DIGITAL – Unidad 1
+ <<[ESTADO TERMÓMETRO DE MERCURIO ó DIGITAL – Unidad 1]>>
+CANTIDAD TIJERAS – Unidad 1
+ <<[CANTIDAD TIJERAS – Unidad 1]>>
+ESTADO TIJERAS – Unidad 1
+ <<[ESTADO TIJERAS – Unidad 1]>>
+CANTIDAD LINTERNA – Unidad 1
+ <<[CANTIDAD LINTERNA – Unidad 1]>>
+ESTADO LINTERNA – Unidad 1
+ <<[ESTADO LINTERNA – Unidad 1]>>
+CANTIDAD PILAS DE REPUESTO – Par 4
+ <<[CANTIDAD PILAS DE REPUESTO – Par 4]>>
+ESTADO PILAS DE REPUESTO – Par 4
+ <<[ESTADO PILAS DE REPUESTO – Par 4]>>
+CANTIDAD TABLA ESPINAL LARGA Camilla – Unidad 1
+ <<[CANTIDAD TABLA ESPINAL LARGA Camilla – Unidad 1]>>
+FOTO TABLA ESPINAL LARGA Camilla – Unidad 1
+ <<[FOTO TABLA ESPINAL LARGA Camilla – Unidad 1]>>
+OBSERVACIONES TABLA ESPINAL LARGA Camilla – Unidad 1
+ <<[OBSERVACIONES TABLA ESPINAL LARGA Camilla – Unidad 1]>>
+CANTIDAD COLLAR CERVICAL ADULTO – Unidad 2
+ <<[CANTIDAD COLLAR CERVICAL ADULTO – Unidad 2]>>
+CANTIDAD COLLAR CERVICAL NIÑO – Unidad 2
+ <<[CANTIDAD COLLAR CERVICAL NIÑO – Unidad 2]>>
+ESTADO COLLARES CERVICALES
+ <<[ESTADO COLLARES CERVICALES]>>
+FOTO COLLARES CERVICALES
+ <<[FOTO COLLARES CERVICALES]>>
+CANTIDAD INMOVILIZADORES ó FÉRULA MIEMBROS SUPERIORES ADULTO – Unidad 1
+ <<[CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS SUPERIORES ADULTO – Unidad 1]>>
+CANTIDAD INMOVILIZADORES ó FÉRULA MIEMBROS INFERIORES ADULTO – Unidad 1
+ <<[CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS INFERIORES ADULTO – Unidad 1]>>
+CANTIDAD INMOVILIZADORES ó FÉRULA MIEMBROS SUPERIORES NIÑO – Unidad 1
+ <<[CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS SUPERIORES NIÑO – Unidad 1]>>
+CANTIDAD INMOVILIZADORES ó FÉRULA MIEMBROS INFERIORES NIÑO – Unidad 1
+ <<[CANTIDAD INMOVILIZADORES o FÉRULA MIEMBROS INFERIORES NIÑO – Unidad 1]>>
+ESTADO INMOVILIZADORES
+ <<[ESTADO INMOVILIZADORES]>>
+FOTO INMOVILIZADORES
+ <<[FOTO INMOVILIZADORES]>>
+CANTIDAD VASOS DESECHABLES - Paquete por 25 1
+ <<[CANTIDAD VASOS DESECHABLES - Paquete por 25 1]>>
+ESTADO VASOS DESECHABLES - Paquete por 25 1
+ <<[ESTADO VASOS DESECHABLES - Paquete por 25 1]>>
+CANTIDAD TENSIÓMETRO – Unidad 1
+ <<[CANTIDAD TENSIÓMETRO – Unidad 1]>>
+ESTADO TENSIÓMETRO – Unidad 1
+ <<[ESTADO TENSIÓMETRO – Unidad 1]>>
+CANTIDAD FONENDOSCOPIO – Unidad 1
+ <<[CANTIDAD FONENDOSCOPIO – Unidad 1]>>
+ESTADO FONENDOSCOPIO – Unidad 1
+ <<[ESTADO FONENDOSCOPIO – Unidad 1]>>
+CANTIDAD ACETAMINOFÉN TABLETAS POR 500 mg - Sobre por 10 2
+ <<[CANTIDAD ACETAMINOFÉN TABLETAS POR 500 mg - Sobre por 10 2]>>
+ESTADO ACETAMINOFÉN TABLETAS POR 500 mg - Sobre por 10 2
+ <<[ESTADO ACETAMINOFÉN TABLETAS POR 500 mg - Sobre por 10 2]>>
+CANTIDAD HIDRÓXIDO DE ALUMINIO TABLETAS Sobre por 10 1
+ <<[CANTIDAD HIDRÓXIDO DE ALUMINIO TABLETAS Sobre por 10 1]>>
+ESTADO HIDRÓXIDO DE ALUMINIO TABLETAS Sobre por 10 1
+ <<[ESTADO HIDRÓXIDO DE ALUMINIO TABLETAS Sobre por 10 1]>>
+CANTIDAD ASA TABLETAS POR 100 mg - Sobre por 10 1
+ <<[CANTIDAD ASA TABLETAS POR 100 mg - Sobre por 10 1]>>
+ESTADO ASA TABLETAS POR 100 mg - Sobre por 10 1
+ <<[ESTADO ASA TABLETAS POR 100 mg - Sobre por 10 1]>>
+CANTIDAD ELEMENTO DE BARRERA o MÁSCARA PARA RCP – Unidad 2
+ <<[CANTIDAD ELEMENTO DE BARRERA ó MÁSCARA PARA RCP – Unidad 2]>>
+ESTADO ELEMENTO DE BARRERA o MÁSCARA PARA RCP – Unidad 2
+ <<[ESTADO ELEMENTO DE BARRERA ó MÁSCARA PARA RCP – Unidad 2]>>
+RECOMENDACIONES DE LA INSPECCIÓN
+ <<[RECOMENDACIONES DE LA INSPECCIÓN]>>
+COMPRA DE ELEMENTOS REQUERIDOS POR EL CLIENTE PARA CUMPLIMIENTO DEL BOTIQUÍN
+ <<[COMPRA DE ELEMENTOS REQUERIDOS POR EL CLIENTE PARA CUMPLIMIENTO DEL BOTIQUIN]>>
+
+
+<<End>>
+
+Recursos para la Seguridad: En el contexto de propiedad horizontal, estos recursos incluyen tanto el equipo físico (como cámaras de seguridad, alarmas, cercas eléctricas, sistemas de control de acceso) como personal de seguridad capacitado. Estos recursos están destinados a proteger a los residentes y garantizar el control de accesos y salidas, así como la vigilancia de áreas comunes.
+Riesgos Estructurales y Arquitectónicos
+Las propiedades horizontales pueden presentar diversos riesgos estructurales y arquitectónicos que pueden afectar la integridad física de las personas y la estabilidad de la edificación. Algunos ejemplos incluyen:
+Defectos estructurales: Grietas en muros o columnas, hundimientos de pisos, filtraciones de agua, etc.
+Materiales inadecuados o deteriorados: Uso de materiales de construcción de baja calidad o que han perdido sus propiedades con el tiempo.
+Diseño arquitectónico deficiente: Escaleras mal diseñadas, barandillas inseguras, falta de iluminación adecuada, etc.
+Falta de mantenimiento preventivo: No realizar inspecciones periódicas y reparaciones oportunas de las instalaciones y equipos.
+Riesgos Administrativos
+Los riesgos administrativos en una propiedad horizontal se relacionan con la gestión inadecuada de los recursos, la falta de controles y la ausencia de protocolos de seguridad. Algunos ejemplos incluyen:
+Gestión deficiente de los recursos económicos: Falta de planificación financiera, mal manejo de los fondos comunes, etc.
+Falta de control en el acceso a las instalaciones: No contar con un sistema de control de acceso adecuado, permitiendo el ingreso de personas no autorizadas.
+Ausencia de protocolos de seguridad: No contar con planes de emergencia para incendios, sismos u otras emergencias, ni con procedimientos para la prevención de accidentes.
+Falta de capacitación del personal: No brindar capacitación periódica al personal sobre temas de seguridad y salud en el trabajo.
+El Rol del Especialista en SST
+Un especialista en Seguridad y Salud en el Trabajo (SST) posee la formación, experiencia y herramientas necesarias para asesorar a la administración y copropietarios de una propiedad horizontal en la identificación, evaluación y control de los riesgos estructurales, arquitectónicos y administrativos. Las funciones del especialista en SST en este ámbito incluyen:
+Inspecciones estructurales y arquitectónicas: Realizar inspecciones periódicas de las instalaciones para identificar posibles defectos estructurales, materiales inadecuados o diseño arquitectónico deficiente.
+Evaluación de riesgos administrativos: Analizar los procesos administrativos, los controles existentes y los protocolos de seguridad para identificar posibles falencias o áreas de mejora.
+Elaboración de un plan de gestión de riesgos: Desarrollar un plan que establezca las medidas necesarias para prevenir o controlar los riesgos identificados en las áreas estructural, arquitectónica y administrativa.
+Implementación del plan de gestión de riesgos: Brindar asesoría y asistencia en la implementación del plan, incluyendo la capacitación del personal y la sensibilización de los residentes.
+Monitoreo y evaluación del plan de gestión de riesgos: Realizar un seguimiento continuo del plan y evaluar su efectividad, identificando áreas de mejora y realizando los ajustes necesarios.
+<<Start: [ULTIMO_RECURSOS_SEGURIDAD]>> 
+
+FECHA DE LA INSPECCION
+ <<[FECHA DE LA INSPECCION]>>
+CLIENTE
+ <<[CLIENTE]>>
+LÁMPARAS DE EMERGENCIA (UBICACIÓN ESTRATÉGICA -
+  MANTENIMIENTO REGULAR - SEÑALIZACIÓN CLARA)
+ <<[LÁMPARAS DE EMERGENCIA (UBICACIÓN ESTRATÉGICA - MANTENIMIENTO REGULAR - SEÑALIZACIÓN CLARA)]>>
+FOTO LÁMPARAS DE EMERGENCIA
+ <<[FOTO LÁMPARAS DE EMERGENCIA]>>
+ANTIDESLIZANTES (SUPERFICIES
+  SEGURAS-MANTENIMIENTO REGULAR-SEÑALIZACIÓN PREVENTIVA)
+ <<[ANTIDESLIZANTES (SUPERFICIES SEGURAS-MANTENIMIENTO REGULAR-SEÑALIZACIÓN PREVENTIVA)]>>
+FOTO ANTIDESLIZANTES
+ <<[FOTO ANTIDESLIZANTES]>>
+PASAMANOS (INSTALACIÓN SEGURA-ALTURA Y UBICACIÓN
+  ADECUADAS-MATERIAL RESISTENTE)
+ <<[PASAMANOS (INSTALACIÓN SEGURA-ALTURA Y UBICACIÓN ADECUADAS-MATERIAL RESISTENTE)]>>
+FOTO PASAMANOS
+ <<[FOTO PASAMANOS]>>
+SISTEMAS DE VIGILANCIA Y CONTROL DE ACCESO
+  (INSTALACIÓN DE CÁMARAS DE SEGURIDAD Y SISTEMAS DE CONTROL DE ACCESO PARA
+  MONITOREAR Y RESTRINGIR EL INGRESO A LAS INSTALACIONES)
+ <<[SISTEMAS DE VIGILANCIA Y CONTROL DE ACCESO (INSTALACIÓN DE CÁMARAS DE SEGURIDAD Y SISTEMAS DE CONTROL DE ACCESO PARA MONITOREAR Y RESTRINGIR EL INGRESO A LAS INSTALACIONES)]>>
+FOTO CONTROL DE ACCESO O CAMARA
+ <<[FOTO CONTROL DE ACCESO O CAMARA]>>
+ILUMINACIÓN EXTERIOR (GARANTIZAR UNA ILUMINACIÓN
+  ADECUADA EN ÁREAS EXTERIORES, COMO ESTACIONAMIENTOS, ENTRADAS Y JARDINES,
+  PARA DISUADIR LA ACTIVIDAD DELICTIVA Y MEJORAR LA VISIBILIDAD)
+ <<[ILUMINACIÓN EXTERIOR (GARANTIZAR UNA ILUMINACIÓN ADECUADA EN ÁREAS EXTERIORES, COMO ESTACIONAMIENTOS, ENTRADAS Y JARDINES, PARA DISUADIR LA ACTIVIDAD DELICTIVA Y MEJORAR LA VISIBILIDAD)]>>
+FOTO LUMINARIAS EXTERIORES
+ <<[FOTO LUMINARIAS EXTERIORES]>>
+PLANES DE RESPUESTA A EMERGENCIAS (EL DESARROLLO
+  DE PLANES DE RESPUESTA A EMERGENCIAS ES FUNDAMENTAL PARA GARANTIZAR LA
+  SEGURIDAD Y EL BIENESTAR DE LOS RESIDENTES EN PROPIEDADES HORIZONTALES)
+ <<[PLANES DE RESPUESTA A EMERGENCIAS (EL DESARROLLO DE PLANES DE RESPUESTA A EMERGENCIAS ES FUNDAMENTAL PARA GARANTIZAR LA SEGURIDAD Y EL BIENESTAR DE LOS RESIDENTES EN PROPIEDADES HORIZONTALES)]>>
+
+
+OBSERVACIONES:  <<[OBSERVACIONES]>>
+<<End>>
+Equipos de Comunicaciones: Los equipos de comunicaciones en una copropiedad son esenciales para coordinar las actividades del personal de seguridad, administración y mantenimiento. Generalmente, incluyen radios de comunicación, intercomunicadores y teléfonos que permiten una comunicación rápida y efectiva entre los diferentes actores en situaciones de rutina o emergencias.
+Las emergencias en propiedades horizontales pueden surgir de diversas situaciones, como incendios, terremotos, inundaciones o intrusiones. En estos momentos críticos, la comunicación efectiva es crucial para salvar vidas, minimizar daños y coordinar la respuesta de emergencia. Los equipos de comunicación juegan un papel fundamental en este proceso, brindando a los residentes, administradores y personal de seguridad la capacidad de comunicarse de manera clara, oportuna y confiable.
+1. Importancia de los Equipos de Comunicación:
+Facilitar la comunicación durante emergencias: Permiten que los residentes reciban información esencial sobre la situación, las instrucciones de evacuación y la asistencia disponible.
+Coordinar la respuesta de emergencia: Facilitan la comunicación entre los residentes, el personal de seguridad, las autoridades de emergencia y los proveedores de servicios.
+Salvar vidas: La comunicación oportuna puede ayudar a guiar a los residentes hacia la seguridad, evitar riesgos y solicitar ayuda médica de manera rápida.
+Minimizar daños: Una comunicación clara puede ayudar a prevenir el pánico y la propagación del fuego o de otras amenazas.
+Cumplir con las normas y reglamentos: Muchas jurisdicciones exigen que las propiedades horizontales cuenten con equipos de comunicación adecuados para casos de emergencia.
+2. Tipos de Equipos de Comunicación:
+Sistemas de telefonía interna: Permiten la comunicación entre los residentes y el personal de seguridad, incluso durante cortes de energía.
+Sistemas de altavoces: Facilitan la difusión de anuncios a toda la comunidad, especialmente en caso de evacuación.
+Alarmas contra incendios: Alertan a los residentes de un incendio de manera temprana, permitiendo una evacuación rápida.
+Sistemas de iluminación de emergencia: Proporcionan luz durante cortes de energía, facilitando la evacuación y la seguridad en la oscuridad.
+Radios de dos vías: Permiten la comunicación entre el personal de seguridad y los residentes o equipos de emergencia.
+Aplicaciones móviles: Algunas propiedades utilizan aplicaciones móviles para enviar alertas, compartir información y facilitar la comunicación durante emergencias.
+3. Selección de Equipos de Comunicación:
+Considerar el tamaño y la distribución de la propiedad: Evaluar si se requiere cobertura completa en todas las áreas, incluyendo zonas comunes y departamentos individuales.
+Identificar las necesidades específicas de la comunidad: Considerar el tipo de emergencias más probables y las necesidades de comunicación de los residentes.
+Establecer un presupuesto: Determinar el costo de los equipos y la instalación, incluyendo el mantenimiento y las actualizaciones futuras.
+Consultar con expertos: Buscar asesoramiento de profesionales en seguridad y comunicación para seleccionar los equipos más adecuados y la mejor forma de implementarlos.
+4. Implementación y Mantenimiento:
+Instalar los equipos de manera profesional: Asegurarse de que los equipos estén instalados correctamente y cumplan con las normas de seguridad.
+Capacitar a los residentes y al personal: Brindar capacitación sobre el uso de los equipos de comunicación, incluyendo procedimientos de emergencia y protocolos de comunicación.
+Realizar pruebas y simulacros de emergencia: Verificar periódicamente el funcionamiento de los equipos y realizar simulacros para familiarizar a los residentes con los procedimientos de emergencia.
+Mantener los equipos actualizados: Asegurarse de que los equipos estén actualizados con la última tecnología y funcionen correctamente.
+<<Start: [ULTIMO_EQUIP_COMUNICACION]>> 
+
+FECHA DE LA INSPECCIÓN
+<<[FECHA DE LA INSPECCION]>>
+CLIENTE
+<<[CLIENTE]>>
+CANTIDAD-TELÉFONO
+  FIJO
+<<[CANTIDAD-TELÉFONO FIJO:]>>
+INSPECCIÓN  DEL CONSULTOR-TELÉFONO FIJO
+<<[INSPECCION DEL CONSULTOR-TELÉFONO FIJO:]>>
+CANTIDAD-TELEFONÍA
+  CELULAR
+<<[CANTIDAD-TELEFONÍA CELULAR:]>>
+INSPECCIÓN  DEL CONSULTOR-TELEFONÍA CELULAR
+<<[INSPECCION DEL CONSULTOR-TELEFONÍA CELULAR:]>>
+CANTIDAD-RADIO
+  DE ONDA CORTA
+<<[CANTIDAD-RADIO DE ONDA CORTA:]>>
+INSPECCIÓN
+  DEL CONSULTOR-RADIO DE ONDA CORTA
+<<[INSPECCION DEL CONSULTOR-RADIO DE ONDA CORTA:]>>
+
+
+CANTIDAD-SOFTWARE
+  CITOFONÍA
+<<[CANTIDAD-SOFTWARE CITOFONÍA:]>>
+INSPECCIÓN
+  DEL CONSULTOR-SOFTWARE CITOFONÍA
+<<[INSPECCION DEL CONSULTOR-SOFTWARE CITOFONÍA:]>>
+
+
+CANTIDAD-SISTEMAS
+  DE MEGAFONÍA
+ <<[CANTIDAD-SISTEMAS DE MEGAFONÍA:]>>
+INSPECCIÓN
+  DEL CONSULTOR-SISTEMAS DE MEGAFONÍA
+ <<[INSPECCION DEL CONSULTOR-SISTEMAS DE MEGAFONÍA:]>>
+CANTIDAD-SISTEMAS
+  DE CCTV CON AUDIO
+ <<[CANTIDAD-SISTEMAS DE CCTV CON AUDIO:]>>
+INSPECCIÓN
+  DEL CONSULTOR-SISTEMAS DE CCTV CON AUDIO
+ <<[INSPECCION DEL CONSULTOR-SISTEMAS DE CCTV CON AUDIO:]>>
+CANTIDAD-SISTEMAS
+  DE ALARMA CON COMUNICACIÓN INCORPORADA
+ <<[CANTIDAD-SISTEMAS DE ALARMA CON COMUNICACIÓN INCORPORADA:]>>
+INSPECCIÓN
+  DEL CONSULTOR-SISTEMAS DE ALARMA CON COMUNICACIÓN INCORPORADA
+ <<[INSPECCION DEL CONSULTOR-SISTEMAS DE ALARMA CON COMUNICACIÓN INCORPORADA:]>>
+CANTIDAD-SISTEMAS
+  DE COMUNICACIÓN POR VOZ SOBRE IP (VOIP)
+ <<[CANTIDAD-SISTEMAS DE COMUNICACIÓN POR VOZ SOBRE IP (VOIP):]>>
+INSPECCIÓN
+  DEL CONSULTOR-SISTEMAS DE COMUNICACIÓN POR VOZ SOBRE IP (VOIP)
+ <<[INSPECCION DEL CONSULTOR-SISTEMAS DE COMUNICACIÓN POR VOZ SOBRE IP (VOIP):]>>
+OBSERVACIONES
+  FINALES
+ <<[OBSERVACIONES FINALES]>>
+
+
+<<End>>
+<<If: [TIENE GABINETES CON PUNTO HIDRAULICO] = "SI">>
+Gabinetes Contra Incendio: Los gabinetes contra incendio en una copropiedad representan un componente fundamental dentro de los sistemas de seguridad, destinados a la protección tanto de los residentes como de las instalaciones, al contener mangueras, boquillas y otros equipos esenciales para una respuesta inmediata ante incendios mientras arriban los bomberos; su ubicación estratégica en áreas comunes y de fácil acceso, como pasillos, parqueaderos y escaleras, asegura una intervención rápida en caso de emergencia, lo cual adquiere especial relevancia en el contexto de la propiedad horizontal en Colombia dada la concentración de personas y bienes en un mismo espacio, donde la Norma Técnica Colombiana (NTC) 1800, que define los requisitos mínimos para estos gabinetes, se erige como un elemento crucial para garantizar la seguridad de vidas y propiedades en este tipo de edificaciones.
+Alcance y Aplicación de la Norma NTC 1800 en Propiedad Horizontal
+La NTC 1800 se aplica a los gabinetes contra incendios tipo I, II y III instalados en edificios de propiedad horizontal en Colombia. Estos gabinetes, al igual que en otros tipos de edificaciones, se conectan a la red de tuberías de agua contra incendios y permiten combatir incendios de manera efectiva.
+Componentes Esenciales de los Gabinetes Contra Incendios en Propiedad Horizontal
+En el contexto de la propiedad horizontal, la NTC 1800 establece los mismos componentes esenciales para los gabinetes contra incendios que en otros tipos de edificaciones:
+Manguera: La manguera es indispensable para dirigir un chorro de agua hacia la base del fuego. Su longitud y tipo dependerán del tamaño del edificio, el número de unidades y el nivel de riesgo de incendio.
+
+
+Hacha: El hacha es una herramienta multifuncional que puede ser utilizada para romper obstáculos, derribar escombros e incluso cortar materiales en caso de ser necesario.
+
+
+Válvula: La válvula permite controlar el flujo de agua desde la red contra incendios hacia la manguera. Debe ser fácil de operar y estar claramente identificada.
+
+
+Boquilla: La boquilla permite ajustar el tipo de chorro de agua (recto, nebulizado, etc.) que se dirige hacia el fuego.
+
+
+Soporte para manguera: El soporte para manguera permite almacenar la manguera de forma ordenada y segura dentro del gabinete.
+
+
+Gabinete: El gabinete alberga todos los componentes del sistema contra incendios y debe ser fabricado con materiales resistentes al fuego y a la corrosión. Su tamaño debe ser adecuado para albergar todo el equipo necesario.
+
+
+Señalización: El gabinete debe estar claramente identificado con la señal de "Gabinete contra incendios" para facilitar su ubicación en caso de una emergencia.
+
+
+Requisitos Adicionales para los Gabinetes Contra Incendios en Propiedad Horizontal
+Además de los componentes esenciales, la NTC 1800 establece requisitos adicionales para los gabinetes contra incendios en propiedad horizontal, tomando en cuenta las características específicas de este tipo de edificaciones:
+Ubicación estratégica: Los gabinetes contra incendios deben ubicarse en puntos estratégicos de la edificación, considerando las vías de evacuación y los accesos a las unidades habitacionales.
+
+
+Accesibilidad: Los gabinetes deben ser fácilmente accesibles para todos los residentes, incluyendo personas con movilidad reducida.
+
+
+Señalización clara: La señalización de los gabinetes debe ser clara, visible y comprensible para todas las personas, utilizando símbolos universales y lenguaje sencillo.
+
+
+Capacitación y entrenamiento: Es fundamental que los residentes reciban capacitación y entrenamiento en el uso correcto de los gabinetes contra incendios, incluyendo la operación de la manguera, la válvula y la boquilla.
+
+
+Planes de emergencia: La propiedad horizontal debe contar con planes de emergencia que incluyan procedimientos específicos para la utilización de los gabinetes contra incendios en caso de un incendio.
+
+
+Importancia de la Norma NTC 1800 en Propiedad Horizontal
+El cumplimiento de la NTC 1800 en propiedad horizontal es de vital importancia para garantizar la seguridad contra incendios en este tipo de edificaciones. Los gabinetes contra incendios, diseñados y mantenidos de acuerdo con la norma, pueden ser la clave para salvar vidas y proteger bienes en caso de un incendio.
+Responsabilidades en la Propiedad Horizontal
+En el contexto de la propiedad horizontal, la responsabilidad del cumplimiento de la NTC 1800 recae en la administración de la unidad residencial, quien debe velar por la instalación, inspección, mantenimiento y pruebas periódicas de los gabinetes contra incendios.
+<<Start: [ULTIMO_GABINETES]>> 
+cción, mantenimiento y pruebas periódicas de los gabinetes contra incendios.
+
+FECHA DE LA INSPECCIÓN
+ <<[FECHA DE LA INSPECCION]>>
+CLIENTE
+ <<[CLIENTE]>>
+EL CONJUNTO CUENTA CON GABINETES PARA LA EXTINCIÓN DE INCENDIOS?
+ <<[EL CONJUNTO CUENTA CON GABINETES PARA LA EXTINCIÓN DE INCENDIOS?]>>
+ESTOS DISPOSITIVOS YA FUERON ENTREGADOS POR LA CONSTRUCTORA Y ESTÁN ACTIVOS PARA LA COPROPIEDAD?
+ <<[ESTOS DISPOSITIVOS YA FUERON ENTREGADOS POR LA CONSTRUCTORA Y ESTÁN ACTIVOS PARA LA COPROPIEDAD?]>>
+CUANTOS GABINETES DE EXTINCIÓN DE INCENDIOS HAY?
+ <<[CUANTOS GABINETES DE EXTINCIÓN DE INCENDIOS HAY?]>>
+LISTE LOS ELEMENTOS QUE CONTIENE CADA GABINETE
+ <<[LISTE LOS ELEMENTOS QUE CONTIENE CADA GABINETE]>>
+MENCIONE LA UBICACIÓN DE LOS GABINETES DENTRO DE LA COPROPIEDAD DE MANERA DETALLADA
+ <<[MENCIONE LA UBICACIÓN DE LOS GABINETES DENTRO DE LA COPROPIEDAD DE MANERA DETALLADA]>>
+INDIQUE EL ESTADO DE LA SEÑALIZACIÓN AL RESPECTO DE LOS GABINETES
+ <<[INDIQUE EL ESTADO DE LA SEÑALIZACIÓN AL RESPECTO DE LOS GABINETES]>>
+FOTO 1
+ <<[FOTO 1]>>
+FOTO 2
+ <<[FOTO 2]>>
+OBSERVACIONES Y RECOMENDACIONES FRENTE A LOS GABINETES DE EXTICIÓN DE INCENDIOS
+ <<[OBSERVACIONES Y RECOMENDACIONES FRENTE A LOS GABINETES DE EXTICIÓN DE INCENDIOS]>>
+EN LA COPROPIEDAD EXISTEN EQUIPOS DE DETECCIÓN DE HUMO
+ <<[EN LA COPROPIEDAD EXISTEN EQUIPOS DE DETECCIÓN DE HUMO]>>
+ESTOS DISPOSITIVOS YA FUERON ENTREGADOS POR LA CONSTRUCTORA Y ESTÁN ACTIVOS PARA LA COPROPIEDAD?
+ <<[ESTOS DISPOSITIVOS YA FUERON ENTREGADOS POR LA CONSTRUCTORA Y ESTAN ACTIVOS PARA LA COPROPIEDAD?]>>
+CUÁNTOS DETECTORES DE HUMO TIENE LA COPROPIEDAD
+ <<[CUANTOS DETECTORES DE HUMO TIENE LA COPROPIEDAD]>>
+MENCIONE LAS PARTES DE LA COPROPIEDAD QUE CUENTAN CON DISPOSITIVOS DE DETECCIÓN DE HUMO
+ <<[MENCIONE LAS PARTES DE LA COPROPIEDAD QUE CUENTAN CON DISPOSITIVOS DE DETECCIÓN DE HUMO]>>
+FOTO 1
+ <<[FOTO 3]>>
+FOTO 2
+ <<[FOTO 4]>>
+OBSERVACIONES O RECOMENDACIONES
+ <<[OBSERVACIONES O RECOMENDACIONES]>>
+
+
+<<End>>
+<<EndIf>>
+INVENTARIO DE LA POBLACIÓN ADMINISTRATIVA Horarios de Administración y Personal de Servicios en <<[NOMBRE DEL CLIENTE]>>
+<<[HORARIOS ADMINISTRACION]>>
+
+
+PROVEEDOR DE VIGILANCIA CON NIT:
+<<[PROVEEDOR DE VIGILANCIA CON NIT]>>
+PROVEEDOR DE ASEO CON NIT:
+<<[PROVEEDOR DE ASEO CON NIT]>>
+OTROS PROVEEDORES
+<<[OTROS PROVEEDORES DE RELEVANCIA? NO OLVIDE EL NIT]>>
+DESCRIPCIÓN DEL MÉTODO DE REGISTRO DE VISITANTES 
+<<[DESCRIBA LA FORMA EN COMO SE REGISTRAN LOS VISITANTES]>>
+EL REGISTRO DE VISITANTES PERMITE SABER PERSONAS ADULTO MAYOR O EN DISCAPACIDAD ?
+<<[EL REGISTRO DE VISITANTES PERMITE SABER PERSONAS ADULTO MAYOR O EN DISCAPACIDAD]>>
+CUENTA CON MEGÁFONO EL CONJUNTO?:
+<<[CUENTA CON MEGAFONO EL CONJUNTO]>>
+DESCRIBA EL ESTADO DE LA RUTA DE EVACUACIÓN (SEÑALIZADO, DEMARCADO e ILUMINADO):
+<<[DESCRIBA EL ESTADO DE LA RUTA DE EVACUACION]>>
+<<[FOTO 1 RUTA DE EVACUACION]>>
+<<[FOTO 2 RUTA DE EVACUACION]>>
+DESCRIPCIÓN DE LOS PUNTOS DE ENCUENTRO:
+<<[DESCRIBA LOS PUNTOS DE ENCUENTRO]>>
+<<[FOTO 1 PUNTO DE ENCUENTRO]>>
+<<[FOTO 2 PUNTO DE ENCUENTRO]>>
+DESCRIPCIÓN DEL SISTEMA DE ALARMA:
+<<[DESCRIBA EL SISTEMA DE ALARMA UTILIZADO EN EL CONJUNTO]>>
+CÓDIGOS DE ALERTA Y ALARMA:
+<<[DESCRIBA LOS CODIGOS DE ALERTA Y ALARMA]>>
+ENERGÍA DE EMERGENCIA Y LUMINARIAS ANTE APAGONES:
+<<[ENERGIA DE EMERGENCIA Y LUMINARIAS ANTE APAGONES]>>
+SISTEMAS DE DETECCIÓN DE FUEGO: 
+<<[SISTEMAS DE DETECCION DE FUEGO]>>
+VÍAS DE TRÁNSITO DE ACCESO AL CONJUNTO:
+<<[CUALES SON LAS VIAS DE TRANSITO DE ACCESO AL CONJUNTO]>>
+NOMBRE DEL ADMINISTRADOR: 
+<<[NOMBRE DEL ADMINISTRADOR]>>
+OBSERVACIONES - RECOMENDACIONES:
+<<[OBSERVACIONES Y RECOMENDACIONES]>>
+
+
+PLAN DE EMERGENCIA
+
+Es la respuesta integral que involucra a todas las personas que hacen parte DEL <<[NOMBRE DEL CLIENTE]>> y que generan un compromiso no solo de la parte de la administración y de los empleados que están de manera permanente asignados por nuestros proveedores, sino también de los residentes para así dar respuesta de manera oportuna y eficaz a las diferentes emergencias que se puedan presentar; debido a lo anterior se describen las diferentes actividades correspondientes al ANTES, DURANTE Y DESPUÉS de una emergencia.
+
+El establecimiento de una organización facilita el desarrollo del plan de emergencia. Esta organización se compone de tres niveles: directivo, estratégico y operativo, cada uno con responsabilidades para el cabal desarrollo del plan de emergencia.
+
+DIRECTORIO DE CUERPOS DE SOCORRO Y AYUDA
+
+
+ENTIDAD
+TELÉFONO
+ACUEDUCTO
+<<[R TELEFONO ACUEDUCTO]>>
+BOMBEROS
+<<[R TELEFONO BOMBEROS]>>
+CRUZ ROJA
+<<[R TELEFONO CRUZ ROJA]>>
+DEFENSA CIVIL
+<<[R TELEFONO DEFENSA CIVIL]>>
+GAULA
+<<[R TELEFONO GAULA]>>
+POLICÍA
+<<[R TELEFONO POLICIA]>>
+CUADRANTE
+<<[CUADRANTE]>>
+SECRETARIA DE SALUD
+<<[R TELEFONO SECRETARIA DE SALUD]>>
+TRÁNSITO
+<<[R TELEFONO TRANSITO]>>
+
+
+Ten en cuenta que la línea general de emergencia es 123, que permite a los colombianos acceder a todos los servicios de emergencia y seguridad ofrecidos por el estado.
+
+
+BRIGADA DE EMERGENCIAS EN LA PROPIEDAD HORIZONTAL
+
+La infraestructura de emergencias en la propiedad horizontal de <<[NOMBRE DEL CLIENTE]>> está respaldada por una brigada altamente capacitada que integra funciones de primeros auxilios, contra incendios y evacuación. Este grupo polifuncional, compuesto por individuos competentes y comprometidos, se encarga de salvaguardar la seguridad y bienestar de la comunidad en situaciones críticas.
+
+BRIGADA PRIMEROS AUXILIOS, CONTRA INCENDIOS Y EVACUACIÓN
+
+Misión:
+
+Prestar primeros auxilios a los lesionados.
+Prevenir y controlar incendios, así como apoyar en la extinción de fuegos mayores.
+Coordinar y dirigir la evacuación del personal hacia sitios de menor riesgo y llevar a cabo la labor de rescate de las personas que no pudieron evacuar.
+
+Funciones Básicas:
+
+Verificar la ausencia de personas atrapadas en su área de evacuación.
+Realizar el levantamiento del listado de residentes y personal administrativo.
+Levantar el listado de personas con discapacidad y adultos mayores, indicando su discapacidad y ubicación exacta.
+Confirmar la ausencia de personas a su cargo y emitir un informe mediante una lista de residentes y administrativos.
+Prestar primeros auxilios según las lesiones y la situación general.
+Coordinar con eficacia la llegada y orientación del personal de ayuda externo como Cruz Roja, Defensa Civil y ambulancias.
+Registrar información precisa sobre personas trasladadas a hospitales o fallecidas.
+Supervisar y liderar la evacuación del área asignada, guiando a residentes, personal administrativo y visitantes hacia las vías de evacuación designadas.
+Familiarizarse con las rutas de evacuación y los puntos de encuentro en el conjunto residencial.
+Mantener la calma y orden durante el proceso de evacuación.
+Indicar claramente el punto de reunión final.
+Facilitar la evacuación de personas con limitaciones físicas, heridas o alguna otra restricción.
+Prohibir el regreso a las áreas evacuadas hasta que se declare la zona como segura.
+
+
+Actividades de Evacuación:
+
+La gestión eficaz de la evacuación requiere un enfoque organizado y profesional por parte de la Patrulla de Evacuación, la cual desempeña un papel crucial en la seguridad de la comunidad.
+
+Control del Tráfico Vehicular:
+
+Designar al menos cuatro miembros capacitados para gestionar el tráfico vehicular de manera segura y ordenada.
+Coordinar con las autoridades locales, si es necesario, para garantizar una evacuación fluida.
+
+Identificación con Chalecos Reflectores:
+
+Equipar a cada miembro de la patrulla con chalecos reflectores de alta visibilidad para garantizar su identificación clara, especialmente en condiciones de baja luminosidad.
+
+Uso de Paleta de Señalización:
+
+Utilizar una paleta de señalización destacada con las palabras "PARE" en rojo y "SIGA" en verde para indicar claramente a los conductores cuándo detenerse y cuándo proceder.
+
+Ubicación Estratégica del Equipo:
+
+Disponer estratégicamente todo el equipo necesario en el Kit de Emergencia designado por <<[NOMBRE DEL CLIENTE]>> en el área de recepción.
+Verificar regularmente el estado y la disponibilidad de los elementos en el kit para asegurar una respuesta inmediata y efectiva.
+
+Estas acciones, respaldadas por la formación y compromiso de la Brigada de emergencia, contribuirán significativamente a la ejecución exitosa de las operaciones de evacuación en situaciones de emergencia en la propiedad horizontal de <<[NOMBRE DEL CLIENTE]>>.
+
+UTILIZACIÓN DE LOS EQUIPOS CONTRA INCENDIO 
+
+El Conjunto Residencial dispone de gabinetes diseñados para el control de incendios, equipados con todos los elementos requeridos conforme a las normativas técnicas de construcción vigentes en Colombia. No obstante, es importante destacar que, hasta la fecha, la constructora no ha entregado oficialmente estos elementos. En consecuencia, en caso de un incendio, sería necesario recurrir a la utilización de equipos de extintores, ya que los gabinetes se encuentran sellados y, por lo tanto, no están disponibles para su uso inmediato. Esta situación subraya la importancia de actuar frente a incendios con la movilización y el acceso a los extintores disponibles en las áreas comunes, garantizando así la seguridad de los residentes en caso de una emergencia de este tipo.
+
+ANTES DE UNA EMERGENCIA
+
+Es el grupo encargado de establecer acciones preventivas diariamente como las de controlar y eliminar las fuentes de conato de incendio que para el caso DEL <<[NOMBRE DEL CLIENTE]>>; son más que todo eléctricas producto de las instalaciones de redes y alumbrado, tomas, interruptores, computadores y demás aparatos eléctricos principalmente, todos ellos con la posibilidad de producir chispas eléctricas cerca de material combustible del tipo A, telas, cartón y plásticos.
+
+Por eso la brigada debe estar en estado de alerta permanente y con extintores contra incendio en buen estado y bien ubicados en cada área de peligro o riesgo. Además, se debe tener en cuenta las siguientes recomendaciones para el material combustible que se tiene en el conjunto.
+
+ACCIONES DE MITIGACIÓN
+
+Tener los equipos de extinción en buen estado, a la altura indicada, bien ubicado, sin obstrucciones y debidamente señalizados para ubicarlo fácilmente y desde lejos.
+
+ACCIONES PREVENTIVAS
+
+Para Combustibles Clase A:
+
+Evitar que el almacenamiento de elementos como: cajas de cartón, telas, plásticos estén cerca de lámparas incandescentes o fuentes de calor.
+La demarcación de las zonas de almacenamiento debe cumplirse.
+Evitar el almacenamiento de material inservible, falta orden y aseo.
+
+Para Combustibles Clase B
+
+Mantener materiales inflamables en lugares aireados o ventilados y alejados de fuentes de calor o de tomas o instalaciones eléctricas expuestas.
+Se debe mantener ventilado los gasodomésticos y se cuentan con cilindros de gas estos deben estar ubicados en un lugar ventilado y fuera de sitios de calor.
+Se deben señalizar líquidos inflamables que sirven como combustible para elementos y compuestos químicos para el mantenimiento de la piscina.
+
+Para Combustibles Clase C
+
+Evitar cables y extensiones eléctricas atravesadas por el piso, para evitar que al pisarlas estas se deterioren y puedan producir corto circuito.
+Las extensiones preferiblemente deben estar entubadas o canalizadas y cuando no lo esté su extensión máxima por el piso no debe ser superior a 1.80 metros.
+Todos los computadores, equipos y electrodomésticos deben estar conectados con polo a tierra, para evitar cargas estáticas.
+No sobrecargar la toma eléctrica con más de dos aparatos eléctricos y solo instalarle de a uno, cuando este produzca gran cantidad de calor.
+Apagar y desconectar en forma inmediata equipos eléctricos que estén produciendo un olor a quemado. Pasarlos a revisión eléctrica.
+Mantener muy bien ventiladas o con aire acondicionado las áreas o recintos donde funcionen equipos y tableros eléctricos.
+Colocar todas las tapas faltantes en tomas e interruptores eléctricos o remplazar las que estén rotas o en mal estado, para evitar chispas que puedan generar fuegos por cercanías de materiales combustibles.
+Dejar los equipos eléctricos desconectados en las horas de la noche, al igual que los tacos de luz siempre que no haya trabajos en horas nocturnas.
+Identificar cajas de tacos de corriente en todos los lugares donde se ubiquen, para facilitar su desconexión en casos de emergencia.
+Responsabilizar a una persona de apagar interruptores en caso de emergencia, pero capacitar a todo el personal para hacerlo.
+
+DURANTE UNA EMERGENCIA
+
+En el momento de una emergencia por conato de incendio su responsabilidad es minimizar las lesiones y pérdidas que se puedan presentar como consecuencia de esta emergencia, realizando las siguientes funciones:
+
+Acudir y actuar lo más rápido posible al lugar de la emergencia y con la ayuda de extintores localizados en el área, realizar los procedimientos de extinción del conato de incendio antes de que este se pueda propagar a otros lugares desde el lugar donde se inició. Inmediatamente se presente este tipo de emergencias se debe interrumpir o cortar el fluido eléctrico en esa área para evitar que sea propagado por este medio en caso de que éste hubiera sido su origen. Igualmente, no se debe aplicar agua sobre aparatos o equipos eléctricos ni instalación alguna mientras esté energizada con corriente eléctrica.
+Para fuegos originados por corriente eléctrica utilizar en la extinción extintores de CO2 o de Solkaflam (Tipo C), si están involucrados equipos delicados como computadores o tableros electrónicos o en circuitos y utilizar extintores de POLVO QUÍMICO SECO para el resto de instalaciones y cableados.
+Para fuegos causados por el derrame de líquidos inflamables o por gases comprimidos utilizar preferiblemente extintores de POLVO QUÍMICO SECO (Tipo B) como primera opción y de CO2 o SOLKAFAM como alternativa.
+Para fuegos en material combustible sólido como papeles, plásticos y alfombras cuyo origen haya sido por una colilla de cigarrillo o contacto con superficies calientes utilizar extintores (Tipo B), asegurándose de no tener contacto con fuentes eléctricas o desconectando el fluido eléctrico desde la caja de los tacos respectivos. Por esta razón los extintores deben ser ubicados en cada sector de acuerdo con los combustibles que tenga el área que proteja. Si esta tiene de todos los tipos de combustibles deben tenerse extintores multipropósitos (ABC).
+
+Nota: Una vez utilizado el equipo de extinción se debe colocar de manera horizontal el cual hará referencia a que el equipo se encuentra vacío y no podrá ser usado por otra persona.
+
+IDENTIFICACIÓN RUTAS DE EVACUACIÓN
+
+La buena señalización y la fácil identificación por parte de la brigada y de las personas que hacen parte del conjunto residencial es esencial para disminuir las condiciones de riesgo en caso de presentarse una emergencia.
+
+SISTEMA DE COMUNICACIÓN SALIDA DE EMERGENCIA PLAN DE EVACUACIÓN
+Es el conjunto de procedimientos y acciones tendientes a que las personas en situación de peligro protejan su vida e integridad física mediante el desplazamiento a través de rutas seguras y hasta un sitio de encuentro seguro.
+
+CARACTERÍSTICAS DEL PLAN DE EMERGENCIAS
+
+Debe ser ESCRITO para que permanezca.
+Debe ser APROBADO para que se institucionalice.
+Debe ser PUBLICADO para que esté al alcance de todos.
+Debe ser ENSEÑADO a todos los interesados.
+Bebe ser PRACTICADO para evaluarlo.
+
+CONTENIDO DEL PLAN
+
+TIEMPO DE EVACUACIÓN: Es el tiempo total empleado en la evacuación, el cual se contabiliza desde que aparece la primera manifestación de riesgo, hasta que la Última persona ha recorrido el camino de evacuación.
+
+REVISIÓN PERMANENTE DE LAS RUTAS DE EVACUACIÓN: Se deben realizar inspecciones frecuentes reconociendo las rutas de evacuación y levantando panorama de riesgos sobre ellos, dejando por escrito las indicaciones respectivas.
+
+NECESIDAD DE ELABORACIÓN DE PLANOS DE CADA ÁREA MARCANDO LAS RUTAS DE EVACUACIÓN: Una vez definidas las rutas de evacuación, serán publicadas por el conjunto residencial y dado a conocer a residentes y trabajadores, se aconseja que los planes sean sectorizados para mayor orientación de la población usuaria de la edificación.
+
+SEÑALIZACIÓN DE LAS RUTAS DE EVACUACIÓN: Las rutas de evacuación estarán orientadas con señalización clara, visible y permanente que oriente al personal en caso de evacuación.
+
+CARACTERÍSTICAS DE LA RUTA DE EVACUACIÓN: Es un trayecto continuó no obstruido, debidamente SEÑALIZADO, DEMARCADO e ILUMINADO, que conduce desde las torres de los apartamentos y demás áreas del conjunto residencial hasta una zona interior y exterior del mismo, llamado Punto de Encuentro, a donde no lleguen las consecuencias de la emergencia.
+
+Idealmente se Debe:
+
+Disponer de dos o más vías de evacuación opuestas
+Deben estar señalizadas
+Deber estar iluminadas durante la emergencia
+Deben permanecer libres de obstáculos
+Cuando varias vías descargan sobre otra general ,su anchura corresponderá a la suma de las anteriores
+Tanto las puertas exteriores como las que haya en el recorrido de evacuación se deben abrir en el sentido de la salida.
+Las puertas de las rutas de evacuación deben ser de fácil apertura y que no generen riesgos a las personas.
+
+DEFINIR SITIOS DE REUNIÓN (Puntos de encuentro): Todo personal debe conocer el sitio de reunión en caso de evacuación y este deber quedar claramente especificado.
+
+ASIGNAR FUNCIONES Y RESPONSABILIDADES. En caso de evacuación cada persona debe saber cómo comportarse, qué hacer y cuáles son sus responsabilidades. Esto se logra mediante el conocimiento de planes de emergencia y simulacros periódicos.
+
+SALVAMENTO DE BIENES: Definir qué elementos, documentos y valores son indispensables de salvar, para esto se recomienda que las familias cuenten con un maletín portátil donde se deben incluir los documentos prioritarios de la familia.
+
+DEFINIR CÓDIGO DE ALERTA Y ALARMA: Colocar una alarma y establecer las diferentes códigos o señales codificadas para emergencias como incendios, amenazas de bomba y evacuación, principalmente.
+
+LOCALIZAR BOTIQUÍN DE PRIMEROS AUXILIOS: Conocer y Definir la ubicación del botiquín de primeros auxilios para cuando se presente una emergencia.
+
+SIMULACROS PERIÓDICOS DE LA EVACUACIÓN
+
+Es indispensable la programación de simulacros para familiarizar e integrar a todas las personas del conjunto residencial y poder no solo crear una cultura de autocuidado sino lograr un desarrollo de destrezas que podrían salvar muchas vidas.
+A través de los simulacros se realizará una auto evaluación de este documento.
+Se controlarán tiempos de evacuación.
+Se recomienda que la frecuencia mínima en las prácticas o simulacros de evacuación por áreas y torres sea de manera Trimestral y los simulacros generales de evacuación de forma Semestral. De ambos debe levantarse un acta que permita mejorar el plan de evacuación de la copropiedad.
+
+FASES DE LA EVACUACIÓN
+
+La rapidez con que se detecte el comienzo de una emergencia garantizará la toma de medidas prontas para su control. Los sistemas de alarma son todas las acciones e infraestructura que permite dar aviso oportuno sobre la presencia de un riesgo y las acciones a seguir por parte de los responsables del manejo de la emergencia.
+
+El sistema debe contemplar cuatro fases:
+
+FASE DE DETECCIÓN
+
+Parte vital de la relación con el pronóstico en el desarrollo del evento, siendo así crucial el menor tiempo posible entre la ocurrencia y la detección que se pueda dar de forma diferente:
+
+Inmediata: Generada por el evento como tal, caso de los sismos o explosiones que, al sucederse, todos los ocupantes se percatan de la existencia del riesgo al mismo tiempo que se convierte en alarma.
+Humana: El peligro es percibido por una persona y ella dará aviso. Muy vulnerable, la presencia de una persona en el sitio del evento no está garantizada permanentemente, ni su estado vigilante, ni su forma de comunicar la presencia del riesgo a todo el personal.
+Automática: realizada a través de aparatos eléctricos provistos de sensores que identifican el peligro para que sea evaluado y según corresponda, se active el sistema de atención de emergencia (esto se da para los equipos como el sistema de bombeo y planta eléctrica).
+
+RECOMENDACIONES:
+
+Preferir los sistemas automáticos.
+Establecer codificaciones para la interpretación de las señales.
+Determinar que no queden zonas fuera del alcance de las señales.
+Fijar la aplicación del sistema por medio de ejercicios periódicos, con o sin previo anuncio del mismo.
+
+FASE DE EVALUACIÓN
+
+
+Una vez identificada la presencia de una amenaza, se procederá a la evaluación o verificación por los responsables del manejo de la situación de emergencia (brigada de emergencia), quienes deben tener manera de comunicarse inmediatamente con el administradir o quien en el momento pueda manejar la situación.
+
+La evaluación debe considerar:
+
+Existencia real de peligro.
+Causas y características del evento.
+Magnitud del evento.
+
+Si la detección la realiza una persona y esta realiza la evaluación podrá continuar con la activación de la alarma.
+
+FASE DE ALARMA
+
+Si la fase de evaluación fue positiva y demostró la existencia de un peligro, con una magnitud considerable y unas consecuencias en las personas, se ordenará activar la alarma.
+Señal codificada: Se dirige a los integrantes de la brigada de emergencia y a los que componen el cuadro operativo del plan.
+Señal de Evacuación: avisará a toda la población, quienes conocerán de antemano el significado de la señal y las acciones que implica.
+
+
+El funcionamiento de la señal de Alarma comprende:
+
+Diseño de un código que se pueda emitir una vez informado un riesgo para que los miembros de la brigada de emergencia y responsables de la atención de esta puedan acudir al control.
+Activación del sonido de la señal, por el tiempo convenido para que automáticamente se indique acción – evacuación.
+Emisión de comunicados de orientación según sea del desarrollo de la emergencia.
+Una vez superada la emergencia se podrá a través de los altoparlantes dar las orientaciones finales, sea de abandono permanente de las instalaciones o retorno de ellas.
+En caso de sismo o explosión verificada, se procederá a emitir el siguiente mensaje:
+ATENCIÓN ESCUCHE, NO ABANDONE LAS EDIFICACIONES, DIRÍJASE A LOS PUNTOS FUERTES DE LA ESTRUCTURA, SON MÁS SEGUROS, UBIQUE EL TRIANGULO DE VIDA, ALÉJESE DE VENTANAS, BALCONES O ESCALERAS, NO EVACUE HASTA QUE SE DÉ LA SEÑAL, TENGA CALMA.
+
+SISTEMA DE ALARMA UTILIZADO EN <<[NOMBRE DEL CLIENTE]>> 
+
+El Conjunto Residencial está equipado con un dispositivo de alarma sonora diseñado especialmente para situaciones de emergencia. Este dispositivo tiene la función de activar de manera inmediata al equipo de vigilancia en caso de que se produzca un evento de emergencia. Esta medida contribuye significativamente a la rápida respuesta y coordinación de las autoridades y el personal de seguridad en situaciones críticas, garantizando así la seguridad y el bienestar de todos los residentes.
+
+RECOMENDACIONES: Para poder tener un buen control sobre las diferentes emergencias que se puedan presentar es bueno codificar el sonido de la alarma, con el fin de poder dar a conocer la misma, por medio de diferentes avisos de acuerdo a la amenaza que se presente de tal forma que tanto el grupo de la brigada como el del personal en general pueda saber en un momento dado que está sucediendo, si debe ir a colaborar con la emergencia presentada, acudiendo al sitio respectivo, si debe llamar para pedir ayuda a grupos externos especializados como bomberos, cruz roja, ambulancias, entre otros, o si debe evacuar las instalaciones inmediatamente.
+
+El código de alarma recomendado para <<[NOMBRE DEL CLIENTE]>> consiste en:
+Estado de alerta por posible emergencia un toque de sirena de 5 segundos.
+Prepararse para la evacuación dos toques seguidos de la sirena por alrededor de 5 segundos.
+Evacuación inminente de tres toques de sirena por 5 segundos.
+
+De igual manera se establece que el paso no debe ser como se describe anteriormente si la emergencia se presenta se debe omitir los pasos iniciales y proceder a dar la evacuación general.
+
+Nota 1: Se recomienda si el sistema principal sufre un daño se procederá a realizar el aviso de forma manual con ayuda de un megáfono 
+Nota 2: Lo importante de establecer un sistema de alerta en el conjunto residencial es que todas las personas que hacen parte del mismo identificaran la situación.
+Nota 3: Si existe un sistema de comunicación de los miembros de las brigadas, se puede establecer un sistema de codificación para identificar diferentes tipos de eventos o acciones: 
+
+Ejemplo:
+Código uno: Incendio incipiente
+Código dos: Incendio declarado 
+Código tres: Explosión
+Código cuatro: Amenaza de bomba 
+Código cinco: Riña o pelea
+Código seis: Evacuación inminente
+
+
+PROCEDIMIENTOS DE EVACUACIÓN
+
+En caso de una emergencia, existen unas pautas específicas para guiar las actividades a desarrollar en algunos tipos de eventos (incendios, sismos, acciones violentas y en caso de explosión).
+Es importante tener en cuenta que una emergencia de acuerdo con su magnitud se puede clasificar así:
+Contacto de emergencia: situación que puede ser controlada y solucionada de forma sencilla y rápida por el personal.
+Emergencia parcial: situación que para ser denominada requiere la actuación de equipos especiales del sector. No es previsible que afecte a sectores colindantes.
+Emergencia general: situación para cuyo control se precisa de todos los equipos y medios de protección propios y la ayuda de medios de socorro y salvamento externos. Generalmente comportará evacuaciones totales o parciales.
+
+EN CASO DE INCENDIO
+
+Los gases tóxicos, las altas temperaturas y el pánico son los mayores peligros en caso de incendio.
+Deberá evacuarse la edificación si las características de este sobrepasan la capacidad inicial de respuesta de la brigada de emergencia.
+Se deberá dar la señal general de evacuación del edificio por altoparlantes, se darán órdenes a las personas definiendo el costado de las escaleras y de los pasillos a utilizar. Si alguna vía estuviera obstaculizada por el humo, los coordinadores harán los siguiente:
+De la señal de alarma.
+Contar las personas a su cargo.
+Incitar a las personas a suspender actividades, formar grupos de evacuación y salir de la edificación por las rutas señalizadas.
+Orientar y recordar a las personas por donde es la salida y el punto de reunión final.
+Evacuar el área conservando la calma. Evitar su propio pánico y ayudar a controlar a los demás.
+Dar órdenes claras para que el grupo se agache, trate de cubrirse las vías respiratorias con un pañuelo o tela, preferiblemente humedecido y salga de la zona gateando si es el caso.
+En caso de que la vía de evacuación esté bloqueada, utilizar vías alternas.
+Tener linternas encendidas durante todo el trayecto en donde la visibilidad sea nula.
+En caso de que todas las vías estén bloqueadas, llevar al grupo a un área sin divisiones de madera o vidrio y con ventanas al exterior, tapar las rendijas que comunican con las áreas en peligro con trapos húmedos, solicitar inmediatamente auxilio por todos los medios a su alcance. Si la situación se torna crítica abrir las ventanas botar todo el material combustible posible del lugar donde se están resguardando y refugiar al grupo en el lugar más alejado de la fuente de calor.
+En la parte externa acordonar la zona hasta que el evento haya sido controlado.
+Si llega con el grupo fuera de la edificación, esté pendiente de vidrios, o elementos que puedan caer y lesionarse, aléjese rápido de la edificación hasta el punto de encuentro designado o el que se le indique en ese momento, espera en el punto de reunión hasta que el evento sea controlado o se ordene el ingreso al edificio.
+Informe al coordinador en el sitio de emergencia sobre atrapados y lesionados.
+Combatir el incendio utilizando los extintores existentes.
+Si no puede controlar el incendio, evacue el área e informe de manera inmediata al coordinador de la emergencia o persona que conforme una de la brigada de emergencia del conjunto residencial o en caso de evacuación camine con paso ligero y evite correr.
+Si hay humo debe agacharse y arrastrarse hasta la salida.
+
+EN CASO DE SISMO
+
+Mantener la calma, incluso si el movimiento es prolongado. No salga corriendo.
+No debe iniciarse la evacuación hasta que no haya finalizado el movimiento sísmico.
+Incitar a los ocupantes a permanecer quietos separados de ventanas, lámparas o estanterías o elementos que puedan caer, protegiendo los triángulos de vida previamente identificados en el apartamento.
+No asustarse por el ruido que produce el temblor o el sonido de los objetos que caen y se rompen.
+Si se generan daños evidentes en la estructura de la edificación y sus acabados (vidrios, fachadas) hacer que la gente evacue el edificio.
+El grupo evaluará la edificación una vez se hayan detenido los movimientos y esperará en el sitio de reunión hasta que se realice una evaluación estructural por parte de las autoridades competentes o copropiedad designada por el conjunto residencial para tal fin determinando evacuación permanente o retorno a la normalidad.
+Si las edificaciones resultaron afectadas se acordonó la zona para impedir el acceso a las mismas.
+No olvide que generalmente corre mayor peligro si sale a la calle que si permanece dentro del edificio.
+Recuerde que en los pisos altos el fenómeno se experimenta con mayor intensidad.
+Trasladarse rápidamente, pero sin correr por las rutas trazadas, en completo orden hasta el sitio de encuentro.
+
+DESPUÉS DEL SISMO
+
+
+Es posible que ocurran otros temblores conocidos como réplicas.
+Aléjese de construcciones que puedan derrumbarse.
+No encienda llamas ni lleve cigarrillos prendidos, ya que puede haber material inflamable en la atmósfera.
+Si se encuentra atrapado, utilice una señal visible o sonora que llame la atención.
+Al usar las escaleras, observe que estén en buenas condiciones.
+No congestione las líneas telefónicas.
+No propague rumores o informes exagerados de los daños.
+Siga las instrucciones que emita la coordinación general durante el periodo de rehabilitación después de la emergencia.
+Los brigadistas y personal voluntario esperarán orden del jefe de brigada para proceder a efectuar salvamento, rescate y remoción de escombros.
+En caso de inundación de los niveles bajos de la edificación, deje áreas libres para la acción de los bomberos o personal de mantenimiento.
+
+EN CASO DE ASALTO O ACCIONES VIOLENTAS
+
+Todo el personal permanecerá en sus áreas de trabajo y apartamentos, incluyendo el personal del área afectada, debiendo resguardarse en sitios que lo protejan en caso de un tiroteo y preferiblemente bien agachado.
+Todas las personas están en la obligación de despejar los pasillos o rutas para facilitar la correcta acción del personal de Seguridad y Control.
+Evitar inmiscuirse en el área afectada mientras no sea llamado a colaborar.
+Solo evacuar las instalaciones cuando el peligro o la amenaza haya pasado o reciba indicaciones para hacerlo.
+
+EN CASO DE AMENAZA POR BOMBAS
+
+Evitar tocar o mover elementos sospechosos y avisar sobre su presencia a la dirección de emergencia o al jefe de seguridad, indicando la ubicación exacta del elemento.
+Se acordonará la zona en peligro para evitar el tránsito por la misma.
+Se avisará a la Policía, bomberos, cruz roja y demás organismos que puedan colaborar con la emergencia.
+Se evacuará hacia sitios alejados por lo menos a 100 metros o que estén protegidos ante una posible onda expansiva.
+Si algún trabajador recibe una llamada de amenaza de cualquier tipo, deberá tratar de prolongar el mayor tiempo posible, grabarla si es posible, obtener la mayor información, detectar la mayor cantidad de detalles que puedan aportar a una posterior investigación de las autoridades, no colgar hasta que la persona que llama lo haya hecho, entregar la información Únicamente al responsable de brigada de emergencias o a las autoridades, no propicie agresiones o enfrentamientos ante la presencia de personal armado.
+Si no hay indicación del lugar donde se encuentra la bomba, se debe pensar en lugares donde haya tenido acceso el PÚBlico, como en recipientes de basura y baños áreas comunes, papeleras de pasillos u oficinas, salas de espera, cuartos de basura, bajo escaleras, en dinteles de ventanas, cerca de recepción, en parqueaderos, debajo o entre un vehículo, entre otros.
+
+CÓMO PREVENIR UNA BOMBA
+
+Revisar todo paquete, maletín, bolso o cartera que se vaya a ingresar al establecimiento y si es posible registrar o revisar también a la persona que entra.
+Revisar cada vehículo que vaya a ingresar al parqueadero de la edificación; por debajo, en su interior, en el baúl y compartimiento del motor. Si es posible tener cámaras para grabar tanto el ingreso de los vehículos como el movimiento de estos dentro de los parqueaderos y estar pendiente de los vehículos que se estacionen en la calle frente de las instalaciones, para hacerlos mover del lugar.
+A los extraños que circulen por las instalaciones observarlos que al salir no dejen ningún objeto en el lugar. Acompáñalo hasta la salida del edificio o hágalo acompañado por una persona de confianza.
+Los artefactos explosivos generalmente se disimulan en una botella, un pedazo de tubo de acueducto, un paquete envuelto, una caja, una tula de correo, un sobre grande, un maletín o cartera de mujer, un libro voluminoso y otros sistemas similares.
+Todos los empleados y residentes deben mantenerse alerta contra actividades y objetos sospechosos y comunicar sus observaciones al área de seguridad y control o a la portería respectivamente.
+
+SI VE OBJETOS SOSPECHOSOS
+
+No toque ni trate de remover el objeto. Deje la curiosidad a un lado.
+Manténgase usted, otros empleados y los visitantes a una distancia prudente del objeto; evacue el lugar.
+Informe inmediatamente cuando encuentre algún elemento extraño.
+Los empleados NO deben empezar por su cuenta la búsqueda de artefactos explosivos, pero sí hacer una rápida revisión de su sitio de trabajo para ayudar a localizar objetos sospechosos y poder dar aviso.
+
+EN CASO DE EXPLOSIÓN INMINENTE
+
+Todos los ocupantes se deberán acostar o acurrucar protegiéndose la cabeza, lejos de ventanales, con la boca abierta y con los oídos tapados.
+Una vez haya cesado el evento, se evacuará el edificio teniendo precaución de elementos que pudieran caer o de otros artefactos explosivos.
+Evaluar la estructura para verificar los diferentes daños y la magnitud de los mismos, antes de permitir el reingreso del personal.
+Controlar los incendios que pudieran resultar de la explosión.
+Tocar o mover lo estrictamente necesario para la atención de personas en virtud de proteger posibles evidencias.
+
+
+PROCEDIMIENTO GENERAL DE EVACUACIÓN
+
+EVALUACIÓN DE LA SITUACIÓN ACTUAL Y RECOMENDACIONES 
+
+RUTAS DE EVACUACIÓN: En caso de una emergencia en el conjunto residencial, es fundamental mantener la calma y seguir las instrucciones del personal de seguridad o de la brigada de evacuación. Utiliza las rutas de evacuación claramente señalizadas y evita el uso de ascensores. Ayuda a las personas con movilidad reducida si es necesario. Dirígete al punto de reunión designado, ubicado a una distancia segura, y permanece allí hasta recibir instrucciones adicionales o confirmación de seguridad para regresar. Comunica la situación a través de un teléfono móvil si es posible. La seguridad es la prioridad, así que mantén la calma, evita el pánico y coopera para garantizar que todos los residentes evacuen de manera segura.
+
+Se recomienda preparar a todo el personal para la emergencia que podría ocasionar por ejemplo una explosión y/o incendio ya que está comprobado que no estar preparado produce pánico y este aumenta la posibilidad de mayores daños. Estas rutas deben permanecer convenientemente despejadas, iluminadas y señalizadas hasta la salida de emergencia.
+
+RUTA DE EVACUACION ALTERNA: Si a causa de la emergencia se bloquea una de las salidas, se debe dirigir la evacuación hacia la salida despejada. Los encargados de la evacuación y el personal de vigilancia, deben dirigir a los residentes y demás personas a la salida general ubicada en la portería.
+
+PUERTA DE EMERGENCIA: Es esencial que todos los residentes estén bien informados sobre el uso de la puerta de emergencia, tanto en situaciones de incendio como de terremoto. En caso de un incendio, mantén la calma y procede a la puerta de emergencia verificando visualmente si es seguro abrirla antes de hacerlo. Si el pasillo está libre de humo y llamas, continúa evacuando de manera ordenada. Asegúrate de cerrar la puerta tras de ti para evitar la propagación del fuego. En un terremoto, mantén la calma y busca refugio bajo una mesa resistente o similar hasta que el temblor haya cesado. Luego, utiliza la puerta de emergencia si es seguro hacerlo. Es importante recordar que en ambos casos, las escaleras son preferibles al ascensor durante la evacuación. Al salir del edificio, reúnete en el punto de encuentro designado y comunica la emergencia a las autoridades competentes. La seguridad de todos depende de la preparación y la acción adecuada en momentos críticos.
+
+RECOMENDACIONES: 
+Es importante tener planos de emergencia de la edificación, con toda la información importante como localización de extintores, gabinetes, plantas eléctricas, red hidráulica, cajas de control de interruptores eléctrica, puntos de activación de la alarma contra incendios, ubicación de camillas, botiquines, rutas de evacuación, escaleras y salidas de emergencia; punto de encuentro, entre otras. Es necesario complementarlos con las convenciones sobre localización de extintores, botiquín, tacos eléctricos, llaves de agua, punto de encuentro, etc.
+Es importante y necesario tener un listado con todas las clínicas, hospitales y centros de atención de urgencias del sector, con sus respectivos teléfonos y direcciones y publicarla en la cartelera informativa del conjunto para el conocimiento de residentes y empleados.
+De igual manera se recuerda que es prudente mantener asegurado los activos mediante pólizas de todo riesgo con cobertura de instalaciones, equipos, muebles enseres y papelería entre otros. En riesgos profesionales los trabajadores están afiliados a la Administradora de Riesgos Laborales (ARL) provistos por la copropiedad contratada por la administración del conjunto, la cual los protege de las contingencias de accidente de trabajo y enfermedad profesional.
+La vulnerabilidad social es media teniendo en cuenta la localización de las instalaciones en un sector mixto comercial y residencial, pero como en toda la ciudad, hay riesgos de robos, atracos y atentados terroristas.
+Por todo esto, es importante mantener una brigada bien entrenada y capacitada y estar haciendo simulacros de incendio y evacuación, mínimo cada seis meses.
+
+GUIA PARA UN SIMULACRO
+
+Introducción
+
+Establecer el horario, los participantes y el objetivo de la prueba.
+
+Objetivo y alcance de la prueba
+
+Detallar los objetivos específicos para los cuales fue diseñada la prueba. Indicar cuáles participantes de la propiedad horizontal se van a poner a prueba y quienes simularán las acciones.
+
+Guía
+
+Precauciones de seguridad: se deben redactar las precauciones generales necesarias para proteger a las personas participantes de la actividad, a los encargados de la actividad y en general a todo el personal del conjunto residencial.
+Instrucciones para el controlador y evaluador: Establecer la información que requieran los encargados del control y de la evaluación en el cumplimiento de sus funciones.
+Instrucciones a los participantes: Establecer la información que se deba ser brindada a los participantes en el desarrollo de sus funciones.
+Estándares para la evaluación del desempeño: Establecer los criterios de evaluación y sistema de calificación.
+
+Escenario
+
+Condiciones iniciales: puesta en escena de las condiciones de pre – emergencia.
+Resumen narrativo: breve descripción de la secuencia de los eventos que finalmente conducirán a la emergencia y su continuidad hasta la fase final de la prueba.
+
+Guía para Establecer el Guión del Simulacro.
+
+Secuencia de los eventos mayores: Cronograma detallado de la ocurrencia de los eventos.
+Anexos: información adicional, como: guías para el controlador y evaluador, tarjetas, datos del conjunto residencial en la que ocurre el evento, datos meteorológicos, datos sobre riesgos, formularios de evaluación, entre otros.
+Establecer un equipo de observadores: que sea independiente del grupo de participantes, que evalúe la prueba con ayuda de listas de chequeo preparadas previamente.
+A través de los dirigentes locales: los medios de comunicación y otros medios de difusión avisar a los establecimientos vecinos y al PÚBlico del desarrollo del simulacro para probar el plan. Es importante que la gente no confunda el simulacro con una emergencia real, de lo contrario podría tener consecuencias lamentables.
+Seguir el guión, establecido para el desarrollo del simulacro.
+Después de concluido el simulacro, inmediatamente conformamos una sesión para escuchar a los evaluadores y observadores.
+Asignar responsables para la solución de las deficiencias identificadas anteriormente.
+Revisar nuevamente el plan integrado, y ajustar según las deficiencias presentadas en el simulacro.
+Establecer un procedimiento, que conduzca a la revisión anual del plan para que este permanezca actualizado.
+
+ 
+INCENDIO: 
+
+En general, la pauta de actuación a seguir ante un incendio se resume mediante el acrónimo: 
+
+RACE
+
+RESCATE (Debemos rescatar a las personas en grave peligro).
+ALARMA: (Debemos avisar al jefe de emergencia para que ponga en marcha los mecanismos oportunos)
+COMPARTIMENTACIÓN (Cerraremos puertas y ventanas para retrasar la propagación del incendio)
+EXTINCIÓN (Una vez llevadas a cabo las acciones anteriores)
+
+
+ACCIDENTES CON DAÑO PARA LA SALUD
+
+En general, la pauta de actuación a seguir ante un herido se resume mediante el siguiente acrónimo. 
+
+PAS
+
+PROTEGER de mayores daños. No procederemos al rescate si podemos ponernos en peligro nosotros mismos.
+AVISAR Debemos avisar al jefe de emergencia para que ponga en marcha los mecanismos previstos para esta eventualidad.
+SOCORRES Intentaremos socorrer al herido mientras llega la ayuda.
+
+
+RESOLUCIÓN 0705 DE 2007
+
+ARTÍCULO 1º.- Obligatoriedad de uso de los elementos de primeros auxilios. Todo establecimiento comercial deberá contar con un botiquín de primeros auxilios, con el fin de atender las emergencias que se presenten en sus instalaciones.
+ 
+
+ARTÍCULO 2º.- Del tipo y contenido de los botiquines. Los botiquines de que trata el artículo anterior son de tres (3) tipos y deberán contar con los siguientes elementos:
+Botiquín Tipo A. Botiquín Tipo B. Botiquín Tipo C.
+
+ELEMENTOS QUE DEBE CONTENER EL BOTIQUÍN TIPO B
+
+ELEMENTOS
+UNIDADES
+CANTIDAD
+GASAS LIMPIAS PAQUETE
+Paquete X 100
+1
+GASAS ESTÉRILES PAQUETE
+Paquete por 3
+20
+APÓSITO ó COMPRESAS NO ESTÉRILES
+Unidad
+4
+ESPARADRAPO DE TELA ROLLO 4" BAJALENGUAS
+Unidad Paquete por 20
+2
+VENDA ELÁSTICA 2 X 5 YARDAS
+Unidad
+2
+VENDA ELÁSTICA 3 X 5 YARDAS
+Unidad
+2
+VENDA ELÁSTICA 5 X 5 YARDAS
+Unidad
+2
+VENDA DE ALGODÒN 3 X 5 YARDAS
+Unidad
+2
+VENDA DE ALGODÒN 5 X 5 YARDAS
+Unidad
+2
+CLORHEXIDINA O YODOPOVIDONA (JABÓN QUIRÚRGICO)
+Galón
+1
+SOLUCIÓN SALINA 250 cc ó 500 cc
+Unidad
+5
+GUANTES DE LÁTEX PARA EXAMEN
+Caja por 100
+1
+TERMÓMETRO DE MERCURIO //  DIGITAL
+Unidad
+1
+ALCOHOL ANTISÉPTICO FRASCO POR 275 ml
+Unidad
+1
+TIJERAS
+Unidad
+1
+LINTERNA
+Unidad
+1
+PILAS DE REPUESTO
+Par
+4
+TABLA ESPINAL LARGA
+Unidad
+1
+COLLAR CERVICAL ADULTO
+Unidad
+2
+COLLAR CERVICAL NIÑO
+Unidad
+2
+INMOVILIZADORES ó FÉRULA MIEMBROS SUPERIORES
+Unidad
+1
+INMOVILIZADORES ó FÉRULA MIEMBROS INFERIORES
+Unidad
+1
+INMOVILIZADORES ó FÉRULA MIEMBROS SUPERIORES (NIÑO)
+Unidad
+1
+INMOVILIZADORES ó FÉRULA MIEMBROS INFERIORES (NIÑO)
+Unidad
+1
+VASOS DESECHABLES
+Paquete por 25
+1
+TENSIÓMETRO
+Unidad
+1
+FONENDOSCOPIO
+Unidad
+1
+ACETAMINOFÉN TABLETAS POR 500 mg
+Sobre por 10
+2
+HIDRÓXIDO DE ALUMINIO TABLETAS
+Sobre por 10
+1
+ASA TABLETAS POR 100 mg
+Sobre por 10
+1
+ELEMENTO DE BARRERA // MÁSCARA PARA RCP
+Unidad
+2
+TOTAL
+70
+
+
+
+PARÁGRAFO: La Secretaría Distrital de Salud brindará el apoyo necesario a los establecimientos que requieran asesoría médica, a través de la Línea 123 NUSE. El traslado de pacientes en ambulancias de la Secretaría Distrital de Salud, en el evento de requerirse, dependerá de la disponibilidad de las mismas.
+
+ELABORADO POR:
+
+
+https://cycloidtalent.com/ 
+ 
+
+BIBLIOGRAFÍA
+
+CRUZ ROJA COLOMBIANA. Principios generales para una evacuación 1990
+FONTALVO ZARACHE. S heyla y otro. Primeros auxilios en la copropiedad. Manual para brigadistas. ARP Seguros social. Segunda edición 1996.
+AINSA, ARP-SS Memorias de Capacitación Taller Prevención de Desastres 1996.
+MANTILLA BAUTISTA, Sergio Iván. Instituto de Seguro Social. Modelo nacional Plan y Brigadas de Emergencia, 1998.
+MANTILLA BAUTISTA, Luis Felipe y otros. Protección y Evaluación Sísmica, 1992.
+MANTILLA BAUTISTA, Luis Felipe Folletos: Procedimientos de protección ante amenazas sísmicas y de evacuación en emergencias, 1998
+MAPFRE. Manual de protección contra incendios. Séptima edición, 1991 NFPA. Planes para la evaluación de instalaciones.
+SISTEMA NACIONAL DE PREVENCIÓN DE DESASTRES 
+
+
+

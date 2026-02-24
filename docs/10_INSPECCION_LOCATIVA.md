@@ -1,6 +1,6 @@
 # 10 - Inspección Locativa
 
-## Estado: EN DESARROLLO (2026-02-23)
+## Estado: FUNCIONAL (2026-02-24)
 
 Módulo de inspección locativa para la PWA de inspecciones SST. Migración desde AppSheet. NO requiere firmas.
 
@@ -81,7 +81,7 @@ completo
 
 ### Integración reportes
 
-- `id_report_type = 6`, `id_detailreport = 10` (nuevo para locativas; acta_visita usa 9)
+- `id_report_type = 6`, `id_detailreport = 10` (locativas; acta_visita=9, señalización=11, extintores=12, botiquín=13)
 - Mismo patrón `uploadToReportes()` de ActaVisitaController
 
 ---
@@ -129,15 +129,15 @@ Cada inspección es un módulo independiente. El Plan de Emergencia (fase 10) co
 
 ```
 Fase 1:  ✅ Acta de Visita (funcional v2)
-Fase 2:  → Inspección Locativa (EN DESARROLLO)
-Fase 3:    Señalización
-Fase 4:    Extintores (inventario + inspección por extintor)
-Fase 5:    Botiquín (inventario elementos + estado)
-Fase 6:    Gabinetes contra incendio (condicional: solo si tiene)
-Fase 7:    Equipos de Comunicación
-Fase 8:    Recursos de Seguridad
-Fase 9:    Matriz Vulnerabilidad + Probabilidad Peligros
-Fase 10:   PLAN DE EMERGENCIA (documento maestro ~50 pág, 118 campos)
+Fase 2:  ✅ Inspección Locativa (funcional)
+Fase 3:  ✅ Señalización (37 ítems fijos, calificación)
+Fase 4:  ✅ Extintores (N dinámico, 12 criterios, PDF landscape)
+Fase 5:  ✅ Botiquín (32 elementos fijos, cantidades)
+Fase 6:     Gabinetes contra incendio (condicional: solo si tiene)
+Fase 7:     Equipos de Comunicación
+Fase 8:     Recursos de Seguridad
+Fase 9:     Matriz Vulnerabilidad + Probabilidad Peligros
+Fase 10:    PLAN DE EMERGENCIA (documento maestro ~50 pág, 118 campos)
 ```
 
 ### Relación con PLAN DE EMERGENCIA (AppSheet)

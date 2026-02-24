@@ -1,0 +1,66 @@
+INSPECCIÓN DE RECURSOS PARA LA SEGURIDAD
+RECURSOS Y CARACTERÍSTICAS RELACIONADOS CON LA SEGURIDAD
+Introducción
+Las propiedades horizontales, como condominios y conjuntos residenciales, albergan a una comunidad de personas que comparten espacios comunes y servicios. La seguridad y el bienestar de los residentes, visitantes y personal que habita estos espacios deben ser una prioridad absoluta. En este sentido, la minimización de riesgos estructurales, arquitectónicos y administrativos es un aspecto fundamental para garantizar una convivencia armoniosa y segura.
+Riesgos Estructurales y Arquitectónicos
+Las propiedades horizontales pueden presentar diversos riesgos estructurales y arquitectónicos que pueden afectar la integridad física de las personas y la estabilidad de la edificación. Algunos ejemplos incluyen:
+Defectos estructurales: Grietas en muros o columnas, hundimientos de pisos, filtraciones de agua, etc.
+Materiales inadecuados o deteriorados: Uso de materiales de construcción de baja calidad o que han perdido sus propiedades con el tiempo.
+Diseño arquitectónico deficiente: Escaleras mal diseñadas, barandillas inseguras, falta de iluminación adecuada, etc.
+Falta de mantenimiento preventivo: No realizar inspecciones periódicas y reparaciones oportunas de las instalaciones y equipos.
+Riesgos Administrativos
+Los riesgos administrativos en una propiedad horizontal se relacionan con la gestión inadecuada de los recursos, la falta de controles y la ausencia de protocolos de seguridad. Algunos ejemplos incluyen:
+Gestión deficiente de los recursos económicos: Falta de planificación financiera, mal manejo de los fondos comunes, etc.
+Falta de control en el acceso a las instalaciones: No contar con un sistema de control de acceso adecuado, permitiendo el ingreso de personas no autorizadas.
+Ausencia de protocolos de seguridad: No contar con planes de emergencia para incendios, sismos u otras emergencias, ni con procedimientos para la prevención de accidentes.
+Falta de capacitación del personal: No brindar capacitación periódica al personal sobre temas de seguridad y salud en el trabajo.
+El Rol del Especialista en SST
+Un especialista en Seguridad y Salud en el Trabajo (SST) posee la formación, experiencia y herramientas necesarias para asesorar a la administración y copropietarios de una propiedad horizontal en la identificación, evaluación y control de los riesgos estructurales, arquitectónicos y administrativos. Las funciones del especialista en SST en este ámbito incluyen:
+Inspecciones estructurales y arquitectónicas: Realizar inspecciones periódicas de las instalaciones para identificar posibles defectos estructurales, materiales inadecuados o diseño arquitectónico deficiente.
+Evaluación de riesgos administrativos: Analizar los procesos administrativos, los controles existentes y los protocolos de seguridad para identificar posibles falencias o áreas de mejora.
+Elaboración de un plan de gestión de riesgos: Desarrollar un plan que establezca las medidas necesarias para prevenir o controlar los riesgos identificados en las áreas estructural, arquitectónica y administrativa.
+Implementación del plan de gestión de riesgos: Brindar asesoría y asistencia en la implementación del plan, incluyendo la capacitación del personal y la sensibilización de los residentes.
+Monitoreo y evaluación del plan de gestión de riesgos: Realizar un seguimiento continuo del plan y evaluar su efectividad, identificando áreas de mejora y realizando los ajustes necesarios.
+
+
+FECHA DE LA INSPECCION
+ <<[FECHA DE LA INSPECCION]>>
+CLIENTE
+ <<[CLIENTE]>>
+LÁMPARAS DE EMERGENCIA (UBICACIÓN ESTRATÉGICA -
+  MANTENIMIENTO REGULAR - SEÑALIZACIÓN CLARA)
+ <<[LÁMPARAS DE EMERGENCIA (UBICACIÓN ESTRATÉGICA - MANTENIMIENTO REGULAR - SEÑALIZACIÓN CLARA)]>>
+FOTO LÁMPARAS DE EMERGENCIA
+ <<[FOTO LÁMPARAS DE EMERGENCIA]>>
+ANTIDESLIZANTES (SUPERFICIES
+  SEGURAS-MANTENIMIENTO REGULAR-SEÑALIZACIÓN PREVENTIVA)
+ <<[ANTIDESLIZANTES (SUPERFICIES SEGURAS-MANTENIMIENTO REGULAR-SEÑALIZACIÓN PREVENTIVA)]>>
+FOTO ANTIDESLIZANTES
+ <<[FOTO ANTIDESLIZANTES]>>
+PASAMANOS (INSTALACIÓN SEGURA-ALTURA Y UBICACIÓN
+  ADECUADAS-MATERIAL RESISTENTE)
+ <<[PASAMANOS (INSTALACIÓN SEGURA-ALTURA Y UBICACIÓN ADECUADAS-MATERIAL RESISTENTE)]>>
+FOTO PASAMANOS
+ <<[FOTO PASAMANOS]>>
+SISTEMAS DE VIGILANCIA Y CONTROL DE ACCESO
+  (INSTALACIÓN DE CÁMARAS DE SEGURIDAD Y SISTEMAS DE CONTROL DE ACCESO PARA
+  MONITOREAR Y RESTRINGIR EL INGRESO A LAS INSTALACIONES)
+ <<[SISTEMAS DE VIGILANCIA Y CONTROL DE ACCESO (INSTALACIÓN DE CÁMARAS DE SEGURIDAD Y SISTEMAS DE CONTROL DE ACCESO PARA MONITOREAR Y RESTRINGIR EL INGRESO A LAS INSTALACIONES)]>>
+FOTO CONTROL DE ACCESO O CAMARA
+ <<[FOTO CONTROL DE ACCESO O CAMARA]>>
+ILUMINACIÓN EXTERIOR (GARANTIZAR UNA ILUMINACIÓN
+  ADECUADA EN ÁREAS EXTERIORES, COMO ESTACIONAMIENTOS, ENTRADAS Y JARDINES,
+  PARA DISUADIR LA ACTIVIDAD DELICTIVA Y MEJORAR LA VISIBILIDAD)
+ <<[ILUMINACIÓN EXTERIOR (GARANTIZAR UNA ILUMINACIÓN ADECUADA EN ÁREAS EXTERIORES, COMO ESTACIONAMIENTOS, ENTRADAS Y JARDINES, PARA DISUADIR LA ACTIVIDAD DELICTIVA Y MEJORAR LA VISIBILIDAD)]>>
+FOTO LUMINARIAS EXTERIORES
+ <<[FOTO LUMINARIAS EXTERIORES]>>
+PLANES DE RESPUESTA A EMERGENCIAS (EL DESARROLLO
+  DE PLANES DE RESPUESTA A EMERGENCIAS ES FUNDAMENTAL PARA GARANTIZAR LA
+  SEGURIDAD Y EL BIENESTAR DE LOS RESIDENTES EN PROPIEDADES HORIZONTALES)
+ <<[PLANES DE RESPUESTA A EMERGENCIAS (EL DESARROLLO DE PLANES DE RESPUESTA A EMERGENCIAS ES FUNDAMENTAL PARA GARANTIZAR LA SEGURIDAD Y EL BIENESTAR DE LOS RESIDENTES EN PROPIEDADES HORIZONTALES)]>>
+OBSERVACIONES
+ <<[OBSERVACIONES]>>
+
+
+
+

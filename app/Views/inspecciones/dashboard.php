@@ -130,6 +130,174 @@
     <?php endforeach; ?>
     <?php endif; ?>
 
+    <!-- Pendientes botiquín -->
+    <?php if (!empty($pendientesBotiquin)): ?>
+    <?php foreach ($pendientesBotiquin as $bot): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Botiquin - <?= esc($bot['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($bot['fecha_inspeccion'])) ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/botiquin/edit/<?= $bot['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes gabinetes -->
+    <?php if (!empty($pendientesGabinetes)): ?>
+    <?php foreach ($pendientesGabinetes as $gab): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Gabinetes - <?= esc($gab['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($gab['fecha_inspeccion'])) ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/gabinetes/edit/<?= $gab['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes comunicaciones -->
+    <?php if (!empty($pendientesComunicaciones)): ?>
+    <?php foreach ($pendientesComunicaciones as $com): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Comunicaciones - <?= esc($com['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($com['fecha_inspeccion'])) ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/comunicaciones/edit/<?= $com['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes recursos seguridad -->
+    <?php if (!empty($pendientesRecursosSeg)): ?>
+    <?php foreach ($pendientesRecursosSeg as $rec): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Rec. Seguridad - <?= esc($rec['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($rec['fecha_inspeccion'])) ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/recursos-seguridad/edit/<?= $rec['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes probabilidad peligros -->
+    <?php if (!empty($pendientesProbPeligros)): ?>
+    <?php foreach ($pendientesProbPeligros as $pp): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Prob. Peligros - <?= esc($pp['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($pp['fecha_inspeccion'])) ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/probabilidad-peligros/edit/<?= $pp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes matriz vulnerabilidad -->
+    <?php if (!empty($pendientesMatrizVul)): ?>
+    <?php foreach ($pendientesMatrizVul as $mv): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Matriz Vuln. - <?= esc($mv['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($mv['fecha_inspeccion'])) ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/matriz-vulnerabilidad/edit/<?= $mv['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
     <!-- Grid de inspecciones -->
     <div class="section-title">Inspecciones</div>
     <div class="grid-inspecciones mb-4">
@@ -153,15 +321,50 @@
             <div><strong>Extintores</strong></div>
             <div class="count">(<?= $totalExtintores ?>)</div>
         </a>
-        <div class="card-tipo disabled">
+        <a href="/inspecciones/botiquin" class="card-tipo">
             <i class="fas fa-first-aid"></i>
             <div><strong>Botiquin</strong></div>
-            <div class="count">(---)</div>
-        </div>
-        <div class="card-tipo disabled">
+            <div class="count">(<?= $totalBotiquin ?>)</div>
+        </a>
+        <a href="/inspecciones/gabinetes" class="card-tipo">
             <i class="fas fa-shower"></i>
             <div><strong>Gabinetes</strong></div>
-            <div class="count">(---)</div>
-        </div>
+            <div class="count">(<?= $totalGabinetes ?>)</div>
+        </a>
+        <a href="/inspecciones/comunicaciones" class="card-tipo">
+            <i class="fas fa-walkie-talkie"></i>
+            <div><strong>Comunicaciones</strong></div>
+            <div class="count">(<?= $totalComunicaciones ?>)</div>
+        </a>
+        <a href="/inspecciones/recursos-seguridad" class="card-tipo">
+            <i class="fas fa-shield-alt"></i>
+            <div><strong>Rec. Seguridad</strong></div>
+            <div class="count">(<?= $totalRecursosSeg ?>)</div>
+        </a>
+        <a href="/inspecciones/probabilidad-peligros" class="card-tipo">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div><strong>Prob. Peligros</strong></div>
+            <div class="count">(<?= $totalProbPeligros ?>)</div>
+        </a>
+        <a href="/inspecciones/matriz-vulnerabilidad" class="card-tipo">
+            <i class="fas fa-th-list"></i>
+            <div><strong>Matriz Vuln.</strong></div>
+            <div class="count">(<?= $totalMatrizVul ?>)</div>
+        </a>
+        <a href="/inspecciones/carta-vigia" class="card-tipo">
+            <i class="fas fa-user-shield"></i>
+            <div><strong>Carta Vigia</strong></div>
+            <div class="count">(<?= $totalCartasVigiaPend ?> pend.)</div>
+        </a>
+        <a href="/inspecciones/mantenimientos" class="card-tipo">
+            <i class="fas fa-wrench"></i>
+            <div><strong>Mantenimientos</strong></div>
+            <div class="count">(<?= $totalVencimientos ?> pend.)</div>
+        </a>
+        <a href="/inspecciones/pendientes" class="card-tipo">
+            <i class="fas fa-tasks"></i>
+            <div><strong>Pendientes</strong></div>
+            <div class="count">(<?= $totalPendientesAbiertos ?> abiertas)</div>
+        </a>
     </div>
 </div>

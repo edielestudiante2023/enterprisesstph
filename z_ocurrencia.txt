@@ -1,0 +1,118 @@
+PROBABILIDAD DE OCURRENCIA DE PELIGROS
+<<[CLIENTE]>>
+
+FECHA DE LA INSPECCION: <<[FECHA DE LA INSPECCION]>>
+
+
+IDENTIFICACIÓN Y CARACTERIZACIÓN DE LOS PELIGROS Y LAS AMENAZAS
+
+Introducción
+La identificación y caracterización de los peligros y las amenazas es un paso fundamental en la gestión de riesgos. Permite conocer los potenciales eventos que podrían generar daños a personas, bienes o al medio ambiente, y así tomar medidas para prevenirlos o mitigar sus efectos.
+Origen del peligro
+Se identifican cuatro orígenes de los peligros:
+Natural: Incluye eventos como terremotos, inundaciones, vendavales e incendios forestales.
+Social: Comprende situaciones como atentados terroristas, amenazas y robos.
+Tecnológico: Abarca riesgos asociados a la presencia de empresas vecinas, almacenamiento de gases tóxicos, inflamabilidad de sustancias, operación de aeropuertos y la movilidad vehicular.
+
+ORIGEN
+PELIGRO
+NATURAL
+Presencia de una falla geológica(Terremotos, sismos)
+Condiciones atmosféricas adversas a la zona (inundaciones, vendavales)
+Incendios Forestales
+SOCIAL
+Condiciones sociales insatisfechas (atentados terroristas, amenazas)
+Condiciones políticas y sociales de la región (robos)
+TECNOLÓGICO
+Presencia empresas vecinas(Explosiones, incendios)
+Almacenamiento de gases tóxicos (fugas de sustancias nocivas)
+Inflamabilidad de una sustancia (incendios, explosiones)
+Presencia Aeropuerto (paso de aviones)
+Movilidad vehículos automotores
+
+
+Ejemplo de caracterización de un peligro
+Peligro: Inundación
+Descripción: Desbordamiento de un río o arroyo que causa la inundación de áreas aledañas.
+Ubicación: Zonas bajas aledañas al río o arroyo.
+Magnitud: Daños a viviendas, infraestructura, cultivos y pérdidas económicas.
+Probabilidad de ocurrencia: Depende de la frecuencia de las precipitaciones intensas y el estado de los cauces de agua.
+Vulnerabilidad: Depende de la altura de las viviendas, la existencia de sistemas de drenaje y la preparación de la comunidad para enfrentar una inundación.
+Definición de los niveles de probabilidad: Poco probable, Probable y Muy probable
+Los términos "Poco probable", "Probable" y "Muy probable" se utilizan para expresar la certeza o confianza que se tiene sobre la ocurrencia de un evento o fenómeno. Se emplean en diversos contextos, incluyendo la gestión de riesgos.
+A continuación, se presenta una definición más precisa de cada nivel:
+Poco probable:
+Definición: Se refiere a un evento o fenómeno que tiene baja probabilidad de ocurrir. Es decir, existe una alta posibilidad de que no suceda.
+Equivalentes: Se puede expresar de manera similar como "improbable", "con baja probabilidad", "con pocas posibilidades de ocurrir" o "es dudoso que suceda".
+Rango de probabilidad: En términos numéricos, se podría considerar un evento poco probable como aquel que tiene una probabilidad de ocurrencia entre 10% y 33%.
+Probable:
+Definición: Indica un evento o fenómeno que tiene moderada probabilidad de ocurrir. Es decir, existe una posibilidad razonable de que suceda.
+Equivalentes: Se puede expresar de manera similar como "con posibilidades de ocurrir", "es posible que suceda", "hay chances de que ocurra" o "no se puede descartar su ocurrencia".
+Rango de probabilidad: En términos numéricos, se podría considerar un evento probable como aquel que tiene una probabilidad de ocurrencia entre 33% y 66%.
+Muy probable:
+Definición: Se refiere a un evento o fenómeno que tiene alta probabilidad de ocurrir. Es decir, existe una gran posibilidad de que suceda.
+Equivalentes: Se puede expresar de manera similar como "altamente probable", "con alta probabilidad", "es muy probable que ocurra" o "es casi seguro que suceda".
+Rango de probabilidad: En términos numéricos, se podría considerar un evento muy probable como aquel que tiene una probabilidad de ocurrencia entre 66% y 99%.
+
+ORIGEN
+TIPO
+FRECUENCIA
+NATURALES
+SISMOS, CAÍDAS DE ESTRUCTURAS(TIPO DE PELIGRO) -  ORIGEN DEL PELIGRO(NATURALES)
+ <<[SISMOS, CAIDAS DE ESTRUCTURAS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)]>>
+INUNDACIONES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)
+ <<[INUNDACIONES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)]>>
+VENDAVALES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)
+ <<[VENDAVALES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)]>>
+SOCIALES
+ATENTADOS TERRORISTAS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)
+ <<[ATENTADOS TERRORISTAS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(NATURALES)]>>
+ASALTO, HURTO(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)
+ <<[ASALTO, HURTO(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)]>>
+VANDALISMO(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)
+ <<[VANDALISMO(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)]>>
+TECNOLOGICOS
+INCENDIOS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)
+ <<[INCENDIOS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)]>>
+EXPLOSIONES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)
+ <<[EXPLOSIONES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)]>>
+INHALACIÓN GASES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)
+ <<[INHALACION GASES(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(SOCIALES)]>>
+FALLA ESTRUCTURAL(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLÓGICOS)
+ <<[FALLA ESTRUCTURAL(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLOGICOS)]>>
+INTOXICACIÓN POR ALIMENTOS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLÓGICOS)
+ <<[INTOXICACION POR ALIMENTOS(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLOGICOS)]>>
+DENSIDAD POBLACIONAL(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLÓGICOS)
+ <<[DENSIDAD POBLACIONAL(TIPO DE PELIGRO) - ORIGEN DEL PELIGRO(TECNOLOGICOS)]>>
+OBSERVACIONES DEL CONSULTOR
+ <<[OBSERVACIONES DEL CONSULTOR]>>
+
+
+
+SISMOS, CAÍDA DE ESTRUCTURAS: Ninguna edificación, aún las construidas recientemente, se encuentran exentas de ser afectadas por la acción de las vibraciones derivadas del choque de las placas que forman la superficie de la tierra y que se mueven continuamente en direcciones diferentes acumulando y liberando energía que sacude la superficie, fenómeno que se conoce como terremoto, sismo o temblor de tierra. La magnitud e intensidad, las características del suelo (suelos blandos o rellenos pueden aumentar la capacidad destructiva en determinadas edificaciones), la resistencia de las edificaciones (una falla estructural de planta física puede hacer colapsar de manera parcial o total estructuras de la edificación con alteración directa de su capacidad portante y daño a sus elementos y ocupantes), y la preparación que se tenga por parte de las personas e instituciones para actuar y reaccionar en forma adecuada, antes, durante y después del fenómeno, dependen los daños que este cause. Es de anotar que la ciudad de Bogotá D.C. y sus alrededores están asentados en una zona de riesgo sísmico intermedio.
+INUNDACIONES: Se presentan generalmente después de una lluvia fuerte o una granizada, por sustracción de drenajes, por taponamiento de sifones, de desagües o de bajantes de canales; cuando se presenta acumulación de residuos o basuras o por diámetros muy reducidos de los tubos de la cañería; por mala inclinación de los desniveles hacia los respectivos desagües, o por estar la edificación en zonas bajas inundables como cerca de ríos, lagos o por estar construida en zonas pantanosas. Por presentarse en la capital épocas de fuertes y prolongados inviernos, es muy probable que se presenten este tipo de amenazas.
+VENDAVALES, GRANIZADA Y TORMENTAS ELÉCTRICAS: Los cambios climáticos y meteorológicos se pueden encontrar acompañados de vientos, lluvias, granizadas, tormentas eléctricas. La acción de vientos fuertes no solo puede romper ventanales y levantar tejas en las cubiertas, sino hacer caer antenas y pararrayos. Las tormentas eléctricas pueden traer como consecuencia accidentes fatales de trabajadores y la probabilidad de incendios con pérdidas materiales.
+ATENTADOS TERRORISTAS: En este se incluyen aquellas acciones en que además de bombas, o proyectiles dirigidos desde cierta distancia hacia algún objetivo en particular y que generalmente puede afectar instalaciones o viviendas aledañas y ajenas a las que se proponían hacer daño sin que por eso importe algo también puede tratarse de acciones de que inciten a sembrar terror en la población esto puede incluir acciones como el secuestro ya sea por grupos organizados como la guerrilla o bandas criminales.
+ASALTO Y HURTO: Existe la posibilidad de tener este riesgo principalmente en horas nocturnas ocasionado por la gran inseguridad que se presenta en la actualidad en el Distrito Capital, pero es importante acotar que el conjunto residencial cuenta con un sistema de vigilancia privado contratado para salvaguardar los bienes y servicios de los residentes pero esto se limita solo a la propiedad horizontal, esto no desconoce la problemática que se presenta en las áreas perimetrales del sector del conjunto residencial.
+VANDALISMO: Por la gran descomposición social que se vive hoy en día esta es una de las amenazas con un riesgo de probabilidad considerable sin que tenga que ver el tipo de empresa o área habitacional que pueda ser afectada es simplemente el deseo de producir pánico y sembrar el miedo entre la población. La probabilidad de que suceda esta amenaza es poco probable debido a la ubicación que presenta el conjunto residencial, sin embargo se debe considerar que existen muchas formas de hacerlo: a través de paquetes, de sobres, de vehículos y de variedad de artículos incluyendo extintores.
+INCENDIOS: Entre las amenazas más importantes se hace referencia a las de incendio, la cual es característica de toda edificación cuya destinación sea de carácter industrial, comercial, de servicios o residencia. Esta amenaza no solamente se presenta por una eventual vecindad a fuentes de ignición o detonación, fuentes de calor, fuentes eléctricas, presencia de cargas estáticas y también por diferentes cargas combustibles de materiales sólidos presentes en las instalaciones del conjunto residencial y a los trabajos que en él se realicen. Debido a que el conjunto se almacenan diferentes combustibles como vestuario, telones, madera, alfombras, cartón, plásticos, equipos de oficina; presencia de gas natural y demás combustibles que pueden ocasionar un incendio de grandes proporciones.
+EXPLOSIONES: Es un riesgo que viene relacionado con el manejo de cargas combustibles del tipo B como el almacenamiento y manipulación de líquidos y gases inflamables, la reactividad por escape de gases comprimidos como el caso de gas natural, y en el manejo de solventes, lacas, pinturas, varsol que normalmente emanan gases con propiedades inflamables detonantes lo mismo que eventualmente lo podría hacer pero con menos posibilidad el ACPM.
+INHALACIÓN DE GASES: Estas afectaciones en la salud se pueden causar debido a la acumulación de gases nocivos para las personas, esto se puede agravar en el caso del parqueadero de vehículos del conjunto residencial si no se cuenta con la cultura de la revisión periódica de los vehículos automotores y si las personas se quedan bajo periodos largos en este sitio, para lo cual se hace necesario implementar la cultura de esperar que los propietarios de los vehículos realicen el calentamiento del motor en un área ventilada.
+FALLA ESTRUCTURAL: La vulnerabilidad estructural se encuentra determinada por la capacidad de soporte vertical y resistencia a cargas horizontales de la edificación, la cual en términos generales presenta buen aspecto. Un gran porcentaje de las instalaciones está construida en muros de ladrillo y cemento, pisos en cemento, techos en placa de concreto. Con el objeto de determinar la capacidad sismo resistente de las edificaciones se recomienda realizar un estudio técnico de las mismas y conforme a su valoración reforzar las estructuras o realizar las modificaciones arquitectónicas necesarias, en consonancia con las exigencias del código colombiano de construcciones sismo resistentes, adoptado por el Decreto 400 con vigencia desde el año de 1984 y actualizado por la Ley 400 de 1997 y el Decreto 33 de 1998.
+INTOXICACIÓN POR ALIMENTOS: Esta amenaza representa un peligro biológico (o químico, según el caso). Se refiere a las afectaciones en la salud causadas por la ingesta de alimentos contaminados con microorganismos patógenos, toxinas o sustancias químicas perjudiciales.
+DENSIDAD POBLACIONAL: Este riesgo se considera de origen social o organizacional. Se refiere al riesgo asociado con la alta concentración de personas en un área determinada, lo que puede aumentar la probabilidad de accidentes, propagación de enfermedades contagiosas y dificultades para ejecutar evacuaciones en caso de emergencia.
+
+RESULTADOS CONSOLIDADOS
+
+POCO  PROBABLE
+ <<[POCO PROBABLE]>>
+PROBABLE
+ <<[PROBABLE]>>
+MUY  PROBABLE
+ <<[MUY PROBABLE]>>
+
+
+
+
+
+

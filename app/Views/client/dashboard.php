@@ -400,6 +400,11 @@
                             <i class="fas fa-file-pdf me-2"></i> PDF Unificado
                         </a>
                     </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('client/inspecciones') ?>" class="btn w-100" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none;">
+                            <i class="fas fa-clipboard-check me-2"></i> Inspecciones
+                        </a>
+                    </div>
                 </div>
             </div>
 
