@@ -20,10 +20,19 @@ use App\Models\ExtintorDetalleModel;
 use App\Models\InspeccionComunicacionModel;
 use App\Models\InspeccionGabineteModel;
 use App\Models\GabineteDetalleModel;
+use App\Models\CartaVigiaModel;
+use App\Models\VencimientosMantenimientoModel;
+use App\Models\MantenimientoModel;
+use App\Models\MatrizVulnerabilidadModel;
+use App\Models\ProbabilidadPeligrosModel;
+use App\Models\InspeccionRecursosSeguridadModel;
 use App\Controllers\Inspecciones\InspeccionBotiquinController;
 use App\Controllers\Inspecciones\InspeccionExtintoresController;
 use App\Controllers\Inspecciones\InspeccionComunicacionController;
 use App\Controllers\Inspecciones\InspeccionGabineteController;
+use App\Controllers\Inspecciones\MatrizVulnerabilidadController;
+use App\Controllers\Inspecciones\ProbabilidadPeligrosController;
+use App\Controllers\Inspecciones\InspeccionRecursosSeguridadController;
 use CodeIgniter\Controller;
 
 class ClientInspeccionesController extends Controller
@@ -63,6 +72,11 @@ class ClientInspeccionesController extends Controller
         $extintoresModel = new InspeccionExtintoresModel();
         $comunicacionModel = new InspeccionComunicacionModel();
         $gabineteModel = new InspeccionGabineteModel();
+        $cartaVigiaModel = new CartaVigiaModel();
+        $vencimientoModel = new VencimientosMantenimientoModel();
+        $matrizModel = new MatrizVulnerabilidadModel();
+        $probabilidadModel = new ProbabilidadPeligrosModel();
+        $recursosModel = new InspeccionRecursosSeguridadModel();
 
         $tipos = [
             [
@@ -126,6 +140,51 @@ class ClientInspeccionesController extends Controller
                 'url'     => base_url('client/inspecciones/gabinetes'),
                 'conteo'  => $gabineteModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
                 'ultima'  => $gabineteModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Cartas de Vigía',
+                'icono'   => 'fa-user-shield',
+                'color'   => '#17a2b8',
+                'url'     => base_url('client/inspecciones/carta-vigia'),
+                'conteo'  => $cartaVigiaModel->where('id_cliente', $clientId)->where('estado_firma', 'firmado')->countAllResults(false),
+                'ultima'  => $cartaVigiaModel->where('id_cliente', $clientId)->where('estado_firma', 'firmado')->orderBy('firma_fecha', 'DESC')->first(),
+                'campo_fecha' => 'firma_fecha',
+            ],
+            [
+                'nombre'  => 'Mantenimientos',
+                'icono'   => 'fa-wrench',
+                'color'   => '#6610f2',
+                'url'     => base_url('client/inspecciones/mantenimientos'),
+                'conteo'  => $vencimientoModel->where('id_cliente', $clientId)->countAllResults(false),
+                'ultima'  => $vencimientoModel->where('id_cliente', $clientId)->orderBy('fecha_vencimiento', 'DESC')->first(),
+                'campo_fecha' => 'fecha_vencimiento',
+            ],
+            [
+                'nombre'  => 'Matriz de Vulnerabilidad',
+                'icono'   => 'fa-shield-alt',
+                'color'   => '#e83e8c',
+                'url'     => base_url('client/inspecciones/matriz-vulnerabilidad'),
+                'conteo'  => $matrizModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $matrizModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Probabilidad de Peligros',
+                'icono'   => 'fa-exclamation-triangle',
+                'color'   => '#343a40',
+                'url'     => base_url('client/inspecciones/probabilidad-peligros'),
+                'conteo'  => $probabilidadModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $probabilidadModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Recursos de Seguridad',
+                'icono'   => 'fa-hard-hat',
+                'color'   => '#795548',
+                'url'     => base_url('client/inspecciones/recursos-seguridad'),
+                'conteo'  => $recursosModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $recursosModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
                 'campo_fecha' => 'fecha_inspeccion',
             ],
         ];
@@ -580,6 +639,302 @@ class ClientInspeccionesController extends Controller
             'client'  => $clientModel->find($clientId),
             'title'   => 'Inspección de Gabinetes',
             'content' => view('client/inspecciones/gabinetes_view', $data),
+        ]);
+    }
+
+    // ─── CARTAS DE VIGÍA ─────────────────────────────────────
+
+    public function listCartasVigia()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $clientModel = new ClientModel();
+        $client = $clientModel->find($clientId);
+
+        $model = new CartaVigiaModel();
+        $cartas = $model
+            ->where('id_cliente', $clientId)
+            ->where('estado_firma', 'firmado')
+            ->orderBy('firma_fecha', 'DESC')
+            ->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Cartas de Vigía',
+            'content' => view('client/inspecciones/carta_vigia_list', [
+                'cartas' => $cartas,
+            ]),
+        ]);
+    }
+
+    // ─── MANTENIMIENTOS ──────────────────────────────────────
+
+    public function listMantenimientos()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $clientModel = new ClientModel();
+        $client = $clientModel->find($clientId);
+
+        $vencimientoModel = new VencimientosMantenimientoModel();
+        $vencimientos = $vencimientoModel
+            ->select('tbl_vencimientos_mantenimientos.*, tbl_mantenimientos.detalle_mantenimiento')
+            ->join('tbl_mantenimientos', 'tbl_mantenimientos.id_mantenimiento = tbl_vencimientos_mantenimientos.id_mantenimiento', 'left')
+            ->where('tbl_vencimientos_mantenimientos.id_cliente', $clientId)
+            ->orderBy('tbl_vencimientos_mantenimientos.fecha_vencimiento', 'ASC')
+            ->findAll();
+
+        // Enriquecer con estado visual
+        $hoy = date('Y-m-d');
+        foreach ($vencimientos as &$v) {
+            $estado = $v['estado_actividad'];
+            if ($estado === 'sin ejecutar') {
+                $diff = (strtotime($v['fecha_vencimiento']) - strtotime($hoy)) / 86400;
+                $v['dias_diff'] = (int)$diff;
+                if ($diff < 0) {
+                    $v['color'] = 'danger';
+                    $v['label'] = 'Vencido (' . abs((int)$diff) . ' días)';
+                } elseif ($diff <= 15) {
+                    $v['color'] = 'warning';
+                    $v['label'] = 'Próximo (' . (int)$diff . ' días)';
+                } else {
+                    $v['color'] = 'gold';
+                    $v['label'] = 'Vigente (' . (int)$diff . ' días)';
+                }
+            } else {
+                $v['color'] = ($estado === 'ejecutado') ? 'success' : 'secondary';
+                $v['label'] = $estado;
+            }
+        }
+        unset($v);
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Mantenimientos',
+            'content' => view('client/inspecciones/mantenimientos_list', [
+                'vencimientos' => $vencimientos,
+            ]),
+        ]);
+    }
+
+    // ─── MATRIZ DE VULNERABILIDAD ────────────────────────────
+
+    public function listMatrizVulnerabilidad()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $clientModel = new ClientModel();
+        $client = $clientModel->find($clientId);
+
+        $model = new MatrizVulnerabilidadModel();
+        $inspecciones = $model
+            ->where('id_cliente', $clientId)
+            ->where('estado', 'completo')
+            ->orderBy('fecha_inspeccion', 'DESC')
+            ->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Matriz de Vulnerabilidad',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'matriz_vulnerabilidad',
+                'titulo'       => 'Matrices de Vulnerabilidad',
+                'campo_fecha'  => 'fecha_inspeccion',
+                'base_url'     => 'client/inspecciones/matriz-vulnerabilidad',
+            ]),
+        ]);
+    }
+
+    public function viewMatrizVulnerabilidad($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $model = new MatrizVulnerabilidadModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Inspección no encontrada.');
+        }
+
+        $clientModel = new ClientModel();
+        $consultantModel = new ConsultantModel();
+
+        $matrizCtrl = new MatrizVulnerabilidadController();
+        $puntaje = $matrizCtrl->calcularPuntaje($inspeccion);
+        $clasificacion = $matrizCtrl->getClasificacion($puntaje);
+
+        $data = [
+            'inspeccion'    => $inspeccion,
+            'cliente'       => $clientModel->find($inspeccion['id_cliente']),
+            'consultor'     => $consultantModel->find($inspeccion['id_consultor']),
+            'criterios'     => MatrizVulnerabilidadController::CRITERIOS,
+            'puntaje'       => $puntaje,
+            'clasificacion' => $clasificacion,
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => $clientModel->find($clientId),
+            'title'   => 'Matriz de Vulnerabilidad',
+            'content' => view('client/inspecciones/matriz_vulnerabilidad_view', $data),
+        ]);
+    }
+
+    // ─── PROBABILIDAD DE PELIGROS ────────────────────────────
+
+    public function listProbabilidadPeligros()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $clientModel = new ClientModel();
+        $client = $clientModel->find($clientId);
+
+        $model = new ProbabilidadPeligrosModel();
+        $inspecciones = $model
+            ->where('id_cliente', $clientId)
+            ->where('estado', 'completo')
+            ->orderBy('fecha_inspeccion', 'DESC')
+            ->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Probabilidad de Peligros',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'probabilidad_peligros',
+                'titulo'       => 'Probabilidad de Peligros',
+                'campo_fecha'  => 'fecha_inspeccion',
+                'base_url'     => 'client/inspecciones/probabilidad-peligros',
+            ]),
+        ]);
+    }
+
+    public function viewProbabilidadPeligros($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $model = new ProbabilidadPeligrosModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Inspección no encontrada.');
+        }
+
+        $clientModel = new ClientModel();
+        $consultantModel = new ConsultantModel();
+
+        // Calcular porcentajes
+        $peligros = ProbabilidadPeligrosController::PELIGROS;
+        $total = 0;
+        $conteo = ['poco_probable' => 0, 'probable' => 0, 'muy_probable' => 0];
+        foreach ($peligros as $grupo) {
+            foreach ($grupo['items'] as $key => $label) {
+                $val = $inspeccion[$key] ?? null;
+                if ($val && isset($conteo[$val])) {
+                    $conteo[$val]++;
+                    $total++;
+                }
+            }
+        }
+        $porcentajes = $total === 0
+            ? ['poco_probable' => 0, 'probable' => 0, 'muy_probable' => 0]
+            : [
+                'poco_probable' => round($conteo['poco_probable'] / $total, 4),
+                'probable'      => round($conteo['probable'] / $total, 4),
+                'muy_probable'  => round($conteo['muy_probable'] / $total, 4),
+            ];
+
+        $data = [
+            'inspeccion'  => $inspeccion,
+            'cliente'     => $clientModel->find($inspeccion['id_cliente']),
+            'consultor'   => $consultantModel->find($inspeccion['id_consultor']),
+            'peligros'    => $peligros,
+            'frecuencias' => ProbabilidadPeligrosController::FRECUENCIAS,
+            'porcentajes' => $porcentajes,
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => $clientModel->find($clientId),
+            'title'   => 'Probabilidad de Peligros',
+            'content' => view('client/inspecciones/probabilidad_peligros_view', $data),
+        ]);
+    }
+
+    // ─── RECURSOS DE SEGURIDAD ───────────────────────────────
+
+    public function listRecursosSeguridad()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $clientModel = new ClientModel();
+        $client = $clientModel->find($clientId);
+
+        $model = new InspeccionRecursosSeguridadModel();
+        $inspecciones = $model
+            ->where('id_cliente', $clientId)
+            ->where('estado', 'completo')
+            ->orderBy('fecha_inspeccion', 'DESC')
+            ->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Recursos de Seguridad',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'recursos_seguridad',
+                'titulo'       => 'Recursos de Seguridad',
+                'campo_fecha'  => 'fecha_inspeccion',
+                'base_url'     => 'client/inspecciones/recursos-seguridad',
+            ]),
+        ]);
+    }
+
+    public function viewRecursosSeguridad($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $model = new InspeccionRecursosSeguridadModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Inspección no encontrada.');
+        }
+
+        $clientModel = new ClientModel();
+        $consultantModel = new ConsultantModel();
+
+        $data = [
+            'inspeccion' => $inspeccion,
+            'cliente'    => $clientModel->find($inspeccion['id_cliente']),
+            'consultor'  => $consultantModel->find($inspeccion['id_consultor']),
+            'recursos'   => InspeccionRecursosSeguridadController::RECURSOS,
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => $clientModel->find($clientId),
+            'title'   => 'Recursos de Seguridad',
+            'content' => view('client/inspecciones/recursos_seguridad_view', $data),
         ]);
     }
 }

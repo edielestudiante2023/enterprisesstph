@@ -446,6 +446,14 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
     $routes->get('comunicaciones/(:num)', 'ClientInspeccionesController::viewComunicacion/$1');
     $routes->get('gabinetes', 'ClientInspeccionesController::listGabinetes');
     $routes->get('gabinetes/(:num)', 'ClientInspeccionesController::viewGabinete/$1');
+    $routes->get('carta-vigia', 'ClientInspeccionesController::listCartasVigia');
+    $routes->get('mantenimientos', 'ClientInspeccionesController::listMantenimientos');
+    $routes->get('matriz-vulnerabilidad', 'ClientInspeccionesController::listMatrizVulnerabilidad');
+    $routes->get('matriz-vulnerabilidad/(:num)', 'ClientInspeccionesController::viewMatrizVulnerabilidad/$1');
+    $routes->get('probabilidad-peligros', 'ClientInspeccionesController::listProbabilidadPeligros');
+    $routes->get('probabilidad-peligros/(:num)', 'ClientInspeccionesController::viewProbabilidadPeligros/$1');
+    $routes->get('recursos-seguridad', 'ClientInspeccionesController::listRecursosSeguridad');
+    $routes->get('recursos-seguridad/(:num)', 'ClientInspeccionesController::viewRecursosSeguridad/$1');
 });
 
 $routes->get('/detailreportlist', 'DetailReportController::detailReportList');
@@ -914,6 +922,20 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('plan-emergencia/delete/(:num)', 'PlanEmergenciaController::delete/$1');
     $routes->get('plan-emergencia/check-inspecciones/(:num)', 'PlanEmergenciaController::checkInspeccionesCompletas/$1');
 
+    // Evaluación Simulacro de Evacuación (admin)
+    $routes->get('simulacro', 'EvaluacionSimulacroController::list');
+    $routes->get('simulacro/view/(:num)', 'EvaluacionSimulacroController::view/$1');
+    $routes->get('simulacro/pdf/(:num)', 'EvaluacionSimulacroController::generatePdf/$1');
+    $routes->post('simulacro/finalizar/(:num)', 'EvaluacionSimulacroController::finalizar/$1');
+    $routes->get('simulacro/delete/(:num)', 'EvaluacionSimulacroController::delete/$1');
+
+    // Hoja de Vida Brigadista (admin)
+    $routes->get('hv-brigadista', 'HvBrigadistaController::list');
+    $routes->get('hv-brigadista/view/(:num)', 'HvBrigadistaController::view/$1');
+    $routes->get('hv-brigadista/pdf/(:num)', 'HvBrigadistaController::generatePdf/$1');
+    $routes->post('hv-brigadista/finalizar/(:num)', 'HvBrigadistaController::finalizar/$1');
+    $routes->get('hv-brigadista/delete/(:num)', 'HvBrigadistaController::delete/$1');
+
     // Gestión de Pendientes (compromisos)
     $routes->get('pendientes', 'PendientesPwaController::list');
     $routes->get('pendientes/cliente/(:num)', 'PendientesPwaController::list/$1');
@@ -956,4 +978,16 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
 $routes->get('carta-vigia/firmar/(:any)', 'Inspecciones\CartaVigiaPwaController::firmar/$1');
 $routes->post('carta-vigia/procesar-firma', 'Inspecciones\CartaVigiaPwaController::procesarFirma');
 $routes->get('carta-vigia/verificar/(:any)', 'Inspecciones\CartaVigiaPwaController::verificar/$1');
+
+// Evaluación Simulacro de Evacuación (público, sin autenticación)
+$routes->get('simulacro', 'SimulacroPublicoController::form');
+$routes->get('simulacro/api/clientes', 'SimulacroPublicoController::getClientesActivos');
+$routes->post('simulacro/save-step', 'SimulacroPublicoController::saveStep');
+$routes->post('simulacro/upload-foto', 'SimulacroPublicoController::uploadFoto');
+$routes->post('simulacro/store', 'SimulacroPublicoController::store');
+
+// Hoja de Vida Brigadista (público, sin autenticación)
+$routes->get('hv-brigadista', 'HvBrigadistaPublicoController::form');
+$routes->get('hv-brigadista/api/clientes', 'HvBrigadistaPublicoController::getClientesActivos');
+$routes->post('hv-brigadista/store', 'HvBrigadistaPublicoController::store');
 

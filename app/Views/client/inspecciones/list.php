@@ -1,13 +1,16 @@
 <?php
 $backUrl = base_url('client/inspecciones');
 $iconos = [
-    'acta_visita'     => 'fa-file-signature',
-    'locativa'        => 'fa-building',
-    'senalizacion'    => 'fa-sign',
-    'botiquin'        => 'fa-first-aid',
-    'extintores'      => 'fa-fire-extinguisher',
-    'comunicaciones'  => 'fa-broadcast-tower',
-    'gabinetes'       => 'fa-shower',
+    'acta_visita'             => 'fa-file-signature',
+    'locativa'                => 'fa-building',
+    'senalizacion'            => 'fa-sign',
+    'botiquin'                => 'fa-first-aid',
+    'extintores'              => 'fa-fire-extinguisher',
+    'comunicaciones'          => 'fa-broadcast-tower',
+    'gabinetes'               => 'fa-shower',
+    'matriz_vulnerabilidad'   => 'fa-shield-alt',
+    'probabilidad_peligros'   => 'fa-exclamation-triangle',
+    'recursos_seguridad'      => 'fa-hard-hat',
 ];
 $icono = $iconos[$tipo] ?? 'fa-clipboard-list';
 ?>

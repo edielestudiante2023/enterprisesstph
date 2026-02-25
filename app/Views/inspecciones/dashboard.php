@@ -326,6 +326,66 @@
     <?php endforeach; ?>
     <?php endif; ?>
 
+    <!-- Pendientes simulacro -->
+    <?php if (!empty($pendientesSimulacro)): ?>
+    <?php foreach ($pendientesSimulacro as $sim): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Ev. Simulacro - <?= esc($sim['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($sim['fecha'])) ?>
+                        <?php if (!empty($sim['nombre_brigadista_lider'])): ?>
+                            &middot; <?= esc($sim['nombre_brigadista_lider']) ?>
+                        <?php endif; ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/simulacro/view/<?= $sim['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Ver <i class="fas fa-eye ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes HV brigadista -->
+    <?php if (!empty($pendientesHvBrig)): ?>
+    <?php foreach ($pendientesHvBrig as $hvb): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        HV Brigadista - <?= esc($hvb['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= esc($hvb['nombre_completo'] ?? '') ?>
+                        &middot; CC <?= esc($hvb['documento_identidad'] ?? '') ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/hv-brigadista/view/<?= $hvb['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Ver <i class="fas fa-eye ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
     <!-- Grid de inspecciones -->
     <div class="section-title">Inspecciones</div>
     <div class="grid-inspecciones mb-4">
@@ -383,6 +443,16 @@
             <i class="fas fa-file-medical"></i>
             <div><strong>Plan Emergencia</strong></div>
             <div class="count">(<?= $totalPlanEmergencia ?>)</div>
+        </a>
+        <a href="/inspecciones/simulacro" class="card-tipo">
+            <i class="fas fa-running"></i>
+            <div><strong>Ev. Simulacro</strong></div>
+            <div class="count">(<?= $totalSimulacro ?>)</div>
+        </a>
+        <a href="/inspecciones/hv-brigadista" class="card-tipo">
+            <i class="fas fa-id-card-alt"></i>
+            <div><strong>HV Brigadista</strong></div>
+            <div class="count">(<?= $totalHvBrigadista ?>)</div>
         </a>
         <a href="/inspecciones/carta-vigia" class="card-tipo">
             <i class="fas fa-user-shield"></i>

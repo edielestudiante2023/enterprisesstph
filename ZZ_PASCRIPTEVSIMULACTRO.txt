@@ -1,0 +1,3199 @@
+/**
+ * EVALUACIÓN DE SIMULACRO - WEB APP UNIFICADO
+ * Google Sheets: 1cqR7tY0HPlNu-hUXeioqvQP_p-QOIUx4EnabEwAuDCM
+ */
+
+// ========== CONSTANTES GLOBALES ==========
+const SS_ID = '1cqR7tY0HPlNu-hUXeioqvQP_p-QOIUx4EnabEwAuDCM';
+const SHEET_NAME = 'evaluacion_simulacro';
+const IMG_FOLDER_ID = '12uQD0mDqduwDU_376hDaO-M4TGX_JfNM';
+const EVAL_TIMEZONE = 'America/Bogota';
+
+// Definición única de HEADERS - orden exacto según especificación
+const HEADERS = [
+  'ID','Direccion','Cliente','Fecha','Evento_Simulado','Alcance_Simulacro','Tipo_Evacuacion','Personal_No_Evacua',
+  'Tipo_Alarma','Distintivos_Brigadistas','Puntos_Encuentro','Recurso_Humano','Equipos_Emergencia',
+  'nombre_brigadista_lider','email_brigadista_lider','whatsapp_brigadista_lider','imagen_1','imagen_2',
+  'Hora_Inicio','Alistamiento_Recursos','Asumir_roles','Suena_alarma','Distribucion_roles',
+  'Llegada_punto_encuentro','Agrupacion_por_afinidad','Conteo_Personal','Agradecimiento_y_cierre','Tiempo_total',
+  'alarma_efectiva','orden_evacuacion','liderazgo_brigadistas','organizacion_punto_encuentro','participacion_general',
+  'evaluacion_cuantitativa','evaluacion_cualitativa','Observaciones','hombre','mujer','ninos','adultos_mayores','discapacidad','mascotas','total'
+];
+
+const STEP_COLS = [
+  'Hora_Inicio','Alistamiento_Recursos','Asumir_roles','Suena_alarma','Distribucion_roles',
+  'Llegada_punto_encuentro','Agrupacion_por_afinidad','Conteo_Personal','Agradecimiento_y_cierre'
+];
+
+// ========== ROUTER ==========
+function doGet(e) {
+  const params = e?.parameter || {};
+  const tpl = HtmlService.createTemplateFromFile('app'); // único shell
+  tpl.BASE_URL = ScriptApp.getService().getUrl();
+  tpl.params = { view: (params.view || params.page || 'selector_cliente'), ...params };
+  return tpl.evaluate()
+    .setTitle('Evaluación de Simulacro')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// Unificado helper include (borrar duplicados include_/includeTpl)
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+// ========== HELPERS ==========
+const _ss = () => SpreadsheetApp.openById(SS_ID);
+const _sh = () => _ss().getSheetByName(SHEET_NAME);
+const _hmap = (headers) => headers.reduce((acc,h,i)=> (acc[h]=i,acc), {});
+const _pad2 = n => String(n).padStart(2,'0');
+
+function _ensureHeaderRow_() {
+  const sh = _sh();
+  const first = sh.getRange(1,1,1,Math.max(HEADERS.length, sh.getLastColumn())).getValues()[0];
+  // Si necesitas sembrar headers (solo si la hoja está vacía):
+  if (sh.getLastRow() === 0 || first.filter(Boolean).length === 0) {
+    sh.getRange(1,1,1,HEADERS.length).setValues([HEADERS]);
+  }
+}
+
+function _findRowById_(id) {
+  const sh = _sh();
+  const data = sh.getDataRange().getValues();
+  const headers = data[0];
+  const idx = headers.indexOf('ID');
+  for (let r=1; r<data.length; r++){
+    if (String(data[r][idx]) === String(id)) return r+1; // 1-based
+  }
+  return -1;
+}
+
+function _upsertById_(id, obj) {
+  _ensureHeaderRow_();
+  const sh = _sh();
+  const headers = sh.getRange(1,1,1,HEADERS.length).getValues()[0];
+  const map = _hmap(headers);
+
+  let row = _findRowById_(id);
+  if (row === -1) {
+    row = sh.getLastRow() + 1;
+    sh.insertRowAfter(sh.getLastRow());
+    const blank = new Array(headers.length).fill('');
+    blank[map['ID']] = id;
+    blank[map['Fecha']] = new Date();
+    sh.getRange(row,1,1,headers.length).setValues([blank]);
+  }
+
+  const cur = sh.getRange(row,1,1,headers.length).getValues()[0];
+  Object.keys(obj || {}).forEach(k => {
+    if (k in map) cur[map[k]] = obj[k];
+  });
+
+  // Tiempo_total: si hay inicio y cierre
+  const idxIni = map['Hora_Inicio'], idxEnd = map['Agradecimiento_y_cierre'], idxTot = map['Tiempo_total'];
+  const ini = cur[idxIni], end = cur[idxEnd];
+  if (idxIni >= 0 && idxEnd >= 0 && idxTot >= 0 && ini && end) {
+    const a = new Date(ini), b = new Date(end);
+    if (!isNaN(a) && !isNaN(b) && b >= a) {
+      const ms = b - a;
+      const h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000), s = Math.floor((ms%60000)/1000);
+      cur[idxTot] = `${_pad2(h)}:${_pad2(m)}:${_pad2(s)}`;
+    }
+  }
+
+  sh.getRange(row,1,1,headers.length).setValues([cur]);
+  return { success:true, row };
+}
+
+// ========== API FUNCTIONS ==========
+function saveSelectedClient(payload) {
+  if (!payload || !payload.ID) return { success:false, error:'Falta ID' };
+
+  let fecha = payload.Fecha;
+  // normalizar fecha para tolerar ISO string, timestamp numérico, Date, o ausente
+  if (fecha) {
+    if (typeof fecha === 'string')      { fecha = new Date(fecha); }
+    else if (typeof fecha === 'number') { fecha = new Date(fecha); }
+    // si ya es Date, se deja; si quedó inválida, se corrige abajo
+  }
+  if (!fecha || isNaN(new Date(fecha).getTime())) {
+    fecha = new Date();
+  }
+
+  return _upsertById_(payload.ID, {
+    ID: payload.ID,
+    Cliente: String(payload.Cliente || ''),
+    Fecha: fecha
+  });
+}
+
+function saveInfoGeneral(payload) {
+  const id = payload?.recordId;
+  if (!id) return { success:false, error:'Falta recordId' };
+  const mapped = {
+    Direccion: payload.direccion || '',
+    Evento_Simulado: payload.evento || '',
+    Alcance_Simulacro: payload.alcance || '',
+    Tipo_Evacuacion: payload.tipoEvacuacion || '',
+    Personal_No_Evacua: payload.personalNoEvacua || '',
+    Tipo_Alarma: payload.tipoAlarma || '',
+    Puntos_Encuentro: payload.puntosEncuentro || '',
+    Recurso_Humano: payload.recursoHumano || '',
+    Equipos_Emergencia: payload['Equipos_Emergencia'] || payload.equiposEmergencia || ''
+  };
+  return _upsertById_(id, mapped);
+}
+
+function saveBrigadista(payload) {
+  const id = payload?.recordId;
+  if (!id) return { success:false, error:'Falta recordId' };
+
+  const mapped = {
+    nombre_brigadista_lider: String(payload.nombre || ''),
+    email_brigadista_lider:  String(payload.email || ''),
+    whatsapp_brigadista_lider: String(payload.whatsapp || ''),
+    // Guardamos Distintivos_Brigadistas desde esta vista
+    Distintivos_Brigadistas: String(payload['Distintivos_Brigadistas'] || payload.distintivos || '')
+  };
+  return _upsertById_(id, mapped);  // usa HEADERS ya existentes
+}
+
+function saveEvidencias(payload) {
+  const id = payload?.recordId;
+  if (!id) return { success:false, error:'Falta recordId' };
+  const mapped = { Observaciones: String(payload.observaciones || '') };
+  return _upsertById_(id, mapped);
+}
+
+function uploadImage(recordId, dataUrl, columnName) {
+  if (!recordId) return { success:false, error:'Falta recordId' };
+  if (!dataUrl || !/^data:image\//.test(dataUrl)) return { success:false, error:'DataURL inválido' };
+  if (!columnName || (columnName !== 'imagen_1' && columnName !== 'imagen_2'))
+    return { success:false, error:'Columna inválida' };
+
+  const bytes = Utilities.base64Decode(dataUrl.split(',')[1]);
+  const blob = Utilities.newBlob(bytes, 'image/jpeg', `${recordId}_${columnName}.jpg`);
+  const folder = IMG_FOLDER_ID ? DriveApp.getFolderById(IMG_FOLDER_ID) : DriveApp.getRootFolder();
+  const file = folder.createFile(blob);
+  // compartir para link público
+  try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch(e){}
+  const url = `https://drive.google.com/uc?export=view&id=${file.getId()}`;
+
+  // escribir URL en la hoja
+  _upsertById_(recordId, { [columnName]: url });
+
+  return { success:true, fileId:file.getId(), url };
+}
+
+function saveConteo(payload) {
+  const id = payload && payload.recordId;
+  if (!id) return { success:false, error:'Falta recordId' };
+
+  // tolerar strings y nulos
+  const toInt = v => {
+    const n = parseInt(v, 10);
+    return isNaN(n) ? 0 : n;
+  };
+
+  const hombre = toInt(payload.hombre);
+  const mujer = toInt(payload.mujer);
+  const ninos = toInt(payload.ninos);
+  const adultosMayores = toInt(payload.adultosMayores ?? payload['adultos_mayores']);
+  const discapacidad = toInt(payload.discapacidad);
+  const mascotas = toInt(payload.mascotas);
+
+  // calcular total en servidor por seguridad
+  const total = hombre + mujer + ninos + adultosMayores + discapacidad + mascotas;
+
+  const mapped = {
+    hombre: hombre,
+    mujer: mujer,
+    ninos: ninos,
+    adultos_mayores: adultosMayores,   // <-- mapeo correcto a la hoja
+    discapacidad: discapacidad,
+    mascotas: mascotas,
+    total: total
+  };
+
+  return _upsertById_(id, mapped);
+}
+
+function computeTimeTotal(start, end){
+  if (!start || !end) return '';
+  const ms = end.getTime() - start.getTime();
+  if (ms <= 0) return '00:00:00';
+  const h = Math.floor(ms/3600000);
+  const m = Math.floor((ms%3600000)/60000);
+  const s = Math.floor((ms%60000)/1000);
+  return [h,m,s].map(n=>String(n).padStart(2,'0')).join(':');
+}
+
+function getRowById_(recordId) {
+  const sh = _sh();
+  const data = sh.getDataRange().getValues();
+  if (data.length <= 1) return {};
+  const headers = data[0];
+  const map = _hmap(headers);
+  const idIndex = headers.indexOf('ID');
+  if (idIndex === -1) return {};
+
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][idIndex]) === String(recordId)) {
+      const record = {};
+      headers.forEach((header, index) => {
+        record[header] = data[i][index];
+      });
+      return record;
+    }
+  }
+  return {};
+}
+
+function markStep(recordId, stepKey){
+  if (!recordId || STEP_COLS.indexOf(stepKey) === -1)
+    return { success:false, error:'step inválido' };
+
+  const now = new Date();
+  // Lee valores actuales para calcular tiempo total si aplica
+  const row = getRowById_(recordId) || {}; // o tu helper de lectura
+  const start = row['Hora_Inicio'] ? new Date(row['Hora_Inicio']) : null;
+  const end   = row['Agradecimiento_y_cierre'] ? new Date(row['Agradecimiento_y_cierre']) : null;
+
+  // Escribe el step actual
+  const patch = { [stepKey]: now };
+
+  // Si ya tenemos inicio y marcamos cierre (o viceversa), recalcular
+  let startAfter = start, endAfter = end;
+  if (stepKey === 'Hora_Inicio') startAfter = now;
+  if (stepKey === 'Agradecimiento_y_cierre') endAfter = now;
+
+  const tt = computeTimeTotal(startAfter, endAfter);
+  if (tt) patch['Tiempo_total'] = tt;
+
+  const res = _upsertById_(recordId, patch);
+
+  // Construye estado para la UI
+  const stepsState = {};
+  STEP_COLS.forEach(k => {
+    const v = (k === stepKey) ? now : row[k];
+    stepsState[k] = v ? Utilities.formatDate(new Date(v), Session.getScriptTimeZone(), 'HH:mm:ss') : '';
+  });
+
+  return { success:true, state:{ steps: stepsState, tiempoTotal: tt } };
+}
+
+function resetSteps(recordId){
+  if (!recordId) return { success:false, error:'Falta recordId' };
+  const empty = {};
+  STEP_COLS.forEach(k => empty[k] = '');
+  empty['Tiempo_total'] = '';
+  _upsertById_(recordId, empty);
+  return { success:true, state:{ steps:{}, tiempoTotal:'' } };
+}
+
+function saveSteps(payload) {
+  const id = payload?.recordId;
+  if (!id) return { success:false, error:'Falta recordId' };
+  const mapped = { Tiempo_total: payload.tiempo_total || '' };
+  return _upsertById_(id, mapped);
+}
+
+function getState(recordId) {
+  try {
+    if (!recordId) return null;
+
+    const sh = _sh();
+    const data = sh.getDataRange().getValues();
+    if (data.length <= 1) return null;
+
+    const headers = data[0];
+    const idIndex = headers.indexOf('ID');
+    if (idIndex === -1) return null;
+
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][idIndex] === recordId) {
+        const record = {};
+        headers.forEach((header, index) => {
+          record[header] = data[i][index];
+        });
+
+        const steps = {};
+        STEP_COLS.forEach(stepCol => {
+          if (record[stepCol]) {
+            steps[stepCol] = record[stepCol];
+          }
+        });
+
+        return {
+          recordId: recordId,
+          basicInfo: record,
+          steps: steps,
+          tiempoTotal: record['Tiempo_total'] || ''
+        };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error('❌ Error in getState:', error);
+    return null;
+  }
+}
+
+// Mantén sin cambios la lógica previa, pero asegúrate de NO pisar 'Cliente' si viene vacío.
+function saveEvaluacion(payload){
+  const id = payload && payload.recordId;
+  if (!id) return { success:false, error:'Falta recordId' };
+
+  const toNum = v => { const n = parseFloat(v); return isNaN(n)?0:n; };
+
+  const a = toNum(payload.alarma_efectiva);
+  const o = toNum(payload.orden_evacuacion);
+  const l = toNum(payload.liderazgo_brigadistas);
+  const g = toNum(payload.organizacion_punto_encuentro);
+  const p = toNum(payload.participacion_general);
+
+  const avg = (a+o+l+g+p)/5;
+  const cuantDisplay = (Math.round(avg*10)/10).toFixed(1) + '/10';
+
+  const mapped = {
+    alarma_efectiva: a,
+    orden_evacuacion: o,
+    liderazgo_brigadistas: l,
+    organizacion_punto_encuentro: g,
+    participacion_general: p,
+    evaluacion_cuantitativa: cuantDisplay,
+    evaluacion_cualitativa: String(payload.evaluacion_cualitativa || '')
+  };
+  return _upsertById_(id, mapped);
+}
+
+function getRecordById(recordId){
+  if (!recordId) return { success:false, error:'Falta recordId' };
+  const obj = getRowById_(recordId); // ya existente en el proyecto
+  return { success:true, data: obj || {} };
+}
+
+// Asegurar que NO pisa Cliente si viene vacío y NO crea nuevas filas
+function saveCompletedSimulacro(payload){
+  const id = payload && payload.recordId;
+  if (!id) return { success:false, error:'Falta recordId' };
+
+  const patch = {};
+  if (payload && typeof payload.cliente === 'string' && payload.cliente.trim()){
+    patch.Cliente = payload.cliente.trim();
+  }
+  if (Object.keys(patch).length){
+    _upsertById_(id, patch);
+  }
+  return { success:true };
+}
+
+function getActiveClients(){
+  const ss = SpreadsheetApp.openById(SS_ID);
+  const sh = ss.getSheetByName('tbl_clientes');
+  if (!sh) throw new Error('No existe la pestaña: tbl_clientes');
+
+  const values = sh.getDataRange().getValues();
+  if (values.length < 2) return [];
+
+  const headers = values.shift();
+  const ixId   = headers.findIndex(h => String(h).toUpperCase() === 'ID');
+  const ixName = headers.findIndex(h => ['CLIENTE','NOMBRE','NOMBRE_CLIENTE']
+                    .includes(String(h).toUpperCase()));
+
+  const idCol   = ixId   >= 0 ? ixId   : 0;
+  const nameCol = ixName >= 0 ? ixName : 1;
+
+  return values
+    .filter(r => String(r[nameCol]||'').trim() !== '')
+    .map(r => ({ id: String(r[idCol]||''), name: String(r[nameCol]||'') }));
+}
+
+// ========== TEST FUNCTIONS ==========
+function testConnection() {
+  console.log('🧪 TEST: testConnection ejecutado');
+  try {
+    const ss = SpreadsheetApp.openById(SS_ID);
+    console.log('✅ TEST: Spreadsheet accesible');
+
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    if (sheet) {
+      console.log('✅ TEST: Hoja encontrada');
+      const headers = sheet.getDataRange().getValues()[0];
+      console.log('✅ TEST: Headers actuales:', headers);
+
+      const missingSteps = STEP_COLS.filter(step => !headers.includes(step));
+      const presentSteps = STEP_COLS.filter(step => headers.includes(step));
+
+      return {
+        success: true,
+        message: 'Conexión exitosa',
+        headers: headers,
+        stepsPresent: presentSteps,
+        stepsMissing: missingSteps,
+        allStepsPresent: missingSteps.length === 0
+      };
+    } else {
+      const sheets = ss.getSheets().map(s => s.getName());
+      return {
+        success: false,
+        message: `Hoja '${SHEET_NAME}' no encontrada. Hojas disponibles: ${sheets.join(', ')}`
+      };
+    }
+  } catch (error) {
+    return { success: false, message: error.toString() };
+  }
+}
+
+// ========== COMPREHENSIVE END-TO-END TESTS ==========
+function _ensureHeaders(){
+  const sh = _sh();
+  if (!sh) throw new Error(`No existe hoja "${SHEET_NAME}"`);
+  const row1 = sh.getRange(1,1,1,HEADERS.length).getValues()[0];
+  const same = HEADERS.every((h,i)=> row1[i] === h);
+  if (!same) throw new Error('HEADERS no coinciden 1:1 con la fila 1 de la hoja. Ajusta los encabezados EXACTOS.');
+}
+
+function _getRowObj(row){
+  const sh = _sh();
+  const headers = sh.getRange(1,1,1,HEADERS.length).getValues()[0];
+  const vals = sh.getRange(row,1,1,HEADERS.length).getValues()[0];
+  const obj = {};
+  headers.forEach((h,i)=> obj[h] = vals[i]);
+  return obj;
+}
+
+function test_1_createBaseRow(){
+  _ensureHeaders();
+  const recordId = 'TEST_'+(new Date().getTime());
+  const payload = { ID: recordId, Cliente: 'Cliente Demo', Fecha: new Date() };
+  // Simula tu saveSelectedClient real:
+  const res = saveSelectedClient(payload);
+  console.log('saveSelectedClient:', res);
+  const row = _findRowById_(recordId);
+  if (row === -1) throw new Error('No se creó la fila base');
+  const obj = _getRowObj(row);
+  if (!obj.Cliente) throw new Error('Cliente no escrito en fila base');
+  return recordId;
+}
+
+function test_2_infoBrigConteoSteps(recordId){
+  // Info general
+  const ires = saveInfoGeneral({
+    recordId,
+    direccion: 'Cra 123 #45-67',
+    evento: 'Sismo',
+    alcance: 'Parcial',
+    tipoEvacuacion: 'Horizontal',
+    personalNoEvacua: '3',
+    tipoAlarma: 'Sirena',
+    distintivos: 'Chalecos',
+    puntosEncuentro: 'Parqueadero 1',
+    recursoHumano: 'Brigada completa',
+    equiposEmergencia: 'Botiquín y extintores'
+  });
+  console.log('saveInfoGeneral:', ires);
+
+  // Brigadista
+  const bres = saveBrigadista({
+    recordId,
+    nombre: 'Juan Pérez',
+    email: 'juan.perez@demo.com',
+    whatsapp: '3001234567',
+    distintivos: 'Chalecos y cascos'
+  });
+  console.log('saveBrigadista:', bres);
+
+  // Conteo
+  const cres = saveConteo({
+    recordId,
+    hombre: 6,
+    mujer: 4,
+    ninos: 2,
+    adultos_mayores: 1, // Ya mapeado desde frontend
+    discapacidad: 0,
+    mascotas: 1,
+    total: 14
+  });
+  console.log('saveConteo:', cres);
+
+  // Steps (Inicio y Cierre)
+  console.log('markStep Inicio:', markStep(recordId, 'Hora_Inicio', new Date().toISOString()));
+  Utilities.sleep(800); // simula tiempo
+  console.log('markStep Cierre:', markStep(recordId, 'Agradecimiento_y_cierre', new Date().toISOString()));
+}
+
+function test_3_consolidado(recordId){
+  // Simula el payload final del resumen
+  const payload = {
+    recordId,
+    cliente: 'Cliente Demo', // ¡Así evitas borrar "Cliente"!
+    info_general: {
+      direccion: 'Cra 123 #45-67',
+      evento: 'Sismo',
+      alcance: 'Parcial',
+      tipoEvacuacion: 'Horizontal',
+      personalNoEvacua: '3',
+      tipoAlarma: 'Sirena',
+      distintivos: 'Chalecos',
+      puntosEncuentro: 'Parqueadero 1',
+      recursoHumano: 'Brigada completa',
+      equiposEmergencia: 'Botiquín y extintores'
+    },
+    brigadista: {
+      nombre: 'Juan Pérez',
+      email: 'juan.perez@demo.com',
+      whatsapp: '3001234567',
+      distintivos: 'Chalecos y cascos'
+    },
+    evidencias: {
+      observaciones: 'Simulacro exitoso, oportunidades en señalización.'
+    },
+    conteo: {
+      hombre: 6,
+      mujer: 4,
+      ninos: 2,
+      adultosMayores: 1,
+      discapacidad: 0,
+      mascotas: 1,
+      total: 14
+    },
+    steps: {}, // si ya están escritos por markStep
+    tiempo_total: '' // deja que backend calcule si aplica
+  };
+  const res = saveCompletedSimulacro(payload);
+  console.log('saveCompletedSimulacro:', res);
+
+  // Verifica la fila final
+  const row = _findRowById_(recordId);
+  const obj = _getRowObj(row);
+  if (obj.Cliente !== 'Cliente Demo') throw new Error('Cliente fue sobrescrito o está vacío');
+  if (!obj.Direccion || !obj.Evento_Simulado) throw new Error('Info general no persistió');
+  if (!obj.nombre_brigadista_lider || !obj.email_brigadista_lider) throw new Error('Brigadista no persistió');
+  if (String(obj.hombre) !== '6') throw new Error('Conteo hombre no mapeó bien');
+  if (String(obj.mujer) !== '4') throw new Error('Conteo mujer no mapeó bien');
+  if (String(obj.adultos_mayores) !== '1') throw new Error('Conteo adultos_mayores no mapeó bien');
+  if (!obj.Tiempo_total) console.log('Aviso: Tiempo_total vacío (marca Inicio y Cierre para calcularlo)');
+  console.log('Fila final OK:', JSON.stringify(obj, null, 2));
+}
+
+function run_ALL_tests(){
+  const id = test_1_createBaseRow();
+  test_2_infoBrigConteoSteps(id);
+  test_3_consolidado(id);
+  console.log('✅ Todos los tests finalizaron (revisa la hoja).');
+  return id; // Return test record ID for cleanup if needed
+}
+
+***************************************************
+
+<script>
+const API = (() => {
+  const run = (fn, ...args) => new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)[fn](...args);
+  });
+
+  return {
+    // Client management
+    getActiveClients: () => run('getActiveClients'),
+
+    // Save by views - NEW
+    saveSelectedClient: (payload) => run('saveSelectedClient', payload),
+
+    // State management
+    getState: (recordId) => run('getState', recordId),
+
+    // Step tracking
+    markStep: (recordId, stepName) => run('markStep', recordId, stepName),
+    resetSteps: (recordId) => run('resetSteps', recordId),
+
+    // Data saving
+    saveBasics: (recordId, payload) => run('saveBasics', recordId, payload),
+    saveEvaluation: (recordId, payload) => run('saveEvaluation', recordId, payload),
+    saveCompletedSimulacro: (payload) => run('saveCompletedSimulacro', payload),
+
+    // Image upload
+    uploadImage: (recordId, dataUrl, imageField) => run('uploadImage', recordId, dataUrl, imageField),
+
+    // Testing and diagnostics
+    testConnection: () => run('testConnection'),
+
+    // Save by views endpoints
+    saveInfoGeneral: (payload) => run('saveInfoGeneral', payload),
+    saveBrigadista: (payload) => run('saveBrigadista', payload),
+    saveEvidencias: (payload) => run('saveEvidencias', payload),
+    saveConteo: (payload) => run('saveConteo', payload),
+    saveSteps: (payload) => run('saveSteps', payload),
+
+    // Convenience methods with proper error handling
+    async saveInfoGeneral(data) {
+      try {
+        const recordId = generateRecordId();
+        const result = await this.saveBasics(recordId, data);
+        return { success: true, recordId, ...result };
+      } catch (error) {
+        console.error('Error saving info general:', error);
+        throw error;
+      }
+    },
+
+    async saveBrigadista(recordId, data) {
+      try {
+        return await this.saveBasics(recordId, data);
+      } catch (error) {
+        console.error('Error saving brigadista:', error);
+        throw error;
+      }
+    },
+
+    async saveConteo(recordId, data) {
+      try {
+        return await this.saveBasics(recordId, data);
+      } catch (error) {
+        console.error('Error saving conteo:', error);
+        throw error;
+      }
+    }
+  };
+})();
+
+// Helper function for generating record IDs
+function generateRecordId() {
+  return 'SIM-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' +
+         Math.random().toString(36).substr(2, 6).toUpperCase();
+}
+</script>
+
+*****************************************************
+
+<!doctype html>
+<html>
+  <head>
+    <?!= include('partials_head'); ?>
+  </head>
+  <body class="app-typography-xl">
+    <?!= include('partials_headerbar'); ?>
+    <main id="app-root" class="container py-3 app-one-col app-typography-xl"></main>
+    <?!= include('partials_footer'); ?>
+
+    <!-- Vistas embebidas como templates -->
+    <template id="view-selector_cliente"><?!= include('selector_cliente'); ?></template>
+    <template id="view-info_general"><?!= include('info_general'); ?></template>
+    <template id="view-brigadista_lider"><?!= include('brigadista_lider'); ?></template>
+    <template id="view-evidencias"><?!= include('evidencias'); ?></template>
+    <template id="view-conteo"><?!= include('conteo'); ?></template>
+    <template id="view-steps"><?!= include('steps'); ?></template>
+    <template id="view-steps_p1"><?!= include('steps_p1'); ?></template>
+    <template id="view-steps_p2"><?!= include('steps_p2'); ?></template>
+    <template id="view-evaluacion"><?!= include('evaluacion'); ?></template>
+    <template id="view-resumen_envio"><?!= include('resumen_envio'); ?></template>
+
+    <!-- Utilidades y router al FINAL (para no correr antes de tener templates) -->
+    <?!= include('app_config'); ?>
+    <?!= include('state'); ?>
+    <?!= include('ui_utils'); ?>
+    <?!= include('time_utils'); ?>
+    <?!= include('validators'); ?>
+    <?!= include('api'); ?>
+    <?!= include('views_init'); ?>
+    <?!= include('router'); ?>
+    <script>
+      window.APP = {
+        BASE_URL: '<?= BASE_URL ?>',
+        params: JSON.parse('<?= JSON.stringify(params || {}) ?>')
+      };
+      window.addEventListener('error', (ev)=>{
+        const root = document.getElementById('app-root');
+        if (root && !root.innerHTML.trim()) {
+          root.innerHTML = '<div class="alert alert-danger">Error cargando la vista<br><small>' +
+           (ev?.error?.message || ev?.message || 'Desconocido') + '</small></div>';
+        }
+      });
+      document.addEventListener('DOMContentLoaded', ()=> ROUTER.init());
+    </script>
+
+    <script>
+      (function fixDropdowns(){
+        // Selecciona SOLO selects "single" (sin multiple) y corrige size accidental
+        document.querySelectorAll('select.form-select').forEach(sel=>{
+          // Mantener select de cliente (Select2) tal cual
+          if (sel.id === 'selector-clientes') return;
+
+          // Si alguien dejó size>1, volver a tamaño normal
+          if (sel.size && sel.size > 1) sel.size = 1;
+
+          // Asegurar que NO sea multiple salvo que el HTML lo pida explícitamente
+          if (!sel.hasAttribute('multiple')) {
+            sel.multiple = false;
+            sel.removeAttribute('multiple');
+          }
+        });
+      })();
+    </script>
+
+    <style>
+      :root{
+        --brand-orange:#ff7a00;
+        --brand-orange-100:#fff3e6;
+        --brand-orange-700:#cc6200;
+        /* Tamaño raíz MOBILE. Reducido al 25% del tamaño original exagerado */
+        --app-font-root-mobile: 28px;
+        --app-font-root-desktop: 10px;
+      }
+
+      /* Escala tipográfica base (mobile first) */
+      html { font-size: var(--app-font-root-mobile) !important; }
+      @media (min-width: 992px){
+        html { font-size: var(--app-font-root-desktop) !important; }
+      }
+      body { line-height: 1.25; }
+
+      /* UNA COLUMNA en todas las vistas */
+      .app-one-col .row > [class*="col-"]{ flex:0 0 100% !important; max-width:100% !important; }
+      .app-one-col .mb-4, .app-one-col .form-group{ width:100%; }
+
+      /* ======= TIPOGRAFÍA UNIFICADA EN TODO ======= */
+      /* Hacer que ABSOLUTAMENTE TODO herede del html. Excluimos íconos/paths para no deformarlos. */
+      .app-typography-xl,
+      .app-typography-xl *:not(i):not(svg):not(path):not([class*="icon"]) {
+        font-size: 1rem !important;   /* 1rem = html font-size (ahora duplicado) */
+        line-height: 1.25 !important;
+      }
+
+      /* Placeholders, opciones y dropdowns también grandes */
+      .app-typography-xl .form-control::placeholder,
+      .app-typography-xl .form-select::placeholder { font-size: 1rem !important; opacity:.6; }
+      .app-typography-xl .form-select option { font-size: 1rem !important; }
+
+      /* Elementos específicos que pueden tener tamaños fijos */
+      .app-typography-xl .small, .app-typography-xl small,
+      .app-typography-xl .text-muted, .app-typography-xl .form-text,
+      .app-typography-xl .badge, .app-typography-xl .tooltip,
+      .app-typography-xl .popover, .app-typography-xl .dropdown-item,
+      .app-typography-xl .list-group-item, .app-typography-xl .nav-link,
+      .app-typography-xl .pagination *, .app-typography-xl .breadcrumb *,
+      .app-typography-xl .alert *, .app-typography-xl .modal-header *,
+      .app-typography-xl .modal-body *, .app-typography-xl .modal-footer *,
+      .app-typography-xl .card-title, .app-typography-xl .card-subtitle,
+      .app-typography-xl .card-text, .app-typography-xl .card-body *,
+      .app-typography-xl .accordion-header *, .app-typography-xl .accordion-body *,
+      .app-typography-xl .table *, .app-typography-xl .table td, .app-typography-xl .table th,
+      .app-typography-xl .timestamp, .app-typography-xl .step-time, .app-typography-xl .chrono-time,
+      .app-typography-xl h1, .app-typography-xl h2, .app-typography-xl h3,
+      .app-typography-xl h4, .app-typography-xl h5, .app-typography-xl h6,
+      .app-typography-xl p, .app-typography-xl span, .app-typography-xl div,
+      .app-typography-xl label, .app-typography-xl legend, .app-typography-xl a {
+        font-size: 1rem !important;
+        line-height: 1.25 !important;
+      }
+
+      /* Select2: entrada, resultados y placeholder grandes */
+      .select2-container .select2-selection--single{
+        font-size: 1rem !important;
+        height:auto !important;
+        min-height:1.625rem !important;  /* Reducido al 25% */
+        padding:0.25rem 0.375rem !important;
+      }
+      .select2-container--default .select2-selection--single .select2-selection__rendered{
+        font-size: 1rem !important;
+        line-height: 1.25 !important;
+        padding-left:.5rem !important;
+      }
+      .select2-container .select2-search__field,
+      .select2-results__option,
+      .select2-dropdown,
+      .select2-selection__placeholder,
+      .select2-dropdown .select2-search__field,
+      .select2-results .select2-results__option {
+        font-size: 1rem !important;
+        line-height: 1.25 !important;
+        padding: 0.1875rem 0.25rem !important;
+      }
+
+      /* Dropdown de Select2 más grande */
+      .select2-dropdown {
+        font-size: 1rem !important;
+      }
+      .select2-results__option {
+        padding: 0.25rem 0.3125rem !important;
+        line-height: 1.25 !important;
+      }
+
+      /* Dropdowns nativos: que se vean "cerrados" y con flecha */
+      .app-typography-xl .form-select{
+        appearance:auto !important;
+        -webkit-appearance:auto !important;
+        height:auto !important;
+        min-height: 1.625rem !important;  /* Reducido al 25% */
+        padding: 0.5rem 0.625rem !important;  /* Reducido al 25% */
+        background-size: 0.625em auto !important;  /* Flecha pequeña */
+        font-size: 1rem !important;
+      }
+
+      /* Inputs y textareas también más grandes */
+      .app-typography-xl .form-control {
+        min-height: 1.625rem !important;
+        padding: 0.5rem 0.375rem !important;
+        font-size: 1rem !important;
+      }
+
+      /* Botones más grandes */
+      .app-typography-xl .btn {
+        min-height: 1.5rem !important;
+        padding: 0.375rem 0.625rem !important;
+        font-size: 1rem !important;
+      }
+
+      /* Botones/foco naranja corporativo (sin tocar clases existentes) */
+      .app-typography-xl .btn{
+        background-color: var(--brand-orange) !important;
+        border-color: var(--brand-orange) !important;
+      }
+      .app-typography-xl .btn:hover, .app-typography-xl .btn:active{
+        background-color: var(--brand-orange-700) !important;
+        border-color: var(--brand-orange-700) !important;
+      }
+      .app-typography-xl .form-control:focus, .app-typography-xl .form-select:focus{
+        border-color: var(--brand-orange) !important;
+        box-shadow: 0 0 0 .25rem rgba(255,122,0,.25) !important;
+      }
+
+      /* Barras azules -> naranja claro */
+      .app-typography-xl .page-title,
+      .app-typography-xl .section-title,
+      .app-typography-xl .card-header{
+        background: var(--brand-orange-100) !important; color:#111 !important;
+      }
+
+      /* Botones de cronograma: extra grandes con el nuevo tamaño global */
+      .app-typography-xl button[data-step] {
+        min-height: 3rem !important;   /* Reducido al 25% */
+        font-size: 1rem !important;    /* Usa el tamaño global */
+        text-align: left !important;   /* Alineado a la izquierda */
+        padding: 0.75rem 1rem !important; /* Padding reducido al 25% */
+        line-height: 1.2 !important;   /* Mejor espaciado entre líneas */
+      }
+
+      /* ===== ESTILOS PARA LOGOS EN HEADER ===== */
+      .header-logo {
+        height: 4rem !important;       /* Altura fija para los logos */
+        width: auto !important;        /* Mantener proporción */
+        max-width: 8rem !important;    /* Ancho máximo */
+        object-fit: contain !important; /* Mantener proporción sin deformar */
+        background: white !important;  /* Fondo blanco */
+        padding: 0.5rem !important;    /* Espacio interno */
+        border-radius: 0.5rem !important; /* Esquinas redondeadas */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important; /* Sombra sutil */
+        border: 1px solid #e9ecef !important; /* Borde gris claro */
+      }
+
+      .navbar-logo-left,
+      .navbar-logo-right {
+        flex: 0 0 auto !important;     /* No crecer ni encogerse */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0.25rem !important;   /* Espacio alrededor de la cajita */
+      }
+
+      /* En móviles, logos más pequeños */
+      @media (max-width: 768px) {
+        .header-logo {
+          height: 2.5rem !important;
+          max-width: 5rem !important;
+          padding: 0.25rem !important;    /* Padding más pequeño en móvil */
+          border-radius: 0.375rem !important; /* Esquinas un poco menos redondeadas */
+        }
+
+        .navbar-brand {
+          font-size: 0.8rem !important; /* Título más pequeño en móvil */
+        }
+      }
+
+      /* Asegurar que el título tenga espacio */
+      .navbar-brand {
+        flex: 1 1 auto !important;
+        margin: 0 1rem !important;
+      }
+    </style>
+  </body>
+</html>
+
+*************************************************************
+<script>
+window.APP = { BASE_URL: window.location.origin };
+</script>
+*********************************************************
+<form id="form-brigadista" class="space-y-3">
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">👩‍🚒 Nombre Brigadista Líder</label>
+      <input id="bl-nombre" class="form-control" type="text" required>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">📧 Email Brigadista Líder</label>
+      <input id="bl-email" class="form-control" type="email" placeholder="opcional">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">📱 WhatsApp Brigadista Líder</label>
+      <input
+        id="bl-whatsapp"
+        class="form-control"
+        type="tel"
+        inputmode="numeric"
+        pattern="[0-9]{10}"
+        maxlength="10"
+        placeholder="10 dígitos (opcional)"
+        title="Debe contener exactamente 10 dígitos numéricos"
+      />
+      <div class="form-text">Solo números, 10 dígitos (ej: 3123456789)</div>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">🦺 Distintivos Brigadistas</label>
+      <div id="distintivos_brigadistas_group">
+        <div class="form-check"><input class="form-check-input distintivo-opt" type="checkbox" value="Chaleco" id="dist_chaleco"><label class="form-check-label" for="dist_chaleco">Chaleco</label></div>
+        <div class="form-check"><input class="form-check-input distintivo-opt" type="checkbox" value="Brazalete" id="dist_brazalete"><label class="form-check-label" for="dist_brazalete">Brazalete</label></div>
+        <div class="form-check"><input class="form-check-input distintivo-opt" type="checkbox" value="Gorra" id="dist_gorra"><label class="form-check-label" for="dist_gorra">Gorra</label></div>
+        <div class="form-check"><input class="form-check-input distintivo-opt" type="checkbox" value="Ninguno" id="dist_ninguno"><label class="form-check-label" for="dist_ninguno">Ninguno</label></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sticky-actions safe-bottom d-flex gap-2 mt-3">
+    <button type="button" class="btn btn-outline-secondary" data-back="info_general">Atrás</button>
+    <button id="btn-bl-guardar" type="submit" class="btn btn-primary">Guardar y continuar</button>
+  </div>
+</form>
+***********************************************************
+<form id="form-conteo" class="space-y-3">
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">👨 Hombres (18 a 59 años)</label>
+      <input id="c-hombres" class="form-control" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">👩 Mujeres (18 a 59 años)</label>
+      <input id="c-mujeres" class="form-control" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">🧒 Niños (menores de 18 años)</label>
+      <input id="c-ninos" class="form-control" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">👵 Adultos Mayores (60 años o más)</label>
+      <input id="c-adultos-mayores" class="form-control" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">🧑‍🦽 Personas con Discapacidad</label>
+      <input id="c-discapacidad" class="form-control" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">🐾 Mascotas</label>
+      <input id="c-mascotas" class="form-control" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">🧮 Total</label>
+      <input id="c-total" class="form-control" type="text" readonly placeholder="0">
+    </div>
+  </div>
+
+  <div class="sticky-actions safe-bottom d-flex gap-2 mt-3">
+    <button type="button" class="btn btn-outline-secondary" data-back="steps_p1">Atrás</button>
+    <button id="btn-conteo-guardar" type="submit" class="btn btn-primary">Guardar y continuar</button>
+  </div>
+</form>
+********************************************************
+<form id="form-evaluacion" class="space-y-3">
+  <div class="card">
+    <div class="card-header"><h5>📋 Calificación del Simulacro</h5></div>
+    <div class="card-body">
+      <!-- 5 criterios 1–10 -->
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">📢 Alarma efectiva</label>
+          <select id="ev-alarma" class="form-select eval-field" required>
+            <option value="">-- Seleccione --</option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">🚪 Orden de evacuación</label>
+          <select id="ev-orden" class="form-select eval-field" required>
+            <option value="">-- Seleccione --</option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">👑 Liderazgo brigadistas</label>
+          <select id="ev-liderazgo" class="form-select eval-field" required>
+            <option value="">-- Seleccione --</option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">📍 Organización punto de encuentro</label>
+          <select id="ev-organizacion" class="form-select eval-field" required>
+            <option value="">-- Seleccione --</option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">👥 Participación general</label>
+          <select id="ev-participacion" class="form-select eval-field" required>
+            <option value="">-- Seleccione --</option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+
+        <!-- Cálculo automático -->
+        <div class="col-md-6">
+          <label class="form-label">📊 Evaluación cuantitativa</label>
+          <input id="ev-cuantitativa" class="form-control" data-field="evaluacion_cuantitativa" type="text" readonly placeholder="--/10">
+          <small class="text-muted">Promedio de los 5 criterios (1 decimal).</small>
+        </div>
+        <div class="col-12">
+          <label class="form-label">📝 Evaluación cualitativa</label>
+          <textarea id="ev-cualitativa" class="form-control" data-field="evaluacion_cualitativa" rows="3"
+            placeholder="Ej.: Satisfactorio. Buen liderazgo y organización; reforzar orden de evacuación."></textarea>
+        </div>
+      </div>
+
+      <div class="sticky-actions safe-bottom d-flex gap-2 mt-3">
+        <button type="button" class="btn btn-outline-secondary" data-back="steps_p2">Atrás</button>
+        <button id="btn-ev-guardar" type="submit" class="btn btn-primary">Guardar y continuar</button>
+      </div>
+    </div>
+  </div>
+</form>
+
+*************************************************************
+<form id="form-evidencias" class="space-y-3">
+  <div class="row g-3">
+    <div class="col-md-6">
+      <h6 class="form-label mb-2">📸 Foto 1 del Simulacro</h6>
+      <input id="imagen_1_camera" class="form-control image-field" type="file" accept="image/*" capture="environment" hidden>
+      <input id="imagen_1_file" class="form-control image-field" type="file" accept="image/*" hidden>
+      <div class="d-flex gap-2 flex-wrap">
+        <label for="imagen_1_camera" class="btn btn-primary btn-sm">📸 Tomar Foto</label>
+        <label for="imagen_1_file" class="btn btn-outline-primary btn-sm">📁 Seleccionar Archivo</label>
+      </div>
+      <img id="preview_imagen_1" alt="Vista previa 1" style="display:none; width: 100%; max-height: 40vh; object-fit: contain; margin-top: .5rem; border-radius: .5rem;">
+    </div>
+    <div class="col-md-6">
+      <h6 class="form-label mb-2">📸 Foto 2 del Simulacro</h6>
+      <input id="imagen_2_camera" class="form-control image-field" type="file" accept="image/*" capture="environment" hidden>
+      <input id="imagen_2_file" class="form-control image-field" type="file" accept="image/*" hidden>
+      <div class="d-flex gap-2 flex-wrap">
+        <label for="imagen_2_camera" class="btn btn-primary btn-sm">📸 Tomar Foto</label>
+        <label for="imagen_2_file" class="btn btn-outline-primary btn-sm">📁 Seleccionar Archivo</label>
+      </div>
+      <img id="preview_imagen_2" alt="Vista previa 2" style="display:none; width: 100%; max-height: 40vh; object-fit: contain; margin-top: .5rem; border-radius: .5rem;">
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">📝 Observaciones Adicionales</label>
+      <textarea id="obs" class="form-control" rows="4" placeholder="Opcional"></textarea>
+    </div>
+  </div>
+
+  <div class="sticky-actions safe-bottom d-flex gap-2 mt-3">
+    <button type="button" class="btn btn-outline-secondary" data-back="conteo">Atrás</button>
+    <button id="btn-ev-guardar" type="submit" class="btn btn-primary">Guardar y continuar</button>
+  </div>
+</form>
+
+****************************************************
+<form id="form-info-general" class="space-y-3">
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">🏠 Dirección</label>
+      <input id="direccion" class="form-control" type="text" required>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">🎉 Evento simulado</label>
+      <select id="evento" class="form-select" required>
+        <option value="">Seleccione…</option>
+        <option selected>Sismo</option><option>Incendio</option><option>Evacuación</option>
+      </select>
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">🖋️ Alcance del simulacro</label>
+      <select id="alcance" class="form-select">
+        <option value="Total">Total</option>
+        <option value="Parcial">Parcial</option>
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">📦 Tipo de evacuación</label>
+      <select id="tipo-evacuacion" class="form-select">
+        <option value="">Seleccione…</option>
+        <option selected>Mixta</option><option>Vertical descendente</option><option>Horizontal</option>
+      </select>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">👥 Personal que no evacúa</label>
+      <input id="personal-no-evacua" class="form-control" type="text" value="Vigilantes">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">🔔 Tipo de Alarma</label>
+      <div id="tipo_alarma_group">
+        <div class="form-check"><input class="form-check-input alarma-opt" type="checkbox" value="Sirena" id="alarma_sirena"><label class="form-check-label" for="alarma_sirena">Sirena</label></div>
+        <div class="form-check"><input class="form-check-input alarma-opt" type="checkbox" value="Silbato" id="alarma_silbato"><label class="form-check-label" for="alarma_silbato">Silbato</label></div>
+        <div class="form-check"><input class="form-check-input alarma-opt" type="checkbox" value="Megáfono" id="alarma_megafono"><label class="form-check-label" for="alarma_megafono">Megáfono</label></div>
+        <div class="form-check"><input class="form-check-input alarma-opt" type="checkbox" value="Campana / timbre" id="alarma_campana"><label class="form-check-label" for="alarma_campana">Campana / timbre</label></div>
+        <div class="form-check"><input class="form-check-input alarma-opt" type="checkbox" value="Radio interno" id="alarma_radio"><label class="form-check-label" for="alarma_radio">Radio interno</label></div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">📍 Puntos de encuentro</label>
+      <input id="puntos-encuentro" class="form-control" type="text">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">🧑‍🤝‍🧑 Recurso humano</label>
+      <input id="recurso-humano" class="form-control" type="text" value="Contratistas de Aseo y Vigilancia">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">🚨 Equipos de Emergencia</label>
+      <div id="equipos_emergencia_group">
+        <div class="form-check"><input class="form-check-input equipo-opt" type="checkbox" value="Paletas de PARE y SIGA" id="equipo_paletas"><label class="form-check-label" for="equipo_paletas">Paletas de PARE y SIGA</label></div>
+        <div class="form-check"><input class="form-check-input equipo-opt" type="checkbox" value="Chaleco reflectivo" id="equipo_chaleco"><label class="form-check-label" for="equipo_chaleco">Chaleco reflectivo</label></div>
+        <div class="form-check"><input class="form-check-input equipo-opt" type="checkbox" value="Megáfono o, en su defecto, pito" id="equipo_megafono"><label class="form-check-label" for="equipo_megafono">Megáfono o, en su defecto, pito</label></div>
+        <div class="form-check"><input class="form-check-input equipo-opt" type="checkbox" value="Camilla" id="equipo_camilla"><label class="form-check-label" for="equipo_camilla">Camilla</label></div>
+        <div class="form-check"><input class="form-check-input equipo-opt" type="checkbox" value="Botiquín" id="equipo_botiquin"><label class="form-check-label" for="equipo_botiquin">Botiquín</label></div>
+        <div class="form-check"><input class="form-check-input equipo-opt" type="checkbox" value="Radio de onda corta" id="equipo_radio"><label class="form-check-label" for="equipo_radio">Radio de onda corta</label></div>
+        <div class="form-check"><input class="form-check-input equipo-opt" type="checkbox" value="Paleta Punto de Encuentro" id="equipo_paleta_encuentro"><label class="form-check-label" for="equipo_paleta_encuentro">Paleta Punto de Encuentro</label></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sticky-actions safe-bottom d-flex gap-2 mt-3">
+    <button type="button" class="btn btn-outline-secondary" data-back="selector_cliente">Atrás</button>
+    <button id="btn-info-guardar" type="submit" class="btn btn-primary">Guardar y continuar</button>
+  </div>
+</form>
+
+***********************************************
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+***********************************************
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#ff7a00" />
+<title>Evaluación de Simulacro</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<style>
+  :root{
+    --brand-orange: #ff7a00;
+    --brand-orange-100:#fff3e6;
+    --brand-orange-700:#cc6200;
+  }
+
+  /* 3x fuente global sin romper rem */
+  html { font-size: 48px; height:100%; -webkit-text-size-adjust:100%; } /* si la base era 16px, 16*3=48 */
+  body { font-size:16px; line-height: 1.25; height:100%; } /* evita zoom en iOS al enfocar inputs */
+
+  /* Forzar 1 columna en móvil/tablet */
+  @media (max-width: 992px){
+    .row > [class*="col-"]{ flex: 0 0 100% !important; max-width: 100% !important; }
+  }
+
+  /* Naranja en componentes Bootstrap */
+  .btn-primary,
+  .btn-success,
+  .btn { background-color: var(--brand-orange) !important; border-color: var(--brand-orange) !important; }
+  .btn:active, .btn:hover { background-color: var(--brand-orange-700) !important; border-color: var(--brand-orange-700) !important; }
+  .form-check-input:checked { background-color: var(--brand-orange) !important; border-color: var(--brand-orange) !important; }
+  .form-control:focus, .form-select:focus {
+    border-color: var(--brand-orange) !important;
+    box-shadow: 0 0 0 .25rem rgba(255,122,0,.25) !important;
+  }
+  .card-header { background: var(--brand-orange-100) !important; }
+  a, .link-primary { color: var(--brand-orange) !important; }
+
+  /* Select2 styling to match Bootstrap */
+  .select2-container .select2-selection--single{ height: calc(3.5rem + 2px); }
+  .select2-container--default .select2-selection--single {
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    padding: 0.375rem 0.75rem;
+  }
+  .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: calc(3.5rem);
+    padding-left: 0;
+  }
+  .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: calc(3.5rem);
+  }
+
+  /* Estilos existentes preservados */
+  .btn, button { min-height:44px; } /* objetivos táctiles cómodos */
+  .tap-safe { padding: .875rem 1rem; border-radius: 9999px; }
+  .sticky-actions { position:sticky; bottom:0; z-index:1030; padding: .75rem; background:rgba(255,255,255,.9); backdrop-filter:saturate(180%) blur(6px); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .img-thumb { max-width: 100%; height: auto; border-radius: .5rem; }
+  .field { margin-bottom: .875rem; }
+</style>
+
+***************************************************
+
+<nav class="navbar navbar-dark bg-primary">
+  <div class="container d-flex justify-content-between align-items-center">
+    <!-- Logo izquierdo -->
+    <div class="navbar-logo-left">
+      <img src="https://res.cloudinary.com/drcecuc36/image/upload/v1758225634/CYCLOID_TALENT-sin_fondo_n5tkzh.png"
+           alt="Cycloid Talent"
+           class="header-logo">
+    </div>
+
+    <!-- Título central -->
+    <span class="navbar-brand mx-auto text-center">Evaluación de Simulacro</span>
+
+    <!-- Logo derecho -->
+    <div class="navbar-logo-right">
+      <img src="https://res.cloudinary.com/drcecuc36/image/upload/v1758225634/LOGO_SST_gelepu.png"
+           alt="Logo SST"
+           class="header-logo">
+    </div>
+  </div>
+</nav>
+
+**************************************************************
+<div class="card">
+  <div class="card-header">
+    <h5>✅ Resumen Final del Simulacro</h5>
+    <small class="text-muted">Revise todos los datos antes del envío final</small>
+  </div>
+  <div class="card-body vstack gap-2">
+
+    <details class="border rounded p-2" open>
+      <summary class="fw-semibold">🗒️ Información General</summary>
+      <div id="sum-info" class="mt-2 small"></div>
+    </details>
+
+    <details class="border rounded p-2">
+      <summary class="fw-semibold">🧑‍🚒 Brigadista Líder</summary>
+      <div id="sum-brigadista" class="mt-2 small"></div>
+    </details>
+
+    <details class="border rounded p-2">
+      <summary class="fw-semibold">🖼️ Evidencias</summary>
+      <div id="sum-evidencias" class="mt-2 small d-flex gap-3 align-items-start"></div>
+    </details>
+
+    <details class="border rounded p-2">
+      <summary class="fw-semibold">🧮 Conteo de Evacuados</summary>
+      <div id="sum-conteo" class="mt-2 small"></div>
+    </details>
+
+    <details class="border rounded p-2">
+      <summary class="fw-semibold">⏱️ Cronograma y Evaluación</summary>
+      <div id="sum-steps" class="mt-2 small"></div>
+      <div id="sum-evaluacion" class="mt-2 small"></div>
+    </details>
+
+    <div class="d-flex gap-2 mt-3">
+      <button type="button" class="btn btn-outline-secondary" data-back="evaluacion">Atrás</button>
+      <button id="btn-final-send" class="btn btn-success">📤 Enviar Datos Finales</button>
+    </div>
+  </div>
+</div>
+
+******************************************************
+
+<script>
+(function(){
+  const FLOW = [
+    'selector_cliente','info_general','brigadista_lider',
+    'steps_p1','conteo','evidencias','steps_p2','evaluacion','resumen_envio'
+  ];
+  const STACK = [];
+
+  function normalize(h){
+    return (h||'').replace(/^#\/?/, '');
+  }
+
+  function pickFromHash(){
+    const r = normalize(location.hash);
+    return FLOW.includes(r) ? r : 'selector_cliente';
+  }
+
+  function render(route){
+    const root = document.getElementById('app-root');
+    const tpl  = document.getElementById('view-'+route);
+    root.innerHTML = tpl ? tpl.innerHTML : `<div class="alert alert-warning">Vista no encontrada: ${route}</div>`;
+    if (window.VIEWS && typeof VIEWS[route] === 'function') {
+      try { VIEWS[route]({}); } catch(e){ console.error('Init view error', route, e); }
+    }
+  }
+
+  function go(route){
+    route = FLOW.includes(route) ? route : 'selector_cliente';
+    if (route !== STACK[STACK.length-1]) {
+      STACK.push(route);
+      location.hash = '#/'+route;           // historial del navegador
+    } else {
+      render(route);
+    }
+  }
+
+  function prevOf(route){
+    const i = FLOW.indexOf(route);
+    return i > 0 ? FLOW[i-1] : 'selector_cliente';
+  }
+
+  // Intenta volver por historial; si no hay, usa fallback
+  function backOr(fallback){
+    const canGoBack = STACK.length > 1;
+    if (canGoBack) {
+      STACK.pop();                // sacar la actual
+      history.back();             // disparará hashchange → render
+    } else {
+      go(fallback || prevOf(pickFromHash()));
+    }
+  }
+
+  function init(){
+    let route = (window.APP?.params?.view) || pickFromHash();
+    if (!FLOW.includes(route)) route = 'selector_cliente';
+    STACK.length = 0; STACK.push(route);
+    render(route);
+
+    window.addEventListener('hashchange', ()=>{
+      const r = pickFromHash();
+      const top = STACK[STACK.length-1];
+      if (FLOW.indexOf(r) === FLOW.indexOf(top)-1) {
+        STACK.pop();              // navegación hacia atrás
+      } else if (r !== top) {
+        STACK.push(r);            // navegación hacia adelante
+      }
+      render(r);
+    });
+  }
+
+  window.ROUTER = { go, init, backOr, prevOf };
+})();
+</script>
+
+***************************************
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Selecciona el cliente</h5>
+    <div class="py-2">
+      <label class="form-label">Cliente</label>
+      <small class="text-muted">Escribe parte del nombre para buscar.</small>
+      <select id="selector-clientes" class="form-select" required>
+        <option value="" disabled selected hidden>— Seleccione el cliente —</option>
+      </select>
+    </div>
+    <div class="mt-3">
+      <button id="btn-guardar-cliente" class="btn btn-primary" disabled>Guardar y continuar</button>
+    </div>
+  </div>
+</div>
+
+************************************************
+<script>
+const STATE = (() => {
+  const KEY = 'simulacro_state_v1';
+  let cache = null;
+
+  const load = () => {
+    if (!cache) {
+      try {
+        cache = JSON.parse(localStorage.getItem(KEY) || '{}');
+      } catch (error) {
+        console.error('Error loading state from localStorage:', error);
+        cache = {};
+      }
+    }
+    return cache;
+  };
+
+  const save = () => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(cache || {}));
+    } catch (error) {
+      console.error('Error saving state to localStorage:', error);
+    }
+  };
+
+  return {
+    // Basic state operations
+    get: (key) => load()[key],
+    set: (key, value) => {
+      load()[key] = value;
+      save();
+      console.log(`STATE.set("${key}"):`, value);
+    },
+    all: () => load(),
+    clear: () => {
+      cache = {};
+      save();
+      console.log('STATE cleared');
+    },
+
+    // Enhanced operations for the modular structure
+    exists: (key) => key in load(),
+
+    remove: (key) => {
+      const state = load();
+      if (key in state) {
+        delete state[key];
+        save();
+        console.log(`STATE.remove("${key}")`);
+      }
+    },
+
+    // Data validation helpers
+    isComplete: (section) => {
+      const data = load()[section];
+      if (!data) return false;
+
+      switch (section) {
+        case 'info_general':
+          return !!(data.evento && data.direccion);
+        case 'brigadista':
+          return !!(data.nombre && data.email && data.whatsapp);
+        case 'evidencias':
+          return true; // Evidencias are optional
+        case 'conteo':
+          return !!(data.total !== undefined && data.total >= 0);
+        default:
+          return !!data;
+      }
+    },
+
+    // Get completion status of all sections
+    getCompletionStatus: () => {
+      const sections = ['info_general', 'brigadista', 'evidencias', 'conteo'];
+      const status = {};
+      sections.forEach(section => {
+        status[section] = STATE.isComplete(section);
+      });
+      return status;
+    },
+
+    // Check if all required sections are complete
+    isAllComplete: () => {
+      const required = ['info_general', 'brigadista', 'conteo'];
+      return required.every(section => STATE.isComplete(section));
+    },
+
+    // Get summary data for display
+    getSummary: () => {
+      const state = load();
+      return {
+        info_general: state.info_general || null,
+        brigadista: state.brigadista || null,
+        evidencias: state.evidencias || null,
+        conteo: state.conteo || null,
+        steps: state.steps || null,
+        recordId: state.recordId || null,
+        timestamp: state.timestamp || null
+      };
+    },
+
+    // Update specific fields within a section
+    updateField: (section, field, value) => {
+      const state = load();
+      if (!state[section]) {
+        state[section] = {};
+      }
+      state[section][field] = value;
+      save();
+      console.log(`STATE.updateField("${section}", "${field}"):`, value);
+    },
+
+    // Merge data into a section
+    merge: (section, data) => {
+      const state = load();
+      if (!state[section]) {
+        state[section] = {};
+      }
+      Object.assign(state[section], data);
+      save();
+      console.log(`STATE.merge("${section}"):`, data);
+    },
+
+    // Initialize state with default structure
+    initialize: () => {
+      const state = load();
+      if (!state.timestamp) {
+        state.timestamp = new Date().toISOString();
+        save();
+      }
+      return state;
+    },
+
+    // Debug helper
+    debug: () => {
+      console.log('STATE debug:', {
+        data: load(),
+        completion: STATE.getCompletionStatus(),
+        allComplete: STATE.isAllComplete()
+      });
+    }
+  };
+})();
+
+// Initialize state on load
+STATE.initialize();
+</script>
+****************************************************
+<div class="card">
+  <div class="card-header"><h5>⏱️ Cronograma del Simulacro</h5></div>
+  <div class="card-body">
+
+    <div id="steps-list" class="vstack gap-2">
+      <!-- Los 9 pasos SIEMPRE visibles -->
+      <div class="d-grid">
+        <button class="btn btn-outline-primary" data-step="Hora_Inicio">🏁 Hora de Inicio</button>
+        <small id="ts-Hora_Inicio" class="text-muted">--:--:--</small>
+      </div>
+      <div class="d-grid">
+        <button class="btn btn-outline-primary" data-step="Alistamiento_Recursos">📋 Alistamiento de Recursos</button>
+        <small id="ts-Alistamiento_Recursos" class="text-muted">--:--:--</small>
+      </div>
+      <div class="d-grid">
+        <button class="btn btn-outline-primary" data-step="Asumir_roles">👥 Asumir roles</button>
+        <small id="ts-Asumir_roles" class="text-muted">--:--:--</small>
+      </div>
+      <div class="d-grid">
+        <button class="btn btn-outline-primary" data-step="Suena_alarma">🚨 Suena alarma</button>
+        <small id="ts-Suena_alarma" class="text-muted">--:--:--</small>
+      </div>
+      <div class="d-grid">
+        <button class="btn btn-outline-primary" data-step="Distribucion_roles">🎭 Distribución de roles</button>
+        <small id="ts-Distribucion_roles" class="text-muted">--:--:--</small>
+      </div>
+      <div class="d-grid">
+        <button class="btn btn-outline-primary" data-step="Llegada_punto_encuentro">📍 Llegada punto de encuentro</button>
+        <small id="ts-Llegada_punto_encuentro" class="text-muted">--:--:--</small>
+      </div>
+      <div class="d-grid">
+        <button class="btn btn-outline-primary" data-step="Agrupacion_por_afinidad">👨‍👩‍👧‍👦 Agrupación por afinidad</button>
+        <small id="ts-Agrupacion_por_afinidad" class="text-muted">--:--:--</small>
+      </div>
+      <div class="d-grid">
+        <button class="btn btn-outline-primary" data-step="Conteo_Personal">📊 Conteo de personal</button>
+        <small id="ts-Conteo_Personal" class="text-muted">--:--:--</small>
+      </div>
+      <div class="d-grid">
+        <button class="btn btn-outline-primary" data-step="Agradecimiento_y_cierre">🎉 Agradecimiento y cierre</button>
+        <small id="ts-Agradecimiento_y_cierre" class="text-muted">--:--:--</small>
+      </div>
+    </div>
+
+    <div class="alert alert-info text-center mt-3">
+      <div>⏱️ <b>Tiempo Total del Simulacro</b></div>
+      <div id="tt-value" style="font-size:1.4rem">--:--:--</div>
+      <small class="text-muted">Se calcula como Agradecimiento_y_cierre − Hora_Inicio</small>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button id="btn-reset" class="btn btn-outline-warning">🔄 Reiniciar cronómetro</button>
+      <button id="btn-steps-next" class="btn btn-primary">Guardar y continuar</button>
+    </div>
+  </div>
+</div>
+
+*************************************************************
+<div class="card">
+  <div class="card-header"><h5>⏱️ Cronograma del Simulacro — Parte 1</h5></div>
+  <div class="card-body" id="steps-p1-root">
+
+    <!-- Instructivo -->
+    <div class="alert alert-info mb-3">
+      <strong>📋 Instrucciones:</strong> Presiona cada botón naranja <strong>en el momento exacto</strong> que ocurra cada evento para registrar el tiempo automáticamente.
+    </div>
+
+    <!-- 6 pasos -->
+    <div class="d-grid mb-2">
+      <button class="btn btn-outline-primary" data-step="Hora_Inicio">🏁 Hora de Inicio</button>
+      <small id="ts-Hora_Inicio" class="text-muted">--:--:--</small>
+    </div>
+    <div class="d-grid mb-2">
+      <button class="btn btn-outline-primary" data-step="Alistamiento_Recursos">📋 Alistamiento de Recursos</button>
+      <small id="ts-Alistamiento_Recursos" class="text-muted">--:--:--</small>
+    </div>
+    <div class="d-grid mb-2">
+      <button class="btn btn-outline-primary" data-step="Asumir_roles">👥 Asumir roles</button>
+      <small id="ts-Asumir_roles" class="text-muted">--:--:--</small>
+    </div>
+    <div class="d-grid mb-2">
+      <button class="btn btn-outline-primary" data-step="Suena_alarma">🚨 Suena alarma</button>
+      <small id="ts-Suena_alarma" class="text-muted">--:--:--</small>
+    </div>
+    <div class="d-grid mb-2">
+      <button class="btn btn-outline-primary" data-step="Distribucion_roles">🎭 Distribución de roles</button>
+      <small id="ts-Distribucion_roles" class="text-muted">--:--:--</small>
+    </div>
+    <div class="d-grid mb-2">
+      <button class="btn btn-outline-primary" data-step="Llegada_punto_encuentro">📍 Llegada punto de encuentro</button>
+      <small id="ts-Llegada_punto_encuentro" class="text-muted">--:--:--</small>
+    </div>
+    <div class="d-grid mb-3">
+      <button class="btn btn-outline-primary" data-step="Agrupacion_por_afinidad">👨‍👩‍👧‍👦 Agrupación por afinidad</button>
+      <small id="ts-Agrupacion_por_afinidad" class="text-muted">--:--:--</small>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary" data-back="brigadista_lider">Atrás</button>
+      <button id="btn-steps1-next" class="btn btn-primary">Guardar y continuar</button>
+      <button id="btn-steps1-reset" class="btn btn-outline-warning">🔄 Reiniciar cronómetro</button>
+    </div>
+  </div>
+</div>
+
+**********************************************************
+<div class="card">
+  <div class="card-header"><h5>⏱️ Cronograma del Simulacro — Parte 2</h5></div>
+  <div class="card-body" id="steps-p2-root">
+
+    <!-- Instructivo -->
+    <div class="alert alert-info mb-3">
+      <strong>📋 Instrucciones:</strong> Presiona cada botón naranja <strong>en el momento exacto</strong> que ocurra cada evento para registrar el tiempo automáticamente.
+    </div>
+
+    <div class="d-grid mb-2">
+      <button class="btn btn-outline-primary" data-step="Conteo_Personal">📊 Conteo de personal (momento)</button>
+      <small id="ts-Conteo_Personal" class="text-muted">--:--:--</small>
+    </div>
+    <div class="d-grid mb-3">
+      <button class="btn btn-outline-primary" data-step="Agradecimiento_y_cierre">🎉 Agradecimiento y cierre</button>
+      <small id="ts-Agradecimiento_y_cierre" class="text-muted">--:--:--</small>
+    </div>
+
+    <div class="alert alert-info text-center">
+      <div><b>Tiempo Total del Simulacro</b></div>
+      <div id="tt-value" style="font-size:1.3rem">--:--:--</div>
+      <small class="text-muted">Se calcula como Agradecimiento_y_cierre − Hora_Inicio</small>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary" data-back="evidencias">Atrás</button>
+      <button id="btn-steps2-next" class="btn btn-primary">Guardar y continuar</button>
+      <button id="btn-steps2-reset" class="btn btn-outline-warning">🔄 Reiniciar cronómetro</button>
+    </div>
+  </div>
+</div>
+
+********************************************************
+
+<script>
+// Helper para calcular diferencias de tiempo
+function hhmmssDiff(startIso, endIso) {
+  if (!startIso || !endIso) return '';
+  const a = new Date(startIso), b = new Date(endIso);
+  const ms = Math.max(0, b - a);
+  const h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000), s = Math.floor((ms%60000)/1000);
+  const pad = n => String(n).padStart(2,'0');
+  return `${pad(h)}:${pad(m)}:${pad(s)}`;
+}
+
+// Helper para leer valor numérico
+function numOrNull(v) {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+// Calcular tiempo total entre primer y último paso
+function calculateTiempoTotal(currentState) {
+  const first = currentState?.steps?.Hora_Inicio;
+  const last = currentState?.steps?.Agradecimiento_y_cierre;
+  const fallback = (typeof hhmmssDiff === 'function') ? hhmmssDiff(first, last) : '';
+  return currentState.tiempoTotal || fallback;
+}
+</script>
+
+*******************************************************
+
+<script>
+const UI = {
+  toast: (msg) => alert(msg),
+
+  renderClientes: (selector, lista=[]) => {
+    const $c = $(selector).empty();
+    lista.forEach(c => {
+      const id = `cli_${c.id}`;
+      $c.append(`
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="cliente" id="${id}" value="${c.id}">
+          <label class="form-check-label" for="${id}">${c.name}</label>
+        </div>`);
+    });
+  },
+
+  getClienteSeleccionado: () => {
+    const $sel = $('input[name="cliente"]:checked');
+    if(!$sel.length) return null;
+    const id = $sel.val();
+    const name = $(`label[for="cli_${id}"]`).text();
+    return { id, name };
+  },
+
+  // Spinner utilities
+  showSpinner: (selector, text = 'Cargando...') => {
+    $(selector).html(`
+      <div class="d-flex justify-content-center align-items-center">
+        <div class="spinner-border text-primary me-2" role="status"></div>
+        <span>${text}</span>
+      </div>
+    `);
+  },
+
+  hideSpinner: (selector) => {
+    $(selector).empty();
+  },
+
+  // Image preview utilities
+  previewImage: (file, targetSelector) => {
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        $(targetSelector).html(`
+          <img src="${e.target.result}" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+          <p class="text-muted mt-2">${file.name}</p>
+        `);
+      };
+      reader.readAsDataURL(file);
+    }
+  },
+
+  // Form utilities
+  clearForm: (formSelector) => {
+    $(formSelector).find('input, textarea, select').val('').trigger('change');
+  },
+
+  // Mapper de etiqueta por rango para evaluaciones
+  qualitativeLabel: (score) => {
+    if (score <= 39) return {tag:'Deficiente',  base:'Desempeño muy por debajo de lo esperado. Requiere plan de mejora inmediata.'};
+    if (score <= 59) return {tag:'Insuficiente', base:'Resultados bajos; priorizar capacitación básica y simulacros parciales.'};
+    if (score <= 74) return {tag:'Aceptable',    base:'Cumplimiento mínimo; ajustar señalización, roles y práctica guiada.'};
+    if (score <= 84) return {tag:'Bueno',        base:'Desempeño adecuado con oportunidades puntuales de mejora.'};
+    if (score <= 94) return {tag:'Muy bueno',    base:'Nivel alto; consolidar y estandarizar buenas prácticas.'};
+    return              {tag:'Sobresaliente', base:'Excelencia operativa; documentar y replicar el modelo.'};
+  }
+};
+</script>
+
+*****************************************************
+<script>
+const VALIDATORS = {
+  required: (value) => value !== null && value !== undefined && value.toString().trim() !== '',
+  email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+  phone: (value) => /^\d{10}$/.test(value.replace(/\D/g, '')),
+
+  // Validaciones específicas del formulario
+  validateInfoGeneral: (data) => {
+    const errors = [];
+    if (!VALIDATORS.required(data.evento)) {
+      errors.push('Debe seleccionar el evento simulado');
+    }
+    if (!VALIDATORS.required(data.direccion)) {
+      errors.push('La dirección es requerida');
+    }
+    return errors;
+  },
+
+  validateBrigadista: (data) => {
+    const errors = [];
+    if (!VALIDATORS.required(data.nombre)) {
+      errors.push('El nombre del brigadista es requerido');
+    }
+    if (!VALIDATORS.required(data.email)) {
+      errors.push('El email del brigadista es requerido');
+    } else if (!VALIDATORS.email(data.email)) {
+      errors.push('El email del brigadista no es válido');
+    }
+    if (!VALIDATORS.required(data.whatsapp)) {
+      errors.push('El WhatsApp del brigadista es requerido');
+    }
+    return errors;
+  },
+
+  validateConteo: (data) => {
+    const errors = [];
+    const total = (data.hombre || 0) + (data.mujer || 0) + (data.ninos || 0) + (data.adultosMayores || 0) +
+                  (data.discapacidad || 0) + (data.mascotas || 0);
+    if (total <= 0) {
+      errors.push('Debe registrar al menos una persona evacuada');
+    }
+    return errors;
+  },
+
+  // Función utilitaria para mostrar errores
+  showErrors: (errors) => {
+    if (errors.length > 0) {
+      UI.toast('Errores de validación:\n• ' + errors.join('\n• '));
+      return false;
+    }
+    return true;
+  }
+};
+</script>
+
+**********************************************************
+<script>
+window.VIEWS = window.VIEWS || {};
+const $ = (s, r=document)=>r.querySelector(s);
+const $$ = (s, r=document)=>r.querySelectorAll(s);
+
+function collectEnumListsIntoPayload(payload){
+  const alarmas = Array.from(document.querySelectorAll('.alarma-opt:checked')).map(i=>i.value);
+  if (alarmas.length) payload.tipoAlarma = alarmas.join(', ');
+
+  const equipos = Array.from(document.querySelectorAll('.equipo-opt:checked')).map(i=>i.value);
+  if (equipos.length) payload['Equipos_Emergencia'] = equipos.join(', ');
+
+  const distintivos = Array.from(document.querySelectorAll('.distintivo-opt:checked')).map(i=>i.value);
+  if (distintivos.length) payload['Distintivos_Brigadistas'] = distintivos.join(', ');
+
+  return payload;
+}
+
+VIEWS.selector_cliente = function initSelector(){
+  const root = document.getElementById('app-root');
+  const sel = $('#selector-clientes', root);
+  const btn = $('#btn-guardar-cliente', root);
+  if (!sel || !btn) return console.error('selector_cliente: faltan nodos');
+
+  btn.disabled = true;
+
+  // 1) Cargar clientes
+  google.script.run
+    .withSuccessHandler(clients => {
+      if (!clients || !clients.length){
+        sel.innerHTML = '<option value="">No hay clientes disponibles</option>';
+        return;
+      }
+
+      // Permitir formato [{id,name}] o ["nombre"]
+      const options = clients.map((c,i)=>{
+        const name = (c && c.name) || c;
+        const id   = (c && c.id)   || '';
+        return {
+          value: String(name).replace(/"/g,'&quot;'),
+          text: name,
+          dataId: String(id).replace(/"/g,'&quot;')
+        };
+      });
+
+      // Agregar opciones
+      options.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.value;
+        option.textContent = opt.text;
+        option.setAttribute('data-id', opt.dataId);
+        sel.appendChild(option);
+      });
+
+      // 1) Extraer opciones reales (sin placeholder)
+      const allOpts = Array.from(sel.querySelectorAll('option'));
+      const realOpts = allOpts.filter(o => o.value && o.value.trim() !== '');
+
+      // 2) Orden A–Z ignorando tildes y may/min
+      const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+      realOpts.sort((a,b) => norm(a.text).localeCompare(norm(b.text), 'es', {sensitivity:'base'}));
+
+      // 3) Reconstruir: placeholder + ordenadas
+      sel.innerHTML = '';
+      const ph = document.createElement('option');
+      ph.value = ''; ph.textContent = '— Seleccione el cliente —';
+      ph.disabled = true; ph.selected = true; ph.hidden = true;
+      sel.appendChild(ph);
+      realOpts.forEach(o => sel.appendChild(o));
+
+      // Estado inicial del botón
+      btn.disabled = true;
+
+      // Blindaje + init
+      try {
+        if (window.jQuery?.fn?.select2) {
+          window.jQuery('#selector-clientes').select2({
+            width: '100%',
+            placeholder: '— Seleccione el cliente —',
+            allowClear: true,
+            language: {
+              noResults: () => 'Sin resultados',
+              searching: () => 'Buscando…',
+              removeAllItems: () => 'Borrar todo'
+            }
+          });
+          // Forzar vista de placeholder (por si quedó algo cacheado)
+          window.jQuery('#selector-clientes').val(null).trigger('change');
+
+          // Habilitar botón solo si hay selección válida
+          window.jQuery('#selector-clientes').on('change', function () {
+            btn.disabled = !(this.value && this.value.trim() !== '');
+          });
+        } else {
+          console.warn('Select2 no disponible, usando select nativo');
+          sel.addEventListener('change', () => { btn.disabled = !(sel.value && sel.value.trim() !== ''); });
+        }
+      } catch (e) {
+        console.warn('Error inicializando Select2, fallback nativo:', e);
+        sel.addEventListener('change', () => { btn.disabled = !(sel.value && sel.value.trim() !== ''); });
+      }
+    })
+    .withFailureHandler(err=>{
+      console.error('getActiveClients error', err);
+      sel.innerHTML = '<option value="">Error cargando clientes</option>';
+    })
+    .getActiveClients(); // backend existente
+
+  // 2) Guardar selección
+  btn.onclick = ()=>{
+    const v = (sel.value || '').trim();
+    if (!v) {
+      alert('Por favor, selecciona un cliente antes de continuar.');
+      return;
+    }
+
+    const viewRoot = document.getElementById('app-root');
+    markRequiredInView(viewRoot);
+    if (!validateCurrentView(viewRoot)) return;
+
+    const selectedOption = sel.querySelector('option:checked');
+    if (!selectedOption || !selectedOption.value) return;
+
+    const selectedName = selectedOption.value;
+    const recordId = (typeof generateRecordId==='function')
+      ? generateRecordId()
+      : ('SIM_'+new Date().toISOString().replace(/\D/g,'').slice(0,14));
+
+    // Evitar Date nativo → mandar ISO o nada y que server ponga fecha
+    const payload = { ID: recordId, Cliente: selectedName /*, Fecha: new Date().toISOString()*/ };
+
+    google.script.run
+      .withSuccessHandler(res=>{
+        // Persistir en STATE y navegar SPA
+        STATE.set('cliente', { name: selectedName, recordId });
+        if (window.ROUTER) ROUTER.go('info_general');
+      })
+      .withFailureHandler(err=>{
+        alert('Error guardando selección: ' + (err?.message || err));
+      })
+      .saveSelectedClient(payload);
+  };
+};
+
+VIEWS.info_general = function initInfoGeneral(){
+  // Guard de estado
+  const rec = STATE.get('cliente');
+  if (!rec || !rec.recordId) { ROUTER.go('selector_cliente'); return; }
+
+  const root = document.getElementById('app-root');
+  const form = $('#form-info-general', root);
+  const btn  = $('#btn-info-guardar', root);
+  if (!form || !btn) { console.error('info_general: faltan nodos'); return; }
+
+  form.addEventListener('submit', (ev)=>{
+    ev.preventDefault();
+
+    const viewRoot = document.getElementById('app-root');
+    markRequiredInView(viewRoot);
+    if (!validateCurrentView(viewRoot)) return;
+
+    let payload = {
+      recordId: rec.recordId,
+      direccion: $('#direccion', root)?.value?.trim() || '',
+      evento: $('#evento', root)?.value?.trim() || '',
+      alcance: $('#alcance', root)?.value?.trim() || '',
+      tipoEvacuacion: $('#tipo-evacuacion', root)?.value?.trim() || '',
+      personalNoEvacua: $('#personal-no-evacua', root)?.value?.trim() || '',
+      puntosEncuentro: $('#puntos-encuentro', root)?.value?.trim() || '',
+      recursoHumano: $('#recurso-humano', root)?.value?.trim() || '',
+      equiposEmergencia: $('#equipos-emergencia', root)?.value?.trim() || ''
+    };
+
+    // Collect enum lists (checkbox groups) into payload
+    payload = collectEnumListsIntoPayload(payload);
+
+    // Validación mínima
+    if (!payload.direccion || !payload.evento) {
+      alert('Dirección y Evento son obligatorios.');
+      return;
+    }
+
+    // UI feedback
+    btn.disabled = true; const old = btn.textContent; btn.textContent = 'Guardando…';
+
+    google.script.run
+      .withSuccessHandler(res=>{
+        // opcional: guardar en STATE
+        STATE.set('info_general', payload);
+        btn.textContent = old; btn.disabled = false;
+        ROUTER.go('brigadista_lider');
+      })
+      .withFailureHandler(err=>{
+        btn.textContent = old; btn.disabled = false;
+        alert('Error guardando info general: ' + (err?.message || err));
+      })
+      .saveInfoGeneral(payload); // BACKEND
+  });
+};
+
+VIEWS.brigadista_lider = function initBL(){
+  // Guard de estado
+  const rec = STATE.get('cliente');
+  if (!rec || !rec.recordId) { ROUTER.go('selector_cliente'); return; }
+
+  const root = document.getElementById('app-root');
+  const form = $('#form-brigadista', root);
+  const btn  = $('#btn-bl-guardar', root);
+  if (!form || !btn) { console.error('brigadista_lider: faltan nodos'); return; }
+
+  form.addEventListener('submit', (ev)=>{
+    ev.preventDefault();
+
+    const viewRoot = document.getElementById('app-root');
+    markRequiredInView(viewRoot);
+    if (!validateCurrentView(viewRoot)) return;
+
+    const rawWa = $('#bl-whatsapp', root)?.value || '';
+    const wa = rawWa.replace(/\D/g, '');           // solo dígitos
+    if (wa && wa.length !== 10) {
+      alert('WhatsApp debe tener exactamente 10 dígitos.');
+      return;
+    }
+
+    let payload = {
+      recordId: rec.recordId,
+      nombre:   $('#bl-nombre', root)?.value?.trim() || '',
+      email:    $('#bl-email', root)?.value?.trim() || '',
+      whatsapp: wa
+    };
+
+    // Collect enum list values (distintivos)
+    payload = collectEnumListsIntoPayload(payload);
+
+    // Validación mínima (no bloquear por email/whatsapp vacíos)
+    if (!payload.nombre) { alert('El nombre del brigadista es obligatorio.'); return; }
+
+    // UI feedback
+    const old = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando…';
+
+    google.script.run
+      .withSuccessHandler(res=>{
+        STATE.set('brigadista', payload);          // persistir en STATE
+        btn.disabled = false; btn.textContent = old;
+        ROUTER.go('steps_p1');                   // SIGUIENTE VISTA
+      })
+      .withFailureHandler(err=>{
+        btn.disabled = false; btn.textContent = old;
+        alert('Error guardando brigadista: ' + (err?.message || err));
+      })
+      .saveBrigadista(payload);                    // BACKEND
+  });
+};
+
+VIEWS.evidencias = function initEvidencias(){
+  const rec = STATE.get('cliente');
+  if (!rec || !rec.recordId) { ROUTER.go('selector_cliente'); return; }
+
+  const root = document.getElementById('app-root');
+  const form = $('#form-evidencias', root);
+  const btn  = $('#btn-ev-guardar', root);
+  const img1_camera = $('#imagen_1_camera', root);
+  const img1_file = $('#imagen_1_file', root);
+  const img2_camera = $('#imagen_2_camera', root);
+  const img2_file = $('#imagen_2_file', root);
+  const obs  = $('#obs', root);
+
+  if (!form || !btn) { console.error('evidencias: faltan nodos'); return; }
+
+  // Utilidad: comprimir imagen en el cliente (máx 1600px lado mayor, jpg 0.8)
+  async function compressToDataURL(file) {
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const max = 1600;
+          let { width:w, height:h } = img;
+          if (w > h && w > max) { h = Math.round(h * (max / w)); w = max; }
+          else if (h >= w && h > max) { w = Math.round(w * (max / h)); h = max; }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(dataUrl);
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function uploadIfPresent(fileInput, columnName){
+    const f = fileInput?.files?.[0];
+    if (!f) return Promise.resolve(null); // opcional
+    const dataUrl = await compressToDataURL(f);
+    return new Promise((resolve, reject)=>{
+      google.script.run
+        .withSuccessHandler(res => resolve(res?.url || res))
+        .withFailureHandler(err => reject(err))
+        .uploadImage(rec.recordId, dataUrl, columnName);
+    });
+  }
+
+  // Función auxiliar para obtener la imagen de cualquiera de los dos inputs
+  function getActiveInput(cameraInput, fileInput){
+    if (cameraInput?.files?.[0]) return cameraInput;
+    if (fileInput?.files?.[0]) return fileInput;
+    return null;
+  }
+
+  form.addEventListener('submit', async (ev)=>{
+    ev.preventDefault();
+
+    const viewRoot = document.getElementById('app-root');
+    markRequiredInView(viewRoot);
+    if (!validateCurrentView(viewRoot)) return;
+
+    btn.disabled = true; const old = btn.textContent; btn.textContent = 'Guardando…';
+
+    try {
+      // 1) Guardar observaciones (si hay)
+      const payload = { recordId: rec.recordId, observaciones: (obs?.value || '').trim() };
+      await new Promise((resolve, reject)=>{
+        google.script.run
+          .withSuccessHandler(()=> resolve())
+          .withFailureHandler(reject)
+          .saveEvidencias(payload);
+      });
+
+      // 2) Subir imágenes (si hay) - revisar ambos inputs por imagen
+      const activeImg1 = getActiveInput(img1_camera, img1_file);
+      const activeImg2 = getActiveInput(img2_camera, img2_file);
+      const url1 = await uploadIfPresent(activeImg1, 'imagen_1');
+      const url2 = await uploadIfPresent(activeImg2, 'imagen_2');
+
+      // 3) Persistir en STATE y continuar
+      STATE.set('evidencias', {
+        observaciones: payload.observaciones,
+        imagen_1: url1 || '',
+        imagen_2: url2 || ''
+      });
+      btn.textContent = old; btn.disabled = false;
+      ROUTER.go('steps_p2');
+
+    } catch (err) {
+      btn.textContent = old; btn.disabled = false;
+      alert('Error guardando evidencias: ' + (err?.message || err));
+    }
+  });
+
+  // Script para miniaturas de imágenes con retry y mejor timing
+  setTimeout(() => {
+    (function wireImagePreviews(){
+      // Función para configurar preview compartido entre camera y file inputs
+      function setPreviewDual(cameraId, fileId, imgId){
+        const cameraInput = document.getElementById(cameraId);
+        const fileInput = document.getElementById(fileId);
+        const img = document.getElementById(imgId);
+
+        if (!cameraInput || !fileInput || !img) {
+          console.warn(`No se encontraron elementos: ${cameraId}, ${fileId} o ${imgId}`);
+          return;
+        }
+
+        console.log(`Configurando preview dual para ${cameraId}/${fileId} -> ${imgId}`);
+
+        // Función compartida para mostrar preview
+        function showPreview(input, source){
+          console.log(`Cambio detectado en ${source}`);
+          const f = input.files && input.files[0];
+
+          if (!f) {
+            img.style.display='none';
+            img.removeAttribute('src');
+            console.log(`Sin archivo en ${source}`);
+            return;
+          }
+
+          console.log(`Creando preview para archivo:`, f.name);
+          const url = URL.createObjectURL(f);
+          img.src = url;
+          img.style.display = 'block';
+          console.log(`Preview mostrado para ${source}`);
+
+          // Limpiar URL anterior para evitar memory leaks
+          img.onload = () => {
+            if (img.previousURL) {
+              URL.revokeObjectURL(img.previousURL);
+            }
+            img.previousURL = url;
+          };
+
+          // Limpiar el otro input para evitar duplicados
+          if (input === cameraInput && fileInput.files.length > 0) {
+            fileInput.value = '';
+          } else if (input === fileInput && cameraInput.files.length > 0) {
+            cameraInput.value = '';
+          }
+        }
+
+        cameraInput.addEventListener('change', () => showPreview(cameraInput, cameraId));
+        fileInput.addEventListener('change', () => showPreview(fileInput, fileId));
+      }
+
+      setPreviewDual('imagen_1_camera', 'imagen_1_file', 'preview_imagen_1');
+      setPreviewDual('imagen_2_camera', 'imagen_2_file', 'preview_imagen_2');
+    })();
+  }, 100); // Delay de 100ms para asegurar que el DOM esté listo
+};
+
+VIEWS.conteo = function initConteo(){
+  const rec = STATE.get('cliente');
+  if (!rec || !rec.recordId) { ROUTER.go('selector_cliente'); return; }
+
+  const root = document.getElementById('app-root');
+  const form = $('#form-conteo', root);
+  const btn  = $('#btn-conteo-guardar', root);
+  const f = {
+    hombres: $('#c-hombres', root),
+    mujeres: $('#c-mujeres', root),
+    ninos: $('#c-ninos', root),
+    mayores: $('#c-adultos-mayores', root),
+    disc: $('#c-discapacidad', root),
+    masc: $('#c-mascotas', root),
+    total: $('#c-total', root),
+  };
+  if (!form || !btn || Object.values(f).some(x=>!x)) { console.error('conteo: faltan nodos'); return; }
+
+  const toInt = v => {
+    const n = parseInt(String(v||'').replace(/\D/g,''), 10);
+    return isNaN(n) ? 0 : n;
+  };
+  const recalc = () => {
+    const t = toInt(f.hombres.value) + toInt(f.mujeres.value) + toInt(f.ninos.value) + toInt(f.mayores.value) +
+              toInt(f.disc.value) + toInt(f.masc.value);
+    f.total.value = String(t);
+  };
+  // Auto-total en tiempo real
+  [f.hombres, f.mujeres, f.ninos, f.mayores, f.disc, f.masc].forEach(inp=>{
+    inp.addEventListener('input', recalc);
+  });
+  recalc(); // inicial
+
+  form.addEventListener('submit', (ev)=>{
+    ev.preventDefault();
+
+    const viewRoot = document.getElementById('app-root');
+    markRequiredInView(viewRoot);
+    if (!validateCurrentView(viewRoot)) return;
+
+    const payload = {
+      recordId: rec.recordId,
+      hombre: toInt(f.hombres.value),
+      mujer: toInt(f.mujeres.value),
+      ninos: toInt(f.ninos.value),
+      adultosMayores: toInt(f.mayores.value),      // front usa adultosMayores
+      discapacidad: toInt(f.disc.value),
+      mascotas: toInt(f.masc.value),
+      total: toInt(f.total.value)                  // redundante; server recalcula por si acaso
+    };
+
+    const old = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando…';
+    google.script.run
+      .withSuccessHandler(res=>{
+        STATE.set('conteo', payload);
+        btn.disabled = false; btn.textContent = old;
+        ROUTER.go('evidencias'); // siguiente vista
+      })
+      .withFailureHandler(err=>{
+        btn.disabled = false; btn.textContent = old;
+        alert('Error guardando conteo: ' + (err?.message || err));
+      })
+      .saveConteo(payload);
+  });
+};
+
+VIEWS.steps = function initSteps(){
+  const rec = STATE.get('cliente');
+  if (!rec || !rec.recordId) { ROUTER.go('selector_cliente'); return; }
+
+  const root = document.getElementById('app-root');
+  const tt = $('#tt-value', root);
+  const list = $('#steps-list', root);
+  const btnReset = $('#btn-reset', root);
+  const btnNext = $('#btn-steps-next', root);
+
+  // Pintar estado inicial (si backend devuelve timestamps)
+  function applyState(state){
+    if (!state) return;
+    const steps = state.steps || {};
+    Object.keys(steps).forEach(k=>{
+      const el = root.querySelector('#ts-' + k);
+      if (el) el.textContent = steps[k] || '--:--:--';
+    });
+    if (state.tiempoTotal) tt.textContent = state.tiempoTotal;
+  }
+
+  // Click en cualquier botón de paso
+  list.addEventListener('click', (ev)=>{
+    const btn = ev.target.closest('button[data-step]');
+    if (!btn) return;
+    const stepKey = btn.getAttribute('data-step');
+
+    google.script.run
+      .withSuccessHandler(res=>{
+        // res: {success, state:{steps:{}, tiempoTotal}}
+        if (res && res.success) applyState(res.state);
+      })
+      .withFailureHandler(err=> alert('Error marcando paso: ' + (err?.message || err)))
+      .markStep(rec.recordId, stepKey);
+  });
+
+  // Reiniciar
+  btnReset.addEventListener('click', ()=>{
+    if (!confirm('¿Reiniciar todos los tiempos?')) return;
+    google.script.run
+      .withSuccessHandler(res=>{
+        applyState(res.state || {});
+        // limpiar UI
+        root.querySelectorAll('[id^="ts-"]').forEach(el=> el.textContent='--:--:--');
+        tt.textContent='--:--:--';
+      })
+      .withFailureHandler(err=> alert('Error reiniciando: ' + (err?.message || err)))
+      .resetSteps(rec.recordId);
+  });
+
+  // Guardar y continuar → evaluacion
+  btnNext.addEventListener('click', ()=>{
+    google.script.run
+      .withSuccessHandler(()=> ROUTER.go('evaluacion')) // antes iba a 'resumen_envio'
+      .withFailureHandler(err=> alert('Error guardando: ' + (err?.message || err)))
+      .saveCompletedSimulacro({ recordId: rec.recordId });
+  });
+
+  // (Opcional) Cargar estado al entrar por si ya había tiempos
+  google.script.run
+    .withSuccessHandler(res=> applyState(res?.state))
+    .getState?.(rec.recordId); // solo si existe getState()
+};
+
+VIEWS.evaluacion = function initEval(){
+  const rec = STATE.get('cliente');
+  if (!rec || !rec.recordId) { ROUTER.go('selector_cliente'); return; }
+
+  const root = document.getElementById('app-root');
+  const form = root.querySelector('#form-evaluacion');
+  const btn  = root.querySelector('#btn-ev-guardar');
+  const f = {
+    alarma:        root.querySelector('#ev-alarma'),
+    orden:         root.querySelector('#ev-orden'),
+    liderazgo:     root.querySelector('#ev-liderazgo'),
+    organizacion:  root.querySelector('#ev-organizacion'),
+    participacion: root.querySelector('#ev-participacion'),
+    cuant:         root.querySelector('#ev-cuantitativa'),
+    cual:          root.querySelector('#ev-cualitativa')
+  };
+
+  const val = x => { const n = parseFloat(x.value); return isNaN(n)?0:n; };
+  const fmt = n => n.toFixed(1) + '/10';
+
+  function conceptoCualitativo(p){
+    if (p<=2)  return 'Deficiente: se evidencian fallas críticas que requieren acciones inmediatas.';
+    if (p<=4)  return 'Malo: hay debilidades significativas que deben corregirse pronto.';
+    if (p<=6)  return 'Aceptable: desempeño básico con oportunidades claras de mejora.';
+    if (p<=8)  return 'Bueno: desempeño adecuado con buenas prácticas observadas.';
+    if (p===9) return 'Excelente: resultados muy superiores al estándar esperado.';
+    return 'Sobresaliente: ejecución destacada que supera ampliamente los objetivos.';
+  }
+
+  function actualizarEvaluacionFinal(){
+    const vals = Array.from(document.querySelectorAll('.eval-field'))
+      .map(s=>parseInt(s.value,10))
+      .filter(n=>!Number.isNaN(n));
+    if(!vals.length) return;
+    const promedio = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+    // Setear en los campos existentes (respeta data-field)
+    const cuant = document.querySelector('[data-field="evaluacion_cuantitativa"]');
+    const cual  = document.querySelector('[data-field="evaluacion_cualitativa"]');
+    if (cuant) cuant.value = String(promedio);
+    if (cual)  cual.value  = conceptoCualitativo(promedio);
+  }
+  document.querySelectorAll('.eval-field').forEach(s=>s.addEventListener('change', actualizarEvaluacionFinal));
+  // Inicializa con defaults seleccionados
+  actualizarEvaluacionFinal();
+
+  form.addEventListener('submit', (ev)=>{
+    ev.preventDefault();
+
+    const viewRoot = document.getElementById('app-root');
+    markRequiredInView(viewRoot);
+    if (!validateCurrentView(viewRoot)) return;
+
+    btn.disabled = true; const old = btn.textContent; btn.textContent='Guardando…';
+
+    const payload = {
+      recordId: rec.recordId,
+      alarma_efectiva: val(f.alarma),
+      orden_evacuacion: val(f.orden),
+      liderazgo_brigadistas: val(f.liderazgo),
+      organizacion_punto_encuentro: val(f.organizacion),
+      participacion_general: val(f.participacion),
+      evaluacion_cuantitativa: f.cuant.value.trim(),
+      evaluacion_cualitativa: f.cual.value.trim()
+    };
+
+    google.script.run
+      .withSuccessHandler(()=>{
+        STATE.set('evaluacion', payload);
+        btn.disabled = false; btn.textContent = old;
+        ROUTER.go('resumen_envio');
+      })
+      .withFailureHandler(err=>{
+        btn.disabled = false; btn.textContent = old;
+        alert('Error guardando evaluación: ' + (err?.message || err));
+      })
+      .saveEvaluacion(payload);
+  });
+};
+
+VIEWS.resumen_envio = function initResumen(){
+  const cli = STATE.get('cliente');
+  if (!cli?.recordId) { ROUTER.go('selector_cliente'); return; }
+
+  const root = document.getElementById('app-root');
+  const esc = (v)=> (v==null?'':String(v));
+  const li  = (k,v)=> `<div><span class="text-muted">${k}:</span> <b>${esc(v)||''}</b></div>`;
+
+  function render(row){
+    row = row || {};
+    // Info general
+    $('#sum-info', root).innerHTML = [
+      li('Cliente', row.Cliente), li('Dirección', row.Direccion),
+      li('Evento simulado', row.Evento_Simulado), li('Alcance', row.Alcance_Simulacro),
+      li('Tipo evacuación', row.Tipo_Evacuacion), li('Personal no evacúa', row.Personal_No_Evacua),
+      li('Tipo de alarma', row.Tipo_Alarma), li('Puntos de encuentro', row.Puntos_Encuentro),
+      li('Recurso humano', row.Recurso_Humano), li('Equipos de emergencia', row.Equipos_Emergencia)
+    ].join('');
+
+    // Brigadista
+    $('#sum-brigadista', root).innerHTML = [
+      li('Nombre líder', row.nombre_brigadista_lider),
+      li('Email líder', row.email_brigadista_lider),
+      li('WhatsApp líder', row.whatsapp_brigadista_lider),
+      li('Distintivos', row.Distintivos_Brigadistas)
+    ].join('');
+
+    // Evidencias
+    const ev = $('#sum-evidencias', root);
+    ev.innerHTML = '';
+    ['imagen_1','imagen_2'].forEach(key=>{
+      const url = row[key];
+      ev.innerHTML += url
+        ? `<a href="${url}" target="_blank"><img src="${url}" alt="${key}" style="max-width:140px;max-height:100px;border:1px solid #ddd;border-radius:6px;margin-right:.5rem"></a>`
+        : `<span class="text-muted">${key} no adjunta</span>`;
+    });
+    if (row.Observaciones) ev.innerHTML += `<div class="ms-2">${li('Observaciones', row.Observaciones)}</div>`;
+
+    // Conteo
+    $('#sum-conteo', root).innerHTML = [
+      li('Hombres (18-59 años)', row.hombre), li('Mujeres (18-59 años)', row.mujer),
+      li('Niños', row.ninos), li('Adultos mayores', row.adultos_mayores),
+      li('Discapacidad', row.discapacidad), li('Mascotas', row.mascotas),
+      `<hr class="my-1">`, li('Total', row.total)
+    ].join('');
+
+    // Cronograma y evaluación
+    $('#sum-steps', root).innerHTML = [
+      li('Hora inicio', row.Hora_Inicio), li('Agradecimiento y cierre', row.Agradecimiento_y_cierre),
+      li('Tiempo total', row.Tiempo_total)
+    ].join('');
+    $('#sum-evaluacion', root).innerHTML = [
+      li('Alarma efectiva', row.alarma_efectiva), li('Orden evacuación', row.orden_evacuacion),
+      li('Liderazgo brigadistas', row.liderazgo_brigadistas),
+      li('Organización punto de encuentro', row.organizacion_punto_encuentro),
+      li('Participación general', row.participacion_general),
+      li('Evaluación cuantitativa', row.evaluacion_cuantitativa),
+      li('Evaluación cualitativa', row.evaluacion_cualitativa)
+    ].join('');
+  }
+
+  const fromStateFallback = ()=>{
+    const g = STATE.get('info_general') || {};
+    const b = STATE.get('brigadista') || {};
+    const e = STATE.get('evidencias') || {};
+    const c = STATE.get('conteo') || {};
+    const s = STATE.get('steps') || {};
+    const ev= STATE.get('evaluacion') || {};
+
+    return {
+      Cliente: STATE.get('cliente')?.name || '',
+      Direccion: g.direccion || '',
+      Evento_Simulado: g.evento || '',
+      Alcance_Simulacro: g.alcance || '',
+      Tipo_Evacuacion: g.tipoEvacuacion || '',
+      Personal_No_Evacua: g.personalNoEvacua || '',
+      Tipo_Alarma: g.tipoAlarma || '',
+      Puntos_Encuentro: g.puntosEncuentro || '',
+      Recurso_Humano: g.recursoHumano || '',
+      Equipos_Emergencia: g.Equipos_Emergencia || g.equiposEmergencia || '',
+
+      nombre_brigadista_lider: b.nombre || '',
+      email_brigadista_lider:  b.email || '',
+      whatsapp_brigadista_lider: b.whatsapp || '',
+      Distintivos_Brigadistas: b.Distintivos_Brigadistas || b.distintivos || '',
+
+      imagen_1: e.imagen_1 || '',
+      imagen_2: e.imagen_2 || '',
+      Observaciones: e.observaciones || '',
+
+      hombre: c.hombre ?? '',
+      mujer: c.mujer ?? '',
+      ninos: c.ninos ?? '',
+      adultos_mayores: (c.adultosMayores ?? c.adultos_mayores) ?? '',
+      discapacidad: c.discapacidad ?? '',
+      mascotas: c.mascotas ?? '',
+      total: c.total ?? '',
+
+      Hora_Inicio: s.Hora_Inicio || '',               // <-- incluir tiempos
+      Agradecimiento_y_cierre: s.Agradecimiento_y_cierre || '',
+      Tiempo_total: s.Tiempo_total || '',
+
+      alarma_efectiva: ev.alarma_efectiva ?? '',
+      orden_evacuacion: ev.orden_evacuacion ?? '',
+      liderazgo_brigadistas: ev.liderazgo_brigadistas ?? '',
+      organizacion_punto_encuentro: ev.organizacion_punto_encuentro ?? '',
+      participacion_general: ev.participacion_general ?? '',
+      evaluacion_cuantitativa: ev.evaluacion_cuantitativa ?? '',
+      evaluacion_cualitativa: ev.evaluacion_cualitativa ?? ''
+    };
+  };
+
+  // Lógica de carga:
+  google.script.run
+    .withSuccessHandler(res=>{
+      const row = (res && res.data && Object.keys(res.data).length) ? res.data : fromStateFallback();
+      render(row); // usa las mismas claves que HEADERS
+    })
+    .withFailureHandler(()=> render(fromStateFallback()))
+    .getRecordById(STATE.get('cliente').recordId);
+
+  // Botón final (ya implementado): se mantiene igual
+  const btn = $('#btn-final-send', root);
+  btn?.addEventListener('click', ()=>{
+    const viewRoot = document.getElementById('app-root');
+    markRequiredInView(viewRoot);
+    if (!validateCurrentView(viewRoot)) return;
+
+    btn.disabled = true; const old = btn.textContent; btn.textContent = 'Enviando…';
+    const cliente = (STATE.get('cliente')?.name) || '';
+
+    google.script.run
+      .withSuccessHandler(()=>{
+        btn.disabled = false; btn.textContent = old;
+        ROUTER.go('selector_cliente');
+        alert('¡Datos enviados correctamente!');
+      })
+      .withFailureHandler(err=>{
+        btn.disabled = false; btn.textContent = old;
+        alert('Error enviando datos: ' + (err?.message || err));
+      })
+      .saveCompletedSimulacro({ recordId: cli.recordId, cliente });
+  });
+};
+
+function initStepsGeneric(rootId, stepKeys, nextRoute){
+  const rec = STATE.get('cliente'); if (!rec?.recordId){ ROUTER.go('selector_cliente'); return; }
+  const root = document.getElementById(rootId);
+  const list = root; // los botones están en root
+  const tt = root.querySelector('#tt-value'); // solo existe en parte 2
+  const btnNext = root.querySelector('[id^="btn-steps"][id$="next"]');
+  const btnReset = root.querySelector('[id^="btn-steps"][id$="reset"]');
+
+  function applyState(state){
+    const steps = state?.steps || {};
+    stepKeys.forEach(k=>{
+      const el = root.querySelector('#ts-'+k);
+      if (el) el.textContent = steps[k] || '--:--:--';
+    });
+    if (tt && state?.tiempoTotal) tt.textContent = state.tiempoTotal;
+  }
+
+  list.addEventListener('click', (ev)=>{
+    const btn = ev.target.closest('button[data-step]');
+    if (!btn) return;
+    const key = btn.getAttribute('data-step');
+    if (!stepKeys.includes(key)) return;
+    google.script.run
+      .withSuccessHandler(res=> {
+        applyState(res?.state);
+        if (res && res.state) {
+          const t = res.state.tiempoTotal || '';
+          const steps = res.state.steps || {};
+          STATE.set('steps', Object.assign({}, steps, { Tiempo_total: t }));
+        }
+      })
+      .withFailureHandler(err=> alert('Error marcando paso: ' + (err?.message || err)))
+      .markStep(rec.recordId, key);
+  });
+
+  btnReset?.addEventListener('click', ()=>{
+    if (!confirm('¿Reiniciar tiempos de todos los pasos?')) return;
+    google.script.run
+      .withSuccessHandler(res=>{
+        applyState(res?.state); // quedará vacío
+        root.querySelectorAll('[id^="ts-"]').forEach(el=> el.textContent='--:--:--');
+        if (tt) tt.textContent='--:--:--';
+      })
+      .withFailureHandler(err=> alert('Error reiniciando: ' + (err?.message || err)))
+      .resetSteps(rec.recordId);
+  });
+
+  btnNext?.addEventListener('click', ()=>{
+    google.script.run
+      .withSuccessHandler(()=> ROUTER.go(nextRoute))
+      .withFailureHandler(err=> alert('Error guardando: ' + (err?.message || err)))
+      .saveCompletedSimulacro({ recordId: rec.recordId });
+  });
+
+  // Cargar estado por si venimos con datos previos
+  google.script.run
+    .withSuccessHandler(res=> applyState(res?.state))
+    .getState?.(rec.recordId);
+}
+
+// Parte 1
+VIEWS.steps_p1 = function(){
+  initStepsGeneric('steps-p1-root', [
+    'Hora_Inicio','Alistamiento_Recursos','Asumir_roles',
+    'Suena_alarma','Distribucion_roles','Llegada_punto_encuentro',
+    'Agrupacion_por_afinidad'
+  ], 'conteo');
+};
+
+// Parte 2
+VIEWS.steps_p2 = function(){
+  initStepsGeneric('steps-p2-root', [
+    'Conteo_Personal','Agradecimiento_y_cierre'
+  ], 'evaluacion');
+};
+
+// 2.1 Marcar required de forma no destructiva (por vista)
+function markRequiredInView(viewRoot){
+  // Todos los data-field estándar
+  $$('[data-field]', viewRoot).forEach(el=>{
+    if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA'){
+      el.setAttribute('required','required');
+    }
+  });
+}
+
+// 2.2 Validación por vista (llamar antes de avanzar)
+function validateCurrentView(viewRoot){
+  let ok = true;
+  const errors = [];
+
+  // Inputs/selects con data-field
+  $$('[data-field]', viewRoot).forEach(el=>{
+    const tag = el.tagName;
+    const type = (el.getAttribute('type')||'').toLowerCase();
+    const val = (el.value||'').toString().trim();
+
+    if (tag==='INPUT' || tag==='TEXTAREA' || tag==='SELECT'){
+      // Números: si vacío, poner 0
+      if (type==='number' && val===''){ el.value='0'; }
+      // Validación general de vacío
+      if ((el.hasAttribute('required')) && (el.value===null || el.value.toString().trim()==='')){
+        ok=false; errors.push(`Completa: ${el.getAttribute('data-field')||el.id}`);
+      }
+    }
+  });
+
+  // Enum list: al menos uno por grupo conocido
+  const enumGroups = [
+    { groupSelector: '.alarma-opt',        field: 'Tipo_Alarma' },
+    { groupSelector: '.equipo-opt',        field: 'Equipos_Emergencia' },
+    { groupSelector: '.distintivo-opt',    field: 'Distintivos_Brigadistas' }
+  ];
+  enumGroups.forEach(cfg=>{
+    const nodes = $$(cfg.groupSelector, viewRoot);
+    if (nodes.length){
+      const anyChecked = Array.from(nodes).some(n=>n.checked);
+      if (!anyChecked){ ok=false; errors.push(`Selecciona al menos un ítem en ${cfg.field}`); }
+    }
+  });
+
+  // Cronograma: si hay marcas de tiempo visibles, exigir todas
+  const steps = $$('.timestamp, .step-time, .chrono-time', viewRoot);
+  if (steps.length){
+    const hayVacio = Array.from(steps).some(n=>!n.textContent || n.textContent.trim()==='' || n.textContent.includes('--:--'));
+    if (hayVacio){ ok=false; errors.push('Completa todas las marcas de tiempo del cronograma.'); }
+  }
+
+  // Imágenes: al menos una entre imagen_1 / imagen_2 (si existen en la vista)
+  // Verificar ambos inputs (camera y file) para cada imagen
+  const img1_camera = $('#imagen_1_camera', viewRoot);
+  const img1_file = $('#imagen_1_file', viewRoot);
+  const img2_camera = $('#imagen_2_camera', viewRoot);
+  const img2_file = $('#imagen_2_file', viewRoot);
+
+  if (img1_camera || img1_file || img2_camera || img2_file){
+    const has1 = (img1_camera && img1_camera.files && img1_camera.files.length>0) ||
+                 (img1_file && img1_file.files && img1_file.files.length>0);
+    const has2 = (img2_camera && img2_camera.files && img2_camera.files.length>0) ||
+                 (img2_file && img2_file.files && img2_file.files.length>0);
+    if (!has1 && !has2){
+      ok=false; errors.push('Adjunta al menos una evidencia fotográfica.');
+    }
+  }
+
+  if (!ok){
+    alert('Por favor corrige:\n\n- ' + errors.join('\n- '));
+  }
+  return ok;
+}
+</script>
+
+<script>
+document.addEventListener('click', (ev)=>{
+  const btn = ev.target.closest('[data-back]');
+  if (!btn) return;
+  ev.preventDefault();
+  const fallback = btn.getAttribute('data-back') || 'selector_cliente';
+  if (window.ROUTER && typeof ROUTER.backOr === 'function') {
+    ROUTER.backOr(fallback);
+  }
+});
+</script>
+
+**********************************************************
+/*
+ * GOOGLE APPS SCRIPT - EVALUACION SIMULACRO
+ * Propósito: Sistema de trigger onEdit para generar PDFs en AppSheet por fases
+ * Dependencias: Google Sheets API, AppSheet API
+ * Configuración: Ejecutar setupEvaluationTriggerEvsim() una vez
+ * Prueba: Editar cualquier columna (excepto ID/TriggerStamp) en fila con ID
+ */
+
+//////////////////// CONFIG EVALUACION SIMULACRO ////////////////////
+const CFG_EVSIM = {
+  SPREADSHEET_ID: '1cqR7tY0HPlNu-hUXeioqvQP_p-QOIUx4EnabEwAuDCM',
+  SHEET_NAME: 'evaluacion_simulacro',
+  HEADER_SUBMISSION_ID: 'ID',
+  HEADER_TRIGGER: 'TriggerStamp',
+
+  APP_ID: 'd47ca018-9c01-44b3-b8f5-1edd4e4df137',
+  ACCESS_KEY: 'V2-fnR2P-IIBNz-WW0sH-LE86P-6n2JN-fSMHS-1J0iR-E1x7e',
+  TABLE_NAME: 'evaluacion_simulacro',
+
+  LOCALE: 'es-ES',
+  TIMEZONE: 'America/Bogota',
+
+  STATE_KEY: 'last_processed_evaluation_id_evsim', // trazabilidad opcional
+  VERBOSE: true,                                    // logs detallados
+
+  // 💬 Nuevo:
+  LOG_PREFIX: '📋 EVALUACION-SIMULACRO'
+};
+
+// EVSIM - Helper para detectar columnas por encabezado
+function findColumnByHeaderEvsim_(sheet, headerText) {
+  const lastCol = sheet.getLastColumn();
+  if (!lastCol) return null;
+  const headers = sheet.getRange(1,1,1,lastCol).getValues()[0].map(v => String(v||'').trim());
+  for (let i=0;i<headers.length;i++){
+    if (headers[i] === headerText) return i+1; // 1-indexed
+  }
+  return null;
+}
+
+// EVSIM - Obtiene números de columna y valida
+function getColumnNumbersEvsim_(sheet) {
+  const submissionId = findColumnByHeaderEvsim_(sheet, CFG_EVSIM.HEADER_SUBMISSION_ID);
+  const trigger      = findColumnByHeaderEvsim_(sheet, CFG_EVSIM.HEADER_TRIGGER);
+  if (!submissionId) throw new Error(`No se encontró la columna "${CFG_EVSIM.HEADER_SUBMISSION_ID}"`);
+  if (!trigger)      throw new Error(`No se encontró la columna "${CFG_EVSIM.HEADER_TRIGGER}"`);
+  return { submissionId, trigger };
+}
+
+// EVSIM - Handler onEdit instalable para detectar cambios por fases
+function checkEvaluationOnEditEvsim(e) {
+  try {
+    if (!e || !e.range) return; // requiere trigger instalable onEdit
+    const sheet = e.range.getSheet();
+    if (sheet.getName() !== CFG_EVSIM.SHEET_NAME) return;
+
+    // ✨ Evita disparar si fue una sola celda y el valor no cambió
+    if (e.range.getNumRows() === 1 && e.range.getNumColumns() === 1) {
+      if (typeof e.value !== 'undefined' && typeof e.oldValue !== 'undefined' && e.value === e.oldValue) {
+        if (CFG_EVSIM.VERBOSE) console.log('Sin cambios reales en la celda; no se dispara.');
+        return;
+      }
+    }
+
+    const { submissionId, trigger } = getColumnNumbersEvsim_(sheet);
+
+    const rowStart = Math.max(2, e.range.getRow());
+    const rowEnd   = e.range.getLastRow();
+    const colStart = e.range.getColumn();
+    const colEnd   = e.range.getLastColumn();
+
+    // Si lo único editado es ID o TriggerStamp, no dispares
+    if (colStart === colEnd && (colStart === submissionId || colStart === trigger)) return;
+
+    for (let r = rowStart; r <= rowEnd; r++) {
+      const idVal = String(sheet.getRange(r, submissionId).getValue() || '').trim();
+      if (!idVal) {
+        if (CFG_EVSIM.VERBOSE) console.log(`Fila ${r} sin ID: aún no dispara (Fase 1 debe crear ID).`);
+        continue;
+      }
+
+      // Verifica si en la edición hay al menos una columna de "datos"
+      let hayDatoEditado = false;
+      for (let c = colStart; c <= colEnd; c++) {
+        if (c !== submissionId && c !== trigger) { hayDatoEditado = true; break; }
+      }
+      if (!hayDatoEditado) continue;
+
+      const trigVal = 'EVAL_' + Date.now();
+      sheet.getRange(r, trigger).setValue(trigVal);   // marca cambio para AppSheet
+      callAppSheetNotificationEvsim_(idVal, trigVal); // y notifica por API (doble garantía)
+
+      if (CFG_EVSIM.VERBOSE) console.log(`✓ Notificado AppSheet: fila ${r}, ID ${idVal}, Trigger ${trigVal}`);
+      PropertiesService.getScriptProperties().setProperty(CFG_EVSIM.STATE_KEY, `${idVal}#${trigVal}`);
+    }
+
+  } catch (err) {
+    console.error('checkEvaluationOnEditEvsim error:', err.message, err.stack);
+  }
+}
+
+/**
+ * Función principal que detecta nuevos registros de evaluación
+ */
+function checkNewEvaluationRowsEvsim(e) {
+  console.log(`${CFG_EVSIM.LOG_PREFIX} === INICIO checkNewEvaluationRowsEvsim ===`);
+  console.log('Timestamp:', new Date().toISOString());
+  console.log('Event objeto recibido:', JSON.stringify(e, null, 2));
+
+  try {
+    console.log('CONFIG utilizada:');
+    console.log('- SPREADSHEET_ID:', CFG_EVSIM.SPREADSHEET_ID);
+    console.log('- SHEET_NAME:', CFG_EVSIM.SHEET_NAME);
+    console.log('- HEADER_SUBMISSION_ID:', CFG_EVSIM.HEADER_SUBMISSION_ID);
+    console.log('- HEADER_TRIGGER:', CFG_EVSIM.HEADER_TRIGGER);
+    console.log('- APP_ID:', CFG_EVSIM.APP_ID);
+    console.log('- TABLE_NAME:', CFG_EVSIM.TABLE_NAME);
+
+    // Abrir el spreadsheet específico por ID
+    const ss = SpreadsheetApp.openById(CFG_EVSIM.SPREADSHEET_ID);
+    console.log('Spreadsheet ID:', ss.getId());
+    console.log('Spreadsheet nombre:', ss.getName());
+
+    const sh = ss.getSheetByName(CFG_EVSIM.SHEET_NAME);
+    if (!sh) {
+      console.error('ERROR CRÍTICO: No existe la hoja:', CFG_EVSIM.SHEET_NAME);
+      console.log('Hojas disponibles:', ss.getSheets().map(s => s.getName()));
+      throw new Error('No existe la hoja: ' + CFG_EVSIM.SHEET_NAME);
+    }
+    console.log('✓ Hoja encontrada:', sh.getName());
+
+    // Detectar columnas automáticamente
+    const columns = getColumnNumbersEvsim_(sh);
+
+    const lastRow = sh.getLastRow();
+    console.log('Última fila con datos:', lastRow);
+    if (lastRow <= 1) {
+      console.log('SALIDA TEMPRANA: Solo hay encabezado (lastRow <= 1)');
+      return;
+    }
+
+    console.log('Leyendo rango para IDs:');
+    console.log('- Fila inicio: 2');
+    console.log('- Columna:', columns.submissionId);
+    console.log('- Num filas:', lastRow - 1);
+
+    const ids = sh.getRange(2, columns.submissionId, lastRow - 1, 1)
+                  .getValues()
+                  .map(r => String(r[0] || '').trim())
+                  .filter(Boolean);
+
+    console.log('IDs encontrados (total):', ids.length);
+    console.log('Primeros 5 IDs:', ids.slice(0, 5));
+    console.log('Últimos 5 IDs:', ids.slice(-5));
+
+    if (ids.length === 0) {
+      console.log('SALIDA TEMPRANA: No hay IDs válidos');
+      return;
+    }
+
+    const lastSubmissionId = ids[ids.length - 1];
+    console.log('Último ID en hoja:', lastSubmissionId);
+
+    const props = PropertiesService.getScriptProperties();
+    const prev = props.getProperty(CFG_EVSIM.STATE_KEY);
+    console.log('Último ID procesado anteriormente:', prev || 'NINGUNO');
+
+    // Si ya procesamos este mismo ID, no hacemos nada
+    if (prev && prev === lastSubmissionId) {
+      console.log('SALIDA TEMPRANA: Nada nuevo. Último procesado =', prev);
+      return;
+    }
+    console.log('✓ HAY NUEVA EVALUACIÓN PARA PROCESAR');
+
+    // Busca la fila exacta del último submission
+    console.log('Buscando fila exacta del ID:', lastSubmissionId);
+    const rowIndex = findRowBySubmissionIdEvsim_(sh, columns.submissionId, lastSubmissionId);
+    if (!rowIndex) {
+      console.error('ERROR: No se ubicó la fila del ID', lastSubmissionId);
+      return;
+    }
+    console.log('✓ Fila encontrada:', rowIndex);
+
+    // Marca Trigger en la hoja para que AppSheet detecte el cambio
+    const triggerValue = 'EVAL_' + new Date().getTime();
+    console.log('Valor de trigger generado:', triggerValue);
+
+    if (columns.trigger) {
+      console.log('Marcando trigger en fila', rowIndex, 'columna', columns.trigger);
+      sh.getRange(rowIndex, columns.trigger).setValue(triggerValue);
+      console.log('✓ Trigger marcado en hoja');
+    } else {
+      console.log('ADVERTENCIA: Columna Trigger no encontrada, no se marcará en la hoja');
+    }
+
+    // Notifica a AppSheet para que genere el PDF
+    console.log('Enviando notificación a AppSheet para generar PDF...');
+    callAppSheetNotificationEvsim_(lastSubmissionId, triggerValue);
+
+    // Guarda estado
+    console.log('Guardando nuevo estado:', lastSubmissionId);
+    props.setProperty(CFG_EVSIM.STATE_KEY, lastSubmissionId);
+    console.log('✓ Estado guardado');
+
+    console.log(`${CFG_EVSIM.LOG_PREFIX} ✓ ÉXITO: Procesada evaluación ID:`, lastSubmissionId);
+    console.log(`${CFG_EVSIM.LOG_PREFIX} === FIN checkNewEvaluationRowsEvsim EXITOSO ===`);
+
+  } catch (err) {
+    console.error(`${CFG_EVSIM.LOG_PREFIX} 💥 ERROR CRÍTICO en checkNewEvaluationRowsEvsim:`);
+    console.error('Mensaje:', err.message);
+    console.error('Stack:', err.stack);
+    console.error('Línea:', err.lineNumber || 'N/A');
+    console.log(`${CFG_EVSIM.LOG_PREFIX} === FIN checkNewEvaluationRowsEvsim CON ERROR ===`);
+  }
+}
+
+// EVSIM - Llama a AppSheet API para notificar cambio y generar PDF
+function callAppSheetNotificationEvsim_(submissionId, triggerValue) {
+  const url = `https://api.appsheet.com/api/v2/apps/${CFG_EVSIM.APP_ID}/tables/${encodeURIComponent(CFG_EVSIM.TABLE_NAME)}/Action`;
+  const payload = {
+    Action: "Edit",
+    Properties: { Locale: CFG_EVSIM.LOCALE, Timezone: CFG_EVSIM.TIMEZONE },
+    Rows: [{ "ID": submissionId, "TriggerStamp": triggerValue }]
+  };
+  const requestOptions = {
+    method: 'post',
+    headers: { 'ApplicationAccessKey': CFG_EVSIM.ACCESS_KEY },
+    contentType: 'application/json',
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  };
+  const resp = UrlFetchApp.fetch(url, requestOptions);
+  if (CFG_EVSIM.VERBOSE) console.log('HTTP', resp.getResponseCode(), resp.getContentText());
+
+  const txt = resp.getContentText();
+  if (CFG_EVSIM.VERBOSE) console.log('Response Body (raw):', txt);
+
+  try {
+    const j = JSON.parse(txt);
+    // AppSheet suele responder con counts: Rows Updated, Errors, etc.
+    if (j && (j['Rows Updated'] === 0 || j['Rows Updated'] === '0')) {
+      console.error('🚫 AppSheet no actualizó ninguna fila. Revisa: KEY=ID, TABLE_NAME, APP_ID, ACCESS_KEY.');
+    }
+    if (j && j.Errors && j.Errors.length) {
+      console.error('❗Errores API AppSheet:', JSON.stringify(j.Errors));
+    }
+  } catch (e) {
+    // no-op, no siempre es JSON
+  }
+}
+
+/**
+ * Busca la fila exacta de un submission ID
+ */
+function findRowBySubmissionIdEvsim_(sh, col, id) {
+  console.log('--- INICIO findRowBySubmissionIdEvsim_ ---');
+  console.log('Parámetros:');
+  console.log('- Hoja:', sh.getName());
+  console.log('- Columna:', col);
+  console.log('- ID buscado:', id);
+
+  const last = sh.getLastRow();
+  console.log('Última fila de la hoja:', last);
+
+  if (last <= 1) {
+    console.log('No hay datos para buscar (solo encabezado)');
+    return null;
+  }
+
+  console.log('Leyendo rango para búsqueda:');
+  console.log('- Desde fila 2 hasta fila', last);
+  console.log('- Columna', col);
+
+  const vals = sh.getRange(2, col, last - 1, 1).getValues();
+  console.log('Valores leídos (total):', vals.length);
+  console.log('Primeras 3 filas:', vals.slice(0, 3).map(v => String(v[0]).trim()));
+
+  for (let i = 0; i < vals.length; i++) {
+    const cellValue = String(vals[i][0]).trim();
+    console.log(`Fila ${i + 2}: "${cellValue}" ${cellValue === id ? '← MATCH!' : ''}`);
+
+    if (cellValue === id) {
+      const rowNumber = i + 2;
+      console.log('✓ ID encontrado en fila:', rowNumber);
+      console.log('--- FIN findRowBySubmissionIdEvsim_ EXITOSO ---');
+      return rowNumber;
+    }
+  }
+
+  console.log('❌ ID NO ENCONTRADO');
+  console.log('--- FIN findRowBySubmissionIdEvsim_ SIN RESULTADO ---');
+  return null;
+}
+
+/**
+ * Función auxiliar para debug manual
+ */
+function testCheckNewEvaluationRowsEvsim() {
+  console.log(`${CFG_EVSIM.LOG_PREFIX} 🧪 EJECUTANDO TEST MANUAL`);
+  console.log('Simulando evento onChange...');
+
+  const fakeEvent = {
+    source: SpreadsheetApp.openById(CFG_EVSIM.SPREADSHEET_ID),
+    range: null,
+    authMode: 'FULL',
+    triggerUid: 'MANUAL_TEST_' + new Date().getTime()
+  };
+
+  checkNewEvaluationRowsEvsim(fakeEvent);
+  console.log(`${CFG_EVSIM.LOG_PREFIX} 🧪 TEST MANUAL COMPLETADO`);
+}
+
+/**
+ * Función para limpiar el estado (útil para testing)
+ */
+function resetEvaluationStateEvsim() {
+  console.log(`${CFG_EVSIM.LOG_PREFIX} 🔄 LIMPIANDO ESTADO...`);
+  const props = PropertiesService.getScriptProperties();
+  const oldValue = props.getProperty(CFG_EVSIM.STATE_KEY);
+  console.log('Valor anterior:', oldValue || 'NINGUNO');
+
+  props.deleteProperty(CFG_EVSIM.STATE_KEY);
+  console.log('✓ Estado limpiado. Próxima ejecución procesará el último submission.');
+}
+
+/**
+ * Función para revisar configuración
+ */
+function debugEvaluationConfigEvsim() {
+  console.log(`${CFG_EVSIM.LOG_PREFIX} 🔧 REVISIÓN DE CONFIGURACIÓN:`);
+  console.log('CONFIG completa:', JSON.stringify(CFG_EVSIM, null, 2));
+
+  try {
+    const ss = SpreadsheetApp.openById(CFG_EVSIM.SPREADSHEET_ID);
+    console.log('✓ Spreadsheet accesible:', ss.getName());
+
+    const sh = ss.getSheetByName(CFG_EVSIM.SHEET_NAME);
+    if (sh) {
+      console.log('✓ Hoja encontrada:', sh.getName());
+      console.log('- Última fila:', sh.getLastRow());
+      console.log('- Última columna:', sh.getLastColumn());
+
+      try {
+        const columns = getColumnNumbersEvsim_(sh);
+        console.log('✓ Detección de columnas exitosa');
+      } catch (colErr) {
+        console.error('❌ Error en detección de columnas:', colErr.message);
+      }
+    } else {
+      console.error('❌ Hoja NO encontrada:', CFG_EVSIM.SHEET_NAME);
+      console.log('Hojas disponibles:', ss.getSheets().map(s => s.getName()));
+    }
+  } catch (err) {
+    console.error('❌ Error accediendo spreadsheet:', err.message);
+  }
+
+  const props = PropertiesService.getScriptProperties();
+  const state = props.getProperty(CFG_EVSIM.STATE_KEY);
+  console.log('Estado actual:', state || 'NINGUNO');
+}
+
+// EVSIM - Configura trigger onEdit instalable para detectar cambios en tiempo real
+function setupEvaluationTriggerEvsim() {
+  // Elimina duplicados del mismo handler
+  ScriptApp.getProjectTriggers().forEach(t => {
+    const name = t.getHandlerFunction();
+    if (name === 'checkEvaluationOnEditEvsim') ScriptApp.deleteTrigger(t);
+  });
+
+  // Crea onEdit instalable asociado al Spreadsheet del proyecto
+  ScriptApp.newTrigger('checkEvaluationOnEditEvsim')
+    .forSpreadsheet(CFG_EVSIM.SPREADSHEET_ID)
+    .onEdit()
+    .create();
+
+  console.log('✅ Trigger ON EDIT creado: checkEvaluationOnEditEvsim');
+}
+
+// EVSIM - Backfill para filas con ID pero sin TriggerStamp (filas antiguas)
+function evsimBackfillPendientes() {
+  const ss = SpreadsheetApp.openById(CFG_EVSIM.SPREADSHEET_ID);
+  const sh = ss.getSheetByName(CFG_EVSIM.SHEET_NAME);
+  const { submissionId, trigger } = getColumnNumbersEvsim_(sh);
+
+  const last = sh.getLastRow();
+  if (last <= 1) return;
+  const ids   = sh.getRange(2, submissionId, last-1, 1).getValues();
+  const trigs = sh.getRange(2, trigger,      last-1, 1).getValues();
+
+  for (let i=0;i<ids.length;i++){
+    const id = String(ids[i][0]||'').trim();
+    const tg = String(trigs[i][0]||'').trim();
+    const row = i+2;
+    if (id && !tg) {
+      const trigVal = 'EVAL_' + Date.now();
+      sh.getRange(row, trigger).setValue(trigVal);
+      callAppSheetNotificationEvsim_(id, trigVal);
+      if (CFG_EVSIM.VERBOSE) console.log(`Backfill fila ${row}: ID=${id} -> Trigger=${trigVal}`);
+    }
+  }
+}

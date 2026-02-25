@@ -18,6 +18,8 @@ use App\Models\PendientesModel;
 use App\Models\VencimientosMantenimientoModel;
 use App\Models\CartaVigiaModel;
 use App\Models\PlanEmergenciaModel;
+use App\Models\EvaluacionSimulacroModel;
+use App\Models\HvBrigadistaModel;
 
 class InspeccionesController extends BaseController
 {
@@ -188,6 +190,44 @@ class InspeccionesController extends BaseController
             $pendientesPlanEmg = $planEmgModel->getPendientesByConsultor($userId);
         }
 
+        // Conteo de evaluaciones simulacro completas (derivado via tbl_clientes)
+        $evalSimModel = new EvaluacionSimulacroModel();
+        if ($role === 'admin') {
+            $totalSimulacro = $evalSimModel->where('estado', 'completo')->countAllResults();
+            $pendientesSimulacro = $evalSimModel
+                ->select('tbl_evaluacion_simulacro.*, tbl_clientes.nombre_cliente')
+                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_simulacro.id_cliente', 'left')
+                ->where('tbl_evaluacion_simulacro.estado', 'borrador')
+                ->orderBy('tbl_evaluacion_simulacro.updated_at', 'DESC')
+                ->findAll();
+        } else {
+            $totalSimulacro = $evalSimModel
+                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_simulacro.id_cliente')
+                ->where('tbl_clientes.id_consultor', $userId)
+                ->where('tbl_evaluacion_simulacro.estado', 'completo')
+                ->countAllResults();
+            $pendientesSimulacro = $evalSimModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de HV brigadista completas (derivado via tbl_clientes)
+        $hvBrigModel = new HvBrigadistaModel();
+        if ($role === 'admin') {
+            $totalHvBrigadista = $hvBrigModel->where('estado', 'completo')->countAllResults();
+            $pendientesHvBrig = $hvBrigModel
+                ->select('tbl_hv_brigadista.*, tbl_clientes.nombre_cliente')
+                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_hv_brigadista.id_cliente', 'left')
+                ->where('tbl_hv_brigadista.estado', 'borrador')
+                ->orderBy('tbl_hv_brigadista.updated_at', 'DESC')
+                ->findAll();
+        } else {
+            $totalHvBrigadista = $hvBrigModel
+                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_hv_brigadista.id_cliente')
+                ->where('tbl_clientes.id_consultor', $userId)
+                ->where('tbl_hv_brigadista.estado', 'completo')
+                ->countAllResults();
+            $pendientesHvBrig = $hvBrigModel->getPendientesByConsultor($userId);
+        }
+
         // Conteo de vencimientos de mantenimiento sin ejecutar
         $vencimientoModel = new VencimientosMantenimientoModel();
         $vencBuilder = $vencimientoModel->where('estado_actividad', 'sin ejecutar');
@@ -198,7 +238,7 @@ class InspeccionesController extends BaseController
 
         // Conteo de pendientes (compromisos) abiertos
         $pendientesCountModel = new PendientesModel();
-        $pendCountBuilder = $pendientesCountModel->where('estado', 'ABIERTA');
+        $pendCountBuilder = $pendientesCountModel->where('tbl_pendientes.estado', 'ABIERTA');
         if ($role !== 'admin') {
             $pendCountBuilder->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_pendientes.id_cliente')
                 ->where('tbl_clientes.id_consultor', $userId);
@@ -226,6 +266,8 @@ class InspeccionesController extends BaseController
             'pendientesProbPeligros' => $pendientesProbPeligros,
             'pendientesMatrizVul' => $pendientesMatrizVul,
             'pendientesPlanEmg' => $pendientesPlanEmg,
+            'pendientesSimulacro' => $pendientesSimulacro,
+            'pendientesHvBrig' => $pendientesHvBrig,
             'totalActas'       => $totalActas,
             'totalLocativas'   => $totalLocativas,
             'totalSenalizacion' => $totalSenalizacion,
@@ -237,6 +279,8 @@ class InspeccionesController extends BaseController
             'totalProbPeligros' => $totalProbPeligros,
             'totalMatrizVul'   => $totalMatrizVul,
             'totalPlanEmergencia' => $totalPlanEmergencia,
+            'totalSimulacro'   => $totalSimulacro,
+            'totalHvBrigadista' => $totalHvBrigadista,
             'totalVencimientos' => $totalVencimientos,
             'totalPendientesAbiertos' => $totalPendientesAbiertos,
             'totalCartasVigiaPend' => $totalCartasVigiaPend,

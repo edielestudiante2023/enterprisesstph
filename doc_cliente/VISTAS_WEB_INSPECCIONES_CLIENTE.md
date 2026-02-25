@@ -33,7 +33,12 @@ app/
 │           ├── botiquin_view.php           ← Vista detalle read-only (32 items fijos)
 │           ├── extintores_view.php         ← Vista detalle read-only (N extintores dinámico)
 │           ├── comunicaciones_view.php     ← Vista detalle read-only (8 equipos fijos)
-│           └── gabinetes_view.php          ← Vista detalle read-only (N gabinetes + detectores)
+│           ├── gabinetes_view.php          ← Vista detalle read-only (N gabinetes + detectores)
+│           ├── carta_vigia_list.php        ← Lista dedicada (solo firmadas, sin detalle individual)
+│           ├── mantenimientos_list.php     ← Lista dedicada (todos los estados, con filtros)
+│           ├── matriz_vulnerabilidad_view.php ← Vista detalle read-only (25 criterios + puntaje)
+│           ├── probabilidad_peligros_view.php ← Vista detalle read-only (12 peligros + %)
+│           └── recursos_seguridad_view.php ← Vista detalle read-only (6 recursos + fotos)
 ├── Config/
 │   └── Routes.php                          ← MODIFICADO (agregar grupo rutas)
 └── Views/
@@ -269,7 +274,7 @@ Vista genérica que funciona para cualquier tipo de inspección. Recibe:
 | Variable | Tipo | Descripción |
 |----------|------|-------------|
 | `$inspecciones` | array | Registros de la BD |
-| `$tipo` | string | Identificador: `acta_visita`, `locativa`, `senalizacion`, `botiquin`, `extintores`, `comunicaciones`, `gabinetes` |
+| `$tipo` | string | Identificador: `acta_visita`, `locativa`, `senalizacion`, `botiquin`, `extintores`, `comunicaciones`, `gabinetes`, `matriz_vulnerabilidad`, `probabilidad_peligros`, `recursos_seguridad` |
 | `$titulo` | string | Título visible |
 | `$campo_fecha` | string | Nombre del campo de fecha en la tabla |
 | `$base_url` | string | URL base para los links de detalle |
@@ -350,6 +355,44 @@ Secciones: Datos Generales → Gabinetes Contra Incendio (SI/NO tiene gabinetes,
 
 **Nota:** Usa `InspeccionGabineteController::CRITERIOS` y `GabineteDetalleModel::getByInspeccion($id)` para gabinetes individuales.
 
+### Vista Cartas de Vigía (`carta_vigia_list.php`)
+
+**Tipo especial: Solo lista, sin vista de detalle individual.** Muestra cartas firmadas del cliente (estado_firma='firmado'). Cada card muestra: nombre vigía, CC, email, teléfono, fecha de firma, código de verificación, enlace PDF.
+
+**Nota:** No usa `list.php` genérica porque la estructura es fundamentalmente distinta (no tiene fecha_inspeccion ni id estándar). Usa `CartaVigiaModel` directamente.
+
+### Vista Mantenimientos (`mantenimientos_list.php`)
+
+**Tipo especial: Solo lista, sin vista de detalle individual.** Muestra TODOS los mantenimientos (no filtra por estado) con filtros JS por categoría (Todos/Pendientes/Ejecutados/Cerrados). Cada card muestra: detalle mantenimiento (join con tbl_mantenimientos), fecha vencimiento, días restantes, estado con color-coded badge, observaciones.
+
+**Lógica de colores:**
+- Vencido (diff < 0) → rojo | Próximo (diff ≤ 15) → amarillo | Vigente → dorado | Ejecutado → verde | Cerrado → gris
+
+**Nota:** Usa `VencimientosMantenimientoModel` con JOIN a `MantenimientoModel` para obtener `detalle_mantenimiento`. Primary key es `id_vencimientos_mmttos`.
+
+### Vista Matriz Vulnerabilidad (`matriz_vulnerabilidad_view.php`)
+
+Secciones: Datos Generales → Resultado de Evaluación (puntaje /100, barra de progreso, clasificación color-coded) → 25 Criterios Evaluados (cada uno con badge A/B/C y texto de opción seleccionada) → Observaciones → PDF
+
+**Lógica de puntaje:** Cada criterio vale: A=1.0, B=0.5, C=0.0. Puntaje = suma × 4 (máx 100).
+**Clasificación:** 91-100 = Vulnerabilidad mínima (verde) | 71-90 = Baja (azul) | 51-70 = Media-alta (amarillo) | 0-50 = Alta (rojo)
+
+**Nota:** Usa `MatrizVulnerabilidadController::CRITERIOS`, `::PUNTAJES`, `::CLASIFICACION`. Métodos `calcularPuntaje()` y `getClasificacion()` son públicos.
+
+### Vista Probabilidad de Peligros (`probabilidad_peligros_view.php`)
+
+Secciones: Datos Generales → 3 Grupos de Peligros (Naturales/Sociales/Tecnológicos con 12 items, cada uno con badge de frecuencia) → Resultados Consolidados (3 barras: Poco Probable %, Probable %, Muy Probable %) → Observaciones → PDF
+
+**Lógica de colores frecuencia:** Poco Probable → verde | Probable → amarillo | Muy Probable → rojo
+
+**Nota:** Usa `ProbabilidadPeligrosController::PELIGROS` y `::FRECUENCIAS`. El cálculo de porcentajes se replica en el controller del cliente.
+
+### Vista Recursos de Seguridad (`recursos_seguridad_view.php`)
+
+Secciones: Datos Generales → 6 Recursos de Seguridad (Lámparas emergencia, Antideslizantes, Pasamanos, Vigilancia, Iluminación exterior, Planes respuesta — cada uno con ícono, hint, observación, foto ampliable) → Observaciones Generales → PDF
+
+**Nota:** Usa `InspeccionRecursosSeguridadController::RECURSOS` (6 items con label, icon, hint, tiene_foto). Los campos en BD son `obs_{key}` y `foto_{key}`.
+
 ### Lógica de colores para calificación
 
 ```php
@@ -409,6 +452,14 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
     $routes->get('comunicaciones/(:num)', 'ClientInspeccionesController::viewComunicacion/$1');
     $routes->get('gabinetes', 'ClientInspeccionesController::listGabinetes');
     $routes->get('gabinetes/(:num)', 'ClientInspeccionesController::viewGabinete/$1');
+    $routes->get('carta-vigia', 'ClientInspeccionesController::listCartasVigia');
+    $routes->get('mantenimientos', 'ClientInspeccionesController::listMantenimientos');
+    $routes->get('matriz-vulnerabilidad', 'ClientInspeccionesController::listMatrizVulnerabilidad');
+    $routes->get('matriz-vulnerabilidad/(:num)', 'ClientInspeccionesController::viewMatrizVulnerabilidad/$1');
+    $routes->get('probabilidad-peligros', 'ClientInspeccionesController::listProbabilidadPeligros');
+    $routes->get('probabilidad-peligros/(:num)', 'ClientInspeccionesController::viewProbabilidadPeligros/$1');
+    $routes->get('recursos-seguridad', 'ClientInspeccionesController::listRecursosSeguridad');
+    $routes->get('recursos-seguridad/(:num)', 'ClientInspeccionesController::viewRecursosSeguridad/$1');
 });
 ```
 
@@ -493,7 +544,12 @@ Hub inspecciones (/client/inspecciones)
   ├── Card "Botiquín (1)"
   ├── Card "Extintores (4)"
   ├── Card "Comunicaciones (2)"
-  └── Card "Gabinetes (3)"
+  ├── Card "Gabinetes (3)"
+  ├── Card "Cartas de Vigía (4)"
+  ├── Card "Mantenimientos (8)"
+  ├── Card "Matriz Vulnerabilidad (1)"
+  ├── Card "Probabilidad Peligros (2)"
+  └── Card "Recursos Seguridad (1)"
     ↓
 Click en tipo
     ↓

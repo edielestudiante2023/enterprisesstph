@@ -26,7 +26,11 @@ enterprisesstph/                          (proyecto existente CI4)
 │   │   │   ├── InspeccionRecursosSeguridadController.php (recursos seguridad, plano)
 │   │   │   ├── ProbabilidadPeligrosController.php   (probabilidad ocurrencia, 11 peligros)
 │   │   │   ├── MatrizVulnerabilidadController.php   (25 criterios A/B/C, score 0-100)
-│   │   │   └── PlanEmergenciaController.php         (doc maestro, ~80 cols, 19 fotos, consolida todo)
+│   │   │   ├── PlanEmergenciaController.php         (doc maestro, ~80 cols, 19 fotos, consolida todo)
+│   │   │   ├── EvaluacionSimulacroController.php   (admin: list, view, PDF, finalizar)
+│   │   │   └── HvBrigadistaController.php         (admin: list, view, PDF, finalizar)
+│   │   ├── SimulacroPublicoController.php     (formulario público sin auth, wizard 9 pasos)
+│   │   ├── HvBrigadistaPublicoController.php  (formulario público sin auth, single-page)
 │   │   └── ClientInspeccionesController.php (portal cliente: vista read-only de inspecciones)
 │   ├── Views/
 │   │   ├── inspecciones/                    (vistas consultor - PWA)
@@ -42,7 +46,11 @@ enterprisesstph/                          (proyecto existente CI4)
 │   │   │   ├── recursos-seguridad/             (list, form, view, pdf)
 │   │   │   ├── probabilidad-peligros/          (list, form, view, pdf)
 │   │   │   ├── matriz-vulnerabilidad/          (list, form, view, pdf)
-│   │   │   └── plan-emergencia/                (list, form, view, pdf — doc maestro)
+│   │   │   ├── plan-emergencia/                (list, form, view, pdf — doc maestro)
+│   │   │   ├── simulacro/                    (list, view, pdf — admin read-only)
+│   │   │   └── hv-brigadista/                (list, view, pdf — admin read-only)
+│   │   ├── simulacro/                         (form_publico.php — wizard público sin auth)
+│   │   ├── hv-brigadista/                     (form_publico.php — formulario público sin auth)
 │   │   └── client/inspecciones/             (vistas cliente - portal read-only)
 │   │       ├── dashboard.php                   (hub con cards por tipo)
 │   │       ├── actas/, locativas/, senalizacion/, extintores/, botiquin/
@@ -58,6 +66,8 @@ enterprisesstph/                          (proyecto existente CI4)
 │   │   ├── InspeccionRecursosSeguridadModel.php
 │   │   ├── ProbabilidadPeligrosModel.php
 │   │   ├── MatrizVulnerabilidadModel.php
+│   │   ├── EvaluacionSimulacroModel.php
+│   │   ├── HvBrigadistaModel.php
 │   │   └── PlanEmergenciaModel.php
 │   └── Config/
 │       └── Routes.php                    (grupos /inspecciones/* y /client/inspecciones/*)
@@ -98,6 +108,8 @@ enterprisesstph/                          (proyecto existente CI4)
 | 9 | **Probabilidad Peligros** | Plana (ENUMs) | FUNCIONAL | 17 |
 | 10 | **Matriz Vulnerabilidad** | Plana (ENUMs) | FUNCIONAL | 18 |
 | 11 | **Plan de Emergencia** | Doc Maestro | FUNCIONAL | 19 |
+| 12 | **Ev. Simulacro** | Plana (publico) | FUNCIONAL | 21 |
+| 13 | **HV Brigadista** | Plana (publico) | FUNCIONAL | 22 |
 
 **Portal cliente:** `ClientInspeccionesController` ofrece vista read-only de todas las inspecciones completadas por módulo, accesible desde `/client/inspecciones/`.
 
@@ -164,12 +176,26 @@ $routes->group('inspecciones', ['filter' => 'auth', 'namespace' => 'App\Controll
     // Probabilidad Peligros:  /inspecciones/probabilidad-peligros/*
     // Matriz Vulnerabilidad:  /inspecciones/matriz-vulnerabilidad/*
     // Plan de Emergencia:     /inspecciones/plan-emergencia/*
+    // Ev. Simulacro (admin):  /inspecciones/simulacro/* (list, view, pdf, finalizar, delete)
+    // HV Brigadista (admin):  /inspecciones/hv-brigadista/* (list, view, pdf, finalizar, delete)
 
     // API endpoints AJAX
     $routes->get('api/clientes', 'InspeccionesController::getClientes');
     $routes->get('api/pendientes/(:num)', 'InspeccionesController::getPendientes/$1');
     $routes->get('api/mantenimientos/(:num)', 'InspeccionesController::getMantenimientos/$1');
 });
+
+// Ev. Simulacro (público, sin auth)
+$routes->get('simulacro', 'SimulacroPublicoController::form');
+$routes->get('simulacro/api/clientes', 'SimulacroPublicoController::getClientesActivos');
+$routes->post('simulacro/save-step', 'SimulacroPublicoController::saveStep');
+$routes->post('simulacro/upload-foto', 'SimulacroPublicoController::uploadFoto');
+$routes->post('simulacro/store', 'SimulacroPublicoController::store');
+
+// HV Brigadista (público, sin auth)
+$routes->get('hv-brigadista', 'HvBrigadistaPublicoController::form');
+$routes->get('hv-brigadista/api/clientes', 'HvBrigadistaPublicoController::getClientesActivos');
+$routes->post('hv-brigadista/store', 'HvBrigadistaPublicoController::store');
 
 // Portal cliente (read-only)
 $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
