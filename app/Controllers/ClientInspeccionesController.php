@@ -26,6 +26,10 @@ use App\Models\MantenimientoModel;
 use App\Models\MatrizVulnerabilidadModel;
 use App\Models\ProbabilidadPeligrosModel;
 use App\Models\InspeccionRecursosSeguridadModel;
+use App\Models\HvBrigadistaModel;
+use App\Models\PlanEmergenciaModel;
+use App\Models\EvaluacionSimulacroModel;
+use App\Models\ProgramaLimpiezaModel;
 use App\Controllers\Inspecciones\InspeccionBotiquinController;
 use App\Controllers\Inspecciones\InspeccionExtintoresController;
 use App\Controllers\Inspecciones\InspeccionComunicacionController;
@@ -33,6 +37,7 @@ use App\Controllers\Inspecciones\InspeccionGabineteController;
 use App\Controllers\Inspecciones\MatrizVulnerabilidadController;
 use App\Controllers\Inspecciones\ProbabilidadPeligrosController;
 use App\Controllers\Inspecciones\InspeccionRecursosSeguridadController;
+use App\Controllers\Inspecciones\PlanEmergenciaController;
 use CodeIgniter\Controller;
 
 class ClientInspeccionesController extends Controller
@@ -77,6 +82,10 @@ class ClientInspeccionesController extends Controller
         $matrizModel = new MatrizVulnerabilidadModel();
         $probabilidadModel = new ProbabilidadPeligrosModel();
         $recursosModel = new InspeccionRecursosSeguridadModel();
+        $hvBrigadistaModel = new HvBrigadistaModel();
+        $planEmergenciaModel = new PlanEmergenciaModel();
+        $simulacroModel = new EvaluacionSimulacroModel();
+        $progLimpModel = new ProgramaLimpiezaModel();
 
         $tipos = [
             [
@@ -186,6 +195,42 @@ class ClientInspeccionesController extends Controller
                 'conteo'  => $recursosModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
                 'ultima'  => $recursosModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
                 'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'HV Brigadistas',
+                'icono'   => 'fa-id-card-alt',
+                'color'   => '#00bcd4',
+                'url'     => base_url('client/inspecciones/hv-brigadista'),
+                'conteo'  => $hvBrigadistaModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $hvBrigadistaModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('created_at', 'DESC')->first(),
+                'campo_fecha' => 'created_at',
+            ],
+            [
+                'nombre'  => 'Plan de Emergencia',
+                'icono'   => 'fa-route',
+                'color'   => '#ff5722',
+                'url'     => base_url('client/inspecciones/plan-emergencia'),
+                'conteo'  => $planEmergenciaModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $planEmergenciaModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_visita', 'DESC')->first(),
+                'campo_fecha' => 'fecha_visita',
+            ],
+            [
+                'nombre'  => 'Evaluación Simulacro',
+                'icono'   => 'fa-running',
+                'color'   => '#607d8b',
+                'url'     => base_url('client/inspecciones/simulacro'),
+                'conteo'  => $simulacroModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $simulacroModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha', 'DESC')->first(),
+                'campo_fecha' => 'fecha',
+            ],
+            [
+                'nombre'  => 'Limpieza y Desinfección',
+                'icono'   => 'fa-pump-soap',
+                'color'   => '#4caf50',
+                'url'     => base_url('client/inspecciones/limpieza-desinfeccion'),
+                'conteo'  => $progLimpModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $progLimpModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->first(),
+                'campo_fecha' => 'fecha_programa',
             ],
         ];
 
@@ -935,6 +980,248 @@ class ClientInspeccionesController extends Controller
             'client'  => $clientModel->find($clientId),
             'title'   => 'Recursos de Seguridad',
             'content' => view('client/inspecciones/recursos_seguridad_view', $data),
+        ]);
+    }
+
+    // ─── HV BRIGADISTAS ──────────────────────────────────────
+
+    public function listHvBrigadista()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $clientModel = new ClientModel();
+        $client = $clientModel->find($clientId);
+
+        $model = new HvBrigadistaModel();
+        $inspecciones = $model
+            ->where('id_cliente', $clientId)
+            ->where('estado', 'completo')
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'HV Brigadistas',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'hv_brigadista',
+                'titulo'       => 'Hojas de Vida Brigadistas',
+                'campo_fecha'  => 'created_at',
+                'base_url'     => 'client/inspecciones/hv-brigadista',
+            ]),
+        ]);
+    }
+
+    public function viewHvBrigadista($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $model = new HvBrigadistaModel();
+        $hv = $model->find($id);
+        if (!$hv || (int)$hv['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Registro no encontrado.');
+        }
+
+        $clientModel = new ClientModel();
+
+        $data = [
+            'hv'      => $hv,
+            'cliente' => $clientModel->find($hv['id_cliente']),
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => $clientModel->find($clientId),
+            'title'   => 'HV Brigadista',
+            'content' => view('client/inspecciones/hv_brigadista_view', $data),
+        ]);
+    }
+
+    // ─── PLAN DE EMERGENCIA ──────────────────────────────────
+
+    public function listPlanEmergencia()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $clientModel = new ClientModel();
+        $client = $clientModel->find($clientId);
+
+        $model = new PlanEmergenciaModel();
+        $inspecciones = $model
+            ->where('id_cliente', $clientId)
+            ->where('estado', 'completo')
+            ->orderBy('fecha_visita', 'DESC')
+            ->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Plan de Emergencia',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'plan_emergencia',
+                'titulo'       => 'Planes de Emergencia',
+                'campo_fecha'  => 'fecha_visita',
+                'base_url'     => 'client/inspecciones/plan-emergencia',
+            ]),
+        ]);
+    }
+
+    public function viewPlanEmergencia($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $model = new PlanEmergenciaModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Inspección no encontrada.');
+        }
+
+        $clientModel = new ClientModel();
+        $consultantModel = new ConsultantModel();
+
+        $data = [
+            'inspeccion'   => $inspeccion,
+            'cliente'      => $clientModel->find($inspeccion['id_cliente']),
+            'consultor'    => $consultantModel->find($inspeccion['id_consultor']),
+            'telefonos'    => PlanEmergenciaController::TELEFONOS,
+            'empresasAseo' => PlanEmergenciaController::EMPRESAS_ASEO,
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => $clientModel->find($clientId),
+            'title'   => 'Plan de Emergencia',
+            'content' => view('client/inspecciones/plan_emergencia_view', $data),
+        ]);
+    }
+
+    // ─── EVALUACIÓN SIMULACRO ────────────────────────────────
+
+    public function listSimulacro()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $clientModel = new ClientModel();
+        $client = $clientModel->find($clientId);
+
+        $model = new EvaluacionSimulacroModel();
+        $inspecciones = $model
+            ->where('id_cliente', $clientId)
+            ->where('estado', 'completo')
+            ->orderBy('fecha', 'DESC')
+            ->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Evaluación Simulacro',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'simulacro',
+                'titulo'       => 'Evaluaciones de Simulacro',
+                'campo_fecha'  => 'fecha',
+                'base_url'     => 'client/inspecciones/simulacro',
+            ]),
+        ]);
+    }
+
+    public function viewSimulacro($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $model = new EvaluacionSimulacroModel();
+        $eval = $model->find($id);
+        if (!$eval || (int)$eval['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Evaluación no encontrada.');
+        }
+
+        $clientModel = new ClientModel();
+
+        $data = [
+            'eval'    => $eval,
+            'cliente' => $clientModel->find($eval['id_cliente']),
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => $clientModel->find($clientId),
+            'title'   => 'Evaluación Simulacro',
+            'content' => view('client/inspecciones/simulacro_view', $data),
+        ]);
+    }
+
+    // ─── PROGRAMA LIMPIEZA Y DESINFECCIÓN ───────────────────
+
+    public function listLimpieza()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $clientModel = new ClientModel();
+        $client = $clientModel->find($clientId);
+
+        $model = new ProgramaLimpiezaModel();
+        $inspecciones = $model
+            ->where('id_cliente', $clientId)
+            ->where('estado', 'completo')
+            ->orderBy('fecha_programa', 'DESC')
+            ->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Limpieza y Desinfección',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'limpieza',
+                'titulo'       => 'Programas de Limpieza y Desinfección',
+                'campo_fecha'  => 'fecha_programa',
+                'base_url'     => 'client/inspecciones/limpieza-desinfeccion',
+            ]),
+        ]);
+    }
+
+    public function viewLimpieza($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $model = new ProgramaLimpiezaModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Documento no encontrado.');
+        }
+
+        $clientModel = new ClientModel();
+        $consultantModel = new ConsultantModel();
+
+        $data = [
+            'inspeccion' => $inspeccion,
+            'cliente'    => $clientModel->find($inspeccion['id_cliente']),
+            'consultor'  => $consultantModel->find($inspeccion['id_consultor']),
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => $clientModel->find($clientId),
+            'title'   => 'Programa Limpieza y Desinfección',
+            'content' => view('client/inspecciones/limpieza_view', $data),
         ]);
     }
 }

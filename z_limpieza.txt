@@ -1,0 +1,447 @@
+PROGRAMA DE LIMPIEZA Y DESINFECCIÓN
+
+<<[CLIENTE]>>
+
+1.1 OBJETIVO
+
+Definir, planificar y establecer las actividades, insumos, recursos humanos, elementos de protección personal (EPP), sustancias químicas autorizadas, responsabilidades, frecuencias, mecanismos de control e indicadores, así como los procedimientos técnicos necesarios, para ejecutar de manera segura, eficiente, sistemática y continua las labores de limpieza y desinfección en las áreas comunes del en <<[CLIENTE]>>, con el fin de prevenir riesgos sanitarios, controlar agentes contaminantes de origen biológico, físico y químico, y garantizar condiciones adecuadas de salubridad para residentes, trabajadores, contratistas, visitantes y demás usuarios de la copropiedad.
+
+El presente Programa se desarrolla en cumplimiento de lo dispuesto en la Ley 9 de 1979, la Ley 675 de 2001, el Decreto 1072 de 2015 (SG-SST), y demás normas sanitarias y ambientales vigentes aplicables a las copropiedades, y se articula con el Plan de Saneamiento Básico como uno de sus componentes técnicos.
+
+1.2 ALCANCE
+
+El presente Programa aplica a todas las áreas comunes en <<[CLIENTE]>>, bajo la responsabilidad de la Administración de la Propiedad Horizontal, e involucra al personal propio, personal de servicios generales y/o empresas contratistas encargadas de las labores de aseo, limpieza y desinfección.
+
+Las actividades de limpieza y desinfección se desarrollarán, como mínimo, en las siguientes áreas:
+
+Zonas comunes
+Pasillos
+Escaleras y rampas
+Pocetas de lavado
+Andenes perimetrales
+Cuartos de almacenamiento
+Contenedores de residuos transitorios
+Oficina de Administración
+Baños de Administración
+Salón social
+Baños de salones sociales
+Unidad de almacenamiento de residuos
+Techos y partes altas, internas y externas
+Canales de aguas lluvias
+Canales de aguas negras
+Parqueaderos comunales
+
+El Programa contempla la ejecución de actividades rutinarias, periódicas y extraordinarias, de acuerdo con los cronogramas establecidos, garantizando el uso exclusivo de productos de limpieza y desinfección debidamente rotulados, aprobados para uso doméstico o institucional, y aplicados conforme a las fichas técnicas y hojas de seguridad (SDS) suministradas por el fabricante.
+
+1.3 DEFINICIONES
+
+Para efectos del presente Programa de Limpieza y Desinfección en <<[CLIENTE]>>, se adoptan las siguientes definiciones:
+
+Ambiente:
+Conjunto de elementos naturales y artificiales que rodean a las personas, incluyendo el aire, el agua, el suelo y su interrelación, así como las relaciones entre estos elementos y los seres vivos, que pueden influir en la salud y el bienestar humano. (Decreto 1843 de 1991).
+
+Barrido:
+Actividad que consiste en el retiro de residuos sólidos y partículas sueltas (polvo, arena, papeles u otros desechos visibles) presentes en superficies como pisos, andenes, escaleras y zonas comunes, mediante el uso de escobas, cepillos u otros implementos manuales.
+
+Limpieza:
+Proceso mediante el cual se elimina la suciedad visible, residuos orgánicos e inorgánicos de superficies, equipos o áreas, utilizando agua, detergente y acción mecánica, con el fin de preparar las superficies para una posterior desinfección y reducir la carga contaminante.
+
+Desinfección:
+Proceso orientado a la destrucción o inactivación de microorganismos patógenos presentes en superficies, ambientes u objetos, mediante la aplicación de agentes físicos o químicos, posterior a una adecuada limpieza. (Decreto 2257 de 1986).
+
+Detergente:
+Sustancia química utilizada en los procesos de limpieza cuya función es remover y disolver la suciedad adherida a las superficies. Debe ser soluble en agua, no corrosivo, no tóxico, biodegradable, de fácil enjuague y seguro para la salud humana y las superficies tratadas.
+
+Desinfectante:
+Sustancia química utilizada para eliminar o reducir significativamente microorganismos patógenos en superficies previamente limpias. Según su composición, pueden clasificarse en:
+
+Cloro y sus compuestos: eficaces contra una amplia variedad de microorganismos. Requieren superficies limpias, no deben mezclarse con otros productos, no se recomienda su uso en superficies metálicas sin enjuague posterior y no deben aplicarse con agua caliente.
+
+Yodo y yodóforos: presentan alto poder microbicida. Se utilizan diluidos en agua y requieren enjuague posterior.
+
+Desinfectantes de origen orgánico: elaborados a partir de componentes orgánicos, como extractos cítricos, que no dejan residuos nocivos para la salud.
+
+Alcoholes: etanol o isopropanol, utilizados principalmente como antisépticos para la higiene de manos, con acción rápida y evaporación inmediata.
+
+Higiene:
+Conjunto de prácticas y condiciones destinadas a mantener la limpieza de instalaciones, equipos, superficies y personas, con el fin de prevenir la contaminación y proteger la salud.
+
+Hábitos higiénicos:
+Conjunto de comportamientos y prácticas personales y laborales orientadas a prevenir la contaminación, la proliferación de microorganismos y la transmisión de agentes patógenos en las áreas comunes.
+
+Inspección sanitaria:
+Actividad de verificación y control realizada para evaluar las condiciones higiénico-sanitarias de personas, áreas, instalaciones o procesos, con el fin de comprobar el cumplimiento de la normatividad sanitaria vigente. (Decreto 2257 de 1986).
+
+Inocuidad:
+Condición que garantiza que un ambiente, superficie o proceso no representa riesgo para la salud humana cuando se utiliza de acuerdo con su finalidad prevista.
+
+Solución:
+Mezcla homogénea obtenida a partir de la dilución de una sustancia sólida o concentrada en agua, utilizada para procesos de limpieza o desinfección conforme a las indicaciones del fabricante.
+
+Trampa de grasas:
+Dispositivo hidráulico diseñado para retener grasas, aceites y sólidos flotantes provenientes de las aguas residuales, evitando su ingreso al sistema de alcantarillado y facilitando su manejo y disposición adecuada. (RAS 2000).
+
+Vertimiento:
+Descarga de aguas residuales o sustancias líquidas que, por su composición, pueden generar contaminación cuando son conducidas al sistema de alcantarillado o a cuerpos de agua.
+
+Residuo corto punzante:
+Elemento que, por sus características físicas, puede causar cortes o punciones y generar riesgo de accidente o infección, tales como vidrios rotos, cuchillas u objetos similares.
+
+Residuos especiales:
+Residuos que, por su composición o peligrosidad, requieren manejo diferenciado, tales como envases de productos químicos, plaguicidas, sobrantes o elementos contaminados durante actividades de mantenimiento o control de plagas. (Decreto 1843 de 1991).
+
+1.4 RESPONSABLES
+
+La implementación, ejecución, seguimiento, evaluación y mejora continua del Programa de Limpieza y Desinfección estará a cargo de los siguientes actores:
+
+Administrador(a) de la Copropiedad:
+Responsable de garantizar la implementación integral del Programa, asignar los recursos humanos, técnicos y financieros necesarios, aprobar el cronograma de actividades, supervisar su cumplimiento, verificar el seguimiento de los indicadores establecidos y conservar los registros y soportes documentales.
+
+Personal de servicios generales / aseo:
+Encargado de ejecutar las actividades de limpieza y desinfección conforme a los procedimientos establecidos, utilizar correctamente los elementos de protección personal (EPP), diligenciar los formatos de registro y reportar oportunamente hallazgos o condiciones inseguras.
+
+Empresas contratistas de aseo (cuando aplique):
+Responsables de cumplir con los protocolos definidos en el presente Programa, suministrar personal capacitado, elementos de protección personal adecuados, productos autorizados con su respectiva ficha técnica y hoja de seguridad (SDS), y entregar los informes o certificaciones correspondientes a la Administración.
+
+Consejo de Administración o Comité de Convivencia (cuando aplique):
+Apoyar la verificación del cumplimiento del Programa, revisar informes de seguimiento e impulsar acciones de mejora cuando se identifiquen desviaciones o hallazgos sanitarios.
+
+Responsable del SG-SST del Conjunto Residencial:
+Velar por el cumplimiento del cronograma del Programa, articular su ejecución con el Sistema de Gestión de Seguridad y Salud en el Trabajo, coordinar con la Administración las actividades desarrolladas por empresas contratistas, verificar el uso adecuado de EPP y realizar seguimiento a los informes, indicadores y certificados entregados.
+
+1.5 ELEMENTOS DE PROTECCIÓN PERSONAL (EPP)
+
+Para la ejecución de las actividades de limpieza y desinfección, el personal deberá utilizar como mínimo los siguientes elementos de protección personal, conforme a la identificación de peligros y evaluación de riesgos:
+
+Guantes de caucho o nitrilo resistentes a productos químicos
+Tapabocas o respirador, según el producto utilizado
+Gafas de seguridad
+Botas antideslizantes
+Delantal o overol impermeable
+Gorra o protección para cabeza (cuando aplique)
+
+El uso de EPP es obligatorio durante toda la actividad y deberá cumplir con lo establecido en el Decreto 1072 de 2015 y la normativa vigente en materia de seguridad y salud en el trabajo.
+
+La Administración deberá garantizar el suministro oportuno, reposición, capacitación en uso adecuado y conservación de los EPP.
+
+1.6 INSUMOS Y PRODUCTOS DE LIMPIEZA Y DESINFECCIÓN
+
+Los productos utilizados en el Programa deberán contar con registro sanitario vigente o autorización para uso doméstico o institucional, mantenerse debidamente rotulados y almacenarse conforme a las condiciones indicadas en sus fichas técnicas y hojas de seguridad (SDS).
+
+Entre los insumos y productos autorizados se encuentran:
+
+Detergente multiusos
+Desinfectante (hipoclorito de sodio, amonio cuaternario u otros autorizados)
+Jabón líquido
+Limpiavidrios
+Desengrasante
+Bolsas para residuos según código de colores
+Traperos, mopas, escobas y cepillos
+Paños de limpieza diferenciados por área
+
+Se prohíbe expresamente la mezcla de productos químicos, especialmente aquellos que puedan generar reacciones peligrosas, vapores tóxicos o pérdida de efectividad del principio activo.
+
+Los productos deberán utilizarse exclusivamente conforme a la concentración y tiempo de contacto establecidos por el fabricante.
+Matriz insumos, productos usos e implementos
+ 
+ACTIVIDAD
+SUSTANCIAS UTILIZADAS
+CONCENTRACIÓN / TIEMPO DE CONTACTO
+FORMA DE USO
+ELEMENTOS DE PROTECCIÓN PERSONAL (EPP)
+IMPLEMENTOS REQUERIDOS
+Barrido
+Agua (si se requiere)
+Agua en pequeñas cantidades
+Aspersión ligera para evitar polvo, barrido manual
+Overol, Tapabocas, Guantes de hule
+Escoba, Recogedor, Cepillos, Caneca
+Limpieza general de pisos y superficies
+Detergente líquido o industrial
+Según ficha técnica
+Aplicar detergente, frotar y enjuagar
+Overol, Tapabocas, Guantes de hule, Botas plásticas, Delantal
+Traperos, Cepillos, Caneca, Escoba
+Limpieza profunda
+Detergente industrial
+Según ficha técnica
+Aplicar detergente, frotar y enjuagar con presión
+Overol, Tapabocas, Guantes de hule, Botas plásticas
+Hidrolavadora, Mangueras, Cepillos
+Limpieza de partes altas
+Detergente industrial
+Según ficha técnica
+Aplicar con equipos de alcance y enjuagar
+Arnés, Cuerdas, Casco, Overol, Guantes, Botas
+Escaleras, Andamios, Hidrolavadora
+Desinfección de superficies
+Hipoclorito de sodio (cloro)
+0,05 % – 0,1 % / 10 minutos
+Aplicar sobre superficie limpia, dejar actuar
+Overol, Tapabocas, Guantes, Botas, Delantal
+Traperos, Cepillos, Caneca
+Desinfección en partes altas
+Hipoclorito de sodio (cloro)
+0,05 % – 0,1 % / 10 minutos
+Aspersión controlada con ventilación
+Arnés, Cuerdas, Casco, Overol, Guantes, Botas
+Hidrolavadora, Mangueras, Andamios
+
+ 
+
+1.7 TÉCNICAS DE LIMPIEZA Y DESINFECCIÓN
+Con el fin de garantizar la efectividad del proceso de limpieza y desinfección y prevenir la contaminación cruzada, se deberán aplicar de manera obligatoria las siguientes técnicas inductivas:
+Arriba – Abajo:
+El proceso de limpieza y desinfección debe iniciar en las partes altas (techos, paredes, luminarias y ventanas) y finalizar en las partes medias y bajas (mesones, zócalos y pisos), evitando que la suciedad desprendida contamine superficies previamente intervenidas.
+Adentro – Afuera:
+Las actividades deben realizarse desde el interior del área hacia el exterior, tomando como referencia el punto de ingreso, con el fin de evitar el arrastre de partículas contaminantes hacia las zonas ya limpias.
+De lo más limpio a lo más contaminado:
+El procedimiento debe comenzar en las superficies con menor nivel de contaminación y finalizar en aquellas con mayor exposición a agentes contaminantes, reduciendo el riesgo de dispersión de microorganismos.
+Lo más seco posible:
+Se debe minimizar el uso excesivo de agua, utilizando únicamente la cantidad necesaria, con el fin de prevenir accidentes por superficies resbaladizas, evitar deterioro de la infraestructura y optimizar el consumo del recurso hídrico.
+Técnica en zig–zag:
+Consiste en realizar movimientos continuos en forma de zig–zag, permitiendo el arrastre efectivo de partículas sin devolver la contaminación a áreas previamente intervenidas, asegurando la cobertura total de la superficie.
+1.8 PROCEDIMIENTO GENERAL DE LIMPIEZA Y DESINFECCIÓN
+Las actividades de limpieza y desinfección se desarrollarán conforme al Manual de Mantenimiento de la Infraestructura, enmarcadas en la conservación y mantenimiento preventivo, correctivo y recurrente de las instalaciones en <<[CLIENTE]>>, garantizando la protección de la infraestructura y la seguridad del personal.
+Procedimiento:
+Colocarse correctamente los elementos de protección personal antes de iniciar la labor.
+
+
+Preparar y verificar los insumos, equipos y herramientas requeridos.
+
+
+Realizar un análisis previo de condiciones inseguras que puedan generar accidentes laborales.
+
+
+Despejar completamente el área a intervenir.
+
+
+Barrer y recolectar los residuos, disponiéndolos en los contenedores según su clasificación.
+
+
+Preparar la solución detergente de acuerdo con las especificaciones del fabricante.
+
+
+Aplicar la solución detergente mediante aspersión, dejar actuar durante 10 minutos y restregar con escoba de cerda dura, cepillo o esponjilla.
+
+
+Restregar paredes, puertas, ventanas y mesones utilizando solución detergente.
+
+
+Restregar los pisos hasta eliminar completamente mugre y grasa.
+
+
+Enjuagar con pequeñas cantidades de agua utilizando hidrolavadora o manguera a presión, escurrir hacia las rejillas de desagüe.
+
+
+Preparar la solución desinfectante (cloro) según especificaciones del fabricante, mezclando durante mínimo 30 segundos.
+
+
+Aplicar el desinfectante en paredes, puertas, ventanas, mesones y pisos, dejando actuar por 10 minutos.
+
+
+Restregar las superficies para distribuir uniformemente el desinfectante.
+
+
+Enjuagar con pequeñas cantidades de agua hasta retirar completamente el producto.
+
+
+Secar al aire libre o con paños absorbentes y traperos previamente lavados y desinfectados.
+
+
+Nota 1: En caso de utilizar productos con acción detergente y desinfectante simultánea, se omiten los pasos 11, 12, 13 y 14.
+1.9 PROCEDIMIENTO DE LIMPIEZA Y DESINFECCIÓN DE BAÑOS
+Los servicios sanitarios son considerados áreas críticas, por lo que requieren un manejo riguroso para prevenir riesgos sanitarios.
+Colocarse los elementos de protección personal.
+
+
+Preparar los insumos y equipos necesarios.
+
+
+Analizar condiciones inseguras del área.
+
+
+Despejar la zona al máximo.
+
+
+Aplicar solución detergente en inodoros, orinales y contenedores; dejar actuar 20 minutos y restregar.
+
+
+Aplicar solución detergente en pisos, paredes y techos; dejar actuar 10 minutos.
+
+
+Restregar todas las superficies para eliminar suciedad y grasa.
+
+
+Aplicar solución desinfectante en paredes, pisos y techos.
+
+
+Enjuagar con agua a presión y escurrir hacia desagües.
+
+
+Preparar nuevamente solución detergente según fabricante.
+
+
+Restregar superficies.
+
+
+Enjuagar hasta retirar completamente el desinfectante.
+
+
+Secar al aire libre con paños y traperos desinfectados.
+
+
+1.10 PROCEDIMIENTO DE LIMPIEZA Y DESINFECCIÓN DE PARTES ALTAS
+Aplica para techos, paredes, ventanas y áreas de difícil acceso.
+Informar previamente a los usuarios para la protección de sus espacios.
+
+
+Colocarse los elementos de protección personal, incluidos los requeridos para trabajo en alturas.
+
+
+Preparar los equipos y herramientas.
+
+
+Analizar condiciones inseguras.
+
+
+Instalar escaleras, andamios o equipos certificados.
+
+
+Retirar manualmente la suciedad gruesa.
+
+
+Disponer los residuos en bolsas adecuadas.
+
+
+Retirar suciedad restante con cepillo o escobilla.
+
+
+Aplicar solución detergente y restregar hasta eliminar grasa y suciedad.
+
+
+Retirar el detergente con paños o espumas húmedas.
+
+
+Dejar secar al aire libre.
+
+
+Aplicar solución desinfectante (cloro) según fabricante.
+
+
+Retirar exceso de producto con paños absorbentes.
+
+
+Dejar secar al aire libre.
+
+
+Nota 2: Si se utilizan productos con acción detergente y desinfectante conjunta, se omiten los pasos 12, 13 y 14.
+1.11 FRECUENCIA DE LIMPIEZA Y DESINFECCIÓN
+La frecuencia de ejecución de las actividades de limpieza y desinfección se establece de acuerdo con el nivel de uso, criticidad sanitaria y riesgo asociado a cada área, así:
+Área
+Frecuencia
+Zonas comunes y pasillos
+Diaria
+Escaleras y rampas
+Diaria
+Baños administrativos y sociales
+Diaria
+Oficina de administración
+Diaria
+Salón social
+Antes y después de cada uso
+Parqueaderos
+Trimestral
+Andenes perimetrales
+Mensual
+Cuartos de almacenamiento
+Semanal
+Contenedores y unidad de residuos
+Diaria
+Canales de aguas lluvias y negras
+Semestral
+Techos y partes altas
+Semestral
+
+
+Las frecuencias podrán ajustarse cuando se evidencien condiciones especiales de suciedad, incremento del uso de áreas, hallazgos sanitarios, brotes, quejas recurrentes o requerimientos de la autoridad sanitaria.
+1.12 REGISTROS Y FORMATOS
+Para evidenciar la correcta ejecución, control y trazabilidad del Programa de Limpieza y Desinfección, se mantendrán como mínimo los siguientes registros:
+Formato de limpieza y desinfección por área
+
+
+Cronograma mensual de actividades
+
+
+Registro de entrega, reposición y uso de EPP
+
+
+Hojas de seguridad (SDS) y fichas técnicas de los productos químicos
+
+
+Listas de chequeo de inspección sanitaria
+
+
+Todos los registros deberán conservarse en archivo físico o digital, encontrarse actualizados y estar disponibles para revisión por parte de la Administración y autoridades competentes.
+1.13 MEDIDAS DE CONTROL, SEGUIMIENTO Y MEJORA
+La Administración del CONJUNTO RESIDENCIAL realizará el control y seguimiento al Programa mediante:
+Inspecciones periódicas a las áreas intervenidas.
+
+
+Verificación mensual del cumplimiento del cronograma.
+
+
+Revisión del estado de limpieza y desinfección de las áreas comunes.
+
+
+Registro, análisis y corrección de no conformidades.
+
+
+Seguimiento a los indicadores del Programa.
+
+
+Implementación de acciones correctivas y preventivas cuando se identifiquen desviaciones.
+
+
+Actualización anual del Programa o cuando se presenten cambios operativos, locativos o normativos.
+
+
+1.14 INDICADORES DEL PROGRAMA
+Con el fin de verificar la ejecución efectiva del Programa de Limpieza y Desinfección y garantizar su mejora continua, se establecen los siguientes indicadores de gestión:
+1.14.1 Cumplimiento de actividades de limpieza y desinfección
+Nombre del indicador:
+ Cumplimiento de actividades de limpieza y desinfección.
+Tipo de indicador:
+ Proceso.
+Fórmula de cálculo:
+(Actividadesejecutadas/Actividadesprogramadas)×100(Actividades ejecutadas / Actividades programadas) \times 100(Actividadesejecutadas/Actividadesprogramadas)×100
+Meta:
+ Mayor o igual a 95 %.
+Periodicidad de medición:
+ Mensual.
+Fuente de información:
+ Cronograma mensual de actividades y formatos diligenciados de limpieza y desinfección.
+Responsable del cálculo y seguimiento:
+ Administración del Conjunto Residencial.
+Interpretación:
+ Este indicador permite verificar el grado de cumplimiento del cronograma establecido, evidenciando si las actividades programadas se están ejecutando conforme a lo planificado. Un resultado inferior a la meta establecida deberá generar acciones correctivas.
+1.14.2 Cobertura de desinfección en áreas críticas
+Nombre del indicador:
+ Cobertura de desinfección en áreas críticas.
+Tipo de indicador:
+ Proceso.
+Fórmula de cálculo:
+(Aˊreascrıˊticasdesinfectadas/Aˊreascrıˊticasprogramadas)×100(Áreas críticas desinfectadas / Áreas críticas programadas) \times 100(Aˊreascrıˊticasdesinfectadas/Aˊreascrıˊticasprogramadas)×100
+Meta:
+ 100 %.
+Periodicidad de medición:
+ Mensual.
+Áreas críticas consideradas:
+ Baños, pasamanos, ascensores, barandas, botones, manijas y demás superficies de alto contacto.
+Fuente de información:
+ Formato de desinfección de áreas críticas.
+Responsable del cálculo y seguimiento:
+ Administración del Conjunto Residencial.
+Interpretación:
+ Este indicador permite verificar que todas las superficies consideradas de alto riesgo sanitario reciban el tratamiento de desinfección conforme a lo programado. El incumplimiento deberá generar revisión inmediata de la ejecución del programa.
+

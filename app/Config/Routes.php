@@ -454,6 +454,14 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
     $routes->get('probabilidad-peligros/(:num)', 'ClientInspeccionesController::viewProbabilidadPeligros/$1');
     $routes->get('recursos-seguridad', 'ClientInspeccionesController::listRecursosSeguridad');
     $routes->get('recursos-seguridad/(:num)', 'ClientInspeccionesController::viewRecursosSeguridad/$1');
+    $routes->get('hv-brigadista', 'ClientInspeccionesController::listHvBrigadista');
+    $routes->get('hv-brigadista/(:num)', 'ClientInspeccionesController::viewHvBrigadista/$1');
+    $routes->get('plan-emergencia', 'ClientInspeccionesController::listPlanEmergencia');
+    $routes->get('plan-emergencia/(:num)', 'ClientInspeccionesController::viewPlanEmergencia/$1');
+    $routes->get('simulacro', 'ClientInspeccionesController::listSimulacro');
+    $routes->get('simulacro/(:num)', 'ClientInspeccionesController::viewSimulacro/$1');
+    $routes->get('limpieza-desinfeccion', 'ClientInspeccionesController::listLimpieza');
+    $routes->get('limpieza-desinfeccion/(:num)', 'ClientInspeccionesController::viewLimpieza/$1');
 });
 
 $routes->get('/detailreportlist', 'DetailReportController::detailReportList');
@@ -922,6 +930,66 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('plan-emergencia/delete/(:num)', 'PlanEmergenciaController::delete/$1');
     $routes->get('plan-emergencia/check-inspecciones/(:num)', 'PlanEmergenciaController::checkInspeccionesCompletas/$1');
 
+    // Dotación Vigilante
+    $routes->get('dotacion-vigilante', 'DotacionVigilanteController::list');
+    $routes->get('dotacion-vigilante/create', 'DotacionVigilanteController::create');
+    $routes->get('dotacion-vigilante/create/(:num)', 'DotacionVigilanteController::create/$1');
+    $routes->post('dotacion-vigilante/store', 'DotacionVigilanteController::store');
+    $routes->get('dotacion-vigilante/edit/(:num)', 'DotacionVigilanteController::edit/$1');
+    $routes->post('dotacion-vigilante/update/(:num)', 'DotacionVigilanteController::update/$1');
+    $routes->get('dotacion-vigilante/view/(:num)', 'DotacionVigilanteController::view/$1');
+    $routes->get('dotacion-vigilante/pdf/(:num)', 'DotacionVigilanteController::generatePdf/$1');
+    $routes->post('dotacion-vigilante/finalizar/(:num)', 'DotacionVigilanteController::finalizar/$1');
+    $routes->get('dotacion-vigilante/delete/(:num)', 'DotacionVigilanteController::delete/$1');
+
+    // Dotación Aseadora
+    $routes->get('dotacion-aseadora', 'DotacionAseadoraController::list');
+    $routes->get('dotacion-aseadora/create', 'DotacionAseadoraController::create');
+    $routes->get('dotacion-aseadora/create/(:num)', 'DotacionAseadoraController::create/$1');
+    $routes->post('dotacion-aseadora/store', 'DotacionAseadoraController::store');
+    $routes->get('dotacion-aseadora/edit/(:num)', 'DotacionAseadoraController::edit/$1');
+    $routes->post('dotacion-aseadora/update/(:num)', 'DotacionAseadoraController::update/$1');
+    $routes->get('dotacion-aseadora/view/(:num)', 'DotacionAseadoraController::view/$1');
+    $routes->get('dotacion-aseadora/pdf/(:num)', 'DotacionAseadoraController::generatePdf/$1');
+    $routes->post('dotacion-aseadora/finalizar/(:num)', 'DotacionAseadoraController::finalizar/$1');
+    $routes->get('dotacion-aseadora/delete/(:num)', 'DotacionAseadoraController::delete/$1');
+
+    // Dotación Todero
+    $routes->get('dotacion-todero', 'DotacionToderoController::list');
+    $routes->get('dotacion-todero/create', 'DotacionToderoController::create');
+    $routes->get('dotacion-todero/create/(:num)', 'DotacionToderoController::create/$1');
+    $routes->post('dotacion-todero/store', 'DotacionToderoController::store');
+    $routes->get('dotacion-todero/edit/(:num)', 'DotacionToderoController::edit/$1');
+    $routes->post('dotacion-todero/update/(:num)', 'DotacionToderoController::update/$1');
+    $routes->get('dotacion-todero/view/(:num)', 'DotacionToderoController::view/$1');
+    $routes->get('dotacion-todero/pdf/(:num)', 'DotacionToderoController::generatePdf/$1');
+    $routes->post('dotacion-todero/finalizar/(:num)', 'DotacionToderoController::finalizar/$1');
+    $routes->get('dotacion-todero/delete/(:num)', 'DotacionToderoController::delete/$1');
+
+    // Auditoría Zona de Residuos
+    $routes->get('auditoria-zona-residuos', 'AuditoriaZonaResiduosController::list');
+    $routes->get('auditoria-zona-residuos/create', 'AuditoriaZonaResiduosController::create');
+    $routes->get('auditoria-zona-residuos/create/(:num)', 'AuditoriaZonaResiduosController::create/$1');
+    $routes->post('auditoria-zona-residuos/store', 'AuditoriaZonaResiduosController::store');
+    $routes->get('auditoria-zona-residuos/edit/(:num)', 'AuditoriaZonaResiduosController::edit/$1');
+    $routes->post('auditoria-zona-residuos/update/(:num)', 'AuditoriaZonaResiduosController::update/$1');
+    $routes->get('auditoria-zona-residuos/view/(:num)', 'AuditoriaZonaResiduosController::view/$1');
+    $routes->get('auditoria-zona-residuos/pdf/(:num)', 'AuditoriaZonaResiduosController::generatePdf/$1');
+    $routes->post('auditoria-zona-residuos/finalizar/(:num)', 'AuditoriaZonaResiduosController::finalizar/$1');
+    $routes->get('auditoria-zona-residuos/delete/(:num)', 'AuditoriaZonaResiduosController::delete/$1');
+
+    // Preparación Simulacro
+    $routes->get('preparacion-simulacro', 'PreparacionSimulacroController::list');
+    $routes->get('preparacion-simulacro/create', 'PreparacionSimulacroController::create');
+    $routes->get('preparacion-simulacro/create/(:num)', 'PreparacionSimulacroController::create/$1');
+    $routes->post('preparacion-simulacro/store', 'PreparacionSimulacroController::store');
+    $routes->get('preparacion-simulacro/edit/(:num)', 'PreparacionSimulacroController::edit/$1');
+    $routes->post('preparacion-simulacro/update/(:num)', 'PreparacionSimulacroController::update/$1');
+    $routes->get('preparacion-simulacro/view/(:num)', 'PreparacionSimulacroController::view/$1');
+    $routes->get('preparacion-simulacro/pdf/(:num)', 'PreparacionSimulacroController::generatePdf/$1');
+    $routes->post('preparacion-simulacro/finalizar/(:num)', 'PreparacionSimulacroController::finalizar/$1');
+    $routes->get('preparacion-simulacro/delete/(:num)', 'PreparacionSimulacroController::delete/$1');
+
     // Evaluación Simulacro de Evacuación (admin)
     $routes->get('simulacro', 'EvaluacionSimulacroController::list');
     $routes->get('simulacro/view/(:num)', 'EvaluacionSimulacroController::view/$1');
@@ -935,6 +1003,18 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('hv-brigadista/pdf/(:num)', 'HvBrigadistaController::generatePdf/$1');
     $routes->post('hv-brigadista/finalizar/(:num)', 'HvBrigadistaController::finalizar/$1');
     $routes->get('hv-brigadista/delete/(:num)', 'HvBrigadistaController::delete/$1');
+
+    // Reporte de Capacitacion
+    $routes->get('reporte-capacitacion', 'ReporteCapacitacionController::list');
+    $routes->get('reporte-capacitacion/create', 'ReporteCapacitacionController::create');
+    $routes->get('reporte-capacitacion/create/(:num)', 'ReporteCapacitacionController::create/$1');
+    $routes->post('reporte-capacitacion/store', 'ReporteCapacitacionController::store');
+    $routes->get('reporte-capacitacion/edit/(:num)', 'ReporteCapacitacionController::edit/$1');
+    $routes->post('reporte-capacitacion/update/(:num)', 'ReporteCapacitacionController::update/$1');
+    $routes->get('reporte-capacitacion/view/(:num)', 'ReporteCapacitacionController::view/$1');
+    $routes->get('reporte-capacitacion/pdf/(:num)', 'ReporteCapacitacionController::generatePdf/$1');
+    $routes->post('reporte-capacitacion/finalizar/(:num)', 'ReporteCapacitacionController::finalizar/$1');
+    $routes->get('reporte-capacitacion/delete/(:num)', 'ReporteCapacitacionController::delete/$1');
 
     // Gestión de Pendientes (compromisos)
     $routes->get('pendientes', 'PendientesPwaController::list');
@@ -964,6 +1044,32 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('carta-vigia/delete/(:num)', 'CartaVigiaPwaController::delete/$1');
     $routes->post('carta-vigia/reenviar/(:num)', 'CartaVigiaPwaController::reenviar/$1');
     $routes->get('carta-vigia/pdf/(:num)', 'CartaVigiaPwaController::verPdf/$1');
+
+    // Asistencia Induccion
+    $routes->get('asistencia-induccion', 'AsistenciaInduccionController::list');
+    $routes->get('asistencia-induccion/create', 'AsistenciaInduccionController::create');
+    $routes->get('asistencia-induccion/create/(:num)', 'AsistenciaInduccionController::create/$1');
+    $routes->post('asistencia-induccion/store', 'AsistenciaInduccionController::store');
+    $routes->get('asistencia-induccion/edit/(:num)', 'AsistenciaInduccionController::edit/$1');
+    $routes->post('asistencia-induccion/update/(:num)', 'AsistenciaInduccionController::update/$1');
+    $routes->get('asistencia-induccion/view/(:num)', 'AsistenciaInduccionController::view/$1');
+    $routes->get('asistencia-induccion/firmas/(:num)', 'AsistenciaInduccionController::firmas/$1');
+    $routes->post('asistencia-induccion/guardar-firma/(:num)', 'AsistenciaInduccionController::guardarFirma/$1');
+    $routes->get('asistencia-induccion/pdf/(:num)', 'AsistenciaInduccionController::generatePdf/$1');
+    $routes->post('asistencia-induccion/finalizar/(:num)', 'AsistenciaInduccionController::finalizar/$1');
+    $routes->get('asistencia-induccion/delete/(:num)', 'AsistenciaInduccionController::delete/$1');
+
+    // Programa Limpieza y Desinfección
+    $routes->get('limpieza-desinfeccion', 'ProgramaLimpiezaController::list');
+    $routes->get('limpieza-desinfeccion/create', 'ProgramaLimpiezaController::create');
+    $routes->get('limpieza-desinfeccion/create/(:num)', 'ProgramaLimpiezaController::create/$1');
+    $routes->post('limpieza-desinfeccion/store', 'ProgramaLimpiezaController::store');
+    $routes->get('limpieza-desinfeccion/edit/(:num)', 'ProgramaLimpiezaController::edit/$1');
+    $routes->post('limpieza-desinfeccion/update/(:num)', 'ProgramaLimpiezaController::update/$1');
+    $routes->get('limpieza-desinfeccion/view/(:num)', 'ProgramaLimpiezaController::view/$1');
+    $routes->get('limpieza-desinfeccion/pdf/(:num)', 'ProgramaLimpiezaController::generatePdf/$1');
+    $routes->post('limpieza-desinfeccion/finalizar/(:num)', 'ProgramaLimpiezaController::finalizar/$1');
+    $routes->get('limpieza-desinfeccion/delete/(:num)', 'ProgramaLimpiezaController::delete/$1');
 
     // API endpoints AJAX
     $routes->get('api/clientes', 'InspeccionesController::getClientes');

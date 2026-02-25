@@ -38,7 +38,10 @@ app/
 │           ├── mantenimientos_list.php     ← Lista dedicada (todos los estados, con filtros)
 │           ├── matriz_vulnerabilidad_view.php ← Vista detalle read-only (25 criterios + puntaje)
 │           ├── probabilidad_peligros_view.php ← Vista detalle read-only (12 peligros + %)
-│           └── recursos_seguridad_view.php ← Vista detalle read-only (6 recursos + fotos)
+│           ├── recursos_seguridad_view.php ← Vista detalle read-only (6 recursos + fotos)
+│           ├── hv_brigadista_view.php     ← Vista detalle read-only (datos personales + cuestionario médico)
+│           ├── plan_emergencia_view.php   ← Vista detalle read-only (20+ secciones plan emergencia)
+│           └── simulacro_view.php         ← Vista detalle read-only (cronograma + evaluación)
 ├── Config/
 │   └── Routes.php                          ← MODIFICADO (agregar grupo rutas)
 └── Views/
@@ -274,7 +277,7 @@ Vista genérica que funciona para cualquier tipo de inspección. Recibe:
 | Variable | Tipo | Descripción |
 |----------|------|-------------|
 | `$inspecciones` | array | Registros de la BD |
-| `$tipo` | string | Identificador: `acta_visita`, `locativa`, `senalizacion`, `botiquin`, `extintores`, `comunicaciones`, `gabinetes`, `matriz_vulnerabilidad`, `probabilidad_peligros`, `recursos_seguridad` |
+| `$tipo` | string | Identificador: `acta_visita`, `locativa`, `senalizacion`, `botiquin`, `extintores`, `comunicaciones`, `gabinetes`, `matriz_vulnerabilidad`, `probabilidad_peligros`, `recursos_seguridad`, `hv_brigadista`, `plan_emergencia`, `simulacro` |
 | `$titulo` | string | Título visible |
 | `$campo_fecha` | string | Nombre del campo de fecha en la tabla |
 | `$base_url` | string | URL base para los links de detalle |
@@ -393,6 +396,34 @@ Secciones: Datos Generales → 6 Recursos de Seguridad (Lámparas emergencia, An
 
 **Nota:** Usa `InspeccionRecursosSeguridadController::RECURSOS` (6 items con label, icon, hint, tiene_foto). Los campos en BD son `obs_{key}` y `foto_{key}`.
 
+### Vista HV Brigadista (`hv_brigadista_view.php`)
+
+Secciones: Datos Personales (foto, nombre, documento, fecha nacimiento, edad, email, teléfono, dirección, EPS, RH, peso, estatura) → Estudios (loop 1-3 con institución y año) → Información de Salud (enfermedades, medicamentos) → Cuestionario Médico (14 preguntas SI/NO con badges color-coded) → Restricciones y Actividad (restricciones médicas, deportes) → Firma (imagen) → PDF
+
+**Variable:** Usa `$hv` (no `$inspeccion`). Campo fecha: `created_at`.
+
+**Lógica de colores cuestionario:** SI → amarillo (#ffc107) | NO → verde (#28a745) | otro → gris (#6c757d)
+
+**Nota:** Usa `HvBrigadistaModel`. No tiene `estado` — se muestran todos los registros del cliente. No requiere constantes de controller.
+
+### Vista Plan de Emergencia (`plan_emergencia_view.php`)
+
+Vista muy extensa con 20+ secciones: Datos Generales → Fachada/Panorama (fotos) → Descripción del Inmueble (área terreno, pisos, tipo construcción, material, unidades) → Parqueaderos (tipo, capacidad, cubierto) → Áreas Comunes (salón social, zonas verdes, parque infantil, portería, otros) → Servicios del Conjunto (gas, acueducto, energía, ascensor, shut basura, citófono, CCTV, control acceso) → Circulaciones (loop 5 secciones: piso, material, señalización, estado, foto) → Concepto del Consultor → Entorno → Proveedores → Control de Visitantes → Comunicaciones → Ruta de Evacuación → Puntos de Encuentro → Sistemas de Alarma → Administración → Teléfonos de Emergencia (tabla con datos Bogotá/Soacha) → Gabinetes → Servicios Generales (empresas de aseo) → Observaciones Finales → PDF
+
+**Variable:** Usa `$inspeccion`. Campo fecha: `fecha_visita`.
+
+**Nota:** Usa `PlanEmergenciaModel`, `PlanEmergenciaController::TELEFONOS` (array Bogotá/Soacha con entidades y números), `PlanEmergenciaController::EMPRESAS_ASEO` (6 items). Vista más grande del sistema (~600 líneas).
+
+### Vista Simulacro (`simulacro_view.php`)
+
+Secciones: Identificación (copropiedad, NIT, fecha, dirección) → Información General (evento simulado, alcance, tipo evacuación, personal no evacua, tipo alarma, puntos encuentro, recurso humano, equipos emergencia) → Brigadista Líder (nombre, email, WhatsApp, distintivos) → Cronograma del Simulacro (9 pasos con hora + tiempo total) → Conteo de Evacuados (hombres, mujeres, niños, adultos mayores, discapacidad, mascotas + total) → Evaluación del Simulacro (5 criterios con /10 y barra progreso color-coded) → Evaluación Cuantitativa/Cualitativa → Evidencias (observaciones + 2 fotos) → PDF
+
+**Variable:** Usa `$eval` (no `$inspeccion`). Campo fecha: `fecha`.
+
+**Lógica de colores evaluación:** >=8 → verde (#28a745) | >=5 → amarillo (#ffc107) | <5 → rojo (#dc3545)
+
+**Nota:** Usa `EvaluacionSimulacroModel`. Los 5 criterios de evaluación son: alarma_efectiva, orden_evacuacion, liderazgo_brigadistas, organizacion_punto_encuentro, participacion_general.
+
 ### Lógica de colores para calificación
 
 ```php
@@ -460,6 +491,12 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
     $routes->get('probabilidad-peligros/(:num)', 'ClientInspeccionesController::viewProbabilidadPeligros/$1');
     $routes->get('recursos-seguridad', 'ClientInspeccionesController::listRecursosSeguridad');
     $routes->get('recursos-seguridad/(:num)', 'ClientInspeccionesController::viewRecursosSeguridad/$1');
+    $routes->get('hv-brigadista', 'ClientInspeccionesController::listHvBrigadista');
+    $routes->get('hv-brigadista/(:num)', 'ClientInspeccionesController::viewHvBrigadista/$1');
+    $routes->get('plan-emergencia', 'ClientInspeccionesController::listPlanEmergencia');
+    $routes->get('plan-emergencia/(:num)', 'ClientInspeccionesController::viewPlanEmergencia/$1');
+    $routes->get('simulacro', 'ClientInspeccionesController::listSimulacro');
+    $routes->get('simulacro/(:num)', 'ClientInspeccionesController::viewSimulacro/$1');
 });
 ```
 
@@ -549,7 +586,10 @@ Hub inspecciones (/client/inspecciones)
   ├── Card "Mantenimientos (8)"
   ├── Card "Matriz Vulnerabilidad (1)"
   ├── Card "Probabilidad Peligros (2)"
-  └── Card "Recursos Seguridad (1)"
+  ├── Card "Recursos Seguridad (1)"
+  ├── Card "HV Brigadista (3)"
+  ├── Card "Plan de Emergencia (1)"
+  └── Card "Simulacro (2)"
     ↓
 Click en tipo
     ↓

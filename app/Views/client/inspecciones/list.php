@@ -11,6 +11,9 @@ $iconos = [
     'matriz_vulnerabilidad'   => 'fa-shield-alt',
     'probabilidad_peligros'   => 'fa-exclamation-triangle',
     'recursos_seguridad'      => 'fa-hard-hat',
+    'hv_brigadista'           => 'fa-id-card-alt',
+    'plan_emergencia'         => 'fa-route',
+    'simulacro'               => 'fa-running',
 ];
 $icono = $iconos[$tipo] ?? 'fa-clipboard-list';
 ?>
@@ -79,6 +82,16 @@ $icono = $iconos[$tipo] ?? 'fa-clipboard-list';
                     <?php if ($tipo === 'gabinetes' && isset($insp['cantidad_gabinetes'])): ?>
                     <div class="mt-2" style="font-size:13px; color:#777;">
                         <i class="fas fa-shower me-1"></i> <?= $insp['cantidad_gabinetes'] ?> gabinetes
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($tipo === 'hv_brigadista' && !empty($insp['nombre_completo'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-user me-1"></i> <?= esc(mb_strimwidth($insp['nombre_completo'], 0, 50, '...')) ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($tipo === 'simulacro' && !empty($insp['evento_simulado'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-running me-1"></i> <?= esc(mb_strimwidth($insp['evento_simulado'], 0, 50, '...')) ?>
                     </div>
                     <?php endif; ?>
                     <div class="mt-3 text-end">

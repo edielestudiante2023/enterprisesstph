@@ -20,6 +20,14 @@ use App\Models\CartaVigiaModel;
 use App\Models\PlanEmergenciaModel;
 use App\Models\EvaluacionSimulacroModel;
 use App\Models\HvBrigadistaModel;
+use App\Models\DotacionVigilanteModel;
+use App\Models\DotacionAseadoraModel;
+use App\Models\DotacionToderoModel;
+use App\Models\AuditoriaZonaResiduosModel;
+use App\Models\ReporteCapacitacionModel;
+use App\Models\PreparacionSimulacroModel;
+use App\Models\AsistenciaInduccionModel;
+use App\Models\ProgramaLimpiezaModel;
 
 class InspeccionesController extends BaseController
 {
@@ -228,6 +236,78 @@ class InspeccionesController extends BaseController
             $pendientesHvBrig = $hvBrigModel->getPendientesByConsultor($userId);
         }
 
+        // Conteo de dotación vigilante completas
+        $dotVigModel = new DotacionVigilanteModel();
+        $totalDotVig = $dotVigModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesDotVig = $dotVigModel->getAllPendientes();
+        } else {
+            $pendientesDotVig = $dotVigModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de dotación aseadora completas
+        $dotAseModel = new DotacionAseadoraModel();
+        $totalDotAse = $dotAseModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesDotAse = $dotAseModel->getAllPendientes();
+        } else {
+            $pendientesDotAse = $dotAseModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de dotación todero completas
+        $dotTodModel = new DotacionToderoModel();
+        $totalDotTod = $dotTodModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesDotTod = $dotTodModel->getAllPendientes();
+        } else {
+            $pendientesDotTod = $dotTodModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de auditoría zona residuos completas
+        $audResModel = new AuditoriaZonaResiduosModel();
+        $totalAudRes = $audResModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesAudRes = $audResModel->getAllPendientes();
+        } else {
+            $pendientesAudRes = $audResModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de reporte capacitación completas
+        $repCapModel = new ReporteCapacitacionModel();
+        $totalRepCap = $repCapModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesRepCap = $repCapModel->getAllPendientes();
+        } else {
+            $pendientesRepCap = $repCapModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de preparación simulacro completas
+        $prepSimModel = new PreparacionSimulacroModel();
+        $totalPrepSim = $prepSimModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesPrepSim = $prepSimModel->getAllPendientes();
+        } else {
+            $pendientesPrepSim = $prepSimModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de asistencia inducción completas
+        $asistIndModel = new AsistenciaInduccionModel();
+        $totalAsistInd = $asistIndModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesAsistInd = $asistIndModel->getAllPendientes();
+        } else {
+            $pendientesAsistInd = $asistIndModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de programa limpieza completas
+        $progLimpModel = new ProgramaLimpiezaModel();
+        $totalProgLimp = $progLimpModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesProgLimp = $progLimpModel->getAllPendientes();
+        } else {
+            $pendientesProgLimp = $progLimpModel->getPendientesByConsultor($userId);
+        }
+
         // Conteo de vencimientos de mantenimiento sin ejecutar
         $vencimientoModel = new VencimientosMantenimientoModel();
         $vencBuilder = $vencimientoModel->where('estado_actividad', 'sin ejecutar');
@@ -268,6 +348,14 @@ class InspeccionesController extends BaseController
             'pendientesPlanEmg' => $pendientesPlanEmg,
             'pendientesSimulacro' => $pendientesSimulacro,
             'pendientesHvBrig' => $pendientesHvBrig,
+            'pendientesDotVig' => $pendientesDotVig,
+            'pendientesDotAse' => $pendientesDotAse,
+            'pendientesDotTod' => $pendientesDotTod,
+            'pendientesAudRes' => $pendientesAudRes,
+            'pendientesRepCap' => $pendientesRepCap,
+            'pendientesPrepSim' => $pendientesPrepSim,
+            'pendientesAsistInd' => $pendientesAsistInd,
+            'pendientesProgLimp' => $pendientesProgLimp,
             'totalActas'       => $totalActas,
             'totalLocativas'   => $totalLocativas,
             'totalSenalizacion' => $totalSenalizacion,
@@ -281,6 +369,14 @@ class InspeccionesController extends BaseController
             'totalPlanEmergencia' => $totalPlanEmergencia,
             'totalSimulacro'   => $totalSimulacro,
             'totalHvBrigadista' => $totalHvBrigadista,
+            'totalDotVig'      => $totalDotVig,
+            'totalDotAse'      => $totalDotAse,
+            'totalDotTod'      => $totalDotTod,
+            'totalAudRes'      => $totalAudRes,
+            'totalRepCap'      => $totalRepCap,
+            'totalPrepSim'     => $totalPrepSim,
+            'totalAsistInd'    => $totalAsistInd,
+            'totalProgLimp'    => $totalProgLimp,
             'totalVencimientos' => $totalVencimientos,
             'totalPendientesAbiertos' => $totalPendientesAbiertos,
             'totalCartasVigiaPend' => $totalCartasVigiaPend,

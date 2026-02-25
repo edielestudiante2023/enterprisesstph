@@ -386,6 +386,198 @@
     <?php endforeach; ?>
     <?php endif; ?>
 
+    <!-- Pendientes dotación vigilante -->
+    <?php if (!empty($pendientesDotVig)): ?>
+    <?php foreach ($pendientesDotVig as $dv): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Dot. Vigilante - <?= esc($dv['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($dv['fecha_inspeccion'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/dotacion-vigilante/edit/<?= $dv['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes dotación aseadora -->
+    <?php if (!empty($pendientesDotAse)): ?>
+    <?php foreach ($pendientesDotAse as $da): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Dot. Aseadora - <?= esc($da['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($da['fecha_inspeccion'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/dotacion-aseadora/edit/<?= $da['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes dotación todero -->
+    <?php if (!empty($pendientesDotTod)): ?>
+    <?php foreach ($pendientesDotTod as $dt): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Dot. Todero - <?= esc($dt['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($dt['fecha_inspeccion'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/dotacion-todero/edit/<?= $dt['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes auditoría zona residuos -->
+    <?php if (!empty($pendientesAudRes)): ?>
+    <?php foreach ($pendientesAudRes as $ar): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Zona Residuos - <?= esc($ar['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($ar['fecha_inspeccion'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/auditoria-zona-residuos/edit/<?= $ar['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes reporte capacitación -->
+    <?php if (!empty($pendientesRepCap)): ?>
+    <?php foreach ($pendientesRepCap as $rc): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Capacitacion - <?= esc($rc['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($rc['fecha_capacitacion'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/reporte-capacitacion/edit/<?= $rc['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes preparación simulacro -->
+    <?php if (!empty($pendientesPrepSim)): ?>
+    <?php foreach ($pendientesPrepSim as $ps): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Prep. Simulacro - <?= esc($ps['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($ps['fecha_simulacro'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/preparacion-simulacro/edit/<?= $ps['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes asistencia inducción -->
+    <?php if (!empty($pendientesAsistInd)): ?>
+    <?php foreach ($pendientesAsistInd as $ai): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Asistencia - <?= esc($ai['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($ai['fecha_sesion'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/asistencia-induccion/edit/<?= $ai['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes programa limpieza -->
+    <?php if (!empty($pendientesProgLimp)): ?>
+    <?php foreach ($pendientesProgLimp as $pl): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Limpieza - <?= esc($pl['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($pl['fecha_programa'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/limpieza-desinfeccion/edit/<?= $pl['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
     <!-- Grid de inspecciones -->
     <div class="section-title">Inspecciones</div>
     <div class="grid-inspecciones mb-4">
@@ -453,6 +645,46 @@
             <i class="fas fa-id-card-alt"></i>
             <div><strong>HV Brigadista</strong></div>
             <div class="count">(<?= $totalHvBrigadista ?>)</div>
+        </a>
+        <a href="/inspecciones/dotacion-vigilante" class="card-tipo">
+            <i class="fas fa-user-shield"></i>
+            <div><strong>Dot. Vigilante</strong></div>
+            <div class="count">(<?= $totalDotVig ?>)</div>
+        </a>
+        <a href="/inspecciones/dotacion-aseadora" class="card-tipo">
+            <i class="fas fa-spray-can-sparkles"></i>
+            <div><strong>Dot. Aseadora</strong></div>
+            <div class="count">(<?= $totalDotAse ?>)</div>
+        </a>
+        <a href="/inspecciones/dotacion-todero" class="card-tipo">
+            <i class="fas fa-broom"></i>
+            <div><strong>Dot. Todero</strong></div>
+            <div class="count">(<?= $totalDotTod ?>)</div>
+        </a>
+        <a href="/inspecciones/auditoria-zona-residuos" class="card-tipo">
+            <i class="fas fa-dumpster"></i>
+            <div><strong>Zona Residuos</strong></div>
+            <div class="count">(<?= $totalAudRes ?>)</div>
+        </a>
+        <a href="/inspecciones/reporte-capacitacion" class="card-tipo">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <div><strong>Capacitaciones</strong></div>
+            <div class="count">(<?= $totalRepCap ?>)</div>
+        </a>
+        <a href="/inspecciones/preparacion-simulacro" class="card-tipo">
+            <i class="fas fa-clipboard-check"></i>
+            <div><strong>Prep. Simulacro</strong></div>
+            <div class="count">(<?= $totalPrepSim ?>)</div>
+        </a>
+        <a href="/inspecciones/asistencia-induccion" class="card-tipo">
+            <i class="fas fa-clipboard-list"></i>
+            <div><strong>Asistencia</strong></div>
+            <div class="count">(<?= $totalAsistInd ?>)</div>
+        </a>
+        <a href="/inspecciones/limpieza-desinfeccion" class="card-tipo">
+            <i class="fas fa-pump-soap"></i>
+            <div><strong>Limpieza y Des.</strong></div>
+            <div class="count">(<?= $totalProgLimp ?>)</div>
         </a>
         <a href="/inspecciones/carta-vigia" class="card-tipo">
             <i class="fas fa-user-shield"></i>
