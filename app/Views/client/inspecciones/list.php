@@ -22,6 +22,14 @@ $iconos = [
     'asistencia_induccion'    => 'fa-chalkboard-teacher',
     'reporte_capacitacion'    => 'fa-graduation-cap',
     'preparacion_simulacro'   => 'fa-clipboard-list',
+    'residuos'                => 'fa-recycle',
+    'plagas'                  => 'fa-bug',
+    'agua_potable'            => 'fa-tint',
+    'plan_saneamiento'        => 'fa-shield-alt',
+    'kpi_limpieza'            => 'fa-chart-line',
+    'kpi_residuos'            => 'fa-chart-bar',
+    'kpi_plagas'              => 'fa-chart-pie',
+    'kpi_agua_potable'        => 'fa-chart-area',
 ];
 $icono = $iconos[$tipo] ?? 'fa-clipboard-list';
 ?>

@@ -2,15 +2,15 @@
 
 ## Contexto
 
-Módulo completo PWA "Inspecciones SST" con 25 controladores, 26 modelos, ~97 vistas, 25 migraciones SQL, 2 formularios públicos y dashboard unificado con 24 cards.
+Módulo completo PWA "Inspecciones SST" con 34 controladores, 35 modelos, ~131 vistas, 31 migraciones SQL, 2 formularios públicos y dashboard unificado con 33 cards.
 
 **Stack:** CodeIgniter 4, PHP 8.2, MySQL 8, DOMPDF para PDFs, Bootstrap 5 PWA.
 
 ---
 
-## 1. CONTROLADORES (25 archivos)
+## 1. CONTROLADORES (34 archivos)
 
-### Dentro del grupo Inspecciones (autenticados — 23 archivos)
+### Dentro del grupo Inspecciones (autenticados — 32 archivos)
 ```
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\InspeccionesController.php          — Dashboard principal
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\ActaVisitaController.php             — Acta de visita
@@ -34,6 +34,15 @@ c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\PreparacionSimulacr
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\ReporteCapacitacionController.php   — Reporte capacitación (382 líneas, 5 fotos)
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\AsistenciaInduccionController.php   — Asistencia inducción (516 líneas, master-detalle + firmas)
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\ProgramaLimpiezaController.php      — Programa limpieza y desinfección (306 líneas)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\ProgramaResiduosController.php     — Programa manejo integral de residuos sólidos
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\ProgramaPlagasController.php       — Programa control integrado de plagas
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\ProgramaAguaPotableController.php  — Programa abastecimiento agua potable
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\PlanSaneamientoController.php      — Plan de saneamiento básico
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\KpiLimpiezaController.php          — KPI limpieza y desinfección (FT-SST-229)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\KpiResiduosController.php          — KPI residuos sólidos (FT-SST-230)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\KpiPlagasController.php            — KPI control de plagas (FT-SST-231)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\KpiAguaPotableController.php       — KPI agua potable (FT-SST-232)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\UrlsPwaController.php              — Accesos rápidos / URLs
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\CartaVigiaPwaController.php         — Carta vigía SST
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\MantenimientosPwaController.php     — Mantenimientos
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\PendientesPwaController.php         — Pendientes/compromisos
@@ -47,7 +56,7 @@ c:\xampp\htdocs\enterprisesstph\app\Controllers\HvBrigadistaPublicoController.ph
 
 ---
 
-## 2. MODELOS (17 archivos relevantes al módulo)
+## 2. MODELOS (35 archivos relevantes al módulo)
 
 ```
 c:\xampp\htdocs\enterprisesstph\app\Models\ActaVisitaModel.php
@@ -71,6 +80,15 @@ c:\xampp\htdocs\enterprisesstph\app\Models\MatrizVulnerabilidadModel.php
 c:\xampp\htdocs\enterprisesstph\app\Models\PlanEmergenciaModel.php
 c:\xampp\htdocs\enterprisesstph\app\Models\EvaluacionSimulacroModel.php
 c:\xampp\htdocs\enterprisesstph\app\Models\HvBrigadistaModel.php
+c:\xampp\htdocs\enterprisesstph\app\Models\ProgramaResiduosModel.php
+c:\xampp\htdocs\enterprisesstph\app\Models\ProgramaPlagasModel.php
+c:\xampp\htdocs\enterprisesstph\app\Models\ProgramaAguaPotableModel.php
+c:\xampp\htdocs\enterprisesstph\app\Models\PlanSaneamientoModel.php
+c:\xampp\htdocs\enterprisesstph\app\Models\KpiLimpiezaModel.php
+c:\xampp\htdocs\enterprisesstph\app\Models\KpiResiduosModel.php
+c:\xampp\htdocs\enterprisesstph\app\Models\KpiPlagasModel.php
+c:\xampp\htdocs\enterprisesstph\app\Models\KpiAguaPotableModel.php
+c:\xampp\htdocs\enterprisesstph\app\Models\UrlModel.php
 c:\xampp\htdocs\enterprisesstph\app\Models\CartaVigiaModel.php
 c:\xampp\htdocs\enterprisesstph\app\Models\MantenimientoModel.php
 c:\xampp\htdocs\enterprisesstph\app\Models\VencimientosMantenimientoModel.php
@@ -79,7 +97,7 @@ c:\xampp\htdocs\enterprisesstph\app\Models\PendientesModel.php
 
 ---
 
-## 3. VISTAS (65 archivos)
+## 3. VISTAS (~131 archivos)
 
 ### Layout compartido PWA
 ```
@@ -215,14 +233,94 @@ c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\mantenimientos\form.php
 ```
 
 ### Pendientes (2 archivos)
+
 ```
 c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\pendientes\list.php
 c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\pendientes\form.php
 ```
 
+### Residuos Sólidos (4 archivos)
+
+```
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\residuos-solidos\list.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\residuos-solidos\form.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\residuos-solidos\view.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\residuos-solidos\pdf.php
+```
+
+### Control de Plagas (4 archivos)
+
+```
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\control-plagas\list.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\control-plagas\form.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\control-plagas\view.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\control-plagas\pdf.php
+```
+
+### Agua Potable (4 archivos)
+
+```
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\agua-potable\list.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\agua-potable\form.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\agua-potable\view.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\agua-potable\pdf.php
+```
+
+### Plan de Saneamiento (4 archivos)
+
+```
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\plan-saneamiento\list.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\plan-saneamiento\form.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\plan-saneamiento\view.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\plan-saneamiento\pdf.php
+```
+
+### KPI Limpieza (4 archivos)
+
+```
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-limpieza\list.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-limpieza\form.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-limpieza\view.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-limpieza\pdf.php
+```
+
+### KPI Residuos (4 archivos)
+
+```
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-residuos\list.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-residuos\form.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-residuos\view.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-residuos\pdf.php
+```
+
+### KPI Plagas (4 archivos)
+
+```
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-plagas\list.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-plagas\form.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-plagas\view.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-plagas\pdf.php
+```
+
+### KPI Agua Potable (4 archivos)
+
+```
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-agua-potable\list.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-agua-potable\form.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-agua-potable\view.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\kpi-agua-potable\pdf.php
+```
+
+### URLs / Accesos Rápidos (2 archivos)
+
+```
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\urls\list.php
+c:\xampp\htdocs\enterprisesstph\app\Views\inspecciones\urls\form.php
+```
+
 ---
 
-## 4. MIGRACIONES SQL (24 archivos)
+## 4. MIGRACIONES SQL (31 archivos)
 
 ```
 c:\xampp\htdocs\enterprisesstph\app\SQL\migrate_acta_visita.php
@@ -249,6 +347,12 @@ c:\xampp\htdocs\enterprisesstph\app\SQL\migrate_carta_vigia.php
 c:\xampp\htdocs\enterprisesstph\app\SQL\migrate_firma_digital.php
 c:\xampp\htdocs\enterprisesstph\app\SQL\migrate_codigo_verificacion.php
 c:\xampp\htdocs\enterprisesstph\app\SQL\migrate_pta_audit_table.php
+c:\xampp\htdocs\enterprisesstph\app\SQL\migrate_kpis.php
+c:\xampp\htdocs\enterprisesstph\app\SQL\migrate_plan_saneamiento.php
+c:\xampp\htdocs\enterprisesstph\app\SQL\migrate_programa_agua_potable.php
+c:\xampp\htdocs\enterprisesstph\app\SQL\migrate_programa_plagas.php
+c:\xampp\htdocs\enterprisesstph\app\SQL\migrate_programa_residuos.php
+c:\xampp\htdocs\enterprisesstph\app\SQL\migrate_urls.php
 ```
 
 ### Ejecución
@@ -434,6 +538,110 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('api/mantenimientos-catalog', 'MantenimientosPwaController::apiCatalog');
     $routes->get('api/vencimientos/(:num)', 'MantenimientosPwaController::apiVencimientos/$1');
 
+    // Residuos Sólidos (10 rutas)
+    $routes->get('residuos-solidos', 'ProgramaResiduosController::list');
+    $routes->get('residuos-solidos/create', 'ProgramaResiduosController::create');
+    $routes->get('residuos-solidos/create/(:num)', 'ProgramaResiduosController::create/$1');
+    $routes->post('residuos-solidos/store', 'ProgramaResiduosController::store');
+    $routes->get('residuos-solidos/edit/(:num)', 'ProgramaResiduosController::edit/$1');
+    $routes->post('residuos-solidos/update/(:num)', 'ProgramaResiduosController::update/$1');
+    $routes->get('residuos-solidos/view/(:num)', 'ProgramaResiduosController::view/$1');
+    $routes->get('residuos-solidos/pdf/(:num)', 'ProgramaResiduosController::generatePdf/$1');
+    $routes->post('residuos-solidos/finalizar/(:num)', 'ProgramaResiduosController::finalizar/$1');
+    $routes->get('residuos-solidos/delete/(:num)', 'ProgramaResiduosController::delete/$1');
+
+    // Control de Plagas (10 rutas)
+    $routes->get('control-plagas', 'ProgramaPlagasController::list');
+    $routes->get('control-plagas/create', 'ProgramaPlagasController::create');
+    $routes->get('control-plagas/create/(:num)', 'ProgramaPlagasController::create/$1');
+    $routes->post('control-plagas/store', 'ProgramaPlagasController::store');
+    $routes->get('control-plagas/edit/(:num)', 'ProgramaPlagasController::edit/$1');
+    $routes->post('control-plagas/update/(:num)', 'ProgramaPlagasController::update/$1');
+    $routes->get('control-plagas/view/(:num)', 'ProgramaPlagasController::view/$1');
+    $routes->get('control-plagas/pdf/(:num)', 'ProgramaPlagasController::generatePdf/$1');
+    $routes->post('control-plagas/finalizar/(:num)', 'ProgramaPlagasController::finalizar/$1');
+    $routes->get('control-plagas/delete/(:num)', 'ProgramaPlagasController::delete/$1');
+
+    // Agua Potable (10 rutas)
+    $routes->get('agua-potable', 'ProgramaAguaPotableController::list');
+    $routes->get('agua-potable/create', 'ProgramaAguaPotableController::create');
+    $routes->get('agua-potable/create/(:num)', 'ProgramaAguaPotableController::create/$1');
+    $routes->post('agua-potable/store', 'ProgramaAguaPotableController::store');
+    $routes->get('agua-potable/edit/(:num)', 'ProgramaAguaPotableController::edit/$1');
+    $routes->post('agua-potable/update/(:num)', 'ProgramaAguaPotableController::update/$1');
+    $routes->get('agua-potable/view/(:num)', 'ProgramaAguaPotableController::view/$1');
+    $routes->get('agua-potable/pdf/(:num)', 'ProgramaAguaPotableController::generatePdf/$1');
+    $routes->post('agua-potable/finalizar/(:num)', 'ProgramaAguaPotableController::finalizar/$1');
+    $routes->get('agua-potable/delete/(:num)', 'ProgramaAguaPotableController::delete/$1');
+
+    // Plan de Saneamiento (10 rutas)
+    $routes->get('plan-saneamiento', 'PlanSaneamientoController::list');
+    $routes->get('plan-saneamiento/create', 'PlanSaneamientoController::create');
+    $routes->get('plan-saneamiento/create/(:num)', 'PlanSaneamientoController::create/$1');
+    $routes->post('plan-saneamiento/store', 'PlanSaneamientoController::store');
+    $routes->get('plan-saneamiento/edit/(:num)', 'PlanSaneamientoController::edit/$1');
+    $routes->post('plan-saneamiento/update/(:num)', 'PlanSaneamientoController::update/$1');
+    $routes->get('plan-saneamiento/view/(:num)', 'PlanSaneamientoController::view/$1');
+    $routes->get('plan-saneamiento/pdf/(:num)', 'PlanSaneamientoController::generatePdf/$1');
+    $routes->post('plan-saneamiento/finalizar/(:num)', 'PlanSaneamientoController::finalizar/$1');
+    $routes->get('plan-saneamiento/delete/(:num)', 'PlanSaneamientoController::delete/$1');
+
+    // KPI Limpieza (10 rutas)
+    $routes->get('kpi-limpieza', 'KpiLimpiezaController::list');
+    $routes->get('kpi-limpieza/create', 'KpiLimpiezaController::create');
+    $routes->get('kpi-limpieza/create/(:num)', 'KpiLimpiezaController::create/$1');
+    $routes->post('kpi-limpieza/store', 'KpiLimpiezaController::store');
+    $routes->get('kpi-limpieza/edit/(:num)', 'KpiLimpiezaController::edit/$1');
+    $routes->post('kpi-limpieza/update/(:num)', 'KpiLimpiezaController::update/$1');
+    $routes->get('kpi-limpieza/view/(:num)', 'KpiLimpiezaController::view/$1');
+    $routes->get('kpi-limpieza/pdf/(:num)', 'KpiLimpiezaController::generatePdf/$1');
+    $routes->post('kpi-limpieza/finalizar/(:num)', 'KpiLimpiezaController::finalizar/$1');
+    $routes->get('kpi-limpieza/delete/(:num)', 'KpiLimpiezaController::delete/$1');
+
+    // KPI Residuos (10 rutas)
+    $routes->get('kpi-residuos', 'KpiResiduosController::list');
+    $routes->get('kpi-residuos/create', 'KpiResiduosController::create');
+    $routes->get('kpi-residuos/create/(:num)', 'KpiResiduosController::create/$1');
+    $routes->post('kpi-residuos/store', 'KpiResiduosController::store');
+    $routes->get('kpi-residuos/edit/(:num)', 'KpiResiduosController::edit/$1');
+    $routes->post('kpi-residuos/update/(:num)', 'KpiResiduosController::update/$1');
+    $routes->get('kpi-residuos/view/(:num)', 'KpiResiduosController::view/$1');
+    $routes->get('kpi-residuos/pdf/(:num)', 'KpiResiduosController::generatePdf/$1');
+    $routes->post('kpi-residuos/finalizar/(:num)', 'KpiResiduosController::finalizar/$1');
+    $routes->get('kpi-residuos/delete/(:num)', 'KpiResiduosController::delete/$1');
+
+    // KPI Plagas (10 rutas)
+    $routes->get('kpi-plagas', 'KpiPlagasController::list');
+    $routes->get('kpi-plagas/create', 'KpiPlagasController::create');
+    $routes->get('kpi-plagas/create/(:num)', 'KpiPlagasController::create/$1');
+    $routes->post('kpi-plagas/store', 'KpiPlagasController::store');
+    $routes->get('kpi-plagas/edit/(:num)', 'KpiPlagasController::edit/$1');
+    $routes->post('kpi-plagas/update/(:num)', 'KpiPlagasController::update/$1');
+    $routes->get('kpi-plagas/view/(:num)', 'KpiPlagasController::view/$1');
+    $routes->get('kpi-plagas/pdf/(:num)', 'KpiPlagasController::generatePdf/$1');
+    $routes->post('kpi-plagas/finalizar/(:num)', 'KpiPlagasController::finalizar/$1');
+    $routes->get('kpi-plagas/delete/(:num)', 'KpiPlagasController::delete/$1');
+
+    // KPI Agua Potable (10 rutas)
+    $routes->get('kpi-agua-potable', 'KpiAguaPotableController::list');
+    $routes->get('kpi-agua-potable/create', 'KpiAguaPotableController::create');
+    $routes->get('kpi-agua-potable/create/(:num)', 'KpiAguaPotableController::create/$1');
+    $routes->post('kpi-agua-potable/store', 'KpiAguaPotableController::store');
+    $routes->get('kpi-agua-potable/edit/(:num)', 'KpiAguaPotableController::edit/$1');
+    $routes->post('kpi-agua-potable/update/(:num)', 'KpiAguaPotableController::update/$1');
+    $routes->get('kpi-agua-potable/view/(:num)', 'KpiAguaPotableController::view/$1');
+    $routes->get('kpi-agua-potable/pdf/(:num)', 'KpiAguaPotableController::generatePdf/$1');
+    $routes->post('kpi-agua-potable/finalizar/(:num)', 'KpiAguaPotableController::finalizar/$1');
+    $routes->get('kpi-agua-potable/delete/(:num)', 'KpiAguaPotableController::delete/$1');
+
+    // URLs / Accesos Rápidos (6 rutas)
+    $routes->get('urls', 'UrlsPwaController::list');
+    $routes->get('urls/create', 'UrlsPwaController::create');
+    $routes->post('urls/store', 'UrlsPwaController::store');
+    $routes->get('urls/edit/(:num)', 'UrlsPwaController::edit/$1');
+    $routes->post('urls/update/(:num)', 'UrlsPwaController::update/$1');
+    $routes->get('urls/delete/(:num)', 'UrlsPwaController::delete/$1');
+
     // Carta Vigía
     $routes->get('carta-vigia', 'CartaVigiaPwaController::list');
     // ... (más rutas carta vigía)
@@ -541,6 +749,23 @@ c:\xampp\htdocs\enterprisesstph\
 │   │   │   ├── PlanEmergenciaController.php
 │   │   │   ├── EvaluacionSimulacroController.php
 │   │   │   ├── HvBrigadistaController.php
+│   │   │   ├── DotacionVigilanteController.php
+│   │   │   ├── DotacionAseadoraController.php
+│   │   │   ├── DotacionToderoController.php
+│   │   │   ├── AuditoriaZonaResiduosController.php
+│   │   │   ├── PreparacionSimulacroController.php
+│   │   │   ├── ReporteCapacitacionController.php
+│   │   │   ├── AsistenciaInduccionController.php
+│   │   │   ├── ProgramaLimpiezaController.php
+│   │   │   ├── ProgramaResiduosController.php
+│   │   │   ├── ProgramaPlagasController.php
+│   │   │   ├── ProgramaAguaPotableController.php
+│   │   │   ├── PlanSaneamientoController.php
+│   │   │   ├── KpiLimpiezaController.php
+│   │   │   ├── KpiResiduosController.php
+│   │   │   ├── KpiPlagasController.php
+│   │   │   ├── KpiAguaPotableController.php
+│   │   │   ├── UrlsPwaController.php
 │   │   │   ├── CartaVigiaPwaController.php
 │   │   │   ├── MantenimientosPwaController.php
 │   │   │   └── PendientesPwaController.php
@@ -568,6 +793,24 @@ c:\xampp\htdocs\enterprisesstph\
 │   │   ├── PlanEmergenciaModel.php
 │   │   ├── EvaluacionSimulacroModel.php
 │   │   ├── HvBrigadistaModel.php
+│   │   ├── DotacionVigilanteModel.php
+│   │   ├── DotacionAseadoraModel.php
+│   │   ├── DotacionToderoModel.php
+│   │   ├── AuditoriaZonaResiduosModel.php
+│   │   ├── PreparacionSimulacroModel.php
+│   │   ├── ReporteCapacitacionModel.php
+│   │   ├── AsistenciaInduccionModel.php
+│   │   ├── AsistenciaInduccionAsistenteModel.php
+│   │   ├── ProgramaLimpiezaModel.php
+│   │   ├── ProgramaResiduosModel.php
+│   │   ├── ProgramaPlagasModel.php
+│   │   ├── ProgramaAguaPotableModel.php
+│   │   ├── PlanSaneamientoModel.php
+│   │   ├── KpiLimpiezaModel.php
+│   │   ├── KpiResiduosModel.php
+│   │   ├── KpiPlagasModel.php
+│   │   ├── KpiAguaPotableModel.php
+│   │   ├── UrlModel.php
 │   │   ├── CartaVigiaModel.php
 │   │   ├── MantenimientoModel.php
 │   │   ├── VencimientosMantenimientoModel.php
@@ -596,7 +839,13 @@ c:\xampp\htdocs\enterprisesstph\
 │   │   ├── migrate_carta_vigia.php
 │   │   ├── migrate_firma_digital.php
 │   │   ├── migrate_codigo_verificacion.php
-│   │   └── migrate_pta_audit_table.php
+│   │   ├── migrate_pta_audit_table.php
+│   │   ├── migrate_kpis.php
+│   │   ├── migrate_plan_saneamiento.php
+│   │   ├── migrate_programa_agua_potable.php
+│   │   ├── migrate_programa_plagas.php
+│   │   ├── migrate_programa_residuos.php
+│   │   └── migrate_urls.php
 │   └── Views\
 │       ├── inspecciones\
 │       │   ├── layout_pwa.php                          (layout compartido)
@@ -614,6 +863,23 @@ c:\xampp\htdocs\enterprisesstph\
 │       │   ├── plan-emergencia\    (4: list, form, view, pdf)
 │       │   ├── simulacro\          (3: list, view, pdf)
 │       │   ├── hv-brigadista\      (3: list, view, pdf)
+│       │   ├── dotacion-vigilante\ (4: list, form, view, pdf)
+│       │   ├── dotacion-aseadora\  (4: list, form, view, pdf)
+│       │   ├── dotacion-todero\    (4: list, form, view, pdf)
+│       │   ├── auditoria-zona-residuos\ (4: list, form, view, pdf)
+│       │   ├── preparacion-simulacro\   (4: list, form, view, pdf)
+│       │   ├── reporte-capacitacion\    (4: list, form, view, pdf)
+│       │   ├── asistencia-induccion\    (4: list, form, view, pdf)
+│       │   ├── limpieza-desinfeccion\   (4: list, form, view, pdf)
+│       │   ├── residuos-solidos\   (4: list, form, view, pdf)
+│       │   ├── control-plagas\     (4: list, form, view, pdf)
+│       │   ├── agua-potable\       (4: list, form, view, pdf)
+│       │   ├── plan-saneamiento\   (4: list, form, view, pdf)
+│       │   ├── kpi-limpieza\       (4: list, form, view, pdf)
+│       │   ├── kpi-residuos\       (4: list, form, view, pdf)
+│       │   ├── kpi-plagas\         (4: list, form, view, pdf)
+│       │   ├── kpi-agua-potable\   (4: list, form, view, pdf)
+│       │   ├── urls\               (2: list, form)
 │       │   ├── carta_vigia\        (7: list, form, pdf, firma, firma_error, firma_success, email_firma)
 │       │   ├── mantenimientos\     (2: list, form)
 │       │   └── pendientes\         (2: list, form)
@@ -629,7 +895,7 @@ c:\xampp\htdocs\enterprisesstph\
 │       └── icon-512.png
 └── docs\
     ├── 00_PLAN_MAESTRO.md ... 22_PREPARACION_SIMULACRO.md
-    └── (25 archivos de documentación)
+    └── (26+ archivos de documentación)
 ```
 
 ---
@@ -637,7 +903,7 @@ c:\xampp\htdocs\enterprisesstph\
 ## INSTRUCCIONES PARA REPLICAR
 
 1. **Copiar TODOS los archivos** listados arriba a las mismas rutas relativas en el proyecto gemelo
-2. **Ejecutar las 24 migraciones SQL** en el orden listado (primero LOCAL, luego PRODUCCIÓN)
+2. **Ejecutar las 31 migraciones SQL** en el orden listado (primero LOCAL, luego PRODUCCIÓN)
 3. **Verificar** que todas las tablas existen con el número correcto de columnas
 4. **Assets PWA**: copiar manifest, service worker e iconos a `public/`
 5. **Permisos carpetas uploads** en producción:
