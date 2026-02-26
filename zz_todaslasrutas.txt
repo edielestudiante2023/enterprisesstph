@@ -1,0 +1,42 @@
+Aquí está el inventario completo de las 33 inspecciones/módulos con su ruta, ícono, carpeta de vistas y archivos:
+
+#	Módulo	Ruta URL	Ícono	Vistas	Archivos
+1	Actas de Visita	/inspecciones/acta-visita	fa-clipboard-list	acta_visita/	5: list, form, view, pdf, firma
+2	Señalización	/inspecciones/senalizacion	fa-search	senalizacion/	4: list, form, view, pdf
+3	Locativas	/inspecciones/inspeccion-locativa	fa-hard-hat	inspeccion_locativa/	4: list, form, view, pdf
+4	Extintores	/inspecciones/extintores	fa-fire-extinguisher	extintores/	5: list, form, view, pdf, _extintor_row
+5	Botiquín	/inspecciones/botiquin	fa-first-aid	botiquin/	4: list, form, view, pdf
+6	Gabinetes	/inspecciones/gabinetes	fa-shower	gabinetes/	4: list, form, view, pdf
+7	Comunicaciones	/inspecciones/comunicaciones	fa-walkie-talkie	comunicaciones/	4: list, form, view, pdf
+8	Rec. Seguridad	/inspecciones/recursos-seguridad	fa-shield-alt	recursos-seguridad/	4: list, form, view, pdf
+9	Prob. Peligros	/inspecciones/probabilidad-peligros	fa-exclamation-triangle	probabilidad-peligros/	4: list, form, view, pdf
+10	Matriz Vuln.	/inspecciones/matriz-vulnerabilidad	fa-th-list	matriz-vulnerabilidad/	4: list, form, view, pdf
+11	Plan Emergencia	/inspecciones/plan-emergencia	fa-file-medical	plan-emergencia/	4: list, form, view, pdf
+12	Ev. Simulacro	/inspecciones/simulacro	fa-running	simulacro/	3: list, view, pdf
+13	HV Brigadista	/inspecciones/hv-brigadista	fa-id-card-alt	hv-brigadista/	3: list, view, pdf
+14	Dot. Vigilante	/inspecciones/dotacion-vigilante	fa-user-shield	dotacion-vigilante/	4: list, form, view, pdf
+15	Dot. Aseadora	/inspecciones/dotacion-aseadora	fa-spray-can-sparkles	dotacion-aseadora/	4: list, form, view, pdf
+16	Dot. Todero	/inspecciones/dotacion-todero	fa-broom	dotacion-todero/	4: list, form, view, pdf
+17	Zona Residuos	/inspecciones/auditoria-zona-residuos	fa-dumpster	auditoria-zona-residuos/	4: list, form, view, pdf
+18	Capacitaciones	/inspecciones/reporte-capacitacion	fa-chalkboard-teacher	reporte-capacitacion/	4: list, form, view, pdf
+19	Prep. Simulacro	/inspecciones/preparacion-simulacro	fa-clipboard-check	preparacion-simulacro/	4: list, form, view, pdf
+20	Asistencia	/inspecciones/asistencia-induccion	fa-clipboard-list	asistencia-induccion/	4: list, form, view, pdf
+21	Limpieza y Des.	/inspecciones/limpieza-desinfeccion	fa-pump-soap	limpieza-desinfeccion/	4: list, form, view, pdf
+22	Residuos Sólidos	/inspecciones/residuos-solidos	fa-recycle	residuos-solidos/	4: list, form, view, pdf
+23	Control Plagas	/inspecciones/control-plagas	fa-bug	control-plagas/	4: list, form, view, pdf
+24	Agua Potable	/inspecciones/agua-potable	fa-tint	agua-potable/	4: list, form, view, pdf
+25	Plan Saneamiento	/inspecciones/plan-saneamiento	fa-shield-alt	plan-saneamiento/	4: list, form, view, pdf
+26	KPI Limpieza	/inspecciones/kpi-limpieza	fa-chart-line	kpi-limpieza/	4: list, form, view, pdf
+27	KPI Residuos	/inspecciones/kpi-residuos	fa-chart-bar	kpi-residuos/	4: list, form, view, pdf
+28	KPI Plagas	/inspecciones/kpi-plagas	fa-chart-pie	kpi-plagas/	4: list, form, view, pdf
+29	KPI Agua Potable	/inspecciones/kpi-agua-potable	fa-chart-area	kpi-agua-potable/	4: list, form, view, pdf
+30	Carta Vigía	/inspecciones/carta-vigia	fa-user-shield	carta_vigia/	7: list, form, pdf, firma, firma_error, firma_success, email_firma
+31	Mantenimientos	/inspecciones/mantenimientos	fa-wrench	mantenimientos/	2: list, form
+32	Pendientes	/inspecciones/pendientes	fa-tasks	pendientes/	2: list, form
+33	Accesos Rápidos	/inspecciones/urls	fa-link	urls/	2: list, form
+Totales: 33 módulos, ~131 archivos de vista, todas bajo app/Views/inspecciones/
+
+Formularios públicos adicionales (sin autenticación):
+
+Evaluación Simulacro: /simulacro → app/Views/simulacro/form_publico.php
+HV Brigadista: /hv-brigadista → app/Views/hv-brigadista/form_publico.php

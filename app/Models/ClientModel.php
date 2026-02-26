@@ -9,10 +9,16 @@ class ClientModel extends Model
     protected $primaryKey = 'id_cliente';
     protected $allowedFields = [
         'datetime', 'fecha_ingreso', 'nit_cliente', 'nombre_cliente', 'usuario',
-        'password', 'correo_cliente', 'telefono_1_cliente', 'telefono_2_cliente',
-        'direccion_cliente', 'persona_contacto_compras', 'codigo_actividad_economica',
+        'password', 'correo_cliente', 'correo_consejo_admon',
+        'telefono_1_cliente', 'telefono_2_cliente',
+        'direccion_cliente', 'persona_contacto_compras',
+        'persona_contacto_operaciones', 'persona_contacto_pagos', 'horarios_y_dias',
+        'codigo_actividad_economica',
         'nombre_rep_legal', 'cedula_rep_legal', 'fecha_fin_contrato', 'ciudad_cliente',
-        'estado', 'id_consultor', 'logo', 'firma_representante_legal', 'estandares'
+        'estado', 'id_consultor', 'vendedor', 'plazo_cartera',
+        'fecha_cierre_facturacion', 'fecha_asignacion_cronograma',
+        'logo', 'rut', 'camara_comercio', 'cedula_rep_legal_doc', 'oferta_comercial',
+        'firma_representante_legal', 'estandares'
     ];
 
     /**

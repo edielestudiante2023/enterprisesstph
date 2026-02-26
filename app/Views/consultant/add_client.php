@@ -93,6 +93,11 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label">Correo Consejo de Administración:</label>
+                        <input type="email" name="correo_consejo_admon" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label">Teléfono 1:</label>
                         <input type="text" name="telefono_1_cliente" class="form-control" required>
                     </div>
@@ -110,6 +115,21 @@
                     <div class="mb-3">
                         <label class="form-label">Persona de Contacto para Compras:</label>
                         <input type="text" name="persona_contacto_compras" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Persona de Contacto Operaciones:</label>
+                        <input type="text" name="persona_contacto_operaciones" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Persona de Contacto Pagos / Tesorería:</label>
+                        <input type="text" name="persona_contacto_pagos" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Horarios y Días de Atención:</label>
+                        <textarea name="horarios_y_dias" class="form-control" rows="2" placeholder="Ej: Lunes a Viernes 8:00 AM - 5:00 PM"></textarea>
                     </div>
 
                     <div class="mb-3">
@@ -159,8 +179,58 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label">Vendedor:</label>
+                        <select name="vendedor" class="form-select" required>
+                            <option value="">Seleccione un Vendedor</option>
+                            <option value="DIANA CUESTAS">DIANA CUESTAS</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Plazo de Cartera:</label>
+                        <select name="plazo_cartera" class="form-select">
+                            <option value="">Seleccione</option>
+                            <option value="PAGO INMEDIATO">PAGO INMEDIATO</option>
+                            <option value="PLAZO 8 DÍAS">PLAZO 8 DÍAS</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de Cierre de Facturación (día del mes):</label>
+                        <input type="number" name="fecha_cierre_facturacion" class="form-control" min="1" max="31" placeholder="Ej: 20">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha Asignación Cronograma:</label>
+                        <input type="date" name="fecha_asignacion_cronograma" class="form-control">
+                    </div>
+
+                    <hr class="my-4">
+                    <h5 class="mb-3">Archivos y Documentos</h5>
+
+                    <div class="mb-3">
                         <label class="form-label">Logo:</label>
-                        <input type="file" name="logo" class="form-control">
+                        <input type="file" name="logo" class="form-control" accept="image/*">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">RUT:</label>
+                        <input type="file" name="rut" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cámara de Comercio:</label>
+                        <input type="file" name="camara_comercio" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cédula Representante Legal (documento):</label>
+                        <input type="file" name="cedula_rep_legal_doc" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Oferta Comercial:</label>
+                        <input type="file" name="oferta_comercial" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                     </div>
 
                     <div class="mb-3">
@@ -175,7 +245,6 @@
                             <option value="Bimensual">Bimensual</option>
                             <option value="Trimestral">Trimestral</option>
                             <option value="Proyecto">Proyecto</option>
-                            
                         </select>
                     </div>
 

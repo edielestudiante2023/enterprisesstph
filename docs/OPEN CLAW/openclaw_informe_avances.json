@@ -1,0 +1,268 @@
+{
+  "name": "informe-avances-sgsst",
+  "description": "Genera y envia Informes de Avances del SG-SST a clientes de propiedad horizontal que tuvieron visita en el periodo. Auto-calcula metricas, genera resumen con IA, produce PDF formato FT-SST-205 y envia por email via SendGrid. REGLA: sin visita no hay informe.",
+  "version": "1.1.0",
+  "base_url": "https://phorizontal.cycloidtalent.com/ext-api/informe-avances",
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-Key",
+    "key": "${ENTERPRISESST_API_KEY}"
+  },
+  "headers": {
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  },
+  "business_rules": {
+    "regla_principal": "Solo se puede generar un Informe de Avances para clientes que tuvieron al menos una Acta de Visita en el periodo. Sin visita, no hay avances que reportar.",
+    "acta_visita": "Las actas de visita se crean en /inspecciones/acta-visita. Si el registro existe, la visita ocurrio (independiente del estado de firma: borrador, pendiente_firma o completo).",
+    "flujo_correcto": "Primero usar 'listar_clientes_con_visita' para obtener solo clientes elegibles, luego iterar con 'generar_y_enviar_informe'."
+  },
+  "tools": [
+    {
+      "name": "listar_clientes_con_visita",
+      "description": "USAR ESTE ENDPOINT PARA INFORMES. Devuelve solo clientes que tuvieron acta de visita en el periodo (cualquier estado: la existencia del acta confirma la visita). Incluye total de visitas y fecha de ultima visita. Por defecto filtra ultimos 3 meses.",
+      "method": "GET",
+      "path": "/clientes-con-visita",
+      "parameters": [
+        {
+          "name": "fecha_desde",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "format": "date",
+          "description": "Inicio del periodo (YYYY-MM-DD). Default: hace 3 meses"
+        },
+        {
+          "name": "fecha_hasta",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "format": "date",
+          "description": "Fin del periodo (YYYY-MM-DD). Default: hoy"
+        }
+      ],
+      "response": {
+        "type": "object",
+        "fields": {
+          "success": "boolean",
+          "periodo": {
+            "desde": "string (YYYY-MM-DD)",
+            "hasta": "string (YYYY-MM-DD)"
+          },
+          "total": "integer - Cantidad de clientes con visita",
+          "clientes": [
+            {
+              "id_cliente": "string - ID del cliente",
+              "nombre_cliente": "string - Nombre del conjunto/edificio",
+              "nit_cliente": "string - NIT",
+              "correo_cliente": "string - Email del cliente (destino del informe)",
+              "total_visitas": "string - Cantidad de visitas en el periodo",
+              "ultima_visita": "string (YYYY-MM-DD) - Fecha de la visita mas reciente"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "listar_todos_clientes",
+      "description": "Lista TODOS los clientes activos sin filtrar por visita. Util para consultas generales, NO para generar informes.",
+      "method": "GET",
+      "path": "/clientes",
+      "parameters": [],
+      "response": {
+        "type": "array",
+        "items": {
+          "id_cliente": "string",
+          "nombre_cliente": "string",
+          "nit_cliente": "string"
+        }
+      }
+    },
+    {
+      "name": "calcular_metricas",
+      "description": "Calcula automaticamente todas las metricas de cumplimiento del SG-SST para un cliente. NO crea ningun registro, solo consulta.",
+      "method": "GET",
+      "path": "/metricas/{id_cliente}",
+      "parameters": [
+        {
+          "name": "id_cliente",
+          "in": "path",
+          "required": true,
+          "type": "integer",
+          "description": "ID del cliente"
+        }
+      ],
+      "response": {
+        "type": "object",
+        "fields": {
+          "success": "boolean",
+          "metricas": {
+            "puntaje_actual": "float - Cumplimiento estandares minimos (%)",
+            "puntaje_anterior": "float|null - Puntaje del informe anterior",
+            "diferencia_neta": "float - Diferencia entre actual y anterior",
+            "estado_avance": "string - AVANCE SIGNIFICATIVO | AVANCE MODERADO | ESTABLE | REINICIO DE CICLO PHVA - BAJA PUNTAJE",
+            "indicador_plan_trabajo": "float - % actividades PTA cerradas",
+            "indicador_capacitacion": "float - % capacitaciones ejecutadas",
+            "actividades_abiertas": "string - Lista de pendientes abiertos",
+            "actividades_cerradas_periodo": "string - Actividades PTA cerradas en el periodo",
+            "enlace_dashboard": "string - URL al dashboard Looker Studio",
+            "fecha_desde": "string (YYYY-MM-DD) - Inicio del periodo calculado"
+          }
+        }
+      }
+    },
+    {
+      "name": "generar_resumen_ia",
+      "description": "Genera un resumen ejecutivo del periodo usando IA (OpenAI gpt-4o-mini). Maximo 4 parrafos en prosa profesional. NO crea ningun registro.",
+      "method": "POST",
+      "path": "/generar-resumen",
+      "parameters": [
+        {
+          "name": "id_cliente",
+          "in": "body",
+          "required": true,
+          "type": "integer",
+          "description": "ID del cliente"
+        },
+        {
+          "name": "fecha_desde",
+          "in": "body",
+          "required": true,
+          "type": "string",
+          "format": "date",
+          "description": "Inicio del periodo (YYYY-MM-DD)"
+        },
+        {
+          "name": "fecha_hasta",
+          "in": "body",
+          "required": true,
+          "type": "string",
+          "format": "date",
+          "description": "Fin del periodo (YYYY-MM-DD)"
+        }
+      ],
+      "response": {
+        "type": "object",
+        "fields": {
+          "success": "boolean",
+          "resumen": "string - Texto del resumen ejecutivo generado"
+        }
+      }
+    },
+    {
+      "name": "generar_y_enviar_informe",
+      "description": "ENDPOINT PRINCIPAL. Flujo completo: (1) valida que el cliente tuvo visita en el periodo, (2) calcula metricas, (3) genera resumen con IA, (4) crea registro, (5) genera PDF FT-SST-205, (6) sube a reportes, (7) envia email con PDF adjunto. FALLA si el cliente no tuvo visita.",
+      "method": "POST",
+      "path": "/generar-y-enviar/{id_cliente}",
+      "parameters": [
+        {
+          "name": "id_cliente",
+          "in": "path",
+          "required": true,
+          "type": "integer",
+          "description": "ID del cliente (obtener de listar_clientes_con_visita)"
+        }
+      ],
+      "response": {
+        "type": "object",
+        "fields": {
+          "success": "boolean",
+          "informe_id": "integer - ID del informe creado (si success=true)",
+          "pdf_url": "string - URL publica del PDF generado",
+          "email": {
+            "success": "boolean - Si el email se envio",
+            "destinatario": "string - Correo destino",
+            "error": "string - Mensaje de error (si fallo)"
+          },
+          "error": "string - Mensaje de error (si success=false, ej: 'no tiene actas de visita en el periodo')",
+          "cliente": "string - Nombre del cliente (en caso de error)",
+          "periodo": "object - {desde, hasta} (en caso de error)"
+        }
+      }
+    },
+    {
+      "name": "enviar_informe_existente",
+      "description": "Reenvia por email un informe ya generado. Debe tener estado 'completo' y PDF. Util para reenvios.",
+      "method": "POST",
+      "path": "/enviar/{id_informe}",
+      "parameters": [
+        {
+          "name": "id_informe",
+          "in": "path",
+          "required": true,
+          "type": "integer",
+          "description": "ID del informe (de generar_y_enviar_informe.informe_id)"
+        }
+      ],
+      "response": {
+        "type": "object",
+        "fields": {
+          "success": "boolean",
+          "message": "string - Confirmacion",
+          "destinatario": "string - Correo del cliente"
+        }
+      }
+    }
+  ],
+  "workflows": {
+    "envio_masivo": {
+      "description": "Genera y envia informes a clientes que tuvieron visita. FLUJO PRINCIPAL para OpenClaw.",
+      "steps": [
+        {
+          "step": 1,
+          "tool": "listar_clientes_con_visita",
+          "note": "Filtra automaticamente: solo clientes con acta de visita en los ultimos 3 meses",
+          "output": "clientes_con_visita"
+        },
+        {
+          "step": 2,
+          "tool": "generar_y_enviar_informe",
+          "input": "Para cada cliente en clientes_con_visita: id_cliente",
+          "delay_between": "5s",
+          "error_handling": "Si success=false, loguear error y continuar con el siguiente cliente",
+          "note": "Cada llamada tarda ~15-30s (IA + PDF + email). Si el cliente no tenia visita y paso el filtro del paso 1, la API rechaza igualmente."
+        }
+      ]
+    },
+    "informe_individual": {
+      "description": "Genera y envia informe para un solo cliente. Falla si no tuvo visita.",
+      "steps": [
+        {
+          "step": 1,
+          "tool": "generar_y_enviar_informe",
+          "input": "id_cliente conocido",
+          "note": "La API valida internamente que el cliente tuvo visita en el periodo"
+        }
+      ]
+    },
+    "consulta_metricas": {
+      "description": "Solo consultar metricas de clientes con visita, sin generar informe.",
+      "steps": [
+        {
+          "step": 1,
+          "tool": "listar_clientes_con_visita",
+          "output": "clientes_con_visita"
+        },
+        {
+          "step": 2,
+          "tool": "calcular_metricas",
+          "input": "id_cliente del cliente deseado"
+        }
+      ]
+    }
+  },
+  "error_codes": {
+    "200_success_false": "Logica de negocio: cliente sin visita, cliente no encontrado, etc.",
+    "401": "Sin autenticacion - Falta header X-API-Key o sesion",
+    "403": "API Key invalida",
+    "500": "Error interno del servidor"
+  },
+  "rate_limits": {
+    "note": "No hay rate limit propio. Considerar limites de servicios externos:",
+    "sendgrid": "100 emails/dia (plan free) o segun plan contratado",
+    "openai": "Segun tier de la API Key (gpt-4o-mini)"
+  },
+  "environment_variables": {
+    "ENTERPRISESST_API_KEY": "sst_4f480e90e9c67de074c6aa2091e55f9892732f346eb86b20c1a2ea83aecac53c"
+  }
+}

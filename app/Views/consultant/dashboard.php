@@ -585,6 +585,11 @@
                     <i class="fas fa-history me-2"></i>Auditoría PTA
                 </button>
             </a>
+            <a href="<?= base_url('/pta-transiciones') ?>" target="_blank" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom ms-3" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7); border: none;">
+                    <i class="fas fa-exchange-alt me-2"></i>Transiciones PTA
+                </button>
+            </a>
         </div>
 
         <!-- Dashboards Analíticos -->
@@ -615,6 +620,12 @@
                     <a href="<?= base_url('consultant/dashboard-pendientes') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);">
                         <i class="fas fa-clipboard-list fa-lg mb-2 d-block"></i>
                         Pendientes
+                    </a>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="<?= base_url('informe-avances') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);">
+                        <i class="fas fa-chart-line fa-lg mb-2 d-block"></i>
+                        Informe de Avances
                     </a>
                 </div>
             </div>

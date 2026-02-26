@@ -6,6 +6,7 @@ use App\Models\PtaClienteNuevaModel;
 use App\Models\ClientModel;
 use App\Models\ContractModel;
 use App\Services\PtaAuditService;
+use App\Services\PtaTransicionesService;
 use CodeIgniter\Controller;
 
 class PtaClienteNuevaController extends Controller
@@ -224,6 +225,16 @@ class PtaClienteNuevaController extends Controller
             $datosAnteriores['id_cliente'] ?? null
         );
 
+        // Registrar transición si el estado cambió desde ABIERTA
+        if (isset($data['estado_actividad']) && ($datosAnteriores['estado_actividad'] ?? '') !== $data['estado_actividad']) {
+            PtaTransicionesService::registrar(
+                $id,
+                (int) ($datosAnteriores['id_cliente'] ?? 0),
+                $datosAnteriores['estado_actividad'] ?? '',
+                $data['estado_actividad']
+            );
+        }
+
         // Recuperar filtros enviados desde campos ocultos
         $filters = [
             'cliente'     => $this->request->getPost('filter_cliente'),
@@ -331,6 +342,16 @@ class PtaClienteNuevaController extends Controller
             __METHOD__,
             $datosAnteriores['id_cliente'] ?? null
         );
+
+        // Registrar transición si el estado cambió desde ABIERTA
+        if (isset($postData['estado_actividad']) && ($datosAnteriores['estado_actividad'] ?? '') !== $postData['estado_actividad']) {
+            PtaTransicionesService::registrar(
+                (int) $id,
+                (int) ($datosAnteriores['id_cliente'] ?? 0),
+                $datosAnteriores['estado_actividad'] ?? '',
+                $postData['estado_actividad']
+            );
+        }
 
         // Retornar también el porcentaje actualizado para actualizar la vista
         $response = [

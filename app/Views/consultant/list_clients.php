@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.bootstrap5.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- Custom Styles -->
     <style>
         /* Full screen table styles */
@@ -331,6 +333,9 @@
                                         <a href="<?= base_url('/contracts/client-history/' . htmlspecialchars($client['id_cliente'])) ?>" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Ver Historial de Contratos">
                                             <i class="fas fa-file-contract"></i>
                                         </a>
+                                        <button type="button" class="btn btn-sm btn-info btn-resend-credentials" data-id="<?= htmlspecialchars($client['id_cliente']) ?>" data-nombre="<?= htmlspecialchars($client['nombre_cliente']) ?>" data-correo="<?= htmlspecialchars($client['correo_cliente']) ?>" data-bs-toggle="tooltip" title="Reenviar Credenciales de Acceso">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
                                         <a href="<?= base_url('/deleteClient/' . htmlspecialchars($client['id_cliente'])) ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?')" data-bs-toggle="tooltip" title="Eliminar Cliente">
                                             <i class="fas fa-trash"></i>
                                         </a>
@@ -394,6 +399,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function () {
@@ -535,12 +541,72 @@
                 table.columns().every(function () {
                     this.search('');
                 });
-                
+
                 // Clear footer inputs
                 $('#clientsTable tfoot input, #clientsTable tfoot select').val('');
-                
+
                 // Clear global search
                 table.search('').draw();
+            });
+
+            // Reenviar credenciales de acceso
+            $(document).on('click', '.btn-resend-credentials', function () {
+                var clientId = $(this).data('id');
+                var clientName = $(this).data('nombre');
+                var clientEmail = $(this).data('correo');
+
+                if (!clientEmail) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Sin correo registrado',
+                        text: 'Este cliente no tiene un correo electrónico registrado. No se pueden enviar credenciales.',
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Reenviar Credenciales',
+                    html: '<p>Se generará una <strong>nueva contraseña temporal</strong> y se enviará al correo:</p>' +
+                          '<p><strong>' + clientName + '</strong><br><small class="text-muted">' + clientEmail + '</small></p>' +
+                          '<p class="text-warning"><small><i class="fas fa-exclamation-triangle"></i> La contraseña actual del cliente será reemplazada.</small></p>',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#17a2b8',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="fas fa-paper-plane"></i> Enviar Credenciales',
+                    cancelButtonText: 'Cancelar',
+                    showLoaderOnConfirm: true,
+                    preConfirm: function () {
+                        return fetch('<?= base_url('/cliente/reenviar-credenciales/') ?>' + clientId, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(function (response) { return response.json(); })
+                        .catch(function (error) {
+                            Swal.showValidationMessage('Error de conexión: ' + error);
+                        });
+                    },
+                    allowOutsideClick: function () { return !Swal.isLoading(); }
+                }).then(function (result) {
+                    if (result.isConfirmed && result.value) {
+                        if (result.value.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Credenciales Enviadas',
+                                text: result.value.message,
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: result.value.message,
+                            });
+                        }
+                    }
+                });
             });
         });
     </script>

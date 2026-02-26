@@ -99,6 +99,7 @@ $routes->post('/cliente/reactivar/(:num)',    'ConsultantController::reactivarCl
 $routes->post('/cliente/retirar/(:num)',      'ConsultantController::retirarCliente/$1');
 $routes->post('/cliente/pendiente/(:num)',    'ConsultantController::marcarPendienteCliente/$1');
 $routes->post('/cliente/paz-y-salvo/(:num)', 'ConsultantController::emitirPazYSalvo/$1');
+$routes->post('/cliente/reenviar-credenciales/(:num)', 'ConsultantController::resendCredentials/$1');
 $routes->get('/responsableSGSST/(:num)', 'SGSSTPlanear::responsableDelSGSST/$1');
 
 $routes->get('/error', 'ErrorController::index');
@@ -780,6 +781,10 @@ $routes->get('/audit-pta/dashboard', 'AuditPtaController::dashboard');
 $routes->get('/api/audit-pta/recent', 'AuditPtaController::apiRecentChanges');
 $routes->get('/api/audit-pta/stats', 'AuditPtaController::apiStats');
 
+// TRANSICIONES PTA (actividades que salieron de ABIERTA)
+$routes->get('/pta-transiciones', 'PtaTransicionesController::index');
+$routes->get('/pta-transiciones/export', 'PtaTransicionesController::export');
+
 // Setup de tabla de auditoría (solo superadmin)
 $routes->get('/setup-audit-table', 'SetupAuditTableController::index');
 $routes->post('/setup-audit-table/create-local', 'SetupAuditTableController::createLocal');
@@ -1230,4 +1235,34 @@ $routes->post('simulacro/store', 'SimulacroPublicoController::store');
 $routes->get('hv-brigadista', 'HvBrigadistaPublicoController::form');
 $routes->get('hv-brigadista/api/clientes', 'HvBrigadistaPublicoController::getClientesActivos');
 $routes->post('hv-brigadista/store', 'HvBrigadistaPublicoController::store');
+
+// Informe de Avances (panel admin consultor)
+// Informe de Avances — Vistas web (requiere sesión)
+$routes->group('informe-avances', ['filter' => 'auth'], function($routes) {
+    $routes->get('/', 'InformeAvancesController::list');
+    $routes->get('create', 'InformeAvancesController::create');
+    $routes->get('create/(:num)', 'InformeAvancesController::create/$1');
+    $routes->post('store', 'InformeAvancesController::store');
+    $routes->get('edit/(:num)', 'InformeAvancesController::edit/$1');
+    $routes->post('update/(:num)', 'InformeAvancesController::update/$1');
+    $routes->get('view/(:num)', 'InformeAvancesController::view/$1');
+    $routes->get('pdf/(:num)', 'InformeAvancesController::generatePdf/$1');
+    $routes->post('finalizar/(:num)', 'InformeAvancesController::finalizar/$1');
+    $routes->get('delete/(:num)', 'InformeAvancesController::delete/$1');
+    $routes->post('generar-resumen', 'InformeAvancesController::generarResumen');
+    $routes->get('api/metricas/(:num)', 'InformeAvancesController::calcularMetricas/$1');
+    $routes->get('api/clientes', 'InformeAvancesController::getClientes');
+    $routes->post('enviar/(:num)', 'InformeAvancesController::enviar/$1');
+});
+
+// Informe de Avances — API programática (OpenClaw, sesión OR API Key)
+// Prefijo ext-api/ para evitar conflicto con $filters['auth']['api/*']
+$routes->group('ext-api/informe-avances', ['filter' => 'authOrApiKey'], function($routes) {
+    $routes->get('clientes', 'InformeAvancesController::getClientes');
+    $routes->get('clientes-con-visita', 'InformeAvancesController::getClientesConVisita');
+    $routes->get('metricas/(:num)', 'InformeAvancesController::calcularMetricas/$1');
+    $routes->post('generar-resumen', 'InformeAvancesController::generarResumen');
+    $routes->post('generar-y-enviar/(:num)', 'InformeAvancesController::apiGenerarYEnviar/$1');
+    $routes->post('enviar/(:num)', 'InformeAvancesController::enviar/$1');
+});
 
