@@ -411,6 +411,29 @@
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+                            <div class="col-md-4">
+                                <label class="form-label"><i class="fas fa-user-check"></i>Vendedor</label>
+                                <select name="vendedor" class="form-select">
+                                    <option value="">Seleccione</option>
+                                    <option value="DIANA CUESTAS" <?= ($client['vendedor'] ?? '') === 'DIANA CUESTAS' ? 'selected' : '' ?>>DIANA CUESTAS</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label"><i class="fas fa-credit-card"></i>Plazo de Cartera</label>
+                                <select name="plazo_cartera" class="form-select">
+                                    <option value="">Seleccione</option>
+                                    <option value="PAGO INMEDIATO" <?= ($client['plazo_cartera'] ?? '') === 'PAGO INMEDIATO' ? 'selected' : '' ?>>PAGO INMEDIATO</option>
+                                    <option value="PLAZO 8 DÍAS" <?= ($client['plazo_cartera'] ?? '') === 'PLAZO 8 DÍAS' ? 'selected' : '' ?>>PLAZO 8 DÍAS</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label"><i class="fas fa-calendar-day"></i>Cierre Facturación (día)</label>
+                                <input type="number" name="fecha_cierre_facturacion" value="<?= esc($client['fecha_cierre_facturacion'] ?? '') ?>" class="form-control" min="1" max="31" placeholder="Ej: 20">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label"><i class="fas fa-calendar-check"></i>Fecha Asignación Cronograma</label>
+                                <input type="date" name="fecha_asignacion_cronograma" value="<?= esc($client['fecha_asignacion_cronograma'] ?? '') ?>" class="form-control">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -427,6 +450,10 @@
                                 <label class="form-label"><i class="fas fa-envelope"></i>Correo Cliente</label>
                                 <input type="email" name="correo_cliente" value="<?= esc($client['correo_cliente']) ?>" class="form-control">
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-envelope-open-text"></i>Correo Consejo de Administración</label>
+                                <input type="email" name="correo_consejo_admon" value="<?= esc($client['correo_consejo_admon'] ?? '') ?>" class="form-control">
+                            </div>
                             <div class="col-md-3">
                                 <label class="form-label"><i class="fas fa-phone"></i>Teléfono 1</label>
                                 <input type="text" name="telefono_1_cliente" value="<?= esc($client['telefono_1_cliente']) ?>" class="form-control">
@@ -442,6 +469,18 @@
                             <div class="col-md-6">
                                 <label class="form-label"><i class="fas fa-user-gear"></i>Persona de Contacto para Compras</label>
                                 <input type="text" name="persona_contacto_compras" value="<?= esc($client['persona_contacto_compras']) ?>" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-user-cog"></i>Persona de Contacto Operaciones</label>
+                                <input type="text" name="persona_contacto_operaciones" value="<?= esc($client['persona_contacto_operaciones'] ?? '') ?>" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-user-tag"></i>Persona de Contacto Pagos / Tesorería</label>
+                                <input type="text" name="persona_contacto_pagos" value="<?= esc($client['persona_contacto_pagos'] ?? '') ?>" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-clock"></i>Horarios y Días de Atención</label>
+                                <textarea name="horarios_y_dias" class="form-control" rows="2" placeholder="Ej: Lunes a Viernes 8:00 AM - 5:00 PM"><?= esc($client['horarios_y_dias'] ?? '') ?></textarea>
                             </div>
                         </div>
                     </div>
@@ -487,6 +526,42 @@
                                 <input type="file" name="firma_representante_legal" class="form-control" accept="image/*">
                                 <?php if (!empty($client['firma_representante_legal'])): ?>
                                     <img src="<?= base_url('uploads/' . $client['firma_representante_legal']) ?>" alt="Firma actual" class="img-preview">
+                                <?php endif; ?>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-file-invoice"></i>RUT</label>
+                                <input type="file" name="rut" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <?php if (!empty($client['rut'])): ?>
+                                    <a href="<?= base_url('uploads/' . $client['rut']) ?>" target="_blank" class="d-block mt-1" style="font-size:.82rem;">
+                                        <i class="fas fa-file-pdf text-danger me-1"></i>Ver archivo actual
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-file-contract"></i>Cámara de Comercio</label>
+                                <input type="file" name="camara_comercio" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <?php if (!empty($client['camara_comercio'])): ?>
+                                    <a href="<?= base_url('uploads/' . $client['camara_comercio']) ?>" target="_blank" class="d-block mt-1" style="font-size:.82rem;">
+                                        <i class="fas fa-file-pdf text-danger me-1"></i>Ver archivo actual
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-id-card"></i>Cédula Rep. Legal (documento)</label>
+                                <input type="file" name="cedula_rep_legal_doc" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <?php if (!empty($client['cedula_rep_legal_doc'])): ?>
+                                    <a href="<?= base_url('uploads/' . $client['cedula_rep_legal_doc']) ?>" target="_blank" class="d-block mt-1" style="font-size:.82rem;">
+                                        <i class="fas fa-file-pdf text-danger me-1"></i>Ver archivo actual
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-file-lines"></i>Oferta Comercial</label>
+                                <input type="file" name="oferta_comercial" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <?php if (!empty($client['oferta_comercial'])): ?>
+                                    <a href="<?= base_url('uploads/' . $client['oferta_comercial']) ?>" target="_blank" class="d-block mt-1" style="font-size:.82rem;">
+                                        <i class="fas fa-file-pdf text-danger me-1"></i>Ver archivo actual
+                                    </a>
                                 <?php endif; ?>
                             </div>
                         </div>

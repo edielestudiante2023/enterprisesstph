@@ -78,6 +78,7 @@ $storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_
 </form>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
 // Cargar clientes via AJAX + Select2
 var preselectedClient = '<?= esc($idCliente ?? '') ?>';
 $.ajax({
@@ -198,5 +199,6 @@ document.getElementById('limpiezaForm').addEventListener('input', function() {
 // Limpiar al enviar
 document.getElementById('limpiezaForm').addEventListener('submit', function() {
     localStorage.removeItem(STORAGE_KEY);
+});
 });
 </script>

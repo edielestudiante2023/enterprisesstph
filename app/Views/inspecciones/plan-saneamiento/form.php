@@ -75,6 +75,7 @@ $storageKey = $isEdit ? 'saneamiento_draft_' . $inspeccion['id'] : 'saneamiento_
 </form>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
 var preselectedClient = '<?= esc($idCliente ?? '') ?>';
 $.ajax({
     url: '/inspecciones/api/clientes',
@@ -165,5 +166,6 @@ document.getElementById('saneamientoForm').addEventListener('input', function() 
 });
 document.getElementById('saneamientoForm').addEventListener('submit', function() {
     localStorage.removeItem(STORAGE_KEY);
+});
 });
 </script>

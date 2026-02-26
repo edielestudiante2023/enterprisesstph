@@ -535,16 +535,23 @@ class ConsultantController extends Controller
         }
 
         // Datos que siempre se actualizarán
+        $fechaCierre = $this->request->getVar('fecha_cierre_facturacion');
+        $fechaAsignacion = $this->request->getVar('fecha_asignacion_cronograma');
+
         $data = [
             'fecha_ingreso' => $this->request->getVar('fecha_ingreso'),
             'nombre_cliente' => $this->request->getVar('nombre_cliente'),
             'nit_cliente' => $this->request->getVar('nit_cliente'),
             'usuario' => $this->request->getVar('usuario'),
             'correo_cliente' => $this->request->getVar('correo_cliente'),
+            'correo_consejo_admon' => $this->request->getVar('correo_consejo_admon'),
             'telefono_1_cliente' => $this->request->getVar('telefono_1_cliente'),
             'telefono_2_cliente' => $this->request->getVar('telefono_2_cliente'),
             'direccion_cliente' => $this->request->getVar('direccion_cliente'),
             'persona_contacto_compras' => $this->request->getVar('persona_contacto_compras'),
+            'persona_contacto_operaciones' => $this->request->getVar('persona_contacto_operaciones'),
+            'persona_contacto_pagos' => $this->request->getVar('persona_contacto_pagos'),
+            'horarios_y_dias' => $this->request->getVar('horarios_y_dias'),
             'codigo_actividad_economica' => $this->request->getVar('codigo_actividad_economica'),
             'nombre_rep_legal' => $this->request->getVar('nombre_rep_legal'),
             'cedula_rep_legal' => $this->request->getVar('cedula_rep_legal'),
@@ -552,21 +559,25 @@ class ConsultantController extends Controller
             'ciudad_cliente' => $this->request->getVar('ciudad_cliente'),
             'estado' => $this->request->getVar('estado'),
             'id_consultor' => $this->request->getVar('id_consultor'),
+            'vendedor' => $this->request->getVar('vendedor'),
+            'plazo_cartera' => $this->request->getVar('plazo_cartera'),
+            'fecha_cierre_facturacion' => !empty($fechaCierre) ? (int) $fechaCierre : null,
+            'fecha_asignacion_cronograma' => !empty($fechaAsignacion) ? $fechaAsignacion : null,
             'estandares' => $this->request->getVar('estandares')
         ];
+
+        $uploadPath = ROOTPATH . 'public/uploads';
 
         // Manejar la subida de un nuevo logo
         $newLogo = $this->request->getFile('logo');
         if ($newLogo && $newLogo->isValid() && !$newLogo->hasMoved()) {
             $newLogoName = $newLogo->getRandomName();
-            $newLogo->move(ROOTPATH . 'public/uploads', $newLogoName);
+            $newLogo->move($uploadPath, $newLogoName);
 
-            // Eliminar el logo anterior si existe
-            if (!empty($client['logo']) && file_exists(ROOTPATH . 'public/uploads/' . $client['logo'])) {
-                unlink(ROOTPATH . 'public/uploads/' . $client['logo']);
+            if (!empty($client['logo']) && file_exists($uploadPath . '/' . $client['logo'])) {
+                unlink($uploadPath . '/' . $client['logo']);
             }
 
-            // Actualizar el campo en la base de datos
             $data['logo'] = $newLogoName;
         }
 
@@ -574,15 +585,29 @@ class ConsultantController extends Controller
         $newSignature = $this->request->getFile('firma_representante_legal');
         if ($newSignature && $newSignature->isValid() && !$newSignature->hasMoved()) {
             $newSignatureName = $newSignature->getRandomName();
-            $newSignature->move(ROOTPATH . 'public/uploads', $newSignatureName);
+            $newSignature->move($uploadPath, $newSignatureName);
 
-            // Eliminar la firma anterior si existe
-            if (!empty($client['firma_representante_legal']) && file_exists(ROOTPATH . 'public/uploads/' . $client['firma_representante_legal'])) {
-                unlink(ROOTPATH . 'public/uploads/' . $client['firma_representante_legal']);
+            if (!empty($client['firma_representante_legal']) && file_exists($uploadPath . '/' . $client['firma_representante_legal'])) {
+                unlink($uploadPath . '/' . $client['firma_representante_legal']);
             }
 
-            // Actualizar el campo en la base de datos
             $data['firma_representante_legal'] = $newSignatureName;
+        }
+
+        // Manejar archivos de documentos (RUT, Cámara, Cédula doc, Oferta)
+        $fileFields = ['rut', 'camara_comercio', 'cedula_rep_legal_doc', 'oferta_comercial'];
+        foreach ($fileFields as $field) {
+            $newFile = $this->request->getFile($field);
+            if ($newFile && $newFile->isValid() && !$newFile->hasMoved()) {
+                $newFileName = $newFile->getRandomName();
+                $newFile->move($uploadPath, $newFileName);
+
+                if (!empty($client[$field]) && file_exists($uploadPath . '/' . $client[$field])) {
+                    unlink($uploadPath . '/' . $client[$field]);
+                }
+
+                $data[$field] = $newFileName;
+            }
         }
 
         // Guardar los datos actualizados

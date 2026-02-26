@@ -770,6 +770,14 @@
     <?php endforeach; ?>
     <?php endif; ?>
 
+    <!-- Buscador de inspecciones -->
+    <div class="mb-3 mt-2">
+        <div class="input-group">
+            <span class="input-group-text" style="background:#1c2437; color:#bd9751; border:none;"><i class="fas fa-search"></i></span>
+            <input type="text" id="buscarInspeccion" class="form-control" placeholder="Buscar inspección..." style="border:1px solid #dee2e6; font-size:14px;">
+        </div>
+    </div>
+
     <!-- Grid de inspecciones -->
     <div class="section-title">Inspecciones</div>
     <div class="grid-inspecciones mb-4">
@@ -940,3 +948,17 @@
         </a>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var input = document.getElementById('buscarInspeccion');
+    if (!input) return;
+    input.addEventListener('input', function() {
+        var term = this.value.toLowerCase().trim();
+        document.querySelectorAll('.grid-inspecciones .card-tipo').forEach(function(card) {
+            var text = card.textContent.toLowerCase();
+            card.style.display = (!term || text.indexOf(term) !== -1) ? '' : 'none';
+        });
+    });
+});
+</script>
