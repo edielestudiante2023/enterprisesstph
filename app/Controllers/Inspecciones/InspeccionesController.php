@@ -28,6 +28,14 @@ use App\Models\ReporteCapacitacionModel;
 use App\Models\PreparacionSimulacroModel;
 use App\Models\AsistenciaInduccionModel;
 use App\Models\ProgramaLimpiezaModel;
+use App\Models\ProgramaResiduosModel;
+use App\Models\ProgramaPlagasModel;
+use App\Models\ProgramaAguaPotableModel;
+use App\Models\PlanSaneamientoModel;
+use App\Models\KpiLimpiezaModel;
+use App\Models\KpiResiduosModel;
+use App\Models\KpiPlagasModel;
+use App\Models\KpiAguaPotableModel;
 
 class InspeccionesController extends BaseController
 {
@@ -308,6 +316,78 @@ class InspeccionesController extends BaseController
             $pendientesProgLimp = $progLimpModel->getPendientesByConsultor($userId);
         }
 
+        // Conteo de programa residuos completas
+        $progResModel = new ProgramaResiduosModel();
+        $totalProgRes = $progResModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesProgRes = $progResModel->getAllPendientes();
+        } else {
+            $pendientesProgRes = $progResModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de programa plagas completas
+        $progPlagModel = new ProgramaPlagasModel();
+        $totalProgPlag = $progPlagModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesProgPlag = $progPlagModel->getAllPendientes();
+        } else {
+            $pendientesProgPlag = $progPlagModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de programa agua potable completas
+        $progAguaModel = new ProgramaAguaPotableModel();
+        $totalProgAgua = $progAguaModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesProgAgua = $progAguaModel->getAllPendientes();
+        } else {
+            $pendientesProgAgua = $progAguaModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de plan saneamiento completas
+        $planSanModel = new PlanSaneamientoModel();
+        $totalPlanSan = $planSanModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesPlanSan = $planSanModel->getAllPendientes();
+        } else {
+            $pendientesPlanSan = $planSanModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de KPI Limpieza
+        $kpiLimpModel = new KpiLimpiezaModel();
+        $totalKpiLimp = $kpiLimpModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesKpiLimp = $kpiLimpModel->getAllPendientes();
+        } else {
+            $pendientesKpiLimp = $kpiLimpModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de KPI Residuos
+        $kpiResModel = new KpiResiduosModel();
+        $totalKpiRes = $kpiResModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesKpiRes = $kpiResModel->getAllPendientes();
+        } else {
+            $pendientesKpiRes = $kpiResModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de KPI Plagas
+        $kpiPlagModel = new KpiPlagasModel();
+        $totalKpiPlag = $kpiPlagModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesKpiPlag = $kpiPlagModel->getAllPendientes();
+        } else {
+            $pendientesKpiPlag = $kpiPlagModel->getPendientesByConsultor($userId);
+        }
+
+        // Conteo de KPI Agua Potable
+        $kpiAguaModel = new KpiAguaPotableModel();
+        $totalKpiAgua = $kpiAguaModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
+        if ($role === 'admin') {
+            $pendientesKpiAgua = $kpiAguaModel->getAllPendientes();
+        } else {
+            $pendientesKpiAgua = $kpiAguaModel->getPendientesByConsultor($userId);
+        }
+
         // Conteo de vencimientos de mantenimiento sin ejecutar
         $vencimientoModel = new VencimientosMantenimientoModel();
         $vencBuilder = $vencimientoModel->where('estado_actividad', 'sin ejecutar');
@@ -356,6 +436,14 @@ class InspeccionesController extends BaseController
             'pendientesPrepSim' => $pendientesPrepSim,
             'pendientesAsistInd' => $pendientesAsistInd,
             'pendientesProgLimp' => $pendientesProgLimp,
+            'pendientesProgRes' => $pendientesProgRes,
+            'pendientesProgPlag' => $pendientesProgPlag,
+            'pendientesProgAgua' => $pendientesProgAgua,
+            'pendientesPlanSan' => $pendientesPlanSan,
+            'pendientesKpiLimp' => $pendientesKpiLimp,
+            'pendientesKpiRes' => $pendientesKpiRes,
+            'pendientesKpiPlag' => $pendientesKpiPlag,
+            'pendientesKpiAgua' => $pendientesKpiAgua,
             'totalActas'       => $totalActas,
             'totalLocativas'   => $totalLocativas,
             'totalSenalizacion' => $totalSenalizacion,
@@ -377,6 +465,14 @@ class InspeccionesController extends BaseController
             'totalPrepSim'     => $totalPrepSim,
             'totalAsistInd'    => $totalAsistInd,
             'totalProgLimp'    => $totalProgLimp,
+            'totalProgRes'     => $totalProgRes,
+            'totalProgPlag'    => $totalProgPlag,
+            'totalProgAgua'    => $totalProgAgua,
+            'totalPlanSan'     => $totalPlanSan,
+            'totalKpiLimp'     => $totalKpiLimp,
+            'totalKpiRes'      => $totalKpiRes,
+            'totalKpiPlag'     => $totalKpiPlag,
+            'totalKpiAgua'     => $totalKpiAgua,
             'totalVencimientos' => $totalVencimientos,
             'totalPendientesAbiertos' => $totalPendientesAbiertos,
             'totalCartasVigiaPend' => $totalCartasVigiaPend,

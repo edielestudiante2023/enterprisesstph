@@ -2,15 +2,15 @@
 
 ## Contexto
 
-Módulo completo PWA "Inspecciones SST" con 17 controladores, 17 modelos, ~65 vistas, 24 migraciones SQL, 2 formularios públicos y dashboard unificado.
+Módulo completo PWA "Inspecciones SST" con 25 controladores, 26 modelos, ~97 vistas, 25 migraciones SQL, 2 formularios públicos y dashboard unificado con 24 cards.
 
 **Stack:** CodeIgniter 4, PHP 8.2, MySQL 8, DOMPDF para PDFs, Bootstrap 5 PWA.
 
 ---
 
-## 1. CONTROLADORES (17 archivos)
+## 1. CONTROLADORES (25 archivos)
 
-### Dentro del grupo Inspecciones (autenticados)
+### Dentro del grupo Inspecciones (autenticados — 23 archivos)
 ```
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\InspeccionesController.php          — Dashboard principal
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\ActaVisitaController.php             — Acta de visita
@@ -26,6 +26,14 @@ c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\MatrizVulnerabilida
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\PlanEmergenciaController.php        — Plan emergencia (doc maestro, ~82 cols, 19 fotos)
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\EvaluacionSimulacroController.php   — Evaluación simulacro (277 líneas)
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\HvBrigadistaController.php          — Hoja de vida brigadista (288 líneas)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\DotacionVigilanteController.php     — Dotación vigilante (398 líneas, 7 EPP)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\DotacionAseadoraController.php      — Dotación aseadora (399 líneas, 8 EPP)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\DotacionToderoController.php        — Dotación todero (407 líneas, 16 EPP)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\AuditoriaZonaResiduosController.php — Auditoría zona residuos (412 líneas, 12 ítems + 12 fotos)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\PreparacionSimulacroController.php  — Preparación simulacro (436 líneas, 9 TIME + EnumLists)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\ReporteCapacitacionController.php   — Reporte capacitación (382 líneas, 5 fotos)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\AsistenciaInduccionController.php   — Asistencia inducción (516 líneas, master-detalle + firmas)
+c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\ProgramaLimpiezaController.php      — Programa limpieza y desinfección (306 líneas)
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\CartaVigiaPwaController.php         — Carta vigía SST
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\MantenimientosPwaController.php     — Mantenimientos
 c:\xampp\htdocs\enterprisesstph\app\Controllers\Inspecciones\PendientesPwaController.php         — Pendientes/compromisos

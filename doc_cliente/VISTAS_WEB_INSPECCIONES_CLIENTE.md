@@ -41,7 +41,15 @@ app/
 │           ├── recursos_seguridad_view.php ← Vista detalle read-only (6 recursos + fotos)
 │           ├── hv_brigadista_view.php     ← Vista detalle read-only (datos personales + cuestionario médico)
 │           ├── plan_emergencia_view.php   ← Vista detalle read-only (20+ secciones plan emergencia)
-│           └── simulacro_view.php         ← Vista detalle read-only (cronograma + evaluación)
+│           ├── simulacro_view.php         ← Vista detalle read-only (cronograma + evaluación)
+│           ├── limpieza_view.php          ← Vista detalle read-only (items limpieza + estado)
+│           ├── dotacion_vigilante_view.php ← Vista detalle read-only (EPP vigilante)
+│           ├── dotacion_aseadora_view.php  ← Vista detalle read-only (EPP aseadora)
+│           ├── dotacion_todero_view.php    ← Vista detalle read-only (EPP todero 16 items)
+│           ├── auditoria_zona_residuos_view.php ← Vista detalle read-only (12 items zona)
+│           ├── asistencia_induccion_view.php ← Vista detalle read-only (sesión + asistentes)
+│           ├── reporte_capacitacion_view.php ← Vista detalle read-only (capacitación + cobertura)
+│           └── preparacion_simulacro_view.php ← Vista detalle read-only (preparación + cronograma)
 ├── Config/
 │   └── Routes.php                          ← MODIFICADO (agregar grupo rutas)
 └── Views/
@@ -277,7 +285,7 @@ Vista genérica que funciona para cualquier tipo de inspección. Recibe:
 | Variable | Tipo | Descripción |
 |----------|------|-------------|
 | `$inspecciones` | array | Registros de la BD |
-| `$tipo` | string | Identificador: `acta_visita`, `locativa`, `senalizacion`, `botiquin`, `extintores`, `comunicaciones`, `gabinetes`, `matriz_vulnerabilidad`, `probabilidad_peligros`, `recursos_seguridad`, `hv_brigadista`, `plan_emergencia`, `simulacro` |
+| `$tipo` | string | Identificador: `acta_visita`, `locativa`, `senalizacion`, `botiquin`, `extintores`, `comunicaciones`, `gabinetes`, `matriz_vulnerabilidad`, `probabilidad_peligros`, `recursos_seguridad`, `hv_brigadista`, `plan_emergencia`, `simulacro`, `limpieza`, `dotacion_vigilante`, `dotacion_aseadora`, `dotacion_todero`, `auditoria_residuos`, `asistencia_induccion`, `reporte_capacitacion`, `preparacion_simulacro` |
 | `$titulo` | string | Título visible |
 | `$campo_fecha` | string | Nombre del campo de fecha en la tabla |
 | `$base_url` | string | URL base para los links de detalle |
@@ -424,6 +432,58 @@ Secciones: Identificación (copropiedad, NIT, fecha, dirección) → Informació
 
 **Nota:** Usa `EvaluacionSimulacroModel`. Los 5 criterios de evaluación son: alarma_efectiva, orden_evacuacion, liderazgo_brigadistas, organizacion_punto_encuentro, participacion_general.
 
+### Vista Limpieza y Desinfección (`limpieza_view.php`)
+
+Secciones: Datos Generales → Items de Limpieza (cada uno con estado badge color-coded + foto) → Observaciones → PDF
+
+**Nota:** Usa `ProgramaLimpiezaModel`. Campo fecha: `fecha_inspeccion`.
+
+### Vista Dotación Vigilante (`dotacion_vigilante_view.php`)
+
+Secciones: Datos Generales (contratista, servicio, nombre/cargo, actividades) → Registro Fotográfico (cuerpo completo, cuarto almacenamiento) → Estado de Dotación EPP (items con badge color-coded) → Concepto Final → Observaciones → PDF
+
+**Lógica de colores EPP:** Bueno → verde (#28a745) | Regular → amarillo (#ffc107) | Deficiente → rojo (#dc3545) | No tiene → gris (#6c757d) | No aplica → gris claro (#adb5bd)
+
+**Nota:** Usa `DotacionVigilanteModel`, `DotacionVigilanteController::ITEMS_EPP`, `::ESTADOS_EPP`. Campo fecha: `fecha_inspeccion`.
+
+### Vista Dotación Aseadora (`dotacion_aseadora_view.php`)
+
+Secciones: Idénticas a Dotación Vigilante, diferente ícono (fa-broom) y título.
+
+**Nota:** Usa `DotacionAseadoraModel`, `DotacionAseadoraController::ITEMS_EPP`, `::ESTADOS_EPP`. Campo fecha: `fecha_inspeccion`.
+
+### Vista Dotación Todero (`dotacion_todero_view.php`)
+
+Secciones: Idénticas a Dotación Vigilante, diferente ícono (fa-hard-hat) y título. Tiene 16 items EPP.
+
+**Nota:** Usa `DotacionToderoModel`, `DotacionToderoController::ITEMS_EPP`, `::ESTADOS_EPP`. Campo fecha: `fecha_inspeccion`.
+
+### Vista Auditoría Zona Residuos (`auditoria_zona_residuos_view.php`)
+
+Secciones: Datos Generales → Items de Inspección (cada item con tipo enum/texto_libre: enum muestra badge color-coded, texto_libre muestra texto + foto por item) → Observaciones → PDF
+
+**Lógica de colores zona:** Bueno → verde | Regular → amarillo | Malo → naranja (#fd7e14) | Deficiente → rojo | No tiene → gris | No aplica → gris claro
+
+**Nota:** Usa `AuditoriaZonaResiduosModel`, `AuditoriaZonaResiduosController::ITEMS_ZONA`, `::ESTADOS_ZONA`. Campo fecha: `fecha_inspeccion`. Items con tipo `enum` usan campo `estado_{key}`, items con tipo `texto_libre` usan campo directo `{key}`.
+
+### Vista Asistencia Inducción (`asistencia_induccion_view.php`)
+
+Secciones: Datos Generales (fecha sesión) → Información de la Sesión (tema, lugar, objetivo, capacitador, tipo de charla badge, material, tiempo horas) → Asistentes (tabla con #, nombre, cédula, cargo, firma imagen) → Observaciones → PDF Asistencia
+
+**Nota:** Usa `AsistenciaInduccionModel` + `AsistenciaInduccionAsistenteModel` (para tabla asistentes). `AsistenciaInduccionController::TIPOS_CHARLA` para labels de tipo de charla. Campo fecha: `fecha_sesion`. Campo PDF: `ruta_pdf_asistencia`.
+
+### Vista Reporte Capacitación (`reporte_capacitacion_view.php`)
+
+Secciones: Datos Generales (fecha capacitación) → Información de la Capacitación (nombre, objetivo, perfil asistentes badges, capacitador, duración horas) → Asistencia y Evaluación (asistentes, programados, evaluados, % cobertura color-coded, promedio calificaciones) → Registro Fotográfico (5 fotos: listado asistencia, capacitación, evaluación, otros 1, otros 2) → Observaciones → PDF
+
+**Nota:** Usa `ReporteCapacitacionModel`, `ReporteCapacitacionController::PERFILES_ASISTENTES`. Cobertura = (asistentes/programados)×100. Campo fecha: `fecha_capacitacion`.
+
+### Vista Preparación Simulacro (`preparacion_simulacro_view.php`)
+
+Secciones: Datos Generales (fecha, ubicación, dirección) → Configuración del Simulacro (evento simulado, alcance, tipo evacuación, personal no evacua) → Alarma y Distintivos (badges multi-select para tipo alarma + distintivos brigadistas) → Logística (puntos encuentro, recurso humano + equipos emergencia badges multi-select) → Brigadista Líder (nombre, email, WhatsApp) → Cronograma (9 pasos con hora + tiempo total calculado inicio→cierre) → Evidencias (2 fotos) → Evaluación (entrega formato) → Observaciones → PDF
+
+**Nota:** Usa `PreparacionSimulacroModel`, constantes del controller: `::OPCIONES_ALARMA`, `::OPCIONES_DISTINTIVOS`, `::OPCIONES_EQUIPOS`, `::CRONOGRAMA_ITEMS`. Campos multi-select (tipo_alarma, distintivos_brigadistas, equipos_emergencia) almacenados como comma-separated en BD, renderizados como arrays de badges. Campo fecha: `fecha_simulacro`.
+
 ### Lógica de colores para calificación
 
 ```php
@@ -510,6 +570,19 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
 
 Solo rutas GET. No hay POST, PUT ni DELETE — el cliente es read-only.
 
+### Rutas completas actuales
+
+```php
+$routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
+    $routes->get('/', 'ClientInspeccionesController::dashboard');
+    // Actas, Locativas, Señalización, Botiquín, Extintores, Comunicaciones, Gabinetes
+    // Carta Vigía, Mantenimientos, Matriz Vulnerabilidad, Probabilidad Peligros, Recursos Seguridad
+    // HV Brigadista, Plan Emergencia, Simulacro, Limpieza Desinfección
+    // Dotación Vigilante, Dotación Aseadora, Dotación Todero
+    // Auditoría Zona Residuos, Asistencia Inducción, Reporte Capacitación, Preparación Simulacro
+});
+```
+
 ---
 
 ## Paso 7: Agregar Botón en Dashboard Cliente
@@ -589,7 +662,15 @@ Hub inspecciones (/client/inspecciones)
   ├── Card "Recursos Seguridad (1)"
   ├── Card "HV Brigadista (3)"
   ├── Card "Plan de Emergencia (1)"
-  └── Card "Simulacro (2)"
+  ├── Card "Simulacro (2)"
+  ├── Card "Limpieza y Desinfección (2)"
+  ├── Card "Dotación Vigilante (4)"
+  ├── Card "Dotación Aseadora (3)"
+  ├── Card "Dotación Todero (2)"
+  ├── Card "Auditoría Zona Residuos (1)"
+  ├── Card "Asistencia Inducción (5)"
+  ├── Card "Reportes Capacitación (3)"
+  └── Card "Preparación Simulacro (1)"
     ↓
 Click en tipo
     ↓

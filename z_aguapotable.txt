@@ -1,0 +1,120 @@
+1. PROGRAMA DE ABASTECIMIENTO DE AGUA POTABLE
+1.1 OBJETIVO
+Definir los elementos, actividades y responsabilidades necesarias para garantizar el suministro continuo de agua potable en <<[CLIENTE]>>, asegurando su calidad para consumo humano, conforme a la normatividad sanitaria vigente.
+1.2 ALCANCE
+Aplica para <<[CLIENTE]>> y para los contratistas encargados de las actividades de limpieza, desinfección y mantenimiento de tanques y redes de distribución de agua potable.
+<<[CLIENTE]>> cuenta con tanques de almacenamiento de agua potable que garantizan el suministro del recurso incluso en situaciones de emergencia.
+CANTIDAD DE TANQUES
+ <<[CANTIDAD DE TANQUES]>>
+CAPACIDAD INDIVIDUAL DE CADA TANQUE (LITROS)
+ <<[CAPACIDAD INDIVIDUAL DE CADA TANQUE]>>
+CAPACIDAD TOTAL DE ALMACENAMIENTO (LITROS)
+ <<[CAPACIDAD TOTAL DE ALMACENAMIENTO]>>
+1.3 DEFINICIONES
+Abastecimiento de Agua Potable:
+ De acuerdo con el Reglamento Técnico del Sector de Agua Potable y Saneamiento Básico – RAS 2000, el agua para consumo humano no debe contener microorganismos patógenos ni sustancias tóxicas o nocivas para la salud, y debe cumplir con los requisitos de calidad microbiológicos y fisicoquímicos establecidos en la normatividad sanitaria vigente.
+Agua Potable:
+ Agua que cumple con los requisitos físicos, químicos, microbiológicos y organolépticos exigidos para el consumo humano.
+Desinfección:
+ Proceso físico y/o químico mediante el cual se eliminan o inactivan microorganismos patógenos presentes en el agua o en superficies.
+Red de Distribución:
+ Conjunto de tuberías, accesorios y uniones que transportan el agua desde la fuente de captación hasta los puntos de consumo.
+1.4 PROCESO DE ABASTECIMIENTO DE AGUA POTABLE
+a. Fuente de captación:
+ El agua utilizada en <<[CLIENTE]>> proviene de la red pública de acueducto suministrada por la Empresa de Servicios Públicos del municipio correspondiente, la cual garantiza condiciones adecuadas en sus características físicas, químicas y microbiológicas.
+b. Sistema de captación:
+ La captación del agua se realiza mediante tanques aéreos y/o subterráneos, los cuales permiten garantizar el suministro del recurso en situaciones de emergencia o suspensión temporal del servicio.
+c. Distribución:
+ El sistema de distribución está conformado por tuberías que transportan el agua desde los tanques de almacenamiento hacia los puntos de suministro del conjunto residencial.
+d. Almacenamiento:
+ <<[CLIENTE]>> debe garantizar un abastecimiento mínimo de agua potable para un periodo de setenta y dos (72) horas, para lo cual se realizará un aforo del consumo, siguiendo el siguiente procedimiento:
+• Llenar los tanques hasta su capacidad máxima conocida.
+ • Cerrar el suministro de entrada y permitir únicamente la salida de agua hacia el conjunto.
+ • Medir el volumen consumido durante un periodo de veinticuatro (24) horas.
+ • Multiplicar el consumo diario por tres (3) para determinar la capacidad mínima requerida de almacenamiento.
+Este aforo permitirá identificar variaciones en el consumo, fugas, sobreuso del recurso o la necesidad de ajustes en el sistema.
+1.5 MANTENIMIENTO, LIMPIEZA Y DESINFECCIÓN
+La limpieza y desinfección de los tanques de almacenamiento y redes de distribución se debe realizar como mínimo cada seis (6) meses, a través de una empresa especializada que cuente con:
+• Personal capacitado y certificado en trabajo en alturas.
+ • Elementos de protección personal acordes a la actividad.
+ • Cumplimiento de la normatividad sanitaria y de seguridad y salud en el trabajo.
+ • Entrega de certificado de limpieza y desinfección.
+ • Concepto sanitario favorable vigente, cuando aplique.
+1.6 CONTROLES
+Las muestras de agua deben ser representativas y permitir la evaluación de la calidad microbiológica, principalmente para identificar contaminación de origen fecal.
+El análisis microbiológico se realizará de manera semestral, conforme a lo establecido en la Resolución 2115 de 2007, con el fin de verificar la efectividad del proceso de limpieza y desinfección de los tanques de almacenamiento.
+1.7 RESPONSABILIDADES
+Administración de <<[CLIENTE]>>
+Garantizar la implementación del Programa de Abastecimiento de Agua Potable.
+  Contratar empresas certificadas para la limpieza y desinfección de tanques.
+  Custodiar certificados, informes y resultados de análisis de agua.
+  Programar y supervisar el cumplimiento del mantenimiento semestral.
+Empresa contratista
+Ejecutar la limpieza y desinfección conforme a la normatividad vigente.
+  Utilizar productos autorizados y entregar fichas técnicas y hojas de seguridad.
+  Entregar certificado de la actividad realizada.
+Personal operativo
+Reportar fugas, daños o condiciones inseguras en el sistema.
+  Facilitar las actividades de inspección, limpieza y mantenimiento.
+Responsable del SG-SST
+Verificar condiciones seguras de trabajo durante la ejecución de las actividades.
+  Hacer seguimiento a los informes y certificados entregados.
+1.8 PROCEDIMIENTO DE LIMPIEZA Y DESINFECCIÓN DE TANQUES DE AGUA
+Garantizar que el personal cuente con EPP certificados para trabajo en alturas.
+  Verificar previamente posición segura de trabajo, puntos de anclaje, accesos y desagües.
+  Disponer implementos necesarios (cepillos, escobas, baldes, hidrolavadora).
+  Cerrar válvula de entrada y abrir salida para vaciado total.
+  Ingresar cuando el nivel esté entre 20 y 30 cm.
+  Retirar sedimentos del fondo.
+  Cepillar paredes y pisos solo con agua.
+  Enjuagar completamente el tanque antes de la desinfección.
+1.9 DESINFECCIÓN DE TANQUES DE AGUA
+a. Preparar la solución desinfectante de la siguiente manera: en un recipiente de mil (1000) mililitros, adicionar cien (100) mililitros de Hipoclorito de Sodio al cinco por ciento (5 %) y mezclar de forma homogénea.
+Para un tanque de mil (1000) litros, se deben aplicar diez (10) litros de esta solución, lo que equivale a un (1) litro de hipoclorito de sodio al cinco por ciento (5 %).
+b. Aplicar la solución de hipoclorito de sodio según la concentración indicada, utilizando rociadores o máquinas aspersoras totalmente plásticas, realizando la actividad en el menor tiempo posible para asegurar la efectividad del desinfectante.
+c. Restregar enérgicamente las paredes y el piso del tanque con la solución desinfectante, con el fin de eliminar cualquier residuo de suciedad y garantizar la desinfección completa de las superficies.
+d. Retirar todos los residuos generados durante la desinfección, realizando un enjuague con agua limpia.
+e. Cerrar el desagüe del tanque y permitir nuevamente la entrada de agua potable.
+f. Verificar el cloro residual, el cual deberá encontrarse hasta en cinco (5) ppm, y confirmar que el pH del agua esté dentro del rango de seis (6) a siete (7), conforme a la normatividad sanitaria vigente.
+g. Permitir el llenado total del tanque y restablecer el suministro de agua potable a <<[CLIENTE]>>.
+1.10 CONTROL Y SEGUIMIENTO
+La Administración de <<[CLIENTE]>> será responsable de verificar el cumplimiento de la frecuencia mínima de limpieza y desinfección de los tanques de almacenamiento de agua potable.
+La empresa contratista deberá entregar el certificado de limpieza y desinfección con la información mínima exigida, el cual será archivado como soporte del programa.
+1.11 INDICADORES
+Con el fin de verificar la correcta ejecución, continuidad del servicio y eficacia sanitaria del Programa de Abastecimiento y Control de Agua Potable en <<[CLIENTE]>>, se evalúa el siguiente indicador de gestión:
+1️ Garantía de continuidad del suministro de agua potable
+Nombre del indicador:
+ Continuidad del servicio de agua potable en situaciones de suspensión
+Fórmula:
+ (Eventos sin afectación del suministro / Eventos de suspensión del servicio) × 100
+Tipo de indicador:
+ Resultado
+Meta sugerida:
+ 100 %
+Periodicidad:
+ Semestral
+Fuente de información:
+ Registros de novedades del servicio de acueducto + bitácora de administración + reportes de mantenimiento
+Responsable del seguimiento:
+ Administración / Responsable SG-SST
+Interpretación:
+ Mide si, ante suspensiones del servicio público de acueducto, <<[CLIENTE]>> logra mantener el abastecimiento de agua potable a través de su sistema de almacenamiento. Un resultado inferior al 100 % indica insuficiencia en la capacidad de almacenamiento o fallas en el sistema.
+2️ Cumplimiento de limpieza y desinfección semestral de tanques
+Nombre del indicador:
+ Ejecución de limpieza y desinfección de tanques de agua potable
+Fórmula:
+ (Número de limpiezas y desinfecciones realizadas en el semestre / 1) × 100
+Tipo de indicador:
+ Proceso
+Meta sugerida:
+ 100 %
+Periodicidad:
+ Semestral
+Fuente de información:
+ Certificados de limpieza y desinfección de tanques emitidos por empresa contratada
+Responsable del seguimiento:
+ Administración / Responsable SG-SST
+Interpretación:
+ Verifica que se haya realizado como mínimo una (1) limpieza y desinfección de los tanques de almacenamiento dentro de cada semestre. La ausencia de certificado implica incumplimiento del programa.
+
+

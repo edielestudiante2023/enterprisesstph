@@ -30,6 +30,22 @@ use App\Models\HvBrigadistaModel;
 use App\Models\PlanEmergenciaModel;
 use App\Models\EvaluacionSimulacroModel;
 use App\Models\ProgramaLimpiezaModel;
+use App\Models\ProgramaResiduosModel;
+use App\Models\ProgramaPlagasModel;
+use App\Models\ProgramaAguaPotableModel;
+use App\Models\PlanSaneamientoModel;
+use App\Models\KpiLimpiezaModel;
+use App\Models\KpiResiduosModel;
+use App\Models\KpiPlagasModel;
+use App\Models\KpiAguaPotableModel;
+use App\Models\DotacionVigilanteModel;
+use App\Models\DotacionAseadoraModel;
+use App\Models\DotacionToderoModel;
+use App\Models\AuditoriaZonaResiduosModel;
+use App\Models\AsistenciaInduccionModel;
+use App\Models\AsistenciaInduccionAsistenteModel;
+use App\Models\ReporteCapacitacionModel;
+use App\Models\PreparacionSimulacroModel;
 use App\Controllers\Inspecciones\InspeccionBotiquinController;
 use App\Controllers\Inspecciones\InspeccionExtintoresController;
 use App\Controllers\Inspecciones\InspeccionComunicacionController;
@@ -38,6 +54,13 @@ use App\Controllers\Inspecciones\MatrizVulnerabilidadController;
 use App\Controllers\Inspecciones\ProbabilidadPeligrosController;
 use App\Controllers\Inspecciones\InspeccionRecursosSeguridadController;
 use App\Controllers\Inspecciones\PlanEmergenciaController;
+use App\Controllers\Inspecciones\DotacionVigilanteController;
+use App\Controllers\Inspecciones\DotacionAseadoraController;
+use App\Controllers\Inspecciones\DotacionToderoController;
+use App\Controllers\Inspecciones\AuditoriaZonaResiduosController;
+use App\Controllers\Inspecciones\AsistenciaInduccionController;
+use App\Controllers\Inspecciones\ReporteCapacitacionController;
+use App\Controllers\Inspecciones\PreparacionSimulacroController;
 use CodeIgniter\Controller;
 
 class ClientInspeccionesController extends Controller
@@ -86,6 +109,21 @@ class ClientInspeccionesController extends Controller
         $planEmergenciaModel = new PlanEmergenciaModel();
         $simulacroModel = new EvaluacionSimulacroModel();
         $progLimpModel = new ProgramaLimpiezaModel();
+        $progResModel = new ProgramaResiduosModel();
+        $progPlagModel = new ProgramaPlagasModel();
+        $progAguaModel = new ProgramaAguaPotableModel();
+        $planSanModel = new PlanSaneamientoModel();
+        $kpiLimpModel = new KpiLimpiezaModel();
+        $kpiResModel = new KpiResiduosModel();
+        $kpiPlagModel = new KpiPlagasModel();
+        $kpiAguaModel = new KpiAguaPotableModel();
+        $dotVigilanteModel = new DotacionVigilanteModel();
+        $dotAseadoraModel = new DotacionAseadoraModel();
+        $dotToderoModel = new DotacionToderoModel();
+        $audResiduosModel = new AuditoriaZonaResiduosModel();
+        $asistInducModel = new AsistenciaInduccionModel();
+        $repCapacModel = new ReporteCapacitacionModel();
+        $prepSimulacroModel = new PreparacionSimulacroModel();
 
         $tipos = [
             [
@@ -231,6 +269,141 @@ class ClientInspeccionesController extends Controller
                 'conteo'  => $progLimpModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
                 'ultima'  => $progLimpModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->first(),
                 'campo_fecha' => 'fecha_programa',
+            ],
+            [
+                'nombre'  => 'Residuos Sólidos',
+                'icono'   => 'fa-recycle',
+                'color'   => '#2e7d32',
+                'url'     => base_url('client/inspecciones/residuos-solidos'),
+                'conteo'  => $progResModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $progResModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->first(),
+                'campo_fecha' => 'fecha_programa',
+            ],
+            [
+                'nombre'  => 'Control Plagas',
+                'icono'   => 'fa-bug',
+                'color'   => '#5d4037',
+                'url'     => base_url('client/inspecciones/control-plagas'),
+                'conteo'  => $progPlagModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $progPlagModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->first(),
+                'campo_fecha' => 'fecha_programa',
+            ],
+            [
+                'nombre'  => 'Agua Potable',
+                'icono'   => 'fa-tint',
+                'color'   => '#0277bd',
+                'url'     => base_url('client/inspecciones/agua-potable'),
+                'conteo'  => $progAguaModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $progAguaModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->first(),
+                'campo_fecha' => 'fecha_programa',
+            ],
+            [
+                'nombre'  => 'Plan Saneamiento',
+                'icono'   => 'fa-shield-alt',
+                'color'   => '#4a148c',
+                'url'     => base_url('client/inspecciones/plan-saneamiento'),
+                'conteo'  => $planSanModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $planSanModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->first(),
+                'campo_fecha' => 'fecha_programa',
+            ],
+            [
+                'nombre'  => 'KPI Limpieza',
+                'icono'   => 'fa-chart-line',
+                'color'   => '#00897b',
+                'url'     => base_url('client/inspecciones/kpi-limpieza'),
+                'conteo'  => $kpiLimpModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $kpiLimpModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'KPI Residuos',
+                'icono'   => 'fa-chart-bar',
+                'color'   => '#558b2f',
+                'url'     => base_url('client/inspecciones/kpi-residuos'),
+                'conteo'  => $kpiResModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $kpiResModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'KPI Plagas',
+                'icono'   => 'fa-chart-pie',
+                'color'   => '#795548',
+                'url'     => base_url('client/inspecciones/kpi-plagas'),
+                'conteo'  => $kpiPlagModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $kpiPlagModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'KPI Agua Potable',
+                'icono'   => 'fa-chart-area',
+                'color'   => '#01579b',
+                'url'     => base_url('client/inspecciones/kpi-agua-potable'),
+                'conteo'  => $kpiAguaModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $kpiAguaModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Dotación Vigilante',
+                'icono'   => 'fa-user-tie',
+                'color'   => '#37474f',
+                'url'     => base_url('client/inspecciones/dotacion-vigilante'),
+                'conteo'  => $dotVigilanteModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $dotVigilanteModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Dotación Aseadora',
+                'icono'   => 'fa-broom',
+                'color'   => '#8d6e63',
+                'url'     => base_url('client/inspecciones/dotacion-aseadora'),
+                'conteo'  => $dotAseadoraModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $dotAseadoraModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Dotación Todero',
+                'icono'   => 'fa-hard-hat',
+                'color'   => '#ff8f00',
+                'url'     => base_url('client/inspecciones/dotacion-todero'),
+                'conteo'  => $dotToderoModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $dotToderoModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Auditoría Zona de Residuos',
+                'icono'   => 'fa-recycle',
+                'color'   => '#2e7d32',
+                'url'     => base_url('client/inspecciones/auditoria-zona-residuos'),
+                'conteo'  => $audResiduosModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $audResiduosModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Asistencia Inducción',
+                'icono'   => 'fa-chalkboard-teacher',
+                'color'   => '#1565c0',
+                'url'     => base_url('client/inspecciones/asistencia-induccion'),
+                'conteo'  => $asistInducModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $asistInducModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_sesion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_sesion',
+            ],
+            [
+                'nombre'  => 'Reportes de Capacitación',
+                'icono'   => 'fa-graduation-cap',
+                'color'   => '#ad1457',
+                'url'     => base_url('client/inspecciones/reporte-capacitacion'),
+                'conteo'  => $repCapacModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $repCapacModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_capacitacion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_capacitacion',
+            ],
+            [
+                'nombre'  => 'Preparación Simulacro',
+                'icono'   => 'fa-clipboard-list',
+                'color'   => '#546e7a',
+                'url'     => base_url('client/inspecciones/preparacion-simulacro'),
+                'conteo'  => $prepSimulacroModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $prepSimulacroModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_simulacro', 'DESC')->first(),
+                'campo_fecha' => 'fecha_simulacro',
             ],
         ];
 
@@ -1222,6 +1395,732 @@ class ClientInspeccionesController extends Controller
             'client'  => $clientModel->find($clientId),
             'title'   => 'Programa Limpieza y Desinfección',
             'content' => view('client/inspecciones/limpieza_view', $data),
+        ]);
+    }
+
+    // ─── RESIDUOS SÓLIDOS ───────────────────────────────────
+
+    public function listResiduos()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new ProgramaResiduosModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Residuos Sólidos',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'residuos',
+                'titulo'       => 'Programas de Manejo Integral de Residuos Sólidos',
+                'campo_fecha'  => 'fecha_programa',
+                'base_url'     => 'client/inspecciones/residuos-solidos',
+            ]),
+        ]);
+    }
+
+    public function viewResiduos($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new ProgramaResiduosModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Documento no encontrado.');
+        }
+
+        $clientModel = new ClientModel();
+        $consultantModel = new ConsultantModel();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $clientModel->find($clientId),
+            'title'   => 'Programa Residuos Sólidos',
+            'content' => view('client/inspecciones/residuos_view', [
+                'inspeccion' => $inspeccion,
+                'cliente'    => $clientModel->find($inspeccion['id_cliente']),
+                'consultor'  => $consultantModel->find($inspeccion['id_consultor']),
+            ]),
+        ]);
+    }
+
+    // ─── CONTROL DE PLAGAS ──────────────────────────────────
+
+    public function listPlagas()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new ProgramaPlagasModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Control de Plagas',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'plagas',
+                'titulo'       => 'Programas de Control Integrado de Plagas',
+                'campo_fecha'  => 'fecha_programa',
+                'base_url'     => 'client/inspecciones/control-plagas',
+            ]),
+        ]);
+    }
+
+    public function viewPlagas($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new ProgramaPlagasModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Documento no encontrado.');
+        }
+
+        $clientModel = new ClientModel();
+        $consultantModel = new ConsultantModel();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $clientModel->find($clientId),
+            'title'   => 'Programa Control de Plagas',
+            'content' => view('client/inspecciones/plagas_view', [
+                'inspeccion' => $inspeccion,
+                'cliente'    => $clientModel->find($inspeccion['id_cliente']),
+                'consultor'  => $consultantModel->find($inspeccion['id_consultor']),
+            ]),
+        ]);
+    }
+
+    // ─── AGUA POTABLE ───────────────────────────────────────
+
+    public function listAguaPotable()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new ProgramaAguaPotableModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Agua Potable',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'agua_potable',
+                'titulo'       => 'Programas de Abastecimiento y Control de Agua Potable',
+                'campo_fecha'  => 'fecha_programa',
+                'base_url'     => 'client/inspecciones/agua-potable',
+            ]),
+        ]);
+    }
+
+    public function viewAguaPotable($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new ProgramaAguaPotableModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Documento no encontrado.');
+        }
+
+        $clientModel = new ClientModel();
+        $consultantModel = new ConsultantModel();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $clientModel->find($clientId),
+            'title'   => 'Programa Agua Potable',
+            'content' => view('client/inspecciones/agua_potable_view', [
+                'inspeccion' => $inspeccion,
+                'cliente'    => $clientModel->find($inspeccion['id_cliente']),
+                'consultor'  => $consultantModel->find($inspeccion['id_consultor']),
+            ]),
+        ]);
+    }
+
+    // ─── PLAN DE SANEAMIENTO BÁSICO ────────────────────────
+
+    public function listSaneamiento()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new PlanSaneamientoModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Plan Saneamiento',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'plan_saneamiento',
+                'titulo'       => 'Plan de Saneamiento Básico',
+                'campo_fecha'  => 'fecha_programa',
+                'base_url'     => 'client/inspecciones/plan-saneamiento',
+            ]),
+        ]);
+    }
+
+    public function viewSaneamiento($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new PlanSaneamientoModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Documento no encontrado.');
+        }
+
+        $clientModel = new ClientModel();
+        $consultantModel = new ConsultantModel();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $clientModel->find($clientId),
+            'title'   => 'Plan de Saneamiento Básico',
+            'content' => view('client/inspecciones/saneamiento_view', [
+                'inspeccion' => $inspeccion,
+                'cliente'    => $clientModel->find($inspeccion['id_cliente']),
+                'consultor'  => $consultantModel->find($inspeccion['id_consultor']),
+            ]),
+        ]);
+    }
+
+    // ─── DOTACIÓN VIGILANTE ─────────────────────────────────
+
+    public function listDotacionVigilante()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new DotacionVigilanteModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Dotación Vigilante',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'dotacion_vigilante',
+                'titulo'       => 'Dotación Vigilante',
+                'campo_fecha'  => 'fecha_inspeccion',
+                'base_url'     => 'client/inspecciones/dotacion-vigilante',
+            ]),
+        ]);
+    }
+
+    public function viewDotacionVigilante($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new DotacionVigilanteModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Inspección no encontrada.');
+        }
+
+        $data = [
+            'inspeccion' => $inspeccion,
+            'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
+            'itemsEpp'   => DotacionVigilanteController::ITEMS_EPP,
+            'estadosEpp' => DotacionVigilanteController::ESTADOS_EPP,
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'Dotación Vigilante',
+            'content' => view('client/inspecciones/dotacion_vigilante_view', $data),
+        ]);
+    }
+
+    // ─── DOTACIÓN ASEADORA ──────────────────────────────────
+
+    public function listDotacionAseadora()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new DotacionAseadoraModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Dotación Aseadora',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'dotacion_aseadora',
+                'titulo'       => 'Dotación Aseadora',
+                'campo_fecha'  => 'fecha_inspeccion',
+                'base_url'     => 'client/inspecciones/dotacion-aseadora',
+            ]),
+        ]);
+    }
+
+    public function viewDotacionAseadora($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new DotacionAseadoraModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Inspección no encontrada.');
+        }
+
+        $data = [
+            'inspeccion' => $inspeccion,
+            'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
+            'itemsEpp'   => DotacionAseadoraController::ITEMS_EPP,
+            'estadosEpp' => DotacionAseadoraController::ESTADOS_EPP,
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'Dotación Aseadora',
+            'content' => view('client/inspecciones/dotacion_aseadora_view', $data),
+        ]);
+    }
+
+    // ─── DOTACIÓN TODERO ────────────────────────────────────
+
+    public function listDotacionTodero()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new DotacionToderoModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Dotación Todero',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'dotacion_todero',
+                'titulo'       => 'Dotación Todero',
+                'campo_fecha'  => 'fecha_inspeccion',
+                'base_url'     => 'client/inspecciones/dotacion-todero',
+            ]),
+        ]);
+    }
+
+    public function viewDotacionTodero($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new DotacionToderoModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Inspección no encontrada.');
+        }
+
+        $data = [
+            'inspeccion' => $inspeccion,
+            'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
+            'itemsEpp'   => DotacionToderoController::ITEMS_EPP,
+            'estadosEpp' => DotacionToderoController::ESTADOS_EPP,
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'Dotación Todero',
+            'content' => view('client/inspecciones/dotacion_todero_view', $data),
+        ]);
+    }
+
+    // ─── AUDITORÍA ZONA DE RESIDUOS ─────────────────────────
+
+    public function listAuditoriaResiduos()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new AuditoriaZonaResiduosModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Auditoría Zona de Residuos',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'auditoria_residuos',
+                'titulo'       => 'Auditoría Zona de Residuos',
+                'campo_fecha'  => 'fecha_inspeccion',
+                'base_url'     => 'client/inspecciones/auditoria-zona-residuos',
+            ]),
+        ]);
+    }
+
+    public function viewAuditoriaResiduos($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new AuditoriaZonaResiduosModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Inspección no encontrada.');
+        }
+
+        $data = [
+            'inspeccion' => $inspeccion,
+            'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
+            'itemsZona'  => AuditoriaZonaResiduosController::ITEMS_ZONA,
+            'estadosZona' => AuditoriaZonaResiduosController::ESTADOS_ZONA,
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'Auditoría Zona de Residuos',
+            'content' => view('client/inspecciones/auditoria_zona_residuos_view', $data),
+        ]);
+    }
+
+    // ─── ASISTENCIA INDUCCIÓN ───────────────────────────────
+
+    public function listAsistenciaInduccion()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new AsistenciaInduccionModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_sesion', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Asistencia Inducción',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'asistencia_induccion',
+                'titulo'       => 'Asistencia Inducción',
+                'campo_fecha'  => 'fecha_sesion',
+                'base_url'     => 'client/inspecciones/asistencia-induccion',
+            ]),
+        ]);
+    }
+
+    public function viewAsistenciaInduccion($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new AsistenciaInduccionModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Registro no encontrado.');
+        }
+
+        $asistentes = (new AsistenciaInduccionAsistenteModel())->where('id_asistencia_induccion', $id)->findAll();
+
+        $data = [
+            'inspeccion'   => $inspeccion,
+            'cliente'      => (new ClientModel())->find($inspeccion['id_cliente']),
+            'asistentes'   => $asistentes,
+            'tiposCharla'  => AsistenciaInduccionController::TIPOS_CHARLA,
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'Asistencia Inducción',
+            'content' => view('client/inspecciones/asistencia_induccion_view', $data),
+        ]);
+    }
+
+    // ─── REPORTE DE CAPACITACIÓN ────────────────────────────
+
+    public function listReporteCapacitacion()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new ReporteCapacitacionModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_capacitacion', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Reportes de Capacitación',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'reporte_capacitacion',
+                'titulo'       => 'Reportes de Capacitación',
+                'campo_fecha'  => 'fecha_capacitacion',
+                'base_url'     => 'client/inspecciones/reporte-capacitacion',
+            ]),
+        ]);
+    }
+
+    public function viewReporteCapacitacion($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new ReporteCapacitacionModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Reporte no encontrado.');
+        }
+
+        $data = [
+            'inspeccion'         => $inspeccion,
+            'cliente'            => (new ClientModel())->find($inspeccion['id_cliente']),
+            'perfilesAsistentes' => ReporteCapacitacionController::PERFILES_ASISTENTES,
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'Reporte de Capacitación',
+            'content' => view('client/inspecciones/reporte_capacitacion_view', $data),
+        ]);
+    }
+
+    // ─── PREPARACIÓN SIMULACRO ──────────────────────────────
+
+    public function listPreparacionSimulacro()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new PreparacionSimulacroModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_simulacro', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'Preparación Simulacro',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'preparacion_simulacro',
+                'titulo'       => 'Preparación Simulacro',
+                'campo_fecha'  => 'fecha_simulacro',
+                'base_url'     => 'client/inspecciones/preparacion-simulacro',
+            ]),
+        ]);
+    }
+
+    public function viewPreparacionSimulacro($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new PreparacionSimulacroModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Registro no encontrado.');
+        }
+
+        $data = [
+            'inspeccion'          => $inspeccion,
+            'cliente'             => (new ClientModel())->find($inspeccion['id_cliente']),
+            'opcionesAlarma'      => PreparacionSimulacroController::OPCIONES_ALARMA,
+            'opcionesDistintivos' => PreparacionSimulacroController::OPCIONES_DISTINTIVOS,
+            'opcionesEquipos'     => PreparacionSimulacroController::OPCIONES_EQUIPOS,
+            'cronogramaItems'     => PreparacionSimulacroController::CRONOGRAMA_ITEMS,
+        ];
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'Preparación Simulacro',
+            'content' => view('client/inspecciones/preparacion_simulacro_view', $data),
+        ]);
+    }
+
+    // ─── KPI LIMPIEZA Y DESINFECCIÓN ────────────────────────
+
+    public function listKpiLimpieza()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new KpiLimpiezaModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'KPI Limpieza',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'kpi_limpieza',
+                'titulo'       => 'KPI Programa de Limpieza y Desinfección',
+                'campo_fecha'  => 'fecha_inspeccion',
+                'base_url'     => 'client/inspecciones/kpi-limpieza',
+            ]),
+        ]);
+    }
+
+    public function viewKpiLimpieza($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new KpiLimpiezaModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Documento no encontrado.');
+        }
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'KPI Limpieza',
+            'content' => view('client/inspecciones/kpi_limpieza_view', [
+                'inspeccion' => $inspeccion,
+                'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
+                'consultor'  => (new ConsultantModel())->find($inspeccion['id_consultor']),
+            ]),
+        ]);
+    }
+
+    // ─── KPI RESIDUOS SÓLIDOS ───────────────────────────────
+
+    public function listKpiResiduos()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new KpiResiduosModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'KPI Residuos',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'kpi_residuos',
+                'titulo'       => 'KPI Programa de Manejo Integral de Residuos Sólidos',
+                'campo_fecha'  => 'fecha_inspeccion',
+                'base_url'     => 'client/inspecciones/kpi-residuos',
+            ]),
+        ]);
+    }
+
+    public function viewKpiResiduos($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new KpiResiduosModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Documento no encontrado.');
+        }
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'KPI Residuos',
+            'content' => view('client/inspecciones/kpi_residuos_view', [
+                'inspeccion' => $inspeccion,
+                'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
+                'consultor'  => (new ConsultantModel())->find($inspeccion['id_consultor']),
+            ]),
+        ]);
+    }
+
+    // ─── KPI CONTROL DE PLAGAS ──────────────────────────────
+
+    public function listKpiPlagas()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new KpiPlagasModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'KPI Plagas',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'kpi_plagas',
+                'titulo'       => 'KPI Programa de Control Integrado de Plagas',
+                'campo_fecha'  => 'fecha_inspeccion',
+                'base_url'     => 'client/inspecciones/kpi-plagas',
+            ]),
+        ]);
+    }
+
+    public function viewKpiPlagas($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new KpiPlagasModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Documento no encontrado.');
+        }
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'KPI Plagas',
+            'content' => view('client/inspecciones/kpi_plagas_view', [
+                'inspeccion' => $inspeccion,
+                'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
+                'consultor'  => (new ConsultantModel())->find($inspeccion['id_consultor']),
+            ]),
+        ]);
+    }
+
+    // ─── KPI AGUA POTABLE ───────────────────────────────────
+
+    public function listKpiAguaPotable()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $client = (new ClientModel())->find($clientId);
+        $model = new KpiAguaPotableModel();
+        $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client'  => $client,
+            'title'   => 'KPI Agua Potable',
+            'content' => view('client/inspecciones/list', [
+                'inspecciones' => $inspecciones,
+                'tipo'         => 'kpi_agua_potable',
+                'titulo'       => 'KPI Programa de Abastecimiento y Control de Agua Potable',
+                'campo_fecha'  => 'fecha_inspeccion',
+                'base_url'     => 'client/inspecciones/kpi-agua-potable',
+            ]),
+        ]);
+    }
+
+    public function viewKpiAguaPotable($id)
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $model = new KpiAguaPotableModel();
+        $inspeccion = $model->find($id);
+        if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Documento no encontrado.');
+        }
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'KPI Agua Potable',
+            'content' => view('client/inspecciones/kpi_agua_potable_view', [
+                'inspeccion' => $inspeccion,
+                'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
+                'consultor'  => (new ConsultantModel())->find($inspeccion['id_consultor']),
+            ]),
         ]);
     }
 }

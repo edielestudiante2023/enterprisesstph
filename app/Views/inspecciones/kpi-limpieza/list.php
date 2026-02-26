@@ -12,26 +12,24 @@
 <?php endif; ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0"><i class="fas fa-broom me-2"></i>Programa Limpieza y Desinfección</h5>
+    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>KPI Limpieza y Desinfección</h5>
 </div>
 
-<!-- Filtro por cliente -->
 <div class="mb-3">
     <select id="filtroCliente" class="form-select">
         <option value="">Todos los clientes</option>
     </select>
 </div>
 
-<a href="/inspecciones/limpieza-desinfeccion/create" class="btn btn-pwa btn-pwa-primary mb-3">
-    <i class="fas fa-plus me-2"></i>Nuevo Programa
+<a href="/inspecciones/kpi-limpieza/create" class="btn btn-pwa btn-pwa-primary mb-3">
+    <i class="fas fa-plus me-2"></i>Nuevo KPI
 </a>
 
-<!-- Cards de inspecciones -->
 <div id="listaInspecciones">
 <?php if (empty($inspecciones)): ?>
     <div class="text-center text-muted py-4">
         <i class="fas fa-inbox fa-3x mb-2"></i>
-        <p>No hay programas registrados.</p>
+        <p>No hay KPIs registrados.</p>
     </div>
 <?php else: ?>
     <?php foreach ($inspecciones as $insp): ?>
@@ -48,30 +46,35 @@
                         <?= esc($insp['nombre_cliente'] ?? 'Sin cliente') ?>
                     </strong>
                     <div class="text-muted" style="font-size: 13px;">
-                        <?= date('d/m/Y', strtotime($insp['fecha_programa'])) ?>
-                        <?php if (!empty($insp['nombre_responsable'])): ?>
-                            &middot; <?= esc($insp['nombre_responsable']) ?>
+                        <?= date('d/m/Y', strtotime($insp['fecha_inspeccion'])) ?>
+                        <?php if (!empty($insp['indicador'])): ?>
+                            &middot; <?= esc(mb_substr($insp['indicador'], 0, 40)) ?>...
                         <?php endif; ?>
                         &middot;
                         <span class="badge bg-<?= $insp['estado'] === 'completo' ? 'success' : 'warning text-dark' ?>" style="font-size: 11px;">
                             <?= $insp['estado'] === 'completo' ? 'Completo' : 'Borrador' ?>
                         </span>
                     </div>
+                    <?php if (!empty($insp['cumplimiento'])): ?>
+                    <div style="font-size: 13px; margin-top: 2px;">
+                        <strong>Cumplimiento:</strong> <?= number_format($insp['cumplimiento'], 1) ?>%
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="mt-2 d-flex gap-2">
                 <?php if ($insp['estado'] === 'borrador'): ?>
-                    <a href="/inspecciones/limpieza-desinfeccion/edit/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    <a href="/inspecciones/kpi-limpieza/edit/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                         <i class="fas fa-edit"></i> Editar
                     </a>
                     <a href="#" class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $insp['id'] ?>">
                         <i class="fas fa-trash"></i>
                     </a>
                 <?php else: ?>
-                    <a href="/inspecciones/limpieza-desinfeccion/view/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    <a href="/inspecciones/kpi-limpieza/view/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                         <i class="fas fa-eye"></i> Ver
                     </a>
-                    <a href="/inspecciones/limpieza-desinfeccion/pdf/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                    <a href="/inspecciones/kpi-limpieza/pdf/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
                         <i class="fas fa-file-pdf"></i> PDF
                     </a>
                 <?php endif; ?>
@@ -84,7 +87,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Cargar clientes para filtro + Select2
     $.ajax({
         url: '/inspecciones/api/clientes',
         dataType: 'json',
@@ -108,14 +110,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Eliminar con SweetAlert
     document.addEventListener('click', function(e) {
         var btn = e.target.closest('.btn-delete');
         if (!btn) return;
         e.preventDefault();
-        var id = btn.dataset.id;
         Swal.fire({
-            title: 'Eliminar programa?',
+            title: 'Eliminar KPI?',
             text: 'Esta acción no se puede deshacer.',
             icon: 'warning',
             showCancelButton: true,
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Cancelar'
         }).then(result => {
             if (result.isConfirmed) {
-                window.location.href = '/inspecciones/limpieza-desinfeccion/delete/' + id;
+                window.location.href = '/inspecciones/kpi-limpieza/delete/' + btn.dataset.id;
             }
         });
     });

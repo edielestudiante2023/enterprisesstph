@@ -13,16 +13,16 @@
 
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/limpieza-desinfeccion/update/' . $inspeccion['id'] : '/inspecciones/limpieza-desinfeccion/store';
-$storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_new';
+$action = $isEdit ? '/inspecciones/agua-potable/update/' . $inspeccion['id'] : '/inspecciones/agua-potable/store';
+$storageKey = $isEdit ? 'agua_draft_' . $inspeccion['id'] : 'agua_draft_new';
 ?>
 
 <h5 class="mb-3">
-    <i class="fas fa-broom me-2"></i>
-    <?= $isEdit ? 'Editar' : 'Nuevo' ?> Programa Limpieza y Desinfección
+    <i class="fas fa-tint me-2"></i>
+    <?= $isEdit ? 'Editar' : 'Nuevo' ?> Programa Agua Potable
 </h5>
 
-<form id="limpiezaForm" action="<?= $action ?>" method="post">
+<form id="aguaForm" action="<?= $action ?>" method="post">
     <?= csrf_field() ?>
 
     <!-- DATOS GENERALES -->
@@ -51,13 +51,40 @@ $storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_
         </div>
     </div>
 
+    <!-- DATOS DE TANQUES -->
+    <div class="card mb-3">
+        <div class="card-header" style="background: #1c2437; color: white;">
+            <i class="fas fa-database me-1"></i> Información de Tanques
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Cantidad de Tanques</label>
+                <input type="text" name="cantidad_tanques" class="form-control"
+                       value="<?= esc($inspeccion['cantidad_tanques'] ?? '') ?>"
+                       placeholder="Ej: 2 tanques">
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Capacidad Individual de cada Tanque</label>
+                <input type="text" name="capacidad_individual" class="form-control"
+                       value="<?= esc($inspeccion['capacidad_individual'] ?? '') ?>"
+                       placeholder="Ej: 5000 litros">
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Capacidad Total de Almacenamiento</label>
+                <input type="text" name="capacidad_total" class="form-control"
+                       value="<?= esc($inspeccion['capacidad_total'] ?? '') ?>"
+                       placeholder="Ej: 10000 litros">
+            </div>
+        </div>
+    </div>
+
     <!-- Info del documento -->
     <div class="card mb-3">
         <div class="card-body">
             <p class="text-muted mb-0" style="font-size: 13px;">
                 <i class="fas fa-info-circle me-1"></i>
-                Al finalizar se generará automáticamente el documento <strong>FT-SST-225</strong> (Programa de Limpieza y Desinfección)
-                con el texto legal completo y el nombre del cliente seleccionado.
+                Al finalizar se generará automáticamente el documento <strong>FT-SST-228</strong> (Programa de Abastecimiento y Control de Agua Potable)
+                con el texto legal completo, los datos de tanques y el nombre del cliente seleccionado.
             </p>
         </div>
     </div>
@@ -78,7 +105,6 @@ $storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_
 </form>
 
 <script>
-// Cargar clientes via AJAX + Select2
 var preselectedClient = '<?= esc($idCliente ?? '') ?>';
 $.ajax({
     url: '/inspecciones/api/clientes',
@@ -93,7 +119,6 @@ $.ajax({
             sel.appendChild(opt);
         });
         $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
-        // Restaurar cliente pendiente del localStorage
         if (window._pendingClientRestore) {
             $('#selectCliente').val(window._pendingClientRestore).trigger('change');
             window._pendingClientRestore = null;
@@ -101,10 +126,9 @@ $.ajax({
     }
 });
 
-// Confirmar antes de finalizar
 document.querySelector('.btn-finalizar').addEventListener('click', function(e) {
     e.preventDefault();
-    var form = document.getElementById('limpiezaForm');
+    var form = document.getElementById('aguaForm');
     if (!form.checkValidity()) {
         form.reportValidity();
         return;
@@ -137,6 +161,9 @@ function collectFormData() {
         id_cliente: document.querySelector('[name="id_cliente"]').value,
         fecha_programa: document.querySelector('[name="fecha_programa"]').value,
         nombre_responsable: document.querySelector('[name="nombre_responsable"]').value,
+        cantidad_tanques: document.querySelector('[name="cantidad_tanques"]').value,
+        capacidad_individual: document.querySelector('[name="capacidad_individual"]').value,
+        capacidad_total: document.querySelector('[name="capacidad_total"]').value,
         timestamp: Date.now()
     };
 }
@@ -155,7 +182,6 @@ function restoreFromLocal() {
     if (!saved) return;
     try {
         var data = JSON.parse(saved);
-        // Expirar si tiene más de 24h
         if (Date.now() - data.timestamp > 24 * 60 * 60 * 1000) {
             localStorage.removeItem(STORAGE_KEY);
             return;
@@ -172,6 +198,9 @@ function restoreFromLocal() {
             if (result.isConfirmed) {
                 if (data.fecha_programa) document.querySelector('[name="fecha_programa"]').value = data.fecha_programa;
                 if (data.nombre_responsable) document.querySelector('[name="nombre_responsable"]').value = data.nombre_responsable;
+                if (data.cantidad_tanques) document.querySelector('[name="cantidad_tanques"]').value = data.cantidad_tanques;
+                if (data.capacidad_individual) document.querySelector('[name="capacidad_individual"]').value = data.capacidad_individual;
+                if (data.capacidad_total) document.querySelector('[name="capacidad_total"]').value = data.capacidad_total;
                 if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
             } else {
                 localStorage.removeItem(STORAGE_KEY);
@@ -182,21 +211,18 @@ function restoreFromLocal() {
     }
 }
 
-// Solo restaurar en formulario nuevo (no edición)
 <?php if (!$isEdit): ?>
 restoreFromLocal();
 <?php endif; ?>
 
-// Guardado periódico + por cambio
 setInterval(saveToLocal, 30000);
 var debounceTimer;
-document.getElementById('limpiezaForm').addEventListener('input', function() {
+document.getElementById('aguaForm').addEventListener('input', function() {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(saveToLocal, 2000);
 });
 
-// Limpiar al enviar
-document.getElementById('limpiezaForm').addEventListener('submit', function() {
+document.getElementById('aguaForm').addEventListener('submit', function() {
     localStorage.removeItem(STORAGE_KEY);
 });
 </script>

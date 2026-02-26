@@ -14,6 +14,14 @@ $iconos = [
     'hv_brigadista'           => 'fa-id-card-alt',
     'plan_emergencia'         => 'fa-route',
     'simulacro'               => 'fa-running',
+    'limpieza'                => 'fa-pump-soap',
+    'dotacion_vigilante'      => 'fa-user-tie',
+    'dotacion_aseadora'       => 'fa-broom',
+    'dotacion_todero'         => 'fa-hard-hat',
+    'auditoria_residuos'      => 'fa-recycle',
+    'asistencia_induccion'    => 'fa-chalkboard-teacher',
+    'reporte_capacitacion'    => 'fa-graduation-cap',
+    'preparacion_simulacro'   => 'fa-clipboard-list',
 ];
 $icono = $iconos[$tipo] ?? 'fa-clipboard-list';
 ?>
@@ -92,6 +100,26 @@ $icono = $iconos[$tipo] ?? 'fa-clipboard-list';
                     <?php if ($tipo === 'simulacro' && !empty($insp['evento_simulado'])): ?>
                     <div class="mt-2" style="font-size:13px; color:#777;">
                         <i class="fas fa-running me-1"></i> <?= esc(mb_strimwidth($insp['evento_simulado'], 0, 50, '...')) ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array($tipo, ['dotacion_vigilante','dotacion_aseadora','dotacion_todero']) && !empty($insp['nombre_cargo'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-user me-1"></i> <?= esc(mb_strimwidth($insp['nombre_cargo'], 0, 50, '...')) ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($tipo === 'asistencia_induccion' && !empty($insp['tema'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-chalkboard me-1"></i> <?= esc(mb_strimwidth($insp['tema'], 0, 50, '...')) ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($tipo === 'reporte_capacitacion' && !empty($insp['nombre_capacitacion'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-graduation-cap me-1"></i> <?= esc(mb_strimwidth($insp['nombre_capacitacion'], 0, 50, '...')) ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($tipo === 'preparacion_simulacro' && !empty($insp['evento_simulado'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-clipboard-list me-1"></i> <?= esc(mb_strimwidth($insp['evento_simulado'], 0, 50, '...')) ?>
                     </div>
                     <?php endif; ?>
                     <div class="mt-3 text-end">

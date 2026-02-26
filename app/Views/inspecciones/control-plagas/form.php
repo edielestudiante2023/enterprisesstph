@@ -13,16 +13,16 @@
 
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/limpieza-desinfeccion/update/' . $inspeccion['id'] : '/inspecciones/limpieza-desinfeccion/store';
-$storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_new';
+$action = $isEdit ? '/inspecciones/control-plagas/update/' . $inspeccion['id'] : '/inspecciones/control-plagas/store';
+$storageKey = $isEdit ? 'plagas_draft_' . $inspeccion['id'] : 'plagas_draft_new';
 ?>
 
 <h5 class="mb-3">
-    <i class="fas fa-broom me-2"></i>
-    <?= $isEdit ? 'Editar' : 'Nuevo' ?> Programa Limpieza y Desinfección
+    <i class="fas fa-bug me-2"></i>
+    <?= $isEdit ? 'Editar' : 'Nuevo' ?> Programa Control de Plagas
 </h5>
 
-<form id="limpiezaForm" action="<?= $action ?>" method="post">
+<form id="plagasForm" action="<?= $action ?>" method="post">
     <?= csrf_field() ?>
 
     <!-- DATOS GENERALES -->
@@ -56,7 +56,7 @@ $storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_
         <div class="card-body">
             <p class="text-muted mb-0" style="font-size: 13px;">
                 <i class="fas fa-info-circle me-1"></i>
-                Al finalizar se generará automáticamente el documento <strong>FT-SST-225</strong> (Programa de Limpieza y Desinfección)
+                Al finalizar se generará automáticamente el documento <strong>FT-SST-227</strong> (Programa de Control Integrado de Plagas)
                 con el texto legal completo y el nombre del cliente seleccionado.
             </p>
         </div>
@@ -78,7 +78,6 @@ $storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_
 </form>
 
 <script>
-// Cargar clientes via AJAX + Select2
 var preselectedClient = '<?= esc($idCliente ?? '') ?>';
 $.ajax({
     url: '/inspecciones/api/clientes',
@@ -93,7 +92,6 @@ $.ajax({
             sel.appendChild(opt);
         });
         $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
-        // Restaurar cliente pendiente del localStorage
         if (window._pendingClientRestore) {
             $('#selectCliente').val(window._pendingClientRestore).trigger('change');
             window._pendingClientRestore = null;
@@ -101,10 +99,9 @@ $.ajax({
     }
 });
 
-// Confirmar antes de finalizar
 document.querySelector('.btn-finalizar').addEventListener('click', function(e) {
     e.preventDefault();
-    var form = document.getElementById('limpiezaForm');
+    var form = document.getElementById('plagasForm');
     if (!form.checkValidity()) {
         form.reportValidity();
         return;
@@ -155,7 +152,6 @@ function restoreFromLocal() {
     if (!saved) return;
     try {
         var data = JSON.parse(saved);
-        // Expirar si tiene más de 24h
         if (Date.now() - data.timestamp > 24 * 60 * 60 * 1000) {
             localStorage.removeItem(STORAGE_KEY);
             return;
@@ -182,21 +178,18 @@ function restoreFromLocal() {
     }
 }
 
-// Solo restaurar en formulario nuevo (no edición)
 <?php if (!$isEdit): ?>
 restoreFromLocal();
 <?php endif; ?>
 
-// Guardado periódico + por cambio
 setInterval(saveToLocal, 30000);
 var debounceTimer;
-document.getElementById('limpiezaForm').addEventListener('input', function() {
+document.getElementById('plagasForm').addEventListener('input', function() {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(saveToLocal, 2000);
 });
 
-// Limpiar al enviar
-document.getElementById('limpiezaForm').addEventListener('submit', function() {
+document.getElementById('plagasForm').addEventListener('submit', function() {
     localStorage.removeItem(STORAGE_KEY);
 });
 </script>

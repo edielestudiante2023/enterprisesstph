@@ -554,6 +554,54 @@
     <?php endforeach; ?>
     <?php endif; ?>
 
+    <!-- Pendientes programa residuos -->
+    <?php if (!empty($pendientesProgRes)): ?>
+    <?php foreach ($pendientesProgRes as $pr): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Residuos - <?= esc($pr['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($pr['fecha_programa'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/residuos-solidos/edit/<?= $pr['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes programa plagas -->
+    <?php if (!empty($pendientesProgPlag)): ?>
+    <?php foreach ($pendientesProgPlag as $pp): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Plagas - <?= esc($pp['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($pp['fecha_programa'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/control-plagas/edit/<?= $pp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
     <!-- Pendientes programa limpieza -->
     <?php if (!empty($pendientesProgLimp)): ?>
     <?php foreach ($pendientesProgLimp as $pl): ?>
@@ -570,6 +618,150 @@
             </div>
             <div class="mt-2">
                 <a href="/inspecciones/limpieza-desinfeccion/edit/<?= $pl['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes programa agua potable -->
+    <?php if (!empty($pendientesProgAgua)): ?>
+    <?php foreach ($pendientesProgAgua as $pa): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Agua Potable - <?= esc($pa['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($pa['fecha_programa'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/agua-potable/edit/<?= $pa['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes plan saneamiento -->
+    <?php if (!empty($pendientesPlanSan)): ?>
+    <?php foreach ($pendientesPlanSan as $ps): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Plan Saneamiento - <?= esc($ps['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($ps['fecha_programa'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/plan-saneamiento/edit/<?= $ps['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes KPI Limpieza -->
+    <?php if (!empty($pendientesKpiLimp)): ?>
+    <?php foreach ($pendientesKpiLimp as $pk): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> KPI Limpieza - <?= esc($pk['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($pk['fecha_inspeccion'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/kpi-limpieza/edit/<?= $pk['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes KPI Residuos -->
+    <?php if (!empty($pendientesKpiRes)): ?>
+    <?php foreach ($pendientesKpiRes as $pk): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> KPI Residuos - <?= esc($pk['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($pk['fecha_inspeccion'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/kpi-residuos/edit/<?= $pk['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes KPI Plagas -->
+    <?php if (!empty($pendientesKpiPlag)): ?>
+    <?php foreach ($pendientesKpiPlag as $pk): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> KPI Plagas - <?= esc($pk['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($pk['fecha_inspeccion'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/kpi-plagas/edit/<?= $pk['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes KPI Agua Potable -->
+    <?php if (!empty($pendientesKpiAgua)): ?>
+    <?php foreach ($pendientesKpiAgua as $pk): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> KPI Agua Potable - <?= esc($pk['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($pk['fecha_inspeccion'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a href="/inspecciones/kpi-agua-potable/edit/<?= $pk['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
             </div>
@@ -686,6 +878,46 @@
             <div><strong>Limpieza y Des.</strong></div>
             <div class="count">(<?= $totalProgLimp ?>)</div>
         </a>
+        <a href="/inspecciones/residuos-solidos" class="card-tipo">
+            <i class="fas fa-recycle"></i>
+            <div><strong>Residuos Sólidos</strong></div>
+            <div class="count">(<?= $totalProgRes ?>)</div>
+        </a>
+        <a href="/inspecciones/control-plagas" class="card-tipo">
+            <i class="fas fa-bug"></i>
+            <div><strong>Control Plagas</strong></div>
+            <div class="count">(<?= $totalProgPlag ?>)</div>
+        </a>
+        <a href="/inspecciones/agua-potable" class="card-tipo">
+            <i class="fas fa-tint"></i>
+            <div><strong>Agua Potable</strong></div>
+            <div class="count">(<?= $totalProgAgua ?>)</div>
+        </a>
+        <a href="/inspecciones/plan-saneamiento" class="card-tipo">
+            <i class="fas fa-shield-alt"></i>
+            <div><strong>Plan Saneamiento</strong></div>
+            <div class="count">(<?= $totalPlanSan ?>)</div>
+        </a>
+        <a href="/inspecciones/kpi-limpieza" class="card-tipo">
+            <i class="fas fa-chart-line"></i>
+            <div><strong>KPI Limpieza</strong></div>
+            <div class="count">(<?= $totalKpiLimp ?>)</div>
+        </a>
+        <a href="/inspecciones/kpi-residuos" class="card-tipo">
+            <i class="fas fa-chart-bar"></i>
+            <div><strong>KPI Residuos</strong></div>
+            <div class="count">(<?= $totalKpiRes ?>)</div>
+        </a>
+        <a href="/inspecciones/kpi-plagas" class="card-tipo">
+            <i class="fas fa-chart-pie"></i>
+            <div><strong>KPI Plagas</strong></div>
+            <div class="count">(<?= $totalKpiPlag ?>)</div>
+        </a>
+        <a href="/inspecciones/kpi-agua-potable" class="card-tipo">
+            <i class="fas fa-chart-area"></i>
+            <div><strong>KPI Agua Potable</strong></div>
+            <div class="count">(<?= $totalKpiAgua ?>)</div>
+        </a>
         <a href="/inspecciones/carta-vigia" class="card-tipo">
             <i class="fas fa-user-shield"></i>
             <div><strong>Carta Vigia</strong></div>
@@ -700,6 +932,11 @@
             <i class="fas fa-tasks"></i>
             <div><strong>Pendientes</strong></div>
             <div class="count">(<?= $totalPendientesAbiertos ?> abiertas)</div>
+        </a>
+        <a href="/inspecciones/urls" class="card-tipo">
+            <i class="fas fa-link"></i>
+            <div><strong>Accesos Rápidos</strong></div>
+            <div class="count">URLs</div>
         </a>
     </div>
 </div>

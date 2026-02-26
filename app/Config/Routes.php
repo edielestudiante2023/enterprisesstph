@@ -462,6 +462,36 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
     $routes->get('simulacro/(:num)', 'ClientInspeccionesController::viewSimulacro/$1');
     $routes->get('limpieza-desinfeccion', 'ClientInspeccionesController::listLimpieza');
     $routes->get('limpieza-desinfeccion/(:num)', 'ClientInspeccionesController::viewLimpieza/$1');
+    $routes->get('dotacion-vigilante', 'ClientInspeccionesController::listDotacionVigilante');
+    $routes->get('dotacion-vigilante/(:num)', 'ClientInspeccionesController::viewDotacionVigilante/$1');
+    $routes->get('dotacion-aseadora', 'ClientInspeccionesController::listDotacionAseadora');
+    $routes->get('dotacion-aseadora/(:num)', 'ClientInspeccionesController::viewDotacionAseadora/$1');
+    $routes->get('dotacion-todero', 'ClientInspeccionesController::listDotacionTodero');
+    $routes->get('dotacion-todero/(:num)', 'ClientInspeccionesController::viewDotacionTodero/$1');
+    $routes->get('auditoria-zona-residuos', 'ClientInspeccionesController::listAuditoriaResiduos');
+    $routes->get('auditoria-zona-residuos/(:num)', 'ClientInspeccionesController::viewAuditoriaResiduos/$1');
+    $routes->get('asistencia-induccion', 'ClientInspeccionesController::listAsistenciaInduccion');
+    $routes->get('asistencia-induccion/(:num)', 'ClientInspeccionesController::viewAsistenciaInduccion/$1');
+    $routes->get('reporte-capacitacion', 'ClientInspeccionesController::listReporteCapacitacion');
+    $routes->get('reporte-capacitacion/(:num)', 'ClientInspeccionesController::viewReporteCapacitacion/$1');
+    $routes->get('preparacion-simulacro', 'ClientInspeccionesController::listPreparacionSimulacro');
+    $routes->get('preparacion-simulacro/(:num)', 'ClientInspeccionesController::viewPreparacionSimulacro/$1');
+    $routes->get('residuos-solidos', 'ClientInspeccionesController::listResiduos');
+    $routes->get('residuos-solidos/(:num)', 'ClientInspeccionesController::viewResiduos/$1');
+    $routes->get('control-plagas', 'ClientInspeccionesController::listPlagas');
+    $routes->get('control-plagas/(:num)', 'ClientInspeccionesController::viewPlagas/$1');
+    $routes->get('agua-potable', 'ClientInspeccionesController::listAguaPotable');
+    $routes->get('agua-potable/(:num)', 'ClientInspeccionesController::viewAguaPotable/$1');
+    $routes->get('plan-saneamiento', 'ClientInspeccionesController::listSaneamiento');
+    $routes->get('plan-saneamiento/(:num)', 'ClientInspeccionesController::viewSaneamiento/$1');
+    $routes->get('kpi-limpieza', 'ClientInspeccionesController::listKpiLimpieza');
+    $routes->get('kpi-limpieza/(:num)', 'ClientInspeccionesController::viewKpiLimpieza/$1');
+    $routes->get('kpi-residuos', 'ClientInspeccionesController::listKpiResiduos');
+    $routes->get('kpi-residuos/(:num)', 'ClientInspeccionesController::viewKpiResiduos/$1');
+    $routes->get('kpi-plagas', 'ClientInspeccionesController::listKpiPlagas');
+    $routes->get('kpi-plagas/(:num)', 'ClientInspeccionesController::viewKpiPlagas/$1');
+    $routes->get('kpi-agua-potable', 'ClientInspeccionesController::listKpiAguaPotable');
+    $routes->get('kpi-agua-potable/(:num)', 'ClientInspeccionesController::viewKpiAguaPotable/$1');
 });
 
 $routes->get('/detailreportlist', 'DetailReportController::detailReportList');
@@ -1070,6 +1100,110 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('limpieza-desinfeccion/pdf/(:num)', 'ProgramaLimpiezaController::generatePdf/$1');
     $routes->post('limpieza-desinfeccion/finalizar/(:num)', 'ProgramaLimpiezaController::finalizar/$1');
     $routes->get('limpieza-desinfeccion/delete/(:num)', 'ProgramaLimpiezaController::delete/$1');
+
+    // Programa Manejo Integral de Residuos Sólidos
+    $routes->get('residuos-solidos', 'ProgramaResiduosController::list');
+    $routes->get('residuos-solidos/create', 'ProgramaResiduosController::create');
+    $routes->get('residuos-solidos/create/(:num)', 'ProgramaResiduosController::create/$1');
+    $routes->post('residuos-solidos/store', 'ProgramaResiduosController::store');
+    $routes->get('residuos-solidos/edit/(:num)', 'ProgramaResiduosController::edit/$1');
+    $routes->post('residuos-solidos/update/(:num)', 'ProgramaResiduosController::update/$1');
+    $routes->get('residuos-solidos/view/(:num)', 'ProgramaResiduosController::view/$1');
+    $routes->get('residuos-solidos/pdf/(:num)', 'ProgramaResiduosController::generatePdf/$1');
+    $routes->post('residuos-solidos/finalizar/(:num)', 'ProgramaResiduosController::finalizar/$1');
+    $routes->get('residuos-solidos/delete/(:num)', 'ProgramaResiduosController::delete/$1');
+
+    // Control Integrado de Plagas
+    $routes->get('control-plagas', 'ProgramaPlagasController::list');
+    $routes->get('control-plagas/create', 'ProgramaPlagasController::create');
+    $routes->get('control-plagas/create/(:num)', 'ProgramaPlagasController::create/$1');
+    $routes->post('control-plagas/store', 'ProgramaPlagasController::store');
+    $routes->get('control-plagas/edit/(:num)', 'ProgramaPlagasController::edit/$1');
+    $routes->post('control-plagas/update/(:num)', 'ProgramaPlagasController::update/$1');
+    $routes->get('control-plagas/view/(:num)', 'ProgramaPlagasController::view/$1');
+    $routes->get('control-plagas/pdf/(:num)', 'ProgramaPlagasController::generatePdf/$1');
+    $routes->post('control-plagas/finalizar/(:num)', 'ProgramaPlagasController::finalizar/$1');
+    $routes->get('control-plagas/delete/(:num)', 'ProgramaPlagasController::delete/$1');
+
+    // Abastecimiento y Control de Agua Potable
+    $routes->get('agua-potable', 'ProgramaAguaPotableController::list');
+    $routes->get('agua-potable/create', 'ProgramaAguaPotableController::create');
+    $routes->get('agua-potable/create/(:num)', 'ProgramaAguaPotableController::create/$1');
+    $routes->post('agua-potable/store', 'ProgramaAguaPotableController::store');
+    $routes->get('agua-potable/edit/(:num)', 'ProgramaAguaPotableController::edit/$1');
+    $routes->post('agua-potable/update/(:num)', 'ProgramaAguaPotableController::update/$1');
+    $routes->get('agua-potable/view/(:num)', 'ProgramaAguaPotableController::view/$1');
+    $routes->get('agua-potable/pdf/(:num)', 'ProgramaAguaPotableController::generatePdf/$1');
+    $routes->post('agua-potable/finalizar/(:num)', 'ProgramaAguaPotableController::finalizar/$1');
+    $routes->get('agua-potable/delete/(:num)', 'ProgramaAguaPotableController::delete/$1');
+
+    // Plan de Saneamiento Básico
+    $routes->get('plan-saneamiento', 'PlanSaneamientoController::list');
+    $routes->get('plan-saneamiento/create', 'PlanSaneamientoController::create');
+    $routes->get('plan-saneamiento/create/(:num)', 'PlanSaneamientoController::create/$1');
+    $routes->post('plan-saneamiento/store', 'PlanSaneamientoController::store');
+    $routes->get('plan-saneamiento/edit/(:num)', 'PlanSaneamientoController::edit/$1');
+    $routes->post('plan-saneamiento/update/(:num)', 'PlanSaneamientoController::update/$1');
+    $routes->get('plan-saneamiento/view/(:num)', 'PlanSaneamientoController::view/$1');
+    $routes->get('plan-saneamiento/pdf/(:num)', 'PlanSaneamientoController::generatePdf/$1');
+    $routes->post('plan-saneamiento/finalizar/(:num)', 'PlanSaneamientoController::finalizar/$1');
+    $routes->get('plan-saneamiento/delete/(:num)', 'PlanSaneamientoController::delete/$1');
+
+    // KPI Programa de Limpieza y Desinfección
+    $routes->get('kpi-limpieza', 'KpiLimpiezaController::list');
+    $routes->get('kpi-limpieza/create', 'KpiLimpiezaController::create');
+    $routes->get('kpi-limpieza/create/(:num)', 'KpiLimpiezaController::create/$1');
+    $routes->post('kpi-limpieza/store', 'KpiLimpiezaController::store');
+    $routes->get('kpi-limpieza/edit/(:num)', 'KpiLimpiezaController::edit/$1');
+    $routes->post('kpi-limpieza/update/(:num)', 'KpiLimpiezaController::update/$1');
+    $routes->get('kpi-limpieza/view/(:num)', 'KpiLimpiezaController::view/$1');
+    $routes->get('kpi-limpieza/pdf/(:num)', 'KpiLimpiezaController::generatePdf/$1');
+    $routes->post('kpi-limpieza/finalizar/(:num)', 'KpiLimpiezaController::finalizar/$1');
+    $routes->get('kpi-limpieza/delete/(:num)', 'KpiLimpiezaController::delete/$1');
+
+    // KPI Programa de Manejo Integral de Residuos Sólidos
+    $routes->get('kpi-residuos', 'KpiResiduosController::list');
+    $routes->get('kpi-residuos/create', 'KpiResiduosController::create');
+    $routes->get('kpi-residuos/create/(:num)', 'KpiResiduosController::create/$1');
+    $routes->post('kpi-residuos/store', 'KpiResiduosController::store');
+    $routes->get('kpi-residuos/edit/(:num)', 'KpiResiduosController::edit/$1');
+    $routes->post('kpi-residuos/update/(:num)', 'KpiResiduosController::update/$1');
+    $routes->get('kpi-residuos/view/(:num)', 'KpiResiduosController::view/$1');
+    $routes->get('kpi-residuos/pdf/(:num)', 'KpiResiduosController::generatePdf/$1');
+    $routes->post('kpi-residuos/finalizar/(:num)', 'KpiResiduosController::finalizar/$1');
+    $routes->get('kpi-residuos/delete/(:num)', 'KpiResiduosController::delete/$1');
+
+    // KPI Programa de Control Integrado de Plagas
+    $routes->get('kpi-plagas', 'KpiPlagasController::list');
+    $routes->get('kpi-plagas/create', 'KpiPlagasController::create');
+    $routes->get('kpi-plagas/create/(:num)', 'KpiPlagasController::create/$1');
+    $routes->post('kpi-plagas/store', 'KpiPlagasController::store');
+    $routes->get('kpi-plagas/edit/(:num)', 'KpiPlagasController::edit/$1');
+    $routes->post('kpi-plagas/update/(:num)', 'KpiPlagasController::update/$1');
+    $routes->get('kpi-plagas/view/(:num)', 'KpiPlagasController::view/$1');
+    $routes->get('kpi-plagas/pdf/(:num)', 'KpiPlagasController::generatePdf/$1');
+    $routes->post('kpi-plagas/finalizar/(:num)', 'KpiPlagasController::finalizar/$1');
+    $routes->get('kpi-plagas/delete/(:num)', 'KpiPlagasController::delete/$1');
+
+    // KPI Programa de Abastecimiento y Control de Agua Potable
+    $routes->get('kpi-agua-potable', 'KpiAguaPotableController::list');
+    $routes->get('kpi-agua-potable/create', 'KpiAguaPotableController::create');
+    $routes->get('kpi-agua-potable/create/(:num)', 'KpiAguaPotableController::create/$1');
+    $routes->post('kpi-agua-potable/store', 'KpiAguaPotableController::store');
+    $routes->get('kpi-agua-potable/edit/(:num)', 'KpiAguaPotableController::edit/$1');
+    $routes->post('kpi-agua-potable/update/(:num)', 'KpiAguaPotableController::update/$1');
+    $routes->get('kpi-agua-potable/view/(:num)', 'KpiAguaPotableController::view/$1');
+    $routes->get('kpi-agua-potable/pdf/(:num)', 'KpiAguaPotableController::generatePdf/$1');
+    $routes->post('kpi-agua-potable/finalizar/(:num)', 'KpiAguaPotableController::finalizar/$1');
+    $routes->get('kpi-agua-potable/delete/(:num)', 'KpiAguaPotableController::delete/$1');
+
+    // Accesos Rápidos (URLs)
+    $routes->get('urls', 'UrlsPwaController::list');
+    $routes->get('urls/create', 'UrlsPwaController::create');
+    $routes->post('urls/store', 'UrlsPwaController::store');
+    $routes->get('urls/edit/(:num)', 'UrlsPwaController::edit/$1');
+    $routes->post('urls/update/(:num)', 'UrlsPwaController::update/$1');
+    $routes->get('urls/delete/(:num)', 'UrlsPwaController::delete/$1');
 
     // API endpoints AJAX
     $routes->get('api/clientes', 'InspeccionesController::getClientes');

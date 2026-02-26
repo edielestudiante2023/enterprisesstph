@@ -13,19 +13,18 @@
 
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/limpieza-desinfeccion/update/' . $inspeccion['id'] : '/inspecciones/limpieza-desinfeccion/store';
-$storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_new';
+$action = $isEdit ? '/inspecciones/plan-saneamiento/update/' . $inspeccion['id'] : '/inspecciones/plan-saneamiento/store';
+$storageKey = $isEdit ? 'saneamiento_draft_' . $inspeccion['id'] : 'saneamiento_draft_new';
 ?>
 
 <h5 class="mb-3">
-    <i class="fas fa-broom me-2"></i>
-    <?= $isEdit ? 'Editar' : 'Nuevo' ?> Programa Limpieza y Desinfección
+    <i class="fas fa-shield-alt me-2"></i>
+    <?= $isEdit ? 'Editar' : 'Nuevo' ?> Plan de Saneamiento Básico
 </h5>
 
-<form id="limpiezaForm" action="<?= $action ?>" method="post">
+<form id="saneamientoForm" action="<?= $action ?>" method="post">
     <?= csrf_field() ?>
 
-    <!-- DATOS GENERALES -->
     <div class="card mb-3">
         <div class="card-header" style="background: #1c2437; color: white;">
             <i class="fas fa-info-circle me-1"></i> Datos Generales
@@ -38,7 +37,7 @@ $storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_
                 </select>
             </div>
             <div class="mb-3">
-                <label class="form-label fw-bold">Fecha del Programa <span class="text-danger">*</span></label>
+                <label class="form-label fw-bold">Fecha del Plan <span class="text-danger">*</span></label>
                 <input type="date" name="fecha_programa" class="form-control"
                        value="<?= esc($inspeccion['fecha_programa'] ?? date('Y-m-d')) ?>" required>
             </div>
@@ -46,23 +45,21 @@ $storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_
                 <label class="form-label fw-bold">Nombre del Responsable</label>
                 <input type="text" name="nombre_responsable" class="form-control"
                        value="<?= esc($inspeccion['nombre_responsable'] ?? '') ?>"
-                       placeholder="Nombre del responsable de la inspección">
+                       placeholder="Nombre del responsable">
             </div>
         </div>
     </div>
 
-    <!-- Info del documento -->
     <div class="card mb-3">
         <div class="card-body">
             <p class="text-muted mb-0" style="font-size: 13px;">
                 <i class="fas fa-info-circle me-1"></i>
-                Al finalizar se generará automáticamente el documento <strong>FT-SST-225</strong> (Programa de Limpieza y Desinfección)
-                con el texto legal completo y el nombre del cliente seleccionado.
+                Al finalizar se generará automáticamente el documento <strong>FT-SST-219</strong> (Plan de Saneamiento Básico)
+                que consolida los indicadores de los 4 programas: Limpieza, Residuos, Plagas y Agua Potable.
             </p>
         </div>
     </div>
 
-    <!-- Botones -->
     <div class="d-grid gap-2 mb-4">
         <button type="submit" class="btn btn-pwa btn-pwa-outline">
             <i class="fas fa-save me-2"></i>Guardar borrador
@@ -78,7 +75,6 @@ $storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_
 </form>
 
 <script>
-// Cargar clientes via AJAX + Select2
 var preselectedClient = '<?= esc($idCliente ?? '') ?>';
 $.ajax({
     url: '/inspecciones/api/clientes',
@@ -93,7 +89,6 @@ $.ajax({
             sel.appendChild(opt);
         });
         $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
-        // Restaurar cliente pendiente del localStorage
         if (window._pendingClientRestore) {
             $('#selectCliente').val(window._pendingClientRestore).trigger('change');
             window._pendingClientRestore = null;
@@ -101,16 +96,12 @@ $.ajax({
     }
 });
 
-// Confirmar antes de finalizar
 document.querySelector('.btn-finalizar').addEventListener('click', function(e) {
     e.preventDefault();
-    var form = document.getElementById('limpiezaForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
+    var form = document.getElementById('saneamientoForm');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
     Swal.fire({
-        title: 'Finalizar programa?',
+        title: 'Finalizar plan?',
         text: 'Se generará el PDF y no podrá editarse más.',
         icon: 'question',
         showCancelButton: true,
@@ -120,18 +111,14 @@ document.querySelector('.btn-finalizar').addEventListener('click', function(e) {
     }).then(result => {
         if (result.isConfirmed) {
             var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'finalizar';
-            input.value = '1';
+            input.type = 'hidden'; input.name = 'finalizar'; input.value = '1';
             form.appendChild(input);
             form.submit();
         }
     });
 });
 
-// ── Autoguardado localStorage ──
 var STORAGE_KEY = '<?= $storageKey ?>';
-
 function collectFormData() {
     return {
         id_cliente: document.querySelector('[name="id_cliente"]').value,
@@ -140,29 +127,22 @@ function collectFormData() {
         timestamp: Date.now()
     };
 }
-
 function saveToLocal() {
     var data = collectFormData();
     if (!data.id_cliente && !data.nombre_responsable) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    var hora = new Date().toLocaleTimeString();
-    document.getElementById('autoguardadoHora').textContent = hora;
+    document.getElementById('autoguardadoHora').textContent = new Date().toLocaleTimeString();
     document.getElementById('autoguardadoIndicador').style.display = '';
 }
-
 function restoreFromLocal() {
     var saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
     try {
         var data = JSON.parse(saved);
-        // Expirar si tiene más de 24h
-        if (Date.now() - data.timestamp > 24 * 60 * 60 * 1000) {
-            localStorage.removeItem(STORAGE_KEY);
-            return;
-        }
+        if (Date.now() - data.timestamp > 86400000) { localStorage.removeItem(STORAGE_KEY); return; }
         Swal.fire({
             title: 'Borrador encontrado',
-            text: 'Se encontró un borrador guardado. ¿Desea restaurar los datos?',
+            text: '¿Desea restaurar los datos?',
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#bd9751',
@@ -173,30 +153,17 @@ function restoreFromLocal() {
                 if (data.fecha_programa) document.querySelector('[name="fecha_programa"]').value = data.fecha_programa;
                 if (data.nombre_responsable) document.querySelector('[name="nombre_responsable"]').value = data.nombre_responsable;
                 if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
-            } else {
-                localStorage.removeItem(STORAGE_KEY);
-            }
+            } else { localStorage.removeItem(STORAGE_KEY); }
         });
-    } catch (e) {
-        localStorage.removeItem(STORAGE_KEY);
-    }
+    } catch (e) { localStorage.removeItem(STORAGE_KEY); }
 }
-
-// Solo restaurar en formulario nuevo (no edición)
-<?php if (!$isEdit): ?>
-restoreFromLocal();
-<?php endif; ?>
-
-// Guardado periódico + por cambio
+<?php if (!$isEdit): ?>restoreFromLocal();<?php endif; ?>
 setInterval(saveToLocal, 30000);
 var debounceTimer;
-document.getElementById('limpiezaForm').addEventListener('input', function() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(saveToLocal, 2000);
+document.getElementById('saneamientoForm').addEventListener('input', function() {
+    clearTimeout(debounceTimer); debounceTimer = setTimeout(saveToLocal, 2000);
 });
-
-// Limpiar al enviar
-document.getElementById('limpiezaForm').addEventListener('submit', function() {
+document.getElementById('saneamientoForm').addEventListener('submit', function() {
     localStorage.removeItem(STORAGE_KEY);
 });
 </script>
