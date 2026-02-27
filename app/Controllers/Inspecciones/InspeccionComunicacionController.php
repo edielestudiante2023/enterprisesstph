@@ -104,11 +104,6 @@ class InspeccionComunicacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/comunicaciones')->with('error', 'Inspeccion no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/comunicaciones/view/' . $id);
-        }
-
         $data = [
             'title'      => 'Editar Inspeccion de Comunicaciones',
             'inspeccion' => $inspeccion,
@@ -125,7 +120,7 @@ class InspeccionComunicacionController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/comunicaciones')->with('error', 'No se puede editar');
         }
 
@@ -225,10 +220,6 @@ class InspeccionComunicacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/comunicaciones')->with('error', 'No encontrada');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/comunicaciones')->with('error', 'No se puede eliminar una inspeccion completa');
-        }
-
         // Eliminar fotos
         foreach (['foto_1', 'foto_2'] as $campo) {
             if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {

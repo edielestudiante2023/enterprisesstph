@@ -116,11 +116,6 @@ class DotacionToderoController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/dotacion-todero')->with('error', 'Inspeccion no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/dotacion-todero/view/' . $id);
-        }
-
         $data = [
             'title'      => 'Editar Dotacion Todero',
             'inspeccion' => $inspeccion,
@@ -138,7 +133,7 @@ class DotacionToderoController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/dotacion-todero')->with('error', 'No se puede editar');
         }
 
@@ -238,10 +233,6 @@ class DotacionToderoController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/dotacion-todero')->with('error', 'No encontrada');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/dotacion-todero')->with('error', 'No se puede eliminar una inspeccion completa');
-        }
-
         foreach (['foto_cuerpo_completo', 'foto_cuarto_almacenamiento'] as $campo) {
             if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
                 unlink(FCPATH . $inspeccion[$campo]);

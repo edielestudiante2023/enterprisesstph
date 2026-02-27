@@ -148,10 +148,13 @@
                         <button type="button" class="btn btn-sm btn-outline-warning btn-action btn-reenviar" data-id="<?= $c['id'] ?>">
                             <i class="fas fa-paper-plane"></i> Reenviar
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger btn-action btn-eliminar" data-id="<?= $c['id'] ?>" data-nombre="<?= esc($c['nombre_vigia']) ?>">
-                            <i class="fas fa-trash"></i>
-                        </button>
                     <?php endif; ?>
+                    <a href="/inspecciones/carta-vigia/edit/<?= $c['id'] ?>" class="btn btn-sm btn-outline-dark btn-action">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-action btn-eliminar" data-id="<?= $c['id'] ?>" data-nombre="<?= esc($c['nombre_vigia']) ?>">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             </div>
         </div>

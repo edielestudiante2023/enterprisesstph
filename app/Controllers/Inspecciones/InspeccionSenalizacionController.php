@@ -162,11 +162,6 @@ class InspeccionSenalizacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/senalizacion')->with('error', 'Inspección no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/senalizacion/view/' . $id);
-        }
-
         $data = [
             'title'        => 'Editar Inspección de Señalización',
             'inspeccion'   => $inspeccion,
@@ -183,7 +178,7 @@ class InspeccionSenalizacionController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/senalizacion')->with('error', 'No se puede editar');
         }
 
@@ -277,10 +272,6 @@ class InspeccionSenalizacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/senalizacion')->with('error', 'No encontrada');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/senalizacion')->with('error', 'No se puede eliminar una inspección completa');
-        }
-
         // Eliminar fotos de ítems
         $items = $this->itemModel->getByInspeccion($id);
         foreach ($items as $item) {

@@ -125,11 +125,6 @@ class PreparacionSimulacroController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/preparacion-simulacro')->with('error', 'Inspeccion no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/preparacion-simulacro/view/' . $id);
-        }
-
         $data = [
             'title'              => 'Editar Preparacion Simulacro',
             'inspeccion'         => $inspeccion,
@@ -149,7 +144,7 @@ class PreparacionSimulacroController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/preparacion-simulacro')->with('error', 'No se puede editar');
         }
 
@@ -251,10 +246,6 @@ class PreparacionSimulacroController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/preparacion-simulacro')->with('error', 'No encontrada');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/preparacion-simulacro')->with('error', 'No se puede eliminar una inspeccion completa');
-        }
-
         foreach (['imagen_1', 'imagen_2'] as $campo) {
             if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
                 unlink(FCPATH . $inspeccion[$campo]);

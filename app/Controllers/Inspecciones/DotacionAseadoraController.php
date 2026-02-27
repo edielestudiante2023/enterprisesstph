@@ -108,11 +108,6 @@ class DotacionAseadoraController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/dotacion-aseadora')->with('error', 'Inspeccion no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/dotacion-aseadora/view/' . $id);
-        }
-
         $data = [
             'title'      => 'Editar Dotacion Aseadora',
             'inspeccion' => $inspeccion,
@@ -130,7 +125,7 @@ class DotacionAseadoraController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/dotacion-aseadora')->with('error', 'No se puede editar');
         }
 
@@ -230,10 +225,6 @@ class DotacionAseadoraController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/dotacion-aseadora')->with('error', 'No encontrada');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/dotacion-aseadora')->with('error', 'No se puede eliminar una inspeccion completa');
-        }
-
         foreach (['foto_cuerpo_completo', 'foto_cuarto_almacenamiento'] as $campo) {
             if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
                 unlink(FCPATH . $inspeccion[$campo]);

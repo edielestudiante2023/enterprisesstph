@@ -42,14 +42,13 @@
                     </span>
                 </div>
                 <div class="mt-2 d-flex gap-1 flex-wrap">
-                    <?php if ($insp['estado'] === 'borrador'): ?>
                         <a href="/inspecciones/reporte-capacitacion/edit/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                             <i class="fas fa-edit"></i> Editar
                         </a>
                         <button type="button" class="btn btn-sm btn-outline-danger btn-delete-insp" data-id="<?= $insp['id'] ?>" data-nombre="<?= esc($insp['nombre_cliente'] ?? '') ?>">
                             <i class="fas fa-trash"></i>
                         </button>
-                    <?php else: ?>
+                    <?php if ($insp['estado'] === 'completo'): ?>
                         <a href="/inspecciones/reporte-capacitacion/view/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                             <i class="fas fa-eye"></i> Ver
                         </a>

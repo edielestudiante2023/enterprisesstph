@@ -341,11 +341,6 @@ class MatrizVulnerabilidadController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/matriz-vulnerabilidad')->with('error', 'Matriz no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/matriz-vulnerabilidad/view/' . $id);
-        }
-
         $data = [
             'title'      => 'Editar Matriz de Vulnerabilidad',
             'inspeccion' => $inspeccion,
@@ -362,7 +357,7 @@ class MatrizVulnerabilidadController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->matrizModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/matriz-vulnerabilidad')->with('error', 'No se puede editar');
         }
 
@@ -456,10 +451,6 @@ class MatrizVulnerabilidadController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/matriz-vulnerabilidad')->with('error', 'No encontrada');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/matriz-vulnerabilidad')->with('error', 'No se puede eliminar una matriz completa');
-        }
-
         if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
             unlink(FCPATH . $inspeccion['ruta_pdf']);
         }

@@ -63,14 +63,13 @@
                 </div>
             </div>
             <div class="mt-2 d-flex gap-2">
-                <?php if ($insp['estado'] === 'borrador'): ?>
                     <a href="/inspecciones/kpi-residuos/edit/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                         <i class="fas fa-edit"></i> Editar
                     </a>
                     <a href="#" class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $insp['id'] ?>">
                         <i class="fas fa-trash"></i>
                     </a>
-                <?php else: ?>
+                <?php if ($insp['estado'] === 'completo'): ?>
                     <a href="/inspecciones/kpi-residuos/view/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                         <i class="fas fa-eye"></i> Ver
                     </a>

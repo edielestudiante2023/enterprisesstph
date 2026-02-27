@@ -99,11 +99,6 @@ class AsistenciaInduccionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'Registro no encontrado');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/asistencia-induccion/view/' . $id);
-        }
-
         $asistenteModel = new AsistenciaInduccionAsistenteModel();
 
         $data = [
@@ -123,7 +118,7 @@ class AsistenciaInduccionController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No se puede editar');
         }
 
@@ -297,10 +292,6 @@ class AsistenciaInduccionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No encontrado');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No se puede eliminar una asistencia completa');
-        }
-
         // Delete attendee firmas
         $asistenteModel = new AsistenciaInduccionAsistenteModel();
         $asistentes = $asistenteModel->getByAsistencia($id);

@@ -135,11 +135,6 @@ class InspeccionRecursosSeguridadController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/recursos-seguridad')->with('error', 'Inspeccion no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/recursos-seguridad/view/' . $id);
-        }
-
         $data = [
             'title'      => 'Editar Inspeccion de Recursos de Seguridad',
             'inspeccion' => $inspeccion,
@@ -156,7 +151,7 @@ class InspeccionRecursosSeguridadController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/recursos-seguridad')->with('error', 'No se puede editar');
         }
 
@@ -259,10 +254,6 @@ class InspeccionRecursosSeguridadController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/recursos-seguridad')->with('error', 'No encontrada');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/recursos-seguridad')->with('error', 'No se puede eliminar una inspeccion completa');
-        }
-
         // Eliminar fotos por recurso
         foreach (self::RECURSOS as $key => $info) {
             if (!empty($info['tiene_foto'])) {

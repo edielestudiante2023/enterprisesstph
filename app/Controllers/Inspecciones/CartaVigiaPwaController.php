@@ -142,9 +142,9 @@ class CartaVigiaPwaController extends BaseController
     }
 
     /**
-     * Eliminar carta (solo sin_enviar o pendiente_firma)
+     * Editar carta
      */
-    public function delete($id)
+    public function edit($id)
     {
         $carta = $this->cartaModel->find($id);
         if (!$carta) {
@@ -152,9 +152,60 @@ class CartaVigiaPwaController extends BaseController
             return redirect()->to('/inspecciones/carta-vigia');
         }
 
-        if ($carta['estado_firma'] === 'firmado') {
-            session()->setFlashdata('error', 'No se puede eliminar una carta ya firmada');
-            return redirect()->to('/inspecciones/carta-vigia/cliente/' . $carta['id_cliente']);
+        $data = [
+            'title'     => 'Editar Carta Vigia',
+            'idCliente' => $carta['id_cliente'],
+            'cliente'   => $this->clientModel->find($carta['id_cliente']),
+            'carta'     => $carta,
+        ];
+
+        return view('inspecciones/layout_pwa', [
+            'content' => view('inspecciones/carta_vigia/form', $data),
+            'title'   => 'Editar Carta Vigia',
+        ]);
+    }
+
+    /**
+     * Actualizar carta
+     */
+    public function update($id)
+    {
+        $carta = $this->cartaModel->find($id);
+        if (!$carta) {
+            session()->setFlashdata('error', 'No encontrada');
+            return redirect()->to('/inspecciones/carta-vigia');
+        }
+
+        $nombre = trim($this->request->getPost('nombre_vigia') ?? '');
+        $documento = trim($this->request->getPost('documento_vigia') ?? '');
+        $email = trim($this->request->getPost('email_vigia') ?? '');
+        $telefono = trim($this->request->getPost('telefono_vigia') ?? '');
+
+        if (!$nombre || !$documento || !$email) {
+            session()->setFlashdata('error', 'Faltan campos obligatorios');
+            return redirect()->back();
+        }
+
+        $this->cartaModel->update($id, [
+            'nombre_vigia'    => $nombre,
+            'documento_vigia' => $documento,
+            'email_vigia'     => $email,
+            'telefono_vigia'  => $telefono,
+        ]);
+
+        session()->setFlashdata('msg', 'Carta actualizada');
+        return redirect()->to('/inspecciones/carta-vigia/cliente/' . $carta['id_cliente']);
+    }
+
+    /**
+     * Eliminar carta
+     */
+    public function delete($id)
+    {
+        $carta = $this->cartaModel->find($id);
+        if (!$carta) {
+            session()->setFlashdata('error', 'No encontrada');
+            return redirect()->to('/inspecciones/carta-vigia');
         }
 
         // Eliminar PDF del disco

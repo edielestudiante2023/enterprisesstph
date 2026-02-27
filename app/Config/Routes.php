@@ -1095,6 +1095,8 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('carta-vigia/cliente/(:num)', 'CartaVigiaPwaController::list/$1');
     $routes->get('carta-vigia/create/(:num)', 'CartaVigiaPwaController::create/$1');
     $routes->post('carta-vigia/store', 'CartaVigiaPwaController::store');
+    $routes->get('carta-vigia/edit/(:num)', 'CartaVigiaPwaController::edit/$1');
+    $routes->post('carta-vigia/update/(:num)', 'CartaVigiaPwaController::update/$1');
     $routes->get('carta-vigia/delete/(:num)', 'CartaVigiaPwaController::delete/$1');
     $routes->post('carta-vigia/reenviar/(:num)', 'CartaVigiaPwaController::reenviar/$1');
     $routes->get('carta-vigia/pdf/(:num)', 'CartaVigiaPwaController::verPdf/$1');

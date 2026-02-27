@@ -147,11 +147,6 @@ class InspeccionBotiquinController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/botiquin')->with('error', 'Inspeccion no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/botiquin/view/' . $id);
-        }
-
         // Indexar elementos por clave para restaurar en el form
         $elementosRaw = $this->elementoModel->getByInspeccion($id);
         $elementosData = [];
@@ -176,7 +171,7 @@ class InspeccionBotiquinController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/botiquin')->with('error', 'No se puede editar');
         }
 
@@ -291,10 +286,6 @@ class InspeccionBotiquinController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/botiquin')->with('error', 'No encontrada');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/botiquin')->with('error', 'No se puede eliminar una inspeccion completa');
-        }
-
         // Eliminar fotos
         $campos_foto = ['foto_1', 'foto_2', 'foto_tabla_espinal', 'foto_collares', 'foto_inmovilizadores'];
         foreach ($campos_foto as $campo) {

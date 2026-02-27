@@ -85,11 +85,6 @@ class ProgramaLimpiezaController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/limpieza-desinfeccion')->with('error', 'Registro no encontrado.');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to("/inspecciones/limpieza-desinfeccion/view/{$id}");
-        }
-
         $clientModel = new ClientModel();
         $cliente = $clientModel->find($inspeccion['id_cliente']);
 
@@ -106,7 +101,7 @@ class ProgramaLimpiezaController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/limpieza-desinfeccion')->with('error', 'No se puede editar.');
         }
 
@@ -189,11 +184,6 @@ class ProgramaLimpiezaController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/limpieza-desinfeccion')->with('error', 'Registro no encontrado.');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/limpieza-desinfeccion')->with('error', 'No se puede eliminar un programa finalizado.');
-        }
-
         // Borrar PDF si existe
         if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
             unlink(FCPATH . $inspeccion['ruta_pdf']);

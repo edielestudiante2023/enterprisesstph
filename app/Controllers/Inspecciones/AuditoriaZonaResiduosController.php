@@ -115,11 +115,6 @@ class AuditoriaZonaResiduosController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/auditoria-zona-residuos')->with('error', 'Inspeccion no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/auditoria-zona-residuos/view/' . $id);
-        }
-
         $data = [
             'title'       => 'Editar Auditoria Zona Residuos',
             'inspeccion'  => $inspeccion,
@@ -137,7 +132,7 @@ class AuditoriaZonaResiduosController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/auditoria-zona-residuos')->with('error', 'No se puede editar');
         }
 
@@ -239,10 +234,6 @@ class AuditoriaZonaResiduosController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/auditoria-zona-residuos')->with('error', 'No encontrada');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/auditoria-zona-residuos')->with('error', 'No se puede eliminar una inspeccion completa');
-        }
-
         // Delete all 12 item photos
         foreach (self::ITEMS_ZONA as $key => $info) {
             $campo = 'foto_' . $key;

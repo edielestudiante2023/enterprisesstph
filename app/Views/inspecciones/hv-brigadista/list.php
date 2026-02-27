@@ -60,10 +60,11 @@
                                 <i class="fas fa-check"></i> Finalizar
                             </button>
                         </form>
+                    <?php endif; ?>
+
                         <button type="button" class="btn btn-sm btn-outline-danger btn-delete-hv" data-id="<?= $hv['id'] ?>" data-nombre="<?= esc($hv['nombre_completo'] ?? '') ?>">
                             <i class="fas fa-trash"></i>
                         </button>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>

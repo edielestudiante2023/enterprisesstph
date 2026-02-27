@@ -116,11 +116,6 @@ class InspeccionLocativaController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/inspeccion-locativa')->with('error', 'Inspección no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/inspeccion-locativa/view/' . $id);
-        }
-
         $data = [
             'title'      => 'Editar Inspección Locativa',
             'inspeccion'  => $inspeccion,
@@ -140,7 +135,7 @@ class InspeccionLocativaController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/inspeccion-locativa')->with('error', 'No se puede editar esta inspección');
         }
 
@@ -255,11 +250,6 @@ class InspeccionLocativaController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/inspeccion-locativa')->with('error', 'Inspección no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/inspeccion-locativa')->with('error', 'No se puede eliminar una inspección completa');
-        }
-
         // Eliminar fotos de hallazgos del disco
         $hallazgos = $this->hallazgoModel->getByInspeccion($id);
         foreach ($hallazgos as $h) {

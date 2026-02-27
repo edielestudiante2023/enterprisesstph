@@ -142,10 +142,6 @@ class PlanEmergenciaController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'Plan no encontrado');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/plan-emergencia/view/' . $id);
-        }
-
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/plan-emergencia/form', [
                 'title'         => 'Editar Plan de Emergencia',
@@ -161,7 +157,7 @@ class PlanEmergenciaController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->model->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'No se puede editar');
         }
 
@@ -267,10 +263,6 @@ class PlanEmergenciaController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'No encontrado');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'No se puede eliminar un plan completo');
-        }
-
         // Eliminar fotos
         foreach (self::FOTO_FIELDS as $campo) {
             if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {

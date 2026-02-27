@@ -67,10 +67,11 @@
                                 <i class="fas fa-check"></i> Finalizar
                             </button>
                         </form>
+                    <?php endif; ?>
+
                         <button type="button" class="btn btn-sm btn-outline-danger btn-delete-ev" data-id="<?= $ev['id'] ?>" data-nombre="<?= esc($ev['nombre_cliente'] ?? '') ?>">
                             <i class="fas fa-trash"></i>
                         </button>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>

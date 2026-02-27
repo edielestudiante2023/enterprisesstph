@@ -114,11 +114,6 @@ class InspeccionGabineteController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/gabinetes')->with('error', 'Inspeccion no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/gabinetes/view/' . $id);
-        }
-
         $data = [
             'title'      => 'Editar Inspeccion de Gabinetes',
             'inspeccion'  => $inspeccion,
@@ -136,7 +131,7 @@ class InspeccionGabineteController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/gabinetes')->with('error', 'No se puede editar');
         }
 
@@ -238,10 +233,6 @@ class InspeccionGabineteController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/gabinetes')->with('error', 'No encontrada');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/gabinetes')->with('error', 'No se puede eliminar una inspeccion completa');
-        }
-
         // Eliminar fotos de gabinetes individuales
         $gabinetes = $this->detalleModel->getByInspeccion($id);
         foreach ($gabinetes as $gab) {

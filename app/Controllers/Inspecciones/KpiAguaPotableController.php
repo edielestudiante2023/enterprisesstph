@@ -108,10 +108,6 @@ class KpiAguaPotableController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/' . static::ROUTE_SLUG)->with('error', 'No encontrado');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/' . static::ROUTE_SLUG . '/view/' . $id);
-        }
-
         return view('inspecciones/layout_pwa', [
             'content' => view(static::VIEW_DIR . '/form', [
                 'title'       => 'Editar ' . static::MODULE_LABEL,
@@ -127,7 +123,7 @@ class KpiAguaPotableController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->model->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/' . static::ROUTE_SLUG)->with('error', 'No se puede editar');
         }
 

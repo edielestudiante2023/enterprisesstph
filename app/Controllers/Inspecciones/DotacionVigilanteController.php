@@ -107,11 +107,6 @@ class DotacionVigilanteController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/dotacion-vigilante')->with('error', 'Inspeccion no encontrada');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/dotacion-vigilante/view/' . $id);
-        }
-
         $data = [
             'title'      => 'Editar Dotacion Vigilante',
             'inspeccion' => $inspeccion,
@@ -129,7 +124,7 @@ class DotacionVigilanteController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/dotacion-vigilante')->with('error', 'No se puede editar');
         }
 
@@ -229,10 +224,6 @@ class DotacionVigilanteController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/dotacion-vigilante')->with('error', 'No encontrada');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/dotacion-vigilante')->with('error', 'No se puede eliminar una inspeccion completa');
-        }
-
         foreach (['foto_cuerpo_completo', 'foto_cuarto_almacenamiento'] as $campo) {
             if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
                 unlink(FCPATH . $inspeccion[$campo]);

@@ -139,11 +139,6 @@ class ActaVisitaController extends BaseController
         if (!$acta) {
             return redirect()->to('/inspecciones/acta-visita')->with('error', 'Acta no encontrada');
         }
-
-        if ($acta['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/acta-visita/view/' . $id);
-        }
-
         $data = [
             'title'       => 'Editar Acta de Visita',
             'acta'        => $acta,
@@ -166,7 +161,7 @@ class ActaVisitaController extends BaseController
     public function update($id)
     {
         $acta = $this->actaModel->find($id);
-        if (!$acta || $acta['estado'] === 'completo') {
+        if (!$acta) {
             return redirect()->to('/inspecciones/acta-visita')->with('error', 'No se puede editar esta acta');
         }
 
@@ -233,11 +228,6 @@ class ActaVisitaController extends BaseController
         if (!$acta) {
             return redirect()->to('/inspecciones/acta-visita')->with('error', 'Acta no encontrada');
         }
-
-        if ($acta['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/acta-visita/view/' . $id);
-        }
-
         // Cambiar estado a pendiente_firma
         if ($acta['estado'] === 'borrador') {
             $this->actaModel->update($id, ['estado' => 'pendiente_firma']);
@@ -394,11 +384,6 @@ class ActaVisitaController extends BaseController
         if (!$acta) {
             return redirect()->to('/inspecciones/acta-visita')->with('error', 'Acta no encontrada');
         }
-
-        if ($acta['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/acta-visita')->with('error', 'No se puede eliminar un acta finalizada');
-        }
-
         // Eliminar fotos del disco
         $fotos = (new ActaVisitaFotoModel())->getByActa($id);
         foreach ($fotos as $foto) {

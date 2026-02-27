@@ -23,6 +23,12 @@ use CodeIgniter\HotReloader\HotReloader;
  *      Events::on('create', [$myInstance, 'myMethod']);
  */
 
+// Forzar zona horaria Colombia en la sesión MySQL (DigitalOcean usa UTC)
+Events::on('pre_controller', static function (): void {
+    $db = \Config\Database::connect();
+    $db->query("SET time_zone = '-05:00'");
+});
+
 Events::on('pre_system', static function (): void {
     if (ENVIRONMENT !== 'testing') {
         if (ini_get('zlib.output_compression')) {

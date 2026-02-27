@@ -56,14 +56,13 @@
                 </div>
 
                 <div class="mt-2 d-flex gap-2">
-                    <?php if ($insp['estado'] === 'borrador'): ?>
                         <a href="/inspecciones/senalizacion/edit/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                             <i class="fas fa-edit"></i> Editar
                         </a>
                         <button class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $insp['id'] ?>" data-cliente="<?= esc($insp['nombre_cliente'] ?? '') ?>">
                             <i class="fas fa-trash"></i>
                         </button>
-                    <?php else: ?>
+                    <?php if ($insp['estado'] === 'completo'): ?>
                         <a href="/inspecciones/senalizacion/view/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                             <i class="fas fa-eye"></i> Ver
                         </a>

@@ -45,14 +45,13 @@
                         </div>
                     </div>
                     <div class="mt-2 d-flex gap-2">
-                        <?php if ($insp['estado'] === 'borrador'): ?>
                             <a href="/inspecciones/inspeccion-locativa/edit/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
                             <a href="/inspecciones/inspeccion-locativa/delete/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $insp['id'] ?>">
                                 <i class="fas fa-trash"></i>
                             </a>
-                        <?php else: ?>
+                        <?php if ($insp['estado'] === 'completo'): ?>
                             <a href="/inspecciones/inspeccion-locativa/pdf/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-success" target="_blank">
                                 <i class="fas fa-file-pdf"></i> PDF
                             </a>

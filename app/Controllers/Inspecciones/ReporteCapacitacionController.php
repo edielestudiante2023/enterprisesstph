@@ -91,11 +91,6 @@ class ReporteCapacitacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/reporte-capacitacion')->with('error', 'Reporte no encontrado');
         }
-
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/reporte-capacitacion/view/' . $id);
-        }
-
         $data = [
             'title'      => 'Editar Reporte de Capacitacion',
             'inspeccion' => $inspeccion,
@@ -112,7 +107,7 @@ class ReporteCapacitacionController extends BaseController
     public function update($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if (!$inspeccion || $inspeccion['estado'] === 'completo') {
+        if (!$inspeccion) {
             return redirect()->to('/inspecciones/reporte-capacitacion')->with('error', 'No se puede editar');
         }
 
@@ -211,10 +206,6 @@ class ReporteCapacitacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/reporte-capacitacion')->with('error', 'No encontrado');
         }
-        if ($inspeccion['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/reporte-capacitacion')->with('error', 'No se puede eliminar un reporte completo');
-        }
-
         foreach (['foto_listado_asistencia', 'foto_capacitacion', 'foto_evaluacion', 'foto_otros_1', 'foto_otros_2'] as $campo) {
             if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
                 unlink(FCPATH . $inspeccion[$campo]);
