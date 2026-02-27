@@ -215,6 +215,11 @@ function sinoColor(string $val): string {
             <i class="fas fa-file-pdf"></i> Ver PDF
         </a>
         <?php endif; ?>
+    <?php if ($inspeccion['estado'] === 'completo'): ?>
+    <a href="/inspecciones/gabinetes/regenerar/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
+        <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
+    </a>
+    <?php endif; ?>
 
         <?php if ($inspeccion['estado'] !== 'completo'): ?>
         <a href="/inspecciones/gabinetes/edit/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">

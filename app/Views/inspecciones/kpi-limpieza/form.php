@@ -16,6 +16,7 @@
 <?php
 $isEdit = !empty($inspeccion);
 $action = $isEdit ? '/inspecciones/kpi-limpieza/update/' . $inspeccion['id'] : '/inspecciones/kpi-limpieza/store';
+$storageKey = $isEdit ? 'kpi_limpieza_draft_' . $inspeccion['id'] : 'kpi_limpieza_draft_new';
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -25,7 +26,7 @@ $action = $isEdit ? '/inspecciones/kpi-limpieza/update/' . $inspeccion['id'] : '
     </a>
 </div>
 
-<form method="post" action="<?= $action ?>" enctype="multipart/form-data">
+<form method="post" action="<?= $action ?>" enctype="multipart/form-data" id="kpiLimpiezaForm">
     <?= csrf_field() ?>
 
     <!-- Datos Generales -->
@@ -115,6 +116,10 @@ $action = $isEdit ? '/inspecciones/kpi-limpieza/update/' . $inspeccion['id'] : '
                 <?php endfor; ?>
             </div>
         </div>
+    </div>
+
+        <div id="autoguardadoIndicador" class="text-center text-muted mb-3" style="font-size: 12px; display: none;">
+        <i class="fas fa-save"></i> Guardado local: <span id="autoguardadoHora"></span>
     </div>
 
     <!-- Botones -->

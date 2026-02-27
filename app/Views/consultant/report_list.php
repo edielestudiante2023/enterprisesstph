@@ -296,12 +296,6 @@
       font-size: 16px;
     }
 
-    .card-year {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 10px;
-      min-height: 80px;
-    }
-
     .card-month {
       min-height: 70px;
     }
@@ -368,25 +362,32 @@
     <div class="mb-4">
       <h2 class="mb-3">Lista de Reportes</h2>
 
+      <!-- Selector de Año (server-side) -->
+      <div class="d-flex align-items-center gap-3 mb-3 p-3" style="background: white; border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
+        <div class="section-title mb-0" style="margin: 0; white-space: nowrap;">
+          <i class="fas fa-calendar-alt"></i> Año
+        </div>
+        <select id="yearSelector" class="form-select" style="max-width: 200px;">
+          <?php foreach ($availableYears as $year): ?>
+            <option value="<?= $year ?>" <?= ($selectedYear == $year) ? 'selected' : '' ?>><?= $year ?></option>
+          <?php endforeach; ?>
+          <option value="all" <?= ($selectedYear === 'all') ? 'selected' : '' ?>>Todos los años</option>
+        </select>
+        <span class="text-muted small">
+          <?php if ($selectedYear === 'all'): ?>
+            Mostrando todos los reportes (<?= count($reports) ?>)
+          <?php else: ?>
+            Mostrando <?= count($reports) ?> reportes de <?= $selectedYear ?>
+          <?php endif; ?>
+        </span>
+      </div>
+
       <!-- Mensaje informativo -->
       <div class="alert alert-info alert-dismissible fade show" role="alert">
         <i class="fas fa-info-circle"></i>
-        <strong>Filtros Dinámicos:</strong> Las tarjetas de año y mes son interactivas.
-        Haz clic sobre ellas para filtrar la tabla instantáneamente. Puedes combinar múltiples filtros.
+        <strong>Filtros:</strong> Usa el selector de año para cargar reportes de un período específico.
+        Las tarjetas de mes filtran dentro del año seleccionado.
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-
-      <!-- Sección de Filtros por Año -->
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="section-title mb-0">
-          <i class="fas fa-calendar-alt"></i> Filtrar por Año
-        </div>
-        <button type="button" id="btnClearCardFilters" class="btn btn-outline-secondary btn-sm">
-          <i class="fas fa-times"></i> Limpiar Filtros de Tarjetas
-        </button>
-      </div>
-      <div class="row mb-4 mt-2" id="yearCards">
-        <!-- Se generarán dinámicamente con JavaScript -->
       </div>
 
       <!-- Tarjetas mensuales (clickeables) -->
@@ -740,9 +741,14 @@
     }
 
     $(document).ready(function () {
-      // Variables globales para filtros activos
-      var activeYear = null;
+      // Variable global para filtro activo de mes
       var activeMonth = null;
+
+      // Cambio de año recarga la página con el parámetro year
+      $('#yearSelector').on('change', function() {
+        var year = $(this).val();
+        window.location.href = '<?= base_url('/reportList') ?>?year=' + year;
+      });
 
       const table = $('#reportTable').DataTable({
         language: {
@@ -753,9 +759,9 @@
           [20, 50, 100],
           [20, 50, 100]
         ],
-        // Ordenación por defecto por la columna ID (índice 3)
+        // Ordenación por defecto: más reciente primero (Fecha de Creación desc)
         order: [
-          [3, "desc"]
+          [1, "desc"]
         ],
         // Se deshabilita el ordenamiento en las columnas "Acciones" (índice 0) y "Enlace" (índice 2)
         columnDefs: [
@@ -866,46 +872,6 @@
         }
       });
 
-      // Generar tarjetas de años dinámicamente
-      function generateYearCards() {
-        if (!table) return;
-
-        var yearCounts = {};
-
-        // Contar reportes por año basado en created_at (columna 1)
-        table.rows({search: 'applied'}).every(function() {
-          var data = this.data();
-          var createdAt = data[1]; // Columna "Fecha de Creación"
-          if (createdAt) {
-            var parts = createdAt.split("-");
-            if (parts.length >= 1) {
-              var year = parts[0];
-              yearCounts[year] = (yearCounts[year] || 0) + 1;
-            }
-          }
-        });
-
-        var yearArray = Object.keys(yearCounts).sort().reverse();
-        var yearCardsHtml = '';
-
-        yearArray.forEach(function(year) {
-          var count = yearCounts[year];
-          yearCardsHtml += `
-            <div class="col-6 col-md-2">
-              <div class="card text-white card-year card-clickable" data-year="${year}">
-                <div class="card-body text-center p-3">
-                  <h4 class="card-title mb-1">${year}</h4>
-                  <p class="mb-0" style="font-size: 1.5rem; font-weight: bold;">${count}</p>
-                  <small style="font-size: 0.75rem;">reportes</small>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-
-        $('#yearCards').html(yearCardsHtml);
-      }
-
       // Actualizar contadores de meses
       function updateMonthlyCounts() {
         if (!table) return;
@@ -943,68 +909,34 @@
         $('#countDiciembre').text(monthlyCounts[12]);
       }
 
-      // Función para aplicar filtros combinados
-      function applyFilters() {
+      // Función para aplicar filtro de mes (client-side)
+      function applyMonthFilter() {
         if (!table) return;
 
-        $.fn.dataTable.ext.search.pop(); // Limpiar filtros personalizados previos
+        // Limpiar filtros personalizados previos de mes
+        $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(function(fn) {
+          return !fn._isMonthFilter;
+        });
 
-        $.fn.dataTable.ext.search.push(
-          function(settings, data, dataIndex) {
-            if (settings.nTable.id !== 'reportTable') {
-              return true;
-            }
-
-            var createdAt = data[1] || ''; // Columna 1: Fecha de Creación
-
-            // Filtro por año
-            if (activeYear) {
-              if (!createdAt.startsWith(activeYear)) {
-                return false;
+        if (activeMonth) {
+          var monthFilter = function(settings, data, dataIndex) {
+            if (settings.nTable.id !== 'reportTable') return true;
+            var createdAt = data[1] || '';
+            if (createdAt) {
+              var parts = createdAt.split("-");
+              if (parts.length >= 2) {
+                return parseInt(parts[1], 10) === parseInt(activeMonth);
               }
             }
-
-            // Filtro por mes
-            if (activeMonth) {
-              if (createdAt) {
-                var parts = createdAt.split("-");
-                if (parts.length >= 2) {
-                  var month = parseInt(parts[1], 10);
-                  if (month !== parseInt(activeMonth)) {
-                    return false;
-                  }
-                } else {
-                  return false;
-                }
-              } else {
-                return false;
-              }
-            }
-
-            return true;
-          }
-        );
-
-        table.draw();
-        generateYearCards();
-        updateMonthlyCounts();
-      }
-
-      // Click en tarjetas de año
-      $(document).on('click', '.card-year', function() {
-        var year = $(this).data('year');
-
-        if ($(this).hasClass('active')) {
-          $(this).removeClass('active');
-          activeYear = null;
-        } else {
-          $('.card-year').removeClass('active');
-          $(this).addClass('active');
-          activeYear = year;
+            return false;
+          };
+          monthFilter._isMonthFilter = true;
+          $.fn.dataTable.ext.search.push(monthFilter);
         }
 
-        applyFilters();
-      });
+        table.draw();
+        updateMonthlyCounts();
+      }
 
       // Click en tarjetas de mes
       $(document).on('click', '.card-month', function() {
@@ -1019,24 +951,7 @@
           activeMonth = month;
         }
 
-        applyFilters();
-      });
-
-      // Botón para limpiar todos los filtros de tarjetas
-      $('#btnClearCardFilters').on('click', function() {
-        activeYear = null;
-        activeMonth = null;
-
-        $('.card-year').removeClass('active');
-        $('.card-month').removeClass('active');
-
-        $.fn.dataTable.ext.search.pop();
-
-        if (table) {
-          table.draw();
-          generateYearCards();
-          updateMonthlyCounts();
-        }
+        applyMonthFilter();
       });
 
       // Actualizar contadores cuando la tabla se redibuja
@@ -1044,9 +959,8 @@
         updateMonthlyCounts();
       });
 
-      // Inicializar contadores y tarjetas de año
+      // Inicializar contadores de meses
       updateMonthlyCounts();
-      generateYearCards();
 
       // Evento para la fila expandible (row child details)
       $('#reportTable tbody').on('click', 'td .details-control', function () {
@@ -1103,7 +1017,6 @@
         // Actualizar contadores después del filtrado
         setTimeout(function() {
           updateMonthlyCounts();
-          generateYearCards();
         }, 100);
 
         // Guardar en localStorage para Quick Access (mapeo inverso nombre -> id)

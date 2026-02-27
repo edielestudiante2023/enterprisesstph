@@ -155,6 +155,25 @@ class EvaluacionSimulacroController extends BaseController
     /**
      * Genera el PDF con DOMPDF
      */
+        public function regenerarPdf($id)
+    {
+        $inspeccion = $this->evalModel->find($id);
+        if (!$inspeccion || ($inspeccion['estado'] ?? '') !== 'completo') {
+            return redirect()->to('/inspecciones/simulacro')->with('error', 'Solo se puede regenerar un registro finalizado.');
+        }
+
+        $pdfPath = $this->generarPdfInterno($id);
+
+        $this->evalModel->update($id, [
+            'ruta_pdf' => $pdfPath,
+        ]);
+
+        $inspeccion = $this->evalModel->find($id);
+        $this->uploadToReportes($inspeccion, $pdfPath);
+
+        return redirect()->to("/inspecciones/simulacro/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
+    }
+
     private function generarPdfInterno($id): ?string
     {
         $eval = $this->evalModel->find($id);

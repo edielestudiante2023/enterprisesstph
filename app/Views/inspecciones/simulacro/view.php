@@ -23,6 +23,11 @@
                 <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check"></i> Finalizar y generar PDF</button>
             </form>
         <?php endif; ?>
+    <?php if ($eval['estado'] === 'completo'): ?>
+    <a href="/inspecciones/simulacro/regenerar/<?= $eval['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
+        <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
+    </a>
+    <?php endif; ?>
     </div>
 
     <!-- Identificacion -->

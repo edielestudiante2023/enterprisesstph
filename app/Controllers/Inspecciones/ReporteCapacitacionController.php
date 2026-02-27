@@ -232,6 +232,25 @@ class ReporteCapacitacionController extends BaseController
 
     // ===== METODOS PRIVADOS =====
 
+        public function regenerarPdf($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || ($inspeccion['estado'] ?? '') !== 'completo') {
+            return redirect()->to('/inspecciones/reporte-capacitacion')->with('error', 'Solo se puede regenerar un registro finalizado.');
+        }
+
+        $pdfPath = $this->generarPdfInterno($id);
+
+        $this->inspeccionModel->update($id, [
+            'ruta_pdf' => $pdfPath,
+        ]);
+
+        $inspeccion = $this->inspeccionModel->find($id);
+        $this->uploadToReportes($inspeccion, $pdfPath);
+
+        return redirect()->to("/inspecciones/reporte-capacitacion/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
+    }
+
     private function getInspeccionPostData(): array
     {
         $data = [
@@ -348,7 +367,7 @@ class ReporteCapacitacionController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 21)
+            ->where('id_detailreport', 18)
             ->like('observaciones', 'rep_cap_id:' . $inspeccion['id'])
             ->first();
 
@@ -363,7 +382,7 @@ class ReporteCapacitacionController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'REPORTE DE CAPACITACION - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_capacitacion'],
-            'id_detailreport' => 21,
+            'id_detailreport' => 18,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'Activo',

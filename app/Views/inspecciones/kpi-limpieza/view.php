@@ -65,6 +65,11 @@ for ($i = 1; $i <= 4; $i++) {
     <i class="fas fa-file-pdf me-2"></i>Ver PDF
 </a>
 <?php endif; ?>
+    <?php if ($inspeccion['estado'] === 'completo'): ?>
+    <a href="/inspecciones/kpi-limpieza/regenerar/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
+        <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
+    </a>
+    <?php endif; ?>
 
 <script>
 function openPhoto(src) {

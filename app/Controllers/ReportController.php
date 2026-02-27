@@ -41,7 +41,29 @@ class ReportController extends Controller
         $clientModel = new ClientModel();
         $detailReportModel = new DetailReportModel();
 
-        $reports = $reporteModel->findAll();
+        // Obtener años disponibles dinámicamente desde la BD
+        $db = \Config\Database::connect();
+        $availableYears = $db->table('tbl_reporte')
+            ->select('YEAR(created_at) as year')
+            ->where('created_at IS NOT NULL')
+            ->groupBy('YEAR(created_at)')
+            ->orderBy('year', 'DESC')
+            ->get()
+            ->getResultArray();
+        $years = array_column($availableYears, 'year');
+
+        // Filtro por año: default = año actual, 'all' = todos
+        $selectedYear = $this->request->getGet('year') ?? date('Y');
+
+        if ($selectedYear === 'all') {
+            $reports = $reporteModel->orderBy('created_at', 'DESC')->findAll();
+        } else {
+            $reports = $reporteModel
+                ->where('YEAR(created_at)', (int)$selectedYear)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+        }
+
         $reportTypes = $reportTypeModel->findAll();
         $clients = $clientModel->findAll();
         $details = $detailReportModel->findAll();
@@ -50,7 +72,9 @@ class ReportController extends Controller
             'reports' => $reports,
             'reportTypes' => $reportTypes,
             'clients' => $clients,
-            'details' => $details
+            'details' => $details,
+            'availableYears' => $years,
+            'selectedYear' => $selectedYear,
         ];
 
         return view('consultant/report_list', $data);

@@ -841,6 +841,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('acta-visita/firma/(:num)', 'ActaVisitaController::firma/$1');
     $routes->post('acta-visita/save-firma/(:num)', 'ActaVisitaController::saveFirma/$1');
     $routes->get('acta-visita/pdf/(:num)', 'ActaVisitaController::generatePdf/$1');
+    $routes->get('acta-visita/regenerar/(:num)', 'ActaVisitaController::regenerarPdf/$1');
     $routes->post('acta-visita/finalizar/(:num)', 'ActaVisitaController::finalizar/$1');
     $routes->get('acta-visita/delete/(:num)', 'ActaVisitaController::delete/$1');
 
@@ -853,6 +854,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('inspeccion-locativa/update/(:num)', 'InspeccionLocativaController::update/$1');
     $routes->get('inspeccion-locativa/view/(:num)', 'InspeccionLocativaController::view/$1');
     $routes->get('inspeccion-locativa/pdf/(:num)', 'InspeccionLocativaController::generatePdf/$1');
+    $routes->get('inspeccion-locativa/regenerar/(:num)', 'InspeccionLocativaController::regenerarPdf/$1');
     $routes->post('inspeccion-locativa/finalizar/(:num)', 'InspeccionLocativaController::finalizar/$1');
     $routes->get('inspeccion-locativa/delete/(:num)', 'InspeccionLocativaController::delete/$1');
 
@@ -865,6 +867,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('senalizacion/update/(:num)', 'InspeccionSenalizacionController::update/$1');
     $routes->get('senalizacion/view/(:num)', 'InspeccionSenalizacionController::view/$1');
     $routes->get('senalizacion/pdf/(:num)', 'InspeccionSenalizacionController::generatePdf/$1');
+    $routes->get('senalizacion/regenerar/(:num)', 'InspeccionSenalizacionController::regenerarPdf/$1');
     $routes->post('senalizacion/finalizar/(:num)', 'InspeccionSenalizacionController::finalizar/$1');
     $routes->get('senalizacion/delete/(:num)', 'InspeccionSenalizacionController::delete/$1');
 
@@ -877,6 +880,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('extintores/update/(:num)', 'InspeccionExtintoresController::update/$1');
     $routes->get('extintores/view/(:num)', 'InspeccionExtintoresController::view/$1');
     $routes->get('extintores/pdf/(:num)', 'InspeccionExtintoresController::generatePdf/$1');
+    $routes->get('extintores/regenerar/(:num)', 'InspeccionExtintoresController::regenerarPdf/$1');
     $routes->post('extintores/finalizar/(:num)', 'InspeccionExtintoresController::finalizar/$1');
     $routes->get('extintores/delete/(:num)', 'InspeccionExtintoresController::delete/$1');
 
@@ -889,6 +893,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('botiquin/update/(:num)', 'InspeccionBotiquinController::update/$1');
     $routes->get('botiquin/view/(:num)', 'InspeccionBotiquinController::view/$1');
     $routes->get('botiquin/pdf/(:num)', 'InspeccionBotiquinController::generatePdf/$1');
+    $routes->get('botiquin/regenerar/(:num)', 'InspeccionBotiquinController::regenerarPdf/$1');
     $routes->post('botiquin/finalizar/(:num)', 'InspeccionBotiquinController::finalizar/$1');
     $routes->get('botiquin/delete/(:num)', 'InspeccionBotiquinController::delete/$1');
 
@@ -901,6 +906,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('gabinetes/update/(:num)', 'InspeccionGabineteController::update/$1');
     $routes->get('gabinetes/view/(:num)', 'InspeccionGabineteController::view/$1');
     $routes->get('gabinetes/pdf/(:num)', 'InspeccionGabineteController::generatePdf/$1');
+    $routes->get('gabinetes/regenerar/(:num)', 'InspeccionGabineteController::regenerarPdf/$1');
     $routes->post('gabinetes/finalizar/(:num)', 'InspeccionGabineteController::finalizar/$1');
     $routes->get('gabinetes/delete/(:num)', 'InspeccionGabineteController::delete/$1');
 
@@ -913,6 +919,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('comunicaciones/update/(:num)', 'InspeccionComunicacionController::update/$1');
     $routes->get('comunicaciones/view/(:num)', 'InspeccionComunicacionController::view/$1');
     $routes->get('comunicaciones/pdf/(:num)', 'InspeccionComunicacionController::generatePdf/$1');
+    $routes->get('comunicaciones/regenerar/(:num)', 'InspeccionComunicacionController::regenerarPdf/$1');
     $routes->post('comunicaciones/finalizar/(:num)', 'InspeccionComunicacionController::finalizar/$1');
     $routes->get('comunicaciones/delete/(:num)', 'InspeccionComunicacionController::delete/$1');
 
@@ -925,6 +932,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('recursos-seguridad/update/(:num)', 'InspeccionRecursosSeguridadController::update/$1');
     $routes->get('recursos-seguridad/view/(:num)', 'InspeccionRecursosSeguridadController::view/$1');
     $routes->get('recursos-seguridad/pdf/(:num)', 'InspeccionRecursosSeguridadController::generatePdf/$1');
+    $routes->get('recursos-seguridad/regenerar/(:num)', 'InspeccionRecursosSeguridadController::regenerarPdf/$1');
     $routes->post('recursos-seguridad/finalizar/(:num)', 'InspeccionRecursosSeguridadController::finalizar/$1');
     $routes->get('recursos-seguridad/delete/(:num)', 'InspeccionRecursosSeguridadController::delete/$1');
 
@@ -937,6 +945,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('probabilidad-peligros/update/(:num)', 'ProbabilidadPeligrosController::update/$1');
     $routes->get('probabilidad-peligros/view/(:num)', 'ProbabilidadPeligrosController::view/$1');
     $routes->get('probabilidad-peligros/pdf/(:num)', 'ProbabilidadPeligrosController::generatePdf/$1');
+    $routes->get('probabilidad-peligros/regenerar/(:num)', 'ProbabilidadPeligrosController::regenerarPdf/$1');
     $routes->post('probabilidad-peligros/finalizar/(:num)', 'ProbabilidadPeligrosController::finalizar/$1');
     $routes->get('probabilidad-peligros/delete/(:num)', 'ProbabilidadPeligrosController::delete/$1');
 
@@ -949,6 +958,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('matriz-vulnerabilidad/update/(:num)', 'MatrizVulnerabilidadController::update/$1');
     $routes->get('matriz-vulnerabilidad/view/(:num)', 'MatrizVulnerabilidadController::view/$1');
     $routes->get('matriz-vulnerabilidad/pdf/(:num)', 'MatrizVulnerabilidadController::generatePdf/$1');
+    $routes->get('matriz-vulnerabilidad/regenerar/(:num)', 'MatrizVulnerabilidadController::regenerarPdf/$1');
     $routes->post('matriz-vulnerabilidad/finalizar/(:num)', 'MatrizVulnerabilidadController::finalizar/$1');
     $routes->get('matriz-vulnerabilidad/delete/(:num)', 'MatrizVulnerabilidadController::delete/$1');
 
@@ -961,6 +971,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('plan-emergencia/update/(:num)', 'PlanEmergenciaController::update/$1');
     $routes->get('plan-emergencia/view/(:num)', 'PlanEmergenciaController::view/$1');
     $routes->get('plan-emergencia/pdf/(:num)', 'PlanEmergenciaController::generatePdf/$1');
+    $routes->get('plan-emergencia/regenerar/(:num)', 'PlanEmergenciaController::regenerarPdf/$1');
     $routes->post('plan-emergencia/finalizar/(:num)', 'PlanEmergenciaController::finalizar/$1');
     $routes->get('plan-emergencia/delete/(:num)', 'PlanEmergenciaController::delete/$1');
     $routes->get('plan-emergencia/check-inspecciones/(:num)', 'PlanEmergenciaController::checkInspeccionesCompletas/$1');
@@ -974,6 +985,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('dotacion-vigilante/update/(:num)', 'DotacionVigilanteController::update/$1');
     $routes->get('dotacion-vigilante/view/(:num)', 'DotacionVigilanteController::view/$1');
     $routes->get('dotacion-vigilante/pdf/(:num)', 'DotacionVigilanteController::generatePdf/$1');
+    $routes->get('dotacion-vigilante/regenerar/(:num)', 'DotacionVigilanteController::regenerarPdf/$1');
     $routes->post('dotacion-vigilante/finalizar/(:num)', 'DotacionVigilanteController::finalizar/$1');
     $routes->get('dotacion-vigilante/delete/(:num)', 'DotacionVigilanteController::delete/$1');
 
@@ -986,6 +998,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('dotacion-aseadora/update/(:num)', 'DotacionAseadoraController::update/$1');
     $routes->get('dotacion-aseadora/view/(:num)', 'DotacionAseadoraController::view/$1');
     $routes->get('dotacion-aseadora/pdf/(:num)', 'DotacionAseadoraController::generatePdf/$1');
+    $routes->get('dotacion-aseadora/regenerar/(:num)', 'DotacionAseadoraController::regenerarPdf/$1');
     $routes->post('dotacion-aseadora/finalizar/(:num)', 'DotacionAseadoraController::finalizar/$1');
     $routes->get('dotacion-aseadora/delete/(:num)', 'DotacionAseadoraController::delete/$1');
 
@@ -998,6 +1011,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('dotacion-todero/update/(:num)', 'DotacionToderoController::update/$1');
     $routes->get('dotacion-todero/view/(:num)', 'DotacionToderoController::view/$1');
     $routes->get('dotacion-todero/pdf/(:num)', 'DotacionToderoController::generatePdf/$1');
+    $routes->get('dotacion-todero/regenerar/(:num)', 'DotacionToderoController::regenerarPdf/$1');
     $routes->post('dotacion-todero/finalizar/(:num)', 'DotacionToderoController::finalizar/$1');
     $routes->get('dotacion-todero/delete/(:num)', 'DotacionToderoController::delete/$1');
 
@@ -1010,6 +1024,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('auditoria-zona-residuos/update/(:num)', 'AuditoriaZonaResiduosController::update/$1');
     $routes->get('auditoria-zona-residuos/view/(:num)', 'AuditoriaZonaResiduosController::view/$1');
     $routes->get('auditoria-zona-residuos/pdf/(:num)', 'AuditoriaZonaResiduosController::generatePdf/$1');
+    $routes->get('auditoria-zona-residuos/regenerar/(:num)', 'AuditoriaZonaResiduosController::regenerarPdf/$1');
     $routes->post('auditoria-zona-residuos/finalizar/(:num)', 'AuditoriaZonaResiduosController::finalizar/$1');
     $routes->get('auditoria-zona-residuos/delete/(:num)', 'AuditoriaZonaResiduosController::delete/$1');
 
@@ -1022,6 +1037,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('preparacion-simulacro/update/(:num)', 'PreparacionSimulacroController::update/$1');
     $routes->get('preparacion-simulacro/view/(:num)', 'PreparacionSimulacroController::view/$1');
     $routes->get('preparacion-simulacro/pdf/(:num)', 'PreparacionSimulacroController::generatePdf/$1');
+    $routes->get('preparacion-simulacro/regenerar/(:num)', 'PreparacionSimulacroController::regenerarPdf/$1');
     $routes->post('preparacion-simulacro/finalizar/(:num)', 'PreparacionSimulacroController::finalizar/$1');
     $routes->get('preparacion-simulacro/delete/(:num)', 'PreparacionSimulacroController::delete/$1');
 
@@ -1029,6 +1045,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('simulacro', 'EvaluacionSimulacroController::list');
     $routes->get('simulacro/view/(:num)', 'EvaluacionSimulacroController::view/$1');
     $routes->get('simulacro/pdf/(:num)', 'EvaluacionSimulacroController::generatePdf/$1');
+    $routes->get('simulacro/regenerar/(:num)', 'EvaluacionSimulacroController::regenerarPdf/$1');
     $routes->post('simulacro/finalizar/(:num)', 'EvaluacionSimulacroController::finalizar/$1');
     $routes->get('simulacro/delete/(:num)', 'EvaluacionSimulacroController::delete/$1');
 
@@ -1036,6 +1053,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('hv-brigadista', 'HvBrigadistaController::list');
     $routes->get('hv-brigadista/view/(:num)', 'HvBrigadistaController::view/$1');
     $routes->get('hv-brigadista/pdf/(:num)', 'HvBrigadistaController::generatePdf/$1');
+    $routes->get('hv-brigadista/regenerar/(:num)', 'HvBrigadistaController::regenerarPdf/$1');
     $routes->post('hv-brigadista/finalizar/(:num)', 'HvBrigadistaController::finalizar/$1');
     $routes->get('hv-brigadista/delete/(:num)', 'HvBrigadistaController::delete/$1');
 
@@ -1048,6 +1066,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('reporte-capacitacion/update/(:num)', 'ReporteCapacitacionController::update/$1');
     $routes->get('reporte-capacitacion/view/(:num)', 'ReporteCapacitacionController::view/$1');
     $routes->get('reporte-capacitacion/pdf/(:num)', 'ReporteCapacitacionController::generatePdf/$1');
+    $routes->get('reporte-capacitacion/regenerar/(:num)', 'ReporteCapacitacionController::regenerarPdf/$1');
     $routes->post('reporte-capacitacion/finalizar/(:num)', 'ReporteCapacitacionController::finalizar/$1');
     $routes->get('reporte-capacitacion/delete/(:num)', 'ReporteCapacitacionController::delete/$1');
 
@@ -1091,6 +1110,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('asistencia-induccion/firmas/(:num)', 'AsistenciaInduccionController::firmas/$1');
     $routes->post('asistencia-induccion/guardar-firma/(:num)', 'AsistenciaInduccionController::guardarFirma/$1');
     $routes->get('asistencia-induccion/pdf/(:num)', 'AsistenciaInduccionController::generatePdf/$1');
+    $routes->get('asistencia-induccion/regenerar/(:num)', 'AsistenciaInduccionController::regenerarPdf/$1');
     $routes->post('asistencia-induccion/finalizar/(:num)', 'AsistenciaInduccionController::finalizar/$1');
     $routes->get('asistencia-induccion/delete/(:num)', 'AsistenciaInduccionController::delete/$1');
 
@@ -1103,6 +1123,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('limpieza-desinfeccion/update/(:num)', 'ProgramaLimpiezaController::update/$1');
     $routes->get('limpieza-desinfeccion/view/(:num)', 'ProgramaLimpiezaController::view/$1');
     $routes->get('limpieza-desinfeccion/pdf/(:num)', 'ProgramaLimpiezaController::generatePdf/$1');
+    $routes->get('limpieza-desinfeccion/regenerar/(:num)', 'ProgramaLimpiezaController::regenerarPdf/$1');
     $routes->post('limpieza-desinfeccion/finalizar/(:num)', 'ProgramaLimpiezaController::finalizar/$1');
     $routes->get('limpieza-desinfeccion/delete/(:num)', 'ProgramaLimpiezaController::delete/$1');
 
@@ -1115,6 +1136,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('residuos-solidos/update/(:num)', 'ProgramaResiduosController::update/$1');
     $routes->get('residuos-solidos/view/(:num)', 'ProgramaResiduosController::view/$1');
     $routes->get('residuos-solidos/pdf/(:num)', 'ProgramaResiduosController::generatePdf/$1');
+    $routes->get('residuos-solidos/regenerar/(:num)', 'ProgramaResiduosController::regenerarPdf/$1');
     $routes->post('residuos-solidos/finalizar/(:num)', 'ProgramaResiduosController::finalizar/$1');
     $routes->get('residuos-solidos/delete/(:num)', 'ProgramaResiduosController::delete/$1');
 
@@ -1127,6 +1149,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('control-plagas/update/(:num)', 'ProgramaPlagasController::update/$1');
     $routes->get('control-plagas/view/(:num)', 'ProgramaPlagasController::view/$1');
     $routes->get('control-plagas/pdf/(:num)', 'ProgramaPlagasController::generatePdf/$1');
+    $routes->get('control-plagas/regenerar/(:num)', 'ProgramaPlagasController::regenerarPdf/$1');
     $routes->post('control-plagas/finalizar/(:num)', 'ProgramaPlagasController::finalizar/$1');
     $routes->get('control-plagas/delete/(:num)', 'ProgramaPlagasController::delete/$1');
 
@@ -1139,6 +1162,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('agua-potable/update/(:num)', 'ProgramaAguaPotableController::update/$1');
     $routes->get('agua-potable/view/(:num)', 'ProgramaAguaPotableController::view/$1');
     $routes->get('agua-potable/pdf/(:num)', 'ProgramaAguaPotableController::generatePdf/$1');
+    $routes->get('agua-potable/regenerar/(:num)', 'ProgramaAguaPotableController::regenerarPdf/$1');
     $routes->post('agua-potable/finalizar/(:num)', 'ProgramaAguaPotableController::finalizar/$1');
     $routes->get('agua-potable/delete/(:num)', 'ProgramaAguaPotableController::delete/$1');
 
@@ -1151,6 +1175,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('plan-saneamiento/update/(:num)', 'PlanSaneamientoController::update/$1');
     $routes->get('plan-saneamiento/view/(:num)', 'PlanSaneamientoController::view/$1');
     $routes->get('plan-saneamiento/pdf/(:num)', 'PlanSaneamientoController::generatePdf/$1');
+    $routes->get('plan-saneamiento/regenerar/(:num)', 'PlanSaneamientoController::regenerarPdf/$1');
     $routes->post('plan-saneamiento/finalizar/(:num)', 'PlanSaneamientoController::finalizar/$1');
     $routes->get('plan-saneamiento/delete/(:num)', 'PlanSaneamientoController::delete/$1');
 
@@ -1163,6 +1188,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('kpi-limpieza/update/(:num)', 'KpiLimpiezaController::update/$1');
     $routes->get('kpi-limpieza/view/(:num)', 'KpiLimpiezaController::view/$1');
     $routes->get('kpi-limpieza/pdf/(:num)', 'KpiLimpiezaController::generatePdf/$1');
+    $routes->get('kpi-limpieza/regenerar/(:num)', 'KpiLimpiezaController::regenerarPdf/$1');
     $routes->post('kpi-limpieza/finalizar/(:num)', 'KpiLimpiezaController::finalizar/$1');
     $routes->get('kpi-limpieza/delete/(:num)', 'KpiLimpiezaController::delete/$1');
 
@@ -1175,6 +1201,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('kpi-residuos/update/(:num)', 'KpiResiduosController::update/$1');
     $routes->get('kpi-residuos/view/(:num)', 'KpiResiduosController::view/$1');
     $routes->get('kpi-residuos/pdf/(:num)', 'KpiResiduosController::generatePdf/$1');
+    $routes->get('kpi-residuos/regenerar/(:num)', 'KpiResiduosController::regenerarPdf/$1');
     $routes->post('kpi-residuos/finalizar/(:num)', 'KpiResiduosController::finalizar/$1');
     $routes->get('kpi-residuos/delete/(:num)', 'KpiResiduosController::delete/$1');
 
@@ -1187,6 +1214,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('kpi-plagas/update/(:num)', 'KpiPlagasController::update/$1');
     $routes->get('kpi-plagas/view/(:num)', 'KpiPlagasController::view/$1');
     $routes->get('kpi-plagas/pdf/(:num)', 'KpiPlagasController::generatePdf/$1');
+    $routes->get('kpi-plagas/regenerar/(:num)', 'KpiPlagasController::regenerarPdf/$1');
     $routes->post('kpi-plagas/finalizar/(:num)', 'KpiPlagasController::finalizar/$1');
     $routes->get('kpi-plagas/delete/(:num)', 'KpiPlagasController::delete/$1');
 
@@ -1199,6 +1227,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('kpi-agua-potable/update/(:num)', 'KpiAguaPotableController::update/$1');
     $routes->get('kpi-agua-potable/view/(:num)', 'KpiAguaPotableController::view/$1');
     $routes->get('kpi-agua-potable/pdf/(:num)', 'KpiAguaPotableController::generatePdf/$1');
+    $routes->get('kpi-agua-potable/regenerar/(:num)', 'KpiAguaPotableController::regenerarPdf/$1');
     $routes->post('kpi-agua-potable/finalizar/(:num)', 'KpiAguaPotableController::finalizar/$1');
     $routes->get('kpi-agua-potable/delete/(:num)', 'KpiAguaPotableController::delete/$1');
 

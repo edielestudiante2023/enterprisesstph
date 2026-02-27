@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\CartaVigiaModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
+use App\Models\ReporteModel;
 use Dompdf\Dompdf;
 
 class CartaVigiaPwaController extends BaseController
@@ -320,6 +321,8 @@ class CartaVigiaPwaController extends BaseController
         $pdfPath = $this->generarPdf($carta['id']);
         if ($pdfPath) {
             $this->cartaModel->update($carta['id'], ['ruta_pdf' => $pdfPath]);
+            $cartaActualizada = $this->cartaModel->find($carta['id']);
+            $this->uploadToReportes($cartaActualizada, $pdfPath);
         }
 
         return $this->response->setJSON([
@@ -482,5 +485,51 @@ class CartaVigiaPwaController extends BaseController
         }
 
         return $httpCode >= 200 && $httpCode < 300;
+    }
+
+    /**
+     * Subir PDF firmado a tbl_reporte
+     */
+    private function uploadToReportes(array $carta, string $pdfPath): bool
+    {
+        $reporteModel = new ReporteModel();
+        $cliente = $this->clientModel->find($carta['id_cliente']);
+        if (!$cliente) return false;
+
+        $nitCliente = $cliente['nit_cliente'];
+
+        $existente = $reporteModel
+            ->where('id_cliente', $carta['id_cliente'])
+            ->where('id_report_type', 6)
+            ->where('id_detailreport', 30)
+            ->like('observaciones', 'carta_vigia_id:' . $carta['id'])
+            ->first();
+
+        $destDir = ROOTPATH . 'public/uploads/' . $nitCliente;
+        if (!is_dir($destDir)) {
+            mkdir($destDir, 0755, true);
+        }
+
+        $fileName = 'carta_vigia_' . $carta['id'] . '_' . date('Ymd_His') . '.pdf';
+        $destPath = $destDir . '/' . $fileName;
+        copy(FCPATH . $pdfPath, $destPath);
+
+        $data = [
+            'titulo_reporte'  => 'CARTA VIGIA SST - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . ($carta['nombre_vigia'] ?? ''),
+            'id_detailreport' => 30,
+            'id_report_type'  => 6,
+            'id_cliente'      => $carta['id_cliente'],
+            'estado'          => 'Activo',
+            'observaciones'   => 'Generado automaticamente desde modulo de inspecciones. carta_vigia_id:' . $carta['id'],
+            'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
+            'updated_at'      => date('Y-m-d H:i:s'),
+        ];
+
+        if ($existente) {
+            return $reporteModel->update($existente['id_reporte'], $data);
+        }
+
+        $data['created_at'] = date('Y-m-d H:i:s');
+        return (bool) $reporteModel->save($data);
     }
 }

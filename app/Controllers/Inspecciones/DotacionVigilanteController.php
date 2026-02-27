@@ -250,6 +250,25 @@ class DotacionVigilanteController extends BaseController
 
     // ===== MÉTODOS PRIVADOS =====
 
+        public function regenerarPdf($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || ($inspeccion['estado'] ?? '') !== 'completo') {
+            return redirect()->to('/inspecciones/dotacion-vigilante')->with('error', 'Solo se puede regenerar un registro finalizado.');
+        }
+
+        $pdfPath = $this->generarPdfInterno($id);
+
+        $this->inspeccionModel->update($id, [
+            'ruta_pdf' => $pdfPath,
+        ]);
+
+        $inspeccion = $this->inspeccionModel->find($id);
+        $this->uploadToReportes($inspeccion, $pdfPath);
+
+        return redirect()->to("/inspecciones/dotacion-vigilante/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
+    }
+
     private function getInspeccionPostData(): array
     {
         $data = [
@@ -364,7 +383,7 @@ class DotacionVigilanteController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 24)
+            ->where('id_detailreport', 14)
             ->like('observaciones', 'dot_vig_id:' . $inspeccion['id'])
             ->first();
 
@@ -379,7 +398,7 @@ class DotacionVigilanteController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'DOTACION VIGILANTE - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_inspeccion'],
-            'id_detailreport' => 24,
+            'id_detailreport' => 14,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'Activo',

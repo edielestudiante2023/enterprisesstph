@@ -300,6 +300,25 @@ class InspeccionSenalizacionController extends BaseController
 
     // ===== MÉTODOS PRIVADOS =====
 
+        public function regenerarPdf($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || ($inspeccion['estado'] ?? '') !== 'completo') {
+            return redirect()->to('/inspecciones/senalizacion')->with('error', 'Solo se puede regenerar un registro finalizado.');
+        }
+
+        $pdfPath = $this->generarPdfInterno($id);
+
+        $this->inspeccionModel->update($id, [
+            'ruta_pdf' => $pdfPath,
+        ]);
+
+        $inspeccion = $this->inspeccionModel->find($id);
+        $this->uploadToReportes($inspeccion, $pdfPath);
+
+        return redirect()->to("/inspecciones/senalizacion/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
+    }
+
     private function saveItems(int $idInspeccion): void
     {
         $itemIds = $this->request->getPost('item_id') ?? [];

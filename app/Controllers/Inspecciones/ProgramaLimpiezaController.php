@@ -206,6 +206,25 @@ class ProgramaLimpiezaController extends BaseController
 
     // ── Métodos privados ──────────────────────────────────────
 
+        public function regenerarPdf($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || ($inspeccion['estado'] ?? '') !== 'completo') {
+            return redirect()->to('/inspecciones/limpieza-desinfeccion')->with('error', 'Solo se puede regenerar un registro finalizado.');
+        }
+
+        $pdfPath = $this->generarPdfInterno($id);
+
+        $this->inspeccionModel->update($id, [
+            'ruta_pdf' => $pdfPath,
+        ]);
+
+        $inspeccion = $this->inspeccionModel->find($id);
+        $this->uploadToReportes($inspeccion, $pdfPath);
+
+        return redirect()->to("/inspecciones/limpieza-desinfeccion/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
+    }
+
     private function generarPdfInterno($id): string
     {
         $inspeccion = $this->inspeccionModel->find($id);
@@ -272,7 +291,7 @@ class ProgramaLimpiezaController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 28)
+            ->where('id_detailreport', 21)
             ->like('observaciones', 'prog_limp_id:' . $inspeccion['id'])
             ->first();
 
@@ -287,7 +306,7 @@ class ProgramaLimpiezaController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'PROGRAMA LIMPIEZA Y DESINFECCIÓN - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_programa'],
-            'id_detailreport' => 28,
+            'id_detailreport' => 21,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'Activo',

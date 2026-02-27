@@ -471,6 +471,25 @@ class MatrizVulnerabilidadController extends BaseController
 
     // ===== METODOS PRIVADOS =====
 
+        public function regenerarPdf($id)
+    {
+        $inspeccion = $this->matrizModel->find($id);
+        if (!$inspeccion || ($inspeccion['estado'] ?? '') !== 'completo') {
+            return redirect()->to('/inspecciones/matriz-vulnerabilidad')->with('error', 'Solo se puede regenerar un registro finalizado.');
+        }
+
+        $pdfPath = $this->generarPdfInterno($id);
+
+        $this->matrizModel->update($id, [
+            'ruta_pdf' => $pdfPath,
+        ]);
+
+        $inspeccion = $this->matrizModel->find($id);
+        $this->uploadToReportes($inspeccion, $pdfPath);
+
+        return redirect()->to("/inspecciones/matriz-vulnerabilidad/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
+    }
+
     private function getInspeccionPostData(): array
     {
         $data = [

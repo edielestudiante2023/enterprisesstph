@@ -241,6 +241,25 @@ class KpiLimpiezaController extends BaseController
 
     // ─── Private helpers ──────────────────────────────
 
+        public function regenerarPdf($id)
+    {
+        $inspeccion = $this->model->find($id);
+        if (!$inspeccion || ($inspeccion['estado'] ?? '') !== 'completo') {
+            return redirect()->to('/inspecciones/kpi-limpieza')->with('error', 'Solo se puede regenerar un registro finalizado.');
+        }
+
+        $pdfPath = $this->generarPdfInterno($id);
+
+        $this->model->update($id, [
+            'ruta_pdf' => $pdfPath,
+        ]);
+
+        $inspeccion = $this->model->find($id);
+        $this->uploadToReportes($inspeccion, $pdfPath);
+
+        return redirect()->to("/inspecciones/kpi-limpieza/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
+    }
+
     private function uploadFoto(string $fieldName, string $dir): ?string
     {
         $file = $this->request->getFile($fieldName);

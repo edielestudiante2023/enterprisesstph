@@ -205,6 +205,25 @@ class ProgramaResiduosController extends BaseController
 
     // ── Métodos privados ──────────────────────────────────────
 
+        public function regenerarPdf($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || ($inspeccion['estado'] ?? '') !== 'completo') {
+            return redirect()->to('/inspecciones/residuos-solidos')->with('error', 'Solo se puede regenerar un registro finalizado.');
+        }
+
+        $pdfPath = $this->generarPdfInterno($id);
+
+        $this->inspeccionModel->update($id, [
+            'ruta_pdf' => $pdfPath,
+        ]);
+
+        $inspeccion = $this->inspeccionModel->find($id);
+        $this->uploadToReportes($inspeccion, $pdfPath);
+
+        return redirect()->to("/inspecciones/residuos-solidos/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
+    }
+
     private function generarPdfInterno($id): string
     {
         $inspeccion = $this->inspeccionModel->find($id);

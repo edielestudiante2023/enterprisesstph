@@ -200,11 +200,11 @@ $capTotal = $inspeccion['capacidad_total'] ?? '—';
             <td style="padding: 4px 0;"><?= esc($cantTanques) ?></td>
         </tr>
         <tr>
-            <td class="tanque-label" style="padding: 4px 0;">CAPACIDAD INDIVIDUAL DE CADA TANQUE:</td>
+            <td class="tanque-label" style="padding: 4px 0;">CAPACIDAD INDIVIDUAL DE CADA TANQUE (LITROS):</td>
             <td style="padding: 4px 0;"><?= esc($capIndividual) ?></td>
         </tr>
         <tr>
-            <td class="tanque-label" style="padding: 4px 0;">CAPACIDAD TOTAL DE ALMACENAMIENTO:</td>
+            <td class="tanque-label" style="padding: 4px 0;">CAPACIDAD TOTAL DE ALMACENAMIENTO (LITROS):</td>
             <td style="padding: 4px 0;"><?= esc($capTotal) ?></td>
         </tr>
     </table>
@@ -327,9 +327,9 @@ $capTotal = $inspeccion['capacidad_total'] ?? '—';
 
 <!-- 1.11 INDICADORES -->
 <div class="section-title">1.11 INDICADORES</div>
-<p>Con el fin de verificar la correcta ejecución, continuidad del servicio y eficacia sanitaria del Programa de Abastecimiento y Control de Agua Potable en <?= esc($nombreCliente) ?>, se evalúan los siguientes indicadores de gestión:</p>
+<p>Con el fin de verificar la correcta ejecución, continuidad del servicio y eficacia sanitaria del Programa de Abastecimiento y Control de Agua Potable en <?= esc($nombreCliente) ?>, se evalúa el siguiente indicador de gestión:</p>
 
-<div class="subsection-title">Garantía de continuidad del suministro de agua potable</div>
+<div class="subsection-title">1&#xFE0F;&#x20E3; Garantía de continuidad del suministro de agua potable</div>
 <div class="indicador-box">
     <table class="data-table" style="margin: 0;">
         <tr><td class="ind-label" style="width: 40%; background: #f0f0f0;">Nombre del indicador</td><td>Continuidad del servicio de agua potable en situaciones de suspensión</td></tr>
@@ -341,9 +341,10 @@ $capTotal = $inspeccion['capacidad_total'] ?? '—';
         <tr><td class="ind-label" style="background: #f0f0f0;">Responsable del seguimiento</td><td>Administración / Responsable SG-SST</td></tr>
     </table>
 </div>
+<div class="definition-term">Interpretación:</div>
 <p>Mide si, ante suspensiones del servicio público de acueducto, <?= esc($nombreCliente) ?> logra mantener el abastecimiento de agua potable a través de su sistema de almacenamiento. Un resultado inferior al 100 % indica insuficiencia en la capacidad de almacenamiento o fallas en el sistema.</p>
 
-<div class="subsection-title">Cumplimiento de limpieza y desinfección semestral de tanques</div>
+<div class="subsection-title">2&#xFE0F;&#x20E3; Cumplimiento de limpieza y desinfección semestral de tanques</div>
 <div class="indicador-box">
     <table class="data-table" style="margin: 0;">
         <tr><td class="ind-label" style="width: 40%; background: #f0f0f0;">Nombre del indicador</td><td>Ejecución de limpieza y desinfección de tanques de agua potable</td></tr>
@@ -355,6 +356,7 @@ $capTotal = $inspeccion['capacidad_total'] ?? '—';
         <tr><td class="ind-label" style="background: #f0f0f0;">Responsable del seguimiento</td><td>Administración / Responsable SG-SST</td></tr>
     </table>
 </div>
+<div class="definition-term">Interpretación:</div>
 <p>Verifica que se haya realizado como mínimo una (1) limpieza y desinfección de los tanques de almacenamiento dentro de cada semestre. La ausencia de certificado implica incumplimiento del programa.</p>
 
 </body>

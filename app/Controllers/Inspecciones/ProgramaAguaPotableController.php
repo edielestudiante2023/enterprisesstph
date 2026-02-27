@@ -209,6 +209,25 @@ class ProgramaAguaPotableController extends BaseController
         return redirect()->to('/inspecciones/agua-potable')->with('msg', 'Programa eliminado.');
     }
 
+    public function regenerarPdf($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || $inspeccion['estado'] !== 'completo') {
+            return redirect()->to('/inspecciones/agua-potable')->with('error', 'Solo se puede regenerar un programa finalizado.');
+        }
+
+        $pdfPath = $this->generarPdfInterno($id);
+
+        $this->inspeccionModel->update($id, [
+            'ruta_pdf' => $pdfPath,
+        ]);
+
+        $inspeccion = $this->inspeccionModel->find($id);
+        $this->uploadToReportes($inspeccion, $pdfPath);
+
+        return redirect()->to("/inspecciones/agua-potable/view/{$id}")->with('msg', 'PDF regenerado exitosamente con la plantilla actual.');
+    }
+
     // ── Métodos privados ──────────────────────────────────────
 
     private function generarPdfInterno($id): string
@@ -275,7 +294,7 @@ class ProgramaAguaPotableController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 31)
+            ->where('id_detailreport', 24)
             ->like('observaciones', 'prog_agua_id:' . $inspeccion['id'])
             ->first();
 
@@ -290,7 +309,7 @@ class ProgramaAguaPotableController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'PROGRAMA ABASTECIMIENTO AGUA POTABLE - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_programa'],
-            'id_detailreport' => 31,
+            'id_detailreport' => 24,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'Activo',

@@ -50,6 +50,11 @@
         <i class="fas fa-file-pdf me-2"></i>Ver PDF
     </a>
     <?php endif; ?>
+    <?php if ($inspeccion['estado'] === 'completo'): ?>
+    <a href="/inspecciones/limpieza-desinfeccion/regenerar/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
+        <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
+    </a>
+    <?php endif; ?>
     <?php if ($inspeccion['estado'] === 'borrador'): ?>
     <a href="/inspecciones/limpieza-desinfeccion/edit/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
         <i class="fas fa-edit me-2"></i>Editar

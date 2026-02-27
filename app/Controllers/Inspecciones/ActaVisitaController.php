@@ -426,6 +426,25 @@ class ActaVisitaController extends BaseController
     /**
      * Guardar/reemplazar integrantes del POST
      */
+        public function regenerarPdf($id)
+    {
+        $inspeccion = $this->actaModel->find($id);
+        if (!$inspeccion || ($inspeccion['estado'] ?? '') !== 'completo') {
+            return redirect()->to('/inspecciones/acta-visita')->with('error', 'Solo se puede regenerar un registro finalizado.');
+        }
+
+        $pdfPath = $this->generarPdfInterno($id);
+
+        $this->actaModel->update($id, [
+            'ruta_pdf' => $pdfPath,
+        ]);
+
+        $inspeccion = $this->actaModel->find($id);
+        $this->uploadToReportes($inspeccion, $pdfPath);
+
+        return redirect()->to("/inspecciones/acta-visita/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
+    }
+
     private function saveIntegrantes(int $idActa): void
     {
         $nombres = $this->request->getPost('integrante_nombre') ?? [];
