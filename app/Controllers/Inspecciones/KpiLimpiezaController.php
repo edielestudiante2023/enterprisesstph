@@ -204,6 +204,7 @@ class KpiLimpiezaController extends BaseController
         $pdfPath = $this->generarPdfInterno($id);
 
         if ($pdfPath && file_exists(FCPATH . $pdfPath)) {
+            $this->model->update($id, ['ruta_pdf' => $pdfPath]);
             return $this->response
                 ->setHeader('Content-Type', 'application/pdf')
                 ->setHeader('Content-Disposition', 'inline; filename="kpi-limpieza-' . $id . '.pdf"')

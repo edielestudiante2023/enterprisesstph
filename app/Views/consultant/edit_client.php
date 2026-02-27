@@ -605,17 +605,11 @@
                 <h5 class="fw-bold mb-2">Reactivar Cliente</h5>
                 <p class="text-muted mb-3">
                     Esta acción pondrá al cliente en estado <strong>Activo</strong> y
-                    <strong class="text-danger">eliminará permanentemente</strong> todos los registros relacionados en:
+                    reiniciará los datos de contacto del cliente.
                 </p>
-                <ul class="list-group list-group-flush text-start mb-3">
-                    <li class="list-group-item py-1 px-0"><i class="fas fa-table me-2 text-danger"></i>Plan de Trabajo Anual</li>
-                    <li class="list-group-item py-1 px-0"><i class="fas fa-table me-2 text-danger"></i>Cronograma de Capacitación</li>
-                    <li class="list-group-item py-1 px-0"><i class="fas fa-table me-2 text-danger"></i>Pendientes</li>
-                    <li class="list-group-item py-1 px-0"><i class="fas fa-table me-2 text-danger"></i>Vencimientos y Mantenimientos</li>
-                </ul>
-                <div class="alert alert-success py-2 mb-0" style="font-size:.83rem;">
+                <div class="alert alert-success py-2 mb-3" style="font-size:.83rem;">
                     <i class="fas fa-shield-check me-1"></i>
-                    Se conservarán: <strong>Nombre, NIT y Fecha de Ingreso</strong>
+                    Se conservarán: <strong>Nombre, NIT, Fecha de Ingreso, Logo</strong> y todo el historial de actividades.
                 </div>
             </div>
             <div class="modal-footer">

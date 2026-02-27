@@ -627,8 +627,9 @@ class ConsultantController extends Controller
     // ─── Acciones de estado del cliente ────────────────────────────────────────
 
     /**
-     * Reactivar cliente: pone estado=activo y borra todos sus datos relacionados
-     * conservando solo nombre_cliente, nit_cliente y fecha_ingreso en tbl_clientes.
+     * Reactivar cliente: pone estado=activo y limpia campos de tbl_clientes
+     * conservando nombre_cliente, nit_cliente, fecha_ingreso y logo.
+     * No elimina registros de tablas relacionadas (historial intacto).
      */
     public function reactivarCliente($id)
     {
@@ -641,20 +642,6 @@ class ConsultantController extends Controller
 
         $db = \Config\Database::connect();
 
-        $vencimientosExisteReactivar = $db->query("SHOW TABLES LIKE 'tbl_vencimientos_mantenimientos'")->getNumRows() > 0;
-
-        $db->transStart();
-
-        // Borrar registros relacionados — SQL directo para evitar acumulación de estado en builder
-        $db->query("DELETE FROM tbl_pta_cliente WHERE id_cliente = ?", [$id]);
-        $db->query("DELETE FROM tbl_cronog_capacitacion WHERE id_cliente = ?", [$id]);
-        $db->query("DELETE FROM tbl_pendientes WHERE id_cliente = ?", [$id]);
-
-        if ($vencimientosExisteReactivar) {
-            $db->query("DELETE FROM tbl_vencimientos_mantenimientos WHERE id_cliente = ?", [$id]);
-        }
-
-        // Limpiar todos los campos de tbl_clientes EXCEPTO los 3 históricos
         $db->query("UPDATE tbl_clientes SET
             usuario = NULL,
             password = NULL,
@@ -669,18 +656,11 @@ class ConsultantController extends Controller
             fecha_fin_contrato = NULL,
             ciudad_cliente = NULL,
             estado = 'activo',
-            logo = NULL,
             firma_representante_legal = NULL,
             estandares = NULL
             WHERE id_cliente = ?", [$id]);
 
-        $db->transComplete();
-
-        if ($db->transStatus() === false) {
-            return redirect()->to('/editClient/' . $id)->with('error', 'Error al reactivar el cliente. Intente de nuevo.');
-        }
-
-        return redirect()->to('/editClient/' . $id)->with('msg', 'Cliente reactivado exitosamente. Datos relacionados eliminados.');
+        return redirect()->to('/editClient/' . $id)->with('msg', 'Cliente reactivado exitosamente.');
     }
 
     /**

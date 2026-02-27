@@ -170,6 +170,7 @@ class ProgramaPlagasController extends BaseController
         }
 
         $pdfPath = $this->generarPdfInterno($id);
+        $this->inspeccionModel->update($id, ['ruta_pdf' => $pdfPath]);
 
         $pdfContent = file_get_contents(FCPATH . $pdfPath);
         return $this->response

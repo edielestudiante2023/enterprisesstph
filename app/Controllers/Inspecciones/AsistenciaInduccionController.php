@@ -275,6 +275,7 @@ class AsistenciaInduccionController extends BaseController
         }
 
         $result = $this->generarPdfInterno($id);
+        $this->inspeccionModel->update($id, ['ruta_pdf' => $result['asistencia']]);
         $fullPath = FCPATH . $result['asistencia'];
         if (!file_exists($fullPath)) {
             return redirect()->back()->with('error', 'PDF no encontrado');

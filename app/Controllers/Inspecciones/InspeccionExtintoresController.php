@@ -244,6 +244,7 @@ class InspeccionExtintoresController extends BaseController
         }
 
         $pdfPath = $this->generarPdfInterno($id);
+        $this->inspeccionModel->update($id, ['ruta_pdf' => $pdfPath]);
         $fullPath = FCPATH . $pdfPath;
         if (!file_exists($fullPath)) {
             return redirect()->back()->with('error', 'PDF no encontrado');

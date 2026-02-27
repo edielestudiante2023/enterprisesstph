@@ -366,6 +366,7 @@ class ActaVisitaController extends BaseController
         if (!$pdfRelPath) {
             return redirect()->back()->with('error', 'Error generando PDF');
         }
+        $this->actaModel->update($id, ['ruta_pdf' => $pdfRelPath]);
 
         $pdfPath = FCPATH . $pdfRelPath;
 

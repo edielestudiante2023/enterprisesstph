@@ -82,6 +82,7 @@ class EvaluacionSimulacroController extends BaseController
         }
 
         $pdfPath = $this->generarPdfInterno($id);
+        $this->evalModel->update($id, ['ruta_pdf' => $pdfPath]);
         $fullPath = FCPATH . $pdfPath;
         if (!file_exists($fullPath)) {
             return redirect()->back()->with('error', 'PDF no encontrado');
