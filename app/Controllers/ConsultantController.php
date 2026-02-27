@@ -11,6 +11,7 @@ use App\Models\PtaclienteModel;
 use App\Models\PendientesModel;
 use App\Models\VencimientosMantenimientoModel;
 use App\Models\SimpleEvaluationModel;
+use App\Models\DashboardItemModel;
 use App\Libraries\WorkPlanLibrary;
 use App\Libraries\TrainingLibrary;
 use App\Libraries\StandardsLibrary;
@@ -20,7 +21,12 @@ class ConsultantController extends Controller
 {
     public function index()
     {
-        return view('consultant/dashboard');
+        $model = new DashboardItemModel();
+        $data['items'] = $model->where('orden >=', 1)
+            ->where('orden <=', 5)
+            ->findAll();
+
+        return view('consultant/dashboard', $data);
     }
 
     public function addClient()

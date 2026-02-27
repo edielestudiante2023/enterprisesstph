@@ -49,7 +49,15 @@ app/
 │           ├── auditoria_zona_residuos_view.php ← Vista detalle read-only (12 items zona)
 │           ├── asistencia_induccion_view.php ← Vista detalle read-only (sesión + asistentes)
 │           ├── reporte_capacitacion_view.php ← Vista detalle read-only (capacitación + cobertura)
-│           └── preparacion_simulacro_view.php ← Vista detalle read-only (preparación + cronograma)
+│           ├── preparacion_simulacro_view.php ← Vista detalle read-only (preparación + cronograma)
+│           ├── residuos_view.php             ← Vista detalle read-only (programa residuos FT-SST-226)
+│           ├── plagas_view.php               ← Vista detalle read-only (programa plagas FT-SST-227)
+│           ├── agua_potable_view.php         ← Vista detalle read-only (programa agua FT-SST-228)
+│           ├── saneamiento_view.php          ← Vista detalle read-only (plan saneamiento FT-SST-219)
+│           ├── kpi_limpieza_view.php         ← Vista detalle read-only (KPI limpieza + evidencias)
+│           ├── kpi_residuos_view.php         ← Vista detalle read-only (KPI residuos + evidencias)
+│           ├── kpi_plagas_view.php           ← Vista detalle read-only (KPI plagas + evidencias)
+│           └── kpi_agua_potable_view.php     ← Vista detalle read-only (KPI agua potable + evidencias)
 ├── Config/
 │   └── Routes.php                          ← MODIFICADO (agregar grupo rutas)
 └── Views/
@@ -285,7 +293,7 @@ Vista genérica que funciona para cualquier tipo de inspección. Recibe:
 | Variable | Tipo | Descripción |
 |----------|------|-------------|
 | `$inspecciones` | array | Registros de la BD |
-| `$tipo` | string | Identificador: `acta_visita`, `locativa`, `senalizacion`, `botiquin`, `extintores`, `comunicaciones`, `gabinetes`, `matriz_vulnerabilidad`, `probabilidad_peligros`, `recursos_seguridad`, `hv_brigadista`, `plan_emergencia`, `simulacro`, `limpieza`, `dotacion_vigilante`, `dotacion_aseadora`, `dotacion_todero`, `auditoria_residuos`, `asistencia_induccion`, `reporte_capacitacion`, `preparacion_simulacro` |
+| `$tipo` | string | Identificador (31 tipos): `acta_visita`, `locativa`, `senalizacion`, `botiquin`, `extintores`, `comunicaciones`, `gabinetes`, `matriz_vulnerabilidad`, `probabilidad_peligros`, `recursos_seguridad`, `hv_brigadista`, `plan_emergencia`, `simulacro`, `limpieza`, `dotacion_vigilante`, `dotacion_aseadora`, `dotacion_todero`, `auditoria_residuos`, `asistencia_induccion`, `reporte_capacitacion`, `preparacion_simulacro`, `residuos`, `plagas`, `agua_potable`, `plan_saneamiento`, `kpi_limpieza`, `kpi_residuos`, `kpi_plagas`, `kpi_agua_potable` + 2 listas dedicadas: `carta_vigia`, `mantenimientos` |
 | `$titulo` | string | Título visible |
 | `$campo_fecha` | string | Nombre del campo de fecha en la tabla |
 | `$base_url` | string | URL base para los links de detalle |
@@ -484,6 +492,54 @@ Secciones: Datos Generales (fecha, ubicación, dirección) → Configuración de
 
 **Nota:** Usa `PreparacionSimulacroModel`, constantes del controller: `::OPCIONES_ALARMA`, `::OPCIONES_DISTINTIVOS`, `::OPCIONES_EQUIPOS`, `::CRONOGRAMA_ITEMS`. Campos multi-select (tipo_alarma, distintivos_brigadistas, equipos_emergencia) almacenados como comma-separated en BD, renderizados como arrays de badges. Campo fecha: `fecha_simulacro`.
 
+### Vista Programa Residuos Sólidos (`residuos_view.php`)
+
+Secciones: Datos Generales (cliente, fecha programa, responsable, consultor, documento FT-SST-226) → PDF
+
+**Nota:** Usa `ProgramaResiduosModel`. Vista compacta — datos generales + botón PDF. Campo fecha: `fecha_programa`. Tabla: `tbl_programa_residuos`.
+
+### Vista Programa Control de Plagas (`plagas_view.php`)
+
+Secciones: Datos Generales (cliente, fecha programa, responsable, consultor, documento FT-SST-227) → PDF
+
+**Nota:** Usa `ProgramaPlagasModel`. Vista compacta — misma estructura que residuos. Campo fecha: `fecha_programa`. Tabla: `tbl_programa_plagas`.
+
+### Vista Programa Agua Potable (`agua_potable_view.php`)
+
+Secciones: Datos Generales (cliente, fecha programa, responsable, consultor, cantidad tanques, capacidad individual, capacidad total, documento FT-SST-228) → PDF
+
+**Nota:** Usa `ProgramaAguaPotableModel`. Campos adicionales vs los otros programas: `cantidad_tanques`, `capacidad_individual`, `capacidad_total`. Campo fecha: `fecha_programa`. Tabla: `tbl_programa_agua_potable`.
+
+### Vista Plan de Saneamiento Básico (`saneamiento_view.php`)
+
+Secciones: Datos Generales (cliente, fecha plan, responsable, consultor, documento FT-SST-219) → PDF
+
+**Nota:** Usa `PlanSaneamientoModel`. Vista compacta — misma estructura que los programas. Campo fecha: `fecha_programa`. Tabla: `tbl_plan_saneamiento`.
+
+### Vista KPI Limpieza y Desinfección (`kpi_limpieza_view.php`)
+
+Secciones: Datos del KPI (fecha, responsable, indicador, cumplimiento %) → Evidencias (hasta 4 fotos: registro_formato_1 a registro_formato_4) → PDF
+
+**Nota:** Usa `KpiLimpiezaModel`. Los 4 KPIs comparten la misma estructura de vista. Campo fecha: `fecha_inspeccion`. Tabla: `tbl_kpi_limpieza`. Ruta PDF: `/inspecciones/kpi-limpieza/pdf/{id}`.
+
+### Vista KPI Residuos Sólidos (`kpi_residuos_view.php`)
+
+Secciones: Idénticas a KPI Limpieza, diferente título.
+
+**Nota:** Usa `KpiResiduosModel`. Tabla: `tbl_kpi_residuos`. Ruta PDF: `/inspecciones/kpi-residuos/pdf/{id}`.
+
+### Vista KPI Control de Plagas (`kpi_plagas_view.php`)
+
+Secciones: Idénticas a KPI Limpieza, diferente título.
+
+**Nota:** Usa `KpiPlagasModel`. Tabla: `tbl_kpi_plagas`. Ruta PDF: `/inspecciones/kpi-plagas/pdf/{id}`.
+
+### Vista KPI Agua Potable (`kpi_agua_potable_view.php`)
+
+Secciones: Idénticas a KPI Limpieza, diferente título.
+
+**Nota:** Usa `KpiAguaPotableModel`. Tabla: `tbl_kpi_agua_potable`. Ruta PDF: `/inspecciones/kpi-agua-potable/pdf/{id}`.
+
 ### Lógica de colores para calificación
 
 ```php
@@ -526,9 +582,10 @@ function openPhoto(src, desc) {
 **Archivo:** `app/Config/Routes.php`
 
 ```php
-// Client Inspections (read-only web views)
+// Client Inspections (read-only web views) — 62 rutas GET, 31 módulos
 $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
     $routes->get('/', 'ClientInspeccionesController::dashboard');
+    // --- Inspecciones operativas (Fase 1-3) ---
     $routes->get('actas-visita', 'ClientInspeccionesController::listActas');
     $routes->get('actas-visita/(:num)', 'ClientInspeccionesController::viewActa/$1');
     $routes->get('locativas', 'ClientInspeccionesController::listLocativas');
@@ -557,6 +614,41 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
     $routes->get('plan-emergencia/(:num)', 'ClientInspeccionesController::viewPlanEmergencia/$1');
     $routes->get('simulacro', 'ClientInspeccionesController::listSimulacro');
     $routes->get('simulacro/(:num)', 'ClientInspeccionesController::viewSimulacro/$1');
+    // --- Programas ambientales + limpieza (Fase 4) ---
+    $routes->get('limpieza-desinfeccion', 'ClientInspeccionesController::listLimpieza');
+    $routes->get('limpieza-desinfeccion/(:num)', 'ClientInspeccionesController::viewLimpieza/$1');
+    $routes->get('residuos-solidos', 'ClientInspeccionesController::listResiduos');
+    $routes->get('residuos-solidos/(:num)', 'ClientInspeccionesController::viewResiduos/$1');
+    $routes->get('control-plagas', 'ClientInspeccionesController::listPlagas');
+    $routes->get('control-plagas/(:num)', 'ClientInspeccionesController::viewPlagas/$1');
+    $routes->get('agua-potable', 'ClientInspeccionesController::listAguaPotable');
+    $routes->get('agua-potable/(:num)', 'ClientInspeccionesController::viewAguaPotable/$1');
+    $routes->get('plan-saneamiento', 'ClientInspeccionesController::listSaneamiento');
+    $routes->get('plan-saneamiento/(:num)', 'ClientInspeccionesController::viewSaneamiento/$1');
+    // --- Dotaciones y capacitación (Fase 4 cont.) ---
+    $routes->get('dotacion-vigilante', 'ClientInspeccionesController::listDotacionVigilante');
+    $routes->get('dotacion-vigilante/(:num)', 'ClientInspeccionesController::viewDotacionVigilante/$1');
+    $routes->get('dotacion-aseadora', 'ClientInspeccionesController::listDotacionAseadora');
+    $routes->get('dotacion-aseadora/(:num)', 'ClientInspeccionesController::viewDotacionAseadora/$1');
+    $routes->get('dotacion-todero', 'ClientInspeccionesController::listDotacionTodero');
+    $routes->get('dotacion-todero/(:num)', 'ClientInspeccionesController::viewDotacionTodero/$1');
+    $routes->get('auditoria-zona-residuos', 'ClientInspeccionesController::listAuditoriaResiduos');
+    $routes->get('auditoria-zona-residuos/(:num)', 'ClientInspeccionesController::viewAuditoriaResiduos/$1');
+    $routes->get('asistencia-induccion', 'ClientInspeccionesController::listAsistenciaInduccion');
+    $routes->get('asistencia-induccion/(:num)', 'ClientInspeccionesController::viewAsistenciaInduccion/$1');
+    $routes->get('reporte-capacitacion', 'ClientInspeccionesController::listReporteCapacitacion');
+    $routes->get('reporte-capacitacion/(:num)', 'ClientInspeccionesController::viewReporteCapacitacion/$1');
+    $routes->get('preparacion-simulacro', 'ClientInspeccionesController::listPreparacionSimulacro');
+    $routes->get('preparacion-simulacro/(:num)', 'ClientInspeccionesController::viewPreparacionSimulacro/$1');
+    // --- KPIs (Fase 5) ---
+    $routes->get('kpi-limpieza', 'ClientInspeccionesController::listKpiLimpieza');
+    $routes->get('kpi-limpieza/(:num)', 'ClientInspeccionesController::viewKpiLimpieza/$1');
+    $routes->get('kpi-residuos', 'ClientInspeccionesController::listKpiResiduos');
+    $routes->get('kpi-residuos/(:num)', 'ClientInspeccionesController::viewKpiResiduos/$1');
+    $routes->get('kpi-plagas', 'ClientInspeccionesController::listKpiPlagas');
+    $routes->get('kpi-plagas/(:num)', 'ClientInspeccionesController::viewKpiPlagas/$1');
+    $routes->get('kpi-agua-potable', 'ClientInspeccionesController::listKpiAguaPotable');
+    $routes->get('kpi-agua-potable/(:num)', 'ClientInspeccionesController::viewKpiAguaPotable/$1');
 });
 ```
 
@@ -570,18 +662,14 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
 
 Solo rutas GET. No hay POST, PUT ni DELETE — el cliente es read-only.
 
-### Rutas completas actuales
+### Rutas completas actuales (62 rutas GET)
 
-```php
-$routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
-    $routes->get('/', 'ClientInspeccionesController::dashboard');
-    // Actas, Locativas, Señalización, Botiquín, Extintores, Comunicaciones, Gabinetes
-    // Carta Vigía, Mantenimientos, Matriz Vulnerabilidad, Probabilidad Peligros, Recursos Seguridad
-    // HV Brigadista, Plan Emergencia, Simulacro, Limpieza Desinfección
-    // Dotación Vigilante, Dotación Aseadora, Dotación Todero
-    // Auditoría Zona Residuos, Asistencia Inducción, Reporte Capacitación, Preparación Simulacro
-});
-```
+Las rutas actualizadas están documentadas en el bloque de arriba (Paso 6). Resumen por fase:
+
+- **Fase 1-3** (Inspecciones operativas): 15 módulos → 29 rutas (13 list+view + 2 solo-lista)
+- **Fase 4** (Programas + Dotaciones + Capacitación): 12 módulos → 24 rutas
+- **Fase 5** (KPIs): 4 módulos → 8 rutas
+- **Total**: 31 módulos, 62 rutas GET + 1 dashboard = 63 endpoints
 
 ---
 
@@ -647,7 +735,8 @@ Dashboard principal (/dashboard)
     ↓
 Click botón "Inspecciones"
     ↓
-Hub inspecciones (/client/inspecciones)
+Hub inspecciones (/client/inspecciones) — 31 cards
+  │ --- Inspecciones operativas ---
   ├── Card "Actas de Visita (5)"
   ├── Card "Locativas (3)"
   ├── Card "Señalización (2)"
@@ -663,14 +752,25 @@ Hub inspecciones (/client/inspecciones)
   ├── Card "HV Brigadista (3)"
   ├── Card "Plan de Emergencia (1)"
   ├── Card "Simulacro (2)"
+  │ --- Programas ambientales ---
   ├── Card "Limpieza y Desinfección (2)"
+  ├── Card "Residuos Sólidos (1)"
+  ├── Card "Control Plagas (1)"
+  ├── Card "Agua Potable (1)"
+  ├── Card "Plan Saneamiento (1)"
+  │ --- Dotaciones y capacitación ---
   ├── Card "Dotación Vigilante (4)"
   ├── Card "Dotación Aseadora (3)"
   ├── Card "Dotación Todero (2)"
   ├── Card "Auditoría Zona Residuos (1)"
   ├── Card "Asistencia Inducción (5)"
   ├── Card "Reportes Capacitación (3)"
-  └── Card "Preparación Simulacro (1)"
+  ├── Card "Preparación Simulacro (1)"
+  │ --- KPIs ---
+  ├── Card "KPI Limpieza (2)"
+  ├── Card "KPI Residuos (1)"
+  ├── Card "KPI Plagas (1)"
+  └── Card "KPI Agua Potable (1)"
     ↓
 Click en tipo
     ↓
