@@ -39,7 +39,6 @@
 
         .foto-inline { max-width: 120px; max-height: 150px; border: 1px solid #ccc; }
         .firma-inline { max-width: 200px; max-height: 80px; border: 1px solid #ccc; }
-        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>
@@ -80,9 +79,7 @@
     <p class="content-text">El proceso de registro comprende: (1) Identificacion de la copropiedad y del brigadista, (2) Recoleccion de datos personales incluyendo registro fotografico, (3) Documentacion de estudios relacionados con la respuesta ante emergencias, (4) Evaluacion del estado de salud mediante cuestionario PAR-Q de 14 preguntas, (5) Registro de restricciones medicas y habitos de actividad fisica, (6) Firma del brigadista como constancia de veracidad de la informacion.</p>
 
     <!-- ====== RESULTADOS ====== -->
-    <div class="page-break"></div>
-
-    <table class="header-table">
+<table class="header-table">
         <tr>
             <td class="header-logo" rowspan="2">
                 <?php if (!empty($logoBase64)): ?>
@@ -171,9 +168,7 @@
     </table>
 
     <!-- ====== PAGINA 3 ====== -->
-    <div class="page-break"></div>
-
-    <table class="header-table">
+<table class="header-table">
         <tr>
             <td class="header-logo" rowspan="2">
                 <?php if (!empty($logoBase64)): ?>

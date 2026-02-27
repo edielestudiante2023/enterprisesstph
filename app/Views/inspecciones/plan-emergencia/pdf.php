@@ -59,8 +59,6 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
         .foto-row td { text-align: center; padding: 4px; vertical-align: top; }
         .foto-row img { max-width: 220px; max-height: 150px; border: 1px solid #ccc; }
 
-        .page-break { page-break-before: always; }
-
         .annex-title { background: #2c3e50; color: white; padding: 5px 8px; font-weight: bold; font-size: 10px; margin: 10px 0 6px; text-align: center; }
 
         .opt-a { background: #d4edda; color: #155724; font-weight: bold; text-align: center; }
@@ -87,8 +85,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     </div>
 
     <!-- ============ HEADER CORPORATIVO ============ -->
-    <div class="page-break"></div>
-    <table class="header-table">
+<table class="header-table">
         <tr>
             <td class="header-logo" rowspan="2">
                 <?php if (!empty($logoBase64)): ?>
@@ -135,8 +132,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <p class="content-text">Este documento, denominado Plan de Preparacion y Respuesta ante Situaciones de Emergencia (PPRSE), tiene como enfoque principal todas las areas pertenecientes a la copropiedad. Ademas, abarca a todo el personal que forma parte de esta comunidad, incluyendo servidores publicos, contratistas, pasantes, judiciales, visitantes y otras partes interesadas.</p>
 
     <!-- ============ CONCEPTOS ============ -->
-    <div class="page-break"></div>
-    <div class="section-title">CONCEPTOS</div>
+<div class="section-title">CONCEPTOS</div>
     <p class="content-text">De acuerdo con el articulo 4 de la Ley 675 de 2001 por medio de la cual se expide el Regimen de Propiedad Horizontal, cada edificio o conjunto de uso residencial debe constituirse en persona juridica, por tanto, la legislacion colombiana alrededor del tema de Seguridad y Salud en el Trabajo es perfectamente aplicable a las administraciones y consejos de administracion.</p>
     <p class="content-text">Para mayor comprension de la diferente terminologia que se va a tratar en el documento, se describe a continuacion algunos de los conceptos:</p>
     <?php
@@ -170,8 +166,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <?php endforeach; ?>
 
     <!-- ============ INFORMACION GENERAL DEL CONJUNTO ============ -->
-    <div class="page-break"></div>
-    <div class="section-title">INFORMACION GENERAL DEL CONJUNTO RESIDENCIAL</div>
+<div class="section-title">INFORMACION GENERAL DEL CONJUNTO RESIDENCIAL</div>
 
     <div class="section-subtitle">UBICACION</div>
     <p class="content-text"><?= $nombreCliente ?> se encuentra localizado en la Direccion: <?= $direccion ?></p>
@@ -217,8 +212,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <?php endif; endforeach; ?>
 
     <!-- ============ CIRCULACIONES Y ACCESOS ============ -->
-    <div class="page-break"></div>
-    <div class="section-title">CIRCULACIONES Y ACCESOS</div>
+<div class="section-title">CIRCULACIONES Y ACCESOS</div>
 
     <?php
     $seccCirc = [
@@ -304,8 +298,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     </table>
 
     <!-- ============ LEGISLACION ============ -->
-    <div class="page-break"></div>
-    <div class="section-title">LEGISLACION</div>
+<div class="section-title">LEGISLACION</div>
     <div class="section-subtitle">LEGISLACION NACIONAL</div>
     <p class="content-text"><strong>LEY 9 DE 1979</strong> Codigo Sanitario Titulo III: Relativo a la salud ocupacional. Art.93 - Areas de Circulacion: Claramente demarcadas, tener amplitud suficiente para el transito seguro de las personas y provistas de senalizacion adecuada. Art.114 - Prevencion y Extincion de Incendios: Disponer de personal capacitado, metodos, equipos y materiales adecuados y suficientes. Art. 127 - Todo lugar de trabajo tendra las facilidades y los recursos necesarios para la prestacion de los primeros auxilios a los trabajadores.</p>
     <p class="content-text"><strong>RESOLUCION 2400 DE 1979</strong> "Por el cual se establecen disposiciones sobre vivienda, higiene y seguridad industrial en los establecimientos de trabajo". Art. 205 - Peligro de Incendio o explosion en centros de trabajo: Provistos de tomas de agua con sus correspondientes mangueras, tanques de reserva y extintores. Art. 223 - Brigada contra Incendio: Debidamente entrenada y preparada.</p>
@@ -328,8 +321,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <p class="content-text">NTC-5254: Gestion de Riesgo. NTC-1700: Medidas de Seguridad en Edificaciones. NTC-2885: Extintores Portatiles. NTC-4764: Cruces peatonales. NTC-4140: Edificios - Pasillos y corredores. NTC-4144: Edificios - Senalizacion. NTC-4145: Edificios - Escaleras. NFPA 101/06: Life Safety Code. NFPA 1600/07: Standard on Disaster/Emergency Management.</p>
 
     <!-- ============ ANALISIS DE RIESGOS ============ -->
-    <div class="page-break"></div>
-    <div class="section-title">REALIZACION DEL ANALISIS DE RIESGOS</div>
+<div class="section-title">REALIZACION DEL ANALISIS DE RIESGOS</div>
     <p class="content-text">Objetivo: Identificar y evaluar cuales son aquellos eventos o condiciones que pueden llegar a ocasionar una emergencia en <?= $nombreCliente ?>, de tal manera que este analisis se convierta en una herramienta para establecer las medidas de prevencion y control de los riesgos asociados.</p>
 
     <div class="section-subtitle">IDENTIFICACION Y CARACTERIZACION DE PELIGROS Y AMENAZAS</div>
@@ -400,8 +392,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <?php endif; ?>
 
     <!-- Descripciones de riesgos (texto estatico) -->
-    <div class="page-break"></div>
-    <div class="section-subtitle">RIESGOS NATURALES</div>
+<div class="section-subtitle">RIESGOS NATURALES</div>
     <p class="content-text"><strong>SISMOS, CAIDA DE ESTRUCTURAS:</strong> Ninguna edificacion, aun las construidas recientemente, se encuentran exentas de ser afectadas por la accion de las vibraciones derivadas del choque de las placas que forman la superficie de la tierra. La magnitud e intensidad, las caracteristicas del suelo, la resistencia de las edificaciones y la preparacion que se tenga por parte de las personas e instituciones para actuar y reaccionar de forma adecuada, dependen los danos que este cause. La ciudad de Bogota D.C. y sus alrededores estan asentados en una zona de riesgo sismico intermedio.</p>
     <p class="content-text"><strong>VENDAVALES, GRANIZADA Y TORMENTAS ELECTRICAS:</strong> Los cambios climaticos pueden encontrarse acompanados de vientos, lluvias, granizadas, tormentas electricas. La accion de vientos fuertes no solo puede romper ventanales y levantar tejas en las cubiertas, sino hacer caer antenas y pararrayos.</p>
     <p class="content-text"><strong>INUNDACIONES:</strong> Se presentan generalmente despues de una lluvia fuerte o granizada, por taponamiento de sifones, de desagues o de bajantes de canales; cuando se presenta acumulacion de residuos o basuras o por diametros muy reducidos de los tubos de la caneria.</p>
@@ -418,8 +409,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <p class="content-text"><strong>ASALTO Y HURTO:</strong> Posibilidad de riesgo principalmente en horas nocturnas. El conjunto residencial cuenta con vigilancia privada.</p>
 
     <!-- ============ CARGA COMBUSTIBLE ============ -->
-    <div class="page-break"></div>
-    <div class="section-title">CARGA COMBUSTIBLE</div>
+<div class="section-title">CARGA COMBUSTIBLE</div>
     <p class="content-text">La edificacion presenta diferentes tipos de material combustible, segun sus caracteristicas:</p>
     <div class="section-subtitle">CLASE A</div>
     <p class="content-text">Papel en documentos e informes. Carton en puntos de acopio. Telas en apartamentos y salones. Madera en muebles, sillas, puertas, divisiones. Materiales acrilicos en computadores, impresoras, telefonos. Cuero en algunas sillas.</p>
@@ -434,8 +424,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <p class="content-text"><strong>PARA RIESGOS CLASE C:</strong> Evitar uso de elementos de calor en areas con material combustible. Identificar cajas de tacos de corriente. Restringir entrada a cuartos electricos. Realizar revisiones periodicas de posibles humedades.</p>
 
     <!-- ============ PON CODIGO 7 ============ -->
-    <div class="page-break"></div>
-    <div class="section-title">PROCEDIMIENTO OPERATIVO NORMALIZADO (PON) - CODIGO 7</div>
+<div class="section-title">PROCEDIMIENTO OPERATIVO NORMALIZADO (PON) - CODIGO 7</div>
     <div class="section-subtitle">Falla de ascensor con personas en su interior</div>
     <p class="content-text"><strong>Introduccion:</strong> En edificaciones residenciales que cuentan con ascensores, es posible que se presenten fallas tecnicas, cortes electricos u otros incidentes que provoquen la detencion del equipo con ocupantes en su interior. Este procedimiento establece las acciones especificas para responder de manera rapida, segura y coordinada.</p>
     <p class="content-text"><strong>Objetivo:</strong> Establecer el procedimiento seguro y estandarizado para la atencion de emergencias por fallas de ascensor con personas atrapadas.</p>
@@ -445,8 +434,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
 
     <!-- ============ DIAGRAMA DE ACTUACION EN EMERGENCIAS ============ -->
     <?php if (!empty($diagramaBase64)): ?>
-    <div class="page-break"></div>
-    <div class="section-title">DIAGRAMA DE ACTUACION EN CASO DE EMERGENCIA</div>
+<div class="section-title">DIAGRAMA DE ACTUACION EN CASO DE EMERGENCIA</div>
     <p class="content-text">El siguiente diagrama de flujo establece el protocolo general de actuacion ante diferentes tipos de emergencia que puedan presentarse en la propiedad horizontal. Permite identificar rapidamente las acciones a seguir segun el tipo de evento.</p>
     <div style="text-align: center; margin: 15px 0;">
         <img src="<?= $diagramaBase64 ?>" style="max-width: 100%; max-height: 700px;">
@@ -454,8 +442,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <?php endif; ?>
 
     <!-- ============ ANEXOS - EVALUACIONES DE SEGURIDAD ============ -->
-    <div class="page-break"></div>
-    <div class="annex-title">ANEXOS - EVALUACIONES DE SEGURIDAD</div>
+<div class="annex-title">ANEXOS - EVALUACIONES DE SEGURIDAD</div>
     <p class="content-text">La gestion eficiente de la seguridad en propiedades horizontales requiere un enfoque integral que permita identificar y mitigar los riesgos. Cycloid Talent SAS ha llevado a cabo una revision exhaustiva de los principales elementos de seguridad necesarios para la creacion de este Plan de Emergencias.</p>
 
     <!-- ANEXO: INSPECCION LOCATIVA -->
@@ -487,8 +474,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
 
     <!-- ANEXO: MATRIZ VULNERABILIDAD -->
     <?php if ($ultimaMatriz): ?>
-    <div class="page-break"></div>
-    <div class="section-title">MATRIZ DE VULNERABILIDAD</div>
+<div class="section-title">MATRIZ DE VULNERABILIDAD</div>
     <p class="content-text">La matriz de vulnerabilidad es una herramienta utilizada para evaluar los riesgos a los que esta expuesta una copropiedad, analizando aspectos de seguridad fisica, infraestructura y procesos de mantenimiento.</p>
     <?php
     $matrizCriterios = [
@@ -552,8 +538,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
 
     <!-- ANEXO: EXTINTORES -->
     <?php if ($ultimaExt): ?>
-    <div class="page-break"></div>
-    <div class="section-title">REVISION DE EXTINTORES</div>
+<div class="section-title">REVISION DE EXTINTORES</div>
     <p class="content-text">Los extintores portatiles contra incendios son un equipo esencial para la seguridad. En caso de incendio, un extintor portatil puede ayudar a controlar o extinguir el fuego, lo que puede salvar vidas y proteger la propiedad.</p>
     <table class="info-table">
         <tr><td class="info-label">FECHA DE LA INSPECCION</td><td><?= !empty($ultimaExt['fecha_inspeccion']) ? date('d/m/Y', strtotime($ultimaExt['fecha_inspeccion'])) : '-' ?></td></tr>
@@ -571,8 +556,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
 
     <!-- ANEXO: BOTIQUIN -->
     <?php if ($ultimaBot): ?>
-    <div class="page-break"></div>
-    <div class="section-title">REVISION DE BOTIQUIN</div>
+<div class="section-title">REVISION DE BOTIQUIN</div>
     <p class="content-text">Los botiquines en propiedades horizontales deben estar equipados con los suministros de primeros auxilios necesarios para atender emergencias menores, garantizando una respuesta rapida ante accidentes hasta que llegue la asistencia medica profesional.</p>
     <table class="info-table">
         <tr><td class="info-label">FECHA DE LA INSPECCION</td><td><?= !empty($ultimaBot['fecha_inspeccion']) ? date('d/m/Y', strtotime($ultimaBot['fecha_inspeccion'])) : '-' ?></td></tr>
@@ -589,8 +573,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
 
     <!-- ANEXO: RECURSOS SEGURIDAD -->
     <?php if ($ultimaRec): ?>
-    <div class="page-break"></div>
-    <div class="section-title">RECURSOS DE SEGURIDAD</div>
+<div class="section-title">RECURSOS DE SEGURIDAD</div>
     <p class="content-text">Los recursos de seguridad incluyen equipo fisico (camaras, alarmas, cercas electricas, sistemas de control de acceso) y personal de seguridad capacitado, destinados a proteger a los residentes y garantizar el control de accesos y la vigilancia de areas comunes.</p>
     <table class="info-table">
         <tr><td class="info-label">FECHA DE LA INSPECCION</td><td><?= !empty($ultimaRec['fecha_inspeccion']) ? date('d/m/Y', strtotime($ultimaRec['fecha_inspeccion'])) : '-' ?></td></tr>
@@ -614,8 +597,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
 
     <!-- ANEXO: COMUNICACIONES -->
     <?php if ($ultimaCom): ?>
-    <div class="page-break"></div>
-    <div class="section-title">EQUIPOS DE COMUNICACIONES</div>
+<div class="section-title">EQUIPOS DE COMUNICACIONES</div>
     <p class="content-text">Los equipos de comunicaciones en una copropiedad son esenciales para coordinar las actividades del personal de seguridad, administracion y mantenimiento. Incluyen radios, intercomunicadores y telefonos para comunicacion rapida y efectiva.</p>
     <table class="info-table">
         <tr><td class="info-label">FECHA DE LA INSPECCION</td><td><?= !empty($ultimaCom['fecha_inspeccion']) ? date('d/m/Y', strtotime($ultimaCom['fecha_inspeccion'])) : '-' ?></td></tr>
@@ -635,8 +617,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <?php endif; endif; ?>
 
     <!-- ============ TELEFONOS DE EMERGENCIA ============ -->
-    <div class="page-break"></div>
-    <div class="section-title">TELEFONOS DE EMERGENCIA</div>
+<div class="section-title">TELEFONOS DE EMERGENCIA</div>
     <?php if ($ciudad): ?>
     <p class="content-text"><strong>Ciudad:</strong> <?= ucfirst($ciudad) ?></p>
     <?php if (!empty($telefonosCiudad)): ?>

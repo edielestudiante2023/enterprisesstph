@@ -50,8 +50,6 @@
         .range-table .range-val { font-weight: bold; text-align: center; width: 60px; }
 
         .content-text { font-size: 9px; line-height: 1.4; margin-bottom: 5px; }
-
-        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>
@@ -136,9 +134,7 @@
     </table>
 
     <!-- RESULTADO CONSOLIDADO -->
-    <div class="page-break"></div>
-
-    <div class="section-title">RESULTADO DE LA EVALUACION</div>
+<div class="section-title">RESULTADO DE LA EVALUACION</div>
     <table class="result-table">
         <tr>
             <td class="result-label">PUNTAJE TOTAL:</td>

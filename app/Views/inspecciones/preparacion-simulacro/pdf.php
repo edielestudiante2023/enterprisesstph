@@ -45,8 +45,6 @@ if (!empty($inspeccion['hora_inicio']) && !empty($inspeccion['agradecimiento_cie
 
         .foto-container { text-align: center; margin: 4px 0; }
         .foto-container img { max-width: 220px; max-height: 160px; border: 1px solid #ccc; }
-
-        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>

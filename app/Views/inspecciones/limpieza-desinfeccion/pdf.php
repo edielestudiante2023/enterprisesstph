@@ -124,9 +124,6 @@
         margin: 6px 0;
     }
     /* Page breaks */
-    .page-break {
-        page-break-before: always;
-    }
     /* Indicadores */
     .indicador-box {
         border: 1px solid #ccc;
@@ -206,7 +203,6 @@
 <p>El Programa contempla la ejecución de actividades rutinarias, periódicas y extraordinarias, de acuerdo con los cronogramas establecidos, garantizando el uso exclusivo de productos de limpieza y desinfección debidamente rotulados, aprobados para uso doméstico o institucional, y aplicados conforme a las fichas técnicas y hojas de seguridad (SDS) suministradas por el fabricante.</p>
 
 <!-- 1.3 DEFINICIONES -->
-<div class="page-break"></div>
 <div class="section-title">1.3 DEFINICIONES</div>
 <p>Para efectos del presente Programa de Limpieza y Desinfección en <?= esc($nombreCliente) ?>, se adoptan las siguientes definiciones:</p>
 
@@ -262,7 +258,6 @@
 <p class="definition-text">Residuos que, por su composición o peligrosidad, requieren manejo diferenciado, tales como envases de productos químicos, plaguicidas, sobrantes o elementos contaminados durante actividades de mantenimiento o control de plagas. (Decreto 1843 de 1991).</p>
 
 <!-- 1.4 RESPONSABLES -->
-<div class="page-break"></div>
 <div class="section-title">1.4 RESPONSABLES</div>
 <p>La implementación, ejecución, seguimiento, evaluación y mejora continua del Programa de Limpieza y Desinfección estará a cargo de los siguientes actores:</p>
 
@@ -374,7 +369,6 @@
 </table>
 
 <!-- 1.7 TÉCNICAS -->
-<div class="page-break"></div>
 <div class="section-title">1.7 TÉCNICAS DE LIMPIEZA Y DESINFECCIÓN</div>
 <p>Con el fin de garantizar la efectividad del proceso de limpieza y desinfección y prevenir la contaminación cruzada, se deberán aplicar de manera obligatoria las siguientes técnicas inductivas:</p>
 
@@ -457,7 +451,6 @@
 <p class="nota">Nota 2: Si se utilizan productos con acción detergente y desinfectante conjunta, se omiten los pasos 12, 13 y 14.</p>
 
 <!-- 1.11 FRECUENCIA -->
-<div class="page-break"></div>
 <div class="section-title">1.11 FRECUENCIA DE LIMPIEZA Y DESINFECCIÓN</div>
 <p>La frecuencia de ejecución de las actividades de limpieza y desinfección se establece de acuerdo con el nivel de uso, criticidad sanitaria y riesgo asociado a cada área, así:</p>
 <table class="data-table">

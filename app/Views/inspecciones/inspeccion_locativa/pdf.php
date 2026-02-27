@@ -49,8 +49,6 @@
         .estado-abierto { background: #fff3cd; color: #856404; }
         .estado-cerrado { background: #d4edda; color: #155724; }
         .estado-excedido { background: #f8d7da; color: #721c24; }
-
-        .page-break { page-break-before: always; }
         .intro-text { font-size: 9px; line-height: 1.5; margin-bottom: 8px; text-align: justify; }
     </style>
 </head>

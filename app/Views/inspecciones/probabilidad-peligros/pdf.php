@@ -49,8 +49,6 @@
         .result-table { width: 60%; border-collapse: collapse; margin: 6px auto; }
         .result-table td { border: 1px solid #ccc; padding: 4px 8px; font-size: 9px; }
         .result-table .result-label { font-weight: bold; width: 50%; }
-
-        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>
@@ -144,8 +142,7 @@
     </table>
 
     <!-- DESCRIPCIONES DE PELIGROS -->
-    <div class="page-break"></div>
-    <div class="section-title">CARACTERIZACION DE LOS PELIGROS</div>
+<div class="section-title">CARACTERIZACION DE LOS PELIGROS</div>
 
     <p class="desc-title">SISMOS, CAIDA DE ESTRUCTURAS:</p>
     <p class="desc-text">Ninguna edificacion, aun las construidas recientemente, se encuentran exentas de ser afectadas por la accion de las vibraciones derivadas del choque de las placas que forman la superficie de la tierra. La magnitud e intensidad, las caracteristicas del suelo, la resistencia de las edificaciones y la preparacion de las personas e instituciones determinan los danos que este cause. La ciudad de Bogota D.C. y sus alrededores estan asentados en una zona de riesgo sismico intermedio.</p>

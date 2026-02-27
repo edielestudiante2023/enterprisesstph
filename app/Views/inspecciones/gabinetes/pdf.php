@@ -48,8 +48,6 @@
         .val-bueno { color: #155724; }
         .val-regular { color: #856404; }
         .val-malo { color: #721c24; }
-
-        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>
@@ -167,8 +165,7 @@
 
     <!-- GABINETES INDIVIDUALES -->
     <?php if (!empty($gabinetes)): ?>
-    <div class="page-break"></div>
-    <div class="section-title">DETALLE DE GABINETES INSPECCIONADOS (<?= count($gabinetes) ?>)</div>
+<div class="section-title">DETALLE DE GABINETES INSPECCIONADOS (<?= count($gabinetes) ?>)</div>
 
     <table class="data-table">
         <thead>

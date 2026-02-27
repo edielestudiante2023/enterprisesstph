@@ -57,8 +57,6 @@
         .firma-table img { max-width: 100px; max-height: 45px; }
         .firma-label { border-top: 1px solid #333; margin-top: 4px; padding-top: 3px; font-size: 8px; font-weight: bold; color: #555; }
 
-        .page-break { page-break-before: always; }
-
         /* Galeria de fotos */
         .foto-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
         .foto-table td { padding: 5px; text-align: center; vertical-align: top; width: 33%; }

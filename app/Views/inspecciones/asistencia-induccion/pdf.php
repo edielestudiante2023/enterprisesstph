@@ -38,7 +38,6 @@ $tipoLabel = $tiposCharla[$inspeccion['tipo_charla'] ?? ''] ?? $inspeccion['tipo
         .resp-title { font-size: 9px; font-weight: bold; margin: 6px 0 3px; color: #1c2437; }
 
         .firma-img { max-width: 80px; max-height: 40px; }
-        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>

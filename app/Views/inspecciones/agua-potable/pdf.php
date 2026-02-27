@@ -118,9 +118,6 @@
         color: #555;
         margin: 6px 0;
     }
-    .page-break {
-        page-break-before: always;
-    }
     .indicador-box {
         border: 1px solid #ccc;
         padding: 8px;
@@ -248,7 +245,6 @@ $capTotal = $inspeccion['capacidad_total'] ?? '—';
 <p>Este aforo permitirá identificar variaciones en el consumo, fugas, sobreuso del recurso o la necesidad de ajustes en el sistema.</p>
 
 <!-- 1.5 MANTENIMIENTO -->
-<div class="page-break"></div>
 <div class="section-title">1.5 MANTENIMIENTO, LIMPIEZA Y DESINFECCIÓN</div>
 <p>La limpieza y desinfección de los tanques de almacenamiento y redes de distribución se debe realizar como mínimo cada seis (6) meses, a través de una empresa especializada que cuente con:</p>
 <ul class="lista-items">
@@ -308,7 +304,6 @@ $capTotal = $inspeccion['capacidad_total'] ?? '—';
 </ol>
 
 <!-- 1.9 DESINFECCIÓN -->
-<div class="page-break"></div>
 <div class="section-title">1.9 DESINFECCIÓN DE TANQUES DE AGUA</div>
 <ol class="lista-items" type="a">
     <li>Preparar la solución desinfectante de la siguiente manera: en un recipiente de mil (1000) mililitros, adicionar cien (100) mililitros de Hipoclorito de Sodio al cinco por ciento (5 %) y mezclar de forma homogénea. Para un tanque de mil (1000) litros, se deben aplicar diez (10) litros de esta solución, lo que equivale a un (1) litro de hipoclorito de sodio al cinco por ciento (5 %).</li>

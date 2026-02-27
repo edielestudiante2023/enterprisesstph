@@ -47,8 +47,6 @@ if (!empty($inspeccion['numero_programados']) && $inspeccion['numero_programados
         .foto-container img { max-width: 220px; max-height: 160px; border: 1px solid #ccc; }
 
         .badge-perfil { padding: 2px 6px; background: #17a2b8; color: white; font-size: 8px; font-weight: bold; margin-right: 3px; }
-
-        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>

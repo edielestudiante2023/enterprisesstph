@@ -57,8 +57,6 @@
         .resumen-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
         .resumen-table td { border: 1px solid #ccc; padding: 6px 10px; font-size: 10px; }
         .resumen-label { font-weight: bold; background: #f7f7f7; width: 200px; }
-
-        .page-break { page-break-before: always; }
         .intro-text { font-size: 9px; line-height: 1.5; margin-bottom: 8px; text-align: justify; }
 
         /* Grupo header en tabla */

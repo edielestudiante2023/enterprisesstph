@@ -42,8 +42,6 @@
 
         .content-text { font-size: 9px; line-height: 1.4; margin-bottom: 5px; }
         .intro-text { font-size: 8px; line-height: 1.4; margin-bottom: 6px; text-align: justify; }
-
-        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>

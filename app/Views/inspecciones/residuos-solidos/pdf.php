@@ -118,9 +118,6 @@
         color: #555;
         margin: 6px 0;
     }
-    .page-break {
-        page-break-before: always;
-    }
     .indicador-box {
         border: 1px solid #ccc;
         padding: 8px;
@@ -217,7 +214,6 @@
 <p class="definition-text">Espacio físico destinado exclusivamente para el almacenamiento interno de residuos, debidamente señalizado, ventilado y de acceso restringido.</p>
 
 <!-- 1.4 PRECAUCIONES -->
-<div class="page-break"></div>
 <div class="section-title">1.4 PRECAUCIONES DE SEGURIDAD Y OBSERVACIONES GENERALES</div>
 <p>Para la adecuada implementación del Programa de Desechos Sólidos en <?= esc($nombreCliente) ?>, se deberán cumplir las siguientes medidas:</p>
 <ul class="lista-items">
@@ -286,7 +282,6 @@
 <p>Una vez finalizadas las actividades, los elementos utilizados deberán ser limpiados, desinfectados y almacenados en el área designada, dejando las zonas intervenidas en óptimas condiciones de orden y aseo.</p>
 
 <!-- 1.9 EPP -->
-<div class="page-break"></div>
 <div class="section-title">1.9 ELEMENTOS DE PROTECCIÓN PERSONAL NECESARIOS PARA EL MANEJO DE DESECHOS SÓLIDOS</div>
 
 <table class="data-table">
@@ -361,7 +356,6 @@
 </ul>
 
 <!-- 1.10.2 CLASIFICACIÓN -->
-<div class="page-break"></div>
 <div class="subsection-title">1.10.2 CLASIFICACIÓN DE LOS RESIDUOS GENERADOS</div>
 <p>La clasificación de los residuos sólidos generados en <?= esc($nombreCliente) ?> se realizará conforme a la Resolución 2184 de 2019, así:</p>
 
@@ -434,7 +428,6 @@
 </ol>
 
 <!-- 1.11.5 ALTERNATIVAS -->
-<div class="page-break"></div>
 <div class="subsection-title">1.11.5 Alternativas para la optimización del manejo de residuos</div>
 <ol class="lista-items" type="a">
     <li>Separación en la fuente: Implementación estricta del código de colores conforme a la Resolución 2184 de 2019.</li>

@@ -48,8 +48,6 @@
         .val-regular { color: #856404; }
         .val-malo { color: #721c24; }
         .val-na { color: #6c757d; }
-
-        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>
@@ -169,8 +167,7 @@
     </table>
 
     <!-- EXTINTORES INSPECCIONADOS -->
-    <div class="page-break"></div>
-    <div class="section-title">DETALLE DE EXTINTORES INSPECCIONADOS (<?= count($extintores) ?>)</div>
+<div class="section-title">DETALLE DE EXTINTORES INSPECCIONADOS (<?= count($extintores) ?>)</div>
 
     <?php if (!empty($extintores)): ?>
     <table class="data-table">

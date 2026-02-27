@@ -46,8 +46,6 @@
         .foto-inline { max-width: 140px; max-height: 100px; border: 1px solid #ccc; }
         .foto-small { max-width: 100px; max-height: 70px; border: 1px solid #ccc; }
 
-        .page-break { page-break-before: always; }
-
         .pregunta-si { color: #155724; font-weight: bold; }
         .pregunta-no { color: #721c24; font-weight: bold; }
 
@@ -165,8 +163,7 @@
     </table>
 
     <!-- TABLA DE ELEMENTOS -->
-    <div class="page-break"></div>
-    <div class="section-title">ELEMENTOS DEL BOTIQUIN (32 items - NTC 4198)</div>
+<div class="section-title">ELEMENTOS DEL BOTIQUIN (32 items - NTC 4198)</div>
 
     <?php
     use App\Controllers\Inspecciones\InspeccionBotiquinController;

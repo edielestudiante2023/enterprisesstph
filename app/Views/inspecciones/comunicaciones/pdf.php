@@ -43,8 +43,6 @@
 
         .photo-row { margin: 4px 0; }
         .photo-row img { max-width: 200px; max-height: 120px; border: 1px solid #ccc; }
-
-        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>

@@ -38,7 +38,6 @@
         .theory-title { font-weight: bold; font-size: 9px; margin: 6px 0 3px; color: #1c2437; }
 
         .foto-inline { max-width: 200px; max-height: 150px; border: 1px solid #ccc; }
-        .page-break { page-break-before: always; }
 
         .score-box { text-align: center; font-size: 14px; font-weight: bold; padding: 4px; }
     </style>
@@ -81,9 +80,7 @@
     <p class="content-text">El simulacro se desarrolla en las siguientes fases: (1) Planeacion y alistamiento de recursos, (2) Activacion de la alarma y asignacion de roles, (3) Evacuacion hacia puntos de encuentro, (4) Conteo y verificacion de personal, (5) Cierre y retroalimentacion. Durante el ejercicio se registran los tiempos de cada fase mediante cronometro digital, se documenta el evento con fotografias y se evaluan cinco criterios clave en una escala de 1 a 10.</p>
 
     <!-- ====== RESULTADOS ====== -->
-    <div class="page-break"></div>
-
-    <table class="header-table">
+<table class="header-table">
         <tr>
             <td class="header-logo" rowspan="2">
                 <?php if (!empty($logoBase64)): ?>

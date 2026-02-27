@@ -118,9 +118,6 @@
         color: #555;
         margin: 6px 0;
     }
-    .page-break {
-        page-break-before: always;
-    }
     .indicador-box {
         border: 1px solid #ccc;
         padding: 8px;
@@ -214,7 +211,6 @@
 </ul>
 
 <!-- 1.4 CONSIDERACIONES GENERALES -->
-<div class="page-break"></div>
 <div class="section-title">1.4 CONSIDERACIONES GENERALES</div>
 <p>Los roedores, como ratas y ratones, son especies que se han adaptado al entorno humano, representando un riesgo significativo para la salud pública, el ambiente y las instalaciones. Por esta razón, se les denomina roedores domésticos.</p>
 <p>Pertenecen al orden Rodentia, familia Muridae, destacándose las siguientes especies:</p>
@@ -273,7 +269,6 @@
 </ol>
 
 <!-- 1.6 CONTROL DE INSECTOS -->
-<div class="page-break"></div>
 <div class="section-title">1.6 CONTROL DE INSECTOS RASTREROS Y VOLADORES</div>
 <p>En <?= esc($nombreCliente) ?> se deberá implementar un control integrado de insectos rastreros y voladores, basado en la prevención, el saneamiento ambiental, el control físico y, cuando sea necesario, la aplicación controlada de productos químicos autorizados.</p>
 <p>A continuación, se presenta una síntesis de los insectos rastreros y voladores de mayor incidencia, su clasificación, principales enfermedades asociadas y medidas preventivas.</p>
@@ -354,7 +349,6 @@
 </ol>
 
 <!-- 1.6.5 CONTROL QUÍMICO -->
-<div class="page-break"></div>
 <div class="subsection-title">1.6.5 CONTROL QUÍMICO – INSECTICIDAS</div>
 <p>Muchos de los insectos vectores de enfermedades parasitarias se encuentran estrechamente vinculados a ecosistemas acuáticos, por lo cual el control efectivo debe priorizar la gestión ambiental, minimizando las condiciones favorables para su reproducción.</p>
 <p>Las principales acciones de manejo ambiental incluyen:</p>
@@ -392,7 +386,6 @@
 <p>En ningún caso se deberá utilizar el mismo producto en aplicaciones consecutivas.</p>
 
 <!-- 1.7 CONTROL DE PALOMAS -->
-<div class="page-break"></div>
 <div class="section-title">1.7 CONTROL DE PALOMAS</div>
 <p>La paloma es una de las especies que mejor se ha adaptado al entorno urbano debido a la disponibilidad de alimento, la ausencia de depredadores naturales y la similitud del ambiente urbano con su hábitat natural.</p>
 <p>En Colombia se registran treinta y nueve (39) especies de palomas y afines, de las cuales una (1) es endémica, nueve (9) son casi endémicas, tres (3) son migratorias boreales, dos (2) son introducidas y tres (3) se encuentran en peligro de extinción.</p>
@@ -474,7 +467,6 @@
 </ul>
 
 <!-- 1.10 FRECUENCIA -->
-<div class="page-break"></div>
 <div class="section-title">1.10 FRECUENCIA DE LOS SERVICIOS DE CONTROL PREVENTIVO DE PLAGAS</div>
 <ul class="lista-items">
     <li><strong>Insectos rastreros y voladores:</strong> Semestral.</li>

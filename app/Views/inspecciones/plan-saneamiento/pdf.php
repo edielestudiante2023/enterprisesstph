@@ -109,9 +109,6 @@
         color: #555;
         margin: 6px 0;
     }
-    .page-break {
-        page-break-before: always;
-    }
     .indicador-box {
         border: 1px solid #ccc;
         padding: 8px;
@@ -214,8 +211,6 @@ $fechaDoc = !empty($inspeccion['fecha_programa']) ? date('d/m/Y', strtotime($ins
 <p>La aplicación del presente Plan reafirma el compromiso de la copropiedad con la salud pública, la convivencia, la prevención de riesgos sanitarios y el cumplimiento de la normatividad legal vigente, contribuyendo de manera directa a la calidad de vida de todos los habitantes del conjunto residencial.</p>
 
 <!-- CONSOLIDACIÓN DE INDICADORES -->
-<div class="page-break"></div>
-
 <div class="section-title">CONSOLIDACIÓN DE INDICADORES Y DISPONIBILIDAD DE PROGRAMAS</div>
 
 <p>Cada uno de los programas que integran el Plan de Saneamiento Básico de <strong><?= esc($nombreCliente) ?></strong> corresponde a un documento técnico independiente, el cual contiene su respectivo objetivo, alcance, definiciones, procedimientos, responsabilidades, registros, formatos y controles operativos.</p>
@@ -351,8 +346,6 @@ $fechaDoc = !empty($inspeccion['fecha_programa']) ? date('d/m/Y', strtotime($ins
 </table>
 
 <!-- RESULTADOS CON CORTE A LA FECHA -->
-<div class="page-break"></div>
-
 <div class="section-title">RESULTADOS CON CORTE A LA FECHA</div>
 <p><strong>Fecha del registro:</strong> <?= $fechaDoc ?></p>
 
