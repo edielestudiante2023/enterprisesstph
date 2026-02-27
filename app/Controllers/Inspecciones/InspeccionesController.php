@@ -36,6 +36,7 @@ use App\Models\KpiLimpiezaModel;
 use App\Models\KpiResiduosModel;
 use App\Models\KpiPlagasModel;
 use App\Models\KpiAguaPotableModel;
+use App\Models\AgendamientoModel;
 
 class InspeccionesController extends BaseController
 {
@@ -476,6 +477,7 @@ class InspeccionesController extends BaseController
             'totalVencimientos' => $totalVencimientos,
             'totalPendientesAbiertos' => $totalPendientesAbiertos,
             'totalCartasVigiaPend' => $totalCartasVigiaPend,
+            'totalAgendamientos' => (new AgendamientoModel())->where('id_consultor', $userId)->whereIn('estado', ['pendiente', 'confirmado'])->countAllResults(),
             'nombre'           => session()->get('nombre_usuario'),
         ];
 

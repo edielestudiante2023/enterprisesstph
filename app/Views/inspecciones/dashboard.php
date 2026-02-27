@@ -778,6 +778,24 @@
         </div>
     </div>
 
+    <!-- Card Agendamiento destacada -->
+    <div class="section-title">Agendamiento</div>
+    <a href="/inspecciones/agendamiento" class="card mb-3 border-0" style="background: linear-gradient(135deg, #1c2437, #2c3e50); border-radius: 12px; text-decoration:none;">
+        <div class="card-body py-3 px-3 d-flex align-items-center justify-content-between">
+            <div>
+                <div style="color: #bd9751; font-weight: 700; font-size: 16px;">
+                    <i class="fas fa-calendar-alt me-2"></i>Agendamientos
+                </div>
+                <div style="color: #adb5bd; font-size: 13px;">
+                    <?= $totalAgendamientos ?> visita<?= $totalAgendamientos !== 1 ? 's' : '' ?> pendiente<?= $totalAgendamientos !== 1 ? 's' : '' ?>
+                </div>
+            </div>
+            <div style="color: #bd9751; font-size: 24px;">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+        </div>
+    </a>
+
     <!-- Grid de inspecciones -->
     <div class="section-title">Inspecciones</div>
     <div class="grid-inspecciones mb-4">

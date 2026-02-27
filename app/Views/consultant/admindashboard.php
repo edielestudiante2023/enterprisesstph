@@ -649,8 +649,13 @@
                     </button>
                 </a>
                 <a href="<?= base_url('/admin/delete-pta-abiertas') ?>" target="_blank" rel="noopener noreferrer">
-                    <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #f39c12, #e67e22); border: none;" aria-label="Eliminar PTA Abiertas">
+                    <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #f39c12, #e67e22); border: none;" aria-label="Eliminar PTA Abiertas">
                         <i class="fas fa-trash-alt me-2"></i>Eliminar PTA Abiertas
+                    </button>
+                </a>
+                <a href="<?= base_url('/admin/agendamientos') ?>" rel="noopener noreferrer">
+                    <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #20c997, #13b397); border: none;" aria-label="Panel de Agendamientos">
+                        <i class="fas fa-calendar-check me-2"></i>Panel de Agendamientos
                     </button>
                 </a>
             </div>

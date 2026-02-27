@@ -586,8 +586,13 @@
                 </button>
             </a>
             <a href="<?= base_url('/pta-transiciones') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom ms-3" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7); border: none;">
+                <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7); border: none;">
                     <i class="fas fa-exchange-alt me-2"></i>Transiciones PTA
+                </button>
+            </a>
+            <a href="<?= base_url('/admin/agendamientos') ?>" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #20c997, #13b397); border: none;">
+                    <i class="fas fa-calendar-check me-2"></i>Panel de Agendamientos
                 </button>
             </a>
         </div>

@@ -1246,6 +1246,16 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('urls/update/(:num)', 'UrlsPwaController::update/$1');
     $routes->get('urls/delete/(:num)', 'UrlsPwaController::delete/$1');
 
+    // Agendamiento de Visitas
+    $routes->get('agendamiento', 'AgendamientoController::list');
+    $routes->get('agendamiento/create', 'AgendamientoController::create');
+    $routes->post('agendamiento/store', 'AgendamientoController::store');
+    $routes->get('agendamiento/edit/(:num)', 'AgendamientoController::edit/$1');
+    $routes->post('agendamiento/update/(:num)', 'AgendamientoController::update/$1');
+    $routes->post('agendamiento/cancel/(:num)', 'AgendamientoController::cancel/$1');
+    $routes->post('agendamiento/send-invitation/(:num)', 'AgendamientoController::sendInvitation/$1');
+    $routes->get('agendamiento/api/cliente-info/(:num)', 'AgendamientoController::apiClienteInfo/$1');
+
     // API endpoints AJAX
     $routes->get('api/clientes', 'InspeccionesController::getClientes');
     $routes->get('api/pendientes/(:num)', 'InspeccionesController::getPendientes/$1');
@@ -1302,4 +1312,11 @@ $routes->group('ext-api/informe-avances', ['filter' => 'authOrApiKey'], function
     $routes->post('generar-y-enviar/(:num)', 'InformeAvancesController::apiGenerarYEnviar/$1');
     $routes->post('enviar/(:num)', 'InformeAvancesController::enviar/$1');
 });
+
+// ============================================================================
+// Panel Admin - Supervisión de Agendamientos
+// ============================================================================
+$routes->get('admin/agendamientos', 'AdminAgendamientoController::index', ['filter' => 'auth']);
+$routes->get('admin/agendamientos/consultor/(:num)', 'AdminAgendamientoController::porConsultor/$1', ['filter' => 'auth']);
+$routes->get('admin/agendamientos/api/resumen', 'AdminAgendamientoController::apiResumen', ['filter' => 'auth']);
 
