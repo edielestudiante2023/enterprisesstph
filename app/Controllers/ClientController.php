@@ -104,12 +104,20 @@ class ClientController extends Controller
             ->findAll();
     }
 
-    public function viewDocuments()
+    public function viewDocuments($clientIdParam = null)
     {
         $reportModel = new ReporteModel();
 
-        // 1) Obtener el ID del cliente desde la sesión
-        $clientId = session()->get('user_id');
+        // 1) Obtener el ID del cliente: parámetro (para consultores) o sesión (para clientes)
+        $session = session();
+        $role = $session->get('role');
+
+        if ($clientIdParam && in_array($role, ['consultant', 'admin'])) {
+            $clientId = $clientIdParam;
+        } else {
+            $clientId = $session->get('user_id');
+        }
+
         if (!$clientId) {
             return redirect()->to('/login')->with('error', 'Sesión no válida.');
         }

@@ -420,11 +420,20 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label"><i class="fas fa-credit-card"></i>Plazo de Cartera</label>
-                                <select name="plazo_cartera" class="form-select">
+                                <?php
+                                    $plazoActual = $client['plazo_cartera'] ?? '';
+                                    $plazosPredef = ['PAGO INMEDIATO','8 DÍAS','15 DÍAS','21 DÍAS','30 DÍAS','45 DÍAS','60 DÍAS','90 DÍAS'];
+                                    $esOtro = ($plazoActual !== '' && !in_array($plazoActual, $plazosPredef));
+                                ?>
+                                <select name="plazo_cartera_select" id="plazo_cartera_select" class="form-select">
                                     <option value="">Seleccione</option>
-                                    <option value="PAGO INMEDIATO" <?= ($client['plazo_cartera'] ?? '') === 'PAGO INMEDIATO' ? 'selected' : '' ?>>PAGO INMEDIATO</option>
-                                    <option value="PLAZO 8 DÍAS" <?= ($client['plazo_cartera'] ?? '') === 'PLAZO 8 DÍAS' ? 'selected' : '' ?>>PLAZO 8 DÍAS</option>
+                                    <?php foreach ($plazosPredef as $p): ?>
+                                        <option value="<?= $p ?>" <?= $plazoActual === $p ? 'selected' : '' ?>><?= $p ?></option>
+                                    <?php endforeach; ?>
+                                    <option value="OTRO" <?= $esOtro ? 'selected' : '' ?>>OTRO PLAZO</option>
                                 </select>
+                                <input type="text" name="plazo_cartera_otro" id="plazo_cartera_otro" class="form-control mt-2 <?= $esOtro ? '' : 'd-none' ?>" placeholder="Digite el plazo" value="<?= $esOtro ? esc($plazoActual) : '' ?>">
+                                <input type="hidden" name="plazo_cartera" id="plazo_cartera_hidden" value="<?= esc($plazoActual) ?>">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label"><i class="fas fa-calendar-day"></i>Cierre Facturación (día)</label>
@@ -760,5 +769,27 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sel = document.getElementById('plazo_cartera_select');
+    const otro = document.getElementById('plazo_cartera_otro');
+    const hidden = document.getElementById('plazo_cartera_hidden');
+
+    function syncPlazo() {
+        if (sel.value === 'OTRO') {
+            otro.classList.remove('d-none');
+            hidden.value = otro.value;
+        } else {
+            otro.classList.add('d-none');
+            otro.value = '';
+            hidden.value = sel.value;
+        }
+    }
+
+    sel.addEventListener('change', syncPlazo);
+    otro.addEventListener('input', function() { hidden.value = otro.value; });
+    syncPlazo();
+});
+</script>
 </body>
 </html>

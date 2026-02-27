@@ -246,7 +246,7 @@
     <tr>
         <td style="width:25%;">
             <div class="metric-label">PUNTAJE ANTERIOR</div>
-            <div class="metric-value"><?= number_format($informe['puntaje_anterior'] ?? 0, 1) ?>%</div>
+            <div class="metric-value"><?= $informe['puntaje_anterior'] !== null ? number_format($informe['puntaje_anterior'], 1) . '%' : 'N/A' ?></div>
         </td>
         <td style="width:25%;">
             <div class="metric-label">PUNTAJE ACTUAL</div>
@@ -264,6 +264,7 @@
             <?php
                 $ea = $informe['estado_avance'];
                 $eaClass = match(true) {
+                    str_contains($ea, 'LÍNEA BASE')    => 'estado-moderado',
                     str_contains($ea, 'SIGNIFICATIVO') => 'estado-significativo',
                     str_contains($ea, 'MODERADO')      => 'estado-moderado',
                     str_contains($ea, 'ESTABLE')       => 'estado-estable',

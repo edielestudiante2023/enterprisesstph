@@ -45,7 +45,8 @@ class MetricasInformeService
     }
 
     /**
-     * Calcula fecha_desde: día siguiente al último informe completo, o null si no hay
+     * Calcula fecha_desde: día siguiente al último informe completo,
+     * o fecha_inicio del contrato activo si es el primer informe
      */
     public function getFechaDesde(int $idCliente): ?string
     {
@@ -58,7 +59,16 @@ class MetricasInformeService
             return $fecha->format('Y-m-d');
         }
 
-        return null;
+        // Primer informe: usar fecha inicio del contrato activo
+        $contrato = $this->db->table('tbl_contratos')
+            ->select('fecha_inicio')
+            ->where('id_cliente', $idCliente)
+            ->where('estado', 'activo')
+            ->orderBy('fecha_inicio', 'DESC')
+            ->get()
+            ->getRowArray();
+
+        return $contrato ? $contrato['fecha_inicio'] : null;
     }
 
     /**
@@ -193,7 +203,7 @@ class MetricasInformeService
 
         // Actas de visita en el periodo
         $actas = $this->db->table('tbl_acta_visita')
-            ->select('fecha_visita, objetivo_visita')
+            ->select('fecha_visita, motivo')
             ->where('id_cliente', $idCliente)
             ->where('fecha_visita >=', $desde)
             ->where('fecha_visita <=', $hasta)
@@ -202,12 +212,12 @@ class MetricasInformeService
             ->getResultArray();
 
         foreach ($actas as $a) {
-            $actividades[] = "Visita ({$a['fecha_visita']}): {$a['objetivo_visita']}";
+            $actividades[] = "Visita ({$a['fecha_visita']}): {$a['motivo']}";
         }
 
         // Capacitaciones ejecutadas en el periodo
         $caps = $this->db->table('tbl_cronog_capacitacion')
-            ->select('fecha_programada, tema_capacitacion, estado')
+            ->select('fecha_programada, nombre_capacitacion, estado')
             ->where('id_cliente', $idCliente)
             ->where('estado', 'EJECUTADA')
             ->where('fecha_programada >=', $desde)
@@ -217,7 +227,7 @@ class MetricasInformeService
             ->getResultArray();
 
         foreach ($caps as $c) {
-            $actividades[] = "Capacitación ejecutada ({$c['fecha_programada']}): {$c['tema_capacitacion']}";
+            $actividades[] = "Capacitación ejecutada ({$c['fecha_programada']}): {$c['nombre_capacitacion']}";
         }
 
         // PTA cerradas en el periodo
@@ -251,8 +261,9 @@ class MetricasInformeService
     {
         $puntajeActual = $this->calcularCumplimientoEstandares($idCliente);
         $puntajeAnterior = $this->getPuntajeAnterior($idCliente);
-        $diferencia = $puntajeAnterior !== null ? round($puntajeActual - $puntajeAnterior, 2) : 0.0;
-        $estadoAvance = $this->calcularEstadoAvance($diferencia);
+        $esPrimerInforme = $puntajeAnterior === null;
+        $diferencia = !$esPrimerInforme ? round($puntajeActual - $puntajeAnterior, 2) : 0.0;
+        $estadoAvance = $esPrimerInforme ? 'LÍNEA BASE' : $this->calcularEstadoAvance($diferencia);
 
         $actividadesCerradas = $this->getActividadesCerradasPeriodo($idCliente, $fechaDesde, $fechaHasta);
 

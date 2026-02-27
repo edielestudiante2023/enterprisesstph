@@ -116,7 +116,7 @@
                                     <div class="col-md-4">
                                         <div class="grid-item">
                                             <i class="fas fa-folder-open"></i>
-                                            <a href="<?= base_url('/viewDocuments') ?>" target="_blank">Gestor Documental</a>
+                                            <a href="<?= base_url('/viewDocuments/' . $client['id_cliente']) ?>" target="_blank">Gestor Documental</a>
                                         </div>
                                     </div>
                                     <div class="col-md-4">

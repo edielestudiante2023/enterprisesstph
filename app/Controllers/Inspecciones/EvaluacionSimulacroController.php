@@ -129,10 +129,6 @@ class EvaluacionSimulacroController extends BaseController
         if (!$eval) {
             return redirect()->to('/inspecciones/simulacro')->with('error', 'No encontrada');
         }
-        if ($eval['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/simulacro')->with('error', 'No se puede eliminar una evaluacion completa');
-        }
-
         // Borrar fotos
         foreach (['imagen_1', 'imagen_2'] as $campo) {
             if (!empty($eval[$campo]) && file_exists(FCPATH . $eval[$campo])) {
@@ -150,7 +146,126 @@ class EvaluacionSimulacroController extends BaseController
         return redirect()->to('/inspecciones/simulacro')->with('msg', 'Evaluacion eliminada');
     }
 
+    /**
+     * Formulario de edicion
+     */
+    public function edit($id)
+    {
+        $eval = $this->evalModel->find($id);
+        if (!$eval) {
+            return redirect()->to('/inspecciones/simulacro')->with('error', 'No encontrada');
+        }
+
+        $clientModel = new ClientModel();
+
+        $data = [
+            'title'   => 'Editar Evaluacion Simulacro',
+            'eval'    => $eval,
+            'cliente' => $clientModel->find($eval['id_cliente']),
+        ];
+
+        return view('inspecciones/layout_pwa', [
+            'content' => view('inspecciones/simulacro/form', $data),
+            'title'   => 'Editar Simulacro',
+        ]);
+    }
+
+    /**
+     * Actualizar evaluacion
+     */
+    public function update($id)
+    {
+        $eval = $this->evalModel->find($id);
+        if (!$eval) {
+            return redirect()->to('/inspecciones/simulacro')->with('error', 'No encontrada');
+        }
+
+        $data = $this->getEvalPostData();
+
+        foreach (['imagen_1', 'imagen_2'] as $campo) {
+            $nueva = $this->uploadFoto($campo, 'uploads/inspecciones/simulacro/fotos/');
+            if ($nueva) {
+                if (!empty($eval[$campo]) && file_exists(FCPATH . $eval[$campo])) {
+                    unlink(FCPATH . $eval[$campo]);
+                }
+                $data[$campo] = $nueva;
+            }
+        }
+
+        $this->evalModel->update($id, $data);
+
+        if ($this->request->getPost('finalizar')) {
+            return $this->finalizar($id);
+        }
+
+        return redirect()->to('/inspecciones/simulacro/edit/' . $id)
+            ->with('msg', 'Evaluacion actualizada');
+    }
+
     // ===== METODOS PRIVADOS =====
+
+    private function getEvalPostData(): array
+    {
+        $data = [
+            'fecha'                     => $this->request->getPost('fecha'),
+            'direccion'                 => $this->request->getPost('direccion'),
+            'evento_simulado'           => $this->request->getPost('evento_simulado'),
+            'alcance_simulacro'         => $this->request->getPost('alcance_simulacro'),
+            'tipo_evacuacion'           => $this->request->getPost('tipo_evacuacion'),
+            'personal_no_evacua'        => $this->request->getPost('personal_no_evacua'),
+            'puntos_encuentro'          => $this->request->getPost('puntos_encuentro'),
+            'recurso_humano'            => $this->request->getPost('recurso_humano'),
+            'nombre_brigadista_lider'   => $this->request->getPost('nombre_brigadista_lider'),
+            'email_brigadista_lider'    => $this->request->getPost('email_brigadista_lider'),
+            'whatsapp_brigadista_lider' => $this->request->getPost('whatsapp_brigadista_lider'),
+            'hora_inicio'               => $this->request->getPost('hora_inicio') ?: null,
+            'alistamiento_recursos'     => $this->request->getPost('alistamiento_recursos') ?: null,
+            'asumir_roles'              => $this->request->getPost('asumir_roles') ?: null,
+            'suena_alarma'              => $this->request->getPost('suena_alarma') ?: null,
+            'distribucion_roles'        => $this->request->getPost('distribucion_roles') ?: null,
+            'llegada_punto_encuentro'   => $this->request->getPost('llegada_punto_encuentro') ?: null,
+            'agrupacion_por_afinidad'   => $this->request->getPost('agrupacion_por_afinidad') ?: null,
+            'conteo_personal'           => $this->request->getPost('conteo_personal') ?: null,
+            'agradecimiento_y_cierre'   => $this->request->getPost('agradecimiento_y_cierre') ?: null,
+            'tiempo_total'              => $this->request->getPost('tiempo_total'),
+            'hombre'                    => (int) ($this->request->getPost('hombre') ?? 0),
+            'mujer'                     => (int) ($this->request->getPost('mujer') ?? 0),
+            'ninos'                     => (int) ($this->request->getPost('ninos') ?? 0),
+            'adultos_mayores'           => (int) ($this->request->getPost('adultos_mayores') ?? 0),
+            'discapacidad'              => (int) ($this->request->getPost('discapacidad') ?? 0),
+            'mascotas'                  => (int) ($this->request->getPost('mascotas') ?? 0),
+            'total'                     => (int) ($this->request->getPost('total') ?? 0),
+            'alarma_efectiva'           => $this->request->getPost('alarma_efectiva') ?: null,
+            'orden_evacuacion'          => $this->request->getPost('orden_evacuacion') ?: null,
+            'liderazgo_brigadistas'     => $this->request->getPost('liderazgo_brigadistas') ?: null,
+            'organizacion_punto_encuentro' => $this->request->getPost('organizacion_punto_encuentro') ?: null,
+            'participacion_general'     => $this->request->getPost('participacion_general') ?: null,
+            'evaluacion_cuantitativa'   => $this->request->getPost('evaluacion_cuantitativa'),
+            'evaluacion_cualitativa'    => $this->request->getPost('evaluacion_cualitativa'),
+            'observaciones'             => $this->request->getPost('observaciones'),
+        ];
+
+        foreach (['tipo_alarma', 'distintivos_brigadistas', 'equipos_emergencia'] as $campo) {
+            $vals = $this->request->getPost($campo);
+            $data[$campo] = is_array($vals) ? implode(',', $vals) : '';
+        }
+
+        return $data;
+    }
+
+    private function uploadFoto(string $campo, string $dir): ?string
+    {
+        $file = $this->request->getFile($campo);
+        if (!$file || !$file->isValid() || $file->hasMoved()) {
+            return null;
+        }
+        if (!is_dir(FCPATH . $dir)) {
+            mkdir(FCPATH . $dir, 0755, true);
+        }
+        $fileName = $file->getRandomName();
+        $file->move(FCPATH . $dir, $fileName);
+        return $dir . $fileName;
+    }
 
     /**
      * Genera el PDF con DOMPDF

@@ -84,13 +84,33 @@
     <p class="intro-text">
         La NTC 1800 se aplica a los gabinetes contra incendios tipo I, II y III instalados en edificios de propiedad horizontal en Colombia. Estos gabinetes se conectan a la red de tuberias de agua contra incendios y permiten combatir incendios de manera efectiva.
     </p>
-    <p class="intro-subtitle">Componentes Esenciales de los Gabinetes</p>
+    <p class="intro-subtitle">Componentes Esenciales de los Gabinetes Contra Incendios en Propiedad Horizontal</p>
     <p class="intro-text">
-        La NTC 1800 establece los siguientes componentes esenciales: <strong>Manguera</strong> para dirigir el chorro de agua hacia el fuego; <strong>Hacha</strong> como herramienta multifuncional; <strong>Valvula</strong> para controlar el flujo de agua; <strong>Boquilla</strong> para ajustar el tipo de chorro; <strong>Soporte</strong> para almacenar la manguera; <strong>Gabinete</strong> fabricado con materiales resistentes al fuego; y <strong>Senalizacion</strong> claramente identificada.
+        En el contexto de la propiedad horizontal, la NTC 1800 establece los mismos componentes esenciales para los gabinetes contra incendios que en otros tipos de edificaciones:<br><br>
+        <strong>Manguera:</strong> La manguera es indispensable para dirigir un chorro de agua hacia la base del fuego. Su longitud y tipo dependeran del tamano del edificio, el numero de unidades y el nivel de riesgo de incendio.<br><br>
+        <strong>Hacha:</strong> El hacha es una herramienta multifuncional que puede ser utilizada para romper obstaculos, derribar escombros e incluso cortar materiales en caso de ser necesario.<br><br>
+        <strong>Valvula:</strong> La valvula permite controlar el flujo de agua desde la red contra incendios hacia la manguera. Debe ser facil de operar y estar claramente identificada.<br><br>
+        <strong>Boquilla:</strong> La boquilla permite ajustar el tipo de chorro de agua (recto, nebulizado, etc.) que se dirige hacia el fuego.<br><br>
+        <strong>Soporte para manguera:</strong> El soporte para manguera permite almacenar la manguera de forma ordenada y segura dentro del gabinete.<br><br>
+        <strong>Gabinete:</strong> El gabinete alberga todos los componentes del sistema contra incendios y debe ser fabricado con materiales resistentes al fuego y a la corrosion. Su tamano debe ser adecuado para albergar todo el equipo necesario.<br><br>
+        <strong>Senalizacion:</strong> El gabinete debe estar claramente identificado con la senal de "Gabinete contra incendios" para facilitar su ubicacion en caso de una emergencia.
     </p>
-    <p class="intro-subtitle">Requisitos Adicionales en Propiedad Horizontal</p>
+    <p class="intro-subtitle">Requisitos Adicionales para los Gabinetes Contra Incendios en Propiedad Horizontal</p>
     <p class="intro-text">
-        Los gabinetes deben ubicarse en puntos estrategicos considerando vias de evacuacion, ser facilmente accesibles para todos los residentes incluyendo personas con movilidad reducida, contar con senalizacion clara y visible, y la administracion debe velar por la capacitacion de los residentes y el mantenimiento periodico de estos equipos.
+        Ademas de los componentes esenciales, la NTC 1800 establece requisitos adicionales para los gabinetes contra incendios en propiedad horizontal, tomando en cuenta las caracteristicas especificas de este tipo de edificaciones:<br><br>
+        <strong>Ubicacion estrategica:</strong> Los gabinetes contra incendios deben ubicarse en puntos estrategicos de la edificacion, considerando las vias de evacuacion y los accesos a las unidades habitacionales.<br><br>
+        <strong>Accesibilidad:</strong> Los gabinetes deben ser facilmente accesibles para todos los residentes, incluyendo personas con movilidad reducida.<br><br>
+        <strong>Senalizacion clara:</strong> La senalizacion de los gabinetes debe ser clara, visible y comprensible para todas las personas, utilizando simbolos universales y lenguaje sencillo.<br><br>
+        <strong>Capacitacion y entrenamiento:</strong> Es fundamental que los residentes reciban capacitacion y entrenamiento en el uso correcto de los gabinetes contra incendios, incluyendo la operacion de la manguera, la valvula y la boquilla.<br><br>
+        <strong>Planes de emergencia:</strong> La propiedad horizontal debe contar con planes de emergencia que incluyan procedimientos especificos para la utilizacion de los gabinetes contra incendios en caso de un incendio.
+    </p>
+    <p class="intro-subtitle">Importancia de la Norma NTC 1800 en Propiedad Horizontal</p>
+    <p class="intro-text">
+        El cumplimiento de la NTC 1800 en propiedad horizontal es de vital importancia para garantizar la seguridad contra incendios en este tipo de edificaciones. Los gabinetes contra incendios, disenados y mantenidos de acuerdo con la norma, pueden ser la clave para salvar vidas y proteger bienes en caso de un incendio.
+    </p>
+    <p class="intro-subtitle">Responsabilidades en la Propiedad Horizontal</p>
+    <p class="intro-text">
+        En el contexto de la propiedad horizontal, la responsabilidad del cumplimiento de la NTC 1800 recae en la administracion de la unidad residencial, quien debe velar por la instalacion, inspeccion, mantenimiento y pruebas periodicas de los gabinetes contra incendios.
     </p>
 
     <!-- DATOS DE LA INSPECCION -->

@@ -83,11 +83,17 @@
     </p>
     <p class="intro-subtitle">Origen del peligro:</p>
     <p class="intro-text">
-        Se identifican tres origenes: <strong>Natural</strong> (terremotos, inundaciones, vendavales), <strong>Social</strong> (atentados terroristas, amenazas, robos, vandalismo) y <strong>Tecnologico</strong> (incendios, explosiones, fugas de sustancias, fallas estructurales).
+        Se identifican cuatro origenes de los peligros:<br>
+        <strong>Natural:</strong> Incluye eventos como terremotos, inundaciones, vendavales e incendios forestales.<br>
+        <strong>Social:</strong> Comprende situaciones como atentados terroristas, amenazas y robos.<br>
+        <strong>Tecnologico:</strong> Abarca riesgos asociados a la presencia de empresas vecinas, almacenamiento de gases toxicos, inflamabilidad de sustancias, operacion de aeropuertos y la movilidad vehicular.
     </p>
-    <p class="intro-subtitle">Niveles de probabilidad:</p>
+
+    <p class="intro-subtitle">Definicion de los niveles de probabilidad:</p>
     <p class="intro-text">
-        <strong>Poco probable:</strong> Baja probabilidad de ocurrencia (10%-33%). <strong>Probable:</strong> Moderada probabilidad (33%-66%). <strong>Muy probable:</strong> Alta probabilidad (66%-99%).
+        <strong>Poco probable:</strong> Se refiere a un evento o fenomeno que tiene baja probabilidad de ocurrir. Es decir, existe una alta posibilidad de que no suceda. Se puede expresar como "improbable", "con baja probabilidad" o "con pocas posibilidades de ocurrir". Rango de probabilidad: entre 10% y 33%.<br><br>
+        <strong>Probable:</strong> Indica un evento o fenomeno que tiene moderada probabilidad de ocurrir. Es decir, existe una posibilidad razonable de que suceda. Se puede expresar como "con posibilidades de ocurrir", "es posible que suceda" o "no se puede descartar su ocurrencia". Rango de probabilidad: entre 33% y 66%.<br><br>
+        <strong>Muy probable:</strong> Se refiere a un evento o fenomeno que tiene alta probabilidad de ocurrir. Es decir, existe una gran posibilidad de que suceda. Se puede expresar como "altamente probable", "con alta probabilidad" o "es casi seguro que suceda". Rango de probabilidad: entre 66% y 99%.
     </p>
 
     <!-- DATOS DE LA INSPECCION -->
@@ -145,40 +151,40 @@
 <div class="section-title">CARACTERIZACION DE LOS PELIGROS</div>
 
     <p class="desc-title">SISMOS, CAIDA DE ESTRUCTURAS:</p>
-    <p class="desc-text">Ninguna edificacion, aun las construidas recientemente, se encuentran exentas de ser afectadas por la accion de las vibraciones derivadas del choque de las placas que forman la superficie de la tierra. La magnitud e intensidad, las caracteristicas del suelo, la resistencia de las edificaciones y la preparacion de las personas e instituciones determinan los danos que este cause. La ciudad de Bogota D.C. y sus alrededores estan asentados en una zona de riesgo sismico intermedio.</p>
+    <p class="desc-text">Ninguna edificacion, aun las construidas recientemente, se encuentran exentas de ser afectadas por la accion de las vibraciones derivadas del choque de las placas que forman la superficie de la tierra y que se mueven continuamente en direcciones diferentes acumulando y liberando energia que sacude la superficie, fenomeno que se conoce como terremoto, sismo o temblor de tierra. La magnitud e intensidad, las caracteristicas del suelo (suelos blandos o rellenos pueden aumentar la capacidad destructiva en determinadas edificaciones), la resistencia de las edificaciones (una falla estructural de planta fisica puede hacer colapsar de manera parcial o total estructuras de la edificacion con alteracion directa de su capacidad portante y dano a sus elementos y ocupantes), y la preparacion que se tenga por parte de las personas e instituciones para actuar y reaccionar en forma adecuada, antes, durante y despues del fenomeno, dependen los danos que este cause. Es de anotar que la ciudad de Bogota D.C. y sus alrededores estan asentados en una zona de riesgo sismico intermedio.</p>
 
     <p class="desc-title">INUNDACIONES:</p>
-    <p class="desc-text">Se presentan generalmente despues de una lluvia fuerte o una granizada, por sustraccion de drenajes, por taponamiento de sifones, de desagues o de bajantes de canales; cuando se presenta acumulacion de residuos o basuras o por diametros muy reducidos de los tubos de la caneria; por mala inclinacion de los desniveles hacia los respectivos desagues, o por estar la edificacion en zonas bajas inundables.</p>
+    <p class="desc-text">Se presentan generalmente despues de una lluvia fuerte o una granizada, por sustraccion de drenajes, por taponamiento de sifones, de desagues o de bajantes de canales; cuando se presenta acumulacion de residuos o basuras o por diametros muy reducidos de los tubos de la caneria; por mala inclinacion de los desniveles hacia los respectivos desagues, o por estar la edificacion en zonas bajas inundables como cerca de rios, lagos o por estar construida en zonas pantanosas. Por presentarse en la capital epocas de fuertes y prolongados inviernos, es muy probable que se presenten este tipo de amenazas.</p>
 
     <p class="desc-title">VENDAVALES, GRANIZADA Y TORMENTAS ELECTRICAS:</p>
-    <p class="desc-text">Los cambios climaticos y meteorologicos pueden encontrarse acompanados de vientos, lluvias, granizadas, tormentas electricas. La accion de vientos fuertes puede romper ventanales y levantar tejas en las cubiertas, asi como hacer caer antenas y pararrayos.</p>
+    <p class="desc-text">Los cambios climaticos y meteorologicos se pueden encontrar acompanados de vientos, lluvias, granizadas, tormentas electricas. La accion de vientos fuertes no solo puede romper ventanales y levantar tejas en las cubiertas, sino hacer caer antenas y pararrayos. Las tormentas electricas pueden traer como consecuencia accidentes fatales de trabajadores y la probabilidad de incendios con perdidas materiales.</p>
 
     <p class="desc-title">ATENTADOS TERRORISTAS:</p>
-    <p class="desc-text">Incluye acciones con bombas, proyectiles dirigidos hacia algun objetivo en particular que generalmente puede afectar instalaciones o viviendas aledanas. Tambien puede tratarse de acciones que inciten a sembrar terror en la poblacion, incluyendo secuestros por grupos organizados o bandas criminales.</p>
+    <p class="desc-text">En este se incluyen aquellas acciones en que ademas de bombas, o proyectiles dirigidos desde cierta distancia hacia algun objetivo en particular y que generalmente puede afectar instalaciones o viviendas aledanas y ajenas a las que se proponian hacer dano sin que por eso importe algo tambien puede tratarse de acciones de que inciten a sembrar terror en la poblacion esto puede incluir acciones como el secuestro ya sea por grupos organizados como la guerrilla o bandas criminales.</p>
 
     <p class="desc-title">ASALTO Y HURTO:</p>
-    <p class="desc-text">Existe la posibilidad de tener este riesgo principalmente en horas nocturnas ocasionado por la inseguridad que se presenta en la actualidad. El conjunto residencial cuenta con un sistema de vigilancia privado contratado para salvaguardar los bienes y servicios de los residentes, sin desconocer la problematica que se presenta en las areas perimetrales.</p>
+    <p class="desc-text">Existe la posibilidad de tener este riesgo principalmente en horas nocturnas ocasionado por la gran inseguridad que se presenta en la actualidad en el Distrito Capital, pero es importante acotar que el conjunto residencial cuenta con un sistema de vigilancia privado contratado para salvaguardar los bienes y servicios de los residentes pero esto se limita solo a la propiedad horizontal, esto no desconoce la problematica que se presenta en las areas perimetrales del sector del conjunto residencial.</p>
 
     <p class="desc-title">VANDALISMO:</p>
-    <p class="desc-text">Por la descomposicion social que se vive actualmente, esta es una amenaza con un riesgo de probabilidad considerable sin que tenga que ver el tipo de empresa o area habitacional. Es simplemente el deseo de producir panico y sembrar el miedo entre la poblacion a traves de diversas formas.</p>
+    <p class="desc-text">Por la gran descomposicion social que se vive hoy en dia esta es una de las amenazas con un riesgo de probabilidad considerable sin que tenga que ver el tipo de empresa o area habitacional que pueda ser afectada es simplemente el deseo de producir panico y sembrar el miedo entre la poblacion. La probabilidad de que suceda esta amenaza es poco probable debido a la ubicacion que presenta el conjunto residencial, sin embargo se debe considerar que existen muchas formas de hacerlo: a traves de paquetes, de sobres, de vehiculos y de variedad de articulos incluyendo extintores.</p>
 
     <p class="desc-title">INCENDIOS:</p>
-    <p class="desc-text">Esta amenaza es caracteristica de toda edificacion cuya destinacion sea de caracter industrial, comercial, de servicios o residencial. Se presenta por eventual vecindad a fuentes de ignicion, fuentes de calor, fuentes electricas, presencia de cargas estaticas y por diferentes cargas combustibles de materiales solidos presentes en las instalaciones.</p>
+    <p class="desc-text">Entre las amenazas mas importantes se hace referencia a las de incendio, la cual es caracteristica de toda edificacion cuya destinacion sea de caracter industrial, comercial, de servicios o residencia. Esta amenaza no solamente se presenta por una eventual vecindad a fuentes de ignicion o detonacion, fuentes de calor, fuentes electricas, presencia de cargas estaticas y tambien por diferentes cargas combustibles de materiales solidos presentes en las instalaciones del conjunto residencial y a los trabajos que en el se realicen. Debido a que el conjunto se almacenan diferentes combustibles como vestuario, telones, madera, alfombras, carton, plasticos, equipos de oficina; presencia de gas natural y demas combustibles que pueden ocasionar un incendio de grandes proporciones.</p>
 
     <p class="desc-title">EXPLOSIONES:</p>
-    <p class="desc-text">Riesgo relacionado con el manejo de cargas combustibles del tipo B como almacenamiento y manipulacion de liquidos y gases inflamables, reactividad por escape de gases comprimidos como gas natural, y manejo de solventes, lacas, pinturas con propiedades inflamables detonantes.</p>
+    <p class="desc-text">Es un riesgo que viene relacionado con el manejo de cargas combustibles del tipo B como el almacenamiento y manipulacion de liquidos y gases inflamables, la reactividad por escape de gases comprimidos como el caso de gas natural, y en el manejo de solventes, lacas, pinturas, varsol que normalmente emanan gases con propiedades inflamables detonantes lo mismo que eventualmente lo podria hacer pero con menos posibilidad el ACPM.</p>
 
     <p class="desc-title">INHALACION DE GASES:</p>
-    <p class="desc-text">Afectaciones en la salud causadas por acumulacion de gases nocivos, especialmente en parqueaderos de vehiculos sin adecuada ventilacion. Se hace necesario implementar la cultura de esperar que los propietarios realicen el calentamiento del motor en un area ventilada.</p>
+    <p class="desc-text">Estas afectaciones en la salud se pueden causar debido a la acumulacion de gases nocivos para las personas, esto se puede agravar en el caso del parqueadero de vehiculos del conjunto residencial si no se cuenta con la cultura de la revision periodica de los vehiculos automotores y si las personas se quedan bajo periodos largos en este sitio, para lo cual se hace necesario implementar la cultura de esperar que los propietarios de los vehiculos realicen el calentamiento del motor en un area ventilada.</p>
 
     <p class="desc-title">FALLA ESTRUCTURAL:</p>
-    <p class="desc-text">La vulnerabilidad estructural esta determinada por la capacidad de soporte vertical y resistencia a cargas horizontales de la edificacion. Se recomienda realizar un estudio tecnico de las edificaciones y reforzar las estructuras segun las exigencias del codigo colombiano de construcciones sismo resistentes (Ley 400 de 1997).</p>
+    <p class="desc-text">La vulnerabilidad estructural se encuentra determinada por la capacidad de soporte vertical y resistencia a cargas horizontales de la edificacion, la cual en terminos generales presenta buen aspecto. Un gran porcentaje de las instalaciones esta construida en muros de ladrillo y cemento, pisos en cemento, techos en placa de concreto. Con el objeto de determinar la capacidad sismo resistente de las edificaciones se recomienda realizar un estudio tecnico de las mismas y conforme a su valoracion reforzar las estructuras o realizar las modificaciones arquitectonicas necesarias, en consonancia con las exigencias del codigo colombiano de construcciones sismo resistentes, adoptado por el Decreto 400 con vigencia desde el ano de 1984 y actualizado por la Ley 400 de 1997 y el Decreto 33 de 1998.</p>
 
     <p class="desc-title">INTOXICACION POR ALIMENTOS:</p>
-    <p class="desc-text">Esta amenaza representa un peligro biologico o quimico. Se refiere a las afectaciones en la salud causadas por la ingesta de alimentos contaminados con microorganismos patogenos, toxinas o sustancias quimicas perjudiciales.</p>
+    <p class="desc-text">Esta amenaza representa un peligro biologico (o quimico, segun el caso). Se refiere a las afectaciones en la salud causadas por la ingesta de alimentos contaminados con microorganismos patogenos, toxinas o sustancias quimicas perjudiciales.</p>
 
     <p class="desc-title">DENSIDAD POBLACIONAL:</p>
-    <p class="desc-text">Riesgo de origen social u organizacional asociado con la alta concentracion de personas en un area determinada, lo que puede aumentar la probabilidad de accidentes, propagacion de enfermedades contagiosas y dificultades para ejecutar evacuaciones en caso de emergencia.</p>
+    <p class="desc-text">Este riesgo se considera de origen social o organizacional. Se refiere al riesgo asociado con la alta concentracion de personas en un area determinada, lo que puede aumentar la probabilidad de accidentes, propagacion de enfermedades contagiosas y dificultades para ejecutar evacuaciones en caso de emergencia.</p>
 
     <!-- RESULTADOS CONSOLIDADOS -->
     <div class="section-title">RESULTADOS CONSOLIDADOS</div>

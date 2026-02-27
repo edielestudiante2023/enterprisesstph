@@ -53,6 +53,9 @@
                     </span>
                 </div>
                 <div class="mt-2 d-flex gap-1 flex-wrap">
+                    <a href="/inspecciones/simulacro/edit/<?= $ev['id'] ?>" class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
                     <a href="/inspecciones/simulacro/view/<?= $ev['id'] ?>" class="btn btn-sm btn-outline-dark">
                         <i class="fas fa-eye"></i> Ver
                     </a>

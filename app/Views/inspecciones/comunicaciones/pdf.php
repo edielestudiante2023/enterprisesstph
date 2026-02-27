@@ -77,17 +77,37 @@
 
     <p class="intro-subtitle">1. Importancia de los Equipos de Comunicacion:</p>
     <p class="intro-text">
-        Facilitar la comunicacion durante emergencias permitiendo que los residentes reciban informacion esencial sobre la situacion, las instrucciones de evacuacion y la asistencia disponible. Coordinar la respuesta de emergencia entre residentes, personal de seguridad, autoridades y proveedores de servicios. La comunicacion oportuna puede ayudar a guiar a los residentes hacia la seguridad, evitar riesgos y solicitar ayuda medica de manera rapida.
+        Facilitar la comunicacion durante emergencias: Permiten que los residentes reciban informacion esencial sobre la situacion, las instrucciones de evacuacion y la asistencia disponible.<br>
+        Coordinar la respuesta de emergencia: Facilitan la comunicacion entre los residentes, el personal de seguridad, las autoridades de emergencia y los proveedores de servicios.<br>
+        Salvar vidas: La comunicacion oportuna puede ayudar a guiar a los residentes hacia la seguridad, evitar riesgos y solicitar ayuda medica de manera rapida.<br>
+        Minimizar danos: Una comunicacion clara puede ayudar a prevenir el panico y la propagacion del fuego o de otras amenazas.<br>
+        Cumplir con las normas y reglamentos: Muchas jurisdicciones exigen que las propiedades horizontales cuenten con equipos de comunicacion adecuados para casos de emergencia.
     </p>
 
     <p class="intro-subtitle">2. Tipos de Equipos de Comunicacion:</p>
     <p class="intro-text">
-        Sistemas de telefonia interna, sistemas de altavoces para difusion de anuncios, alarmas contra incendios, sistemas de iluminacion de emergencia, radios de dos vias, y aplicaciones moviles para enviar alertas y facilitar la comunicacion durante emergencias.
+        Sistemas de telefonia interna: Permiten la comunicacion entre los residentes y el personal de seguridad, incluso durante cortes de energia.<br>
+        Sistemas de altavoces: Facilitan la difusion de anuncios a toda la comunidad, especialmente en caso de evacuacion.<br>
+        Alarmas contra incendios: Alertan a los residentes de un incendio de manera temprana, permitiendo una evacuacion rapida.<br>
+        Sistemas de iluminacion de emergencia: Proporcionan luz durante cortes de energia, facilitando la evacuacion y la seguridad en la oscuridad.<br>
+        Radios de dos vias: Permiten la comunicacion entre el personal de seguridad y los residentes o equipos de emergencia.<br>
+        Aplicaciones moviles: Algunas propiedades utilizan aplicaciones moviles para enviar alertas, compartir informacion y facilitar la comunicacion durante emergencias.
     </p>
 
-    <p class="intro-subtitle">3. Seleccion e Implementacion:</p>
+    <p class="intro-subtitle">3. Seleccion de Equipos de Comunicacion:</p>
     <p class="intro-text">
-        Considerar el tamano y la distribucion de la propiedad, identificar las necesidades especificas de la comunidad, establecer un presupuesto adecuado, consultar con expertos en seguridad, instalar los equipos de manera profesional, capacitar a los residentes y al personal, realizar pruebas y simulacros periodicos, y mantener los equipos actualizados.
+        Considerar el tamano y la distribucion de la propiedad: Evaluar si se requiere cobertura completa en todas las areas, incluyendo zonas comunes y departamentos individuales.<br>
+        Identificar las necesidades especificas de la comunidad: Considerar el tipo de emergencias mas probables y las necesidades de comunicacion de los residentes.<br>
+        Establecer un presupuesto: Determinar el costo de los equipos y la instalacion, incluyendo el mantenimiento y las actualizaciones futuras.<br>
+        Consultar con expertos: Buscar asesoramiento de profesionales en seguridad y comunicacion para seleccionar los equipos mas adecuados y la mejor forma de implementarlos.
+    </p>
+
+    <p class="intro-subtitle">4. Implementacion y Mantenimiento:</p>
+    <p class="intro-text">
+        Instalar los equipos de manera profesional: Asegurarse de que los equipos esten instalados correctamente y cumplan con las normas de seguridad.<br>
+        Capacitar a los residentes y al personal: Brindar capacitacion sobre el uso de los equipos de comunicacion, incluyendo procedimientos de emergencia y protocolos de comunicacion.<br>
+        Realizar pruebas y simulacros de emergencia: Verificar periodicamente el funcionamiento de los equipos y realizar simulacros para familiarizar a los residentes con los procedimientos de emergencia.<br>
+        Mantener los equipos actualizados: Asegurarse de que los equipos esten actualizados con la ultima tecnologia y funcionen correctamente.
     </p>
 
     <!-- DATOS DE LA INSPECCION -->

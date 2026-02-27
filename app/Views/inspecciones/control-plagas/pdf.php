@@ -478,7 +478,13 @@
 
 <!-- 1.11 SEGUIMIENTO -->
 <div class="section-title">1.11 SEGUIMIENTO AL PROGRAMA DE CONTROL DE PLAGAS Y ROEDORES</div>
-<p>Reuniones periódicas para verificar cumplimiento. Evaluación conjunta entre Administración, empresa contratada, consejo y SG-SST. Inspecciones mensuales a áreas comunes. Aplicación de medidas correctivas y sanciones si aplica. Verificación del cronograma por parte del Administrador.</p>
+<ul class="lista-items">
+    <li>Reuniones periódicas para verificar cumplimiento.</li>
+    <li>Evaluación conjunta entre Administración, empresa contratada, consejo y SG-SST.</li>
+    <li>Inspecciones mensuales a áreas comunes.</li>
+    <li>Aplicación de medidas correctivas y sanciones si aplica.</li>
+    <li>Verificación del cronograma por parte del Administrador.</li>
+</ul>
 <p>La empresa contratada deberá entregar certificado y protocolo que contenga como mínimo:</p>
 <ol class="lista-items" type="a">
     <li>Razón social y NIT.</li>

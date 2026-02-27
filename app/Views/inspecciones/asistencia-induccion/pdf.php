@@ -135,39 +135,68 @@ $tipoLabel = $tiposCharla[$inspeccion['tipo_charla'] ?? ''] ?? $inspeccion['tipo
 
     <div class="section-title">OBJETO</div>
     <p class="resp-text">
-        Dar a conocer las responsabilidades en materia de Seguridad y Salud en el Trabajo a los trabajadores, contratistas y subcontratistas.
+        El presente documento tiene como finalidad formalizar la entrega y aceptacion de responsabilidades en materia de Seguridad y Salud en el Trabajo (SST) dentro de la PROPIEDAD HORIZONTAL, de acuerdo con la normativa vigente y con el objetivo de garantizar la gestion efectiva de los riesgos laborales y la proteccion de los trabajadores y contratistas.
     </p>
 
-    <div class="resp-title">RESPONSABILIDADES DE LA ADMINISTRACION:</div>
+    <div class="resp-title">1. RESPONSABILIDADES DEL ADMINISTRADOR:</div>
     <p class="resp-text">
-        1. Definir, firmar y divulgar la politica de SST.<br>
-        2. Asignar y comunicar responsabilidades en SST.<br>
-        3. Rendir cuentas del desempeno del SG-SST.<br>
-        4. Cumplir los requisitos normativos aplicables.<br>
-        5. Realizar el plan de trabajo anual en SST.
+        1. Definir, firmar y divulgar la politica de Seguridad y Salud en el Trabajo, asegurando su cumplimiento y revision periodica.<br>
+        2. Asignar y comunicar las responsabilidades especificas en SST a todos los niveles de la PROPIEDAD HORIZONTAL.<br>
+        3. Presentar informes de rendicion de cuentas sobre el desempeno en SST ante el consejo y la comunidad.<br>
+        4. Garantizar los recursos necesarios (financieros, tecnicos y de personal) para el diseno, implementacion y mejora del SG-SST.<br>
+        5. Asegurar la consulta y participacion del asesor en SST y del vigia en la identificacion de peligros y la implementacion de medidas de control.<br>
+        6. Revisar el cumplimiento del plan de trabajo anual de SST y la ejecucion de los recursos asignados.<br>
+        7. Evaluar al menos una vez al ano la gestion de SST e implementar mejoras necesarias.<br>
+        8. Garantizar la disponibilidad de personal competente para liderar el SG-SST.<br>
+        9. Asegurar la ejecucion de programas de capacitacion en SST, incluyendo induccion y entrenamiento a contratistas.<br>
+        10. Realizar auditorias internas anuales al SG-SST.
     </p>
 
-    <div class="resp-title">RESPONSABILIDADES DEL RESPONSABLE DEL SG-SST:</div>
+    <div class="resp-title">2. RESPONSABILIDADES DEL RESPONSABLE DEL SG-SST:</div>
     <p class="resp-text">
-        1. Planificar, organizar, dirigir y controlar el SG-SST.<br>
-        2. Informar a la alta direccion sobre el desempeno del SG-SST.<br>
-        3. Promover la participacion de todos los miembros de la organizacion.
+        1. Elaborar y ejecutar el programa anual de capacitacion en prevencion de riesgos laborales.<br>
+        2. Reportar al administrador cualquier situacion que pueda afectar la seguridad y salud de los trabajadores.<br>
+        3. Gestionar la documentacion requerida a contratistas en materia de SST.<br>
+        4. Actualizar la matriz de riesgos y asegurar su aplicacion efectiva.<br>
+        5. Realizar inspecciones programadas y no programadas para verificar el cumplimiento de SST.<br>
+        6. Participar en la investigacion de incidentes, accidentes y enfermedades laborales, asegurando la implementacion de correctivos.<br>
+        7. Atender auditorias externas y visitas de entes reguladores.<br>
+        8. Preparar y presentar el Plan Anual de SST para su aprobacion.<br>
+        9. Ejecutar planes de accion derivados de auditorias e inspecciones.<br>
+        10. Mantener actualizado el sistema de indicadores de SST.
     </p>
 
-    <div class="resp-title">RESPONSABILIDADES DE LOS VIGIAS:</div>
+    <div class="resp-title">3. RESPONSABILIDADES DEL VIGIA DE SEGURIDAD Y SALUD EN EL TRABAJO:</div>
     <p class="resp-text">
-        1. Proponer medidas preventivas y correctivas.<br>
-        2. Participar en las actividades del SG-SST.<br>
-        3. Vigilar el cumplimiento de las normas de SST.
+        1. Proponer actividades para mejorar las condiciones de seguridad y salud en el trabajo.<br>
+        2. Participar en actividades de capacitacion en SST y promover su cumplimiento.<br>
+        3. Colaborar con autoridades en inspecciones y auditorias.<br>
+        4. Vigilar el cumplimiento de las normas de SST en la PROPIEDAD HORIZONTAL.<br>
+        5. Reportar condiciones de riesgo y sugerir medidas de control.<br>
+        6. Servir de enlace entre la administracion y los contratistas en temas de SST.<br>
+        7. Apoyar la revision de estadisticas de accidentalidad y enfermedades laborales.<br>
+        8. Mantener registros de actividades realizadas en SST.<br>
+        9. Coordinar acciones de respuesta ante emergencias.<br>
+        10. Cumplir con las demas funciones establecidas en la normativa de SST.
     </p>
 
-    <div class="resp-title">RESPONSABILIDADES DE LOS TRABAJADORES Y CONTRATISTAS:</div>
+    <div class="resp-title">4. RESPONSABILIDADES DE LOS TRABAJADORES Y CONTRATISTAS:</div>
     <p class="resp-text">
-        1. Procurar el cuidado integral de su salud.<br>
-        2. Cumplir normas y reglamentos de SST.<br>
-        3. Participar en las actividades de capacitacion.<br>
-        4. Informar condiciones de trabajo que afecten su seguridad.<br>
-        5. Usar adecuadamente los EPP.
+        1. Conocer, entender y aplicar la politica de SST.<br>
+        2. Identificar y reportar peligros y riesgos en su entorno de trabajo.<br>
+        3. Utilizar correctamente los Elementos de Proteccion Personal (EPP).<br>
+        4. Asistir a capacitaciones y entrenamientos en SST.<br>
+        5. Cumplir con las normas de seguridad establecidas.<br>
+        6. Informar de inmediato cualquier accidente o incidente de trabajo.<br>
+        7. Mantener el orden y la limpieza en su area de trabajo.<br>
+        8. Aplicar los procedimientos establecidos en emergencias.<br>
+        9. Participar en la evaluacion de peligros y riesgos en el lugar de trabajo.<br>
+        10. Colaborar en la implementacion de medidas de prevencion y control.
+    </p>
+
+    <div class="section-title">5. FIRMA DE ACEPTACION DE RESPONSABILIDADES</div>
+    <p class="resp-text">
+        Con la firma de este documento, cada una de las partes acepta las responsabilidades establecidas en materia de Seguridad y Salud en el Trabajo dentro de la PROPIEDAD HORIZONTAL.
     </p>
 
     <!-- LISTADO DE ASISTENTES (firmas de aceptacion) -->

@@ -80,8 +80,21 @@
     <!-- INTRODUCCION -->
     <div class="section-title">VULNERABILIDAD POR AMENAZA</div>
     <p class="intro-text">
-        La matriz de vulnerabilidad por amenaza es una herramienta fundamental para evaluar la seguridad estructural de una copropiedad frente a diferentes tipos de amenazas, como sismos, inundaciones, incendios y vientos fuertes. Esta matriz permite identificar las debilidades de la estructura y tomar las medidas correctivas necesarias para minimizar el riesgo de colapso u otros danos durante una emergencia.
+        La matriz de vulnerabilidad por amenaza es una herramienta fundamental para evaluar la seguridad estructural de una edificacion frente a diferentes tipos de amenazas, como sismos, inundaciones, incendios y vientos fuertes.
+        Esta matriz permite identificar las debilidades de la estructura y tomar las medidas correctivas necesarias para minimizar el riesgo de colapso u otros danos durante una emergencia.
     </p>
+
+    <p class="intro-text"><strong>Componentes Clave de la Matriz:</strong></p>
+    <p class="intro-text">
+        <strong>Amenazas:</strong> Se identifican y clasifican las amenazas potenciales a las que esta expuesta la edificacion, considerando su probabilidad de ocurrencia y severidad.
+    </p>
+    <p class="intro-text">
+        <strong>Vulnerabilidades:</strong> Se evaluan las caracteristicas de la edificacion que la hacen susceptible a los danos causados por las amenazas identificadas. Esto incluye aspectos como el diseno, la calidad de los materiales, la antiguedad y el estado de mantenimiento.
+    </p>
+    <p class="intro-text">
+        <strong>Nivel de Riesgo:</strong> Se combina la informacion sobre las amenazas y las vulnerabilidades para determinar el nivel de riesgo general que enfrenta la edificacion.
+    </p>
+
     <p class="intro-text">
         <strong>Puntaje:</strong> Cada criterio se evalua con tres opciones: A (1.0 puntos), B (0.5 puntos) y C (0.0 puntos). El puntaje total se calcula multiplicando la suma por 4, obteniendo un valor de 0 a 100.
     </p>
@@ -154,21 +167,40 @@
     <table class="range-table">
         <tr>
             <td class="range-val" style="background:#f8d7da; color:#721c24;">0 - 50</td>
-            <td>Alta vulnerabilidad funcional. Se deben revisar todos los aspectos que puedan estar representando riesgo para las personas que permanecen en la copropiedad en un momento de emergencia.</td>
+            <td>Alta vulnerabilidad funcional. Se requiere una revision exhaustiva de todos los aspectos que puedan representar un riesgo para las personas en caso de emergencia.</td>
         </tr>
         <tr>
             <td class="range-val" style="background:#fff3cd; color:#856404;">51 - 70</td>
-            <td>Vulnerabilidad media-alta y plan para emergencia incompleto, que solo podria ser activado parcialmente en caso de emergencia.</td>
+            <td>Vulnerabilidad media-alta y plan de emergencia incompleto. El plan podria activarse parcialmente en una emergencia, pero se requieren mejoras significativas.</td>
         </tr>
         <tr>
             <td class="range-val" style="background:#cce5ff; color:#004085;">71 - 90</td>
-            <td>Baja vulnerabilidad y plan para emergencia apenas funcional que debe optimizarse.</td>
+            <td>Baja vulnerabilidad y plan de emergencia apenas funcional. Se recomienda optimizar el plan para garantizar su efectividad.</td>
         </tr>
         <tr>
             <td class="range-val" style="background:#d4edda; color:#155724;">91 - 100</td>
-            <td>Vulnerabilidad minima y plan en estado optimo de aplicacion.</td>
+            <td>Vulnerabilidad minima y plan de emergencia en optimas condiciones. Se deben mantener las medidas preventivas y realizar revisiones periodicas para asegurar este nivel de seguridad.</td>
         </tr>
     </table>
+
+    <!-- IMPORTANCIA DE LA MATRIZ -->
+    <div class="section-title">IMPORTANCIA DE LA MATRIZ</div>
+    <p class="intro-text">La matriz de vulnerabilidad por amenaza es una herramienta esencial para la gestion del riesgo en las edificaciones. Permite:</p>
+    <p class="intro-text">
+        <strong>Priorizar las acciones de mitigacion:</strong> Enfocarse en las amenazas y vulnerabilidades que representan el mayor riesgo para la seguridad de la edificacion y sus ocupantes.
+    </p>
+    <p class="intro-text">
+        <strong>Asignar recursos de manera eficiente:</strong> Optimizar el uso de recursos disponibles para implementar las medidas de prevencion y proteccion mas adecuadas.
+    </p>
+    <p class="intro-text">
+        <strong>Tomar decisiones informadas:</strong> Basar las decisiones sobre la seguridad de la edificacion en datos concretos y analisis objetivos.
+    </p>
+    <p class="intro-text">
+        <strong>Mejorar la comunicacion:</strong> Facilitar la comunicacion entre diferentes actores involucrados en la gestion del riesgo, como propietarios, inquilinos, autoridades y profesionales de la ingenieria.
+    </p>
+    <p class="intro-text">
+        <strong>Cumplir con regulaciones:</strong> Asegurar el cumplimiento de las normas y codigos de construccion vigentes relacionados con la seguridad estructural.
+    </p>
 
     <!-- DETALLE DE OPCIONES POR CRITERIO -->
     <div class="section-title">DETALLE DE CRITERIOS EVALUADOS</div>

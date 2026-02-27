@@ -121,6 +121,7 @@ $routes->post('/editReportTypePost/(:num)', 'ReportTypeController::editPost/$1')
 $routes->get('/deleteReportType/(:num)', 'ReportTypeController::delete/$1');
 
 $routes->get('/viewDocuments', 'ClientController::viewDocuments');
+$routes->get('/viewDocuments/(:num)', 'ClientController::viewDocuments/$1');
 
 $routes->get('/listPolicies', 'PolicyController::listPolicies');
 $routes->get('/addPolicy', 'PolicyController::addPolicy');
@@ -1044,6 +1045,8 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     // Evaluación Simulacro de Evacuación (admin)
     $routes->get('simulacro', 'EvaluacionSimulacroController::list');
     $routes->get('simulacro/view/(:num)', 'EvaluacionSimulacroController::view/$1');
+    $routes->get('simulacro/edit/(:num)', 'EvaluacionSimulacroController::edit/$1');
+    $routes->post('simulacro/update/(:num)', 'EvaluacionSimulacroController::update/$1');
     $routes->get('simulacro/pdf/(:num)', 'EvaluacionSimulacroController::generatePdf/$1');
     $routes->get('simulacro/regenerar/(:num)', 'EvaluacionSimulacroController::regenerarPdf/$1');
     $routes->post('simulacro/finalizar/(:num)', 'EvaluacionSimulacroController::finalizar/$1');
@@ -1052,6 +1055,8 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     // Hoja de Vida Brigadista (admin)
     $routes->get('hv-brigadista', 'HvBrigadistaController::list');
     $routes->get('hv-brigadista/view/(:num)', 'HvBrigadistaController::view/$1');
+    $routes->get('hv-brigadista/edit/(:num)', 'HvBrigadistaController::edit/$1');
+    $routes->post('hv-brigadista/update/(:num)', 'HvBrigadistaController::update/$1');
     $routes->get('hv-brigadista/pdf/(:num)', 'HvBrigadistaController::generatePdf/$1');
     $routes->get('hv-brigadista/regenerar/(:num)', 'HvBrigadistaController::regenerarPdf/$1');
     $routes->post('hv-brigadista/finalizar/(:num)', 'HvBrigadistaController::finalizar/$1');

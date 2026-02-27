@@ -83,23 +83,33 @@
     </p>
     <p class="intro-subtitle">1. Perspectiva de salud publica:</p>
     <p class="intro-text">
-        La atencion oportuna y eficaz de lesiones y urgencias medicas puede disminuir la morbilidad y mortalidad. Un botiquin tipo B bien dotado permite prevenir complicaciones derivadas de lesiones o urgencias.
+        <strong>Reduccion de morbilidad y mortalidad:</strong> La atencion oportuna y eficaz de lesiones y urgencias medicas puede disminuir la morbilidad y mortalidad asociada a estas situaciones.<br>
+        <strong>Prevencion de complicaciones:</strong> Un botiquin tipo B bien dotado permite prevenir complicaciones derivadas de lesiones o urgencias, lo que reduce la necesidad de atencion medica especializada y los costos asociados a la misma.<br>
+        <strong>Promocion de la salud:</strong> La presencia de un botiquin tipo B puede incentivar la adopcion de practicas de autocuidado y primeros auxilios, lo que contribuye a promover la salud individual y colectiva en la comunidad.
     </p>
     <p class="intro-subtitle">2. Enfoque de seguridad y bienestar:</p>
     <p class="intro-text">
-        Un botiquin tipo B bien dotado minimiza los riesgos asociados a accidentes, lesiones o urgencias medicas en la propiedad horizontal.
+        <strong>Minimizacion de riesgos:</strong> Un botiquin tipo B bien dotado minimiza los riesgos asociados a accidentes, lesiones o urgencias medicas en la propiedad horizontal.<br>
+        <strong>Proteccion de la integridad fisica:</strong> Permite brindar atencion inmediata a las personas afectadas, protegiendo su integridad fisica y reduciendo el impacto psicologico de las situaciones de emergencia.<br>
+        <strong>Generacion de un ambiente seguro:</strong> La disponibilidad de un botiquin tipo B contribuye a crear un ambiente mas seguro para todos los residentes, visitantes y personal del conjunto residencial.
     </p>
     <p class="intro-subtitle">3. Aspectos legales y normativos:</p>
     <p class="intro-text">
-        La normativa colombiana (Ley 1801 de 2016, Decreto 1076 de 2015) establece la obligatoriedad de contar con un botiquin tipo B en propiedades horizontales como requisito minimo de seguridad.
+        <strong>Cumplimiento de la Ley 1801 de 2016 y el Decreto 1076 de 2015:</strong> La normativa colombiana establece la obligatoriedad de contar con un botiquin tipo B en las propiedades horizontales como requisito minimo de seguridad.<br>
+        <strong>Responsabilidad civil:</strong> La ausencia de un botiquin tipo B o su mal estado puede generar responsabilidad civil para la administracion del conjunto residencial en caso de un accidente o una urgencia medica.<br>
+        <strong>Promocion de una cultura de cumplimiento legal:</strong> El cumplimiento de la normativa sobre botiquines tipo B contribuye a fortalecer una cultura de cumplimiento legal en las propiedades horizontales.
     </p>
-    <p class="intro-subtitle">4. Consideraciones eticas:</p>
+    <p class="intro-subtitle">4. Consideraciones eticas y de responsabilidad social:</p>
     <p class="intro-text">
-        La disponibilidad de un botiquin tipo B garantiza el derecho fundamental a la salud de las personas que habitan o frecuentan la propiedad horizontal.
+        <strong>Derecho a la salud:</strong> La disponibilidad de un botiquin tipo B garantiza el derecho fundamental a la salud de las personas que habitan o frecuentan la propiedad horizontal.<br>
+        <strong>Proteccion de la vida y la integridad fisica:</strong> Brindar atencion inmediata a las personas en situacion de emergencia es un deber etico de la administracion del conjunto residencial.<br>
+        <strong>Compromiso con el bienestar social:</strong> Dotar a la propiedad horizontal con un botiquin tipo B demuestra el compromiso social de la administracion con el bienestar de las personas que viven, trabajan o visitan el lugar.
     </p>
-    <p class="intro-subtitle">5. Fundamentacion cientifica:</p>
+    <p class="intro-subtitle">5. Fundamentacion cientifica y tecnica:</p>
     <p class="intro-text">
-        La Norma NTC 4198 establece los requisitos de dotacion y funcionamiento de los botiquines de primeros auxilios, garantizando su calidad, eficacia y seguridad.
+        <strong>Norma NTC 4198:</strong> La Norma NTC 4198 establece los requisitos de dotacion y funcionamiento de los botiquines de primeros auxilios, garantizando su calidad, eficacia y seguridad.<br>
+        <strong>Guias de primeros auxilios:</strong> Existen guias y protocolos reconocidos internacionalmente para el uso adecuado de los botiquines de primeros auxilios, asegurando una atencion oportuna y correcta.<br>
+        <strong>Evidencia empirica:</strong> Estudios cientificos demuestran la efectividad de los botiquines de primeros auxilios en la reduccion de la morbilidad y mortalidad asociadas a lesiones y urgencias medicas.
     </p>
 
     <!-- DATOS GENERALES -->

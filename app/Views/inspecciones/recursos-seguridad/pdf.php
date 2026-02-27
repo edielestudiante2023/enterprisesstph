@@ -72,10 +72,35 @@
     <!-- INTRODUCCION -->
     <div class="section-title">INTRODUCCION</div>
     <p class="intro-text">
-        Las propiedades horizontales, como condominios y conjuntos residenciales, albergan a una comunidad de personas que comparten espacios comunes y servicios. La seguridad y el bienestar de los residentes, visitantes y personal que habita estos espacios deben ser una prioridad absoluta. La minimizacion de riesgos estructurales, arquitectonicos y administrativos es un aspecto fundamental para garantizar una convivencia armoniosa y segura.
+        Las propiedades horizontales, como condominios y conjuntos residenciales, albergan a una comunidad de personas que comparten espacios comunes y servicios. La seguridad y el bienestar de los residentes, visitantes y personal que habita estos espacios deben ser una prioridad absoluta. En este sentido, la minimizacion de riesgos estructurales, arquitectonicos y administrativos es un aspecto fundamental para garantizar una convivencia armoniosa y segura.
     </p>
+
+    <div class="section-title">RIESGOS ESTRUCTURALES Y ARQUITECTONICOS</div>
     <p class="intro-text">
-        Un especialista en Seguridad y Salud en el Trabajo (SST) posee la formacion, experiencia y herramientas necesarias para asesorar a la administracion y copropietarios en la identificacion, evaluacion y control de los riesgos. Sus funciones incluyen: inspecciones estructurales y arquitectonicas, evaluacion de riesgos administrativos, elaboracion e implementacion de un plan de gestion de riesgos, y monitoreo continuo del plan.
+        Las propiedades horizontales pueden presentar diversos riesgos estructurales y arquitectonicos que pueden afectar la integridad fisica de las personas y la estabilidad de la edificacion. Algunos ejemplos incluyen:<br>
+        <strong>Defectos estructurales:</strong> Grietas en muros o columnas, hundimientos de pisos, filtraciones de agua, etc.<br>
+        <strong>Materiales inadecuados o deteriorados:</strong> Uso de materiales de construccion de baja calidad o que han perdido sus propiedades con el tiempo.<br>
+        <strong>Diseno arquitectonico deficiente:</strong> Escaleras mal disenadas, barandillas inseguras, falta de iluminacion adecuada, etc.<br>
+        <strong>Falta de mantenimiento preventivo:</strong> No realizar inspecciones periodicas y reparaciones oportunas de las instalaciones y equipos.
+    </p>
+
+    <div class="section-title">RIESGOS ADMINISTRATIVOS</div>
+    <p class="intro-text">
+        Los riesgos administrativos en una propiedad horizontal se relacionan con la gestion inadecuada de los recursos, la falta de controles y la ausencia de protocolos de seguridad. Algunos ejemplos incluyen:<br>
+        <strong>Gestion deficiente de los recursos economicos:</strong> Falta de planificacion financiera, mal manejo de los fondos comunes, etc.<br>
+        <strong>Falta de control en el acceso a las instalaciones:</strong> No contar con un sistema de control de acceso adecuado, permitiendo el ingreso de personas no autorizadas.<br>
+        <strong>Ausencia de protocolos de seguridad:</strong> No contar con planes de emergencia para incendios, sismos u otras emergencias, ni con procedimientos para la prevencion de accidentes.<br>
+        <strong>Falta de capacitacion del personal:</strong> No brindar capacitacion periodica al personal sobre temas de seguridad y salud en el trabajo.
+    </p>
+
+    <div class="section-title">EL ROL DEL ESPECIALISTA EN SST</div>
+    <p class="intro-text">
+        Un especialista en Seguridad y Salud en el Trabajo (SST) posee la formacion, experiencia y herramientas necesarias para asesorar a la administracion y copropietarios de una propiedad horizontal en la identificacion, evaluacion y control de los riesgos estructurales, arquitectonicos y administrativos. Las funciones del especialista en SST en este ambito incluyen:<br>
+        <strong>Inspecciones estructurales y arquitectonicas:</strong> Realizar inspecciones periodicas de las instalaciones para identificar posibles defectos estructurales, materiales inadecuados o diseno arquitectonico deficiente.<br>
+        <strong>Evaluacion de riesgos administrativos:</strong> Analizar los procesos administrativos, los controles existentes y los protocolos de seguridad para identificar posibles falencias o areas de mejora.<br>
+        <strong>Elaboracion de un plan de gestion de riesgos:</strong> Desarrollar un plan que establezca las medidas necesarias para prevenir o controlar los riesgos identificados en las areas estructural, arquitectonica y administrativa.<br>
+        <strong>Implementacion del plan de gestion de riesgos:</strong> Brindar asesoria y asistencia en la implementacion del plan, incluyendo la capacitacion del personal y la sensibilizacion de los residentes.<br>
+        <strong>Monitoreo y evaluacion del plan de gestion de riesgos:</strong> Realizar un seguimiento continuo del plan y evaluar su efectividad, identificando areas de mejora y realizando los ajustes necesarios.
     </p>
 
     <!-- DATOS DE LA INSPECCION -->

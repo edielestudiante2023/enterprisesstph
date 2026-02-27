@@ -70,7 +70,7 @@
                     <div class="col-md-3">
                         <div class="metric-box">
                             <div class="label">Puntaje Anterior</div>
-                            <div class="value"><?= number_format($informe['puntaje_anterior'] ?? 0, 1) ?>%</div>
+                            <div class="value"><?= $informe['puntaje_anterior'] !== null ? number_format($informe['puntaje_anterior'], 1) . '%' : 'N/A' ?></div>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -94,6 +94,7 @@
                             <?php
                                 $ea = $informe['estado_avance'];
                                 $eaClass = match(true) {
+                                    str_contains($ea, 'LÍNEA BASE')    => 'bg-info text-white',
                                     str_contains($ea, 'SIGNIFICATIVO') => 'bg-success',
                                     str_contains($ea, 'MODERADO')      => 'bg-info',
                                     str_contains($ea, 'ESTABLE')       => 'bg-warning text-dark',

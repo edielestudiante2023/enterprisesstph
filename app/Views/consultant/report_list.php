@@ -976,34 +976,12 @@
         }
       });
 
-      // Inicializamos Select2 en el select de clientes
+      // Inicializamos Select2
       $('#clientFilter').select2({
         placeholder: "Seleccione un cliente",
         allowClear: true,
         width: 'resolve'
       });
-
-      // ============================================
-      // Precargar cliente desde localStorage (Quick Access)
-      // ============================================
-      var storedClientId = localStorage.getItem('selectedClient');
-      if (storedClientId) {
-        // Mapeo de id_cliente a nombre_cliente
-        var clientMap = {
-          <?php foreach ($clients as $client): ?>
-          '<?= $client['id_cliente'] ?>': '<?= addslashes($client['nombre_cliente']) ?>',
-          <?php endforeach; ?>
-        };
-
-        var clientName = clientMap[storedClientId];
-        if (clientName) {
-          // Seleccionar el cliente en el filtro
-          $('#clientFilter').val(clientName).trigger('change');
-          console.log('Cliente precargado desde Quick Access: ' + clientName);
-        }
-      }
-
-      // Inicializamos Select2 en el select de descarga de documentación
       $('#clientDownload').select2({
         placeholder: "-- Seleccione un cliente --",
         allowClear: true,
@@ -1011,13 +989,11 @@
       });
 
       // Evento para filtrar la tabla según el cliente seleccionado
+      // IMPORTANTE: registrar ANTES del preload para que trigger('change') funcione
       $('#clientFilter').on('change', function () {
         var selected = $(this).val();
         table.column(10).search(selected ? '^' + selected + '$' : '', true, false).draw();
-        // Actualizar contadores después del filtrado
-        setTimeout(function() {
-          updateMonthlyCounts();
-        }, 100);
+        updateMonthlyCounts();
 
         // Guardar en localStorage para Quick Access (mapeo inverso nombre -> id)
         if (selected) {
@@ -1035,42 +1011,53 @@
         }
       });
 
-      // Función para aplicar filtro de fechas
+      // ============================================
+      // Precargar cliente desde localStorage (Quick Access)
+      // ============================================
+      var storedClientId = localStorage.getItem('selectedClient');
+      if (storedClientId) {
+        var clientMap = {
+          <?php foreach ($clients as $client): ?>
+          '<?= $client['id_cliente'] ?>': '<?= addslashes($client['nombre_cliente']) ?>',
+          <?php endforeach; ?>
+        };
+
+        var clientName = clientMap[storedClientId];
+        if (clientName) {
+          $('#clientFilter').val(clientName).trigger('change');
+        }
+      }
+
+      // Función para aplicar filtro de fechas (con limpieza segura)
       function applyDateFilter() {
         var dateFrom = $('#dateFrom').val();
         var dateTo = $('#dateTo').val();
-        
-        $.fn.dataTable.ext.search.pop(); // Remover filtro anterior si existe
-        
+
+        // Limpiar solo filtros de fecha previos (no otros)
+        $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(function(fn) {
+          return !fn._isDateFilter;
+        });
+
         if (dateFrom || dateTo) {
-          $.fn.dataTable.ext.search.push(
-            function(settings, data, dataIndex) {
-              if (settings.nTable.id !== 'reportTable') {
-                return true;
-              }
-              
-              var dateCreated = data[1]; // Columna Fecha de Creación (índice 1)
-              
-              // Convertir fecha de la tabla al formato YYYY-MM-DD para comparación
-              var tableDateParts = dateCreated.split(' ')[0]; // Tomar solo la parte de fecha
-              var tableDate = new Date(tableDateParts).getTime();
-              
-              var fromDate = dateFrom ? new Date(dateFrom).getTime() : null;
-              var toDate = dateTo ? new Date(dateTo + ' 23:59:59').getTime() : null;
-              
-              if (fromDate && toDate) {
-                return tableDate >= fromDate && tableDate <= toDate;
-              } else if (fromDate) {
-                return tableDate >= fromDate;
-              } else if (toDate) {
-                return tableDate <= toDate;
-              }
-              
-              return true;
-            }
-          );
+          var dateFilter = function(settings, data, dataIndex) {
+            if (settings.nTable.id !== 'reportTable') return true;
+
+            var dateCreated = data[1];
+            var tableDateParts = dateCreated.split(' ')[0];
+            var tableDate = new Date(tableDateParts).getTime();
+
+            var fromDate = dateFrom ? new Date(dateFrom).getTime() : null;
+            var toDate = dateTo ? new Date(dateTo + ' 23:59:59').getTime() : null;
+
+            if (fromDate && toDate) return tableDate >= fromDate && tableDate <= toDate;
+            if (fromDate) return tableDate >= fromDate;
+            if (toDate) return tableDate <= toDate;
+            return true;
+          };
+          dateFilter._isDateFilter = true;
+          $.fn.dataTable.ext.search.push(dateFilter);
         }
-        
+
         table.draw();
       }
 
@@ -1082,10 +1069,11 @@
       // Botón para restablecer estado y recargar la página
       $('#clearState').on('click', function () {
         localStorage.removeItem('DataTables_reportTable');
+        localStorage.removeItem('selectedClient');
         table.state.clear();
-        // Limpiar filtros de fecha
         $('#dateFrom, #dateTo').val('');
-        $.fn.dataTable.ext.search.pop(); // Remover filtro de fechas
+        // Limpiar todos los filtros externos
+        $.fn.dataTable.ext.search = [];
         location.reload();
       });
 

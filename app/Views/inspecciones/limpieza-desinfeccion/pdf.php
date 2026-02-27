@@ -338,7 +338,7 @@
         <td>Limpieza profunda</td>
         <td>Detergente industrial</td>
         <td>Según ficha técnica</td>
-        <td>Aplicar detergente, frotar con presión</td>
+        <td>Aplicar detergente, frotar y enjuagar con presión</td>
         <td>Overol, Tapabocas, Guantes, Botas</td>
         <td>Hidrolavadora, Mangueras, Cepillos</td>
     </tr>
@@ -513,7 +513,7 @@
         <tr><td class="ind-label" style="background: #f0f0f0;">Responsable</td><td>Administración del Conjunto Residencial</td></tr>
     </table>
 </div>
-<p>Este indicador permite verificar el grado de cumplimiento del cronograma establecido. Un resultado inferior a la meta establecida deberá generar acciones correctivas.</p>
+<p>Este indicador permite verificar el grado de cumplimiento del cronograma establecido, evidenciando si las actividades programadas se están ejecutando conforme a lo planificado. Un resultado inferior a la meta establecida deberá generar acciones correctivas.</p>
 
 <div class="subsection-title">1.14.2 Cobertura de desinfección en áreas críticas</div>
 <div class="indicador-box">

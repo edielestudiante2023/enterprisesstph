@@ -262,35 +262,24 @@
 
     $(document).ready(function() {
         // Select2 AJAX clientes
-        $('#selectCliente').select2({
-            theme: 'bootstrap-5',
-            placeholder: 'Buscar cliente...',
-            allowClear: true,
-            ajax: {
-                url: BASE + 'informe-avances/api/clientes',
-                dataType: 'json',
-                delay: 250,
-                processResults: function(data) {
-                    return {
-                        results: data.map(function(c) {
-                            return { id: c.id_cliente, text: c.nombre_cliente + ' (' + c.nit_cliente + ')' };
-                        })
-                    };
-                }
+        // Cargar clientes una sola vez y usar Select2 local
+        $.getJSON(BASE + 'informe-avances/api/clientes', function(data) {
+            data.forEach(function(c) {
+                var opt = new Option(c.nombre_cliente + ' (' + c.nit_cliente + ')', c.id_cliente, false, false);
+                $('#selectCliente').append(opt);
+            });
+            $('#selectCliente').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Buscar cliente...',
+                allowClear: true
+            });
+
+            // Preselect client if editing
+            if (PRESELECT_CLIENTE) {
+                $('#selectCliente').val(PRESELECT_CLIENTE).trigger('change');
+                if (!EDIT_MODE) loadMetricas(PRESELECT_CLIENTE);
             }
         });
-
-        // Preselect client if editing
-        if (PRESELECT_CLIENTE) {
-            $.get(BASE + 'informe-avances/api/clientes', function(data) {
-                var found = data.find(c => c.id_cliente == PRESELECT_CLIENTE);
-                if (found) {
-                    var opt = new Option(found.nombre_cliente + ' (' + found.nit_cliente + ')', found.id_cliente, true, true);
-                    $('#selectCliente').append(opt).trigger('change');
-                    if (!EDIT_MODE) loadMetricas(found.id_cliente);
-                }
-            });
-        }
 
         // On client change, load metricas
         $('#selectCliente').on('change', function() {
@@ -327,17 +316,19 @@
                 $('#indicadorCapacitacion').val(d.indicador_capacitacion);
                 $('#enlaceDashboard').val(d.enlace_dashboard);
 
-                $('#displayPuntajeAnterior').text((d.puntaje_anterior ?? 0).toFixed(1) + '%');
+                var esPrimer = d.puntaje_anterior === null;
+                $('#displayPuntajeAnterior').text(esPrimer ? 'N/A' : d.puntaje_anterior.toFixed(1) + '%');
                 $('#displayPuntajeActual').text(d.puntaje_actual.toFixed(1) + '%');
-                $('#displayDiferencia').text(d.diferencia_neta.toFixed(1));
+                $('#displayDiferencia').text(esPrimer ? 'N/A' : d.diferencia_neta.toFixed(1));
                 $('#displayEstadoAvance').text(d.estado_avance);
 
                 // Color diferencia
-                var diffColor = d.diferencia_neta > 0 ? '#28a745' : d.diferencia_neta < 0 ? '#dc3545' : '#6c757d';
+                var diffColor = esPrimer ? '#17a2b8' : (d.diferencia_neta > 0 ? '#28a745' : d.diferencia_neta < 0 ? '#dc3545' : '#6c757d');
                 $('#displayDiferencia').css('color', diffColor);
 
                 // Estado badge color
-                var estadoBadgeClass = d.estado_avance.includes('SIGNIFICATIVO') ? 'bg-success' :
+                var estadoBadgeClass = d.estado_avance.includes('LÍNEA BASE') ? 'bg-info text-white' :
+                    d.estado_avance.includes('SIGNIFICATIVO') ? 'bg-success' :
                     d.estado_avance.includes('MODERADO') ? 'bg-info' :
                     d.estado_avance.includes('ESTABLE') ? 'bg-warning text-dark' : 'bg-danger';
                 $('#displayEstadoAvance').removeClass().addClass('badge badge-estado ' + estadoBadgeClass);

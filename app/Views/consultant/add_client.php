@@ -188,11 +188,20 @@
 
                     <div class="mb-3">
                         <label class="form-label">Plazo de Cartera:</label>
-                        <select name="plazo_cartera" class="form-select">
+                        <select name="plazo_cartera_select" id="plazo_cartera_select_add" class="form-select">
                             <option value="">Seleccione</option>
                             <option value="PAGO INMEDIATO">PAGO INMEDIATO</option>
-                            <option value="PLAZO 8 DÍAS">PLAZO 8 DÍAS</option>
+                            <option value="8 DÍAS">8 DÍAS</option>
+                            <option value="15 DÍAS">15 DÍAS</option>
+                            <option value="21 DÍAS">21 DÍAS</option>
+                            <option value="30 DÍAS">30 DÍAS</option>
+                            <option value="45 DÍAS">45 DÍAS</option>
+                            <option value="60 DÍAS">60 DÍAS</option>
+                            <option value="90 DÍAS">90 DÍAS</option>
+                            <option value="OTRO">OTRO PLAZO</option>
                         </select>
+                        <input type="text" name="plazo_cartera_otro" id="plazo_cartera_otro_add" class="form-control mt-2 d-none" placeholder="Digite el plazo">
+                        <input type="hidden" name="plazo_cartera" id="plazo_cartera_hidden_add" value="">
                     </div>
 
                     <div class="mb-3">
@@ -288,6 +297,28 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sel = document.getElementById('plazo_cartera_select_add');
+    const otro = document.getElementById('plazo_cartera_otro_add');
+    const hidden = document.getElementById('plazo_cartera_hidden_add');
+
+    function syncPlazo() {
+        if (sel.value === 'OTRO') {
+            otro.classList.remove('d-none');
+            hidden.value = otro.value;
+        } else {
+            otro.classList.add('d-none');
+            otro.value = '';
+            hidden.value = sel.value;
+        }
+    }
+
+    sel.addEventListener('change', syncPlazo);
+    otro.addEventListener('input', function() { hidden.value = otro.value; });
+    syncPlazo();
+});
+</script>
 </body>
 
 </html>

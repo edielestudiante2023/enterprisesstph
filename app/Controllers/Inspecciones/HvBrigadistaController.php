@@ -129,10 +129,6 @@ class HvBrigadistaController extends BaseController
         if (!$hv) {
             return redirect()->to('/inspecciones/hv-brigadista')->with('error', 'No encontrada');
         }
-        if ($hv['estado'] === 'completo') {
-            return redirect()->to('/inspecciones/hv-brigadista')->with('error', 'No se puede eliminar una HV completa');
-        }
-
         // Borrar foto
         if (!empty($hv['foto_brigadista']) && file_exists(FCPATH . $hv['foto_brigadista'])) {
             unlink(FCPATH . $hv['foto_brigadista']);
@@ -153,7 +149,155 @@ class HvBrigadistaController extends BaseController
         return redirect()->to('/inspecciones/hv-brigadista')->with('msg', 'HV eliminada');
     }
 
+    /**
+     * Formulario de edicion
+     */
+    public function edit($id)
+    {
+        $hv = $this->hvModel->find($id);
+        if (!$hv) {
+            return redirect()->to('/inspecciones/hv-brigadista')->with('error', 'No encontrada');
+        }
+
+        $clientModel = new ClientModel();
+
+        $data = [
+            'title'   => 'Editar HV Brigadista',
+            'hv'      => $hv,
+            'cliente' => $clientModel->find($hv['id_cliente']),
+        ];
+
+        return view('inspecciones/layout_pwa', [
+            'content' => view('inspecciones/hv-brigadista/form', $data),
+            'title'   => 'Editar HV Brigadista',
+        ]);
+    }
+
+    /**
+     * Actualizar HV
+     */
+    public function update($id)
+    {
+        $hv = $this->hvModel->find($id);
+        if (!$hv) {
+            return redirect()->to('/inspecciones/hv-brigadista')->with('error', 'No encontrada');
+        }
+
+        $data = $this->getHvPostData();
+
+        // Foto replacement
+        $nuevaFoto = $this->uploadFoto('foto_brigadista', 'uploads/inspecciones/hv-brigadista/fotos/');
+        if ($nuevaFoto) {
+            if (!empty($hv['foto_brigadista']) && file_exists(FCPATH . $hv['foto_brigadista'])) {
+                unlink(FCPATH . $hv['foto_brigadista']);
+            }
+            $data['foto_brigadista'] = $nuevaFoto;
+        }
+
+        // Firma replacement (base64 canvas)
+        $nuevaFirma = $this->guardarFirma();
+        if ($nuevaFirma) {
+            if (!empty($hv['firma']) && file_exists(FCPATH . $hv['firma'])) {
+                unlink(FCPATH . $hv['firma']);
+            }
+            $data['firma'] = $nuevaFirma;
+        }
+
+        $this->hvModel->update($id, $data);
+
+        if ($this->request->getPost('finalizar')) {
+            return $this->finalizar($id);
+        }
+
+        return redirect()->to('/inspecciones/hv-brigadista/edit/' . $id)
+            ->with('msg', 'HV actualizada');
+    }
+
     // ===== METODOS PRIVADOS =====
+
+    private function getHvPostData(): array
+    {
+        return [
+            'fecha_inscripcion'       => $this->request->getPost('fecha_inscripcion') ?: null,
+            'nombre_completo'         => trim($this->request->getPost('nombre_completo') ?? ''),
+            'documento_identidad'     => trim($this->request->getPost('documento_identidad') ?? ''),
+            'f_nacimiento'            => $this->request->getPost('f_nacimiento') ?: null,
+            'email'                   => trim($this->request->getPost('email') ?? ''),
+            'telefono'                => trim($this->request->getPost('telefono') ?? ''),
+            'direccion_residencia'    => trim($this->request->getPost('direccion_residencia') ?? ''),
+            'edad'                    => $this->request->getPost('edad') !== '' ? (int) $this->request->getPost('edad') : null,
+            'eps'                     => trim($this->request->getPost('eps') ?? ''),
+            'peso'                    => $this->request->getPost('peso') ?: null,
+            'estatura'                => $this->request->getPost('estatura') ?: null,
+            'rh'                      => $this->request->getPost('rh') ?: null,
+            'estudios_1'              => trim($this->request->getPost('estudios_1') ?? '') ?: null,
+            'lugar_estudio_1'         => trim($this->request->getPost('lugar_estudio_1') ?? '') ?: null,
+            'anio_estudio_1'          => $this->request->getPost('anio_estudio_1') ? (int) $this->request->getPost('anio_estudio_1') : null,
+            'estudios_2'              => trim($this->request->getPost('estudios_2') ?? '') ?: null,
+            'lugar_estudio_2'         => trim($this->request->getPost('lugar_estudio_2') ?? '') ?: null,
+            'anio_estudio_2'          => $this->request->getPost('anio_estudio_2') ? (int) $this->request->getPost('anio_estudio_2') : null,
+            'estudios_3'              => trim($this->request->getPost('estudios_3') ?? '') ?: null,
+            'lugar_estudio_3'         => trim($this->request->getPost('lugar_estudio_3') ?? '') ?: null,
+            'anio_estudio_3'          => $this->request->getPost('anio_estudio_3') ? (int) $this->request->getPost('anio_estudio_3') : null,
+            'enfermedades_importantes' => trim($this->request->getPost('enfermedades_importantes') ?? ''),
+            'medicamentos'            => trim($this->request->getPost('medicamentos') ?? ''),
+            'cardiaca'                => $this->request->getPost('cardiaca') ?: null,
+            'pechoactividad'          => $this->request->getPost('pechoactividad') ?: null,
+            'dolorpecho'              => $this->request->getPost('dolorpecho') ?: null,
+            'conciencia'              => $this->request->getPost('conciencia') ?: null,
+            'huesos'                  => $this->request->getPost('huesos') ?: null,
+            'medicamentos_bool'       => $this->request->getPost('medicamentos_bool') ?: null,
+            'actividadfisica'         => $this->request->getPost('actividadfisica') ?: null,
+            'convulsiones'            => $this->request->getPost('convulsiones') ?: null,
+            'vertigo'                 => $this->request->getPost('vertigo') ?: null,
+            'oidos'                   => $this->request->getPost('oidos') ?: null,
+            'lugarescerrados'         => $this->request->getPost('lugarescerrados') ?: null,
+            'miedoalturas'            => $this->request->getPost('miedoalturas') ?: null,
+            'haceejercicio'           => $this->request->getPost('haceejercicio') ?: null,
+            'miedo_ver_sangre'        => $this->request->getPost('miedo_ver_sangre') ?: null,
+            'restricciones_medicas'   => trim($this->request->getPost('restricciones_medicas') ?? ''),
+            'deporte_semana'          => trim($this->request->getPost('deporte_semana') ?? ''),
+        ];
+    }
+
+    private function uploadFoto(string $campo, string $dir): ?string
+    {
+        $file = $this->request->getFile($campo);
+        if (!$file || !$file->isValid() || $file->hasMoved()) {
+            return null;
+        }
+        if (!is_dir(FCPATH . $dir)) {
+            mkdir(FCPATH . $dir, 0755, true);
+        }
+        $fileName = $file->getRandomName();
+        $file->move(FCPATH . $dir, $fileName);
+        return $dir . $fileName;
+    }
+
+    private function guardarFirma(): ?string
+    {
+        $firmaB64 = $this->request->getPost('firma_imagen');
+        if (empty($firmaB64) || $firmaB64 === 'data:,') {
+            return null;
+        }
+
+        $parts = explode(',', $firmaB64);
+        $data = base64_decode(end($parts));
+        if ($data === false) {
+            return null;
+        }
+
+        $dir = 'uploads/inspecciones/hv-brigadista/firmas/';
+        if (!is_dir(FCPATH . $dir)) {
+            mkdir(FCPATH . $dir, 0755, true);
+        }
+
+        $fileName = 'firma_' . uniqid() . '_' . date('Ymd_His') . '.png';
+        $path = $dir . $fileName;
+        file_put_contents(FCPATH . $path, $data);
+
+        return $path;
+    }
 
     /**
      * Genera el PDF con DOMPDF

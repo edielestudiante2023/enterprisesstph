@@ -105,6 +105,7 @@
                                 <?php
                                     $estadoAvance = $inf['estado_avance'] ?? 'ESTABLE';
                                     $badgeClass = match(true) {
+                                        str_contains($estadoAvance, 'LÍNEA BASE')    => 'badge-avance-moderado',
                                         str_contains($estadoAvance, 'SIGNIFICATIVO') => 'badge-avance-significativo',
                                         str_contains($estadoAvance, 'MODERADO')      => 'badge-avance-moderado',
                                         str_contains($estadoAvance, 'ESTABLE')       => 'badge-estable',

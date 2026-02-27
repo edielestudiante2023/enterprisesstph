@@ -378,37 +378,37 @@
 <div class="section-title">1.11 PROCEDIMIENTO DE RECOLECCIÓN, ALMACENAMIENTO Y DISPOSICIÓN FINAL</div>
 <p>El presente procedimiento establece los lineamientos para la correcta recolección, transporte interno, almacenamiento temporal y disposición final de los residuos sólidos y peligrosos generados en <?= esc($nombreCliente) ?>, de conformidad con la Ley 142 de 1994, el Decreto 1077 de 2015, la Resolución 2184 de 2019, la Resolución 1362 de 2007 y demás normas concordantes.</p>
 
-<div class="subsection-title">1.11.1 Recolección de residuos generados en la fuente</div>
+<div class="subsection-title">1.11.1 Recolección de residuos generados en la fuente (áreas comunes y zonas de uso colectivo)</div>
 <ol class="lista-items" type="a">
-    <li>El operario(a) de servicios generales deberá colocarse previamente los EPP.</li>
-    <li>Preparar los implementos requeridos para la recolección.</li>
-    <li>Verificar que el carro de recolección se encuentre en adecuadas condiciones.</li>
-    <li>Identificar condiciones inseguras.</li>
-    <li>Iniciar el recorrido conforme a las rutas sanitarias internas.</li>
-    <li>Realizar la recolección de residuos en los puntos ecológicos y recipientes.</li>
-    <li>Transportar los residuos a la unidad de almacenamiento temporal.</li>
+    <li>El operario(a) de servicios generales deberá colocarse previamente los elementos de protección personal (EPP) establecidos para la actividad.</li>
+    <li>Preparar los implementos requeridos para la recolección: carro de recolección interna (buggie, practiwagon o similar), escoba, recogedor y bolsas según el tipo de residuo.</li>
+    <li>Verificar que el carro de recolección se encuentre en adecuadas condiciones físicas, de limpieza y desinfección.</li>
+    <li>Identificar condiciones inseguras que puedan generar riesgo durante la actividad.</li>
+    <li>Iniciar el recorrido conforme a las rutas sanitarias internas definidas por la Administración del conjunto.</li>
+    <li>Realizar la recolección de residuos en los puntos ecológicos y recipientes dispuestos en áreas comunes.</li>
+    <li>Transportar los residuos a la unidad de almacenamiento temporal, disponiéndolos de acuerdo con su clasificación.</li>
     <li>Realizar higiene de manos al finalizar la actividad.</li>
 </ol>
 
-<div class="subsection-title">1.11.2 Recolección de residuos en puntos administrativos</div>
+<div class="subsection-title">1.11.2 Recolección de residuos generados en puntos administrativos</div>
 <ol class="lista-items" type="a">
     <li>Colocarse los EPP antes de iniciar la labor.</li>
-    <li>Preparar los implementos.</li>
-    <li>Verificar el estado del carro de recolección.</li>
+    <li>Preparar los implementos: carro de recolección, bolsas, escoba y recogedor.</li>
+    <li>Verificar el estado físico y sanitario del carro de recolección.</li>
     <li>Identificar condiciones inseguras.</li>
-    <li>Ingresar a las oficinas y vaciar los recipientes de residuos.</li>
-    <li>Transportar al cuarto de almacenamiento temporal.</li>
-    <li>Lavarse las manos al finalizar.</li>
+    <li>Ingresar a las oficinas administrativas y vaciar los recipientes de residuos.</li>
+    <li>Transportar los residuos al cuarto de almacenamiento temporal y disponerlos según clasificación.</li>
+    <li>Lavarse las manos al finalizar la actividad.</li>
 </ol>
 
 <div class="subsection-title">1.11.3 Recolección y manejo de residuos peligrosos (RESPEL y RAEE)</div>
 <p>El manejo de residuos peligrosos generados en <?= esc($nombreCliente) ?> se realizará conforme a la Resolución 1362 de 2007, los programas posconsumo vigentes y los lineamientos de la autoridad ambiental competente.</p>
 <ol class="lista-items" type="a">
-    <li>Colocarse los EPP.</li>
-    <li>Preparar los implementos requeridos.</li>
+    <li>Colocarse los EPP antes de iniciar la labor.</li>
+    <li>Preparar los implementos requeridos para la recolección.</li>
     <li>Verificar el adecuado estado del carro de recolección.</li>
     <li>Identificar condiciones inseguras.</li>
-    <li>Realizar el recorrido por los puntos designados.</li>
+    <li>Realizar el recorrido por los puntos designados para la disposición de residuos peligrosos.</li>
     <li>Recolectar residuos como pilas, baterías, luminarias, tóners y RAEE, debidamente empacados y rotulados.</li>
     <li>Disponerlos en el área exclusiva y señalizada del cuarto de almacenamiento temporal.</li>
     <li>Entregar los residuos a gestores autorizados o programas posconsumo.</li>
@@ -417,7 +417,7 @@
 
 <div class="subsection-title">1.11.4 Recolección de residuos orgánicos</div>
 <ol class="lista-items" type="a">
-    <li>Colocarse los EPP.</li>
+    <li>Colocarse los EPP antes de iniciar la labor.</li>
     <li>Preparar los implementos necesarios.</li>
     <li>Verificar el estado del carro de recolección.</li>
     <li>Identificar condiciones inseguras.</li>
