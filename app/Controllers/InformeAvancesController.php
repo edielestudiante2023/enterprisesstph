@@ -45,9 +45,10 @@ class InformeAvancesController extends BaseController
     public function create($idCliente = null)
     {
         $data = [
-            'informe'    => null,
-            'id_cliente' => $idCliente,
-            'mode'       => 'create',
+            'informe'      => null,
+            'id_cliente'   => $idCliente,
+            'mode'         => 'create',
+            'vencimientos' => $idCliente ? $this->getVencimientosCliente((int) $idCliente) : [],
         ];
 
         return view('informe_avances/form', $data);
@@ -91,9 +92,10 @@ class InformeAvancesController extends BaseController
         }
 
         return view('informe_avances/form', [
-            'informe'    => $informe,
-            'id_cliente' => $informe['id_cliente'],
-            'mode'       => 'edit',
+            'informe'      => $informe,
+            'id_cliente'   => $informe['id_cliente'],
+            'mode'         => 'edit',
+            'vencimientos' => $this->getVencimientosCliente((int) $informe['id_cliente']),
         ]);
     }
 
@@ -101,7 +103,7 @@ class InformeAvancesController extends BaseController
     public function update($id)
     {
         $informe = $this->informeModel->find($id);
-        if (!$informe || $informe['estado'] === 'completo') {
+        if (!$informe) {
             return redirect()->to('/informe-avances')->with('error', 'No se puede editar');
         }
 
@@ -132,6 +134,17 @@ class InformeAvancesController extends BaseController
 
         $this->informeModel->update($id, $data);
 
+        // Si el informe ya estaba completo, regenerar PDF y re-subir a reportes
+        $informe = $this->informeModel->find($id);
+        if ($informe['estado'] === 'completo') {
+            $pdfPath = $this->generarPdfInterno($id);
+            if ($pdfPath) {
+                $this->informeModel->update($id, ['ruta_pdf' => $pdfPath]);
+                $informe = $this->informeModel->find($id);
+                $this->uploadToReportes($informe, $pdfPath);
+            }
+        }
+
         return redirect()->to('/informe-avances/edit/' . $id)
             ->with('msg', 'Informe actualizado');
     }
@@ -150,9 +163,10 @@ class InformeAvancesController extends BaseController
         $consultor = $consultantModel->find($informe['id_consultor']);
 
         return view('informe_avances/view', [
-            'informe'   => $informe,
-            'cliente'   => $cliente,
-            'consultor' => $consultor,
+            'informe'      => $informe,
+            'cliente'      => $cliente,
+            'consultor'    => $consultor,
+            'vencimientos' => $this->getVencimientosCliente((int) $informe['id_cliente']),
         ]);
     }
 
@@ -194,6 +208,11 @@ class InformeAvancesController extends BaseController
             return redirect()->back()->with('error', 'Error al generar PDF');
         }
 
+        // Actualizar ruta y re-subir a reportes
+        $this->informeModel->update($id, ['ruta_pdf' => $pdfPath]);
+        $informe = $this->informeModel->find($id);
+        $this->uploadToReportes($informe, $pdfPath);
+
         $fullPath = FCPATH . $pdfPath;
         if (!file_exists($fullPath)) {
             return redirect()->back()->with('error', 'Archivo PDF no encontrado');
@@ -211,9 +230,6 @@ class InformeAvancesController extends BaseController
         $informe = $this->informeModel->find($id);
         if (!$informe) {
             return redirect()->to('/informe-avances')->with('error', 'No encontrado');
-        }
-        if ($informe['estado'] === 'completo') {
-            return redirect()->to('/informe-avances')->with('error', 'No se puede eliminar un informe completo');
         }
 
         // Eliminar archivos
@@ -249,6 +265,15 @@ class InformeAvancesController extends BaseController
         return $this->response->setJSON([
             'success' => true,
             'data'    => $metricas,
+        ]);
+    }
+
+    // ─── AJAX: Vencimientos de un cliente ───
+    public function apiVencimientos($idCliente)
+    {
+        return $this->response->setJSON([
+            'success' => true,
+            'data'    => $this->getVencimientosCliente((int) $idCliente),
         ]);
     }
 
@@ -347,11 +372,27 @@ class InformeAvancesController extends BaseController
             'actividades_cerradas_periodo' => $this->request->getPost('actividades_cerradas_periodo'),
             'enlace_dashboard'             => $this->request->getPost('enlace_dashboard'),
             'acta_visita_url'              => $this->request->getPost('acta_visita_url'),
+            'metricas_desglose_json'       => $this->request->getPost('metricas_desglose_json'),
             'soporte_1_texto'              => $this->request->getPost('soporte_1_texto'),
             'soporte_2_texto'              => $this->request->getPost('soporte_2_texto'),
             'soporte_3_texto'              => $this->request->getPost('soporte_3_texto'),
             'soporte_4_texto'              => $this->request->getPost('soporte_4_texto'),
         ];
+    }
+
+    // ─── PRIVATE: Vencimientos de mantenimiento del cliente ───
+    private function getVencimientosCliente(int $idCliente): array
+    {
+        $vencModel = new \App\Models\VencimientosMantenimientoModel();
+        $en30dias = date('Y-m-d', strtotime('+30 days'));
+        return $vencModel
+            ->select('tbl_vencimientos_mantenimientos.*, tbl_mantenimientos.detalle_mantenimiento')
+            ->join('tbl_mantenimientos', 'tbl_mantenimientos.id_mantenimiento = tbl_vencimientos_mantenimientos.id_mantenimiento', 'left')
+            ->where('tbl_vencimientos_mantenimientos.id_cliente', $idCliente)
+            ->where('tbl_vencimientos_mantenimientos.estado_actividad', 'sin ejecutar')
+            ->where('tbl_vencimientos_mantenimientos.fecha_vencimiento <=', $en30dias)
+            ->orderBy('tbl_vencimientos_mantenimientos.fecha_vencimiento', 'ASC')
+            ->findAll();
     }
 
     // ─── PRIVATE: Upload foto ───
@@ -407,12 +448,23 @@ class InformeAvancesController extends BaseController
             }
         }
 
+        // Decodificar desgloses JSON para gráficas del PDF
+        $desglose = [];
+        if (!empty($informe['metricas_desglose_json'])) {
+            $desglose = json_decode($informe['metricas_desglose_json'], true) ?: [];
+        }
+
+        // Vencimientos de mantenimientos del cliente (vencidos + próximos 30 días, sin ejecutar)
+        $vencimientos = $this->getVencimientosCliente((int) $informe['id_cliente']);
+
         $data = [
             'informe'        => $informe,
             'cliente'        => $cliente,
             'consultor'      => $consultor,
             'logoBase64'     => $logoBase64,
             'soportesBase64' => $soportesBase64,
+            'desglose'       => $desglose,
+            'vencimientos'   => $vencimientos,
         ];
 
         $html = view('informe_avances/pdf', $data);
@@ -496,17 +548,20 @@ class InformeAvancesController extends BaseController
 
         $estado = $metricas['estado_avance'] ?? 'ESTABLE';
         $puntajeActual = $metricas['puntaje_actual'] ?? 0;
-        $puntajeAnterior = $metricas['puntaje_anterior'] ?? 'N/A';
+        $puntajeAnterior = $metricas['puntaje_anterior'] ?? 39.75;
         $diferencia = $metricas['diferencia_neta'] ?? 0;
         $planTrabajo = $metricas['indicador_plan_trabajo'] ?? 0;
         $capacitacion = $metricas['indicador_capacitacion'] ?? 0;
+
+        // Desgloses por pilar
+        $desgloseTexto = $this->formatDesgloseForPrompt($metricas);
 
         return <<<PROMPT
 Eres un consultor senior de Seguridad y Salud en el Trabajo (SG-SST) en Colombia.
 
 Genera un resumen ejecutivo de avance del SG-SST para el cliente "{$nombreCliente}" correspondiente al periodo {$desde} a {$hasta}.
 
-DATOS DEL PERIODO:
+INDICADORES PRINCIPALES:
 - Puntaje cumplimiento estándares mínimos actual: {$puntajeActual}%
 - Puntaje periodo anterior: {$puntajeAnterior}%
 - Diferencia neta: {$diferencia} puntos porcentuales
@@ -514,18 +569,80 @@ DATOS DEL PERIODO:
 - Indicador plan de trabajo anual: {$planTrabajo}%
 - Indicador programa de capacitación: {$capacitacion}%
 
+{$desgloseTexto}
+
 ACTIVIDADES REALIZADAS EN EL PERIODO:
 {$actividadesTexto}
 
 INSTRUCCIONES:
 1. Escribe en tercera persona, tono profesional y técnico.
 2. Menciona las actividades más relevantes del periodo.
-3. Analiza los indicadores y su tendencia.
+3. Analiza los indicadores y su tendencia, identificando qué ciclo PHVA está más débil.
 4. Si hay avance, resáltalo. Si hay retroceso, indica las posibles causas y recomendaciones.
-5. Máximo 4 párrafos.
-6. No uses viñetas ni listas, solo prosa continua.
-7. No incluyas saludos ni despedidas.
+5. Si hay compromisos abiertos con muchos días sin cerrar, menciónalos como punto de atención.
+6. Máximo 4 párrafos.
+7. No uses viñetas ni listas, solo prosa continua.
+8. No incluyas saludos ni despedidas.
 PROMPT;
+    }
+
+    // ─── PRIVATE: Formatear desgloses para el prompt de IA ───
+    private function formatDesgloseForPrompt(array $metricas): string
+    {
+        $lines = [];
+
+        // Desglose Estándares por ciclo PHVA
+        $est = $metricas['desglose_estandares'] ?? [];
+        if (!empty($est)) {
+            $lines[] = 'DESGLOSE CUMPLIMIENTO POR CICLO PHVA:';
+            foreach ($est as $e) {
+                $ciclo = $e['ciclo'] ?? 'Sin ciclo';
+                $valor = floatval($e['total_valor'] ?? 0);
+                $posible = floatval($e['total_posible'] ?? 0);
+                $pct = $posible > 0 ? round(($valor / $posible) * 100, 1) : 0;
+                $lines[] = "- {$ciclo}: {$valor} / {$posible} ({$pct}%)";
+            }
+            $lines[] = '';
+        }
+
+        // Plan de trabajo por estado
+        $plan = $metricas['desglose_plan_trabajo'] ?? [];
+        if (!empty($plan)) {
+            $total = array_sum(array_column($plan, 'cantidad'));
+            $lines[] = 'ESTADO DEL PLAN DE TRABAJO ANUAL:';
+            foreach ($plan as $p) {
+                $lines[] = "- {$p['cantidad']} actividades {$p['estado_actividad']}";
+            }
+            $lines[] = "- Total: {$total} actividades";
+            $lines[] = '';
+        }
+
+        // Capacitación por estado
+        $cap = $metricas['desglose_capacitacion'] ?? [];
+        if (!empty($cap)) {
+            $total = array_sum(array_column($cap, 'cantidad'));
+            $lines[] = 'ESTADO DEL PROGRAMA DE CAPACITACIÓN:';
+            foreach ($cap as $c) {
+                $lines[] = "- {$c['cantidad']} {$c['estado']}";
+            }
+            $lines[] = "- Total: {$total} capacitaciones";
+            $lines[] = '';
+        }
+
+        // Pendientes por estado
+        $pend = $metricas['desglose_pendientes'] ?? [];
+        if (!empty($pend)) {
+            $lines[] = 'ESTADO DE COMPROMISOS/PENDIENTES:';
+            foreach ($pend as $p) {
+                $det = "{$p['cantidad']} {$p['estado']}";
+                if (!empty($p['promedio_dias']) && floatval($p['promedio_dias']) > 0) {
+                    $det .= ' (promedio ' . round(floatval($p['promedio_dias']), 1) . ' días)';
+                }
+                $lines[] = "- {$det}";
+            }
+        }
+
+        return implode("\n", $lines);
     }
 
     // ─── ENVIAR INFORME POR EMAIL (SendGrid) ───
@@ -689,6 +806,12 @@ PROMPT;
             'actividades_abiertas'         => $metricas['actividades_abiertas'],
             'actividades_cerradas_periodo' => $metricas['actividades_cerradas_periodo'],
             'enlace_dashboard'             => $metricas['enlace_dashboard'],
+            'metricas_desglose_json'       => json_encode([
+                'desglose_estandares'   => $metricas['desglose_estandares'] ?? [],
+                'desglose_plan_trabajo' => $metricas['desglose_plan_trabajo'] ?? [],
+                'desglose_capacitacion' => $metricas['desglose_capacitacion'] ?? [],
+                'desglose_pendientes'   => $metricas['desglose_pendientes'] ?? [],
+            ], JSON_UNESCAPED_UNICODE),
             'estado'                       => 'borrador',
         ];
 

@@ -28,6 +28,14 @@
         .badge-estado { font-size: 0.95rem; padding: 6px 16px; }
         .soporte-group { border: 1px dashed #dee2e6; border-radius: 12px; padding: 15px; margin-bottom: 10px; }
         .img-preview { max-height: 120px; border-radius: 8px; margin-top: 8px; }
+        .pilar-card { background: #fff; border-radius: 14px; border: 1px solid #e9ecef; padding: 18px; height: 100%; transition: box-shadow .2s; }
+        .pilar-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .pilar-card .pilar-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 8px; }
+        .pilar-card .pilar-metric { font-size: 2rem; font-weight: 800; color: var(--primary-dark); line-height: 1; }
+        .pilar-card .pilar-detail { font-size: 0.78rem; color: #6c757d; margin-top: 4px; }
+        .pilar-card canvas { max-height: 160px; }
+        .pilar-card .pilar-empty { text-align: center; padding: 30px 10px; color: #adb5bd; }
+        .pilar-card .pilar-empty i { font-size: 2rem; margin-bottom: 8px; display: block; }
     </style>
 </head>
 <body>
@@ -76,81 +84,90 @@
                 </div>
             </div>
 
-            <!-- SECCION 2: Metricas -->
+            <!-- SECCION 2: Indicadores por Pilar SG-SST -->
             <div class="card card-section">
                 <div class="card-header py-3">
-                    <i class="fas fa-chart-bar me-2"></i>2. Metricas del Periodo
+                    <i class="fas fa-chart-pie me-2"></i>2. Indicadores por Pilar SG-SST
                     <span id="metricasLoading" class="ms-2 d-none"><i class="fas fa-spinner fa-spin"></i> Calculando...</span>
                 </div>
                 <div class="card-body">
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-3">
-                            <div class="metric-box">
-                                <div class="label">Puntaje Anterior</div>
-                                <div class="value" id="displayPuntajeAnterior"><?= number_format($informe['puntaje_anterior'] ?? 0, 1) ?>%</div>
-                                <input type="hidden" name="puntaje_anterior" id="puntajeAnterior" value="<?= esc($informe['puntaje_anterior'] ?? '') ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="metric-box">
-                                <div class="label">Puntaje Actual</div>
-                                <div class="value" id="displayPuntajeActual" style="color: var(--gold-primary);"><?= number_format($informe['puntaje_actual'] ?? 0, 1) ?>%</div>
-                                <input type="hidden" name="puntaje_actual" id="puntajeActual" value="<?= esc($informe['puntaje_actual'] ?? '') ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="metric-box">
-                                <div class="label">Diferencia Neta</div>
-                                <div class="value" id="displayDiferencia"><?= number_format($informe['diferencia_neta'] ?? 0, 1) ?></div>
-                                <input type="hidden" name="diferencia_neta" id="diferenciaNeta" value="<?= esc($informe['diferencia_neta'] ?? '') ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="metric-box">
-                                <div class="label">Estado de Avance</div>
-                                <span class="badge badge-estado mt-2" id="displayEstadoAvance"><?= esc($informe['estado_avance'] ?? 'ESTABLE') ?></span>
-                                <input type="hidden" name="estado_avance" id="estadoAvance" value="<?= esc($informe['estado_avance'] ?? 'ESTABLE') ?>">
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Hidden inputs for DB columns -->
+                    <input type="hidden" name="puntaje_anterior" id="puntajeAnterior" value="<?= esc($informe['puntaje_anterior'] ?? '') ?>">
+                    <input type="hidden" name="puntaje_actual" id="puntajeActual" value="<?= esc($informe['puntaje_actual'] ?? '') ?>">
+                    <input type="hidden" name="diferencia_neta" id="diferenciaNeta" value="<?= esc($informe['diferencia_neta'] ?? '') ?>">
+                    <input type="hidden" name="estado_avance" id="estadoAvance" value="<?= esc($informe['estado_avance'] ?? '') ?>">
+                    <input type="hidden" name="indicador_plan_trabajo" id="indicadorPlanTrabajo" value="<?= esc($informe['indicador_plan_trabajo'] ?? '') ?>">
+                    <input type="hidden" name="indicador_capacitacion" id="indicadorCapacitacion" value="<?= esc($informe['indicador_capacitacion'] ?? '') ?>">
+                    <input type="hidden" name="metricas_desglose_json" id="metricasDesgloseJson" value="<?= esc($informe['metricas_desglose_json'] ?? '') ?>">
 
                     <div class="row g-3">
+                        <!-- Pilar 1: Estandares Minimos -->
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Indicador Plan de Trabajo</label>
-                            <div class="progress progress-custom">
-                                <div class="progress-bar bg-info" id="barPlanTrabajo" style="width: <?= ($informe['indicador_plan_trabajo'] ?? 0) ?>%">
-                                    <?= number_format($informe['indicador_plan_trabajo'] ?? 0, 1) ?>%
+                            <div class="pilar-card">
+                                <div class="pilar-title"><i class="fas fa-clipboard-check me-1" style="color:#36A2EB"></i>Estandares Minimos (Res. 0312)</div>
+                                <div class="row align-items-center">
+                                    <div class="col-6 text-center">
+                                        <div id="emptyEstandares" class="pilar-empty"><i class="fas fa-chart-pie"></i>Seleccione un cliente</div>
+                                        <canvas id="chartEstandares" width="200" height="200" style="display:none"></canvas>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="pilar-metric" id="metricEstandares">--</div>
+                                        <div class="pilar-detail" id="detailEstandares">Cumplimiento actual</div>
+                                        <div class="pilar-detail" id="anteriorEstandares"></div>
+                                        <span class="badge badge-estado mt-2" id="badgeEstadoAvance" style="display:none"></span>
+                                    </div>
                                 </div>
                             </div>
-                            <input type="hidden" name="indicador_plan_trabajo" id="indicadorPlanTrabajo" value="<?= esc($informe['indicador_plan_trabajo'] ?? '') ?>">
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Indicador Capacitacion</label>
-                            <div class="progress progress-custom">
-                                <div class="progress-bar bg-success" id="barCapacitacion" style="width: <?= ($informe['indicador_capacitacion'] ?? 0) ?>%">
-                                    <?= number_format($informe['indicador_capacitacion'] ?? 0, 1) ?>%
-                                </div>
-                            </div>
-                            <input type="hidden" name="indicador_capacitacion" id="indicadorCapacitacion" value="<?= esc($informe['indicador_capacitacion'] ?? '') ?>">
-                        </div>
-                    </div>
 
-                    <!-- Screenshots opcionales (colapsable) -->
-                    <div class="mt-3">
-                        <a data-bs-toggle="collapse" href="#collapseScreenshots" class="text-muted small">
-                            <i class="fas fa-camera me-1"></i>Subir screenshots de indicadores (opcional)
-                        </a>
-                        <div class="collapse mt-2" id="collapseScreenshots">
-                            <div class="row g-3">
-                                <?php foreach (['img_cumplimiento_estandares' => 'Cumplimiento Estandares', 'img_indicador_plan_trabajo' => 'Plan de Trabajo', 'img_indicador_capacitacion' => 'Capacitacion'] as $campo => $label): ?>
-                                <div class="col-md-4">
-                                    <label class="form-label small"><?= $label ?></label>
-                                    <input type="file" name="<?= $campo ?>" class="form-control form-control-sm" accept="image/*">
-                                    <?php if (!empty($informe[$campo])): ?>
-                                        <img src="<?= base_url($informe[$campo]) ?>" class="img-preview mt-1">
-                                    <?php endif; ?>
+                        <!-- Pilar 2: Plan de Trabajo Anual -->
+                        <div class="col-md-6">
+                            <div class="pilar-card">
+                                <div class="pilar-title"><i class="fas fa-tasks me-1" style="color:#28a745"></i>Plan de Trabajo Anual</div>
+                                <div class="row align-items-center">
+                                    <div class="col-6 text-center">
+                                        <div id="emptyPlan" class="pilar-empty"><i class="fas fa-chart-pie"></i>Seleccione un cliente</div>
+                                        <canvas id="chartPlanTrabajo" width="200" height="200" style="display:none"></canvas>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="pilar-metric" id="metricPlan">--</div>
+                                        <div class="pilar-detail" id="detailPlan">Actividades cerradas</div>
+                                    </div>
                                 </div>
-                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <!-- Pilar 3: Programa de Capacitacion -->
+                        <div class="col-md-6">
+                            <div class="pilar-card">
+                                <div class="pilar-title"><i class="fas fa-chalkboard-teacher me-1" style="color:#ffc107"></i>Programa de Capacitacion</div>
+                                <div class="row align-items-center">
+                                    <div class="col-6 text-center">
+                                        <div id="emptyCap" class="pilar-empty"><i class="fas fa-chart-pie"></i>Seleccione un cliente</div>
+                                        <canvas id="chartCapacitacion" width="200" height="200" style="display:none"></canvas>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="pilar-metric" id="metricCap">--</div>
+                                        <div class="pilar-detail" id="detailCap">Capacitaciones ejecutadas</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pilar 4: Compromisos / Pendientes -->
+                        <div class="col-md-6">
+                            <div class="pilar-card">
+                                <div class="pilar-title"><i class="fas fa-exclamation-circle me-1" style="color:#dc3545"></i>Compromisos / Pendientes</div>
+                                <div class="row align-items-center">
+                                    <div class="col-6 text-center">
+                                        <div id="emptyPend" class="pilar-empty"><i class="fas fa-chart-pie"></i>Seleccione un cliente</div>
+                                        <canvas id="chartPendientes" width="200" height="200" style="display:none"></canvas>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="pilar-metric" id="metricPend">--</div>
+                                        <div class="pilar-detail" id="detailPend">Estado de compromisos</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -197,6 +214,49 @@
                     <textarea name="observaciones" class="form-control" rows="4" placeholder="Observaciones adicionales..."><?= esc($informe['observaciones'] ?? '') ?></textarea>
                 </div>
             </div>
+
+            <!-- SECCION 7: Vencimientos de Mantenimientos (solo lectura) -->
+            <?php if (!empty($vencimientos)): ?>
+            <div class="card card-section" id="seccionVencimientos">
+                <div class="card-header py-3" style="background:#dc3545;">
+                    <i class="fas fa-exclamation-circle me-2"></i>7. Elementos con Vencimiento Proximo o Vencido
+                    <span class="badge bg-light text-danger ms-2"><?= count($vencimientos) ?></span>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:5%;" class="text-center">#</th>
+                                <th style="width:35%;">Elemento</th>
+                                <th style="width:18%;" class="text-center">Fecha Vencimiento</th>
+                                <th style="width:14%;" class="text-center">Estado</th>
+                                <th style="width:28%;">Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                                $hoy = date('Y-m-d');
+                                foreach ($vencimientos as $idx => $v):
+                                    $vencido = ($v['fecha_vencimiento'] <= $hoy);
+                            ?>
+                            <tr class="<?= $vencido ? 'table-danger' : 'table-warning' ?>">
+                                <td class="text-center"><?= $idx + 1 ?></td>
+                                <td><?= esc($v['detalle_mantenimiento'] ?? 'N/A') ?></td>
+                                <td class="text-center"><?= date('d/m/Y', strtotime($v['fecha_vencimiento'])) ?></td>
+                                <td class="text-center">
+                                    <span class="badge <?= $vencido ? 'bg-danger' : 'bg-warning text-dark' ?>"><?= $vencido ? 'VENCIDO' : 'PROXIMO' ?></span>
+                                </td>
+                                <td class="small"><?= esc($v['observaciones'] ?? '') ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <div class="px-3 py-2 text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>Esta seccion se incluye automaticamente en el PDF generado. No es editable.
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- Enlaces opcionales -->
             <input type="hidden" name="enlace_dashboard" id="enlaceDashboard" value="<?= esc($informe['enlace_dashboard'] ?? '') ?>">
@@ -255,44 +315,183 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script>
+    Chart.register(ChartDataLabels);
+
     const BASE = '<?= base_url() ?>/';
     const EDIT_MODE = <?= json_encode($mode === 'edit') ?>;
     const PRESELECT_CLIENTE = <?= json_encode($id_cliente) ?>;
 
+    // Chart instances
+    var charts = { estandares: null, plan: null, cap: null, pend: null };
+    // Desglose data for JSON
+    var desgloseData = {};
+
+    // Color palettes (matching dashboards)
+    const COLORS_PHVA = ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+    const COLORS_ESTADO = ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6c757d', '#6f42c1'];
+
+    function createDoughnut(canvasId, labels, data, colors) {
+        var ctx = document.getElementById(canvasId).getContext('2d');
+        return new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{ data: data, backgroundColor: colors.slice(0, labels.length) }]
+            },
+            options: {
+                responsive: false,
+                animation: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 11 },
+                        formatter: function(value, context) {
+                            var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            return total > 0 && value > 0 ? ((value / total) * 100).toFixed(0) + '%' : '';
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function destroyChart(key) {
+        if (charts[key]) { charts[key].destroy(); charts[key] = null; }
+    }
+
+    function showChart(canvasId, emptyId) {
+        document.getElementById(emptyId).style.display = 'none';
+        document.getElementById(canvasId).style.display = 'block';
+    }
+
+    function estadoBadgeClass(estado) {
+        if (!estado) return 'bg-secondary';
+        if (estado.includes('SIGNIFICATIVO')) return 'bg-success';
+        if (estado.includes('MODERADO')) return 'bg-info';
+        if (estado.includes('ESTABLE')) return 'bg-warning text-dark';
+        return 'bg-danger';
+    }
+
+    // Check if canvas has actual content (not blank)
+    function isCanvasBlank(canvas) {
+        var ctx = canvas.getContext('2d');
+        var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        for (var i = 3; i < data.length; i += 4) {
+            if (data[i] > 0) return false;
+        }
+        return true;
+    }
+
+    // Capture all chart canvases as base64 PNG (only non-blank)
+    function captureChartImages() {
+        var images = {};
+        ['chartEstandares', 'chartPlanTrabajo', 'chartCapacitacion', 'chartPendientes'].forEach(function(id) {
+            var canvas = document.getElementById(id);
+            if (canvas && canvas.style.display !== 'none' && !isCanvasBlank(canvas)) {
+                images[id] = canvas.toDataURL('image/png');
+            }
+        });
+        return images;
+    }
+
+    // Async capture with double-rAF safety net
+    function captureAndSetJson() {
+        return new Promise(function(resolve) {
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    var json = Object.assign({}, desgloseData);
+                    json.chart_images = captureChartImages();
+                    $('#metricasDesgloseJson').val(JSON.stringify(json));
+                    resolve();
+                });
+            });
+        });
+    }
+
     $(document).ready(function() {
-        // Select2 AJAX clientes
-        // Cargar clientes una sola vez y usar Select2 local
+        // Load clients
         $.getJSON(BASE + 'informe-avances/api/clientes', function(data) {
             data.forEach(function(c) {
                 var opt = new Option(c.nombre_cliente + ' (' + c.nit_cliente + ')', c.id_cliente, false, false);
                 $('#selectCliente').append(opt);
             });
-            $('#selectCliente').select2({
-                theme: 'bootstrap-5',
-                placeholder: 'Buscar cliente...',
-                allowClear: true
-            });
+            $('#selectCliente').select2({ theme: 'bootstrap-5', placeholder: 'Buscar cliente...', allowClear: true });
 
-            // Preselect client if editing
             if (PRESELECT_CLIENTE) {
                 $('#selectCliente').val(PRESELECT_CLIENTE).trigger('change');
                 if (!EDIT_MODE) loadMetricas(PRESELECT_CLIENTE);
             }
         });
 
-        // On client change, load metricas
         $('#selectCliente').on('change', function() {
             var clienteId = $(this).val();
-            if (clienteId && !EDIT_MODE) {
-                loadMetricas(clienteId);
-            }
+            if (clienteId && !EDIT_MODE) loadMetricas(clienteId);
+            if (clienteId) loadVencimientos(clienteId);
             $('#btnGenerarIA').prop('disabled', !clienteId);
         });
 
-        // Enable IA button if editing
         if (EDIT_MODE && PRESELECT_CLIENTE) {
             $('#btnGenerarIA').prop('disabled', false);
+            // If editing, try to render charts from stored JSON
+            var storedJson = $('#metricasDesgloseJson').val();
+            if (storedJson) {
+                try {
+                    var stored = JSON.parse(storedJson);
+                    desgloseData = stored;
+                    renderDesgloseCharts(stored);
+                } catch(e) {}
+            }
+        }
+
+        function loadVencimientos(clienteId) {
+            $.get(BASE + 'informe-avances/api/vencimientos/' + clienteId, function(resp) {
+                var container = $('#seccionVencimientos');
+                if (!resp.success || !resp.data || resp.data.length === 0) {
+                    container.remove();
+                    return;
+                }
+                var items = resp.data;
+                var hoy = new Date().toISOString().slice(0, 10);
+                var html = '<div class="card card-section" id="seccionVencimientos">'
+                    + '<div class="card-header py-3" style="background:#dc3545;">'
+                    + '<i class="fas fa-exclamation-circle me-2"></i>7. Elementos con Vencimiento Proximo o Vencido '
+                    + '<span class="badge bg-light text-danger ms-2">' + items.length + '</span></div>'
+                    + '<div class="card-body p-0"><table class="table table-sm table-hover mb-0">'
+                    + '<thead class="table-light"><tr>'
+                    + '<th style="width:5%;" class="text-center">#</th>'
+                    + '<th style="width:35%;">Elemento</th>'
+                    + '<th style="width:18%;" class="text-center">Fecha Vencimiento</th>'
+                    + '<th style="width:14%;" class="text-center">Estado</th>'
+                    + '<th style="width:28%;">Observaciones</th></tr></thead><tbody>';
+                for (var i = 0; i < items.length; i++) {
+                    var v = items[i];
+                    var vencido = v.fecha_vencimiento <= hoy;
+                    var cls = vencido ? 'table-danger' : 'table-warning';
+                    var badge = vencido
+                        ? '<span class="badge bg-danger">VENCIDO</span>'
+                        : '<span class="badge bg-warning text-dark">PROXIMO</span>';
+                    var fv = v.fecha_vencimiento.split('-');
+                    var fechaFmt = fv[2] + '/' + fv[1] + '/' + fv[0];
+                    html += '<tr class="' + cls + '"><td class="text-center">' + (i+1) + '</td>'
+                        + '<td>' + (v.detalle_mantenimiento || 'N/A') + '</td>'
+                        + '<td class="text-center">' + fechaFmt + '</td>'
+                        + '<td class="text-center">' + badge + '</td>'
+                        + '<td class="small">' + (v.observaciones || '') + '</td></tr>';
+                }
+                html += '</tbody></table>'
+                    + '<div class="px-3 py-2 text-muted small"><i class="fas fa-info-circle me-1"></i>'
+                    + 'Esta seccion se incluye automaticamente en el PDF generado. No es editable.</div>'
+                    + '</div></div>';
+                if (container.length) {
+                    container.replaceWith(html);
+                } else {
+                    $(html).insertBefore($('input[name="enlace_dashboard"]'));
+                }
+            });
         }
 
         function loadMetricas(clienteId) {
@@ -308,7 +507,8 @@
                 if (!resp.success) return;
                 var d = resp.data;
 
-                $('#puntajeAnterior').val(d.puntaje_anterior ?? '');
+                // Hidden inputs
+                $('#puntajeAnterior').val(d.puntaje_anterior);
                 $('#puntajeActual').val(d.puntaje_actual);
                 $('#diferenciaNeta').val(d.diferencia_neta);
                 $('#estadoAvance').val(d.estado_avance);
@@ -316,26 +516,21 @@
                 $('#indicadorCapacitacion').val(d.indicador_capacitacion);
                 $('#enlaceDashboard').val(d.enlace_dashboard);
 
-                var esPrimer = d.puntaje_anterior === null;
-                $('#displayPuntajeAnterior').text(esPrimer ? 'N/A' : d.puntaje_anterior.toFixed(1) + '%');
-                $('#displayPuntajeActual').text(d.puntaje_actual.toFixed(1) + '%');
-                $('#displayDiferencia').text(esPrimer ? 'N/A' : d.diferencia_neta.toFixed(1));
-                $('#displayEstadoAvance').text(d.estado_avance);
+                // Store desglose data
+                desgloseData = {
+                    desglose_estandares: d.desglose_estandares || [],
+                    desglose_plan_trabajo: d.desglose_plan_trabajo || [],
+                    desglose_capacitacion: d.desglose_capacitacion || [],
+                    desglose_pendientes: d.desglose_pendientes || [],
+                    puntaje_actual: d.puntaje_actual,
+                    puntaje_anterior: d.puntaje_anterior,
+                    diferencia_neta: d.diferencia_neta,
+                    estado_avance: d.estado_avance,
+                    indicador_plan_trabajo: d.indicador_plan_trabajo,
+                    indicador_capacitacion: d.indicador_capacitacion
+                };
 
-                // Color diferencia
-                var diffColor = esPrimer ? '#17a2b8' : (d.diferencia_neta > 0 ? '#28a745' : d.diferencia_neta < 0 ? '#dc3545' : '#6c757d');
-                $('#displayDiferencia').css('color', diffColor);
-
-                // Estado badge color
-                var estadoBadgeClass = d.estado_avance.includes('LÍNEA BASE') ? 'bg-info text-white' :
-                    d.estado_avance.includes('SIGNIFICATIVO') ? 'bg-success' :
-                    d.estado_avance.includes('MODERADO') ? 'bg-info' :
-                    d.estado_avance.includes('ESTABLE') ? 'bg-warning text-dark' : 'bg-danger';
-                $('#displayEstadoAvance').removeClass().addClass('badge badge-estado ' + estadoBadgeClass);
-
-                // Progress bars
-                $('#barPlanTrabajo').css('width', d.indicador_plan_trabajo + '%').text(d.indicador_plan_trabajo.toFixed(1) + '%');
-                $('#barCapacitacion').css('width', d.indicador_capacitacion + '%').text(d.indicador_capacitacion.toFixed(1) + '%');
+                renderDesgloseCharts(desgloseData);
 
                 // Actividades
                 if (!$('#actividadesAbiertas').val()) {
@@ -345,7 +540,7 @@
                     $('#actividadesCerradas').val(d.actividades_cerradas_periodo);
                 }
 
-                // Render tabla cerradas
+                // Tabla cerradas
                 if (d.actividades_cerradas_raw && d.actividades_cerradas_raw.length > 0) {
                     var html = '<table class="table table-sm table-bordered"><thead class="table-light"><tr><th>Actividad</th><th>Numeral</th><th>PHVA</th><th>Responsable</th><th>Fecha Cierre</th></tr></thead><tbody>';
                     d.actividades_cerradas_raw.forEach(function(a) {
@@ -355,7 +550,6 @@
                     $('#tablaCerradas').html(html);
                 }
 
-                // Fecha desde sugerida
                 if (d.fecha_desde_sugerida && !$('#fechaDesde').val()) {
                     $('#fechaDesde').val(d.fecha_desde_sugerida);
                 }
@@ -363,6 +557,76 @@
             }).always(function() {
                 $('#metricasLoading').addClass('d-none');
             });
+        }
+
+        function renderDesgloseCharts(data) {
+            // === Pilar 1: Estandares ===
+            destroyChart('estandares');
+            var est = data.desglose_estandares || [];
+            if (est.length > 0) {
+                showChart('chartEstandares', 'emptyEstandares');
+                var labels = est.map(function(e) { return e.ciclo || 'Sin ciclo'; });
+                var valores = est.map(function(e) { return parseFloat(e.total_valor) || 0; });
+                charts.estandares = createDoughnut('chartEstandares', labels, valores, COLORS_PHVA);
+            }
+            var pa = data.puntaje_actual ?? 0;
+            var pant = data.puntaje_anterior ?? 39.75;
+            var diff = data.diferencia_neta ?? 0;
+            $('#metricEstandares').text(pa.toFixed(1) + '%');
+            var arrow = diff > 0 ? '&#9650;' : diff < 0 ? '&#9660;' : '';
+            var diffColor = diff > 0 ? '#28a745' : diff < 0 ? '#dc3545' : '#6c757d';
+            $('#anteriorEstandares').html('Anterior: ' + pant.toFixed(1) + '% <span style="color:' + diffColor + '">' + arrow + (diff > 0 ? '+' : '') + diff.toFixed(1) + ' pp</span>');
+            var estado = data.estado_avance || 'ESTABLE';
+            $('#badgeEstadoAvance').text(estado).removeClass().addClass('badge badge-estado ' + estadoBadgeClass(estado)).show();
+
+            // === Pilar 2: Plan de Trabajo ===
+            destroyChart('plan');
+            var plan = data.desglose_plan_trabajo || [];
+            if (plan.length > 0) {
+                showChart('chartPlanTrabajo', 'emptyPlan');
+                var pLabels = plan.map(function(p) { return p.estado_actividad || 'Sin estado'; });
+                var pData = plan.map(function(p) { return parseInt(p.cantidad) || 0; });
+                charts.plan = createDoughnut('chartPlanTrabajo', pLabels, pData, COLORS_ESTADO);
+            }
+            var ipw = data.indicador_plan_trabajo ?? 0;
+            $('#metricPlan').text(ipw.toFixed(1) + '%');
+            var totalPlan = plan.reduce(function(s, p) { return s + (parseInt(p.cantidad) || 0); }, 0);
+            var cerradas = 0;
+            plan.forEach(function(p) { if (p.estado_actividad === 'CERRADA') cerradas = parseInt(p.cantidad) || 0; });
+            $('#detailPlan').text(cerradas + ' cerradas de ' + totalPlan + ' actividades');
+
+            // === Pilar 3: Capacitacion ===
+            destroyChart('cap');
+            var cap = data.desglose_capacitacion || [];
+            if (cap.length > 0) {
+                showChart('chartCapacitacion', 'emptyCap');
+                var cLabels = cap.map(function(c) { return c.estado || 'Sin estado'; });
+                var cData = cap.map(function(c) { return parseInt(c.cantidad) || 0; });
+                charts.cap = createDoughnut('chartCapacitacion', cLabels, cData, COLORS_ESTADO);
+            }
+            var icap = data.indicador_capacitacion ?? 0;
+            $('#metricCap').text(icap.toFixed(1) + '%');
+            var totalCap = cap.reduce(function(s, c) { return s + (parseInt(c.cantidad) || 0); }, 0);
+            var ejecutadas = 0;
+            cap.forEach(function(c) { if (c.estado === 'EJECUTADA') ejecutadas = parseInt(c.cantidad) || 0; });
+            $('#detailCap').text(ejecutadas + ' ejecutadas de ' + totalCap + ' capacitaciones');
+
+            // === Pilar 4: Pendientes ===
+            destroyChart('pend');
+            var pend = data.desglose_pendientes || [];
+            if (pend.length > 0) {
+                showChart('chartPendientes', 'emptyPend');
+                var dLabels = pend.map(function(p) { return p.estado || 'Sin estado'; });
+                var dData = pend.map(function(p) { return parseInt(p.cantidad) || 0; });
+                charts.pend = createDoughnut('chartPendientes', dLabels, dData, COLORS_ESTADO);
+            }
+            var abiertosPend = 0, promDias = 0;
+            pend.forEach(function(p) {
+                if (p.estado === 'ABIERTA') { abiertosPend = parseInt(p.cantidad) || 0; promDias = parseFloat(p.promedio_dias) || 0; }
+            });
+            var totalPend = pend.reduce(function(s, p) { return s + (parseInt(p.cantidad) || 0); }, 0);
+            $('#metricPend').text(abiertosPend + ' / ' + totalPend);
+            $('#detailPend').text(abiertosPend + ' abiertos' + (promDias > 0 ? ' (prom ' + promDias.toFixed(0) + ' dias)' : ''));
         }
 
         // Generar resumen con IA
@@ -397,24 +661,35 @@
             });
         });
 
-        // Finalizar
+        // Capture charts before form submit (async-safe)
+        var isSubmitting = false;
+        $('#formInforme').on('submit', function(e) {
+            if (isSubmitting) return true; // allow native re-submit
+            e.preventDefault();
+            isSubmitting = true;
+            captureAndSetJson().then(function() {
+                document.getElementById('formInforme').submit();
+            });
+        });
+
+        // Finalizar (async capture → save → finalize)
         $('#btnFinalizar').on('click', function() {
             if (confirm('Finalizar el informe? Se generara el PDF y no podra editarse.')) {
-                // Save first, then finalize
-                var formData = new FormData($('#formInforme')[0]);
-                $.ajax({
-                    url: $('#formInforme').attr('action'),
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function() {
-                        $('#formFinalizar').submit();
-                    },
-                    error: function() {
-                        // If save fails, still try to finalize
-                        $('#formFinalizar').submit();
-                    }
+                captureAndSetJson().then(function() {
+                    var formData = new FormData($('#formInforme')[0]);
+                    $.ajax({
+                        url: $('#formInforme').attr('action'),
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function() {
+                            $('#formFinalizar').submit();
+                        },
+                        error: function() {
+                            $('#formFinalizar').submit();
+                        }
+                    });
                 });
             }
         });

@@ -52,6 +52,10 @@ class ViewAsClientController extends Controller
             return redirect()->to('/vista-cliente')->with('error', 'Cliente no encontrado.');
         }
 
+        // Guardar el ID del cliente en sesión para que los controladores
+        // de documentos puedan usarlo (via getEffectiveClientId())
+        $session->set('vista_cliente_id', (int) $idCliente);
+
         // Obtener el estándar del cliente
         $estandarNombre = $client['estandares'];
 

@@ -42,7 +42,7 @@
         </div>
     </nav>
 
-    <div class="container mt-3">
+    <div class="container-fluid mt-3 px-4">
         <?php if (session()->getFlashdata('msg')): ?>
             <div class="alert alert-success alert-dismissible fade show"><?= session()->getFlashdata('msg') ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
         <?php endif; ?>
@@ -119,14 +119,13 @@
                                     <?= ucfirst($inf['estado']) ?>
                                 </span>
                             </td>
-                            <td>
-                                <?php if ($inf['estado'] === 'borrador'): ?>
-                                    <a href="<?= base_url('informe-avances/edit/' . $inf['id']) ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-edit"></i></a>
-                                    <a href="<?= base_url('informe-avances/delete/' . $inf['id']) ?>" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('Eliminar este borrador?')"><i class="fas fa-trash"></i></a>
-                                <?php else: ?>
+                            <td style="white-space:nowrap;">
+                                <a href="<?= base_url('informe-avances/edit/' . $inf['id']) ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-edit"></i></a>
+                                <?php if ($inf['estado'] === 'completo'): ?>
                                     <a href="<?= base_url('informe-avances/view/' . $inf['id']) ?>" class="btn btn-sm btn-outline-info" title="Ver"><i class="fas fa-eye"></i></a>
                                     <a href="<?= base_url('informe-avances/pdf/' . $inf['id']) ?>" class="btn btn-sm btn-outline-success" title="PDF" target="_blank"><i class="fas fa-file-pdf"></i></a>
                                 <?php endif; ?>
+                                <a href="<?= base_url('informe-avances/delete/' . $inf['id']) ?>" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Eliminar este informe?')"><i class="fas fa-trash"></i></a>
                             </td>
                         </tr>
                         <?php endforeach; ?>

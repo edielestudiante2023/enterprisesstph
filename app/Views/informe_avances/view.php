@@ -19,9 +19,13 @@
         .metric-box { background: #f8f9fa; border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #e9ecef; }
         .metric-box .value { font-size: 1.8rem; font-weight: 700; color: var(--primary-dark); }
         .metric-box .label { font-size: 0.85rem; color: #6c757d; }
-        .progress-custom { height: 24px; border-radius: 12px; }
-        .progress-custom .progress-bar { border-radius: 12px; font-weight: 600; font-size: 0.8rem; }
         .resumen-text { white-space: pre-wrap; line-height: 1.7; color: #333; }
+        .pilar-card { background: #fff; border-radius: 14px; border: 1px solid #e9ecef; padding: 18px; height: 100%; }
+        .pilar-card .pilar-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; margin-bottom: 8px; }
+        .pilar-card .pilar-metric { font-size: 2rem; font-weight: 800; color: var(--primary-dark); line-height: 1; }
+        .pilar-card .pilar-detail { font-size: 0.78rem; color: #6c757d; margin-top: 4px; }
+        .pilar-card canvas { max-height: 160px; }
+        .badge-estado { font-size: 0.85rem; padding: 4px 12px; }
     </style>
 </head>
 <body>
@@ -62,63 +66,79 @@
             </div>
         </div>
 
-        <!-- Metricas -->
+        <!-- Indicadores por Pilar SG-SST -->
         <div class="card card-section">
-            <div class="card-header py-3"><i class="fas fa-chart-bar me-2"></i>Metricas</div>
+            <div class="card-header py-3"><i class="fas fa-chart-pie me-2"></i>Indicadores por Pilar SG-SST</div>
             <div class="card-body">
-                <div class="row g-3 mb-3">
-                    <div class="col-md-3">
-                        <div class="metric-box">
-                            <div class="label">Puntaje Anterior</div>
-                            <div class="value"><?= $informe['puntaje_anterior'] !== null ? number_format($informe['puntaje_anterior'], 1) . '%' : 'N/A' ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="metric-box">
-                            <div class="label">Puntaje Actual</div>
-                            <div class="value" style="color: var(--gold-primary);"><?= number_format($informe['puntaje_actual'] ?? 0, 1) ?>%</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="metric-box">
-                            <div class="label">Diferencia Neta</div>
-                            <?php $dif = floatval($informe['diferencia_neta']); ?>
-                            <div class="value" style="color: <?= $dif > 0 ? '#28a745' : ($dif < 0 ? '#dc3545' : '#6c757d') ?>">
-                                <?= $dif > 0 ? '+' : '' ?><?= number_format($dif, 1) ?>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="metric-box">
-                            <div class="label">Estado de Avance</div>
-                            <?php
-                                $ea = $informe['estado_avance'];
-                                $eaClass = match(true) {
-                                    str_contains($ea, 'LÍNEA BASE')    => 'bg-info text-white',
-                                    str_contains($ea, 'SIGNIFICATIVO') => 'bg-success',
-                                    str_contains($ea, 'MODERADO')      => 'bg-info',
-                                    str_contains($ea, 'ESTABLE')       => 'bg-warning text-dark',
-                                    default                            => 'bg-danger',
-                                };
-                            ?>
-                            <span class="badge <?= $eaClass ?> mt-2" style="font-size:0.85rem;"><?= esc($ea) ?></span>
-                        </div>
-                    </div>
-                </div>
+                <?php
+                    $puntajeActual = floatval($informe['puntaje_actual'] ?? 0);
+                    $puntajeAnterior = floatval($informe['puntaje_anterior'] ?? 39.75);
+                    $dif = floatval($informe['diferencia_neta'] ?? 0);
+                    $ea = $informe['estado_avance'] ?? 'ESTABLE';
+                    $eaClass = match(true) {
+                        str_contains($ea, 'SIGNIFICATIVO') => 'bg-success',
+                        str_contains($ea, 'MODERADO')      => 'bg-info',
+                        str_contains($ea, 'ESTABLE')       => 'bg-warning text-dark',
+                        default                            => 'bg-danger',
+                    };
+                    $planPct = floatval($informe['indicador_plan_trabajo'] ?? 0);
+                    $capPct = floatval($informe['indicador_capacitacion'] ?? 0);
+                ?>
                 <div class="row g-3">
+                    <!-- Pilar 1: Estandares -->
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">Indicador Plan de Trabajo</label>
-                        <div class="progress progress-custom">
-                            <div class="progress-bar bg-info" style="width: <?= ($informe['indicador_plan_trabajo'] ?? 0) ?>%">
-                                <?= number_format($informe['indicador_plan_trabajo'] ?? 0, 1) ?>%
+                        <div class="pilar-card">
+                            <div class="pilar-title"><i class="fas fa-clipboard-check me-1" style="color:#36A2EB"></i>Estandares Minimos (Res. 0312)</div>
+                            <div class="row align-items-center">
+                                <div class="col-6 text-center"><canvas id="chartEstandares"></canvas></div>
+                                <div class="col-6">
+                                    <div class="pilar-metric"><?= number_format($puntajeActual, 1) ?>%</div>
+                                    <div class="pilar-detail">Anterior: <?= number_format($puntajeAnterior, 1) ?>%
+                                        <span style="color:<?= $dif > 0 ? '#28a745' : ($dif < 0 ? '#dc3545' : '#6c757d') ?>;font-weight:bold;">
+                                            <?= $dif > 0 ? '+' : '' ?><?= number_format($dif, 1) ?> pp
+                                        </span>
+                                    </div>
+                                    <span class="badge badge-estado <?= $eaClass ?> mt-2"><?= esc($ea) ?></span>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <!-- Pilar 2: Plan de Trabajo -->
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">Indicador Capacitacion</label>
-                        <div class="progress progress-custom">
-                            <div class="progress-bar bg-success" style="width: <?= ($informe['indicador_capacitacion'] ?? 0) ?>%">
-                                <?= number_format($informe['indicador_capacitacion'] ?? 0, 1) ?>%
+                        <div class="pilar-card">
+                            <div class="pilar-title"><i class="fas fa-tasks me-1" style="color:#28a745"></i>Plan de Trabajo Anual</div>
+                            <div class="row align-items-center">
+                                <div class="col-6 text-center"><canvas id="chartPlanTrabajo"></canvas></div>
+                                <div class="col-6">
+                                    <div class="pilar-metric"><?= number_format($planPct, 1) ?>%</div>
+                                    <div class="pilar-detail" id="detailPlanView">Actividades cerradas</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pilar 3: Capacitacion -->
+                    <div class="col-md-6">
+                        <div class="pilar-card">
+                            <div class="pilar-title"><i class="fas fa-chalkboard-teacher me-1" style="color:#ffc107"></i>Programa de Capacitacion</div>
+                            <div class="row align-items-center">
+                                <div class="col-6 text-center"><canvas id="chartCapacitacion"></canvas></div>
+                                <div class="col-6">
+                                    <div class="pilar-metric"><?= number_format($capPct, 1) ?>%</div>
+                                    <div class="pilar-detail" id="detailCapView">Capacitaciones ejecutadas</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pilar 4: Pendientes -->
+                    <div class="col-md-6">
+                        <div class="pilar-card">
+                            <div class="pilar-title"><i class="fas fa-exclamation-circle me-1" style="color:#dc3545"></i>Compromisos / Pendientes</div>
+                            <div class="row align-items-center">
+                                <div class="col-6 text-center"><canvas id="chartPendientes"></canvas></div>
+                                <div class="col-6">
+                                    <div class="pilar-metric" id="metricPendView">--</div>
+                                    <div class="pilar-detail" id="detailPendView">Estado de compromisos</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -162,6 +182,46 @@
             <div class="card-header py-3"><i class="fas fa-comment-alt me-2"></i>Observaciones</div>
             <div class="card-body">
                 <div class="resumen-text"><?= nl2br(esc($informe['observaciones'])) ?></div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Vencimientos de Mantenimientos -->
+        <?php if (!empty($vencimientos)): ?>
+        <div class="card card-section">
+            <div class="card-header py-3" style="background:#dc3545;">
+                <i class="fas fa-exclamation-circle me-2"></i>Elementos con Vencimiento Proximo o Vencido
+                <span class="badge bg-light text-danger ms-2"><?= count($vencimientos) ?></span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:5%;" class="text-center">#</th>
+                            <th style="width:35%;">Elemento</th>
+                            <th style="width:18%;" class="text-center">Fecha Vencimiento</th>
+                            <th style="width:14%;" class="text-center">Estado</th>
+                            <th style="width:28%;">Observaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                            $hoy = date('Y-m-d');
+                            foreach ($vencimientos as $idx => $v):
+                                $vencido = ($v['fecha_vencimiento'] <= $hoy);
+                        ?>
+                        <tr class="<?= $vencido ? 'table-danger' : 'table-warning' ?>">
+                            <td class="text-center"><?= $idx + 1 ?></td>
+                            <td><?= esc($v['detalle_mantenimiento'] ?? 'N/A') ?></td>
+                            <td class="text-center"><?= date('d/m/Y', strtotime($v['fecha_vencimiento'])) ?></td>
+                            <td class="text-center">
+                                <span class="badge <?= $vencido ? 'bg-danger' : 'bg-warning text-dark' ?>"><?= $vencido ? 'VENCIDO' : 'PROXIMO' ?></span>
+                            </td>
+                            <td class="small"><?= esc($v['observaciones'] ?? '') ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
         <?php endif; ?>
@@ -213,5 +273,70 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script>
+    Chart.register(ChartDataLabels);
+
+    var COLORS_PHVA = ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+    var COLORS_ESTADO = ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6c757d', '#6f42c1'];
+
+    function makeDoughnut(canvasId, labels, data, colors) {
+        return new Chart(document.getElementById(canvasId).getContext('2d'), {
+            type: 'doughnut',
+            data: { labels: labels, datasets: [{ data: data, backgroundColor: colors.slice(0, labels.length) }] },
+            options: {
+                responsive: true, maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } },
+                    datalabels: {
+                        color: '#fff', font: { weight: 'bold', size: 11 },
+                        formatter: function(v, ctx) { var t = ctx.dataset.data.reduce((a,b) => a+b, 0); return t > 0 && v > 0 ? ((v/t)*100).toFixed(0)+'%' : ''; }
+                    }
+                }
+            }
+        });
+    }
+
+    (function() {
+        var raw = <?= json_encode($informe['metricas_desglose_json'] ?? '') ?>;
+        if (!raw) return;
+        try { var d = JSON.parse(raw); } catch(e) { return; }
+
+        // Estandares
+        var est = d.desglose_estandares || [];
+        if (est.length > 0) {
+            makeDoughnut('chartEstandares', est.map(e => e.ciclo || ''), est.map(e => parseFloat(e.total_valor) || 0), COLORS_PHVA);
+        }
+
+        // Plan de trabajo
+        var plan = d.desglose_plan_trabajo || [];
+        if (plan.length > 0) {
+            makeDoughnut('chartPlanTrabajo', plan.map(p => p.estado_actividad || ''), plan.map(p => parseInt(p.cantidad) || 0), COLORS_ESTADO);
+            var cerr = 0, tot = 0;
+            plan.forEach(function(p) { tot += parseInt(p.cantidad)||0; if (p.estado_actividad === 'CERRADA') cerr = parseInt(p.cantidad)||0; });
+            document.getElementById('detailPlanView').textContent = cerr + ' cerradas de ' + tot + ' actividades';
+        }
+
+        // Capacitacion
+        var cap = d.desglose_capacitacion || [];
+        if (cap.length > 0) {
+            makeDoughnut('chartCapacitacion', cap.map(c => c.estado || ''), cap.map(c => parseInt(c.cantidad) || 0), COLORS_ESTADO);
+            var ejec = 0, totc = 0;
+            cap.forEach(function(c) { totc += parseInt(c.cantidad)||0; if (c.estado === 'EJECUTADA') ejec = parseInt(c.cantidad)||0; });
+            document.getElementById('detailCapView').textContent = ejec + ' ejecutadas de ' + totc + ' capacitaciones';
+        }
+
+        // Pendientes
+        var pend = d.desglose_pendientes || [];
+        if (pend.length > 0) {
+            makeDoughnut('chartPendientes', pend.map(p => p.estado || ''), pend.map(p => parseInt(p.cantidad) || 0), COLORS_ESTADO);
+            var ab = 0, totp = 0, prom = 0;
+            pend.forEach(function(p) { totp += parseInt(p.cantidad)||0; if (p.estado === 'ABIERTA') { ab = parseInt(p.cantidad)||0; prom = parseFloat(p.promedio_dias)||0; } });
+            document.getElementById('metricPendView').textContent = ab + ' / ' + totp;
+            document.getElementById('detailPendView').textContent = ab + ' abiertos' + (prom > 0 ? ' (prom ' + prom.toFixed(0) + ' dias)' : '');
+        }
+    })();
+    </script>
 </body>
 </html>

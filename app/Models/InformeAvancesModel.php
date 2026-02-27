@@ -14,6 +14,7 @@ class InformeAvancesModel extends Model
         'puntaje_anterior', 'puntaje_actual', 'diferencia_neta', 'estado_avance',
         'indicador_plan_trabajo', 'indicador_capacitacion',
         'img_cumplimiento_estandares', 'img_indicador_plan_trabajo', 'img_indicador_capacitacion',
+        'metricas_desglose_json',
         'resumen_avance', 'observaciones', 'actividades_abiertas', 'actividades_cerradas_periodo',
         'enlace_dashboard', 'acta_visita_url',
         'soporte_1_texto', 'soporte_1_imagen',

@@ -30,18 +30,20 @@ class MetricasInformeService
             return 0.0;
         }
 
-        return round((floatval($result['total_valor']) / floatval($result['total_posible'])) * 100, 2);
+        $raw = (floatval($result['total_valor']) / floatval($result['total_posible'])) * 100;
+        return round(min($raw, 100.0), 2);
     }
 
     /**
-     * Obtiene puntaje del informe anterior del mismo cliente
+     * Obtiene puntaje del informe anterior del mismo cliente.
+     * Si es primer informe, retorna 39.75 (línea base Res. 0312/2019).
      */
-    public function getPuntajeAnterior(int $idCliente): ?float
+    public function getPuntajeAnterior(int $idCliente): float
     {
         $model = new InformeAvancesModel();
         $ultimo = $model->getUltimoByCliente($idCliente);
 
-        return $ultimo ? floatval($ultimo['puntaje_actual']) : null;
+        return $ultimo ? floatval($ultimo['puntaje_actual']) : 39.75;
     }
 
     /**
@@ -193,6 +195,48 @@ class MetricasInformeService
         return base_url("consultant/dashboard-estandares?cliente={$idCliente}");
     }
 
+    // ─── DESGLOSES POR PILAR (para gráficas Chart.js) ───
+
+    public function getDesgloseEstandares(int $idCliente): array
+    {
+        return $this->db->table('evaluacion_inicial_sst')
+            ->select("ciclo, SUM(valor) as total_valor, SUM(puntaje_cuantitativo) as total_posible, COUNT(*) as cantidad")
+            ->where('id_cliente', $idCliente)
+            ->groupBy('ciclo')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getDesglosePlanTrabajo(int $idCliente): array
+    {
+        return $this->db->table('tbl_pta_cliente')
+            ->select("estado_actividad, COUNT(*) as cantidad")
+            ->where('id_cliente', $idCliente)
+            ->groupBy('estado_actividad')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getDesgloseCapacitacion(int $idCliente): array
+    {
+        return $this->db->table('tbl_cronog_capacitacion')
+            ->select("estado, COUNT(*) as cantidad")
+            ->where('id_cliente', $idCliente)
+            ->groupBy('estado')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getDesglosePendientes(int $idCliente): array
+    {
+        return $this->db->table('tbl_pendientes')
+            ->select("estado, COUNT(*) as cantidad, ROUND(AVG(conteo_dias), 1) as promedio_dias")
+            ->where('id_cliente', $idCliente)
+            ->groupBy('estado')
+            ->get()
+            ->getResultArray();
+    }
+
     /**
      * Recopila actividades del periodo para el prompt de IA
      * Junta: actas de visita, inspecciones, capacitaciones ejecutadas, transiciones PTA
@@ -261,9 +305,8 @@ class MetricasInformeService
     {
         $puntajeActual = $this->calcularCumplimientoEstandares($idCliente);
         $puntajeAnterior = $this->getPuntajeAnterior($idCliente);
-        $esPrimerInforme = $puntajeAnterior === null;
-        $diferencia = !$esPrimerInforme ? round($puntajeActual - $puntajeAnterior, 2) : 0.0;
-        $estadoAvance = $esPrimerInforme ? 'LÍNEA BASE' : $this->calcularEstadoAvance($diferencia);
+        $diferencia = round($puntajeActual - $puntajeAnterior, 2);
+        $estadoAvance = $this->calcularEstadoAvance($diferencia);
 
         $actividadesCerradas = $this->getActividadesCerradasPeriodo($idCliente, $fechaDesde, $fechaHasta);
 
@@ -279,6 +322,11 @@ class MetricasInformeService
             'actividades_cerradas_raw'     => $actividadesCerradas,
             'enlace_dashboard'             => $this->getEnlaceDashboard($idCliente),
             'fecha_desde_sugerida'         => $this->getFechaDesde($idCliente),
+            // Desgloses por pilar (para gráficas)
+            'desglose_estandares'      => $this->getDesgloseEstandares($idCliente),
+            'desglose_plan_trabajo'    => $this->getDesglosePlanTrabajo($idCliente),
+            'desglose_capacitacion'    => $this->getDesgloseCapacitacion($idCliente),
+            'desglose_pendientes'      => $this->getDesglosePendientes($idCliente),
         ];
     }
 }

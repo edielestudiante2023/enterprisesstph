@@ -67,6 +67,12 @@ class ClientController extends Controller
                 usort($accesos, function ($a, $b) use ($orden) {
                     return array_search($a['dimension'], $orden) - array_search($b['dimension'], $orden);
                 });
+
+                // Reemplazar el placeholder /1 en las URLs con el ID real del cliente
+                foreach ($accesos as &$acceso) {
+                    $acceso['url'] = preg_replace('/\/1$/', '/' . $id_cliente, $acceso['url']);
+                }
+                unset($acceso);
             }
 
             // Pasar los accesos a la vista `dashboardclient`
