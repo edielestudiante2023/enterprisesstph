@@ -118,20 +118,22 @@
 </div>
 
 <script>
-// Select2 para filtro de cliente
-$('#filterCliente').select2({ placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
+document.addEventListener('DOMContentLoaded', function() {
+    // Select2 para filtro de cliente
+    $('#filterCliente').select2({ placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
 
-// Filtro por cliente
-$('#filterCliente').on('change', function() {
-    filterItems();
-});
-
-// Filtro por estado
-document.querySelectorAll('.filter-estado').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.filter-estado').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+    // Filtro por cliente
+    $('#filterCliente').on('change', function() {
         filterItems();
+    });
+
+    // Filtro por estado
+    document.querySelectorAll('.filter-estado').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-estado').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            filterItems();
+        });
     });
 });
 

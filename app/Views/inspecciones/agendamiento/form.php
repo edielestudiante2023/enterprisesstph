@@ -125,34 +125,36 @@
 </div>
 
 <script>
-// Select2 para cliente
-$('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
+document.addEventListener('DOMContentLoaded', function() {
+    // Select2 para cliente
+    $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
 
-// AJAX: Cargar info del cliente al seleccionar
-$('#selectCliente').on('change', function() {
-    const idCliente = $(this).val();
-    const infoDiv = document.getElementById('clienteInfo');
+    // AJAX: Cargar info del cliente al seleccionar
+    $('#selectCliente').on('change', function() {
+        const idCliente = $(this).val();
+        const infoDiv = document.getElementById('clienteInfo');
 
-    if (!idCliente) {
-        infoDiv.style.display = 'none';
-        return;
-    }
+        if (!idCliente) {
+            infoDiv.style.display = 'none';
+            return;
+        }
 
-    fetch('/inspecciones/agendamiento/api/cliente-info/' + idCliente)
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                infoDiv.style.display = '';
-                document.getElementById('infoUltimaVisita').textContent = data.ultima_visita
-                    ? new Date(data.ultima_visita).toLocaleDateString('es-CO')
-                    : 'Sin visitas previas';
-                document.getElementById('infoFechaSugerida').textContent = new Date(data.fecha_sugerida).toLocaleDateString('es-CO');
-                document.getElementById('infoCorreo').textContent = data.correo_cliente || 'No configurado';
-                document.getElementById('infoDireccion').textContent = (data.direccion || '') + (data.ciudad ? ', ' + data.ciudad : '') || 'No configurada';
+        fetch('/inspecciones/agendamiento/api/cliente-info/' + idCliente)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    infoDiv.style.display = '';
+                    document.getElementById('infoUltimaVisita').textContent = data.ultima_visita
+                        ? new Date(data.ultima_visita).toLocaleDateString('es-CO')
+                        : 'Sin visitas previas';
+                    document.getElementById('infoFechaSugerida').textContent = new Date(data.fecha_sugerida).toLocaleDateString('es-CO');
+                    document.getElementById('infoCorreo').textContent = data.correo_cliente || 'No configurado';
+                    document.getElementById('infoDireccion').textContent = (data.direccion || '') + (data.ciudad ? ', ' + data.ciudad : '') || 'No configurada';
 
-                // Auto-fill fecha sugerida
-                document.getElementById('inputFecha').value = data.fecha_sugerida;
-            }
-        });
+                    // Auto-fill fecha sugerida
+                    document.getElementById('inputFecha').value = data.fecha_sugerida;
+                }
+            });
+    });
 });
 </script>
