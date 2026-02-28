@@ -397,6 +397,22 @@
             color: var(--white-primary) !important;
         }
 
+        /* Quick access buttons - desktop layout */
+        .quick-access-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .quick-access-buttons a {
+            text-decoration: none;
+        }
+
+        .quick-access-buttons .btn-logout-custom {
+            margin-right: 0 !important;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .navbar-custom {
@@ -451,7 +467,6 @@
                 padding: 10px 6px;
                 font-size: 0.78rem;
                 letter-spacing: 0;
-                margin-right: 0 !important;
                 text-transform: none;
             }
 
@@ -505,7 +520,7 @@
                 </div>
                 <div style="font-size:12px; opacity:0.8;">Accede a la version movil optimizada</div>
             </div>
-            <a href="<?= base_url('/inspecciones') ?>" style="background:#bd9751; color:white; padding:10px 20px; border-radius:25px; text-decoration:none; font-weight:600; font-size:14px; white-space:nowrap; margin-left:12px;">
+            <a href="<?= base_url('/inspecciones') ?>" target="_blank" style="background:#bd9751; color:white; padding:10px 20px; border-radius:25px; text-decoration:none; font-weight:600; font-size:14px; white-space:nowrap; margin-left:12px;">
                 Abrir App <i class="fas fa-arrow-right ms-1"></i>
             </a>
             <button onclick="document.getElementById('mobileBanner').style.display='none'" style="background:none; border:none; color:rgba(255,255,255,0.6); font-size:20px; padding:4px 8px; margin-left:8px; cursor:pointer;">&times;</button>
@@ -560,23 +575,23 @@
 
         <!-- Botones de Acceso Rápido -->
         <div class="text-center mb-4 quick-access-buttons">
-            <a href="<?= base_url('/inspecciones') ?>" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;">
+            <a href="<?= base_url('/inspecciones') ?>" target="_blank" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;">
                     <i class="fas fa-clipboard-check me-2"></i>Inspecciones SST
                 </button>
             </a>
             <a href="<?= base_url('/quick-access') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary)); border: none;">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary)); border: none;">
                     <i class="fas fa-bolt me-2"></i>Acceso Rápido
                 </button>
             </a>
             <a href="<?= base_url('/vista-cliente') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none;">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none;">
                     <i class="fas fa-eye me-2"></i>Ver Vista de Cliente
                 </button>
             </a>
-            <a href="<?= base_url('/admin/usage') ?>" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #11998e, #38ef7d); border: none;">
+            <a href="<?= base_url('/admin/usage') ?>" target="_blank" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #11998e, #38ef7d); border: none;">
                     <i class="fas fa-chart-line me-2"></i>Consumo de Plataforma
                 </button>
             </a>
@@ -586,11 +601,11 @@
                 </button>
             </a>
             <a href="<?= base_url('/pta-transiciones') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7); border: none;">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7); border: none;">
                     <i class="fas fa-exchange-alt me-2"></i>Transiciones PTA
                 </button>
             </a>
-            <a href="<?= base_url('/admin/agendamientos') ?>" rel="noopener noreferrer">
+            <a href="<?= base_url('/admin/agendamientos') ?>" target="_blank" rel="noopener noreferrer">
                 <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #20c997, #13b397); border: none;">
                     <i class="fas fa-calendar-check me-2"></i>Panel de Agendamientos
                 </button>

@@ -118,8 +118,11 @@
 </div>
 
 <script>
+// Select2 para filtro de cliente
+$('#filterCliente').select2({ placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
+
 // Filtro por cliente
-document.getElementById('filterCliente')?.addEventListener('change', function() {
+$('#filterCliente').on('change', function() {
     filterItems();
 });
 

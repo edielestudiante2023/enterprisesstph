@@ -125,9 +125,12 @@
 </div>
 
 <script>
+// Select2 para cliente
+$('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
+
 // AJAX: Cargar info del cliente al seleccionar
-document.getElementById('selectCliente')?.addEventListener('change', function() {
-    const idCliente = this.value;
+$('#selectCliente').on('change', function() {
+    const idCliente = $(this).val();
     const infoDiv = document.getElementById('clienteInfo');
 
     if (!idCliente) {
