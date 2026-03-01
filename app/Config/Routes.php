@@ -1320,3 +1320,15 @@ $routes->get('admin/agendamientos', 'AdminAgendamientoController::index', ['filt
 $routes->get('admin/agendamientos/consultor/(:num)', 'AdminAgendamientoController::porConsultor/$1', ['filter' => 'auth']);
 $routes->get('admin/agendamientos/api/resumen', 'AdminAgendamientoController::apiResumen', ['filter' => 'auth']);
 
+// ============================================================================
+// Admin - Snapshots de Datos Históricos
+// ============================================================================
+$routes->get('admin/snapshots', 'SnapshotController::index', ['filter' => 'auth']);
+$routes->post('admin/snapshots/ejecutar', 'SnapshotController::ejecutar', ['filter' => 'auth']);
+
+// ============================================================================
+// Dashboards de Evolución (Consultant + Admin)
+// ============================================================================
+$routes->get('consultant/evolucion-estandares', 'EvolucionEstandaresController::index');
+$routes->get('consultant/evolucion-plan-trabajo', 'EvolucionPlanTrabajoController::index');
+

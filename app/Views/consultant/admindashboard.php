@@ -654,8 +654,13 @@
                     </button>
                 </a>
                 <a href="<?= base_url('/admin/agendamientos') ?>" rel="noopener noreferrer">
-                    <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #20c997, #13b397); border: none;" aria-label="Panel de Agendamientos">
+                    <button type="button" class="btn btn-logout-custom me-3" style="background: linear-gradient(135deg, #20c997, #13b397); border: none;" aria-label="Panel de Agendamientos">
                         <i class="fas fa-calendar-check me-2"></i>Panel de Agendamientos
+                    </button>
+                </a>
+                <a href="<?= base_url('/admin/snapshots') ?>" rel="noopener noreferrer">
+                    <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #e44d26, #f16529); border: none;" aria-label="Snapshot Datos">
+                        <i class="fas fa-camera me-2"></i>Snapshot Datos
                     </button>
                 </a>
             </div>
@@ -694,6 +699,18 @@
                         <a href="<?= base_url('informe-avances') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3); border-radius: 12px; transition: all 0.3s ease;">
                             <i class="fas fa-chart-line fa-lg mb-2 d-block"></i>
                             Informe de Avances
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('consultant/evolucion-estandares') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3); border-radius: 12px; transition: all 0.3s ease;">
+                            <i class="fas fa-chart-area fa-lg mb-2 d-block"></i>
+                            Evolucion Estandares
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="<?= base_url('consultant/evolucion-plan-trabajo') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3); border-radius: 12px; transition: all 0.3s ease;">
+                            <i class="fas fa-chart-bar fa-lg mb-2 d-block"></i>
+                            Evolucion Plan Trabajo
                         </a>
                     </div>
                 </div>
