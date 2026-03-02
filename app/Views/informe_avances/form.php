@@ -413,13 +413,15 @@
     }
 
     $(document).ready(function() {
+        // Initialize Select2 immediately so it always renders
+        $('#selectCliente').select2({ theme: 'bootstrap-5', placeholder: 'Buscar cliente...', allowClear: true });
+
         // Load clients
         $.getJSON(BASE + 'informe-avances/api/clientes', function(data) {
             data.forEach(function(c) {
                 var opt = new Option(c.nombre_cliente + ' (' + c.nit_cliente + ')', c.id_cliente, false, false);
                 $('#selectCliente').append(opt);
             });
-            $('#selectCliente').select2({ theme: 'bootstrap-5', placeholder: 'Buscar cliente...', allowClear: true });
 
             if (PRESELECT_CLIENTE) {
                 $('#selectCliente').val(PRESELECT_CLIENTE).trigger('change');
