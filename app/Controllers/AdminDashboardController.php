@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Libraries\ClientDocumentInitializerLibrary;
 use CodeIgniter\Controller;
 
 class AdminDashboardController extends Controller
@@ -88,6 +89,8 @@ class AdminDashboardController extends Controller
     ];
 
     if ($clientModel->save($data)) {
+        $clientId = $clientModel->getInsertID();
+
         // Recuperar el NIT del cliente recién guardado
         $nitCliente = $this->request->getVar('nit_cliente');
 
@@ -97,6 +100,9 @@ class AdminDashboardController extends Controller
         if (!is_dir($uploadPath)) { // Verificar si la carpeta ya existe
             mkdir($uploadPath, 0777, true); // Crear la carpeta con permisos 0777
         }
+
+        // Inicializar client_policies y document_versions para el nuevo cliente
+        ClientDocumentInitializerLibrary::initialize($clientId);
 
         // Enviar email de bienvenida con credenciales de acceso
         $emailMsg = '';

@@ -15,6 +15,7 @@ use App\Models\DashboardItemModel;
 use App\Libraries\WorkPlanLibrary;
 use App\Libraries\TrainingLibrary;
 use App\Libraries\StandardsLibrary;
+use App\Libraries\ClientDocumentInitializerLibrary;
 use CodeIgniter\Controller;
 
 class ConsultantController extends Controller
@@ -161,8 +162,8 @@ class ConsultantController extends Controller
                 mkdir($uploadPath, 0777, true); // Crear la carpeta con permisos 0777
             }
 
-            // Los documentos SST se consumen directamente desde DocumentLibrary (app/Libraries/DocumentLibrary.php)
-            // No se insertan registros en BD, todos los clientes leen de la misma librería estática
+            // Inicializar client_policies y document_versions para el nuevo cliente
+            ClientDocumentInitializerLibrary::initialize($clientId);
 
             // Generar automáticamente el Plan de Trabajo Año 1
             try {
