@@ -162,11 +162,15 @@ class InformeAvancesController extends BaseController
         $cliente = $clientModel->find($informe['id_cliente']);
         $consultor = $consultantModel->find($informe['id_consultor']);
 
+        $idCliente = (int) $informe['id_cliente'];
+
         return view('informe_avances/view', [
-            'informe'      => $informe,
-            'cliente'      => $cliente,
-            'consultor'    => $consultor,
-            'vencimientos' => $this->getVencimientosCliente((int) $informe['id_cliente']),
+            'informe'              => $informe,
+            'cliente'              => $cliente,
+            'consultor'            => $consultor,
+            'vencimientos'         => $this->getVencimientosCliente($idCliente),
+            'historialEstandares'  => $this->getHistorialEstandaresCliente($idCliente),
+            'historialPlan'        => $this->getHistorialPlanCliente($idCliente),
         ]);
     }
 
@@ -457,14 +461,30 @@ class InformeAvancesController extends BaseController
         // Vencimientos de mantenimientos del cliente (vencidos + próximos 30 días, sin ejecutar)
         $vencimientos = $this->getVencimientosCliente((int) $informe['id_cliente']);
 
+        $idCliente = (int) $informe['id_cliente'];
+        $quickChartEstandares = $this->buildQuickChartUrl(
+            $this->getHistorialEstandaresCliente($idCliente),
+            'porcentaje_cumplimiento',
+            '% Cumplimiento Estandares',
+            '#667eea'
+        );
+        $quickChartPlan = $this->buildQuickChartUrl(
+            $this->getHistorialPlanCliente($idCliente),
+            'porcentaje_abiertas',
+            '% Actividades Abiertas',
+            '#4facfe'
+        );
+
         $data = [
-            'informe'        => $informe,
-            'cliente'        => $cliente,
-            'consultor'      => $consultor,
-            'logoBase64'     => $logoBase64,
-            'soportesBase64' => $soportesBase64,
-            'desglose'       => $desglose,
-            'vencimientos'   => $vencimientos,
+            'informe'               => $informe,
+            'cliente'               => $cliente,
+            'consultor'             => $consultor,
+            'logoBase64'            => $logoBase64,
+            'soportesBase64'        => $soportesBase64,
+            'desglose'              => $desglose,
+            'vencimientos'          => $vencimientos,
+            'quickChartEstandares'  => $quickChartEstandares,
+            'quickChartPlan'        => $quickChartPlan,
         ];
 
         $html = view('informe_avances/pdf', $data);
@@ -902,5 +922,96 @@ PROMPT;
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
+    }
+
+    // ─── HISTORIAL ESTANDARES por cliente (agrupado por mes) ───
+    private function getHistorialEstandaresCliente(int $idCliente): array
+    {
+        $model = new \App\Models\HistorialEstandaresModel();
+        $registros = $model->where('id_cliente', $idCliente)
+            ->orderBy('fecha_extraccion', 'ASC')
+            ->findAll();
+
+        return $this->agruparHistorialPorMes($registros, 'porcentaje_cumplimiento');
+    }
+
+    // ─── HISTORIAL PLAN DE TRABAJO por cliente (agrupado por mes) ───
+    private function getHistorialPlanCliente(int $idCliente): array
+    {
+        $model = new \App\Models\HistorialPlanTrabajoModel();
+        $registros = $model->where('id_cliente', $idCliente)
+            ->orderBy('fecha_extraccion', 'ASC')
+            ->findAll();
+
+        return $this->agruparHistorialPorMes($registros, 'porcentaje_abiertas');
+    }
+
+    // ─── Agrupar registros por mes, promediando el campo indicado ───
+    private function agruparHistorialPorMes(array $registros, string $campo): array
+    {
+        $grouped = [];
+        foreach ($registros as $r) {
+            $mes = substr($r['fecha_extraccion'] ?? '', 0, 7); // 'YYYY-MM'
+            if (!$mes) continue;
+            if (!isset($grouped[$mes])) {
+                $grouped[$mes] = ['sum' => 0.0, 'count' => 0];
+            }
+            $grouped[$mes]['sum'] += floatval($r[$campo] ?? 0);
+            $grouped[$mes]['count']++;
+        }
+        ksort($grouped);
+
+        $result = [];
+        foreach ($grouped as $mes => $data) {
+            $result[] = [
+                'mes'      => $mes,
+                'promedio' => $data['count'] > 0 ? round($data['sum'] / $data['count'], 2) : 0,
+            ];
+        }
+        return $result;
+    }
+
+    // ─── Construir URL de QuickChart.io para gráfica de línea ───
+    private function buildQuickChartUrl(array $historial, string $campo, string $label, string $color): string
+    {
+        if (empty($historial)) return '';
+
+        $mesesNombres = ['01'=>'Ene','02'=>'Feb','03'=>'Mar','04'=>'Abr','05'=>'May','06'=>'Jun',
+                         '07'=>'Jul','08'=>'Ago','09'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Dic'];
+
+        $labels = [];
+        $values = [];
+        foreach ($historial as $item) {
+            [$anio, $mo] = explode('-', $item['mes']);
+            $labels[] = ($mesesNombres[$mo] ?? $mo) . ' ' . substr($anio, 2);
+            $values[] = $item['promedio'];
+        }
+
+        $config = [
+            'type' => 'line',
+            'data' => [
+                'labels'   => $labels,
+                'datasets' => [[
+                    'label'           => $label,
+                    'data'            => $values,
+                    'borderColor'     => $color,
+                    'backgroundColor' => $color . '22',
+                    'fill'            => true,
+                    'tension'         => 0.3,
+                    'pointRadius'     => 4,
+                    'pointBackgroundColor' => $color,
+                ]],
+            ],
+            'options' => [
+                'plugins' => ['legend' => ['display' => false]],
+                'scales'  => [
+                    'y' => ['min' => 0, 'suggestedMax' => 100,
+                            'ticks' => ['font' => ['size' => 9]]],
+                    'x' => ['ticks' => ['font' => ['size' => 9]]],
+                ],
+            ],
+        ];
+
+        return 'https://quickchart.io/chart?width=380&height=160&c=' . urlencode(json_encode($config));
     }
 }

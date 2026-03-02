@@ -450,6 +450,31 @@
     </tr>
 </table>
 
+<!-- EVOLUCION HISTORICA DEL CLIENTE -->
+<?php if (!empty($quickChartEstandares) || !empty($quickChartPlan)): ?>
+<div class="section-title">EVOLUCION HISTORICA DEL CLIENTE</div>
+<table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+    <tr>
+        <?php if (!empty($quickChartEstandares)): ?>
+        <td style="width:50%; padding:8px; border:1px solid #ddd; text-align:center; vertical-align:top;">
+            <div style="font-size:8px; font-weight:bold; color:#667eea; text-transform:uppercase; margin-bottom:4px;">
+                % Cumplimiento Estandares Minimos
+            </div>
+            <img src="<?= $quickChartEstandares ?>" style="max-width:340px; max-height:160px;">
+        </td>
+        <?php endif; ?>
+        <?php if (!empty($quickChartPlan)): ?>
+        <td style="width:50%; padding:8px; border:1px solid #ddd; text-align:center; vertical-align:top;">
+            <div style="font-size:8px; font-weight:bold; color:#4facfe; text-transform:uppercase; margin-bottom:4px;">
+                % Actividades Abiertas Plan de Trabajo
+            </div>
+            <img src="<?= $quickChartPlan ?>" style="max-width:340px; max-height:160px;">
+        </td>
+        <?php endif; ?>
+    </tr>
+</table>
+<?php endif; ?>
+
 <!-- ACTIVIDADES CERRADAS EN EL PERIODO -->
 <?php if (!empty($informe['actividades_cerradas_periodo'])): ?>
 <div class="section-title">ACTIVIDADES PTA CERRADAS EN EL PERIODO</div>

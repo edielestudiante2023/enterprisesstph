@@ -146,6 +146,33 @@
             </div>
         </div>
 
+        <!-- Evolución Histórica -->
+        <?php if (!empty($historialEstandares) || !empty($historialPlan)): ?>
+        <div class="card card-section">
+            <div class="card-header py-3"><i class="fas fa-chart-line me-2"></i>Evolución Histórica del Cliente</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <?php if (!empty($historialEstandares)): ?>
+                    <div class="col-md-6">
+                        <h6 class="text-muted fw-bold" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px;">
+                            <i class="fas fa-clipboard-check me-1" style="color:#667eea"></i>% Cumplimiento Estandares Minimos
+                        </h6>
+                        <canvas id="chartEvolucionEstandares" style="max-height:200px;"></canvas>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($historialPlan)): ?>
+                    <div class="col-md-6">
+                        <h6 class="text-muted fw-bold" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px;">
+                            <i class="fas fa-tasks me-1" style="color:#4facfe"></i>% Actividades Abiertas Plan de Trabajo
+                        </h6>
+                        <canvas id="chartEvolucionPlan" style="max-height:200px;"></canvas>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Resumen -->
         <?php if (!empty($informe['resumen_avance'])): ?>
         <div class="card card-section">
@@ -338,5 +365,67 @@
         }
     })();
     </script>
+
+    <?php if (!empty($historialEstandares) || !empty($historialPlan)): ?>
+    <script>
+    (function() {
+        var mesesNombres = {
+            '01':'Ene','02':'Feb','03':'Mar','04':'Abr','05':'May','06':'Jun',
+            '07':'Jul','08':'Ago','09':'Sep','10':'Oct','11':'Nov','12':'Dic'
+        };
+        function formatMes(ym) {
+            var parts = ym.split('-');
+            return (mesesNombres[parts[1]] || parts[1]) + ' ' + parts[0].substring(2);
+        }
+        function makeLineChart(canvasId, historial, label, color) {
+            var canvas = document.getElementById(canvasId);
+            if (!canvas || !historial.length) return;
+            var labels = historial.map(function(h) { return formatMes(h.mes); });
+            var values = historial.map(function(h) { return h.promedio; });
+            new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: values,
+                        borderColor: color,
+                        backgroundColor: color + '22',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: color
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            color: color,
+                            font: { weight: 'bold', size: 10 },
+                            anchor: 'end', align: 'top',
+                            formatter: function(v) { return v.toFixed(1) + '%'; }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, suggestedMax: 100, title: { display: true, text: '%' } }
+                    }
+                }
+            });
+        }
+
+        <?php if (!empty($historialEstandares)): ?>
+        makeLineChart('chartEvolucionEstandares', <?= json_encode($historialEstandares) ?>, '% Estandares', '#667eea');
+        <?php endif; ?>
+
+        <?php if (!empty($historialPlan)): ?>
+        makeLineChart('chartEvolucionPlan', <?= json_encode($historialPlan) ?>, '% Abiertas', '#4facfe');
+        <?php endif; ?>
+    })();
+    </script>
+    <?php endif; ?>
 </body>
 </html>
