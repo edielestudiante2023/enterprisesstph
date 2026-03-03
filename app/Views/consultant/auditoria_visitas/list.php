@@ -338,12 +338,16 @@
             'estatus_mes':    8
         };
 
-        // Función para filtrar columna con regex exacto
+        // Función para filtrar columna
         function filterColumn(colIdx, value) {
             if (value === '' || value === undefined) {
                 table.column(colIdx).search('').draw();
+            } else if (colIdx === 7 || colIdx === 8) {
+                // Status: word-boundary regex para evitar que "Cumple" matchee "Incumple"
+                table.column(colIdx).search('\\b' + $.fn.dataTable.util.escapeRegex(value) + '\\b', true, false).draw();
             } else {
-                table.column(colIdx).search('^' + $.fn.dataTable.util.escapeRegex(value) + '$', true, false).draw();
+                // Texto (consultor, externo): búsqueda plana
+                table.column(colIdx).search(value).draw();
             }
         }
 
