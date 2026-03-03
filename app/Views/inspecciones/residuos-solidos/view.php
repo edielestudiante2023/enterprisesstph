@@ -54,6 +54,9 @@
     <a href="/inspecciones/residuos-solidos/regenerar/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
         <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
     </a>
+    <a href="/inspecciones/residuos-solidos/enviar-email/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
+        <i class="fas fa-envelope me-2"></i>Enviar por Email
+    </a>
     <?php endif; ?>
     <?php if ($inspeccion['estado'] === 'borrador'): ?>
     <a href="/inspecciones/residuos-solidos/edit/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">

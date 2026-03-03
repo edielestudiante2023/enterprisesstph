@@ -1159,6 +1159,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('residuos-solidos/regenerar/(:num)', 'ProgramaResiduosController::regenerarPdf/$1');
     $routes->post('residuos-solidos/finalizar/(:num)', 'ProgramaResiduosController::finalizar/$1');
     $routes->get('residuos-solidos/delete/(:num)', 'ProgramaResiduosController::delete/$1');
+    $routes->get('residuos-solidos/enviar-email/(:num)', 'ProgramaResiduosController::enviarEmail/$1');
 
     // Control Integrado de Plagas
     $routes->get('control-plagas', 'ProgramaPlagasController::list');
