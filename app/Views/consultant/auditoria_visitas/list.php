@@ -350,42 +350,54 @@
             return true;
         });
 
+        // ═══ DATOS JSON DESDE PHP (evita parsear DOM de DataTables) ═══
+        var ciclosRaw = <?= json_encode(array_values(array_map(function($c) {
+            $mn = [1=>'Enero',2=>'Febrero',3=>'Marzo',4=>'Abril',5=>'Mayo',6=>'Junio',
+                   7=>'Julio',8=>'Agosto',9=>'Septiembre',10=>'Octubre',11=>'Noviembre',12=>'Diciembre'];
+            return [
+                'con' => $c['nombre_consultor'] ?? 'Sin consultor',
+                'ext' => trim($c['consultor_externo'] ?? ''),
+                'sa'  => ucfirst($c['estatus_agenda'] ?? 'pendiente'),
+                'sm'  => ucfirst($c['estatus_mes'] ?? 'pendiente'),
+                'mes' => ($mn[$c['mes_esperado']] ?? $c['mes_esperado']) . ' ' . $c['anio'],
+            ];
+        }, $ciclos)), JSON_UNESCAPED_UNICODE) ?>;
+
         function applyFilter(filterType, value) {
             activeFilters[filterType] = value;
             table.draw();
+            recalcCards();
         }
 
-        // Actualizar conteos de cards según filas visibles
-        table.on('draw', function() {
+        function recalcCards() {
             var counts = { consultor: {}, externo: {}, estatus_agenda: {}, estatus_mes: {} };
             var total = 0;
 
-            table.rows({ search: 'applied' }).every(function() {
-                var d = this.data();
-                total++;
-                var con = $('<div>').html(d[1]).text().trim();
-                var ext = $('<div>').html(d[2]).text().trim();
-                var sa  = $('<div>').html(d[7]).text().trim();
-                var sm  = $('<div>').html(d[8]).text().trim();
+            ciclosRaw.forEach(function(c) {
+                if (activeFilters.consultor && c.con.toUpperCase().indexOf(activeFilters.consultor.toUpperCase()) === -1) return;
+                if (activeFilters.externo && c.ext.toUpperCase().indexOf(activeFilters.externo.toUpperCase()) === -1) return;
+                if (activeFilters.mes && c.mes.indexOf(activeFilters.mes) === -1) return;
+                if (activeFilters.estatus_agenda && c.sa.toLowerCase() !== activeFilters.estatus_agenda.toLowerCase()) return;
+                if (activeFilters.estatus_mes && c.sm.toLowerCase() !== activeFilters.estatus_mes.toLowerCase()) return;
 
-                counts.consultor[con] = (counts.consultor[con] || 0) + 1;
-                if (ext && ext !== '—') counts.externo[ext] = (counts.externo[ext] || 0) + 1;
-                counts.estatus_agenda[sa] = (counts.estatus_agenda[sa] || 0) + 1;
-                counts.estatus_mes[sm] = (counts.estatus_mes[sm] || 0) + 1;
+                total++;
+                counts.consultor[c.con] = (counts.consultor[c.con] || 0) + 1;
+                if (c.ext && c.ext !== '—' && c.ext !== '') {
+                    counts.externo[c.ext] = (counts.externo[c.ext] || 0) + 1;
+                }
+                counts.estatus_agenda[c.sa] = (counts.estatus_agenda[c.sa] || 0) + 1;
+                counts.estatus_mes[c.sm] = (counts.estatus_mes[c.sm] || 0) + 1;
             });
 
-            // Todos
             $('[data-filter][data-value=""] .card-count').text(total);
-
-            // Cards individuales
             $('.filter-card').each(function() {
-                var v = $(this).data('value');
-                if (!v && v !== 0) return;
-                var ft = $(this).data('filter');
+                var v = $(this).attr('data-value');
+                if (!v) return;
+                var ft = $(this).attr('data-filter');
                 var c = (counts[ft] && counts[ft][v]) || 0;
                 $(this).find('.card-count').text(c);
             });
-        });
+        }
 
         // Click en cards → filtrar + sincronizar dropdown
         $(document).on('click', '.filter-card', function() {
