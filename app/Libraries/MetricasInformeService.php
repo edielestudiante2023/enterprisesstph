@@ -16,21 +16,22 @@ class MetricasInformeService
 
     /**
      * Calcula cumplimiento de estándares desde evaluacion_inicial_sst
-     * Fórmula: SUM(valor) / SUM(puntaje_cuantitativo) * 100
+     * Fórmula: SUM(puntaje_cuantitativo) / SUM(valor) * 100
+     * valor = peso máximo del ítem, puntaje_cuantitativo = puntaje logrado
      */
     public function calcularCumplimientoEstandares(int $idCliente): float
     {
         $result = $this->db->table('evaluacion_inicial_sst')
-            ->select('SUM(valor) as total_valor, SUM(puntaje_cuantitativo) as total_posible')
+            ->select('SUM(valor) as total_maximo, SUM(puntaje_cuantitativo) as total_logrado')
             ->where('id_cliente', $idCliente)
             ->get()
             ->getRowArray();
 
-        if (!$result || floatval($result['total_posible']) == 0) {
+        if (!$result || floatval($result['total_maximo']) == 0) {
             return 0.0;
         }
 
-        $raw = (floatval($result['total_valor']) / floatval($result['total_posible'])) * 100;
+        $raw = (floatval($result['total_logrado']) / floatval($result['total_maximo'])) * 100;
         return round(min($raw, 100.0), 2);
     }
 
