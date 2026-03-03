@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #f8f9fa; color: #343a40; }
-        .container { margin-top: 80px; }
         table { background-color: #fff; }
         table.dataTable tbody tr { height: 50px; }
         table.dataTable th, table.dataTable td { white-space: nowrap; font-size: 13px; }
@@ -24,8 +23,43 @@
         }
         .header-bar h4 { color: #bd9751; margin: 0; }
         .header-bar p { color: #adb5bd; margin: 0; font-size: 14px; }
-        .filter-row { margin-bottom: 15px; }
-        .filter-row select { font-size: 13px; }
+
+        /* Cards clickeables */
+        .filter-card {
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .filter-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .filter-card.active { border-color: #bd9751; box-shadow: 0 0 0 2px #bd9751; }
+        .filter-card .card-count { font-size: 24px; font-weight: bold; }
+        .filter-card .card-label { font-size: 11px; margin-top: 2px; }
+
+        /* Colores de cards */
+        .card-consultor { background: linear-gradient(135deg, #2c3e50, #34495e); color: #fff; }
+        .card-externo { background: linear-gradient(135deg, #8e44ad, #9b59b6); color: #fff; }
+        .card-cumple { background: linear-gradient(135deg, #27ae60, #2ecc71); color: #fff; }
+        .card-incumple { background: linear-gradient(135deg, #c0392b, #e74c3c); color: #fff; }
+        .card-pendiente-status { background: linear-gradient(135deg, #f39c12, #f1c40f); color: #333; }
+        .card-all { background: linear-gradient(135deg, #2980b9, #3498db); color: #fff; }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -44,7 +78,7 @@
 
     <div class="container-fluid px-4">
         <div class="header-bar">
-            <h4><i class="fas fa-clipboard-check me-2"></i> Auditoría de Visitas</h4>
+            <h4><i class="fas fa-clipboard-check"></i> Auditoría de Visitas</h4>
             <p>Control de cumplimiento de visitas agendadas por consultor y cliente</p>
         </div>
 
@@ -61,49 +95,138 @@
             </div>
         <?php endif; ?>
 
-        <!-- Filtros -->
-        <div class="row filter-row">
-            <div class="col-md-3">
-                <select id="filtroConsultor" class="form-control form-control-sm">
-                    <option value="">Todos los consultores</option>
-                    <?php foreach ($consultores as $c): ?>
-                        <option value="<?= esc($c['nombre_consultor']) ?>"><?= esc($c['nombre_consultor']) ?></option>
-                    <?php endforeach; ?>
-                </select>
+        <?php
+        // Preparar datos para cards
+        $porConsultor = [];
+        $porExterno = [];
+        $statusAgenda = ['cumple' => 0, 'incumple' => 0, 'pendiente' => 0];
+        $statusMes = ['cumple' => 0, 'incumple' => 0, 'pendiente' => 0];
+        $mesesNombre = [1=>'Enero',2=>'Febrero',3=>'Marzo',4=>'Abril',5=>'Mayo',6=>'Junio',
+            7=>'Julio',8=>'Agosto',9=>'Septiembre',10=>'Octubre',11=>'Noviembre',12=>'Diciembre'];
+
+        foreach ($ciclos as $c) {
+            $nc = $c['nombre_consultor'] ?? 'Sin consultor';
+            $porConsultor[$nc] = ($porConsultor[$nc] ?? 0) + 1;
+
+            $ext = trim($c['consultor_externo'] ?? '');
+            if ($ext !== '' && $ext !== '—') {
+                $porExterno[$ext] = ($porExterno[$ext] ?? 0) + 1;
+            }
+
+            $sa = $c['estatus_agenda'] ?? 'pendiente';
+            $sm = $c['estatus_mes'] ?? 'pendiente';
+            $statusAgenda[$sa] = ($statusAgenda[$sa] ?? 0) + 1;
+            $statusMes[$sm] = ($statusMes[$sm] ?? 0) + 1;
+        }
+        asort($porConsultor);
+        asort($porExterno);
+        ?>
+
+        <!-- ═══ CARDS: CONSULTOR INTERNO ═══ -->
+        <div class="section-title"><i class="fas fa-user-tie"></i> Consultor Interno</div>
+        <div class="row">
+            <div class="col-auto">
+                <div class="filter-card card-all active" data-filter="consultor" data-value="" title="Mostrar todos">
+                    <div class="card-count"><?= count($ciclos) ?></div>
+                    <div class="card-label">Todos</div>
+                </div>
             </div>
-            <div class="col-md-2">
-                <select id="filtroMes" class="form-control form-control-sm">
-                    <option value="">Todos los meses</option>
-                    <?php foreach ($meses as $num => $nombre): ?>
-                        <option value="<?= $nombre ?>"><?= $nombre ?></option>
-                    <?php endforeach; ?>
-                </select>
+            <?php foreach ($porConsultor as $nombre => $count): ?>
+            <div class="col-auto">
+                <div class="filter-card card-consultor" data-filter="consultor" data-value="<?= esc($nombre) ?>" title="<?= esc($nombre) ?>">
+                    <div class="card-count"><?= $count ?></div>
+                    <div class="card-label"><?= esc(mb_strlen($nombre) > 20 ? mb_substr($nombre, 0, 20) . '…' : $nombre) ?></div>
+                </div>
             </div>
-            <div class="col-md-2">
-                <select id="filtroEstatusAgenda" class="form-control form-control-sm">
-                    <option value="">Estatus Agenda: Todos</option>
-                    <option value="cumple">Cumple</option>
-                    <option value="incumple">Incumple</option>
-                    <option value="pendiente">Pendiente</option>
-                </select>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- ═══ CARDS: CONSULTOR EXTERNO ═══ -->
+        <?php if (!empty($porExterno)): ?>
+        <div class="section-title"><i class="fas fa-user-shield"></i> Consultor Externo</div>
+        <div class="row">
+            <div class="col-auto">
+                <div class="filter-card card-all active" data-filter="externo" data-value="" title="Mostrar todos">
+                    <div class="card-count"><?= count($ciclos) ?></div>
+                    <div class="card-label">Todos</div>
+                </div>
             </div>
-            <div class="col-md-2">
-                <select id="filtroEstatusMes" class="form-control form-control-sm">
-                    <option value="">Estatus Mes: Todos</option>
-                    <option value="cumple">Cumple</option>
-                    <option value="incumple">Incumple</option>
-                    <option value="pendiente">Pendiente</option>
-                </select>
+            <?php foreach ($porExterno as $nombre => $count): ?>
+            <div class="col-auto">
+                <div class="filter-card card-externo" data-filter="externo" data-value="<?= esc($nombre) ?>" title="<?= esc($nombre) ?>">
+                    <div class="card-count"><?= $count ?></div>
+                    <div class="card-label"><?= esc(mb_strlen($nombre) > 20 ? mb_substr($nombre, 0, 20) . '…' : $nombre) ?></div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- ═══ CARDS: ESTATUS ═══ -->
+        <div class="section-title"><i class="fas fa-calendar-check"></i> Estatus Agenda</div>
+        <div class="row">
+            <div class="col-auto">
+                <div class="filter-card card-all active" data-filter="estatus_agenda" data-value="" title="Todos">
+                    <div class="card-count"><?= count($ciclos) ?></div>
+                    <div class="card-label">Todos</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="filter-card card-cumple" data-filter="estatus_agenda" data-value="Cumple">
+                    <div class="card-count"><?= $statusAgenda['cumple'] ?></div>
+                    <div class="card-label">Cumple</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="filter-card card-incumple" data-filter="estatus_agenda" data-value="Incumple">
+                    <div class="card-count"><?= $statusAgenda['incumple'] ?></div>
+                    <div class="card-label">Incumple</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="filter-card card-pendiente-status" data-filter="estatus_agenda" data-value="Pendiente">
+                    <div class="card-count"><?= $statusAgenda['pendiente'] ?></div>
+                    <div class="card-label">Pendiente</div>
+                </div>
             </div>
         </div>
 
+        <div class="section-title"><i class="fas fa-calendar-alt"></i> Estatus Mes</div>
+        <div class="row mb-3">
+            <div class="col-auto">
+                <div class="filter-card card-all active" data-filter="estatus_mes" data-value="" title="Todos">
+                    <div class="card-count"><?= count($ciclos) ?></div>
+                    <div class="card-label">Todos</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="filter-card card-cumple" data-filter="estatus_mes" data-value="Cumple">
+                    <div class="card-count"><?= $statusMes['cumple'] ?></div>
+                    <div class="card-label">Cumple</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="filter-card card-incumple" data-filter="estatus_mes" data-value="Incumple">
+                    <div class="card-count"><?= $statusMes['incumple'] ?></div>
+                    <div class="card-label">Incumple</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="filter-card card-pendiente-status" data-filter="estatus_mes" data-value="Pendiente">
+                    <div class="card-count"><?= $statusMes['pendiente'] ?></div>
+                    <div class="card-label">Pendiente</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ TABLA ═══ -->
         <table id="tablaAuditoria" class="table table-striped table-bordered" style="width:100%">
             <thead class="thead-dark">
                 <tr>
                     <th>Cliente</th>
                     <th>Consultor</th>
                     <th>Consultor Ext.</th>
-                    <th>Estándar</th>
+                    <th>Periodicidad</th>
                     <th>Mes Esperado</th>
                     <th>Fecha Agendada</th>
                     <th>Fecha Acta</th>
@@ -113,10 +236,6 @@
                 </tr>
             </thead>
             <tbody>
-                <?php
-                $mesesNombre = [1=>'Enero',2=>'Febrero',3=>'Marzo',4=>'Abril',5=>'Mayo',6=>'Junio',
-                    7=>'Julio',8=>'Agosto',9=>'Septiembre',10=>'Octubre',11=>'Noviembre',12=>'Diciembre'];
-                ?>
                 <?php foreach ($ciclos as $c): ?>
                     <tr>
                         <td><?= esc($c['nombre_cliente'] ?? '—') ?></td>
@@ -165,18 +284,30 @@
             buttons: ['copy', 'csv', 'excel']
         });
 
-        // Filtros
-        $('#filtroConsultor').on('change', function() {
-            table.column(1).search(this.value).draw();
-        });
-        $('#filtroMes').on('change', function() {
-            table.column(4).search(this.value).draw();
-        });
-        $('#filtroEstatusAgenda').on('change', function() {
-            table.column(7).search(this.value).draw();
-        });
-        $('#filtroEstatusMes').on('change', function() {
-            table.column(8).search(this.value).draw();
+        // Mapeo de filtros a columnas
+        var filterColumns = {
+            'consultor':      1,
+            'externo':        2,
+            'estatus_agenda': 7,
+            'estatus_mes':    8
+        };
+
+        // Click en cards
+        $(document).on('click', '.filter-card', function() {
+            var filterType = $(this).data('filter');
+            var value = $(this).data('value');
+            var colIdx = filterColumns[filterType];
+
+            // Marcar active dentro de su grupo
+            $('[data-filter="' + filterType + '"]').removeClass('active');
+            $(this).addClass('active');
+
+            // Filtrar tabla — usar regex exacto para evitar falsos positivos
+            if (value === '' || value === undefined) {
+                table.column(colIdx).search('').draw();
+            } else {
+                table.column(colIdx).search('^' + $.fn.dataTable.util.escapeRegex(value) + '$', true, false).draw();
+            }
         });
 
         // Eliminar

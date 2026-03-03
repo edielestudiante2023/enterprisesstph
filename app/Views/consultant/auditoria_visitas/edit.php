@@ -58,7 +58,7 @@
                             <input type="number" name="anio" class="form-control form-control-sm" value="<?= $ciclo['anio'] ?>" min="2024" max="2030">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label class="font-weight-bold" style="font-size:13px;">Estándar</label>
+                            <label class="font-weight-bold" style="font-size:13px;">Periodicidad</label>
                             <select name="estandar" class="form-control form-control-sm">
                                 <?php foreach (['Mensual','Bimensual','Trimestral','Proyecto'] as $e): ?>
                                     <option value="<?= $e ?>" <?= $ciclo['estandar'] == $e ? 'selected' : '' ?>><?= $e ?></option>
