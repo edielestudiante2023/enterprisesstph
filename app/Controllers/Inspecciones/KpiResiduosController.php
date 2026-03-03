@@ -255,8 +255,7 @@ class KpiResiduosController extends BaseController
             'ruta_pdf' => $pdfPath,
         ]);
 
-        $inspeccion = $this->model->find($id);
-        $this->uploadToReportes($inspeccion, $pdfPath);
+        $this->uploadToReportes($id, $pdfPath);
 
         return redirect()->to("/inspecciones/kpi-residuos/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
     }
@@ -349,16 +348,42 @@ class KpiResiduosController extends BaseController
     {
         $inspeccion = $this->model->find($id);
         $reporteModel = new ReporteModel();
+        $clientModel = new ClientModel();
+        $cliente = $clientModel->find($inspeccion['id_cliente']);
+        if (!$cliente) return;
+
+        $nitCliente = $cliente['nit_cliente'];
         $tag = static::TAG_PREFIX . ':' . $id;
-        if ($reporteModel->where('tag', $tag)->first()) return;
-        $reporteModel->insert([
-            'id_report_type'  => 6,
+
+        $existente = $reporteModel->where('tag', $tag)->first();
+
+        $destDir = ROOTPATH . 'public/uploads/' . $nitCliente;
+        if (!is_dir($destDir)) {
+            mkdir($destDir, 0755, true);
+        }
+
+        $fileName = strtolower(str_replace(' ', '_', static::ROUTE_SLUG)) . '_' . $id . '_' . date('Ymd_His') . '.pdf';
+        $destPath = $destDir . '/' . $fileName;
+        copy(FCPATH . $pdfPath, $destPath);
+
+        $data = [
+            'titulo_reporte'  => static::PDF_TITLE . ' - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . ($inspeccion['fecha_inspeccion'] ?? ''),
             'id_detailreport' => static::DETAIL_ID,
+            'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'id_consultor'    => $inspeccion['id_consultor'],
-            'report_url'      => base_url($pdfPath),
+            'estado'          => 'Activo',
+            'observaciones'   => 'Generado automaticamente desde modulo de inspecciones. ' . $tag,
+            'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
             'tag'             => $tag,
-            'created_at'      => date('Y-m-d H:i:s'),
-        ]);
+            'updated_at'      => date('Y-m-d H:i:s'),
+        ];
+
+        if ($existente) {
+            $reporteModel->update($existente['id_reporte'], $data);
+        } else {
+            $data['created_at'] = date('Y-m-d H:i:s');
+            $reporteModel->save($data);
+        }
     }
 }
