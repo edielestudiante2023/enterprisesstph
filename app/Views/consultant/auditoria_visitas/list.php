@@ -355,6 +355,38 @@
             table.draw();
         }
 
+        // Actualizar conteos de cards según filas visibles
+        table.on('draw', function() {
+            var counts = { consultor: {}, externo: {}, estatus_agenda: {}, estatus_mes: {} };
+            var total = 0;
+
+            table.rows({ search: 'applied' }).every(function() {
+                var d = this.data();
+                total++;
+                var con = $('<div>').html(d[1]).text().trim();
+                var ext = $('<div>').html(d[2]).text().trim();
+                var sa  = $('<div>').html(d[7]).text().trim();
+                var sm  = $('<div>').html(d[8]).text().trim();
+
+                counts.consultor[con] = (counts.consultor[con] || 0) + 1;
+                if (ext && ext !== '—') counts.externo[ext] = (counts.externo[ext] || 0) + 1;
+                counts.estatus_agenda[sa] = (counts.estatus_agenda[sa] || 0) + 1;
+                counts.estatus_mes[sm] = (counts.estatus_mes[sm] || 0) + 1;
+            });
+
+            // Todos
+            $('[data-filter][data-value=""] .card-count').text(total);
+
+            // Cards individuales
+            $('.filter-card').each(function() {
+                var v = $(this).data('value');
+                if (!v && v !== 0) return;
+                var ft = $(this).data('filter');
+                var c = (counts[ft] && counts[ft][v]) || 0;
+                $(this).find('.card-count').text(c);
+            });
+        });
+
         // Click en cards → filtrar + sincronizar dropdown
         $(document).on('click', '.filter-card', function() {
             var filterType = $(this).data('filter');
