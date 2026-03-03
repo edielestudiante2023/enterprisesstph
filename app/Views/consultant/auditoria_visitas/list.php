@@ -363,6 +363,7 @@
             }
             if (activeFilters.periodicidad) {
                 var t = $cells.eq(3).text().trim();
+                if (dataIndex < 2) console.log('PERIO row', dataIndex, 'celda:', JSON.stringify(t), 'filtro:', JSON.stringify(activeFilters.periodicidad), 'match:', t.toUpperCase().indexOf(activeFilters.periodicidad.toUpperCase()));
                 if (t.toUpperCase().indexOf(activeFilters.periodicidad.toUpperCase()) === -1) return false;
             }
             if (activeFilters.mes) {
