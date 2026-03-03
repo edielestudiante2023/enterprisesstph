@@ -405,7 +405,7 @@ class KpiLimpiezaController extends BaseController
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'id_consultor'    => $inspeccion['id_consultor'],
-            'estado'          => 'Activo',
+            'estado'          => 'CERRADO',
             'observaciones'   => 'Generado automaticamente desde modulo de inspecciones. ' . $tag,
             'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
             'tag'             => $tag,

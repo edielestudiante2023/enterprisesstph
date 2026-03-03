@@ -479,7 +479,7 @@ class HvBrigadistaController extends BaseController
             'id_detailreport' => 22,
             'id_report_type'  => 6,
             'id_cliente'      => $hv['id_cliente'],
-            'estado'          => 'Activo',
+            'estado'          => 'CERRADO',
             'observaciones'   => 'Generado automaticamente desde modulo de inspecciones. hv_brig_id:' . $hv['id'],
             'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
             'updated_at'      => date('Y-m-d H:i:s'),

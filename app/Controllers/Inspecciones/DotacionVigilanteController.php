@@ -436,7 +436,7 @@ class DotacionVigilanteController extends BaseController
             'id_detailreport' => 14,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
-            'estado'          => 'Activo',
+            'estado'          => 'CERRADO',
             'observaciones'   => 'Generado automaticamente desde modulo de inspecciones. dot_vig_id:' . $inspeccion['id'],
             'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
             'updated_at'      => date('Y-m-d H:i:s'),

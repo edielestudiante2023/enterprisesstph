@@ -474,7 +474,7 @@ class PreparacionSimulacroController extends BaseController
             'id_detailreport' => 28,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
-            'estado'          => 'Activo',
+            'estado'          => 'CERRADO',
             'observaciones'   => 'Generado automaticamente desde modulo de inspecciones. prep_sim_id:' . $inspeccion['id'],
             'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
             'updated_at'      => date('Y-m-d H:i:s'),
