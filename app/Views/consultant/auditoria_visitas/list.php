@@ -363,8 +363,7 @@
             }
             if (activeFilters.periodicidad) {
                 var t = $cells.eq(3).text().trim();
-                if (dataIndex < 2) console.log('PERIO row', dataIndex, 'celda:', JSON.stringify(t), 'filtro:', JSON.stringify(activeFilters.periodicidad), 'match:', t.toUpperCase().indexOf(activeFilters.periodicidad.toUpperCase()));
-                if (t.toUpperCase().indexOf(activeFilters.periodicidad.toUpperCase()) === -1) return false;
+                if (t.toUpperCase() !== activeFilters.periodicidad.toUpperCase()) return false;
             }
             if (activeFilters.mes) {
                 var t = $cells.eq(4).text().trim();
@@ -408,7 +407,7 @@
             ciclosRaw.forEach(function(c) {
                 if (activeFilters.consultor && c.con.toUpperCase().indexOf(activeFilters.consultor.toUpperCase()) === -1) return;
                 if (activeFilters.externo && c.ext.toUpperCase().indexOf(activeFilters.externo.toUpperCase()) === -1) return;
-                if (activeFilters.periodicidad && c.per.toUpperCase().indexOf(activeFilters.periodicidad.toUpperCase()) === -1) return;
+                if (activeFilters.periodicidad && c.per.toUpperCase() !== activeFilters.periodicidad.toUpperCase()) return;
                 if (activeFilters.mes && c.mes.indexOf(activeFilters.mes) === -1) return;
                 if (activeFilters.estatus_agenda && c.sa.toLowerCase() !== activeFilters.estatus_agenda.toLowerCase()) return;
                 if (activeFilters.estatus_mes && c.sm.toLowerCase() !== activeFilters.estatus_mes.toLowerCase()) return;
