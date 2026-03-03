@@ -95,19 +95,22 @@ class AgendamientoController extends BaseController
             'id_cliente'   => 'required|integer',
             'fecha_visita' => 'required|valid_date',
             'hora_visita'  => 'required',
-            'frecuencia'   => 'required|in_list[mensual,bimensual,trimestral]',
         ];
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        // Frecuencia viene del estandares del cliente (readonly en form)
+        $cliente = (new ClientModel())->find($this->request->getPost('id_cliente'));
+        $frecuencia = strtolower(trim($cliente['estandares'] ?? 'mensual'));
+
         $data = [
             'id_cliente'          => $this->request->getPost('id_cliente'),
             'id_consultor'        => $userId,
             'fecha_visita'        => $this->request->getPost('fecha_visita'),
             'hora_visita'         => $this->request->getPost('hora_visita'),
-            'frecuencia'          => $this->request->getPost('frecuencia'),
+            'frecuencia'          => $frecuencia,
             'estado'              => 'pendiente',
             'preparacion_cliente' => $this->request->getPost('preparacion_cliente') ?: null,
             'observaciones'       => $this->request->getPost('observaciones') ?: null,
@@ -157,10 +160,14 @@ class AgendamientoController extends BaseController
             $clientes = $clientModel->where('id_consultor', $userId)->where('estado', 'activo')->orderBy('nombre_cliente')->findAll();
         }
 
+        // Obtener estandares del cliente para mostrar frecuencia readonly
+        $clienteActual = $clientModel->find($agendamiento['id_cliente']);
+
         $data = [
             'title'        => 'Editar Agendamiento',
             'agendamiento' => $agendamiento,
             'clientes'     => $clientes,
+            'estandares_cliente' => $clienteActual['estandares'] ?? '',
         ];
 
         return view('inspecciones/layout_pwa', [
@@ -182,17 +189,20 @@ class AgendamientoController extends BaseController
         $rules = [
             'fecha_visita' => 'required|valid_date',
             'hora_visita'  => 'required',
-            'frecuencia'   => 'required|in_list[mensual,bimensual,trimestral]',
         ];
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        // Frecuencia viene del estandares del cliente (readonly en form)
+        $cliente = (new ClientModel())->find($agendamiento['id_cliente']);
+        $frecuencia = strtolower(trim($cliente['estandares'] ?? 'mensual'));
+
         $data = [
             'fecha_visita'        => $this->request->getPost('fecha_visita'),
             'hora_visita'         => $this->request->getPost('hora_visita'),
-            'frecuencia'          => $this->request->getPost('frecuencia'),
+            'frecuencia'          => $frecuencia,
             'preparacion_cliente' => $this->request->getPost('preparacion_cliente') ?: null,
             'observaciones'       => $this->request->getPost('observaciones') ?: null,
         ];
@@ -275,6 +285,7 @@ class AgendamientoController extends BaseController
             'fecha_sugerida'           => $fechaSugerida,
             'consultor_externo'        => $cliente['consultor_externo'] ?? '',
             'email_consultor_externo'  => $cliente['email_consultor_externo'] ?? '',
+            'estandares'               => $cliente['estandares'] ?? '',
         ]);
     }
 

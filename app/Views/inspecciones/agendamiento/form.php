@@ -83,17 +83,13 @@
             </div>
         </div>
 
-        <!-- Frecuencia -->
+        <!-- Frecuencia (readonly, viene de estandares del cliente) -->
         <div class="mb-3">
-            <label class="form-label fw-bold" style="font-size:14px;">Frecuencia *</label>
-            <select name="frecuencia" class="form-select" required>
-                <?php
-                $freq = old('frecuencia', $agendamiento['frecuencia'] ?? 'mensual');
-                ?>
-                <option value="mensual" <?= $freq === 'mensual' ? 'selected' : '' ?>>Mensual</option>
-                <option value="bimensual" <?= $freq === 'bimensual' ? 'selected' : '' ?>>Bimensual</option>
-                <option value="trimestral" <?= $freq === 'trimestral' ? 'selected' : '' ?>>Trimestral</option>
-            </select>
+            <label class="form-label fw-bold" style="font-size:14px;">Frecuencia</label>
+            <input type="text" id="inputFrecuencia" class="form-control" readonly
+                   style="background-color: #e9ecef; cursor: not-allowed;"
+                   value="<?= $agendamiento ? ucfirst(esc($estandares_cliente ?? $agendamiento['frecuencia'] ?? '')) : '' ?>"
+                   placeholder="Se llena al seleccionar cliente">
         </div>
 
         <!-- Preparación cliente -->
@@ -166,6 +162,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     // Auto-fill fecha sugerida
                     document.getElementById('inputFecha').value = data.fecha_sugerida;
+
+                    // Auto-fill frecuencia desde estandares del cliente
+                    var freq = (data.estandares || '').trim();
+                    document.getElementById('inputFrecuencia').value = freq ? freq.charAt(0).toUpperCase() + freq.slice(1).toLowerCase() : '';
                 }
             });
     });
