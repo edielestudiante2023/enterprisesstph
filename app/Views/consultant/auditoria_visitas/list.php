@@ -344,10 +344,7 @@
             var $cells = $(table.row(dataIndex).node()).children('td');
             if (activeFilters.consultor) {
                 var t = $cells.eq(1).text().trim();
-                if (t.toUpperCase().indexOf(activeFilters.consultor.toUpperCase()) === -1) {
-                    if (dataIndex < 2) console.log('FILTRO FAIL row', dataIndex, 'celda:', JSON.stringify(t), 'filtro:', JSON.stringify(activeFilters.consultor));
-                    return false;
-                }
+                if (t.toUpperCase().indexOf(activeFilters.consultor.toUpperCase()) === -1) return false;
             }
             if (activeFilters.externo) {
                 var t = $cells.eq(2).text().trim();
@@ -382,7 +379,7 @@
         }, $ciclos)), JSON_UNESCAPED_UNICODE) ?>;
 
         function applyFilter(filterType, value) {
-            activeFilters[filterType] = value;
+            activeFilters[filterType] = (typeof value === 'string') ? value.trim() : value;
             table.draw();
             recalcCards();
         }
