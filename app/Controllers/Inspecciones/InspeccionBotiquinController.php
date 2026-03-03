@@ -11,6 +11,7 @@ use App\Models\ReporteModel;
 use App\Models\MantenimientoModel;
 use App\Models\VencimientosMantenimientoModel;
 use Dompdf\Dompdf;
+use App\Libraries\InspeccionEmailNotifier;
 
 class InspeccionBotiquinController extends BaseController
 {
@@ -257,8 +258,25 @@ class InspeccionBotiquinController extends BaseController
         $this->uploadToReportes($inspeccion, $pdfPath);
         $this->syncVencimiento($inspeccion);
 
+        // Enviar email con PDF adjunto
+        $emailResult = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'INSPECCIÓN BOTIQUÍN',
+            $inspeccion['fecha_inspeccion'],
+            $pdfPath,
+            (int) $inspeccion['id'],
+            'InspeccionBotiquin'
+        );
+        $msg = 'Inspección finalizada y PDF generado.';
+        if ($emailResult['success']) {
+            $msg .= ' ' . $emailResult['message'];
+        } else {
+            $msg .= ' (Email no enviado: ' . $emailResult['error'] . ')';
+        }
+
         return redirect()->to('/inspecciones/botiquin/view/' . $id)
-            ->with('msg', 'Inspeccion finalizada y PDF generado');
+            ->with('msg', $msg);
     }
 
     public function generatePdf($id)
@@ -519,6 +537,31 @@ class InspeccionBotiquinController extends BaseController
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());
 
         return $pdfPath;
+    }
+
+    // ── Email ─────────────────────────────────────────────────
+
+    public function enviarEmail($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || $inspeccion['estado'] !== 'completo' || empty($inspeccion['ruta_pdf'])) {
+            return redirect()->to("/inspecciones/botiquin/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
+        }
+
+        $result = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'INSPECCIÓN BOTIQUÍN',
+            $inspeccion['fecha_inspeccion'],
+            $inspeccion['ruta_pdf'],
+            (int) $inspeccion['id'],
+            'InspeccionBotiquin'
+        );
+
+        if ($result['success']) {
+            return redirect()->to("/inspecciones/botiquin/view/{$id}")->with('msg', $result['message']);
+        }
+        return redirect()->to("/inspecciones/botiquin/view/{$id}")->with('error', $result['error']);
     }
 
     private function uploadToReportes(array $inspeccion, string $pdfPath): bool

@@ -7,6 +7,7 @@ use App\Models\ProgramaPlagasModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 
 class ProgramaPlagasController extends BaseController
@@ -159,7 +160,25 @@ class ProgramaPlagasController extends BaseController
         $inspeccion = $this->inspeccionModel->find($id);
         $this->uploadToReportes($inspeccion, $pdfPath);
 
-        return redirect()->to("/inspecciones/control-plagas/view/{$id}")->with('msg', 'Programa finalizado y PDF generado.');
+        // Enviar email con PDF adjunto
+        $emailResult = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'PROGRAMA CONTROL INTEGRADO DE PLAGAS',
+            $inspeccion['fecha_programa'],
+            $pdfPath,
+            (int) $inspeccion['id'],
+            'ProgramaPlagas',
+            $inspeccion['nombre_responsable'] ?? ''
+        );
+        $msg = 'Programa finalizado y PDF generado.';
+        if ($emailResult['success']) {
+            $msg .= ' ' . $emailResult['message'];
+        } else {
+            $msg .= ' (Email no enviado: ' . $emailResult['error'] . ')';
+        }
+
+        return redirect()->to("/inspecciones/control-plagas/view/{$id}")->with('msg', $msg);
     }
 
     public function generatePdf($id)
@@ -264,6 +283,32 @@ class ProgramaPlagasController extends BaseController
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());
 
         return $pdfPath;
+    }
+
+    // ── Email ─────────────────────────────────────────────────
+
+    public function enviarEmail($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || $inspeccion['estado'] !== 'completo' || empty($inspeccion['ruta_pdf'])) {
+            return redirect()->to("/inspecciones/control-plagas/view/{$id}")->with('error', 'El documento debe estar finalizado con PDF para enviar email.');
+        }
+
+        $result = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'PROGRAMA CONTROL INTEGRADO DE PLAGAS',
+            $inspeccion['fecha_programa'],
+            $inspeccion['ruta_pdf'],
+            (int) $inspeccion['id'],
+            'ProgramaPlagas',
+            $inspeccion['nombre_responsable'] ?? ''
+        );
+
+        if ($result['success']) {
+            return redirect()->to("/inspecciones/control-plagas/view/{$id}")->with('msg', $result['message']);
+        }
+        return redirect()->to("/inspecciones/control-plagas/view/{$id}")->with('error', $result['error']);
     }
 
     private function uploadToReportes(array $inspeccion, string $pdfPath): bool

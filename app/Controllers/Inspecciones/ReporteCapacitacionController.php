@@ -7,6 +7,7 @@ use App\Models\ReporteCapacitacionModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 
 class ReporteCapacitacionController extends BaseController
@@ -177,8 +178,25 @@ class ReporteCapacitacionController extends BaseController
         $inspeccion = $this->inspeccionModel->find($id);
         $this->uploadToReportes($inspeccion, $pdfPath);
 
+        // Enviar email con PDF adjunto
+        $emailResult = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'REPORTE DE CAPACITACIÓN',
+            $inspeccion['fecha_capacitacion'],
+            $pdfPath,
+            (int) $inspeccion['id'],
+            'ReporteCapacitacion'
+        );
+        $msg = 'Finalizado y PDF generado.';
+        if ($emailResult['success']) {
+            $msg .= ' ' . $emailResult['message'];
+        } else {
+            $msg .= ' (Email no enviado: ' . $emailResult['error'] . ')';
+        }
+
         return redirect()->to('/inspecciones/reporte-capacitacion/view/' . $id)
-            ->with('msg', 'Reporte finalizado y PDF generado');
+            ->with('msg', $msg);
     }
 
     public function generatePdf($id)
@@ -345,6 +363,31 @@ class ReporteCapacitacionController extends BaseController
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());
 
         return $pdfPath;
+    }
+
+    // ── Email ─────────────────────────────────────────────────
+
+    public function enviarEmail($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || $inspeccion['estado'] !== 'completo' || empty($inspeccion['ruta_pdf'])) {
+            return redirect()->to("/inspecciones/reporte-capacitacion/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
+        }
+
+        $result = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'REPORTE DE CAPACITACIÓN',
+            $inspeccion['fecha_capacitacion'],
+            $inspeccion['ruta_pdf'],
+            (int) $inspeccion['id'],
+            'ReporteCapacitacion'
+        );
+
+        if ($result['success']) {
+            return redirect()->to("/inspecciones/reporte-capacitacion/view/{$id}")->with('msg', $result['message']);
+        }
+        return redirect()->to("/inspecciones/reporte-capacitacion/view/{$id}")->with('error', $result['error']);
     }
 
     private function uploadToReportes(array $inspeccion, string $pdfPath): bool

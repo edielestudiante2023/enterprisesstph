@@ -858,6 +858,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('acta-visita/regenerar/(:num)', 'ActaVisitaController::regenerarPdf/$1');
     $routes->post('acta-visita/finalizar/(:num)', 'ActaVisitaController::finalizar/$1');
     $routes->get('acta-visita/delete/(:num)', 'ActaVisitaController::delete/$1');
+    $routes->get('acta-visita/enviar-email/(:num)', 'ActaVisitaController::enviarEmail/$1');
 
     // Inspección Locativa
     $routes->get('inspeccion-locativa', 'InspeccionLocativaController::list');
@@ -871,6 +872,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('inspeccion-locativa/regenerar/(:num)', 'InspeccionLocativaController::regenerarPdf/$1');
     $routes->post('inspeccion-locativa/finalizar/(:num)', 'InspeccionLocativaController::finalizar/$1');
     $routes->get('inspeccion-locativa/delete/(:num)', 'InspeccionLocativaController::delete/$1');
+    $routes->get('inspeccion-locativa/enviar-email/(:num)', 'InspeccionLocativaController::enviarEmail/$1');
 
     // Inspección Señalización
     $routes->get('senalizacion', 'InspeccionSenalizacionController::list');
@@ -884,6 +886,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('senalizacion/regenerar/(:num)', 'InspeccionSenalizacionController::regenerarPdf/$1');
     $routes->post('senalizacion/finalizar/(:num)', 'InspeccionSenalizacionController::finalizar/$1');
     $routes->get('senalizacion/delete/(:num)', 'InspeccionSenalizacionController::delete/$1');
+    $routes->get('senalizacion/enviar-email/(:num)', 'InspeccionSenalizacionController::enviarEmail/$1');
 
     // Inspección Extintores
     $routes->get('extintores', 'InspeccionExtintoresController::list');
@@ -897,6 +900,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('extintores/regenerar/(:num)', 'InspeccionExtintoresController::regenerarPdf/$1');
     $routes->post('extintores/finalizar/(:num)', 'InspeccionExtintoresController::finalizar/$1');
     $routes->get('extintores/delete/(:num)', 'InspeccionExtintoresController::delete/$1');
+    $routes->get('extintores/enviar-email/(:num)', 'InspeccionExtintoresController::enviarEmail/$1');
 
     // Inspección Botiquín
     $routes->get('botiquin', 'InspeccionBotiquinController::list');
@@ -910,6 +914,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('botiquin/regenerar/(:num)', 'InspeccionBotiquinController::regenerarPdf/$1');
     $routes->post('botiquin/finalizar/(:num)', 'InspeccionBotiquinController::finalizar/$1');
     $routes->get('botiquin/delete/(:num)', 'InspeccionBotiquinController::delete/$1');
+    $routes->get('botiquin/enviar-email/(:num)', 'InspeccionBotiquinController::enviarEmail/$1');
 
     // Inspección Gabinetes
     $routes->get('gabinetes', 'InspeccionGabineteController::list');
@@ -923,6 +928,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('gabinetes/regenerar/(:num)', 'InspeccionGabineteController::regenerarPdf/$1');
     $routes->post('gabinetes/finalizar/(:num)', 'InspeccionGabineteController::finalizar/$1');
     $routes->get('gabinetes/delete/(:num)', 'InspeccionGabineteController::delete/$1');
+    $routes->get('gabinetes/enviar-email/(:num)', 'InspeccionGabineteController::enviarEmail/$1');
 
     // Inspección Comunicaciones
     $routes->get('comunicaciones', 'InspeccionComunicacionController::list');
@@ -936,6 +942,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('comunicaciones/regenerar/(:num)', 'InspeccionComunicacionController::regenerarPdf/$1');
     $routes->post('comunicaciones/finalizar/(:num)', 'InspeccionComunicacionController::finalizar/$1');
     $routes->get('comunicaciones/delete/(:num)', 'InspeccionComunicacionController::delete/$1');
+    $routes->get('comunicaciones/enviar-email/(:num)', 'InspeccionComunicacionController::enviarEmail/$1');
 
     // Inspección Recursos de Seguridad
     $routes->get('recursos-seguridad', 'InspeccionRecursosSeguridadController::list');
@@ -949,6 +956,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('recursos-seguridad/regenerar/(:num)', 'InspeccionRecursosSeguridadController::regenerarPdf/$1');
     $routes->post('recursos-seguridad/finalizar/(:num)', 'InspeccionRecursosSeguridadController::finalizar/$1');
     $routes->get('recursos-seguridad/delete/(:num)', 'InspeccionRecursosSeguridadController::delete/$1');
+    $routes->get('recursos-seguridad/enviar-email/(:num)', 'InspeccionRecursosSeguridadController::enviarEmail/$1');
 
     // Probabilidad de Ocurrencia de Peligros
     $routes->get('probabilidad-peligros', 'ProbabilidadPeligrosController::list');
@@ -962,6 +970,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('probabilidad-peligros/regenerar/(:num)', 'ProbabilidadPeligrosController::regenerarPdf/$1');
     $routes->post('probabilidad-peligros/finalizar/(:num)', 'ProbabilidadPeligrosController::finalizar/$1');
     $routes->get('probabilidad-peligros/delete/(:num)', 'ProbabilidadPeligrosController::delete/$1');
+    $routes->get('probabilidad-peligros/enviar-email/(:num)', 'ProbabilidadPeligrosController::enviarEmail/$1');
 
     // Matriz de Vulnerabilidad
     $routes->get('matriz-vulnerabilidad', 'MatrizVulnerabilidadController::list');
@@ -975,6 +984,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('matriz-vulnerabilidad/regenerar/(:num)', 'MatrizVulnerabilidadController::regenerarPdf/$1');
     $routes->post('matriz-vulnerabilidad/finalizar/(:num)', 'MatrizVulnerabilidadController::finalizar/$1');
     $routes->get('matriz-vulnerabilidad/delete/(:num)', 'MatrizVulnerabilidadController::delete/$1');
+    $routes->get('matriz-vulnerabilidad/enviar-email/(:num)', 'MatrizVulnerabilidadController::enviarEmail/$1');
 
     // Plan de Emergencia
     $routes->get('plan-emergencia', 'PlanEmergenciaController::list');
@@ -989,6 +999,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('plan-emergencia/finalizar/(:num)', 'PlanEmergenciaController::finalizar/$1');
     $routes->get('plan-emergencia/delete/(:num)', 'PlanEmergenciaController::delete/$1');
     $routes->get('plan-emergencia/check-inspecciones/(:num)', 'PlanEmergenciaController::checkInspeccionesCompletas/$1');
+    $routes->get('plan-emergencia/enviar-email/(:num)', 'PlanEmergenciaController::enviarEmail/$1');
 
     // Dotación Vigilante
     $routes->get('dotacion-vigilante', 'DotacionVigilanteController::list');
@@ -1002,6 +1013,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('dotacion-vigilante/regenerar/(:num)', 'DotacionVigilanteController::regenerarPdf/$1');
     $routes->post('dotacion-vigilante/finalizar/(:num)', 'DotacionVigilanteController::finalizar/$1');
     $routes->get('dotacion-vigilante/delete/(:num)', 'DotacionVigilanteController::delete/$1');
+    $routes->get('dotacion-vigilante/enviar-email/(:num)', 'DotacionVigilanteController::enviarEmail/$1');
 
     // Dotación Aseadora
     $routes->get('dotacion-aseadora', 'DotacionAseadoraController::list');
@@ -1015,6 +1027,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('dotacion-aseadora/regenerar/(:num)', 'DotacionAseadoraController::regenerarPdf/$1');
     $routes->post('dotacion-aseadora/finalizar/(:num)', 'DotacionAseadoraController::finalizar/$1');
     $routes->get('dotacion-aseadora/delete/(:num)', 'DotacionAseadoraController::delete/$1');
+    $routes->get('dotacion-aseadora/enviar-email/(:num)', 'DotacionAseadoraController::enviarEmail/$1');
 
     // Dotación Todero
     $routes->get('dotacion-todero', 'DotacionToderoController::list');
@@ -1028,6 +1041,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('dotacion-todero/regenerar/(:num)', 'DotacionToderoController::regenerarPdf/$1');
     $routes->post('dotacion-todero/finalizar/(:num)', 'DotacionToderoController::finalizar/$1');
     $routes->get('dotacion-todero/delete/(:num)', 'DotacionToderoController::delete/$1');
+    $routes->get('dotacion-todero/enviar-email/(:num)', 'DotacionToderoController::enviarEmail/$1');
 
     // Auditoría Zona de Residuos
     $routes->get('auditoria-zona-residuos', 'AuditoriaZonaResiduosController::list');
@@ -1041,6 +1055,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('auditoria-zona-residuos/regenerar/(:num)', 'AuditoriaZonaResiduosController::regenerarPdf/$1');
     $routes->post('auditoria-zona-residuos/finalizar/(:num)', 'AuditoriaZonaResiduosController::finalizar/$1');
     $routes->get('auditoria-zona-residuos/delete/(:num)', 'AuditoriaZonaResiduosController::delete/$1');
+    $routes->get('auditoria-zona-residuos/enviar-email/(:num)', 'AuditoriaZonaResiduosController::enviarEmail/$1');
 
     // Preparación Simulacro
     $routes->get('preparacion-simulacro', 'PreparacionSimulacroController::list');
@@ -1054,6 +1069,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('preparacion-simulacro/regenerar/(:num)', 'PreparacionSimulacroController::regenerarPdf/$1');
     $routes->post('preparacion-simulacro/finalizar/(:num)', 'PreparacionSimulacroController::finalizar/$1');
     $routes->get('preparacion-simulacro/delete/(:num)', 'PreparacionSimulacroController::delete/$1');
+    $routes->get('preparacion-simulacro/enviar-email/(:num)', 'PreparacionSimulacroController::enviarEmail/$1');
 
     // Evaluación Simulacro de Evacuación (admin)
     $routes->get('simulacro', 'EvaluacionSimulacroController::list');
@@ -1064,6 +1080,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('simulacro/regenerar/(:num)', 'EvaluacionSimulacroController::regenerarPdf/$1');
     $routes->post('simulacro/finalizar/(:num)', 'EvaluacionSimulacroController::finalizar/$1');
     $routes->get('simulacro/delete/(:num)', 'EvaluacionSimulacroController::delete/$1');
+    $routes->get('simulacro/enviar-email/(:num)', 'EvaluacionSimulacroController::enviarEmail/$1');
 
     // Hoja de Vida Brigadista (admin)
     $routes->get('hv-brigadista', 'HvBrigadistaController::list');
@@ -1074,6 +1091,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('hv-brigadista/regenerar/(:num)', 'HvBrigadistaController::regenerarPdf/$1');
     $routes->post('hv-brigadista/finalizar/(:num)', 'HvBrigadistaController::finalizar/$1');
     $routes->get('hv-brigadista/delete/(:num)', 'HvBrigadistaController::delete/$1');
+    $routes->get('hv-brigadista/enviar-email/(:num)', 'HvBrigadistaController::enviarEmail/$1');
 
     // Reporte de Capacitacion
     $routes->get('reporte-capacitacion', 'ReporteCapacitacionController::list');
@@ -1087,6 +1105,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('reporte-capacitacion/regenerar/(:num)', 'ReporteCapacitacionController::regenerarPdf/$1');
     $routes->post('reporte-capacitacion/finalizar/(:num)', 'ReporteCapacitacionController::finalizar/$1');
     $routes->get('reporte-capacitacion/delete/(:num)', 'ReporteCapacitacionController::delete/$1');
+    $routes->get('reporte-capacitacion/enviar-email/(:num)', 'ReporteCapacitacionController::enviarEmail/$1');
 
     // Gestión de Pendientes (compromisos)
     $routes->get('pendientes', 'PendientesPwaController::list');
@@ -1133,6 +1152,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('asistencia-induccion/regenerar/(:num)', 'AsistenciaInduccionController::regenerarPdf/$1');
     $routes->post('asistencia-induccion/finalizar/(:num)', 'AsistenciaInduccionController::finalizar/$1');
     $routes->get('asistencia-induccion/delete/(:num)', 'AsistenciaInduccionController::delete/$1');
+    $routes->get('asistencia-induccion/enviar-email/(:num)', 'AsistenciaInduccionController::enviarEmail/$1');
 
     // Programa Limpieza y Desinfección
     $routes->get('limpieza-desinfeccion', 'ProgramaLimpiezaController::list');
@@ -1146,6 +1166,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('limpieza-desinfeccion/regenerar/(:num)', 'ProgramaLimpiezaController::regenerarPdf/$1');
     $routes->post('limpieza-desinfeccion/finalizar/(:num)', 'ProgramaLimpiezaController::finalizar/$1');
     $routes->get('limpieza-desinfeccion/delete/(:num)', 'ProgramaLimpiezaController::delete/$1');
+    $routes->get('limpieza-desinfeccion/enviar-email/(:num)', 'ProgramaLimpiezaController::enviarEmail/$1');
 
     // Programa Manejo Integral de Residuos Sólidos
     $routes->get('residuos-solidos', 'ProgramaResiduosController::list');
@@ -1173,6 +1194,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('control-plagas/regenerar/(:num)', 'ProgramaPlagasController::regenerarPdf/$1');
     $routes->post('control-plagas/finalizar/(:num)', 'ProgramaPlagasController::finalizar/$1');
     $routes->get('control-plagas/delete/(:num)', 'ProgramaPlagasController::delete/$1');
+    $routes->get('control-plagas/enviar-email/(:num)', 'ProgramaPlagasController::enviarEmail/$1');
 
     // Abastecimiento y Control de Agua Potable
     $routes->get('agua-potable', 'ProgramaAguaPotableController::list');
@@ -1186,6 +1208,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('agua-potable/regenerar/(:num)', 'ProgramaAguaPotableController::regenerarPdf/$1');
     $routes->post('agua-potable/finalizar/(:num)', 'ProgramaAguaPotableController::finalizar/$1');
     $routes->get('agua-potable/delete/(:num)', 'ProgramaAguaPotableController::delete/$1');
+    $routes->get('agua-potable/enviar-email/(:num)', 'ProgramaAguaPotableController::enviarEmail/$1');
 
     // Plan de Saneamiento Básico
     $routes->get('plan-saneamiento', 'PlanSaneamientoController::list');
@@ -1199,6 +1222,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('plan-saneamiento/regenerar/(:num)', 'PlanSaneamientoController::regenerarPdf/$1');
     $routes->post('plan-saneamiento/finalizar/(:num)', 'PlanSaneamientoController::finalizar/$1');
     $routes->get('plan-saneamiento/delete/(:num)', 'PlanSaneamientoController::delete/$1');
+    $routes->get('plan-saneamiento/enviar-email/(:num)', 'PlanSaneamientoController::enviarEmail/$1');
 
     // KPI Programa de Limpieza y Desinfección
     $routes->get('kpi-limpieza', 'KpiLimpiezaController::list');
@@ -1212,6 +1236,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('kpi-limpieza/regenerar/(:num)', 'KpiLimpiezaController::regenerarPdf/$1');
     $routes->post('kpi-limpieza/finalizar/(:num)', 'KpiLimpiezaController::finalizar/$1');
     $routes->get('kpi-limpieza/delete/(:num)', 'KpiLimpiezaController::delete/$1');
+    $routes->get('kpi-limpieza/enviar-email/(:num)', 'KpiLimpiezaController::enviarEmail/$1');
 
     // KPI Programa de Manejo Integral de Residuos Sólidos
     $routes->get('kpi-residuos', 'KpiResiduosController::list');
@@ -1225,6 +1250,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('kpi-residuos/regenerar/(:num)', 'KpiResiduosController::regenerarPdf/$1');
     $routes->post('kpi-residuos/finalizar/(:num)', 'KpiResiduosController::finalizar/$1');
     $routes->get('kpi-residuos/delete/(:num)', 'KpiResiduosController::delete/$1');
+    $routes->get('kpi-residuos/enviar-email/(:num)', 'KpiResiduosController::enviarEmail/$1');
 
     // KPI Programa de Control Integrado de Plagas
     $routes->get('kpi-plagas', 'KpiPlagasController::list');
@@ -1238,6 +1264,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('kpi-plagas/regenerar/(:num)', 'KpiPlagasController::regenerarPdf/$1');
     $routes->post('kpi-plagas/finalizar/(:num)', 'KpiPlagasController::finalizar/$1');
     $routes->get('kpi-plagas/delete/(:num)', 'KpiPlagasController::delete/$1');
+    $routes->get('kpi-plagas/enviar-email/(:num)', 'KpiPlagasController::enviarEmail/$1');
 
     // KPI Programa de Abastecimiento y Control de Agua Potable
     $routes->get('kpi-agua-potable', 'KpiAguaPotableController::list');
@@ -1251,6 +1278,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('kpi-agua-potable/regenerar/(:num)', 'KpiAguaPotableController::regenerarPdf/$1');
     $routes->post('kpi-agua-potable/finalizar/(:num)', 'KpiAguaPotableController::finalizar/$1');
     $routes->get('kpi-agua-potable/delete/(:num)', 'KpiAguaPotableController::delete/$1');
+    $routes->get('kpi-agua-potable/enviar-email/(:num)', 'KpiAguaPotableController::enviarEmail/$1');
 
     // Accesos Rápidos (URLs)
     $routes->get('urls', 'UrlsPwaController::list');

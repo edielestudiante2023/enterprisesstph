@@ -11,6 +11,7 @@ use App\Models\PendientesModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Libraries\InspeccionEmailNotifier;
 use App\Models\VencimientosMantenimientoModel;
 use App\Models\CicloVisitaModel;
 use Dompdf\Dompdf;
@@ -346,12 +347,30 @@ class ActaVisitaController extends BaseController
         $acta = $this->actaModel->find($id); // Re-read with updated data
         $this->uploadToReportes($acta, $pdfPath);
 
+        // Enviar email con PDF adjunto
+        $emailResult = InspeccionEmailNotifier::enviar(
+            (int) $acta['id_cliente'],
+            (int) $acta['id_consultor'],
+            'ACTA DE VISITA',
+            $acta['fecha_visita'],
+            $pdfPath,
+            (int) $acta['id'],
+            'ActaVisita'
+        );
+        $emailMsg = '';
+        if ($emailResult['success']) {
+            $emailMsg = $emailResult['message'];
+        } else {
+            $emailMsg = '(Email no enviado: ' . $emailResult['error'] . ')';
+        }
+
         // ─── Hook: Actualizar ciclo de visita en tbl_ciclos_visita ───
         $this->actualizarCicloVisita($acta);
 
         return $this->response->setJSON([
-            'success' => true,
-            'pdf_url' => base_url($pdfPath),
+            'success'   => true,
+            'pdf_url'   => base_url($pdfPath),
+            'email_msg' => $emailMsg,
         ]);
     }
 
@@ -643,6 +662,31 @@ class ActaVisitaController extends BaseController
     /**
      * Registra el PDF en tbl_reporte para que aparezca en reportes del cliente
      */
+    // ── Email ─────────────────────────────────────────────────
+
+    public function enviarEmail($id)
+    {
+        $acta = $this->actaModel->find($id);
+        if (!$acta || $acta['estado'] !== 'completo' || empty($acta['ruta_pdf'])) {
+            return redirect()->to("/inspecciones/acta-visita/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
+        }
+
+        $result = InspeccionEmailNotifier::enviar(
+            (int) $acta['id_cliente'],
+            (int) $acta['id_consultor'],
+            'ACTA DE VISITA',
+            $acta['fecha_visita'],
+            $acta['ruta_pdf'],
+            (int) $acta['id'],
+            'ActaVisita'
+        );
+
+        if ($result['success']) {
+            return redirect()->to("/inspecciones/acta-visita/view/{$id}")->with('msg', $result['message']);
+        }
+        return redirect()->to("/inspecciones/acta-visita/view/{$id}")->with('error', $result['error']);
+    }
+
     private function uploadToReportes(array $acta, string $pdfPath): bool
     {
         $reporteModel = new ReporteModel();

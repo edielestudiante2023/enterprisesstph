@@ -7,6 +7,7 @@ use App\Models\HvBrigadistaModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 
 class HvBrigadistaController extends BaseController
@@ -117,8 +118,25 @@ class HvBrigadistaController extends BaseController
         $hv = $this->hvModel->find($id);
         $this->uploadToReportes($hv, $pdfPath);
 
+        // Enviar email con PDF adjunto
+        $emailResult = InspeccionEmailNotifier::enviar(
+            (int) $hv['id_cliente'],
+            (int) $hv['id_consultor'],
+            'HOJA DE VIDA BRIGADISTA',
+            $hv['fecha_inscripcion'] ?? date('Y-m-d'),
+            $pdfPath,
+            (int) $hv['id'],
+            'HvBrigadista'
+        );
+        $msg = 'HV finalizada y PDF generado.';
+        if ($emailResult['success']) {
+            $msg .= ' ' . $emailResult['message'];
+        } else {
+            $msg .= ' (Email no enviado: ' . $emailResult['error'] . ')';
+        }
+
         return redirect()->to('/inspecciones/hv-brigadista/view/' . $id)
-            ->with('msg', 'HV finalizada y PDF generado');
+            ->with('msg', $msg);
     }
 
     /**
@@ -406,6 +424,31 @@ class HvBrigadistaController extends BaseController
     /**
      * Registra/actualiza el PDF en tbl_reporte
      */
+    // ── Email ─────────────────────────────────────────────────
+
+    public function enviarEmail($id)
+    {
+        $hv = $this->hvModel->find($id);
+        if (!$hv || $hv['estado'] !== 'completo' || empty($hv['ruta_pdf'])) {
+            return redirect()->to("/inspecciones/hv-brigadista/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
+        }
+
+        $result = InspeccionEmailNotifier::enviar(
+            (int) $hv['id_cliente'],
+            (int) $hv['id_consultor'],
+            'HOJA DE VIDA BRIGADISTA',
+            $hv['fecha_inscripcion'] ?? date('Y-m-d'),
+            $hv['ruta_pdf'],
+            (int) $hv['id'],
+            'HvBrigadista'
+        );
+
+        if ($result['success']) {
+            return redirect()->to("/inspecciones/hv-brigadista/view/{$id}")->with('msg', $result['message']);
+        }
+        return redirect()->to("/inspecciones/hv-brigadista/view/{$id}")->with('error', $result['error']);
+    }
+
     private function uploadToReportes(array $hv, string $pdfPath): bool
     {
         $reporteModel = new ReporteModel();

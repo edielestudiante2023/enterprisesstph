@@ -7,6 +7,7 @@ use App\Models\DotacionAseadoraModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 
 class DotacionAseadoraController extends BaseController
@@ -196,8 +197,25 @@ class DotacionAseadoraController extends BaseController
         $inspeccion = $this->inspeccionModel->find($id);
         $this->uploadToReportes($inspeccion, $pdfPath);
 
+        // Enviar email con PDF adjunto
+        $emailResult = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'DOTACIÓN ASEADORA',
+            $inspeccion['fecha_inspeccion'],
+            $pdfPath,
+            (int) $inspeccion['id'],
+            'DotacionAseadora'
+        );
+        $msg = 'Finalizado y PDF generado.';
+        if ($emailResult['success']) {
+            $msg .= ' ' . $emailResult['message'];
+        } else {
+            $msg .= ' (Email no enviado: ' . $emailResult['error'] . ')';
+        }
+
         return redirect()->to('/inspecciones/dotacion-aseadora/view/' . $id)
-            ->with('msg', 'Inspeccion finalizada y PDF generado');
+            ->with('msg', $msg);
     }
 
     public function generatePdf($id)
@@ -362,6 +380,31 @@ class DotacionAseadoraController extends BaseController
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());
 
         return $pdfPath;
+    }
+
+    // ── Email ─────────────────────────────────────────────────
+
+    public function enviarEmail($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || $inspeccion['estado'] !== 'completo' || empty($inspeccion['ruta_pdf'])) {
+            return redirect()->to("/inspecciones/dotacion-aseadora/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
+        }
+
+        $result = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'DOTACIÓN ASEADORA',
+            $inspeccion['fecha_inspeccion'],
+            $inspeccion['ruta_pdf'],
+            (int) $inspeccion['id'],
+            'DotacionAseadora'
+        );
+
+        if ($result['success']) {
+            return redirect()->to("/inspecciones/dotacion-aseadora/view/{$id}")->with('msg', $result['message']);
+        }
+        return redirect()->to("/inspecciones/dotacion-aseadora/view/{$id}")->with('error', $result['error']);
     }
 
     private function uploadToReportes(array $inspeccion, string $pdfPath): bool

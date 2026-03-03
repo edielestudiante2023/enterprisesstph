@@ -8,6 +8,7 @@ use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use Dompdf\Dompdf;
+use App\Libraries\InspeccionEmailNotifier;
 
 class KpiPlagasController extends BaseController
 {
@@ -184,8 +185,28 @@ class KpiPlagasController extends BaseController
         $pdfPath = $this->generarPdfInterno($id);
         $this->model->update($id, ['estado' => 'completo', 'ruta_pdf' => $pdfPath]);
         $this->uploadToReportes($id, $pdfPath);
+
+        // Enviar email con PDF adjunto
+        $inspeccion = $this->model->find($id);
+        $emailResult = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'KPI PROGRAMA DE CONTROL INTEGRADO DE PLAGAS',
+            $inspeccion['fecha_inspeccion'],
+            $pdfPath,
+            (int) $inspeccion['id'],
+            'KpiPlagas',
+            $inspeccion['nombre_responsable'] ?? ''
+        );
+        $msg = 'KPI finalizado y PDF generado.';
+        if ($emailResult['success']) {
+            $msg .= ' ' . $emailResult['message'];
+        } else {
+            $msg .= ' (Email no enviado: ' . $emailResult['error'] . ')';
+        }
+
         return redirect()->to('/inspecciones/' . static::ROUTE_SLUG . '/view/' . $id)
-            ->with('msg', 'KPI finalizado y PDF generado');
+            ->with('msg', $msg);
     }
 
     public function generatePdf($id)
@@ -286,6 +307,32 @@ class KpiPlagasController extends BaseController
         $fileName = 'kpi-plagas-' . $id . '-' . date('Ymd_His') . '.pdf';
         file_put_contents($dir . $fileName, $dompdf->output());
         return static::PDF_DIR . $fileName;
+    }
+
+    // ── Email ─────────────────────────────────────────────────
+
+    public function enviarEmail($id)
+    {
+        $inspeccion = $this->model->find($id);
+        if (!$inspeccion || $inspeccion['estado'] !== 'completo' || empty($inspeccion['ruta_pdf'])) {
+            return redirect()->to("/inspecciones/kpi-plagas/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
+        }
+
+        $result = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'KPI PROGRAMA DE CONTROL INTEGRADO DE PLAGAS',
+            $inspeccion['fecha_inspeccion'],
+            $inspeccion['ruta_pdf'],
+            (int) $inspeccion['id'],
+            'KpiPlagas',
+            $inspeccion['nombre_responsable'] ?? ''
+        );
+
+        if ($result['success']) {
+            return redirect()->to("/inspecciones/kpi-plagas/view/{$id}")->with('msg', $result['message']);
+        }
+        return redirect()->to("/inspecciones/kpi-plagas/view/{$id}")->with('error', $result['error']);
     }
 
     private function uploadToReportes(int $id, string $pdfPath): void

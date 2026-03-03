@@ -9,6 +9,7 @@ use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use Dompdf\Dompdf;
+use App\Libraries\InspeccionEmailNotifier;
 
 class InspeccionSenalizacionController extends BaseController
 {
@@ -243,8 +244,25 @@ class InspeccionSenalizacionController extends BaseController
         $inspeccion = $this->inspeccionModel->find($id);
         $this->uploadToReportes($inspeccion, $pdfPath);
 
+        // Enviar email con PDF adjunto
+        $emailResult = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'INSPECCIÓN SEÑALIZACIÓN',
+            $inspeccion['fecha_inspeccion'],
+            $pdfPath,
+            (int) $inspeccion['id'],
+            'InspeccionSenalizacion'
+        );
+        $msg = 'Inspección finalizada y PDF generado.';
+        if ($emailResult['success']) {
+            $msg .= ' ' . $emailResult['message'];
+        } else {
+            $msg .= ' (Email no enviado: ' . $emailResult['error'] . ')';
+        }
+
         return redirect()->to('/inspecciones/senalizacion/view/' . $id)
-            ->with('msg', 'Inspección finalizada y PDF generado');
+            ->with('msg', $msg);
     }
 
     public function generatePdf($id)
@@ -474,6 +492,31 @@ class InspeccionSenalizacionController extends BaseController
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());
 
         return $pdfPath;
+    }
+
+    // ── Email ─────────────────────────────────────────────────
+
+    public function enviarEmail($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || $inspeccion['estado'] !== 'completo' || empty($inspeccion['ruta_pdf'])) {
+            return redirect()->to("/inspecciones/senalizacion/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
+        }
+
+        $result = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'INSPECCIÓN SEÑALIZACIÓN',
+            $inspeccion['fecha_inspeccion'],
+            $inspeccion['ruta_pdf'],
+            (int) $inspeccion['id'],
+            'InspeccionSenalizacion'
+        );
+
+        if ($result['success']) {
+            return redirect()->to("/inspecciones/senalizacion/view/{$id}")->with('msg', $result['message']);
+        }
+        return redirect()->to("/inspecciones/senalizacion/view/{$id}")->with('error', $result['error']);
     }
 
     private function uploadToReportes(array $inspeccion, string $pdfPath): bool

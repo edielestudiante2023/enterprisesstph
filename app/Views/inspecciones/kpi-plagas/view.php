@@ -69,6 +69,9 @@ for ($i = 1; $i <= 4; $i++) {
     <a href="/inspecciones/kpi-plagas/regenerar/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
         <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
     </a>
+    <a href="/inspecciones/kpi-plagas/enviar-email/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
+        <i class="fas fa-envelope me-2"></i>Enviar por Email
+    </a>
     <?php endif; ?>
 
 <script>

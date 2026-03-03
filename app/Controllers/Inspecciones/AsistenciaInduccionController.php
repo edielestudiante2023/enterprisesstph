@@ -8,6 +8,7 @@ use App\Models\AsistenciaInduccionAsistenteModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 
 class AsistenciaInduccionController extends BaseController
@@ -263,8 +264,26 @@ class AsistenciaInduccionController extends BaseController
             $this->uploadToReportes($inspeccion, $result['responsabilidades'], 23, 'asist_ind_resp_id:');
         }
 
+        // Enviar email con PDF adjunto
+        $emailResult = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'LISTADO ASISTENCIA SST',
+            $inspeccion['fecha_sesion'],
+            $result['asistencia'],
+            (int) $inspeccion['id'],
+            'AsistenciaInduccion',
+            $inspeccion['capacitador'] ?? ''
+        );
+        $msg = 'Finalizado y PDF generado.';
+        if ($emailResult['success']) {
+            $msg .= ' ' . $emailResult['message'];
+        } else {
+            $msg .= ' (Email no enviado: ' . $emailResult['error'] . ')';
+        }
+
         return redirect()->to('/inspecciones/asistencia-induccion/view/' . $id)
-            ->with('msg', 'Asistencia finalizada y PDF(s) generado(s)');
+            ->with('msg', $msg);
     }
 
     public function generatePdf($id)
@@ -477,6 +496,32 @@ class AsistenciaInduccionController extends BaseController
         }
 
         return ['asistencia' => $pdfPath1, 'responsabilidades' => $pdfPath2];
+    }
+
+    // ── Email ─────────────────────────────────────────────────
+
+    public function enviarEmail($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || $inspeccion['estado'] !== 'completo' || empty($inspeccion['ruta_pdf_asistencia'])) {
+            return redirect()->to("/inspecciones/asistencia-induccion/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
+        }
+
+        $result = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'LISTADO ASISTENCIA SST',
+            $inspeccion['fecha_sesion'],
+            $inspeccion['ruta_pdf_asistencia'],
+            (int) $inspeccion['id'],
+            'AsistenciaInduccion',
+            $inspeccion['capacitador'] ?? ''
+        );
+
+        if ($result['success']) {
+            return redirect()->to("/inspecciones/asistencia-induccion/view/{$id}")->with('msg', $result['message']);
+        }
+        return redirect()->to("/inspecciones/asistencia-induccion/view/{$id}")->with('error', $result['error']);
     }
 
     private function uploadToReportes(array $inspeccion, string $pdfPath, int $idDetailReport, string $tag): bool

@@ -7,6 +7,7 @@ use App\Models\ProgramaResiduosModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 
 class ProgramaResiduosController extends BaseController
@@ -160,7 +161,16 @@ class ProgramaResiduosController extends BaseController
         $this->uploadToReportes($inspeccion, $pdfPath);
 
         // Enviar email con PDF adjunto al cliente, consultor y consultor externo
-        $emailResult = $this->enviarNotificacionPdf($inspeccion, $pdfPath);
+        $emailResult = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'PROGRAMA MANEJO INTEGRAL DE RESIDUOS SÓLIDOS',
+            $inspeccion['fecha_programa'],
+            $pdfPath,
+            (int) $inspeccion['id'],
+            'ProgramaResiduos',
+            $inspeccion['nombre_responsable'] ?? ''
+        );
         $msg = 'Programa finalizado y PDF generado.';
         if ($emailResult['success']) {
             $msg .= ' ' . $emailResult['message'];
@@ -284,128 +294,21 @@ class ProgramaResiduosController extends BaseController
             return redirect()->to("/inspecciones/residuos-solidos/view/{$id}")->with('error', 'El programa debe estar finalizado con PDF para enviar email.');
         }
 
-        $result = $this->enviarNotificacionPdf($inspeccion, $inspeccion['ruta_pdf']);
+        $result = InspeccionEmailNotifier::enviar(
+            (int) $inspeccion['id_cliente'],
+            (int) $inspeccion['id_consultor'],
+            'PROGRAMA MANEJO INTEGRAL DE RESIDUOS SÓLIDOS',
+            $inspeccion['fecha_programa'],
+            $inspeccion['ruta_pdf'],
+            (int) $inspeccion['id'],
+            'ProgramaResiduos',
+            $inspeccion['nombre_responsable'] ?? ''
+        );
 
         if ($result['success']) {
             return redirect()->to("/inspecciones/residuos-solidos/view/{$id}")->with('msg', $result['message']);
         }
         return redirect()->to("/inspecciones/residuos-solidos/view/{$id}")->with('error', $result['error']);
-    }
-
-    private function enviarNotificacionPdf(array $inspeccion, string $pdfPath): array
-    {
-        $clientModel = new ClientModel();
-        $consultantModel = new ConsultantModel();
-
-        $cliente = $clientModel->find($inspeccion['id_cliente']);
-        if (!$cliente) return ['success' => false, 'error' => 'Cliente no encontrado'];
-
-        $consultor = $consultantModel->find($inspeccion['id_consultor']);
-
-        $sendgridApiKey = getenv('SENDGRID_API_KEY');
-        if (!$sendgridApiKey) {
-            return ['success' => false, 'error' => 'SENDGRID_API_KEY no configurada'];
-        }
-
-        $nombreCliente   = $cliente['nombre_cliente'] ?? 'Cliente';
-        $correoCliente   = $cliente['correo_cliente'] ?? '';
-        $correoConsultor = $consultor['correo_consultor'] ?? '';
-        $nombreConsultor = $consultor['nombre_consultor'] ?? 'Consultor';
-        $consultorExterno      = $cliente['consultor_externo'] ?? '';
-        $emailConsultorExterno = $cliente['email_consultor_externo'] ?? '';
-
-        if (!$correoCliente && !$correoConsultor && !$emailConsultorExterno) {
-            return ['success' => false, 'error' => 'No hay correos destinatarios configurados'];
-        }
-
-        $fechaFormateada = date('d/m/Y', strtotime($inspeccion['fecha_programa']));
-        $subject = "Programa Manejo Integral de Residuos Sólidos - {$nombreCliente} - {$fechaFormateada}";
-
-        $htmlContent = "
-        <div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-            <div style='background: #1c2437; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;'>
-                <h1 style='color: #bd9751; margin: 0; font-size: 20px;'>PROGRAMA MANEJO INTEGRAL DE RESIDUOS SÓLIDOS</h1>
-            </div>
-            <div style='padding: 25px; background: #f8f9fa; border-radius: 0 0 10px 10px;'>
-                <p>En su plataforma <strong>EnterpriseSST</strong> se ha creado el nuevo documento <strong>PROGRAMA MANEJO INTEGRAL DE RESIDUOS SÓLIDOS</strong>.</p>
-                <p>Encuentra el documento adjunto en formato PDF.</p>
-                <table style='width: 100%; border-collapse: collapse; margin: 15px 0;'>
-                    <tr>
-                        <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'><strong>Cliente:</strong></td>
-                        <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'>{$nombreCliente}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'><strong>Fecha:</strong></td>
-                        <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'>{$fechaFormateada}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'><strong>Responsable:</strong></td>
-                        <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'>" . htmlspecialchars($inspeccion['nombre_responsable'] ?? '—') . "</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'><strong>Consultor:</strong></td>
-                        <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'>{$nombreConsultor}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'><strong>Documento:</strong></td>
-                        <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'>FT-SST-226 — Programa de Manejo Integral de Residuos Sólidos (Versión 001)</td>
-                    </tr>
-                </table>
-                <p>Para acceder al recurso, ingrese a su aplicativo en la sección de documentos haciendo <a href='https://phorizontal.cycloidtalent.com/' style='color: #bd9751; font-weight: bold;'>clic aquí</a>.</p>
-                <p style='color: #999; font-size: 11px; margin-top: 30px;'>Generado por SG-SST Cycloid Talent.</p>
-            </div>
-        </div>";
-
-        // Leer PDF para adjuntar
-        $pdfFullPath = FCPATH . $pdfPath;
-        if (!file_exists($pdfFullPath)) {
-            return ['success' => false, 'error' => 'Archivo PDF no encontrado en disco'];
-        }
-        $pdfContent = file_get_contents($pdfFullPath);
-
-        require_once ROOTPATH . 'vendor/autoload.php';
-
-        $email = new \SendGrid\Mail\Mail();
-        $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent - SG-SST");
-        $email->setSubject($subject);
-
-        if ($correoCliente) {
-            $email->addTo($correoCliente, $nombreCliente);
-        }
-        if ($correoConsultor) {
-            $email->addTo($correoConsultor, $nombreConsultor);
-        }
-        if ($emailConsultorExterno) {
-            $email->addTo($emailConsultorExterno, $consultorExterno ?: 'Consultor Externo');
-        }
-
-        $email->addContent("text/html", $htmlContent);
-
-        // Adjuntar PDF
-        $email->addAttachment(
-            base64_encode($pdfContent),
-            'application/pdf',
-            'programa_residuos_solidos_' . $inspeccion['id'] . '.pdf',
-            'attachment'
-        );
-
-        $sendgrid = new \SendGrid($sendgridApiKey);
-
-        try {
-            $response = $sendgrid->send($email);
-
-            if ($response->statusCode() >= 200 && $response->statusCode() < 300) {
-                $destinatarios = array_filter([$correoCliente, $correoConsultor, $emailConsultorExterno]);
-                log_message('info', "ProgramaResiduos #{$inspeccion['id']}: Email enviado a " . implode(', ', $destinatarios));
-                return ['success' => true, 'message' => 'Email enviado a: ' . implode(', ', $destinatarios)];
-            } else {
-                log_message('error', "ProgramaResiduos #{$inspeccion['id']}: Error SendGrid. Status: {$response->statusCode()}. Body: {$response->body()}");
-                return ['success' => false, 'error' => 'Error al enviar email. Status: ' . $response->statusCode()];
-            }
-        } catch (\Exception $e) {
-            log_message('error', "ProgramaResiduos #{$inspeccion['id']}: Exception SendGrid: " . $e->getMessage());
-            return ['success' => false, 'error' => 'Error: ' . $e->getMessage()];
-        }
     }
 
     private function uploadToReportes(array $inspeccion, string $pdfPath): bool

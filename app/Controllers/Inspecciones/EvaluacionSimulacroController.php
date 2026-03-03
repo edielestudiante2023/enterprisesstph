@@ -7,6 +7,7 @@ use App\Models\EvaluacionSimulacroModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 
 class EvaluacionSimulacroController extends BaseController
@@ -117,8 +118,25 @@ class EvaluacionSimulacroController extends BaseController
         $eval = $this->evalModel->find($id);
         $this->uploadToReportes($eval, $pdfPath);
 
+        // Enviar email con PDF adjunto
+        $emailResult = InspeccionEmailNotifier::enviar(
+            (int) $eval['id_cliente'],
+            (int) $eval['id_consultor'],
+            'EVALUACIÓN SIMULACRO',
+            $eval['fecha'],
+            $pdfPath,
+            (int) $eval['id'],
+            'EvaluacionSimulacro'
+        );
+        $msg = 'Evaluacion finalizada y PDF generado.';
+        if ($emailResult['success']) {
+            $msg .= ' ' . $emailResult['message'];
+        } else {
+            $msg .= ' (Email no enviado: ' . $emailResult['error'] . ')';
+        }
+
         return redirect()->to('/inspecciones/simulacro/view/' . $id)
-            ->with('msg', 'Evaluacion finalizada y PDF generado');
+            ->with('msg', $msg);
     }
 
     /**
@@ -366,6 +384,31 @@ class EvaluacionSimulacroController extends BaseController
     /**
      * Registra/actualiza el PDF en tbl_reporte
      */
+    // ── Email ─────────────────────────────────────────────────
+
+    public function enviarEmail($id)
+    {
+        $eval = $this->evalModel->find($id);
+        if (!$eval || $eval['estado'] !== 'completo' || empty($eval['ruta_pdf'])) {
+            return redirect()->to("/inspecciones/simulacro/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
+        }
+
+        $result = InspeccionEmailNotifier::enviar(
+            (int) $eval['id_cliente'],
+            (int) $eval['id_consultor'],
+            'EVALUACIÓN SIMULACRO',
+            $eval['fecha'],
+            $eval['ruta_pdf'],
+            (int) $eval['id'],
+            'EvaluacionSimulacro'
+        );
+
+        if ($result['success']) {
+            return redirect()->to("/inspecciones/simulacro/view/{$id}")->with('msg', $result['message']);
+        }
+        return redirect()->to("/inspecciones/simulacro/view/{$id}")->with('error', $result['error']);
+    }
+
     private function uploadToReportes(array $eval, string $pdfPath): bool
     {
         $reporteModel = new ReporteModel();
