@@ -339,14 +339,32 @@
             estatus_mes: ''
         };
 
-        // col 0=Cliente, 1=Consultor, 2=Ext, 3=Periodicidad, 4=MesEsperado,
-        // 5=FechaAgendada, 6=FechaActa, 7=EstatusAgenda, 8=EstatusMes, 9=Acciones
+        // Leer celdas directamente del DOM (bypass cache interno DataTables)
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            if (activeFilters.consultor && data[1].trim().toUpperCase().indexOf(activeFilters.consultor.toUpperCase()) === -1) return false;
-            if (activeFilters.externo && data[2].trim().toUpperCase().indexOf(activeFilters.externo.toUpperCase()) === -1) return false;
-            if (activeFilters.mes && data[4].indexOf(activeFilters.mes) === -1) return false;
-            if (activeFilters.estatus_agenda && data[7].trim().toLowerCase() !== activeFilters.estatus_agenda.toLowerCase()) return false;
-            if (activeFilters.estatus_mes && data[8].trim().toLowerCase() !== activeFilters.estatus_mes.toLowerCase()) return false;
+            var $cells = $(table.row(dataIndex).node()).children('td');
+            if (activeFilters.consultor) {
+                var t = $cells.eq(1).text().trim();
+                if (t.toUpperCase().indexOf(activeFilters.consultor.toUpperCase()) === -1) {
+                    if (dataIndex < 2) console.log('FILTRO FAIL row', dataIndex, 'celda:', JSON.stringify(t), 'filtro:', JSON.stringify(activeFilters.consultor));
+                    return false;
+                }
+            }
+            if (activeFilters.externo) {
+                var t = $cells.eq(2).text().trim();
+                if (t.toUpperCase().indexOf(activeFilters.externo.toUpperCase()) === -1) return false;
+            }
+            if (activeFilters.mes) {
+                var t = $cells.eq(4).text().trim();
+                if (t.indexOf(activeFilters.mes) === -1) return false;
+            }
+            if (activeFilters.estatus_agenda) {
+                var t = $cells.eq(7).text().trim();
+                if (t.toLowerCase() !== activeFilters.estatus_agenda.toLowerCase()) return false;
+            }
+            if (activeFilters.estatus_mes) {
+                var t = $cells.eq(8).text().trim();
+                if (t.toLowerCase() !== activeFilters.estatus_mes.toLowerCase()) return false;
+            }
             return true;
         });
 
