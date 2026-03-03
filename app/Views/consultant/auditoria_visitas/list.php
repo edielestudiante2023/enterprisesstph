@@ -330,61 +330,64 @@
             buttons: ['copy', 'csv', 'excel']
         });
 
-        // Mapeo de filtros a columnas
-        var filterColumns = {
-            'consultor':      1,
-            'externo':        2,
-            'estatus_agenda': 7,
-            'estatus_mes':    8
+        // ═══ FILTROS CUSTOM (bypass column().search) ═══
+        var activeFilters = {
+            consultor: '',
+            externo: '',
+            mes: '',
+            estatus_agenda: '',
+            estatus_mes: ''
         };
 
-        // Función para filtrar columna
-        function filterColumn(colIdx, value) {
-            if (value === '' || value === undefined) {
-                table.column(colIdx).search('').draw();
-            } else if (colIdx === 7 || colIdx === 8) {
-                // Status: word-boundary regex para evitar que "Cumple" matchee "Incumple"
-                table.column(colIdx).search('\\b' + $.fn.dataTable.util.escapeRegex(value) + '\\b', true, false).draw();
-            } else {
-                // Texto (consultor, externo): búsqueda plana
-                table.column(colIdx).search(value).draw();
-            }
+        // col 0=Cliente, 1=Consultor, 2=Ext, 3=Periodicidad, 4=MesEsperado,
+        // 5=FechaAgendada, 6=FechaActa, 7=EstatusAgenda, 8=EstatusMes, 9=Acciones
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            if (activeFilters.consultor && data[1].trim().toUpperCase().indexOf(activeFilters.consultor.toUpperCase()) === -1) return false;
+            if (activeFilters.externo && data[2].trim().toUpperCase().indexOf(activeFilters.externo.toUpperCase()) === -1) return false;
+            if (activeFilters.mes && data[4].indexOf(activeFilters.mes) === -1) return false;
+            if (activeFilters.estatus_agenda && data[7].trim().toLowerCase() !== activeFilters.estatus_agenda.toLowerCase()) return false;
+            if (activeFilters.estatus_mes && data[8].trim().toLowerCase() !== activeFilters.estatus_mes.toLowerCase()) return false;
+            return true;
+        });
+
+        function applyFilter(filterType, value) {
+            activeFilters[filterType] = value;
+            table.draw();
         }
 
         // Click en cards → filtrar + sincronizar dropdown
         $(document).on('click', '.filter-card', function() {
             var filterType = $(this).data('filter');
-            var value = $(this).data('value');
-            var colIdx = filterColumns[filterType];
+            var value = $(this).data('value') || '';
 
             $('[data-filter="' + filterType + '"]').removeClass('active');
             $(this).addClass('active');
-            filterColumn(colIdx, value);
+            applyFilter(filterType, value);
 
             // Sincronizar dropdown correspondiente
             var dropdownMap = { 'consultor':'#filtroConsultor', 'estatus_agenda':'#filtroEstatusAgenda', 'estatus_mes':'#filtroEstatusMes' };
-            if (dropdownMap[filterType]) $(dropdownMap[filterType]).val(value || '');
+            if (dropdownMap[filterType]) $(dropdownMap[filterType]).val(value);
         });
 
         // Dropdowns → filtrar + sincronizar cards
         $('#filtroConsultor').on('change', function() {
             var val = this.value;
-            filterColumn(1, val);
+            applyFilter('consultor', val);
             $('[data-filter="consultor"]').removeClass('active');
             $('[data-filter="consultor"][data-value="' + val + '"]').addClass('active');
         });
         $('#filtroMes').on('change', function() {
-            table.column(4).search(this.value).draw();
+            applyFilter('mes', this.value);
         });
         $('#filtroEstatusAgenda').on('change', function() {
             var val = this.value;
-            filterColumn(7, val);
+            applyFilter('estatus_agenda', val);
             $('[data-filter="estatus_agenda"]').removeClass('active');
             $('[data-filter="estatus_agenda"][data-value="' + val + '"]').addClass('active');
         });
         $('#filtroEstatusMes').on('change', function() {
             var val = this.value;
-            filterColumn(8, val);
+            applyFilter('estatus_mes', val);
             $('[data-filter="estatus_mes"]').removeClass('active');
             $('[data-filter="estatus_mes"][data-value="' + val + '"]').addClass('active');
         });
