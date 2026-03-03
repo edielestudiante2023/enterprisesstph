@@ -248,6 +248,14 @@
                 </select>
             </div>
             <div class="col-md-2">
+                <select id="filtroPeriodicidad" class="form-control form-control-sm">
+                    <option value="">Periodicidad: Todas</option>
+                    <option value="Mensual">Mensual</option>
+                    <option value="Bimensual">Bimensual</option>
+                    <option value="Trimestral">Trimestral</option>
+                </select>
+            </div>
+            <div class="col-md-2">
                 <select id="filtroEstatusAgenda" class="form-control form-control-sm">
                     <option value="">Estatus Agenda: Todos</option>
                     <option value="Cumple">Cumple</option>
@@ -337,6 +345,7 @@
             consultor: '',
             externo: '',
             mes: '',
+            periodicidad: '',
             estatus_agenda: '',
             estatus_mes: ''
         };
@@ -351,6 +360,10 @@
             if (activeFilters.externo) {
                 var t = $cells.eq(2).text().trim();
                 if (t.toUpperCase().indexOf(activeFilters.externo.toUpperCase()) === -1) return false;
+            }
+            if (activeFilters.periodicidad) {
+                var t = $cells.eq(3).text().trim();
+                if (t.toUpperCase().indexOf(activeFilters.periodicidad.toUpperCase()) === -1) return false;
             }
             if (activeFilters.mes) {
                 var t = $cells.eq(4).text().trim();
@@ -376,6 +389,7 @@
                 'ext' => trim($c['consultor_externo'] ?? ''),
                 'sa'  => ucfirst($c['estatus_agenda'] ?? 'pendiente'),
                 'sm'  => ucfirst($c['estatus_mes'] ?? 'pendiente'),
+                'per' => ucfirst(strtolower(trim($c['estandar'] ?? ''))),
                 'mes' => ($mn[$c['mes_esperado']] ?? $c['mes_esperado']) . ' ' . $c['anio'],
             ];
         }, $ciclos)), JSON_UNESCAPED_UNICODE) ?>;
@@ -393,6 +407,7 @@
             ciclosRaw.forEach(function(c) {
                 if (activeFilters.consultor && c.con.toUpperCase().indexOf(activeFilters.consultor.toUpperCase()) === -1) return;
                 if (activeFilters.externo && c.ext.toUpperCase().indexOf(activeFilters.externo.toUpperCase()) === -1) return;
+                if (activeFilters.periodicidad && c.per.toUpperCase().indexOf(activeFilters.periodicidad.toUpperCase()) === -1) return;
                 if (activeFilters.mes && c.mes.indexOf(activeFilters.mes) === -1) return;
                 if (activeFilters.estatus_agenda && c.sa.toLowerCase() !== activeFilters.estatus_agenda.toLowerCase()) return;
                 if (activeFilters.estatus_mes && c.sm.toLowerCase() !== activeFilters.estatus_mes.toLowerCase()) return;
@@ -436,6 +451,9 @@
             applyFilter('consultor', val);
             $('[data-filter="consultor"]').removeClass('active');
             $('[data-filter="consultor"][data-value="' + val + '"]').addClass('active');
+        });
+        $('#filtroPeriodicidad').on('change', function() {
+            applyFilter('periodicidad', this.value);
         });
         $('#filtroMes').on('change', function() {
             applyFilter('mes', this.value);
