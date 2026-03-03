@@ -37,7 +37,12 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            width: 100%;
         }
+        .cards-row { display: flex; flex-wrap: wrap; gap: 10px; }
+        .cards-row > .card-col { flex: 1; min-width: 120px; }
+        .filter-row { margin-bottom: 15px; }
+        .filter-row select { font-size: 13px; }
         .filter-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .filter-card.active { border-color: #bd9751; box-shadow: 0 0 0 2px #bd9751; }
         .filter-card .card-count { font-size: 24px; font-weight: bold; }
@@ -124,18 +129,18 @@
 
         <!-- ═══ CARDS: CONSULTOR INTERNO ═══ -->
         <div class="section-title"><i class="fas fa-user-tie"></i> Consultor Interno</div>
-        <div class="row">
-            <div class="col-auto">
+        <div class="cards-row">
+            <div class="card-col">
                 <div class="filter-card card-all active" data-filter="consultor" data-value="" title="Mostrar todos">
                     <div class="card-count"><?= count($ciclos) ?></div>
                     <div class="card-label">Todos</div>
                 </div>
             </div>
             <?php foreach ($porConsultor as $nombre => $count): ?>
-            <div class="col-auto">
+            <div class="card-col">
                 <div class="filter-card card-consultor" data-filter="consultor" data-value="<?= esc($nombre) ?>" title="<?= esc($nombre) ?>">
                     <div class="card-count"><?= $count ?></div>
-                    <div class="card-label"><?= esc(mb_strlen($nombre) > 20 ? mb_substr($nombre, 0, 20) . '…' : $nombre) ?></div>
+                    <div class="card-label"><?= esc($nombre) ?></div>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -144,78 +149,119 @@
         <!-- ═══ CARDS: CONSULTOR EXTERNO ═══ -->
         <?php if (!empty($porExterno)): ?>
         <div class="section-title"><i class="fas fa-user-shield"></i> Consultor Externo</div>
-        <div class="row">
-            <div class="col-auto">
+        <div class="cards-row">
+            <div class="card-col">
                 <div class="filter-card card-all active" data-filter="externo" data-value="" title="Mostrar todos">
                     <div class="card-count"><?= count($ciclos) ?></div>
                     <div class="card-label">Todos</div>
                 </div>
             </div>
             <?php foreach ($porExterno as $nombre => $count): ?>
-            <div class="col-auto">
+            <div class="card-col">
                 <div class="filter-card card-externo" data-filter="externo" data-value="<?= esc($nombre) ?>" title="<?= esc($nombre) ?>">
                     <div class="card-count"><?= $count ?></div>
-                    <div class="card-label"><?= esc(mb_strlen($nombre) > 20 ? mb_substr($nombre, 0, 20) . '…' : $nombre) ?></div>
+                    <div class="card-label"><?= esc($nombre) ?></div>
                 </div>
             </div>
             <?php endforeach; ?>
         </div>
         <?php endif; ?>
 
-        <!-- ═══ CARDS: ESTATUS ═══ -->
-        <div class="section-title"><i class="fas fa-calendar-check"></i> Estatus Agenda</div>
+        <!-- ═══ CARDS: ESTATUS (lado a lado) ═══ -->
         <div class="row">
-            <div class="col-auto">
-                <div class="filter-card card-all active" data-filter="estatus_agenda" data-value="" title="Todos">
-                    <div class="card-count"><?= count($ciclos) ?></div>
-                    <div class="card-label">Todos</div>
+            <div class="col-md-6">
+                <div class="section-title"><i class="fas fa-calendar-check"></i> Estatus Agenda</div>
+                <div class="cards-row">
+                    <div class="card-col">
+                        <div class="filter-card card-all active" data-filter="estatus_agenda" data-value="">
+                            <div class="card-count"><?= count($ciclos) ?></div>
+                            <div class="card-label">Todos</div>
+                        </div>
+                    </div>
+                    <div class="card-col">
+                        <div class="filter-card card-cumple" data-filter="estatus_agenda" data-value="Cumple">
+                            <div class="card-count"><?= $statusAgenda['cumple'] ?></div>
+                            <div class="card-label">Cumple</div>
+                        </div>
+                    </div>
+                    <div class="card-col">
+                        <div class="filter-card card-incumple" data-filter="estatus_agenda" data-value="Incumple">
+                            <div class="card-count"><?= $statusAgenda['incumple'] ?></div>
+                            <div class="card-label">Incumple</div>
+                        </div>
+                    </div>
+                    <div class="card-col">
+                        <div class="filter-card card-pendiente-status" data-filter="estatus_agenda" data-value="Pendiente">
+                            <div class="card-count"><?= $statusAgenda['pendiente'] ?></div>
+                            <div class="card-label">Pendiente</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-auto">
-                <div class="filter-card card-cumple" data-filter="estatus_agenda" data-value="Cumple">
-                    <div class="card-count"><?= $statusAgenda['cumple'] ?></div>
-                    <div class="card-label">Cumple</div>
-                </div>
-            </div>
-            <div class="col-auto">
-                <div class="filter-card card-incumple" data-filter="estatus_agenda" data-value="Incumple">
-                    <div class="card-count"><?= $statusAgenda['incumple'] ?></div>
-                    <div class="card-label">Incumple</div>
-                </div>
-            </div>
-            <div class="col-auto">
-                <div class="filter-card card-pendiente-status" data-filter="estatus_agenda" data-value="Pendiente">
-                    <div class="card-count"><?= $statusAgenda['pendiente'] ?></div>
-                    <div class="card-label">Pendiente</div>
+            <div class="col-md-6">
+                <div class="section-title"><i class="fas fa-calendar-alt"></i> Estatus Mes</div>
+                <div class="cards-row">
+                    <div class="card-col">
+                        <div class="filter-card card-all active" data-filter="estatus_mes" data-value="">
+                            <div class="card-count"><?= count($ciclos) ?></div>
+                            <div class="card-label">Todos</div>
+                        </div>
+                    </div>
+                    <div class="card-col">
+                        <div class="filter-card card-cumple" data-filter="estatus_mes" data-value="Cumple">
+                            <div class="card-count"><?= $statusMes['cumple'] ?></div>
+                            <div class="card-label">Cumple</div>
+                        </div>
+                    </div>
+                    <div class="card-col">
+                        <div class="filter-card card-incumple" data-filter="estatus_mes" data-value="Incumple">
+                            <div class="card-count"><?= $statusMes['incumple'] ?></div>
+                            <div class="card-label">Incumple</div>
+                        </div>
+                    </div>
+                    <div class="card-col">
+                        <div class="filter-card card-pendiente-status" data-filter="estatus_mes" data-value="Pendiente">
+                            <div class="card-count"><?= $statusMes['pendiente'] ?></div>
+                            <div class="card-label">Pendiente</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="section-title"><i class="fas fa-calendar-alt"></i> Estatus Mes</div>
-        <div class="row mb-3">
-            <div class="col-auto">
-                <div class="filter-card card-all active" data-filter="estatus_mes" data-value="" title="Todos">
-                    <div class="card-count"><?= count($ciclos) ?></div>
-                    <div class="card-label">Todos</div>
-                </div>
+        <!-- ═══ FILTROS DESPLEGABLES ═══ -->
+        <div class="row filter-row mt-3">
+            <div class="col-md-3">
+                <select id="filtroConsultor" class="form-control form-control-sm">
+                    <option value="">Todos los consultores</option>
+                    <?php foreach ($consultores as $co): ?>
+                        <option value="<?= esc($co['nombre_consultor']) ?>"><?= esc($co['nombre_consultor']) ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
-            <div class="col-auto">
-                <div class="filter-card card-cumple" data-filter="estatus_mes" data-value="Cumple">
-                    <div class="card-count"><?= $statusMes['cumple'] ?></div>
-                    <div class="card-label">Cumple</div>
-                </div>
+            <div class="col-md-2">
+                <select id="filtroMes" class="form-control form-control-sm">
+                    <option value="">Todos los meses</option>
+                    <?php foreach ($meses as $num => $nombre): ?>
+                        <option value="<?= $nombre ?>"><?= $nombre ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
-            <div class="col-auto">
-                <div class="filter-card card-incumple" data-filter="estatus_mes" data-value="Incumple">
-                    <div class="card-count"><?= $statusMes['incumple'] ?></div>
-                    <div class="card-label">Incumple</div>
-                </div>
+            <div class="col-md-2">
+                <select id="filtroEstatusAgenda" class="form-control form-control-sm">
+                    <option value="">Estatus Agenda: Todos</option>
+                    <option value="Cumple">Cumple</option>
+                    <option value="Incumple">Incumple</option>
+                    <option value="Pendiente">Pendiente</option>
+                </select>
             </div>
-            <div class="col-auto">
-                <div class="filter-card card-pendiente-status" data-filter="estatus_mes" data-value="Pendiente">
-                    <div class="card-count"><?= $statusMes['pendiente'] ?></div>
-                    <div class="card-label">Pendiente</div>
-                </div>
+            <div class="col-md-2">
+                <select id="filtroEstatusMes" class="form-control form-control-sm">
+                    <option value="">Estatus Mes: Todos</option>
+                    <option value="Cumple">Cumple</option>
+                    <option value="Incumple">Incumple</option>
+                    <option value="Pendiente">Pendiente</option>
+                </select>
             </div>
         </div>
 
@@ -292,22 +338,51 @@
             'estatus_mes':    8
         };
 
-        // Click en cards
-        $(document).on('click', '.filter-card', function() {
-            var filterType = $(this).data('filter');
-            var value = $(this).data('value');
-            var colIdx = filterColumns[filterType];
-
-            // Marcar active dentro de su grupo
-            $('[data-filter="' + filterType + '"]').removeClass('active');
-            $(this).addClass('active');
-
-            // Filtrar tabla — usar regex exacto para evitar falsos positivos
+        // Función para filtrar columna con regex exacto
+        function filterColumn(colIdx, value) {
             if (value === '' || value === undefined) {
                 table.column(colIdx).search('').draw();
             } else {
                 table.column(colIdx).search('^' + $.fn.dataTable.util.escapeRegex(value) + '$', true, false).draw();
             }
+        }
+
+        // Click en cards → filtrar + sincronizar dropdown
+        $(document).on('click', '.filter-card', function() {
+            var filterType = $(this).data('filter');
+            var value = $(this).data('value');
+            var colIdx = filterColumns[filterType];
+
+            $('[data-filter="' + filterType + '"]').removeClass('active');
+            $(this).addClass('active');
+            filterColumn(colIdx, value);
+
+            // Sincronizar dropdown correspondiente
+            var dropdownMap = { 'consultor':'#filtroConsultor', 'estatus_agenda':'#filtroEstatusAgenda', 'estatus_mes':'#filtroEstatusMes' };
+            if (dropdownMap[filterType]) $(dropdownMap[filterType]).val(value || '');
+        });
+
+        // Dropdowns → filtrar + sincronizar cards
+        $('#filtroConsultor').on('change', function() {
+            var val = this.value;
+            filterColumn(1, val);
+            $('[data-filter="consultor"]').removeClass('active');
+            $('[data-filter="consultor"][data-value="' + val + '"]').addClass('active');
+        });
+        $('#filtroMes').on('change', function() {
+            table.column(4).search(this.value).draw();
+        });
+        $('#filtroEstatusAgenda').on('change', function() {
+            var val = this.value;
+            filterColumn(7, val);
+            $('[data-filter="estatus_agenda"]').removeClass('active');
+            $('[data-filter="estatus_agenda"][data-value="' + val + '"]').addClass('active');
+        });
+        $('#filtroEstatusMes').on('change', function() {
+            var val = this.value;
+            filterColumn(8, val);
+            $('[data-filter="estatus_mes"]').removeClass('active');
+            $('[data-filter="estatus_mes"][data-value="' + val + '"]').addClass('active');
         });
 
         // Eliminar
