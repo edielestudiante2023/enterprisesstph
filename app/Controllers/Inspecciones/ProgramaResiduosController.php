@@ -327,7 +327,8 @@ class ProgramaResiduosController extends BaseController
                 <h1 style='color: #bd9751; margin: 0; font-size: 20px;'>PROGRAMA MANEJO INTEGRAL DE RESIDUOS SÓLIDOS</h1>
             </div>
             <div style='padding: 25px; background: #f8f9fa; border-radius: 0 0 10px 10px;'>
-                <p>Se ha generado el Programa de Manejo Integral de Residuos Sólidos. Encuentra el documento adjunto en formato PDF.</p>
+                <p>En su plataforma <strong>EnterpriseSST</strong> se ha creado el nuevo documento <strong>PROGRAMA MANEJO INTEGRAL DE RESIDUOS SÓLIDOS</strong>.</p>
+                <p>Encuentra el documento adjunto en formato PDF.</p>
                 <table style='width: 100%; border-collapse: collapse; margin: 15px 0;'>
                     <tr>
                         <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'><strong>Cliente:</strong></td>
@@ -350,6 +351,7 @@ class ProgramaResiduosController extends BaseController
                         <td style='padding: 10px; background: #fff; border: 1px solid #ddd;'>FT-SST-226 — Programa de Manejo Integral de Residuos Sólidos (Versión 001)</td>
                     </tr>
                 </table>
+                <p>Para acceder al recurso, ingrese a su aplicativo en la sección de documentos haciendo <a href='https://phorizontal.cycloidtalent.com/' style='color: #bd9751; font-weight: bold;'>clic aquí</a>.</p>
                 <p style='color: #999; font-size: 11px; margin-top: 30px;'>Generado por SG-SST Cycloid Talent.</p>
             </div>
         </div>";
