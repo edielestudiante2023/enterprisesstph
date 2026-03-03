@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ClientModel;
-// Ya no usamos AccesoModel, EstandarModel, EstandarAccesoModel (migrado a AccessLibrary.php)
+use App\Libraries\ClientDocumentInitializerLibrary;
 use CodeIgniter\Controller;
 use App\Models\ReporteModel;
 
@@ -48,6 +48,9 @@ class ClientController extends Controller
             if (!$client) {
                 return redirect()->to('/login')->with('error', 'Cliente no encontrado.');
             }
+
+            // Red de seguridad: si el cliente no tiene documentos inicializados, crearlos ahora
+            ClientDocumentInitializerLibrary::initialize((int) $id_cliente);
 
             // Obtener el estándar del cliente (Mensual, Bimensual, Trimestral, Proyecto)
             $estandarNombre = $client['estandares'];
