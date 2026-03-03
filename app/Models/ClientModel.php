@@ -18,7 +18,8 @@ class ClientModel extends Model
         'estado', 'id_consultor', 'vendedor', 'plazo_cartera',
         'fecha_cierre_facturacion', 'fecha_asignacion_cronograma',
         'logo', 'rut', 'camara_comercio', 'cedula_rep_legal_doc', 'oferta_comercial',
-        'firma_representante_legal', 'estandares'
+        'firma_representante_legal', 'estandares',
+        'consultor_externo', 'email_consultor_externo'
     ];
 
     /**

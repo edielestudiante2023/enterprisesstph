@@ -463,6 +463,14 @@
                                 <label class="form-label"><i class="fas fa-envelope-open-text"></i>Correo Consejo de Administración</label>
                                 <input type="email" name="correo_consejo_admon" value="<?= esc($client['correo_consejo_admon'] ?? '') ?>" class="form-control">
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-user-tie"></i> Consultor Externo</label>
+                                <input type="text" name="consultor_externo" value="<?= esc($client['consultor_externo'] ?? '') ?>" class="form-control" placeholder="Nombre del consultor externo">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="fas fa-envelope"></i> Email Consultor Externo</label>
+                                <input type="email" name="email_consultor_externo" value="<?= esc($client['email_consultor_externo'] ?? '') ?>" class="form-control" placeholder="correo@ejemplo.com">
+                            </div>
                             <div class="col-md-3">
                                 <label class="form-label"><i class="fas fa-phone"></i>Teléfono 1</label>
                                 <input type="text" name="telefono_1_cliente" value="<?= esc($client['telefono_1_cliente']) ?>" class="form-control">

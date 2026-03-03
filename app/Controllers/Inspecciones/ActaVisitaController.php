@@ -12,6 +12,7 @@ use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Models\VencimientosMantenimientoModel;
+use App\Models\CicloVisitaModel;
 use Dompdf\Dompdf;
 
 class ActaVisitaController extends BaseController
@@ -344,6 +345,9 @@ class ActaVisitaController extends BaseController
         // Auto-upload a tbl_reporte
         $acta = $this->actaModel->find($id); // Re-read with updated data
         $this->uploadToReportes($acta, $pdfPath);
+
+        // ─── Hook: Actualizar ciclo de visita en tbl_ciclos_visita ───
+        $this->actualizarCicloVisita($acta);
 
         return $this->response->setJSON([
             'success' => true,
@@ -686,5 +690,50 @@ class ActaVisitaController extends BaseController
 
         $data['created_at'] = date('Y-m-d H:i:s');
         return $reporteModel->save($data);
+    }
+
+    /**
+     * Actualizar ciclo de visita al completar un acta
+     */
+    private function actualizarCicloVisita(array $acta): void
+    {
+        $cicloModel = new CicloVisitaModel();
+
+        $mesActa  = (int)date('n', strtotime($acta['fecha_visita']));
+        $anioActa = (int)date('Y', strtotime($acta['fecha_visita']));
+
+        // Buscar ciclo pendiente para este cliente en el mes del acta
+        $ciclo = $cicloModel->where('id_cliente', $acta['id_cliente'])
+            ->where('mes_esperado', $mesActa)
+            ->where('anio', $anioActa)
+            ->first();
+
+        if (!$ciclo) {
+            return; // No hay ciclo registrado para este periodo
+        }
+
+        // Determinar estatus de agenda
+        $estatusAgenda = 'cumple';
+        if ($ciclo['fecha_agendada'] && $acta['fecha_visita'] !== $ciclo['fecha_agendada']) {
+            $estatusAgenda = 'incumple'; // Fue en otro día del agendado
+        }
+
+        $cicloModel->update($ciclo['id'], [
+            'fecha_acta'      => $acta['fecha_visita'],
+            'id_acta'         => $acta['id'],
+            'estatus_agenda'  => $estatusAgenda,
+            'estatus_mes'     => 'cumple', // Si hay acta en el mes, el mes cumple
+        ]);
+
+        // Auto-generar siguiente ciclo
+        $estandar = $ciclo['estandar'] ?? '';
+        if ($estandar) {
+            $cicloModel->generarSiguienteCiclo(
+                (int)$acta['id_cliente'],
+                $acta['fecha_visita'],
+                $estandar,
+                (int)$acta['id_consultor']
+            );
+        }
     }
 }

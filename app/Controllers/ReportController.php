@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Models\{ReporteModel, ClientModel, ReportTypeModel, DetailReportModel};
 use CodeIgniter\Controller;
-use SendGrid\Mail\Mail;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
@@ -175,41 +174,61 @@ class ReportController extends Controller
         // Validar el enlace antes de proceder
         if (!filter_var($enlace, FILTER_VALIDATE_URL)) {
             log_message('error', 'El enlace generado no es válido: ' . $enlace);
-            return; // Finaliza si el enlace no es válido
+            return;
         }
 
         // Obtener los datos del cliente desde el modelo
         $clientModel = new \App\Models\ClientModel();
         $cliente = $clientModel->find($idCliente);
 
-        // Validar si se encuentra el cliente
         if (!$cliente || empty($cliente['correo_cliente'])) {
             log_message('error', "No se encontró el cliente o el correo no está disponible para id_cliente: $idCliente");
             return;
         }
 
-        $toEmail = $cliente['correo_cliente']; // Correo dinámico
-        $nombreCliente = $cliente['nombre_cliente']; // Nombre dinámico del cliente
+        $nombreCliente = $cliente['nombre_cliente'];
 
-        // Crear el objeto Mail para enviar el correo
+        // Recopilar destinatarios (sin duplicados)
+        $destinatarios = [];
+
+        // 1. Cliente
+        $destinatarios[$cliente['correo_cliente']] = $nombreCliente;
+
+        // 2. Consultor interno (vía id_consultor → tbl_consultor)
+        if (!empty($cliente['id_consultor'])) {
+            $consultorModel = new \App\Models\ConsultorModel();
+            $consultor = $consultorModel->find($cliente['id_consultor']);
+            if ($consultor && !empty($consultor['correo_consultor'])) {
+                $destinatarios[$consultor['correo_consultor']] = $consultor['nombre_consultor'];
+            }
+        }
+
+        // 3. Consultor externo
+        if (!empty($cliente['email_consultor_externo'])) {
+            $nombreExterno = $cliente['consultor_externo'] ?? 'Consultor Externo';
+            $destinatarios[$cliente['email_consultor_externo']] = $nombreExterno;
+        }
+
+        // Crear el objeto Mail
         $email = new \SendGrid\Mail\Mail();
         $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent");
         $email->setSubject("Nuevo documento añadido en su aplicación Enterprisesst Propiedad Horizontal");
-        $email->addTo($toEmail);
 
-        // Crear el contenido del correo, incluyendo el nombre del cliente
+        foreach ($destinatarios as $correo => $nombre) {
+            $email->addTo($correo, $nombre);
+        }
+
         $emailContent = "
         <h3>Estimado/a $nombreCliente</h3>
         <p style='text-align: justify;'>Nos complace informarle que hemos añadido el documento <strong>$tituloReporte</strong> a su aplicación Enterprisesst. Este soporte evidencia los avances de nuestra gestión en Seguridad y Salud en el Trabajo (SG-SST).</p>
         <p style='text-align: justify;'>El documento <strong>$tituloReporte</strong> ya está disponible para su consulta inmediata en la sección de documentos dentro de su aplicación. Le invitamos a acceder a su plataforma de manera ágil y sencilla siguiendo el enlace:</p>
-        
-        
+
          <p style='text-align: center;'>
                 <a href='https://phorizontal.cycloidtalent.com/' target='_blank' style='display: inline-block; padding: 15px 25px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 25px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); transition: all 0.3s ease;'>
                     Ir a Enterprisesst
                 </a>
         </p>
-        
+
         <p style='text-align: justify;'>
             En <strong>Cycloid Talent</strong>, nos distinguimos por ser aliados estratégicos en la administración del SG-SST. Nuestro compromiso es ofrecerle soluciones innovadoras y personalizadas que potencien la seguridad y el bienestar en su copropiedad. Con Enterprisesst Propiedad Horizontal, no solo recibe herramientas de gestión, sino también el respaldo de un equipo de expertos enfocados en brindarle resultados sobresalientes.
             </p>
@@ -225,20 +244,17 @@ class ReportController extends Controller
             <p style='text-align: center; font-size: 0.9em; color: #6c757d;'>
             Para más información, visite nuestra página web o contáctenos directamente a través de nuestros canales de atención.
             </p>
-
             ";
-
 
         $email->addContent("text/html", $emailContent);
 
-        // Cargar la clave API desde las variables de entorno
         $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
 
         try {
-            // Enviar el correo
             $response = $sendgrid->send($email);
             log_message('debug', 'SendGrid Response Status Code: ' . $response->statusCode());
             log_message('debug', 'SendGrid Response Body: ' . $response->body());
+            log_message('info', 'Email de reporte enviado a: ' . implode(', ', array_keys($destinatarios)));
         } catch (\Exception $e) {
             log_message('error', 'Excepción al enviar el correo: ' . $e->getMessage());
         }

@@ -98,6 +98,16 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label">Consultor Externo:</label>
+                        <input type="text" name="consultor_externo" class="form-control" placeholder="Nombre del consultor externo">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email Consultor Externo:</label>
+                        <input type="email" name="email_consultor_externo" class="form-control" placeholder="correo@ejemplo.com">
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label">Teléfono 1:</label>
                         <input type="text" name="telefono_1_cliente" class="form-control" required>
                     </div>

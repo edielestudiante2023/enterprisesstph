@@ -7,6 +7,7 @@ use App\Models\ConsultantModel;
 use App\Models\DashboardItemModel;
 use App\Models\ReporteModel;
 use App\Libraries\ClientDocumentInitializerLibrary;
+use App\Models\CicloVisitaModel;
 use CodeIgniter\Controller;
 
 class ConsultantDashboardController extends Controller
@@ -107,6 +108,16 @@ class ConsultantDashboardController extends Controller
 
         // Inicializar client_policies y document_versions para el nuevo cliente
         ClientDocumentInitializerLibrary::initialize($clientId);
+
+        // Generar primer ciclo de visita
+        $estandarCliente = $this->request->getVar('estandares') ?? '';
+        if ($estandarCliente) {
+            (new CicloVisitaModel())->generarPrimerCiclo(
+                (int)$clientId,
+                (int)$id_consultor,
+                $estandarCliente
+            );
+        }
 
         session()->setFlashdata('msg', 'Cliente agregado exitosamente y carpeta creada.');
         return redirect()->to('/addClient');

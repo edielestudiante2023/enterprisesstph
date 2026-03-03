@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\AgendamientoModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
+use App\Models\CicloVisitaModel;
 
 class AgendamientoController extends BaseController
 {
@@ -115,6 +116,13 @@ class AgendamientoController extends BaseController
         $this->model->insert($data);
         $id = $this->model->getInsertID();
 
+        // Vincular con ciclo de visita
+        (new CicloVisitaModel())->vincularAgendamiento(
+            (int)$data['id_cliente'],
+            $data['fecha_visita'],
+            (int)$id
+        );
+
         // Enviar invitación si se marcó el checkbox
         if ($this->request->getPost('enviar_invitacion')) {
             $this->enviarInvitacion($id);
@@ -191,6 +199,15 @@ class AgendamientoController extends BaseController
 
         $this->model->update($id, $data);
 
+        // Actualizar fecha_agendada en ciclo de visita
+        $cicloModel = new CicloVisitaModel();
+        $cicloModel->desvincularAgendamiento((int)$id);
+        $cicloModel->vincularAgendamiento(
+            (int)$agendamiento['id_cliente'],
+            $data['fecha_visita'],
+            (int)$id
+        );
+
         // Re-enviar invitación si se marcó
         if ($this->request->getPost('enviar_invitacion')) {
             $this->enviarInvitacion($id);
@@ -211,6 +228,9 @@ class AgendamientoController extends BaseController
         }
 
         $this->model->update($id, ['estado' => 'cancelado']);
+
+        // Desvincular del ciclo de visita
+        (new CicloVisitaModel())->desvincularAgendamiento((int)$id);
 
         // Si ya se envió invitación, enviar cancelación
         if ($agendamiento['email_enviado']) {
@@ -245,14 +265,16 @@ class AgendamientoController extends BaseController
         $fechaSugerida = $this->model->sugerirProximaFecha($idCliente, 'mensual');
 
         return $this->response->setJSON([
-            'success'        => true,
-            'nombre_cliente' => $cliente['nombre_cliente'],
-            'correo_cliente' => $cliente['correo_cliente'],
-            'direccion'      => $cliente['direccion_cliente'],
-            'ciudad'         => $cliente['ciudad_cliente'],
-            'telefono'       => $cliente['telefono_1_cliente'],
-            'ultima_visita'  => $ultimaVisita ? $ultimaVisita['fecha_visita'] : null,
-            'fecha_sugerida' => $fechaSugerida,
+            'success'                  => true,
+            'nombre_cliente'           => $cliente['nombre_cliente'],
+            'correo_cliente'           => $cliente['correo_cliente'],
+            'direccion'                => $cliente['direccion_cliente'],
+            'ciudad'                   => $cliente['ciudad_cliente'],
+            'telefono'                 => $cliente['telefono_1_cliente'],
+            'ultima_visita'            => $ultimaVisita ? $ultimaVisita['fecha_visita'] : null,
+            'fecha_sugerida'           => $fechaSugerida,
+            'consultor_externo'        => $cliente['consultor_externo'] ?? '',
+            'email_consultor_externo'  => $cliente['email_consultor_externo'] ?? '',
         ]);
     }
 
@@ -261,7 +283,7 @@ class AgendamientoController extends BaseController
     /**
      * Genera archivo .ics para evento de calendario
      */
-    private function generateIcs(array $agendamiento, array $cliente, array $consultor, string $method = 'REQUEST'): string
+    private function generateIcs(array $agendamiento, array $cliente, array $consultor, string $method = 'REQUEST', array $extraAttendees = []): string
     {
         $uid = 'agendamiento-' . $agendamiento['id'] . '@cycloidtalent.com';
 
@@ -298,6 +320,12 @@ class AgendamientoController extends BaseController
         }
         if ($correoCliente) {
             $ics .= "ATTENDEE;CN={$nombreCliente};RSVP=TRUE:mailto:{$correoCliente}\r\n";
+        }
+        foreach ($extraAttendees as $attendee) {
+            if (!empty($attendee['email'])) {
+                $cn = $attendee['name'] ?? 'Invitado';
+                $ics .= "ATTENDEE;CN={$cn};RSVP=TRUE:mailto:{$attendee['email']}\r\n";
+            }
         }
         $ics .= "STATUS:{$status}\r\n";
         $ics .= "SEQUENCE:{$sequence}\r\n";
@@ -338,6 +366,8 @@ class AgendamientoController extends BaseController
         $correoCliente   = $cliente['correo_cliente'] ?? '';
         $correoConsultor = $consultor['correo_consultor'] ?? '';
         $nombreConsultor = $consultor['nombre_consultor'] ?? 'Consultor';
+        $consultorExterno      = $cliente['consultor_externo'] ?? '';
+        $emailConsultorExterno = $cliente['email_consultor_externo'] ?? '';
 
         if (!$correoCliente && !$correoConsultor) {
             return ['success' => false, 'error' => 'No hay correos destinatarios configurados'];
@@ -392,8 +422,12 @@ class AgendamientoController extends BaseController
             </div>
         </div>";
 
-        // Generar .ics
-        $icsContent = $this->generateIcs($agendamiento, $cliente, $consultor, 'REQUEST');
+        // Generar .ics (incluir consultor externo como attendee si existe)
+        $extraAttendees = [];
+        if ($emailConsultorExterno) {
+            $extraAttendees[] = ['name' => $consultorExterno ?: 'Consultor Externo', 'email' => $emailConsultorExterno];
+        }
+        $icsContent = $this->generateIcs($agendamiento, $cliente, $consultor, 'REQUEST', $extraAttendees);
 
         // Enviar con SendGrid SDK
         require_once ROOTPATH . 'vendor/autoload.php';
@@ -407,6 +441,9 @@ class AgendamientoController extends BaseController
         }
         if ($correoConsultor) {
             $email->addTo($correoConsultor, $nombreConsultor);
+        }
+        if ($emailConsultorExterno) {
+            $email->addTo($emailConsultorExterno, $consultorExterno ?: 'Consultor Externo');
         }
 
         $email->addContent("text/html", $htmlContent);
@@ -433,7 +470,7 @@ class AgendamientoController extends BaseController
                     'confirmacion_calendar' => 'Agendado: enviado a ' . ($correoCliente ?: $correoConsultor),
                 ]);
 
-                $destinatarios = array_filter([$correoCliente, $correoConsultor]);
+                $destinatarios = array_filter([$correoCliente, $correoConsultor, $emailConsultorExterno]);
                 log_message('info', "Agendamiento #{$id}: Invitación enviada a " . implode(', ', $destinatarios));
 
                 return ['success' => true, 'message' => 'Invitación enviada a ' . implode(', ', $destinatarios)];
@@ -466,9 +503,15 @@ class AgendamientoController extends BaseController
         $correoCliente   = $cliente['correo_cliente'] ?? '';
         $correoConsultor = $consultor['correo_consultor'] ?? '';
         $nombreConsultor = $consultor['nombre_consultor'] ?? 'Consultor';
+        $consultorExterno      = $cliente['consultor_externo'] ?? '';
+        $emailConsultorExterno = $cliente['email_consultor_externo'] ?? '';
         $fechaFormateada = date('d/m/Y', strtotime($agendamiento['fecha_visita']));
 
-        $icsContent = $this->generateIcs($agendamiento, $cliente, $consultor, 'CANCEL');
+        $extraAttendees = [];
+        if ($emailConsultorExterno) {
+            $extraAttendees[] = ['name' => $consultorExterno ?: 'Consultor Externo', 'email' => $emailConsultorExterno];
+        }
+        $icsContent = $this->generateIcs($agendamiento, $cliente, $consultor, 'CANCEL', $extraAttendees);
 
         require_once ROOTPATH . 'vendor/autoload.php';
 
@@ -478,6 +521,7 @@ class AgendamientoController extends BaseController
 
         if ($correoCliente) $email->addTo($correoCliente, $nombreCliente);
         if ($correoConsultor) $email->addTo($correoConsultor, $nombreConsultor);
+        if ($emailConsultorExterno) $email->addTo($emailConsultorExterno, $consultorExterno ?: 'Consultor Externo');
 
         $email->addContent("text/html", "<div style='font-family:Segoe UI,Arial;max-width:600px;margin:0 auto;'><div style='background:#c0392b;padding:20px;text-align:center;border-radius:10px 10px 0 0;'><h1 style='color:#fff;margin:0;font-size:20px;'>VISITA CANCELADA</h1></div><div style='padding:25px;background:#f8f9fa;border-radius:0 0 10px 10px;'><p>La visita SST programada para el <strong>{$fechaFormateada}</strong> con <strong>{$nombreCliente}</strong> ha sido cancelada.</p><p style='color:#999;font-size:11px;'>Generado por SG-SST Cycloid Talent.</p></div></div>");
 

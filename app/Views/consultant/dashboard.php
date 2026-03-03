@@ -610,6 +610,16 @@
                     <i class="fas fa-calendar-check me-2"></i>Panel de Agendamientos
                 </button>
             </a>
+            <a href="<?= base_url('consultant/auditoria-visitas') ?>" target="_blank" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #f39c12, #e67e22); border: none;">
+                    <i class="fas fa-clipboard-check me-2"></i>Auditoria de Visitas
+                </button>
+            </a>
+            <a href="<?= base_url('planillas-seguridad-social') ?>" target="_blank" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #6f42c1, #9b59b6); border: none;">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>Planillas Seg. Social
+                </button>
+            </a>
         </div>
 
         <!-- Dashboards Analíticos -->

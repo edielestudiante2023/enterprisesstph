@@ -6,6 +6,7 @@ use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Libraries\ClientDocumentInitializerLibrary;
+use App\Models\CicloVisitaModel;
 use CodeIgniter\Controller;
 
 class AdminDashboardController extends Controller
@@ -103,6 +104,16 @@ class AdminDashboardController extends Controller
 
         // Inicializar client_policies y document_versions para el nuevo cliente
         ClientDocumentInitializerLibrary::initialize($clientId);
+
+        // Generar primer ciclo de visita
+        $estandarCliente = $this->request->getVar('estandares') ?? '';
+        if ($estandarCliente) {
+            (new CicloVisitaModel())->generarPrimerCiclo(
+                (int)$clientId,
+                (int)$id_consultor,
+                $estandarCliente
+            );
+        }
 
         // Enviar email de bienvenida con credenciales de acceso
         $emailMsg = '';

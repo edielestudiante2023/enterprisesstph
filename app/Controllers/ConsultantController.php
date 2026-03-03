@@ -16,6 +16,7 @@ use App\Libraries\WorkPlanLibrary;
 use App\Libraries\TrainingLibrary;
 use App\Libraries\StandardsLibrary;
 use App\Libraries\ClientDocumentInitializerLibrary;
+use App\Models\CicloVisitaModel;
 use CodeIgniter\Controller;
 
 class ConsultantController extends Controller
@@ -164,6 +165,16 @@ class ConsultantController extends Controller
 
             // Inicializar client_policies y document_versions para el nuevo cliente
             ClientDocumentInitializerLibrary::initialize($clientId);
+
+            // Generar primer ciclo de visita
+            $estandarCliente = $this->request->getVar('estandares') ?? '';
+            if ($estandarCliente) {
+                (new CicloVisitaModel())->generarPrimerCiclo(
+                    (int)$clientId,
+                    (int)$id_consultor,
+                    $estandarCliente
+                );
+            }
 
             // Generar automáticamente el Plan de Trabajo Año 1
             try {

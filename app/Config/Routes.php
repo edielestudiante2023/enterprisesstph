@@ -42,6 +42,12 @@ $routes->get('consultant/dashboard-capacitaciones', 'ConsultantDashboardCapacita
 $routes->get('consultant/dashboard-plan-trabajo', 'ConsultantDashboardPlanTrabajoController::index');
 $routes->get('consultant/dashboard-pendientes', 'ConsultantDashboardPendientesController::index');
 
+// Auditoría de Visitas — Ciclos de visita
+$routes->get('consultant/auditoria-visitas', 'AuditoriaVisitasController::index');
+$routes->get('consultant/auditoria-visitas/edit/(:num)', 'AuditoriaVisitasController::edit/$1');
+$routes->post('consultant/auditoria-visitas/update/(:num)', 'AuditoriaVisitasController::update/$1');
+$routes->post('consultant/auditoria-visitas/delete/(:num)', 'AuditoriaVisitasController::delete/$1');
+
 $routes->get('/dashboardconsultant', 'ConsultantController::index');
 $routes->get('/admindashboard', 'AdminDashboardController::index');
 $routes->get('/admin/delete-pta-abiertas', 'AdminDashboardController::deletePtaAbiertas');
@@ -52,6 +58,16 @@ $routes->get('/quick-access', 'QuickAccessDashboardController::index');
 // Rutas para Ver Vista de Cliente (consultor y admin)
 $routes->get('/vista-cliente', 'ViewAsClientController::index');
 $routes->get('/vista-cliente/(:num)', 'ViewAsClientController::viewClient/$1');
+
+// Planillas Seguridad Social (repositorio + envío masivo)
+$routes->get('planillas-seguridad-social', 'PlanillaSegSocialController::index');
+$routes->get('planillas-seguridad-social/create', 'PlanillaSegSocialController::create');
+$routes->post('planillas-seguridad-social/store', 'PlanillaSegSocialController::store');
+$routes->get('planillas-seguridad-social/edit/(:num)', 'PlanillaSegSocialController::edit/$1');
+$routes->post('planillas-seguridad-social/update/(:num)', 'PlanillaSegSocialController::update/$1');
+$routes->post('planillas-seguridad-social/delete/(:num)', 'PlanillaSegSocialController::delete/$1');
+$routes->post('planillas-seguridad-social/enviar/(:num)', 'PlanillaSegSocialController::enviar/$1');
+$routes->get('planillas-seguridad-social/download/(:num)', 'PlanillaSegSocialController::download/$1');
 
 $routes->get('/addClient', 'ConsultantController::addClient');
 $routes->post('/addClient', 'ConsultantController::addClientPost');

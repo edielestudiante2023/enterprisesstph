@@ -62,6 +62,9 @@
                     <div>
                         <strong>Dirección:</strong> <span id="infoDireccion" class="text-muted">—</span>
                     </div>
+                    <div id="infoConsultorExternoWrap" style="display:none;" class="mt-1">
+                        <strong>Consultor externo:</strong> <span id="infoConsultorExterno" class="text-muted">—</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -150,6 +153,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('infoFechaSugerida').textContent = new Date(data.fecha_sugerida).toLocaleDateString('es-CO');
                     document.getElementById('infoCorreo').textContent = data.correo_cliente || 'No configurado';
                     document.getElementById('infoDireccion').textContent = (data.direccion || '') + (data.ciudad ? ', ' + data.ciudad : '') || 'No configurada';
+
+                    // Mostrar consultor externo si existe
+                    const wrapExt = document.getElementById('infoConsultorExternoWrap');
+                    if (data.consultor_externo || data.email_consultor_externo) {
+                        wrapExt.style.display = '';
+                        document.getElementById('infoConsultorExterno').textContent =
+                            (data.consultor_externo || '') + (data.email_consultor_externo ? ' (' + data.email_consultor_externo + ')' : '');
+                    } else {
+                        wrapExt.style.display = 'none';
+                    }
 
                     // Auto-fill fecha sugerida
                     document.getElementById('inputFecha').value = data.fecha_sugerida;
