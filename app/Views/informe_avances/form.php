@@ -174,6 +174,28 @@
                 </div>
             </div>
 
+            <!-- SECCION 2b: Evolución Histórica del Cliente -->
+            <div class="card card-section" id="seccionEvolucion" style="display:none">
+                <div class="card-header py-3">
+                    <i class="fas fa-chart-line me-2"></i>2b. Evolución Histórica del Cliente
+                </div>
+                <div class="card-body">
+                    <div id="evolucionEmpty" class="text-center py-3 text-muted" style="display:none">
+                        <i class="fas fa-info-circle me-1"></i>Sin datos históricos aún. Ejecute un Snapshot desde el panel admin.
+                    </div>
+                    <div class="row" id="evolucionCharts">
+                        <div class="col-md-6">
+                            <p class="text-center small text-muted fw-semibold mb-1">% Cumplimiento Estándares</p>
+                            <canvas id="chartHistEstandares" height="140"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-center small text-muted fw-semibold mb-1">% Actividades Abiertas Plan Trabajo</p>
+                            <canvas id="chartHistPlan" height="140"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- SECCION 3: Resumen de Avance -->
             <div class="card card-section">
                 <div class="card-header py-3">
@@ -433,10 +455,12 @@
             var clienteId = $(this).val();
             if (clienteId && !EDIT_MODE) loadMetricas(clienteId);
             if (clienteId) loadVencimientos(clienteId);
+            if (clienteId) loadHistorial(clienteId);
             $('#btnGenerarIA').prop('disabled', !clienteId);
         });
 
         if (EDIT_MODE && PRESELECT_CLIENTE) {
+            loadHistorial(PRESELECT_CLIENTE);
             $('#btnGenerarIA').prop('disabled', false);
             // If editing, try to render charts from stored JSON
             var storedJson = $('#metricasDesgloseJson').val();
@@ -492,6 +516,83 @@
                     container.replaceWith(html);
                 } else {
                     $(html).insertBefore($('input[name="enlace_dashboard"]'));
+                }
+            });
+        }
+
+        // Chart instances for evolution section
+        var chartHistEst = null, chartHistPlan = null;
+
+        function makeLineChart(canvasId, labels, values, label, color) {
+            var ctx = document.getElementById(canvasId);
+            if (!ctx) return null;
+            return new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: values,
+                        borderColor: color,
+                        backgroundColor: color + '22',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    animation: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, ticks: { callback: function(v){ return v + '%'; } } },
+                        x: { ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        var MES_NOMBRES = {'01':'Ene','02':'Feb','03':'Mar','04':'Abr','05':'May','06':'Jun',
+                           '07':'Jul','08':'Ago','09':'Sep','10':'Oct','11':'Nov','12':'Dic'};
+
+        function loadHistorial(clienteId) {
+            $.getJSON(BASE + 'informe-avances/api/historial/' + clienteId, function(resp) {
+                if (!resp.success) return;
+                var est = resp.estandares || [];
+                var plan = resp.plan || [];
+                var seccion = $('#seccionEvolucion');
+
+                if (est.length === 0 && plan.length === 0) {
+                    seccion.show();
+                    $('#evolucionCharts').hide();
+                    $('#evolucionEmpty').show();
+                    return;
+                }
+
+                seccion.show();
+                $('#evolucionEmpty').hide();
+                $('#evolucionCharts').show();
+
+                function toLabels(arr) {
+                    return arr.map(function(it) {
+                        var parts = it.mes.split('-');
+                        return (MES_NOMBRES[parts[1]] || parts[1]) + ' ' + parts[0].slice(2);
+                    });
+                }
+                function toValues(arr) { return arr.map(function(it){ return it.promedio; }); }
+
+                if (chartHistEst) { chartHistEst.destroy(); chartHistEst = null; }
+                if (chartHistPlan) { chartHistPlan.destroy(); chartHistPlan = null; }
+
+                if (est.length > 0) {
+                    chartHistEst = makeLineChart('chartHistEstandares', toLabels(est), toValues(est), '% Estándares', '#667eea');
+                }
+                if (plan.length > 0) {
+                    chartHistPlan = makeLineChart('chartHistPlan', toLabels(plan), toValues(plan), '% Abiertas PTA', '#f093fb');
                 }
             });
         }

@@ -272,6 +272,17 @@ class InformeAvancesController extends BaseController
         ]);
     }
 
+    // ─── AJAX: Historial evolución de un cliente ───
+    public function apiHistorial($idCliente)
+    {
+        $id = (int) $idCliente;
+        return $this->response->setJSON([
+            'success'   => true,
+            'estandares' => $this->getHistorialEstandaresCliente($id),
+            'plan'       => $this->getHistorialPlanCliente($id),
+        ]);
+    }
+
     // ─── AJAX: Vencimientos de un cliente ───
     public function apiVencimientos($idCliente)
     {

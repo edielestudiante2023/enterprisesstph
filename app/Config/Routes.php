@@ -1295,6 +1295,7 @@ $routes->group('informe-avances', ['filter' => 'auth'], function($routes) {
     $routes->post('generar-resumen', 'InformeAvancesController::generarResumen');
     $routes->get('api/metricas/(:num)', 'InformeAvancesController::calcularMetricas/$1');
     $routes->get('api/vencimientos/(:num)', 'InformeAvancesController::apiVencimientos/$1');
+    $routes->get('api/historial/(:num)', 'InformeAvancesController::apiHistorial/$1');
     $routes->get('api/clientes', 'InformeAvancesController::getClientes');
     $routes->post('enviar/(:num)', 'InformeAvancesController::enviar/$1');
 });
