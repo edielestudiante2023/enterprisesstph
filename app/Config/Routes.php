@@ -680,6 +680,7 @@ $routes->post('/pta-cliente-nueva/editinginline', 'PtaClienteNuevaController::ed
 // Ruta para exportar a Excel (CSV)
 $routes->get('/pta-cliente-nueva/excel', 'PtaClienteNuevaController::exportExcelPtaClienteNuevaModel');
 $routes->get('/pta-cliente-nueva/delete/(:num)', 'PtaClienteNuevaController::deletePtaClienteNuevaModel/$1');
+$routes->post('/pta-cliente-nueva/deleteMultiple', 'PtaClienteNuevaController::deleteMultiplePtaClienteNuevaModel');
 
 // Ruta para actualizar registros cerrados
 $routes->post('/pta-cliente-nueva/updateCerradas', 'PtaClienteNuevaController::updateCerradas');

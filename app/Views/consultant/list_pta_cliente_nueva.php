@@ -482,8 +482,9 @@
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
-        #ptaTable thead th:first-child { border-radius: 8px 0 0 0; }
+        #ptaTable thead th:first-child { border-radius: 8px 0 0 0; width: 30px; text-align: center; }
         #ptaTable thead th:last-child { border-radius: 0 8px 0 0; }
+        .row-select, #selectAll { width: 18px; height: 18px; cursor: pointer; }
         #ptaTable tbody td {
             vertical-align: middle;
             padding: 8px 8px;
@@ -867,6 +868,9 @@
                             </button>
                         </div>
                         <div class="col-md-4 text-end">
+                            <button type="button" id="btnDeleteSelected" class="btn btn-danger me-2" style="display:none;">
+                                <i class="fas fa-trash-alt"></i> Eliminar Seleccionados (<span id="selectedCount">0</span>)
+                            </button>
                             <button type="button" id="btnCalificarCerradas" class="btn btn-warning me-2">
                                 <i class="fas fa-check-double"></i> Calificar Cerradas
                             </button>
@@ -885,6 +889,7 @@
                 <table id="ptaTable" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
+                            <th><input type="checkbox" id="selectAll" title="Seleccionar todos"></th>
                             <th>Acciones</th>
                             <th>ID</th>
                             <th>Cliente</th>
@@ -908,17 +913,17 @@
                     <tbody>
                         <?php foreach ($records as $row): ?>
                             <tr>
+                                <td><input type="checkbox" class="row-select" value="<?= esc($row['id_ptacliente']) ?>"></td>
                                 <td>
                                     <div class="action-group">
                                         <a href="<?= base_url('/pta-cliente-nueva/edit/' . esc($row['id_ptacliente']) . '?' . http_build_query($filters)) ?>"
                                            class="btn-action btn-action-edit" title="Editar">
                                             <i class="fas fa-pen"></i>
                                         </a>
-                                        <a href="<?= base_url('/pta-cliente-nueva/delete/' . esc($row['id_ptacliente']) . '?' . http_build_query($filters)) ?>"
-                                           class="btn-action btn-action-delete" title="Eliminar"
-                                           onclick="return confirm('¿Seguro que deseas eliminar este registro?')">
+                                        <button type="button" class="btn-action btn-action-delete btn-delete-single"
+                                                data-id="<?= esc($row['id_ptacliente']) ?>" title="Eliminar">
                                             <i class="fas fa-trash"></i>
-                                        </a>
+                                        </button>
                                     </div>
                                 </td>
                                 <td><?= esc($row['id_ptacliente']) ?></td>
@@ -987,6 +992,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
+                            <th></th>
                             <th></th>
                             <th><input type="text" placeholder="Buscar ID" class="form-control form-control-sm"></th>
                             <th><input type="text" placeholder="Buscar Cliente" class="form-control form-control-sm"></th>
@@ -1115,7 +1121,7 @@
                 // Contar actividades por año
                 table.rows({search: 'applied'}).every(function() {
                     var data = this.data();
-                    var fechaPropuesta = data[8]; // Columna "Fecha Propuesta"
+                    var fechaPropuesta = data[9]; // Columna "Fecha Propuesta" (shifted +1 by checkbox col)
                     if (fechaPropuesta) {
                         var parts = fechaPropuesta.split("-");
                         if (parts.length >= 1) {
@@ -1154,9 +1160,9 @@
 
                 $.fn.dataTable.ext.search.push(
                     function(settings, data, dataIndex) {
-                        var fechaPropuesta = data[8] || ''; // Columna 8: Fecha Propuesta
+                        var fechaPropuesta = data[9] || ''; // Columna 9: Fecha Propuesta (shifted +1)
                         // STRIP HTML del estado antes de comparar
-                        var estadoActividad = $('<div/>').html(data[10] || '').text().trim();
+                        var estadoActividad = $('<div/>').html(data[11] || '').text().trim();
 
                         // Filtro por año
                         if (activeYear) {
@@ -1417,13 +1423,14 @@
                     "scrollX": true,
                     "autoWidth": false,
                     "order": [
-                        [10, 'asc'],
-                        [8, 'asc'],
-                        [4, 'asc'],
-                        [6, 'asc']
+                        [11, 'asc'],
+                        [9, 'asc'],
+                        [5, 'asc'],
+                        [7, 'asc']
                     ],
                     "columnDefs": [
-                        { "visible": false, "targets": [0, 1, 2, 3, 4, 5, 13, 14, 15, 16] }
+                        { "visible": false, "targets": [1, 2, 3, 4, 5, 6, 14, 15, 16, 17] },
+                        { "orderable": false, "searchable": false, "targets": [0] }
                     ],
                     "dom": '<"row"<"col-sm-12"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
                     "buttons": [
@@ -1431,7 +1438,7 @@
                         extend: 'colvis',
                         text: '<i class="fas fa-columns"></i> Columnas Visibles',
                         className: 'btn btn-outline-primary',
-                        columns: ':not(:last-child)'
+                        columns: ':not(:first-child):not(:last-child)'
                     },
                     {
                         extend: 'excel',
@@ -1456,7 +1463,7 @@
                             var input = $('input', column.footer());
                             if (select.length) {
                                 // Si la columna no es "Estado Actividad" (índice 10), agregamos las opciones
-                                if (column.index() !== 10) {
+                                if (column.index() !== 11) {
                                     column.data().unique().sort().each(function(d) {
                                         if (d) {
                                             select.append('<option value="' + d + '">' + d + '</option>');
@@ -1482,7 +1489,7 @@
 
                 // Función para actualizar los contadores de las tarjetas superiores
                 function updateCardCounts() {
-                    var data = table.column(10, {
+                    var data = table.column(11, {
                         search: 'applied'
                     }).data().toArray();
                     var countActivas = data.filter(function(x) {
@@ -1514,7 +1521,7 @@
                         search: 'applied'
                     }).data().toArray();
                     data.forEach(function(row) {
-                        var fechaPropuesta = row[8]; // Columna "Fecha Propuesta"
+                        var fechaPropuesta = row[9]; // Columna "Fecha Propuesta" (shifted +1)
                         if (fechaPropuesta) {
                             // Se asume formato YYYY-MM-DD
                             var parts = fechaPropuesta.split("-");
@@ -1578,17 +1585,17 @@
                     if ($td.find('input, select').length > 0) return;
                     var colIndex = table.cell($td).index().column;
                     var editableMapping = {
-                        4: 'phva_plandetrabajo',
-                        5: 'numeral_plandetrabajo',
-                        6: 'actividad_plandetrabajo',
-                        7: 'responsable_sugerido_plandetrabajo',
-                        8: 'fecha_propuesta',
-                        9: 'fecha_cierre',
-                        10: 'estado_actividad',
-                        11: 'porcentaje_avance',
-                        12: 'observaciones'
+                        5: 'phva_plandetrabajo',
+                        6: 'numeral_plandetrabajo',
+                        7: 'actividad_plandetrabajo',
+                        8: 'responsable_sugerido_plandetrabajo',
+                        9: 'fecha_propuesta',
+                        10: 'fecha_cierre',
+                        11: 'estado_actividad',
+                        12: 'porcentaje_avance',
+                        13: 'observaciones'
                     };
-                    var disallowed = [0, 1, 2, 3, 13, 14, 15, 16];
+                    var disallowed = [0, 1, 2, 3, 4, 14, 15, 16, 17];
                     if (disallowed.indexOf(colIndex) !== -1 || !editableMapping.hasOwnProperty(colIndex)) {
                         cell.data(originalHtml).draw();
                         return;
@@ -1597,19 +1604,19 @@
                     // Extraer valor plano segun la columna
                     var plainValue = stripHtml(originalHtml);
                     // Para porcentaje, quitar el '%'
-                    if (colIndex === 11) plainValue = plainValue.replace('%', '').trim();
+                    if (colIndex === 12) plainValue = plainValue.replace('%', '').trim();
 
                     var inputElement;
-                    if (colIndex === 8 || colIndex === 9) {
+                    if (colIndex === 9 || colIndex === 10) {
                         inputElement = $('<input type="date" class="form-control form-control-sm" />').val(plainValue);
-                    } else if (colIndex === 10) {
+                    } else if (colIndex === 11) {
                         inputElement = $('<select class="form-select form-select-sm"></select>');
                         var options = ["ABIERTA", "CERRADA", "GESTIONANDO", "CERRADA SIN EJECUCIÓN"];
                         $.each(options, function(i, option) {
                             var selected = (plainValue === option) ? "selected" : "";
                             inputElement.append('<option value="' + option + '" ' + selected + '>' + option + '</option>');
                         });
-                    } else if (colIndex === 11) {
+                    } else if (colIndex === 12) {
                         inputElement = $('<input type="number" class="form-control form-control-sm" min="0" max="100" step="1" />').val(plainValue);
                     } else {
                         inputElement = $('<input type="text" class="form-control form-control-sm" />').val(plainValue);
@@ -1620,21 +1627,21 @@
 
                     inputElement.on('blur keydown', function(e) {
                         if (e.type === 'blur' || (e.type === 'keydown' && e.which === 13)) {
-                            var newValue = (colIndex === 10) ? inputElement.find("option:selected").val() : $(this).val();
-                            if (newValue === stripHtml(originalHtml).replace(colIndex === 11 ? '%' : '', '').trim()) {
+                            var newValue = (colIndex === 11) ? inputElement.find("option:selected").val() : $(this).val();
+                            if (newValue === stripHtml(originalHtml).replace(colIndex === 12 ? '%' : '', '').trim()) {
                                 cell.data(originalHtml).draw();
                                 return;
                             }
                             var fieldName = editableMapping[colIndex];
                             var rowData = table.row($td.closest('tr')).data();
-                            var id = rowData[1];
+                            var id = rowData[2];
                             var dataToSend = {
                                 id: id
                             };
                             dataToSend[fieldName] = newValue;
 
-                            // Si se está editando la fecha de cierre (columna 9) y tiene un valor, también enviar estado_actividad = CERRADA
-                            if (colIndex === 9 && newValue && newValue.trim() !== '') {
+                            // Si se está editando la fecha de cierre (columna 10) y tiene un valor, también enviar estado_actividad = CERRADA
+                            if (colIndex === 10 && newValue && newValue.trim() !== '') {
                                 dataToSend['estado_actividad'] = 'CERRADA';
                             }
 
@@ -1648,31 +1655,31 @@
                                 success: function(response) {
                                     if (response.status === 'success') {
                                         // RECONSTRUIR HTML segun la columna
-                                        if (colIndex === 10) {
+                                        if (colIndex === 11) {
                                             cell.data(buildEstadoBadge(newValue)).draw();
-                                        } else if (colIndex === 11) {
+                                        } else if (colIndex === 12) {
                                             cell.data(buildProgressBar(newValue)).draw();
-                                        } else if (colIndex === 6 || colIndex === 12) {
+                                        } else if (colIndex === 7 || colIndex === 13) {
                                             cell.data(buildTruncateCell(newValue)).draw();
                                         } else {
                                             cell.data(newValue).draw();
                                         }
 
                                         // Fecha cierre -> estado CERRADA (actualizar badge)
-                                        if (colIndex === 9 && newValue && newValue.trim() !== '') {
-                                            var estadoCell = table.cell($td.closest('tr'), 10);
+                                        if (colIndex === 10 && newValue && newValue.trim() !== '') {
+                                            var estadoCell = table.cell($td.closest('tr'), 11);
                                             estadoCell.data(buildEstadoBadge('CERRADA')).draw();
                                         }
 
                                         // Estado cambio -> actualizar progress bar
                                         if (fieldName === 'estado_actividad' && response.porcentaje_avance !== undefined) {
-                                            var porcentajeCell = table.cell($td.closest('tr'), 11);
+                                            var porcentajeCell = table.cell($td.closest('tr'), 12);
                                             porcentajeCell.data(buildProgressBar(response.porcentaje_avance)).draw();
                                         }
 
                                         // Fecha cierre -> actualizar progress bar
-                                        if (colIndex === 9 && response.porcentaje_avance !== undefined) {
-                                            var porcentajeCell = table.cell($td.closest('tr'), 11);
+                                        if (colIndex === 10 && response.porcentaje_avance !== undefined) {
+                                            var porcentajeCell = table.cell($td.closest('tr'), 12);
                                             porcentajeCell.data(buildProgressBar(response.porcentaje_avance)).draw();
                                         }
 
@@ -1710,8 +1717,8 @@
                 var ids = [];
                 table.rows().every(function() {
                     var data = this.data();
-                    if (stripHtml(data[10]) === 'CERRADA') {
-                        ids.push(data[1]);
+                    if (stripHtml(data[11]) === 'CERRADA') {
+                        ids.push(data[2]);
                     }
                 });
 
@@ -1731,8 +1738,8 @@
                         if (response.status === 'success') {
                             table.rows().every(function() {
                                 var data = this.data();
-                                if (stripHtml(data[10]) === 'CERRADA') {
-                                    data[11] = buildProgressBar(100);
+                                if (stripHtml(data[11]) === 'CERRADA') {
+                                    data[12] = buildProgressBar(100);
                                     this.data(data);
                                 }
                             });
@@ -1774,12 +1781,12 @@
                         if (response.success) {
                             // Actualizar la celda de fecha_propuesta en la tabla
                             var row = table.row(function(idx, data, node) {
-                                return data[1] == activityId; // data[1] es id_ptacliente
+                                return data[2] == activityId; // data[2] es id_ptacliente (shifted +1)
                             });
 
                             if (row.length > 0) {
                                 var rowData = row.data();
-                                rowData[8] = response.newDate; // Columna 8 es fecha_propuesta
+                                rowData[9] = response.newDate; // Columna 9 es fecha_propuesta (shifted +1)
                                 row.data(rowData).draw(false);
                             }
 
@@ -1805,6 +1812,127 @@
                     complete: function() {
                         // Re-habilitar botón
                         $button.prop('disabled', false).css('opacity', '1');
+                    }
+                });
+            });
+
+            // ===================================================================
+            // CHECKBOX SELECT ALL / BULK DELETE / SINGLE DELETE AJAX
+            // ===================================================================
+            function updateSelectedCount() {
+                var count = $('.row-select:checked').length;
+                $('#selectedCount').text(count);
+                if (count > 0) {
+                    $('#btnDeleteSelected').show();
+                } else {
+                    $('#btnDeleteSelected').hide();
+                }
+            }
+
+            // Select All checkbox
+            $(document).on('change', '#selectAll', function() {
+                var checked = $(this).is(':checked');
+                // Solo afectar filas visibles (filtradas)
+                table.rows({ search: 'applied' }).nodes().each(function() {
+                    $(this).find('.row-select').prop('checked', checked);
+                });
+                updateSelectedCount();
+            });
+
+            // Individual checkbox
+            $(document).on('change', '.row-select', function() {
+                // Si se desmarca alguno, desmarcar selectAll
+                if (!$(this).is(':checked')) {
+                    $('#selectAll').prop('checked', false);
+                }
+                updateSelectedCount();
+            });
+
+            // Bulk delete
+            $('#btnDeleteSelected').on('click', function() {
+                var ids = [];
+                $('.row-select:checked').each(function() {
+                    ids.push($(this).val());
+                });
+                if (ids.length === 0) return;
+
+                if (!confirm('¿Seguro que deseas eliminar ' + ids.length + ' registro(s)? Esta acción no se puede deshacer.')) {
+                    return;
+                }
+
+                var $btn = $(this);
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Eliminando...');
+
+                $.ajax({
+                    url: '<?= site_url('/pta-cliente-nueva/deleteMultiple') ?>',
+                    method: 'POST',
+                    data: {
+                        ids: ids,
+                        '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            // Remover filas del DataTable sin recargar
+                            $('.row-select:checked').each(function() {
+                                var row = table.row($(this).closest('tr'));
+                                row.remove();
+                            });
+                            table.draw(false);
+                            $('#selectAll').prop('checked', false);
+                            updateSelectedCount();
+                            updateCardCounts();
+                            updateMonthlyCounts();
+                            generateYearCards();
+                            showAlert(response.message, 'success');
+                        } else {
+                            showAlert('Error: ' + response.message, 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        showAlert('Error en la comunicación con el servidor: ' + error, 'error');
+                        console.error('Error AJAX:', xhr.responseText);
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Eliminar Seleccionados (<span id="selectedCount">0</span>)');
+                        updateSelectedCount();
+                    }
+                });
+            });
+
+            // Single delete via AJAX
+            $(document).on('click', '.btn-delete-single', function() {
+                var $btn = $(this);
+                var id = $btn.data('id');
+
+                if (!confirm('¿Seguro que deseas eliminar este registro?')) return;
+
+                $btn.prop('disabled', true);
+
+                $.ajax({
+                    url: '<?= site_url('/pta-cliente-nueva/deleteMultiple') ?>',
+                    method: 'POST',
+                    data: {
+                        ids: [id],
+                        '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            var row = table.row($btn.closest('tr'));
+                            row.remove().draw(false);
+                            updateCardCounts();
+                            updateMonthlyCounts();
+                            generateYearCards();
+                            showAlert('Registro eliminado correctamente.', 'success');
+                        } else {
+                            showAlert('Error: ' + response.message, 'error');
+                            $btn.prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        showAlert('Error al eliminar: ' + error, 'error');
+                        $btn.prop('disabled', false);
                     }
                 });
             });

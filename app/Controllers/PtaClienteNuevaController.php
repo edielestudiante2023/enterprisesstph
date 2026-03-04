@@ -367,6 +367,49 @@ class PtaClienteNuevaController extends Controller
     }
 
     /**
+     * Elimina múltiples registros vía AJAX.
+     */
+    public function deleteMultiplePtaClienteNuevaModel()
+    {
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Método no permitido']);
+        }
+
+        $ids = $this->request->getPost('ids');
+        if (empty($ids) || !is_array($ids)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'No se proporcionaron IDs']);
+        }
+
+        $ptaModel = new PtaClienteNuevaModel();
+        $deleted = 0;
+
+        try {
+            foreach ($ids as $id) {
+                $id = (int) $id;
+                if ($id <= 0) continue;
+
+                $datosAnteriores = $ptaModel->find($id);
+                if ($datosAnteriores) {
+                    PtaAuditService::logDelete($id, $datosAnteriores, __METHOD__);
+                    $ptaModel->where('id_ptacliente', $id)->delete();
+                    $deleted++;
+                }
+            }
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => $deleted . ' registro(s) eliminado(s) correctamente.',
+                'deleted' => $deleted
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Error al eliminar: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
      * Actualiza el porcentaje de avance a 100 para registros cerrados
      */
     public function updateCerradas()
