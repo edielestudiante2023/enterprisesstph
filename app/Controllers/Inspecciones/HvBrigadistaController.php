@@ -8,10 +8,12 @@ use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
+use App\Traits\AutosaveJsonTrait;
 use Dompdf\Dompdf;
 
 class HvBrigadistaController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected HvBrigadistaModel $hvModel;
 
     public function __construct()
@@ -199,6 +201,9 @@ class HvBrigadistaController extends BaseController
     {
         $hv = $this->hvModel->find($id);
         if (!$hv) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/hv-brigadista')->with('error', 'No encontrada');
         }
 
@@ -226,6 +231,10 @@ class HvBrigadistaController extends BaseController
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
         }
 
         return redirect()->to('/inspecciones/hv-brigadista/edit/' . $id)

@@ -24,6 +24,7 @@ class SnapshotController extends Controller
         }
 
         $db = \Config\Database::connect();
+        $now = date('Y-m-d H:i:s'); // Usa timezone America/Bogota configurada en PHP
 
         try {
             $sql1 = "INSERT INTO historial_resumen_estandares (
@@ -32,7 +33,7 @@ class SnapshotController extends Controller
             )
             SELECT
                 r.id_cliente, r.nombre_cliente, r.estandares, r.nombre_consultor, r.correo_consultor,
-                r.total_valor, r.total_puntaje, r.porcentaje_cumplimiento, NOW()
+                r.total_valor, r.total_puntaje, r.porcentaje_cumplimiento, ?
             FROM resumen_estandares_cliente AS r
             ON DUPLICATE KEY UPDATE
                 total_valor = r.total_valor,
@@ -42,9 +43,9 @@ class SnapshotController extends Controller
                 nombre_consultor = r.nombre_consultor,
                 correo_consultor = r.correo_consultor,
                 estandares = r.estandares,
-                fecha_extraccion = NOW()";
+                fecha_extraccion = ?";
 
-            $db->query($sql1);
+            $db->query($sql1, [$now, $now]);
             $affected1 = $db->affectedRows();
 
             $sql2 = "INSERT INTO historial_resumen_plan_trabajo (
@@ -53,7 +54,7 @@ class SnapshotController extends Controller
             )
             SELECT
                 r.id_cliente, r.nombre_cliente, r.estandares, r.nombre_consultor, r.correo_consultor,
-                r.total_actividades, r.actividades_abiertas, r.porcentaje_abiertas, NOW()
+                r.total_actividades, r.actividades_abiertas, r.porcentaje_abiertas, ?
             FROM resumen_mensual_plan_trabajo AS r
             ON DUPLICATE KEY UPDATE
                 total_actividades = r.total_actividades,
@@ -63,9 +64,9 @@ class SnapshotController extends Controller
                 nombre_consultor = r.nombre_consultor,
                 correo_consultor = r.correo_consultor,
                 estandares = r.estandares,
-                fecha_extraccion = NOW()";
+                fecha_extraccion = ?";
 
-            $db->query($sql2);
+            $db->query($sql2, [$now, $now]);
             $affected2 = $db->affectedRows();
 
             return $this->response->setJSON([

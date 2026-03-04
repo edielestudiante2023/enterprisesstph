@@ -7,10 +7,12 @@ use App\Models\CartaVigiaModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Traits\AutosaveJsonTrait;
 use Dompdf\Dompdf;
 
 class CartaVigiaPwaController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected $cartaModel;
     protected $clientModel;
 
@@ -98,10 +100,13 @@ class CartaVigiaPwaController extends BaseController
         $documento = trim($this->request->getPost('documento_vigia') ?? '');
         $email = trim($this->request->getPost('email_vigia') ?? '');
         $telefono = trim($this->request->getPost('telefono_vigia') ?? '');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$idCliente || !$nombre || !$documento || !$email) {
-            session()->setFlashdata('error', 'Faltan campos obligatorios');
-            return redirect()->back();
+        if (!$isAutosave) {
+            if (!$idCliente || !$nombre || !$documento || !$email) {
+                session()->setFlashdata('error', 'Faltan campos obligatorios');
+                return redirect()->back();
+            }
         }
 
         $userId = session()->get('user_id');
@@ -124,6 +129,10 @@ class CartaVigiaPwaController extends BaseController
         ]);
 
         $id = $this->cartaModel->getInsertID();
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($id);
+        }
 
         // Generar PDF (sin firma)
         $pdfPath = $this->generarPdf($id);
@@ -172,6 +181,9 @@ class CartaVigiaPwaController extends BaseController
     {
         $carta = $this->cartaModel->find($id);
         if (!$carta) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             session()->setFlashdata('error', 'No encontrada');
             return redirect()->to('/inspecciones/carta-vigia');
         }
@@ -192,6 +204,10 @@ class CartaVigiaPwaController extends BaseController
             'email_vigia'     => $email,
             'telefono_vigia'  => $telefono,
         ]);
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
+        }
 
         session()->setFlashdata('msg', 'Carta actualizada');
         return redirect()->to('/inspecciones/carta-vigia/cliente/' . $carta['id_cliente']);

@@ -9,9 +9,11 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
+use App\Traits\AutosaveJsonTrait;
 
 class ProgramaAguaPotableController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected ProgramaAguaPotableModel $inspeccionModel;
 
     public function __construct()
@@ -57,18 +59,23 @@ class ProgramaAguaPotableController extends BaseController
 
     public function store()
     {
-        $rules = [
-            'id_cliente'      => 'required|integer',
-            'fecha_programa'  => 'required|valid_date',
-        ];
+        $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Por favor completa los campos requeridos.');
+        if (!$isAutosave) {
+            $rules = [
+                'id_cliente'      => 'required|integer',
+                'fecha_programa'  => 'required|valid_date',
+            ];
+
+            if (!$this->validate($rules)) {
+                return redirect()->back()->withInput()->with('error', 'Por favor completa los campos requeridos.');
+            }
         }
 
         $data = [
             'id_cliente'           => $this->request->getPost('id_cliente'),
-            'id_consultor'         => session()->get('user_id'),
+            'id_consultor'         => $userId,
             'fecha_programa'       => $this->request->getPost('fecha_programa'),
             'nombre_responsable'   => $this->request->getPost('nombre_responsable'),
             'cantidad_tanques'     => $this->request->getPost('cantidad_tanques'),
@@ -79,6 +86,10 @@ class ProgramaAguaPotableController extends BaseController
 
         $this->inspeccionModel->insert($data);
         $id = $this->inspeccionModel->getInsertID();
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($id);
+        }
 
         return redirect()->to("/inspecciones/agua-potable/edit/{$id}")->with('msg', 'Programa guardado como borrador.');
     }
@@ -106,6 +117,9 @@ class ProgramaAguaPotableController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/agua-potable')->with('error', 'No se puede editar.');
         }
 
@@ -122,6 +136,10 @@ class ProgramaAguaPotableController extends BaseController
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
         }
 
         return redirect()->to("/inspecciones/agua-potable/edit/{$id}")->with('msg', 'Cambios guardados.');

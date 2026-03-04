@@ -123,6 +123,11 @@ $action = $isEdit ? '/inspecciones/asistencia-induccion/update/' . $inspeccion['
             </div>
         </div>
 
+        <!-- Indicador autoguardado -->
+        <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;">
+            <i class="fas fa-cloud"></i> Autoguardado activado
+        </div>
+
         <!-- BOTONES -->
         <div class="d-flex gap-2 mb-4">
             <button type="submit" class="btn btn-pwa btn-pwa-outline flex-fill">
@@ -166,54 +171,73 @@ document.addEventListener('DOMContentLoaded', function() {
     addAsistenteRow();
     <?php endif; ?>
 
-    // Autoguardado localStorage
-    const formId = '<?= $isEdit ? $inspeccion['id'] : 'new' ?>';
-    const STORAGE_KEY = 'asist_ind_draft_' + formId;
-    const form = document.getElementById('asistIndForm');
-    let debounceTimer;
+    // ============================================================
+    // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
+    // ============================================================
+    const STORAGE_KEY = 'asist_ind_draft_<?= $isEdit ? $inspeccion['id'] : 'new' ?>';
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
-    function saveDraft() {
-        const data = {};
-        form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea, select').forEach(el => {
-            if (el.name && el.type !== 'file') data[el.name] = el.value;
+    function restoreFromLocal(data) {
+        Object.keys(data).forEach(name => {
+            if (name === '_asistentes' || name === '_savedAt') return;
+            const el = document.getElementById('asistIndForm').querySelector('[name="' + name + '"]');
+            if (el && el.type !== 'file' && !el.value) el.value = data[name];
         });
-        // Save asistentes arrays
-        const nombres = [];
-        const cedulas = [];
-        const cargos = [];
-        form.querySelectorAll('input[name="asistente_nombre[]"]').forEach(el => nombres.push(el.value));
-        form.querySelectorAll('input[name="asistente_cedula[]"]').forEach(el => cedulas.push(el.value));
-        form.querySelectorAll('input[name="asistente_cargo[]"]').forEach(el => cargos.push(el.value));
-        data._asistentes = { nombres, cedulas, cargos };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        // Restore asistentes
+        if (data._asistentes && data._asistentes.nombres) {
+            document.getElementById('asistentesBody').innerHTML = '';
+            rowCount = 0;
+            data._asistentes.nombres.forEach((n, i) => {
+                addAsistenteRow(n, data._asistentes.cedulas[i] || '', data._asistentes.cargos[i] || '');
+            });
+        }
     }
 
-    function loadDraft() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
+    if (!isEditLocal) {
         try {
-            const data = JSON.parse(saved);
-            Object.keys(data).forEach(name => {
-                if (name === '_asistentes') return;
-                const el = form.querySelector('[name="' + name + '"]');
-                if (el && el.type !== 'file' && !el.value) el.value = data[name];
-            });
-            // Restore asistentes
-            if (data._asistentes && data._asistentes.nombres) {
-                // Clear existing rows
-                document.getElementById('asistentesBody').innerHTML = '';
-                rowCount = 0;
-                data._asistentes.nombres.forEach((n, i) => {
-                    addAsistenteRow(n, data._asistentes.cedulas[i] || '', data._asistentes.cargos[i] || '');
-                });
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                const savedTime = new Date(data._savedAt);
+                const hoursAgo = ((Date.now() - savedTime.getTime()) / 3600000).toFixed(1);
+                if (hoursAgo < 24) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Borrador recuperado',
+                        html: 'Tienes un borrador guardado hace <strong>' + hoursAgo + ' horas</strong>.<br>Deseas restaurarlo?',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, restaurar',
+                        cancelButtonText: 'No, empezar de cero',
+                        confirmButtonColor: '#bd9751',
+                    }).then(result => {
+                        if (result.isConfirmed) restoreFromLocal(data);
+                        else localStorage.removeItem(STORAGE_KEY);
+                    });
+                } else {
+                    localStorage.removeItem(STORAGE_KEY);
+                }
             }
         } catch(e) {}
     }
 
-    form.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(saveDraft, 2000); });
-    setInterval(saveDraft, 30000);
-    form.addEventListener('submit', () => { localStorage.removeItem(STORAGE_KEY); });
-    if (!<?= $isEdit ? 'true' : 'false' ?>) loadDraft();
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'asistIndForm',
+        storeUrl: '/inspecciones/asistencia-induccion/store',
+        updateUrlBase: '/inspecciones/asistencia-induccion/update/',
+        editUrlBase: '/inspecciones/asistencia-induccion/edit/',
+        recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        intervalSeconds: 60,
+        minFieldsCheck: function() {
+            var cliente = document.querySelector('[name="id_cliente"]');
+            var fecha = document.querySelector('[name="fecha_sesion"]');
+            return cliente && cliente.value && fecha && fecha.value;
+        },
+    });
 });
 
 let rowCount = 0;

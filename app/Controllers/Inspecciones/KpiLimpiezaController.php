@@ -9,9 +9,11 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use Dompdf\Dompdf;
 use App\Libraries\InspeccionEmailNotifier;
+use App\Traits\AutosaveJsonTrait;
 
 class KpiLimpiezaController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected KpiLimpiezaModel $model;
 
     protected const INDICADORES = [
@@ -76,9 +78,12 @@ class KpiLimpiezaController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        if (!$isAutosave) {
+            if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         $data = [
@@ -98,6 +103,10 @@ class KpiLimpiezaController extends BaseController
 
         $this->model->insert($data);
         $id = $this->model->getInsertID();
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($id);
+        }
 
         return redirect()->to('/inspecciones/' . static::ROUTE_SLUG . '/edit/' . $id)
             ->with('msg', 'KPI guardado como borrador');
@@ -125,6 +134,9 @@ class KpiLimpiezaController extends BaseController
     {
         $inspeccion = $this->model->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/' . static::ROUTE_SLUG)->with('error', 'No se puede editar');
         }
 
@@ -152,6 +164,10 @@ class KpiLimpiezaController extends BaseController
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
         }
 
         return redirect()->to('/inspecciones/' . static::ROUTE_SLUG . '/edit/' . $id)

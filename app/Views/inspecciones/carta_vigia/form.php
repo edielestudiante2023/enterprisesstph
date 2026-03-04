@@ -62,9 +62,7 @@
         </div>
         <?php endif; ?>
 
-        <div id="autoguardadoIndicador" class="text-center text-muted mb-3" style="font-size: 12px; display: none;">
-            <i class="fas fa-save"></i> Guardado local: <span id="autoguardadoHora"></span>
-        </div>
+        <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;"></div>
 
         <!-- Botones -->
         <div class="d-flex gap-2 mb-4">
@@ -100,75 +98,64 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#selectCliente').append(optCliente).trigger('change');
     <?php endif; ?>
 
-    <?php if (!$isEdit): ?>
-    // -- Autoguardado localStorage --
-    var STORAGE_KEY = 'carta_vigia_draft_new';
+    // ============================================================
+    // AUTOGUARDADO EN LOCALSTORAGE (restauracion inicial)
+    // ============================================================
+    var STORAGE_KEY = 'carta_vigia_draft_<?= $isEdit ? $carta['id'] : 'new' ?>';
+    var isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
-    function collectFormData() {
-        return {
-            id_cliente: document.querySelector('[name="id_cliente"]').value,
-            nombre_vigia: document.querySelector('[name="nombre_vigia"]').value,
-            documento_vigia: document.querySelector('[name="documento_vigia"]').value,
-            email_vigia: document.querySelector('[name="email_vigia"]').value,
-            telefono_vigia: document.querySelector('[name="telefono_vigia"]').value,
-            timestamp: Date.now()
-        };
+    function restoreFromLocal(data) {
+        if (data.nombre_vigia) document.querySelector('[name="nombre_vigia"]').value = data.nombre_vigia;
+        if (data.documento_vigia) document.querySelector('[name="documento_vigia"]').value = data.documento_vigia;
+        if (data.email_vigia) document.querySelector('[name="email_vigia"]').value = data.email_vigia;
+        if (data.telefono_vigia) document.querySelector('[name="telefono_vigia"]').value = data.telefono_vigia;
+        if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
     }
 
-    function saveToLocal() {
-        var data = collectFormData();
-        if (!data.nombre_vigia && !data.documento_vigia) return;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        var hora = new Date().toLocaleTimeString();
-        document.getElementById('autoguardadoHora').textContent = hora;
-        document.getElementById('autoguardadoIndicador').style.display = '';
-    }
-
-    function restoreFromLocal() {
-        var saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
+    if (!isEditLocal) {
         try {
-            var data = JSON.parse(saved);
-            if (Date.now() - data.timestamp > 24 * 60 * 60 * 1000) {
-                localStorage.removeItem(STORAGE_KEY);
-                return;
-            }
-            Swal.fire({
-                title: 'Borrador encontrado',
-                text: 'Se encontró un borrador guardado. ¿Desea restaurar los datos?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#bd9751',
-                confirmButtonText: 'Sí, restaurar',
-                cancelButtonText: 'No, empezar de cero'
-            }).then(function(result) {
-                if (result.isConfirmed) {
-                    if (data.nombre_vigia) document.querySelector('[name="nombre_vigia"]').value = data.nombre_vigia;
-                    if (data.documento_vigia) document.querySelector('[name="documento_vigia"]').value = data.documento_vigia;
-                    if (data.email_vigia) document.querySelector('[name="email_vigia"]').value = data.email_vigia;
-                    if (data.telefono_vigia) document.querySelector('[name="telefono_vigia"]').value = data.telefono_vigia;
-                    if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
-                } else {
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                var data = JSON.parse(saved);
+                if (data._savedAt && (Date.now() - new Date(data._savedAt).getTime()) > 24*3600*1000) {
                     localStorage.removeItem(STORAGE_KEY);
+                } else {
+                    Swal.fire({
+                        title: 'Borrador encontrado',
+                        text: 'Se encontro un borrador guardado. Desea restaurar los datos?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#bd9751',
+                        confirmButtonText: 'Si, restaurar',
+                        cancelButtonText: 'No, empezar de cero'
+                    }).then(function(result) {
+                        if (result.isConfirmed) restoreFromLocal(data);
+                        else localStorage.removeItem(STORAGE_KEY);
+                    });
                 }
-            });
+            }
         } catch (e) {
             localStorage.removeItem(STORAGE_KEY);
         }
     }
 
-    restoreFromLocal();
-
-    setInterval(saveToLocal, 30000);
-    var debounceTimer;
-    document.getElementById('formCartaVigia').addEventListener('input', function() {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(saveToLocal, 2000);
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'formCartaVigia',
+        storeUrl: '/inspecciones/carta-vigia/store',
+        updateUrlBase: '/inspecciones/carta-vigia/update/',
+        editUrlBase: '/inspecciones/carta-vigia/edit/',
+        recordId: <?= isset($carta) ? $carta['id'] : 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        intervalSeconds: 60,
+        minFieldsCheck: function() {
+            var cliente = document.querySelector('[name="id_cliente"]');
+            var nombre = document.querySelector('[name="nombre_vigia"]');
+            return cliente && cliente.value && nombre && nombre.value;
+        },
     });
-
-    document.getElementById('formCartaVigia').addEventListener('submit', function() {
-        localStorage.removeItem(STORAGE_KEY);
-    });
-    <?php endif; ?>
 });
 </script>

@@ -377,51 +377,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================================
-    // AUTOGUARDADO EN LOCALSTORAGE
+    // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
     // ============================================================
     const STORAGE_KEY = 'ext_draft_<?= $inspeccion['id'] ?? 'new' ?>';
-    const isEdit = <?= $isEdit ? 'true' : 'false' ?>;
-
-    function collectFormData() {
-        const data = {};
-        data.id_cliente = document.getElementById('selectCliente').value;
-        data.fecha_inspeccion = document.querySelector('[name="fecha_inspeccion"]').value;
-        data.fecha_vencimiento_global = document.querySelector('[name="fecha_vencimiento_global"]').value;
-        data.recomendaciones_generales = document.querySelector('[name="recomendaciones_generales"]').value;
-
-        // Inventario
-        ['numero_extintores_totales','cantidad_abc','cantidad_co2','cantidad_solkaflam','cantidad_agua',
-         'capacidad_libras','cantidad_unidades_residenciales','cantidad_porteria','cantidad_oficina_admin',
-         'cantidad_shut_basuras','cantidad_salones_comunales','cantidad_cuarto_bombas','cantidad_planta_electrica'
-        ].forEach(f => { data[f] = document.querySelector('[name="'+f+'"]')?.value || ''; });
-
-        // Extintores
-        data.extintores = [];
-        document.querySelectorAll('.extintor-row').forEach(row => {
-            const ext = {};
-            ext.id = row.querySelector('[name="ext_id[]"]').value;
-            for (const key of Object.keys(CRITERIOS)) {
-                ext[key] = row.querySelector('[name="ext_'+key+'[]"]')?.value || '';
-            }
-            ext.fecha_vencimiento = row.querySelector('[name="ext_fecha_vencimiento[]"]')?.value || '';
-            ext.observaciones = row.querySelector('[name="ext_observaciones[]"]')?.value || '';
-            data.extintores.push(ext);
-        });
-
-        data._savedAt = new Date().toISOString();
-        return data;
-    }
-
-    function saveToLocal() {
-        try {
-            const data = collectFormData();
-            if (data.id_cliente || data.extintores.length) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                document.getElementById('autoSaveStatus').innerHTML =
-                    '<i class="fas fa-check-circle text-success"></i> Guardado ' + new Date().toLocaleTimeString();
-            }
-        } catch(e) {}
-    }
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
     function restoreFromLocal(data) {
         if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
@@ -429,7 +388,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.fecha_vencimiento_global) document.querySelector('[name="fecha_vencimiento_global"]').value = data.fecha_vencimiento_global;
         if (data.recomendaciones_generales) document.querySelector('[name="recomendaciones_generales"]').value = data.recomendaciones_generales;
 
-        // Inventario
         ['numero_extintores_totales','cantidad_abc','cantidad_co2','cantidad_solkaflam','cantidad_agua',
          'capacidad_libras','cantidad_unidades_residenciales','cantidad_porteria','cantidad_oficina_admin',
          'cantidad_shut_basuras','cantidad_salones_comunales','cantidad_cuarto_bombas','cantidad_planta_electrica'
@@ -438,14 +396,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (el && data[f]) el.value = data[f];
         });
 
-        // Extintores
         (data.extintores || []).forEach((ext, i) => {
             document.getElementById('extintoresContainer').insertAdjacentHTML('beforeend', buildExtintorRow(i + 1, ext));
         });
         updateExtintores();
     }
 
-    if (!isEdit) {
+    if (!isEditLocal) {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
@@ -471,14 +428,20 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
     }
 
-    setInterval(saveToLocal, 30000);
-    document.getElementById('extForm').addEventListener('input', function() {
-        clearTimeout(window._autoSaveTimeout);
-        window._autoSaveTimeout = setTimeout(saveToLocal, 2000);
-    });
-    $('#selectCliente').on('change', function() { setTimeout(saveToLocal, 500); });
-    document.getElementById('extForm').addEventListener('submit', function() {
-        localStorage.removeItem(STORAGE_KEY);
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'extForm',
+        storeUrl: '/inspecciones/extintores/store',
+        updateUrlBase: '/inspecciones/extintores/update/',
+        editUrlBase: '/inspecciones/extintores/edit/',
+        recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        detailRowSelector: '.extintor-row',
+        detailIdInputName: 'ext_id[]',
+        intervalSeconds: 60,
     });
 });
 </script>

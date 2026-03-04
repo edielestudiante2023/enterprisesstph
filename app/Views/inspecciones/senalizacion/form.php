@@ -293,36 +293,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================================
-    // AUTOGUARDADO EN LOCALSTORAGE
+    // AUTOGUARDADO EN LOCALSTORAGE (restauración inicial)
     // ============================================================
     const STORAGE_KEY = 'senal_draft_<?= $inspeccion['id'] ?? 'new' ?>';
-    const isEdit = <?= $isEdit ? 'true' : 'false' ?>;
-
-    function collectFormData() {
-        const data = {};
-        data.id_cliente = document.getElementById('selectCliente').value;
-        data.fecha_inspeccion = document.querySelector('[name="fecha_inspeccion"]').value;
-        data.observaciones = document.querySelector('[name="observaciones"]').value;
-        data.items = [];
-        document.querySelectorAll('.item-senal-row').forEach(row => {
-            const nombre = row.querySelector('[name="item_nombre[]"]').value;
-            const estado = row.querySelector('[name="item_estado[]"]').value;
-            data.items.push({ nombre, estado });
-        });
-        data._savedAt = new Date().toISOString();
-        return data;
-    }
-
-    function saveToLocal() {
-        try {
-            const data = collectFormData();
-            if (data.id_cliente || data.items.length) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                document.getElementById('autoSaveStatus').innerHTML =
-                    '<i class="fas fa-check-circle text-success"></i> Guardado ' + new Date().toLocaleTimeString();
-            }
-        } catch(e) {}
-    }
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
     function restoreFromLocal(data) {
         if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
@@ -342,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    if (!isEdit) {
+    if (!isEditLocal) {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
@@ -368,14 +342,20 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
     }
 
-    setInterval(saveToLocal, 30000);
-    document.getElementById('senalForm').addEventListener('input', function() {
-        clearTimeout(window._autoSaveTimeout);
-        window._autoSaveTimeout = setTimeout(saveToLocal, 2000);
-    });
-    $('#selectCliente').on('change', function() { setTimeout(saveToLocal, 500); });
-    document.getElementById('senalForm').addEventListener('submit', function() {
-        localStorage.removeItem(STORAGE_KEY);
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'senalForm',
+        storeUrl: '/inspecciones/senalizacion/store',
+        updateUrlBase: '/inspecciones/senalizacion/update/',
+        editUrlBase: '/inspecciones/senalizacion/edit/',
+        recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        detailRowSelector: '.item-senal-row',
+        detailIdInputName: 'item_id[]',
+        intervalSeconds: 60,
     });
 });
 </script>

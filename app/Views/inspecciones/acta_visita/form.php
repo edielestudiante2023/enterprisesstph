@@ -458,60 +458,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================================
-    // AUTOGUARDADO EN LOCALSTORAGE
+    // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
     // ============================================================
     const STORAGE_KEY = 'acta_draft_<?= $acta['id'] ?? 'new' ?>';
-    const isEdit = <?= $isEdit ? 'true' : 'false' ?>;
-
-    function collectFormData() {
-        const data = {};
-        // Campos simples
-        data.id_cliente = document.getElementById('selectCliente').value;
-        data.fecha_visita = document.querySelector('[name="fecha_visita"]').value;
-        data.hora_visita = document.querySelector('[name="hora_visita"]').value;
-        data.motivo = document.querySelector('[name="motivo"]').value;
-        data.modalidad = document.querySelector('[name="modalidad"]').value;
-        data.observaciones = document.querySelector('[name="observaciones"]').value;
-        data.ubicacion_gps = document.getElementById('ubicacionGps').value;
-
-        // Integrantes
-        data.integrantes = [];
-        document.querySelectorAll('.integrante-row').forEach(row => {
-            const nombre = row.querySelector('[name="integrante_nombre[]"]').value;
-            const rol = row.querySelector('[name="integrante_rol[]"]').value;
-            if (nombre || rol) data.integrantes.push({ nombre, rol });
-        });
-
-        // Temas
-        data.temas = [];
-        document.querySelectorAll('.tema-row textarea').forEach(ta => {
-            if (ta.value) data.temas.push(ta.value);
-        });
-
-        // Compromisos
-        data.compromisos = [];
-        document.querySelectorAll('.compromiso-row').forEach(row => {
-            const actividad = row.querySelector('[name="compromiso_actividad[]"]').value;
-            const fecha = row.querySelector('[name="compromiso_fecha[]"]').value;
-            const responsable = row.querySelector('[name="compromiso_responsable[]"]').value;
-            if (actividad) data.compromisos.push({ actividad, fecha, responsable });
-        });
-
-        data._savedAt = new Date().toISOString();
-        return data;
-    }
-
-    function saveToLocal() {
-        try {
-            const data = collectFormData();
-            // Solo guardar si hay algo significativo
-            if (data.id_cliente || data.motivo || data.integrantes.length || data.temas.length) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                document.getElementById('autoSaveStatus').innerHTML =
-                    '<i class="fas fa-check-circle text-success"></i> Guardado ' + new Date().toLocaleTimeString();
-            }
-        } catch(e) { /* localStorage lleno o no disponible */ }
-    }
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
     function restoreFromLocal(data) {
         // Cliente - se restaura después de que Select2 cargue
@@ -553,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Verificar si hay borrador guardado (solo en creación nueva sin datos previos del servidor)
-    if (!isEdit) {
+    if (!isEditLocal) {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
@@ -585,21 +535,23 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
     }
 
-    // Auto-guardar cada 30 segundos
-    setInterval(saveToLocal, 30000);
-
-    // Guardar al cambiar cualquier campo
-    document.getElementById('actaForm').addEventListener('input', function() {
-        clearTimeout(window._autoSaveTimeout);
-        window._autoSaveTimeout = setTimeout(saveToLocal, 2000);
-    });
-    $('#selectCliente').on('change', function() {
-        setTimeout(saveToLocal, 500);
-    });
-
-    // Limpiar localStorage al enviar formulario exitosamente
-    document.getElementById('actaForm').addEventListener('submit', function() {
-        localStorage.removeItem(STORAGE_KEY);
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'actaForm',
+        storeUrl: '/inspecciones/acta-visita/store',
+        updateUrlBase: '/inspecciones/acta-visita/update/',
+        editUrlBase: '/inspecciones/acta-visita/edit/',
+        recordId: <?= $acta['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        intervalSeconds: 60,
+        minFieldsCheck: function() {
+            var cliente = document.querySelector('[name="id_cliente"]');
+            var fecha = document.querySelector('[name="fecha_visita"]');
+            return cliente && cliente.value && fecha && fecha.value;
+        },
     });
 
     // --- Botones Camara / Galeria ---

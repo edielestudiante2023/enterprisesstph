@@ -17,9 +17,11 @@ use App\Models\InspeccionRecursosSeguridadModel;
 use App\Models\InspeccionComunicacionModel;
 use App\Models\InspeccionGabineteModel;
 use Dompdf\Dompdf;
+use App\Traits\AutosaveJsonTrait;
 
 class PlanEmergenciaController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected PlanEmergenciaModel $model;
 
     public const TELEFONOS = [
@@ -113,25 +115,34 @@ class PlanEmergenciaController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_visita' => 'required|valid_date'])) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        if (!$isAutosave) {
+            if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_visita' => 'required|valid_date'])) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         $data = $this->getInspeccionPostData();
         $data['id_consultor'] = $userId;
         $data['estado'] = 'borrador';
 
-        // Fotos
-        foreach (self::FOTO_FIELDS as $campo) {
-            $foto = $this->uploadFoto($campo, 'uploads/inspecciones/plan-emergencia/fotos/');
-            if ($foto) {
-                $data[$campo] = $foto;
+        // Fotos (solo en submit normal, no en autosave)
+        if (!$isAutosave) {
+            foreach (self::FOTO_FIELDS as $campo) {
+                $foto = $this->uploadFoto($campo, 'uploads/inspecciones/plan-emergencia/fotos/');
+                if ($foto) {
+                    $data[$campo] = $foto;
+                }
             }
         }
 
         $this->model->insert($data);
         $idPlan = $this->model->getInsertID();
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($idPlan);
+        }
 
         return redirect()->to('/inspecciones/plan-emergencia/edit/' . $idPlan)
             ->with('msg', 'Plan guardado como borrador');
@@ -159,19 +170,24 @@ class PlanEmergenciaController extends BaseController
     {
         $inspeccion = $this->model->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'No se puede editar');
         }
 
         $data = $this->getInspeccionPostData();
 
-        // Fotos: subir nueva o mantener existente
-        foreach (self::FOTO_FIELDS as $campo) {
-            $nueva = $this->uploadFoto($campo, 'uploads/inspecciones/plan-emergencia/fotos/');
-            if ($nueva) {
-                if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
-                    unlink(FCPATH . $inspeccion[$campo]);
+        // Fotos: subir nueva o mantener existente (solo en submit normal)
+        if (!$this->isAutosaveRequest()) {
+            foreach (self::FOTO_FIELDS as $campo) {
+                $nueva = $this->uploadFoto($campo, 'uploads/inspecciones/plan-emergencia/fotos/');
+                if ($nueva) {
+                    if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
+                        unlink(FCPATH . $inspeccion[$campo]);
+                    }
+                    $data[$campo] = $nueva;
                 }
-                $data[$campo] = $nueva;
             }
         }
 
@@ -179,6 +195,10 @@ class PlanEmergenciaController extends BaseController
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
         }
 
         return redirect()->to('/inspecciones/plan-emergencia/edit/' . $id)

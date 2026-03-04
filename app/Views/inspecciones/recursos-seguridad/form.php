@@ -120,48 +120,64 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // ===== AUTOGUARDADO localStorage =====
-    const formId = '<?= $isEdit ? $inspeccion['id'] : 'new' ?>';
-    const STORAGE_KEY = 'rec_draft_' + formId;
-    const form = document.getElementById('recForm');
-    let debounceTimer;
+    // ============================================================
+    // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
+    // ============================================================
+    const STORAGE_KEY = 'rec_draft_<?= $inspeccion['id'] ?? 'new' ?>';
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
-    function saveDraft() {
-        const data = {};
-        form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea, select').forEach(el => {
-            if (el.name && el.type !== 'file') {
-                data[el.name] = el.value;
+    function restoreFromLocal(data) {
+        if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
+        if (data.fecha_inspeccion) document.querySelector('[name="fecha_inspeccion"]').value = data.fecha_inspeccion;
+        if (data.observaciones) document.querySelector('[name="observaciones"]').value = data.observaciones;
+
+        const keys = ['lamparas','antideslizantes','pasamanos','vigilancia','iluminacion','planes_respuesta'];
+        keys.forEach(k => {
+            if (data['obs_'+k] !== undefined) {
+                const el = document.querySelector('[name="obs_'+k+'"]');
+                if (el) el.value = data['obs_'+k];
             }
         });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
-    function loadDraft() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
+    if (!isEditLocal) {
         try {
-            const data = JSON.parse(saved);
-            Object.keys(data).forEach(name => {
-                const el = form.querySelector('[name="' + name + '"]');
-                if (el && el.type !== 'file' && !el.value) {
-                    el.value = data[name];
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                const hoursAgo = ((Date.now() - new Date(data._savedAt).getTime()) / 3600000).toFixed(1);
+                if (hoursAgo < 24) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Borrador recuperado',
+                        html: 'Tienes un borrador guardado hace <strong>' + hoursAgo + ' horas</strong>.<br>Deseas restaurarlo?',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, restaurar',
+                        cancelButtonText: 'No, empezar de cero',
+                        confirmButtonColor: '#bd9751',
+                    }).then(result => {
+                        if (result.isConfirmed) restoreFromLocal(data);
+                        else localStorage.removeItem(STORAGE_KEY);
+                    });
+                } else {
+                    localStorage.removeItem(STORAGE_KEY);
                 }
-            });
+            }
         } catch(e) {}
     }
 
-    form.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(saveDraft, 2000);
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'recForm',
+        storeUrl: '/inspecciones/recursos-seguridad/store',
+        updateUrlBase: '/inspecciones/recursos-seguridad/update/',
+        editUrlBase: '/inspecciones/recursos-seguridad/edit/',
+        recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        intervalSeconds: 60,
     });
-    setInterval(saveDraft, 30000);
-
-    form.addEventListener('submit', () => {
-        localStorage.removeItem(STORAGE_KEY);
-    });
-
-    if (!<?= $isEdit ? 'true' : 'false' ?>) {
-        loadDraft();
-    }
 });
 </script>

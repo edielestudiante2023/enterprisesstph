@@ -8,10 +8,12 @@ use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
+use App\Traits\AutosaveJsonTrait;
 use Dompdf\Dompdf;
 
 class EvaluacionSimulacroController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected EvaluacionSimulacroModel $evalModel;
 
     public function __construct()
@@ -196,6 +198,9 @@ class EvaluacionSimulacroController extends BaseController
     {
         $eval = $this->evalModel->find($id);
         if (!$eval) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/simulacro')->with('error', 'No encontrada');
         }
 
@@ -215,6 +220,10 @@ class EvaluacionSimulacroController extends BaseController
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
         }
 
         return redirect()->to('/inspecciones/simulacro/edit/' . $id)

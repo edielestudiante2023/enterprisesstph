@@ -175,6 +175,11 @@ if ($isEdit && !empty($inspeccion['perfil_asistentes'])) {
             </div>
         </div>
 
+        <!-- Indicador autoguardado -->
+        <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;">
+            <i class="fas fa-cloud"></i> Autoguardado activado
+        </div>
+
         <!-- BOTONES -->
         <div class="d-flex gap-2 mb-4">
             <button type="submit" class="btn btn-pwa btn-pwa-outline flex-fill">
@@ -208,52 +213,74 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Autoguardado localStorage
-    const formId = '<?= $isEdit ? $inspeccion['id'] : 'new' ?>';
-    const STORAGE_KEY = 'rep_cap_draft_' + formId;
-    const form = document.getElementById('repCapForm');
-    let debounceTimer;
+    // ============================================================
+    // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
+    // ============================================================
+    const STORAGE_KEY = 'rep_cap_draft_<?= $isEdit ? $inspeccion['id'] : 'new' ?>';
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
-    function saveDraft() {
-        const data = {};
-        form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea, select').forEach(el => {
-            if (el.name && el.type !== 'file') data[el.name] = el.value;
+    function restoreFromLocal(data) {
+        const form = document.getElementById('repCapForm');
+        Object.keys(data).forEach(name => {
+            if (name === '_savedAt') return;
+            if (name === 'perfil_asistentes') {
+                if (Array.isArray(data[name])) {
+                    data[name].forEach(val => {
+                        const cb = form.querySelector('input[name="perfil_asistentes[]"][value="' + val + '"]');
+                        if (cb) cb.checked = true;
+                    });
+                }
+            } else {
+                const el = form.querySelector('[name="' + name + '"]');
+                if (el && el.type !== 'file' && !el.value) el.value = data[name];
+            }
         });
-        // Save checkboxes
-        const perfiles = [];
-        form.querySelectorAll('input[name="perfil_asistentes[]"]:checked').forEach(el => {
-            perfiles.push(el.value);
-        });
-        data['perfil_asistentes'] = perfiles;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
-    function loadDraft() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
+    if (!isEditLocal) {
         try {
-            const data = JSON.parse(saved);
-            Object.keys(data).forEach(name => {
-                if (name === 'perfil_asistentes') {
-                    // Restore checkboxes
-                    if (Array.isArray(data[name])) {
-                        data[name].forEach(val => {
-                            const cb = form.querySelector('input[name="perfil_asistentes[]"][value="' + val + '"]');
-                            if (cb) cb.checked = true;
-                        });
-                    }
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                const savedTime = new Date(data._savedAt);
+                const hoursAgo = ((Date.now() - savedTime.getTime()) / 3600000).toFixed(1);
+                if (hoursAgo < 24) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Borrador recuperado',
+                        html: 'Tienes un borrador guardado hace <strong>' + hoursAgo + ' horas</strong>.<br>Deseas restaurarlo?',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, restaurar',
+                        cancelButtonText: 'No, empezar de cero',
+                        confirmButtonColor: '#bd9751',
+                    }).then(result => {
+                        if (result.isConfirmed) restoreFromLocal(data);
+                        else localStorage.removeItem(STORAGE_KEY);
+                    });
                 } else {
-                    const el = form.querySelector('[name="' + name + '"]');
-                    if (el && el.type !== 'file' && !el.value) el.value = data[name];
+                    localStorage.removeItem(STORAGE_KEY);
                 }
-            });
+            }
         } catch(e) {}
     }
 
-    form.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(saveDraft, 2000); });
-    form.addEventListener('change', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(saveDraft, 2000); });
-    setInterval(saveDraft, 30000);
-    form.addEventListener('submit', () => { localStorage.removeItem(STORAGE_KEY); });
-    if (!<?= $isEdit ? 'true' : 'false' ?>) loadDraft();
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'repCapForm',
+        storeUrl: '/inspecciones/reporte-capacitacion/store',
+        updateUrlBase: '/inspecciones/reporte-capacitacion/update/',
+        editUrlBase: '/inspecciones/reporte-capacitacion/edit/',
+        recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        intervalSeconds: 60,
+        minFieldsCheck: function() {
+            var cliente = document.querySelector('[name="id_cliente"]');
+            var fecha = document.querySelector('[name="fecha_capacitacion"]');
+            return cliente && cliente.value && fecha && fecha.value;
+        },
+    });
 });
 </script>

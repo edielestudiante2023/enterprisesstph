@@ -88,6 +88,8 @@ $action = $isEdit ? '/inspecciones/auditoria-zona-residuos/update/' . $inspeccio
             </div>
         </div>
 
+        <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;"></div>
+
         <!-- BOTONES -->
         <div class="d-flex gap-2 mb-4">
             <button type="submit" class="btn btn-pwa btn-pwa-outline flex-fill">
@@ -121,35 +123,62 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Autoguardado localStorage
-    const formId = '<?= $isEdit ? $inspeccion['id'] : 'new' ?>';
-    const STORAGE_KEY = 'aud_res_draft_' + formId;
-    const form = document.getElementById('audResForm');
-    let debounceTimer;
+    // ============================================================
+    // AUTOGUARDADO EN LOCALSTORAGE (restauracion inicial)
+    // ============================================================
+    const STORAGE_KEY = 'aud_res_draft_<?= $inspeccion['id'] ?? 'new' ?>';
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
-    function saveDraft() {
-        const data = {};
-        form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea, select').forEach(el => {
-            if (el.name && el.type !== 'file') data[el.name] = el.value;
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    function restoreFromLocal(data) {
+        if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
+        if (data.fecha_inspeccion) document.querySelector('[name="fecha_inspeccion"]').value = data.fecha_inspeccion;
+        if (data.observaciones) document.querySelector('[name="observaciones"]').value = data.observaciones;
+        <?php foreach ($itemsZona as $key => $info): ?>
+        <?php if ($info['tipo'] === 'enum'): ?>
+        if (data['estado_<?= $key ?>']) document.querySelector('[name="estado_<?= $key ?>"]').value = data['estado_<?= $key ?>'];
+        <?php else: ?>
+        if (data['<?= $key ?>']) document.querySelector('[name="<?= $key ?>"]').value = data['<?= $key ?>'];
+        <?php endif; ?>
+        <?php endforeach; ?>
     }
 
-    function loadDraft() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
+    if (!isEditLocal) {
         try {
-            const data = JSON.parse(saved);
-            Object.keys(data).forEach(name => {
-                const el = form.querySelector('[name="' + name + '"]');
-                if (el && el.type !== 'file' && !el.value) el.value = data[name];
-            });
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                var data = JSON.parse(saved);
+                if (data._savedAt && (Date.now() - new Date(data._savedAt).getTime()) > 24*3600*1000) {
+                    localStorage.removeItem(STORAGE_KEY);
+                } else {
+                    Swal.fire({
+                        title: 'Borrador encontrado',
+                        text: 'Se encontro un borrador guardado. Desea restaurar los datos?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, restaurar',
+                        cancelButtonText: 'No, empezar de cero',
+                        confirmButtonColor: '#bd9751',
+                    }).then(result => {
+                        if (result.isConfirmed) restoreFromLocal(data);
+                        else localStorage.removeItem(STORAGE_KEY);
+                    });
+                }
+            }
         } catch(e) {}
     }
 
-    form.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(saveDraft, 2000); });
-    setInterval(saveDraft, 30000);
-    form.addEventListener('submit', () => { localStorage.removeItem(STORAGE_KEY); });
-    if (!<?= $isEdit ? 'true' : 'false' ?>) loadDraft();
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'audResForm',
+        storeUrl: '/inspecciones/auditoria-zona-residuos/store',
+        updateUrlBase: '/inspecciones/auditoria-zona-residuos/update/',
+        editUrlBase: '/inspecciones/auditoria-zona-residuos/edit/',
+        recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        intervalSeconds: 60,
+    });
 });
 </script>

@@ -10,9 +10,11 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use Dompdf\Dompdf;
 use App\Libraries\InspeccionEmailNotifier;
+use App\Traits\AutosaveJsonTrait;
 
 class InspeccionLocativaController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected InspeccionLocativaModel $inspeccionModel;
     protected HallazgoLocativoModel $hallazgoModel;
 
@@ -81,14 +83,17 @@ class InspeccionLocativaController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        $rules = [
-            'id_cliente'       => 'required|integer',
-            'fecha_inspeccion'  => 'required|valid_date',
-        ];
+        if (!$isAutosave) {
+            $rules = [
+                'id_cliente'       => 'required|integer',
+                'fecha_inspeccion'  => 'required|valid_date',
+            ];
 
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            if (!$this->validate($rules)) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         $inspeccionData = [
@@ -102,7 +107,11 @@ class InspeccionLocativaController extends BaseController
         $this->inspeccionModel->insert($inspeccionData);
         $idInspeccion = $this->inspeccionModel->getInsertID();
 
-        $this->saveHallazgos($idInspeccion);
+        $detailIds = $this->saveHallazgos($idInspeccion);
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($idInspeccion, ['detail_ids' => $detailIds]);
+        }
 
         return redirect()->to('/inspecciones/inspeccion-locativa/edit/' . $idInspeccion)
             ->with('msg', 'Inspección guardada como borrador');
@@ -137,6 +146,9 @@ class InspeccionLocativaController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/inspeccion-locativa')->with('error', 'No se puede editar esta inspección');
         }
 
@@ -147,7 +159,7 @@ class InspeccionLocativaController extends BaseController
         ];
 
         $this->inspeccionModel->update($id, $inspeccionData);
-        $this->saveHallazgos($id);
+        $detailIds = $this->saveHallazgos($id);
 
         $redirect = $this->request->getPost('finalizar')
             ? '/inspecciones/inspeccion-locativa/finalizar/' . $id
@@ -155,6 +167,10 @@ class InspeccionLocativaController extends BaseController
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id, ['detail_ids' => $detailIds]);
         }
 
         return redirect()->to('/inspecciones/inspeccion-locativa/edit/' . $id)
@@ -315,7 +331,7 @@ class InspeccionLocativaController extends BaseController
         return redirect()->to("/inspecciones/inspeccion-locativa/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
     }
 
-    private function saveHallazgos(int $idInspeccion): void
+    private function saveHallazgos(int $idInspeccion): array
     {
         $descripciones = $this->request->getPost('hallazgo_descripcion') ?? [];
         $estados = $this->request->getPost('hallazgo_estado') ?? [];
@@ -337,6 +353,7 @@ class InspeccionLocativaController extends BaseController
         }
 
         $files = $this->request->getFiles();
+        $newIds = [];
 
         foreach ($descripciones as $i => $descripcion) {
             if (empty(trim($descripcion))) {
@@ -375,7 +392,10 @@ class InspeccionLocativaController extends BaseController
                 'observaciones'     => $observaciones[$i] ?? null,
                 'orden'             => $i + 1,
             ]);
+            $newIds[] = $this->hallazgoModel->getInsertID();
         }
+
+        return $newIds;
     }
 
     /**

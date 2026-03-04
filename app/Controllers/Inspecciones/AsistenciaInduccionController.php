@@ -10,9 +10,11 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
+use App\Traits\AutosaveJsonTrait;
 
 class AsistenciaInduccionController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected AsistenciaInduccionModel $inspeccionModel;
 
     public const TIPOS_CHARLA = [
@@ -75,9 +77,12 @@ class AsistenciaInduccionController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_sesion' => 'required|valid_date'])) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        if (!$isAutosave) {
+            if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_sesion' => 'required|valid_date'])) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         $data = $this->getInspeccionPostData();
@@ -89,6 +94,10 @@ class AsistenciaInduccionController extends BaseController
 
         // Insert attendees
         $this->saveAsistentes($idInspeccion);
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($idInspeccion);
+        }
 
         return redirect()->to('/inspecciones/asistencia-induccion/edit/' . $idInspeccion)
             ->with('msg', 'Asistencia guardada como borrador');
@@ -120,6 +129,9 @@ class AsistenciaInduccionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No se puede editar');
         }
 
@@ -143,6 +155,10 @@ class AsistenciaInduccionController extends BaseController
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
         }
 
         return redirect()->to('/inspecciones/asistencia-induccion/edit/' . $id)

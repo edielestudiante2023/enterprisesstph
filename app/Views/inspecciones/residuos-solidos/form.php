@@ -127,71 +127,56 @@ document.querySelector('.btn-finalizar').addEventListener('click', function(e) {
     });
 });
 
-// ── Autoguardado localStorage ──
+// ============================================================
+// AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
+// ============================================================
 var STORAGE_KEY = '<?= $storageKey ?>';
+var isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
-function collectFormData() {
-    return {
-        id_cliente: document.querySelector('[name="id_cliente"]').value,
-        fecha_programa: document.querySelector('[name="fecha_programa"]').value,
-        nombre_responsable: document.querySelector('[name="nombre_responsable"]').value,
-        timestamp: Date.now()
-    };
+function restoreFromLocal(data) {
+    if (data.fecha_programa) document.querySelector('[name="fecha_programa"]').value = data.fecha_programa;
+    if (data.nombre_responsable) document.querySelector('[name="nombre_responsable"]').value = data.nombre_responsable;
+    if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
 }
 
-function saveToLocal() {
-    var data = collectFormData();
-    if (!data.id_cliente && !data.nombre_responsable) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    var hora = new Date().toLocaleTimeString();
-    document.getElementById('autoguardadoHora').textContent = hora;
-    document.getElementById('autoguardadoIndicador').style.display = '';
-}
-
-function restoreFromLocal() {
-    var saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return;
+if (!isEditLocal) {
     try {
-        var data = JSON.parse(saved);
-        if (Date.now() - data.timestamp > 24 * 60 * 60 * 1000) {
-            localStorage.removeItem(STORAGE_KEY);
-            return;
-        }
-        Swal.fire({
-            title: 'Borrador encontrado',
-            text: 'Se encontró un borrador guardado. ¿Desea restaurar los datos?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#bd9751',
-            confirmButtonText: 'Sí, restaurar',
-            cancelButtonText: 'No, empezar de cero'
-        }).then(result => {
-            if (result.isConfirmed) {
-                if (data.fecha_programa) document.querySelector('[name="fecha_programa"]').value = data.fecha_programa;
-                if (data.nombre_responsable) document.querySelector('[name="nombre_responsable"]').value = data.nombre_responsable;
-                if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
+        var saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            var data = JSON.parse(saved);
+            var hoursAgo = ((Date.now() - new Date(data._savedAt).getTime()) / 3600000).toFixed(1);
+            if (hoursAgo < 24) {
+                Swal.fire({
+                    title: 'Borrador encontrado',
+                    text: 'Se encontro un borrador de hace ' + hoursAgo + ' horas. Restaurar?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Si, restaurar',
+                    cancelButtonText: 'No, empezar de cero',
+                    confirmButtonColor: '#bd9751',
+                }).then(function(result) {
+                    if (result.isConfirmed) restoreFromLocal(data);
+                    else localStorage.removeItem(STORAGE_KEY);
+                });
             } else {
                 localStorage.removeItem(STORAGE_KEY);
             }
-        });
-    } catch (e) {
-        localStorage.removeItem(STORAGE_KEY);
-    }
+        }
+    } catch(e) {}
 }
 
-<?php if (!$isEdit): ?>
-restoreFromLocal();
-<?php endif; ?>
-
-setInterval(saveToLocal, 30000);
-var debounceTimer;
-document.getElementById('residuosForm').addEventListener('input', function() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(saveToLocal, 2000);
-});
-
-document.getElementById('residuosForm').addEventListener('submit', function() {
-    localStorage.removeItem(STORAGE_KEY);
+// ============================================================
+// AUTOGUARDADO SERVIDOR (cada 60s)
+// ============================================================
+initAutosave({
+    formId: 'residuosForm',
+    storeUrl: '/inspecciones/residuos-solidos/store',
+    updateUrlBase: '/inspecciones/residuos-solidos/update/',
+    editUrlBase: '/inspecciones/residuos-solidos/edit/',
+    recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+    isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+    storageKey: STORAGE_KEY,
+    intervalSeconds: 60,
 });
 });
 </script>

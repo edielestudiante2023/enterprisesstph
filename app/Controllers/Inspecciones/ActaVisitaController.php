@@ -15,9 +15,11 @@ use App\Libraries\InspeccionEmailNotifier;
 use App\Models\VencimientosMantenimientoModel;
 use App\Models\CicloVisitaModel;
 use Dompdf\Dompdf;
+use App\Traits\AutosaveJsonTrait;
 
 class ActaVisitaController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected ActaVisitaModel $actaModel;
     protected ActaVisitaIntegranteModel $integranteModel;
     protected ActaVisitaTemaModel $temaModel;
@@ -84,17 +86,20 @@ class ActaVisitaController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
         // Validar campos mínimos
-        $rules = [
-            'id_cliente'   => 'required|integer',
-            'fecha_visita' => 'required|valid_date',
-            'hora_visita'  => 'required',
-            'motivo'       => 'required|min_length[3]',
-        ];
+        if (!$isAutosave) {
+            $rules = [
+                'id_cliente'   => 'required|integer',
+                'fecha_visita' => 'required|valid_date',
+                'hora_visita'  => 'required',
+                'motivo'       => 'required|min_length[3]',
+            ];
 
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            if (!$this->validate($rules)) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         // Insertar acta
@@ -127,6 +132,10 @@ class ActaVisitaController extends BaseController
 
         // Guardar fotos
         $this->saveFotos($idActa);
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($idActa);
+        }
 
         return redirect()->to('/inspecciones/acta-visita/edit/' . $idActa)
             ->with('msg', 'Acta guardada como borrador');
@@ -164,6 +173,9 @@ class ActaVisitaController extends BaseController
     {
         $acta = $this->actaModel->find($id);
         if (!$acta) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/acta-visita')->with('error', 'No se puede editar esta acta');
         }
 
@@ -187,6 +199,10 @@ class ActaVisitaController extends BaseController
         $this->saveTemas($id);
         $this->saveCompromisos($id);
         $this->saveFotos($id);
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
+        }
 
         $redirect = $this->request->getPost('ir_a_firmas') ? '/inspecciones/acta-visita/firma/' . $id : '/inspecciones/acta-visita/edit/' . $id;
 

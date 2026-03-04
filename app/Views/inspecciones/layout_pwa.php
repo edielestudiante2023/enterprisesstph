@@ -295,22 +295,22 @@
 
     <!-- Bottom Navigation -->
     <div class="pwa-bottomnav">
-        <a href="/inspecciones" class="<?= current_url() === base_url('inspecciones') ? 'active' : '' ?>">
+        <a href="<?= site_url('inspecciones') ?>" class="<?= current_url() === base_url('inspecciones') ? 'active' : '' ?>">
             <i class="fas fa-home"></i>
             <span>Inicio</span>
         </a>
-        <a href="/inspecciones/acta-visita" class="<?= strpos(current_url(), 'acta-visita') !== false ? 'active' : '' ?>">
+        <a href="<?= site_url('inspecciones/acta-visita') ?>" class="<?= strpos(current_url(), 'acta-visita') !== false ? 'active' : '' ?>">
             <i class="fas fa-file-alt"></i>
             <span>Actas</span>
         </a>
-        <a href="/inspecciones/acta-visita/create" class="btn-create">
+        <a href="<?= site_url('inspecciones/acta-visita/create') ?>" class="btn-create">
             <i class="fas fa-plus-circle"></i>
         </a>
-        <a href="/inspecciones/mantenimientos" class="<?= strpos(current_url(), 'mantenimientos') !== false ? 'active' : '' ?>">
+        <a href="<?= site_url('inspecciones/mantenimientos') ?>" class="<?= strpos(current_url(), 'mantenimientos') !== false ? 'active' : '' ?>">
             <i class="fas fa-wrench"></i>
             <span>Mmtos</span>
         </a>
-        <a href="/logout">
+        <a href="<?= site_url('logout') ?>">
             <i class="fas fa-sign-out-alt"></i>
             <span>Salir</span>
         </a>
@@ -347,6 +347,9 @@
         <?php endif; ?>
     });
     </script>
+
+    <!-- Autosave Server Engine -->
+    <script src="/js/autosave_server.js"></script>
 
     <!-- Service Worker Registration -->
     <script>

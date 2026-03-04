@@ -9,9 +9,11 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
+use App\Traits\AutosaveJsonTrait;
 
 class ProbabilidadPeligrosController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected ProbabilidadPeligrosModel $inspeccionModel;
 
     /**
@@ -107,9 +109,12 @@ class ProbabilidadPeligrosController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        if (!$isAutosave) {
+            if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         $data = $this->getInspeccionPostData();
@@ -118,6 +123,10 @@ class ProbabilidadPeligrosController extends BaseController
 
         $this->inspeccionModel->insert($data);
         $idInspeccion = $this->inspeccionModel->getInsertID();
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($idInspeccion);
+        }
 
         return redirect()->to('/inspecciones/probabilidad-peligros/edit/' . $idInspeccion)
             ->with('msg', 'Inspeccion guardada como borrador');
@@ -147,6 +156,9 @@ class ProbabilidadPeligrosController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/probabilidad-peligros')->with('error', 'No se puede editar');
         }
 
@@ -156,6 +168,10 @@ class ProbabilidadPeligrosController extends BaseController
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
         }
 
         return redirect()->to('/inspecciones/probabilidad-peligros/edit/' . $id)

@@ -10,9 +10,11 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use Dompdf\Dompdf;
 use App\Libraries\InspeccionEmailNotifier;
+use App\Traits\AutosaveJsonTrait;
 
 class InspeccionGabineteController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected InspeccionGabineteModel $inspeccionModel;
     protected GabineteDetalleModel $detalleModel;
 
@@ -86,9 +88,12 @@ class InspeccionGabineteController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        if (!$isAutosave) {
+            if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         $data = $this->getInspeccionPostData();
@@ -103,7 +108,11 @@ class InspeccionGabineteController extends BaseController
         $this->inspeccionModel->insert($data);
         $idInspeccion = $this->inspeccionModel->getInsertID();
 
-        $this->saveGabinetes($idInspeccion);
+        $detailIds = $this->saveGabinetes($idInspeccion);
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($idInspeccion, ['detail_ids' => $detailIds]);
+        }
 
         return redirect()->to('/inspecciones/gabinetes/edit/' . $idInspeccion)
             ->with('msg', 'Inspeccion guardada como borrador');
@@ -133,6 +142,9 @@ class InspeccionGabineteController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/gabinetes')->with('error', 'No se puede editar');
         }
 
@@ -150,10 +162,14 @@ class InspeccionGabineteController extends BaseController
         }
 
         $this->inspeccionModel->update($id, $data);
-        $this->saveGabinetes($id);
+        $detailIds = $this->saveGabinetes($id);
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id, ['detail_ids' => $detailIds]);
         }
 
         return redirect()->to('/inspecciones/gabinetes/edit/' . $id)
@@ -333,7 +349,7 @@ class InspeccionGabineteController extends BaseController
         return $dir . $fileName;
     }
 
-    private function saveGabinetes(int $idInspeccion): void
+    private function saveGabinetes(int $idInspeccion): array
     {
         $ubicaciones = $this->request->getPost('gab_ubicacion') ?? [];
         $gabIds = $this->request->getPost('gab_id') ?? [];
@@ -352,6 +368,7 @@ class InspeccionGabineteController extends BaseController
         }
 
         $files = $this->request->getFiles();
+        $newIds = [];
 
         foreach ($ubicaciones as $i => $ubicacion) {
             $existenteId = $gabIds[$i] ?? null;
@@ -381,7 +398,10 @@ class InspeccionGabineteController extends BaseController
                 'observaciones'       => ($this->request->getPost('gab_observaciones') ?? [])[$i] ?? null,
                 'foto'                => $fotoPath,
             ]);
+            $newIds[] = $this->detalleModel->getInsertID();
         }
+
+        return $newIds;
     }
 
     private function generarPdfInterno(int $id): ?string

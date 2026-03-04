@@ -12,9 +12,11 @@ use App\Models\MantenimientoModel;
 use App\Models\VencimientosMantenimientoModel;
 use Dompdf\Dompdf;
 use App\Libraries\InspeccionEmailNotifier;
+use App\Traits\AutosaveJsonTrait;
 
 class InspeccionBotiquinController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected InspeccionBotiquinModel $inspeccionModel;
     protected ElementoBotiquinModel $elementoModel;
 
@@ -116,9 +118,12 @@ class InspeccionBotiquinController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        if (!$isAutosave) {
+            if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         $inspeccionData = $this->getInspeccionPostData($userId);
@@ -137,6 +142,10 @@ class InspeccionBotiquinController extends BaseController
         $idInspeccion = $this->inspeccionModel->getInsertID();
 
         $this->saveElementos($idInspeccion);
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($idInspeccion);
+        }
 
         return redirect()->to('/inspecciones/botiquin/edit/' . $idInspeccion)
             ->with('msg', 'Inspeccion guardada como borrador');
@@ -173,6 +182,9 @@ class InspeccionBotiquinController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/botiquin')->with('error', 'No se puede editar');
         }
 
@@ -197,6 +209,10 @@ class InspeccionBotiquinController extends BaseController
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
         }
 
         return redirect()->to('/inspecciones/botiquin/edit/' . $id)

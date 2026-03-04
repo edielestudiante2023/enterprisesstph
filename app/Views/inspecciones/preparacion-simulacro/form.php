@@ -237,6 +237,8 @@ $equiposSeleccionados = $isEdit && !empty($inspeccion['equipos_emergencia']) ? e
             </div>
         </div>
 
+        <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;"></div>
+
         <!-- 10. BOTONES -->
         <div class="d-flex gap-2 mb-4">
             <button type="submit" class="btn btn-pwa btn-pwa-outline flex-fill">
@@ -270,51 +272,59 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Autoguardado localStorage
-    const formId = '<?= $isEdit ? $inspeccion['id'] : 'new' ?>';
-    const STORAGE_KEY = 'prep_sim_draft_' + formId;
-    const form = document.getElementById('prepSimForm');
-    let debounceTimer;
+    // ============================================================
+    // AUTOGUARDADO EN LOCALSTORAGE (restauracion inicial)
+    // ============================================================
+    const STORAGE_KEY = 'prep_sim_draft_<?= $inspeccion['id'] ?? 'new' ?>';
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
-    function saveDraft() {
-        const data = {};
-        form.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], input[type="date"], input[type="time"], textarea, select').forEach(el => {
-            if (el.name && el.type !== 'file') data[el.name] = el.value;
+    function restoreFromLocal(data) {
+        const form = document.getElementById('prepSimForm');
+        if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
+        Object.keys(data).forEach(function(name) {
+            if (name.startsWith('_') ) return;
+            var el = form.querySelector('[name="' + name + '"]');
+            if (el && el.type !== 'file') el.value = data[name];
         });
-        // Save checkboxes
-        form.querySelectorAll('input[type="checkbox"]').forEach(el => {
-            if (!data['_chk_' + el.name]) data['_chk_' + el.name] = [];
-            if (el.checked) data['_chk_' + el.name].push(el.value);
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
-    function loadDraft() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
+    if (!isEditLocal) {
         try {
-            const data = JSON.parse(saved);
-            Object.keys(data).forEach(name => {
-                if (name.startsWith('_chk_')) {
-                    const realName = name.replace('_chk_', '');
-                    const vals = data[name];
-                    if (Array.isArray(vals)) {
-                        form.querySelectorAll('input[name="' + realName + '"]').forEach(el => {
-                            el.checked = vals.includes(el.value);
-                        });
-                    }
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                var data = JSON.parse(saved);
+                if (data._savedAt && (Date.now() - new Date(data._savedAt).getTime()) > 24*3600*1000) {
+                    localStorage.removeItem(STORAGE_KEY);
                 } else {
-                    const el = form.querySelector('[name="' + name + '"]');
-                    if (el && el.type !== 'file' && !el.value) el.value = data[name];
+                    Swal.fire({
+                        title: 'Borrador encontrado',
+                        text: 'Se encontro un borrador guardado. Desea restaurar los datos?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, restaurar',
+                        cancelButtonText: 'No, empezar de cero',
+                        confirmButtonColor: '#bd9751',
+                    }).then(result => {
+                        if (result.isConfirmed) restoreFromLocal(data);
+                        else localStorage.removeItem(STORAGE_KEY);
+                    });
                 }
-            });
+            }
         } catch(e) {}
     }
 
-    form.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(saveDraft, 2000); });
-    form.addEventListener('change', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(saveDraft, 2000); });
-    setInterval(saveDraft, 30000);
-    form.addEventListener('submit', () => { localStorage.removeItem(STORAGE_KEY); });
-    if (!<?= $isEdit ? 'true' : 'false' ?>) loadDraft();
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'prepSimForm',
+        storeUrl: '/inspecciones/preparacion-simulacro/store',
+        updateUrlBase: '/inspecciones/preparacion-simulacro/update/',
+        editUrlBase: '/inspecciones/preparacion-simulacro/edit/',
+        recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        intervalSeconds: 60,
+    });
 });
 </script>

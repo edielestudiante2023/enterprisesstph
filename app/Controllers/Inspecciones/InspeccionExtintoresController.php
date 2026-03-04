@@ -12,9 +12,11 @@ use App\Models\MantenimientoModel;
 use App\Models\VencimientosMantenimientoModel;
 use Dompdf\Dompdf;
 use App\Libraries\InspeccionEmailNotifier;
+use App\Traits\AutosaveJsonTrait;
 
 class InspeccionExtintoresController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected InspeccionExtintoresModel $inspeccionModel;
     protected ExtintorDetalleModel $detalleModel;
 
@@ -94,9 +96,12 @@ class InspeccionExtintoresController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        if (!$isAutosave) {
+            if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         $inspeccionData = [
@@ -124,7 +129,11 @@ class InspeccionExtintoresController extends BaseController
         $this->inspeccionModel->insert($inspeccionData);
         $idInspeccion = $this->inspeccionModel->getInsertID();
 
-        $this->saveExtintores($idInspeccion);
+        $detailIds = $this->saveExtintores($idInspeccion);
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($idInspeccion, ['detail_ids' => $detailIds]);
+        }
 
         return redirect()->to('/inspecciones/extintores/edit/' . $idInspeccion)
             ->with('msg', 'Inspeccion guardada como borrador');
@@ -154,6 +163,9 @@ class InspeccionExtintoresController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/extintores')->with('error', 'No se puede editar');
         }
 
@@ -177,10 +189,14 @@ class InspeccionExtintoresController extends BaseController
             'recomendaciones_generales'     => $this->request->getPost('recomendaciones_generales'),
         ]);
 
-        $this->saveExtintores($id);
+        $detailIds = $this->saveExtintores($id);
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id, ['detail_ids' => $detailIds]);
         }
 
         return redirect()->to('/inspecciones/extintores/edit/' . $id)
@@ -318,7 +334,7 @@ class InspeccionExtintoresController extends BaseController
         return redirect()->to("/inspecciones/extintores/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
     }
 
-    private function saveExtintores(int $idInspeccion): void
+    private function saveExtintores(int $idInspeccion): array
     {
         $pinturas = $this->request->getPost('ext_pintura_cilindro') ?? [];
         $extIds = $this->request->getPost('ext_id') ?? [];
@@ -337,6 +353,7 @@ class InspeccionExtintoresController extends BaseController
         }
 
         $files = $this->request->getFiles();
+        $newIds = [];
 
         foreach ($pinturas as $i => $pintura) {
             $existenteId = $extIds[$i] ?? null;
@@ -370,7 +387,10 @@ class InspeccionExtintoresController extends BaseController
                 'foto'                 => $fotoPath,
                 'orden'                => $i + 1,
             ]);
+            $newIds[] = $this->detalleModel->getInsertID();
         }
+
+        return $newIds;
     }
 
     private function generarPdfInterno(int $id): ?string

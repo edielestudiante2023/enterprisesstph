@@ -249,6 +249,8 @@ $criterios = [
             </div>
         </div>
 
+        <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;"></div>
+
         <!-- Botones -->
         <div class="d-flex gap-2 mb-4">
             <button type="submit" class="btn btn-pwa btn-pwa-primary">
@@ -308,6 +310,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     document.querySelectorAll('.crono-input').forEach(function(inp) {
         inp.addEventListener('change', calcularTiempo);
+    });
+
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'formEvalSim',
+        storeUrl: '/inspecciones/simulacro/store',
+        updateUrlBase: '/inspecciones/simulacro/update/',
+        editUrlBase: '/inspecciones/simulacro/edit/',
+        recordId: <?= $e['id'] ?? 'null' ?>,
+        isEdit: true,
+        storageKey: 'eval_sim_draft_<?= $e['id'] ?? 'new' ?>',
+        intervalSeconds: 60,
+        minFieldsCheck: function() {
+            var fecha = document.querySelector('[name="fecha"]');
+            return fecha && fecha.value;
+        },
     });
 });
 </script>

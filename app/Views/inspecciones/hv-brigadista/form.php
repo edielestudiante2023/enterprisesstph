@@ -225,6 +225,8 @@ $c = $cliente;
             </div>
         </div>
 
+        <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;"></div>
+
         <!-- Botones -->
         <div class="d-flex gap-2 mt-3 mb-4">
             <button type="submit" class="btn btn-pwa btn-pwa-primary flex-fill">
@@ -343,6 +345,24 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             document.getElementById('firma_imagen').value = canvas.toDataURL('image/png');
         }
+    });
+
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'formHV',
+        storeUrl: '/inspecciones/hv-brigadista/store',
+        updateUrlBase: '/inspecciones/hv-brigadista/update/',
+        editUrlBase: '/inspecciones/hv-brigadista/edit/',
+        recordId: <?= $h['id'] ?? 'null' ?>,
+        isEdit: true,
+        storageKey: 'hv_brig_draft_<?= $h['id'] ?? 'new' ?>',
+        intervalSeconds: 60,
+        minFieldsCheck: function() {
+            var nombre = document.querySelector('[name="nombre_completo"]');
+            return nombre && nombre.value;
+        },
     });
 });
 </script>

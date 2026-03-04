@@ -479,58 +479,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================================
-    // AUTOGUARDADO EN LOCALSTORAGE
+    // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
     // ============================================================
     const STORAGE_KEY = 'bot_draft_<?= $inspeccion['id'] ?? 'new' ?>';
-    const isEdit = <?= $isEdit ? 'true' : 'false' ?>;
-
-    function collectFormData() {
-        const data = {};
-        data.id_cliente = document.getElementById('selectCliente').value;
-        data.fecha_inspeccion = document.querySelector('[name="fecha_inspeccion"]')?.value || '';
-        data.ubicacion_botiquin = document.querySelector('[name="ubicacion_botiquin"]')?.value || '';
-        data.recomendaciones = document.querySelector('[name="recomendaciones"]')?.value || '';
-
-        // Preguntas SI/NO
-        ['instalado_pared','libre_obstaculos','lugar_visible','con_senalizacion'].forEach(f => {
-            const checked = document.querySelector('[name="'+f+'"]:checked');
-            data[f] = checked ? checked.value : 'SI';
-        });
-
-        data.tipo_botiquin = document.querySelector('[name="tipo_botiquin"]')?.value || '';
-        data.estado_botiquin = document.querySelector('[name="estado_botiquin"]')?.value || '';
-        data.obs_tabla_espinal = document.querySelector('[name="obs_tabla_espinal"]')?.value || '';
-        data.estado_collares = document.querySelector('[name="estado_collares"]')?.value || '';
-        data.estado_inmovilizadores = document.querySelector('[name="estado_inmovilizadores"]')?.value || '';
-
-        // Elementos
-        data.elementos = {};
-        document.querySelectorAll('[name^="elem_"][name$="_cantidad"]').forEach(input => {
-            const match = input.name.match(/^elem_(.+)_cantidad$/);
-            if (match) {
-                const clave = match[1];
-                data.elementos[clave] = {
-                    cantidad: input.value,
-                    estado: document.querySelector('[name="elem_'+clave+'_estado"]')?.value || '',
-                    vencimiento: document.querySelector('[name="elem_'+clave+'_vencimiento"]')?.value || '',
-                };
-            }
-        });
-
-        data._savedAt = new Date().toISOString();
-        return data;
-    }
-
-    function saveToLocal() {
-        try {
-            const data = collectFormData();
-            if (data.id_cliente || Object.keys(data.elementos).length) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                document.getElementById('autoSaveStatus').innerHTML =
-                    '<i class="fas fa-check-circle text-success"></i> Guardado ' + new Date().toLocaleTimeString();
-            }
-        } catch(e) {}
-    }
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
     function restoreFromLocal(data) {
         if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
@@ -563,7 +515,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    if (!isEdit) {
+    if (!isEditLocal) {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
@@ -589,14 +541,18 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
     }
 
-    setInterval(saveToLocal, 30000);
-    document.getElementById('botForm').addEventListener('input', function() {
-        clearTimeout(window._autoSaveTimeout);
-        window._autoSaveTimeout = setTimeout(saveToLocal, 2000);
-    });
-    $('#selectCliente').on('change', function() { setTimeout(saveToLocal, 500); });
-    document.getElementById('botForm').addEventListener('submit', function() {
-        localStorage.removeItem(STORAGE_KEY);
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'botForm',
+        storeUrl: '/inspecciones/botiquin/store',
+        updateUrlBase: '/inspecciones/botiquin/update/',
+        editUrlBase: '/inspecciones/botiquin/edit/',
+        recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        intervalSeconds: 60,
     });
 });
 </script>

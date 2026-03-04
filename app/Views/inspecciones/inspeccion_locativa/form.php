@@ -378,41 +378,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================================
-    // AUTOGUARDADO EN LOCALSTORAGE
+    // AUTOGUARDADO EN LOCALSTORAGE (restauración)
     // ============================================================
     const STORAGE_KEY = 'locativa_draft_<?= $inspeccion['id'] ?? 'new' ?>';
-    const isEdit = <?= $isEdit ? 'true' : 'false' ?>;
-
-    function collectFormData() {
-        const data = {};
-        data.id_cliente = document.getElementById('selectCliente').value;
-        data.fecha_inspeccion = document.querySelector('[name="fecha_inspeccion"]').value;
-        data.observaciones = document.querySelector('[name="observaciones"]').value;
-
-        // Hallazgos (solo texto, no fotos)
-        data.hallazgos = [];
-        document.querySelectorAll('.hallazgo-row').forEach(row => {
-            const desc = row.querySelector('[name="hallazgo_descripcion[]"]').value;
-            const estado = row.querySelector('[name="hallazgo_estado[]"]').value;
-            const obs = row.querySelector('[name="hallazgo_observaciones[]"]').value;
-            const hId = row.querySelector('[name="hallazgo_id[]"]').value;
-            if (desc) data.hallazgos.push({ id: hId, descripcion: desc, estado, observaciones: obs });
-        });
-
-        data._savedAt = new Date().toISOString();
-        return data;
-    }
-
-    function saveToLocal() {
-        try {
-            const data = collectFormData();
-            if (data.id_cliente || data.hallazgos.length) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                document.getElementById('autoSaveStatus').innerHTML =
-                    '<i class="fas fa-check-circle text-success"></i> Guardado ' + new Date().toLocaleTimeString();
-            }
-        } catch(e) { /* localStorage lleno o no disponible */ }
-    }
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
     function restoreFromLocal(data) {
         if (data.id_cliente) {
@@ -490,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Verificar borrador guardado (solo en creacion nueva)
-    if (!isEdit) {
+    if (!isEditLocal) {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
@@ -521,21 +490,20 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
     }
 
-    // Auto-guardar cada 30 segundos
-    setInterval(saveToLocal, 30000);
-
-    // Guardar al cambiar cualquier campo (debounce 2s)
-    document.getElementById('locativaForm').addEventListener('input', function() {
-        clearTimeout(window._autoSaveTimeout);
-        window._autoSaveTimeout = setTimeout(saveToLocal, 2000);
-    });
-    $('#selectCliente').on('change', function() {
-        setTimeout(saveToLocal, 500);
-    });
-
-    // Limpiar localStorage al enviar formulario
-    document.getElementById('locativaForm').addEventListener('submit', function() {
-        localStorage.removeItem(STORAGE_KEY);
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'locativaForm',
+        storeUrl: '/inspecciones/inspeccion-locativa/store',
+        updateUrlBase: '/inspecciones/inspeccion-locativa/update/',
+        editUrlBase: '/inspecciones/inspeccion-locativa/edit/',
+        recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        detailRowSelector: '.hallazgo-row',
+        detailIdInputName: 'hallazgo_id[]',
+        intervalSeconds: 60,
     });
 });
 </script>

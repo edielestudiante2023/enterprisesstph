@@ -512,52 +512,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================================
-    // AUTOGUARDADO EN LOCALSTORAGE
+    // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
     // ============================================================
     const STORAGE_KEY = 'gab_draft_<?= $inspeccion['id'] ?? 'new' ?>';
-    const isEdit = <?= $isEdit ? 'true' : 'false' ?>;
-
-    function collectFormData() {
-        const data = {};
-        data.id_cliente = document.getElementById('selectCliente').value;
-        data.fecha_inspeccion = document.querySelector('[name="fecha_inspeccion"]').value;
-
-        // Campos master
-        ['tiene_gabinetes','entregados_constructora','cantidad_gabinetes','elementos_gabinete',
-         'ubicacion_gabinetes','estado_senalizacion_gab','observaciones_gabinetes',
-         'tiene_detectores','detectores_entregados','cantidad_detectores',
-         'ubicacion_detectores','observaciones_detectores'
-        ].forEach(f => { data[f] = document.querySelector('[name="'+f+'"]')?.value || ''; });
-
-        // Gabinetes individuales
-        data.gabinetes = [];
-        document.querySelectorAll('.gabinete-row').forEach(row => {
-            const gab = {};
-            gab.id = row.querySelector('[name="gab_id[]"]').value;
-            gab.ubicacion = row.querySelector('[name="gab_ubicacion[]"]')?.value || '';
-            ['tiene_manguera','tiene_hacha','tiene_extintor','tiene_valvula','tiene_boquilla','tiene_llave_spanner'].forEach(k => {
-                gab[k] = row.querySelector('[name="gab_'+k+'[]"]')?.value || '';
-            });
-            gab.estado = row.querySelector('[name="gab_estado[]"]')?.value || '';
-            gab.senalizacion = row.querySelector('[name="gab_senalizacion[]"]')?.value || '';
-            gab.observaciones = row.querySelector('[name="gab_observaciones[]"]')?.value || '';
-            data.gabinetes.push(gab);
-        });
-
-        data._savedAt = new Date().toISOString();
-        return data;
-    }
-
-    function saveToLocal() {
-        try {
-            const data = collectFormData();
-            if (data.id_cliente || data.gabinetes.length) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                document.getElementById('autoSaveStatus').innerHTML =
-                    '<i class="fas fa-check-circle text-success"></i> Guardado ' + new Date().toLocaleTimeString();
-            }
-        } catch(e) {}
-    }
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 
     function restoreFromLocal(data) {
         if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
@@ -578,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateGabinetes();
     }
 
-    if (!isEdit) {
+    if (!isEditLocal) {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
@@ -604,14 +562,20 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
     }
 
-    setInterval(saveToLocal, 30000);
-    document.getElementById('gabForm').addEventListener('input', function() {
-        clearTimeout(window._autoSaveTimeout);
-        window._autoSaveTimeout = setTimeout(saveToLocal, 2000);
-    });
-    $('#selectCliente').on('change', function() { setTimeout(saveToLocal, 500); });
-    document.getElementById('gabForm').addEventListener('submit', function() {
-        localStorage.removeItem(STORAGE_KEY);
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'gabForm',
+        storeUrl: '/inspecciones/gabinetes/store',
+        updateUrlBase: '/inspecciones/gabinetes/update/',
+        editUrlBase: '/inspecciones/gabinetes/edit/',
+        recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        detailRowSelector: '.gabinete-row',
+        detailIdInputName: 'gab_id[]',
+        intervalSeconds: 60,
     });
 });
 </script>

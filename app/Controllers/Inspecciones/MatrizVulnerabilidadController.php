@@ -9,9 +9,11 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
+use App\Traits\AutosaveJsonTrait;
 
 class MatrizVulnerabilidadController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected MatrizVulnerabilidadModel $matrizModel;
 
     /**
@@ -320,9 +322,12 @@ class MatrizVulnerabilidadController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        if (!$isAutosave) {
+            if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         $data = $this->getInspeccionPostData();
@@ -331,6 +336,10 @@ class MatrizVulnerabilidadController extends BaseController
 
         $this->matrizModel->insert($data);
         $idInspeccion = $this->matrizModel->getInsertID();
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($idInspeccion);
+        }
 
         return redirect()->to('/inspecciones/matriz-vulnerabilidad/edit/' . $idInspeccion)
             ->with('msg', 'Matriz guardada como borrador');
@@ -359,6 +368,9 @@ class MatrizVulnerabilidadController extends BaseController
     {
         $inspeccion = $this->matrizModel->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/matriz-vulnerabilidad')->with('error', 'No se puede editar');
         }
 
@@ -368,6 +380,10 @@ class MatrizVulnerabilidadController extends BaseController
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
         }
 
         return redirect()->to('/inspecciones/matriz-vulnerabilidad/edit/' . $id)

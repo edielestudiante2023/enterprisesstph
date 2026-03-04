@@ -10,9 +10,11 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use Dompdf\Dompdf;
 use App\Libraries\InspeccionEmailNotifier;
+use App\Traits\AutosaveJsonTrait;
 
 class InspeccionSenalizacionController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected InspeccionSenalizacionModel $inspeccionModel;
     protected ItemSenalizacionModel $itemModel;
 
@@ -134,9 +136,12 @@ class InspeccionSenalizacionController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        if (!$isAutosave) {
+            if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         $inspeccionData = [
@@ -150,8 +155,12 @@ class InspeccionSenalizacionController extends BaseController
         $this->inspeccionModel->insert($inspeccionData);
         $idInspeccion = $this->inspeccionModel->getInsertID();
 
-        $this->saveItems($idInspeccion);
+        $detailIds = $this->saveItems($idInspeccion);
         $this->recalcularCalificacion($idInspeccion);
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($idInspeccion, ['detail_ids' => $detailIds]);
+        }
 
         return redirect()->to('/inspecciones/senalizacion/edit/' . $idInspeccion)
             ->with('msg', 'Inspección guardada como borrador');
@@ -180,6 +189,9 @@ class InspeccionSenalizacionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/senalizacion')->with('error', 'No se puede editar');
         }
 
@@ -189,11 +201,15 @@ class InspeccionSenalizacionController extends BaseController
             'observaciones'    => $this->request->getPost('observaciones'),
         ]);
 
-        $this->saveItems($id);
+        $detailIds = $this->saveItems($id);
         $this->recalcularCalificacion($id);
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id, ['detail_ids' => $detailIds]);
         }
 
         return redirect()->to('/inspecciones/senalizacion/edit/' . $id)
@@ -329,7 +345,7 @@ class InspeccionSenalizacionController extends BaseController
         return redirect()->to("/inspecciones/senalizacion/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
     }
 
-    private function saveItems(int $idInspeccion): void
+    private function saveItems(int $idInspeccion): array
     {
         $itemIds = $this->request->getPost('item_id') ?? [];
         $itemNombres = $this->request->getPost('item_nombre') ?? [];
@@ -350,6 +366,7 @@ class InspeccionSenalizacionController extends BaseController
         }
 
         $files = $this->request->getFiles();
+        $newIds = [];
 
         foreach ($itemNombres as $i => $nombre) {
             if (empty(trim($nombre))) continue;
@@ -374,7 +391,10 @@ class InspeccionSenalizacionController extends BaseController
                 'foto'               => $fotoPath,
                 'orden'              => $i + 1,
             ]);
+            $newIds[] = $this->itemModel->getInsertID();
         }
+
+        return $newIds;
     }
 
     private function recalcularCalificacion(int $idInspeccion): void

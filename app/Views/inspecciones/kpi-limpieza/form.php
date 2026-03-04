@@ -200,6 +200,60 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // ============================================================
+    // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
+    // ============================================================
+    const STORAGE_KEY = 'kpi_limpieza_draft_<?= $inspeccion['id'] ?? 'new' ?>';
+    const isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
+
+    function restoreFromLocal(data) {
+        if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
+        if (data.fecha_inspeccion) document.querySelector('[name="fecha_inspeccion"]').value = data.fecha_inspeccion;
+        if (data.nombre_responsable) document.querySelector('[name="nombre_responsable"]').value = data.nombre_responsable;
+        if (data.indicador) document.querySelector('[name="indicador"]').value = data.indicador;
+        if (data.cumplimiento) document.querySelector('[name="cumplimiento"]').value = data.cumplimiento;
+    }
+
+    if (!isEditLocal) {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                const hoursAgo = ((Date.now() - new Date(data._savedAt).getTime()) / 3600000).toFixed(1);
+                if (hoursAgo < 24) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Borrador recuperado',
+                        html: 'Tienes un borrador guardado hace <strong>' + hoursAgo + ' horas</strong>.<br>Deseas restaurarlo?',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, restaurar',
+                        cancelButtonText: 'No, empezar de cero',
+                        confirmButtonColor: '#bd9751',
+                    }).then(result => {
+                        if (result.isConfirmed) restoreFromLocal(data);
+                        else localStorage.removeItem(STORAGE_KEY);
+                    });
+                } else {
+                    localStorage.removeItem(STORAGE_KEY);
+                }
+            }
+        } catch(e) {}
+    }
+
+    // ============================================================
+    // AUTOGUARDADO SERVIDOR (cada 60s)
+    // ============================================================
+    initAutosave({
+        formId: 'kpiLimpiezaForm',
+        storeUrl: '/inspecciones/kpi-limpieza/store',
+        updateUrlBase: '/inspecciones/kpi-limpieza/update/',
+        editUrlBase: '/inspecciones/kpi-limpieza/edit/',
+        recordId: <?= $inspeccion['id'] ?? 'null' ?>,
+        isEdit: <?= $isEdit ? 'true' : 'false' ?>,
+        storageKey: STORAGE_KEY,
+        intervalSeconds: 60,
+    });
 });
 
 function openPhoto(src) {

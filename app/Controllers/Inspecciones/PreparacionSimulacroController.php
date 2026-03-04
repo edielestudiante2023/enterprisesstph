@@ -8,10 +8,12 @@ use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
+use App\Traits\AutosaveJsonTrait;
 use Dompdf\Dompdf;
 
 class PreparacionSimulacroController extends BaseController
 {
+    use AutosaveJsonTrait;
     protected PreparacionSimulacroModel $inspeccionModel;
 
     public const OPCIONES_ALARMA = [
@@ -101,9 +103,12 @@ class PreparacionSimulacroController extends BaseController
     public function store()
     {
         $userId = session()->get('user_id');
+        $isAutosave = $this->isAutosaveRequest();
 
-        if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_simulacro' => 'required|valid_date'])) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        if (!$isAutosave) {
+            if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_simulacro' => 'required|valid_date'])) {
+                return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            }
         }
 
         $data = $this->getInspeccionPostData();
@@ -115,6 +120,10 @@ class PreparacionSimulacroController extends BaseController
 
         $this->inspeccionModel->insert($data);
         $idInspeccion = $this->inspeccionModel->getInsertID();
+
+        if ($isAutosave) {
+            return $this->autosaveJsonSuccess($idInspeccion);
+        }
 
         return redirect()->to('/inspecciones/preparacion-simulacro/edit/' . $idInspeccion)
             ->with('msg', 'Inspeccion guardada como borrador');
@@ -146,6 +155,9 @@ class PreparacionSimulacroController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
+            if ($this->isAutosaveRequest()) {
+                return $this->autosaveJsonError('No encontrada', 404);
+            }
             return redirect()->to('/inspecciones/preparacion-simulacro')->with('error', 'No se puede editar');
         }
 
@@ -165,6 +177,10 @@ class PreparacionSimulacroController extends BaseController
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
+        }
+
+        if ($this->isAutosaveRequest()) {
+            return $this->autosaveJsonSuccess((int)$id);
         }
 
         return redirect()->to('/inspecciones/preparacion-simulacro/edit/' . $id)
