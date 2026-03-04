@@ -146,14 +146,33 @@ if (!empty($inspeccion['numero_programados']) && $inspeccion['numero_programados
         </tr>
     </table>
 
+    <!-- LISTADO DE ASISTENCIA -->
+    <?php if (!empty($asistentes)): ?>
+    <div class="section-title">LISTADO DE ASISTENCIA</div>
+    <table class="indicadores-table">
+        <tr>
+            <th style="width:8%; text-align:center;">#</th>
+            <th>Nombre</th>
+            <th style="width:22%;">Cedula</th>
+            <th style="width:22%;">Cargo</th>
+        </tr>
+        <?php foreach ($asistentes as $i => $a): ?>
+        <tr>
+            <td style="text-align:center;"><?= $i + 1 ?></td>
+            <td><?= esc($a['nombre'] ?? '') ?></td>
+            <td><?= esc($a['cedula'] ?? '') ?></td>
+            <td><?= esc($a['cargo'] ?? '') ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+    <?php endif; ?>
+
     <!-- REGISTRO FOTOGRAFICO -->
     <?php
     $fotosCampos = [
-        'foto_listado_asistencia' => 'Listado de Asistencia',
-        'foto_capacitacion'       => 'Capacitacion',
-        'foto_evaluacion'         => 'Evaluacion',
-        'foto_otros_1'            => 'Otros 1',
-        'foto_otros_2'            => 'Otros 2',
+        'foto_capacitacion' => 'Capacitacion',
+        'foto_otros_1'      => 'Otros 1',
+        'foto_otros_2'      => 'Otros 2',
     ];
     $fotosDisponibles = [];
     foreach ($fotosCampos as $campo => $label) {

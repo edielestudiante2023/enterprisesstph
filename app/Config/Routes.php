@@ -1107,6 +1107,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('reporte-capacitacion/finalizar/(:num)', 'ReporteCapacitacionController::finalizar/$1');
     $routes->get('reporte-capacitacion/delete/(:num)', 'ReporteCapacitacionController::delete/$1');
     $routes->get('reporte-capacitacion/enviar-email/(:num)', 'ReporteCapacitacionController::enviarEmail/$1');
+    $routes->get('reporte-capacitacion/api-asistentes', 'ReporteCapacitacionController::apiAsistentes');
 
     // Gestión de Pendientes (compromisos)
     $routes->get('pendientes', 'PendientesPwaController::list');

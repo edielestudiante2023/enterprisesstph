@@ -112,19 +112,21 @@ if ($isEdit && !empty($inspeccion['perfil_asistentes'])) {
             </div>
         </div>
 
+        <!-- LISTADO DE ASISTENCIA (desde Asistencia Induccion) -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="card-title" style="font-size:14px; color:#999;">LISTADO DE ASISTENCIA</h6>
+                <small class="text-muted d-block mb-2">Se trae automaticamente de Asistencia/Induccion para el mismo cliente y fecha.</small>
+                <div id="asistentesContainer">
+                    <p class="text-muted" style="font-size:13px;"><i class="fas fa-info-circle"></i> Seleccione cliente y fecha para ver asistentes.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- REGISTRO FOTOGRAFICO -->
         <div class="card mb-3">
             <div class="card-body">
                 <h6 class="card-title" style="font-size:14px; color:#999;">REGISTRO FOTOGRAFICO</h6>
-                <div class="mb-3">
-                    <label class="form-label" style="font-size:12px;">Foto listado de asistencia</label>
-                    <?php if ($isEdit && !empty($inspeccion['foto_listado_asistencia'])): ?>
-                    <div class="mb-1">
-                        <img src="/<?= esc($inspeccion['foto_listado_asistencia']) ?>" class="img-thumbnail" style="max-height:80px;">
-                    </div>
-                    <?php endif; ?>
-                    <input type="file" name="foto_listado_asistencia" class="form-control form-control-sm" accept="image/*">
-                </div>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:12px;">Foto capacitacion</label>
                     <?php if ($isEdit && !empty($inspeccion['foto_capacitacion'])): ?>
@@ -133,15 +135,6 @@ if ($isEdit && !empty($inspeccion['perfil_asistentes'])) {
                     </div>
                     <?php endif; ?>
                     <input type="file" name="foto_capacitacion" class="form-control form-control-sm" accept="image/*">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label" style="font-size:12px;">Foto evaluacion</label>
-                    <?php if ($isEdit && !empty($inspeccion['foto_evaluacion'])): ?>
-                    <div class="mb-1">
-                        <img src="/<?= esc($inspeccion['foto_evaluacion']) ?>" class="img-thumbnail" style="max-height:80px;">
-                    </div>
-                    <?php endif; ?>
-                    <input type="file" name="foto_evaluacion" class="form-control form-control-sm" accept="image/*">
                 </div>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:12px;">Foto otros 1</label>
@@ -212,6 +205,54 @@ document.addEventListener('DOMContentLoaded', function() {
             $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
         }
     });
+
+    // ============================================================
+    // LISTADO DE ASISTENCIA (AJAX)
+    // ============================================================
+    function cargarAsistentes() {
+        var idCliente = document.querySelector('[name="id_cliente"]').value;
+        var fecha = document.querySelector('[name="fecha_capacitacion"]').value;
+        var container = document.getElementById('asistentesContainer');
+
+        if (!idCliente || !fecha) {
+            container.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-info-circle"></i> Seleccione cliente y fecha para ver asistentes.</p>';
+            return;
+        }
+
+        container.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Cargando...</p>';
+
+        $.ajax({
+            url: '/inspecciones/reporte-capacitacion/api-asistentes',
+            data: { id_cliente: idCliente, fecha: fecha },
+            dataType: 'json',
+            success: function(data) {
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-exclamation-triangle"></i> No hay registros de asistencia para esta fecha y cliente.</p>';
+                    return;
+                }
+                var html = '<table class="table table-sm table-bordered" style="font-size:13px;">';
+                html += '<thead><tr><th>#</th><th>Nombre</th><th>Cedula</th><th>Cargo</th></tr></thead><tbody>';
+                data.forEach(function(a, i) {
+                    html += '<tr><td>' + (i+1) + '</td><td>' + (a.nombre || '') + '</td><td>' + (a.cedula || '') + '</td><td>' + (a.cargo || '') + '</td></tr>';
+                });
+                html += '</tbody></table>';
+                html += '<small class="text-muted">' + data.length + ' asistente(s) encontrado(s)</small>';
+                container.innerHTML = html;
+            },
+            error: function() {
+                container.innerHTML = '<p class="text-danger" style="font-size:13px;"><i class="fas fa-times-circle"></i> Error al cargar asistentes.</p>';
+            }
+        });
+    }
+
+    // Escuchar cambios en cliente y fecha
+    document.querySelector('[name="id_cliente"]').addEventListener('change', cargarAsistentes);
+    document.querySelector('[name="fecha_capacitacion"]').addEventListener('change', cargarAsistentes);
+
+    // Cargar al inicio si ya hay valores (modo edicion)
+    if (selectedCliente && document.querySelector('[name="fecha_capacitacion"]').value) {
+        setTimeout(cargarAsistentes, 500); // esperar que Select2 cargue
+    }
 
     // ============================================================
     // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)

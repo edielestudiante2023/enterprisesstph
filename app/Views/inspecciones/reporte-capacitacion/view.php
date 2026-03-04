@@ -75,14 +75,37 @@ if (!empty($inspeccion['numero_programados']) && $inspeccion['numero_programados
         </div>
     </div>
 
+    <!-- Listado de asistencia -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title" style="font-size:14px; color:#999;">LISTADO DE ASISTENCIA</h6>
+            <?php if (!empty($asistentes)): ?>
+            <table class="table table-sm table-bordered mb-1" style="font-size:13px;">
+                <thead><tr><th>#</th><th>Nombre</th><th>Cedula</th><th>Cargo</th></tr></thead>
+                <tbody>
+                <?php foreach ($asistentes as $i => $a): ?>
+                    <tr>
+                        <td><?= $i + 1 ?></td>
+                        <td><?= esc($a['nombre'] ?? '') ?></td>
+                        <td><?= esc($a['cedula'] ?? '') ?></td>
+                        <td><?= esc($a['cargo'] ?? '') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            <small class="text-muted"><?= count($asistentes) ?> asistente(s) — datos de Asistencia/Induccion</small>
+            <?php else: ?>
+            <p class="text-muted mb-0" style="font-size:13px;">No hay registros de asistencia para esta fecha y cliente.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <!-- Fotos -->
     <?php
     $fotos = [
-        'foto_listado_asistencia' => 'Listado de asistencia',
-        'foto_capacitacion'       => 'Capacitacion',
-        'foto_evaluacion'         => 'Evaluacion',
-        'foto_otros_1'            => 'Otros 1',
-        'foto_otros_2'            => 'Otros 2',
+        'foto_capacitacion' => 'Capacitacion',
+        'foto_otros_1'      => 'Otros 1',
+        'foto_otros_2'      => 'Otros 2',
     ];
     $hayFotos = false;
     foreach ($fotos as $campo => $label) {

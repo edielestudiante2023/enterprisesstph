@@ -7,6 +7,8 @@ use App\Models\ReporteCapacitacionModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Models\AsistenciaInduccionModel;
+use App\Models\AsistenciaInduccionAsistenteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
@@ -78,9 +80,7 @@ class ReporteCapacitacionController extends BaseController
         $data['id_consultor'] = $userId;
         $data['estado'] = 'borrador';
 
-        $data['foto_listado_asistencia'] = $this->uploadFoto('foto_listado_asistencia', 'uploads/inspecciones/reporte-capacitacion/');
         $data['foto_capacitacion'] = $this->uploadFoto('foto_capacitacion', 'uploads/inspecciones/reporte-capacitacion/');
-        $data['foto_evaluacion'] = $this->uploadFoto('foto_evaluacion', 'uploads/inspecciones/reporte-capacitacion/');
         $data['foto_otros_1'] = $this->uploadFoto('foto_otros_1', 'uploads/inspecciones/reporte-capacitacion/');
         $data['foto_otros_2'] = $this->uploadFoto('foto_otros_2', 'uploads/inspecciones/reporte-capacitacion/');
 
@@ -126,7 +126,7 @@ class ReporteCapacitacionController extends BaseController
 
         $data = $this->getInspeccionPostData();
 
-        foreach (['foto_listado_asistencia', 'foto_capacitacion', 'foto_evaluacion', 'foto_otros_1', 'foto_otros_2'] as $campo) {
+        foreach (['foto_capacitacion', 'foto_otros_1', 'foto_otros_2'] as $campo) {
             $nueva = $this->uploadFoto($campo, 'uploads/inspecciones/reporte-capacitacion/');
             if ($nueva) {
                 if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
@@ -160,12 +160,18 @@ class ReporteCapacitacionController extends BaseController
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 
+        $asistentes = $this->fetchAsistentes(
+            (int) $inspeccion['id_cliente'],
+            $inspeccion['fecha_capacitacion']
+        );
+
         $data = [
             'title'      => 'Ver Reporte de Capacitacion',
             'inspeccion' => $inspeccion,
             'cliente'    => $clientModel->find($inspeccion['id_cliente']),
             'consultor'  => $consultantModel->find($inspeccion['id_consultor']),
             'perfilesAsistentes' => ReporteCapacitacionModel::PERFILES_ASISTENTES,
+            'asistentes' => $asistentes,
         ];
 
         return view('inspecciones/layout_pwa', [
@@ -241,7 +247,7 @@ class ReporteCapacitacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/reporte-capacitacion')->with('error', 'No encontrado');
         }
-        foreach (['foto_listado_asistencia', 'foto_capacitacion', 'foto_evaluacion', 'foto_otros_1', 'foto_otros_2'] as $campo) {
+        foreach (['foto_capacitacion', 'foto_otros_1', 'foto_otros_2'] as $campo) {
             if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
                 unlink(FCPATH . $inspeccion[$campo]);
             }
@@ -334,7 +340,7 @@ class ReporteCapacitacionController extends BaseController
         }
 
         $fotosBase64 = [];
-        foreach (['foto_listado_asistencia', 'foto_capacitacion', 'foto_evaluacion', 'foto_otros_1', 'foto_otros_2'] as $campo) {
+        foreach (['foto_capacitacion', 'foto_otros_1', 'foto_otros_2'] as $campo) {
             $fotosBase64[$campo] = '';
             if (!empty($inspeccion[$campo])) {
                 $fotoPath = FCPATH . $inspeccion[$campo];
@@ -345,6 +351,11 @@ class ReporteCapacitacionController extends BaseController
             }
         }
 
+        $asistentes = $this->fetchAsistentes(
+            (int) $inspeccion['id_cliente'],
+            $inspeccion['fecha_capacitacion']
+        );
+
         $data = [
             'inspeccion'  => $inspeccion,
             'cliente'     => $cliente,
@@ -352,6 +363,7 @@ class ReporteCapacitacionController extends BaseController
             'perfilesAsistentes' => ReporteCapacitacionModel::PERFILES_ASISTENTES,
             'logoBase64'  => $logoBase64,
             'fotosBase64' => $fotosBase64,
+            'asistentes'  => $asistentes,
         ];
 
         $html = view('inspecciones/reporte-capacitacion/pdf', $data);
@@ -404,6 +416,48 @@ class ReporteCapacitacionController extends BaseController
             return redirect()->to("/inspecciones/reporte-capacitacion/view/{$id}")->with('msg', $result['message']);
         }
         return redirect()->to("/inspecciones/reporte-capacitacion/view/{$id}")->with('error', $result['error']);
+    }
+
+    /**
+     * API: devuelve asistentes de tbl_asistencia_induccion_asistente
+     * que correspondan al cliente + fecha dados.
+     */
+    public function apiAsistentes()
+    {
+        $idCliente = (int) $this->request->getGet('id_cliente');
+        $fecha     = $this->request->getGet('fecha');
+
+        if (!$idCliente || !$fecha) {
+            return $this->response->setJSON([]);
+        }
+
+        $asistentes = $this->fetchAsistentes($idCliente, $fecha);
+        return $this->response->setJSON($asistentes);
+    }
+
+    /**
+     * Busca sesiones de asistencia_induccion para el cliente+fecha
+     * y devuelve los asistentes de esas sesiones.
+     */
+    private function fetchAsistentes(int $idCliente, string $fecha): array
+    {
+        $induccionModel  = new AsistenciaInduccionModel();
+        $asistenteModel  = new AsistenciaInduccionAsistenteModel();
+
+        $sesiones = $induccionModel
+            ->where('id_cliente', $idCliente)
+            ->where('fecha_sesion', $fecha)
+            ->findAll();
+
+        if (empty($sesiones)) {
+            return [];
+        }
+
+        $ids = array_column($sesiones, 'id');
+        return $asistenteModel
+            ->whereIn('id_asistencia', $ids)
+            ->orderBy('id', 'ASC')
+            ->findAll();
     }
 
     private function uploadToReportes(array $inspeccion, string $pdfPath): bool
