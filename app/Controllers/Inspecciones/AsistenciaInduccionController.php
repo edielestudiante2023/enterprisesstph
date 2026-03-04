@@ -309,9 +309,19 @@ class AsistenciaInduccionController extends BaseController
             return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No encontrado');
         }
 
-        $result = $this->generarPdfInterno($id);
-        $this->inspeccionModel->update($id, ['ruta_pdf' => $result['asistencia']]);
-        $fullPath = FCPATH . $result['asistencia'];
+        // Serve cached PDF if it already exists
+        if (!empty($inspeccion['ruta_pdf_asistencia']) && file_exists(FCPATH . $inspeccion['ruta_pdf_asistencia'])) {
+            $fullPath = FCPATH . $inspeccion['ruta_pdf_asistencia'];
+        } else {
+            // Generate only if no cached PDF
+            $result = $this->generarPdfInterno($id);
+            $this->inspeccionModel->update($id, [
+                'ruta_pdf_asistencia'        => $result['asistencia'],
+                'ruta_pdf_responsabilidades' => $result['responsabilidades'],
+            ]);
+            $fullPath = FCPATH . $result['asistencia'];
+        }
+
         if (!file_exists($fullPath)) {
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
@@ -361,14 +371,22 @@ class AsistenciaInduccionController extends BaseController
             return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'Solo se puede regenerar un registro finalizado.');
         }
 
-        $pdfPath = $this->generarPdfInterno($id);
+        $result = $this->generarPdfInterno($id);
 
         $this->inspeccionModel->update($id, [
-            'ruta_pdf' => $pdfPath,
+            'ruta_pdf_asistencia'        => $result['asistencia'],
+            'ruta_pdf_responsabilidades' => $result['responsabilidades'],
         ]);
 
         $inspeccion = $this->inspeccionModel->find($id);
-        $this->uploadToReportes($inspeccion, $pdfPath);
+
+        // Upload FT-SST-005 (always)
+        $this->uploadToReportes($inspeccion, $result['asistencia'], 22, 'asist_ind_id:');
+
+        // Upload FT-SST-003 (only if induccion_reinduccion)
+        if (!empty($result['responsabilidades'])) {
+            $this->uploadToReportes($inspeccion, $result['responsabilidades'], 23, 'asist_ind_resp_id:');
+        }
 
         return redirect()->to("/inspecciones/asistencia-induccion/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
     }
