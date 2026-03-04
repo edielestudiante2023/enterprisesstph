@@ -497,7 +497,7 @@ class InspeccionesController extends BaseController
         $userId = session()->get('user_id');
 
         $builder = $clientModel->select('tbl_clientes.id_cliente, tbl_clientes.nombre_cliente, tbl_clientes.nit_cliente')
-            ->join('tbl_contratos', "tbl_contratos.id_cliente = tbl_clientes.id_cliente AND tbl_contratos.estado = 'activo'");
+            ->where('tbl_clientes.estado', 'activo');
 
         if ($role === 'consultant') {
             $builder->where('tbl_clientes.id_consultor', $userId);
