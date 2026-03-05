@@ -9,6 +9,10 @@ use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Models\EvaluacionInduccionModel;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Output\QROutputInterface;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
@@ -55,12 +59,13 @@ class AsistenciaInduccionController extends BaseController
     public function create($idCliente = null)
     {
         $data = [
-            'title'       => 'Nueva Asistencia Induccion',
-            'inspeccion'  => null,
-            'asistentes'  => [],
-            'idCliente'   => $idCliente,
-            'tiposCharla' => self::TIPOS_CHARLA,
-            'evaluacion'  => null,
+            'title'        => 'Nueva Asistencia Induccion',
+            'inspeccion'   => null,
+            'asistentes'   => [],
+            'idCliente'    => $idCliente,
+            'tiposCharla'  => self::TIPOS_CHARLA,
+            'evaluacion'   => null,
+            'evalQrBase64' => '',
         ];
 
         return view('inspecciones/layout_pwa', [
@@ -112,13 +117,20 @@ class AsistenciaInduccionController extends BaseController
         $asistenteModel = new AsistenciaInduccionAsistenteModel();
         $evalModel      = new EvaluacionInduccionModel();
 
+        $evaluacion = $evalModel->getByAsistencia((int)$id);
+        $evalQrBase64 = '';
+        if (!empty($inspeccion['evaluacion_token']) && !empty($inspeccion['evaluacion_habilitada'])) {
+            $evalQrBase64 = $this->generarQrBase64(base_url('evaluar/' . $inspeccion['evaluacion_token']));
+        }
+
         $data = [
-            'title'       => 'Editar Asistencia Induccion',
-            'inspeccion'  => $inspeccion,
-            'asistentes'  => $asistenteModel->getByAsistencia($id),
-            'idCliente'   => $inspeccion['id_cliente'],
-            'tiposCharla' => self::TIPOS_CHARLA,
-            'evaluacion'  => $evalModel->getByAsistencia((int)$id),
+            'title'         => 'Editar Asistencia Induccion',
+            'inspeccion'    => $inspeccion,
+            'asistentes'    => $asistenteModel->getByAsistencia($id),
+            'idCliente'     => $inspeccion['id_cliente'],
+            'tiposCharla'   => self::TIPOS_CHARLA,
+            'evaluacion'    => $evaluacion,
+            'evalQrBase64'  => $evalQrBase64,
         ];
 
         return view('inspecciones/layout_pwa', [
@@ -440,6 +452,22 @@ class AsistenciaInduccionController extends BaseController
         }
 
         return redirect()->to("/inspecciones/asistencia-induccion/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
+    }
+
+    private function generarQrBase64(string $url): string
+    {
+        try {
+            $options = new QROptions;
+            $options->outputType    = QROutputInterface::GDIMAGE_PNG;
+            $options->eccLevel      = EccLevel::H;
+            $options->scale         = 8;
+            $options->imageBase64   = false;
+            $options->quietzoneSize = 2;
+            $png = (new QRCode($options))->render($url);
+            return 'data:image/png;base64,' . base64_encode($png);
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     private function getInspeccionPostData(): array

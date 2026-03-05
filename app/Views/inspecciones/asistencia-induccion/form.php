@@ -150,12 +150,14 @@ $action = $isEdit ? '/inspecciones/asistencia-induccion/update/' . $inspeccion['
                         </a>
                     </div>
                     <!-- QR Code -->
+                    <?php if (!empty($evalQrBase64)): ?>
                     <div class="text-center mt-1">
-                        <img src="/inspecciones/evaluacion-induccion/qr/<?= esc($inspeccion['evaluacion_token']) ?>"
+                        <img src="<?= $evalQrBase64 ?>"
                             alt="QR Evaluación"
                             style="width:160px; height:160px; border:1px solid #e0e0e0; border-radius:8px; padding:6px; background:#fff;">
                         <div style="font-size:11px; color:#999; margin-top:4px;">Escanear para acceder a la evaluación</div>
                     </div>
+                    <?php endif; ?>
                 </div>
                 <?php else: ?>
                 <div id="evalLinkBox" style="display:none;">
