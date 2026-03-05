@@ -123,6 +123,41 @@ $action = $isEdit ? '/inspecciones/asistencia-induccion/update/' . $inspeccion['
             </div>
         </div>
 
+        <!-- EVALUACIÓN (solo inducción/reinducción) -->
+        <div class="card mb-3" id="cardEvaluacion" style="display:none;">
+            <div class="card-body">
+                <h6 class="card-title" style="font-size:14px; color:#999;">EVALUACIÓN INDUCCIÓN SST</h6>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="evaluacion_habilitada"
+                        id="chkEvaluacion" value="1"
+                        <?= !empty($inspeccion['evaluacion_habilitada']) ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="chkEvaluacion" style="font-size:13px;">
+                        Habilitar formulario de evaluación para los asistentes
+                    </label>
+                </div>
+                <?php if (!empty($inspeccion['evaluacion_token'])): ?>
+                <div id="evalLinkBox" style="<?= !empty($inspeccion['evaluacion_habilitada']) ? '' : 'display:none;' ?>">
+                    <small class="text-muted d-block mb-1">Enlace para compartir con los asistentes:</small>
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control form-control-sm" id="evalLinkInput"
+                            value="<?= base_url('evaluar/' . $inspeccion['evaluacion_token']) ?>" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyEvalLink()" title="Copiar enlace">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <a class="btn btn-outline-primary" href="/inspecciones/evaluacion-induccion/resultados/<?= esc($evaluacion['id'] ?? '') ?>"
+                            target="_blank" title="Ver resultados">
+                            <i class="fas fa-chart-bar"></i>
+                        </a>
+                    </div>
+                </div>
+                <?php else: ?>
+                <div id="evalLinkBox" style="display:none;">
+                    <small class="text-muted"><i class="fas fa-info-circle"></i> Guarda el registro para generar el enlace.</small>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
         <!-- Indicador autoguardado -->
         <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;">
             <i class="fas fa-cloud"></i> Autoguardado activado
@@ -155,6 +190,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
         }
+    });
+
+    // Mostrar/ocultar card de evaluación según tipo_charla
+    function toggleEvaluacionCard() {
+        var tipo = document.querySelector('[name="tipo_charla"]').value;
+        var card = document.getElementById('cardEvaluacion');
+        card.style.display = (tipo === 'induccion_reinduccion') ? '' : 'none';
+    }
+    document.querySelector('[name="tipo_charla"]').addEventListener('change', toggleEvaluacionCard);
+    toggleEvaluacionCard(); // ejecutar al cargar
+
+    // Mostrar/ocultar link de evaluación según checkbox
+    document.getElementById('chkEvaluacion').addEventListener('change', function() {
+        document.getElementById('evalLinkBox').style.display = this.checked ? '' : 'none';
     });
 
     // Load existing asistentes if editing
@@ -235,6 +284,14 @@ document.addEventListener('DOMContentLoaded', function() {
         },
     });
 });
+
+function copyEvalLink() {
+    var input = document.getElementById('evalLinkInput');
+    if (!input) return;
+    navigator.clipboard.writeText(input.value).then(function() {
+        Swal.fire({ icon: 'success', title: 'Copiado', text: 'Enlace copiado al portapapeles.', timer: 1500, showConfirmButton: false });
+    });
+}
 
 let rowCount = 0;
 function addAsistenteRow(nombre, cedula, cargo) {

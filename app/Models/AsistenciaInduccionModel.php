@@ -12,6 +12,7 @@ class AsistenciaInduccionModel extends Model
         'id_cliente', 'id_consultor', 'fecha_sesion', 'tema', 'lugar', 'objetivo',
         'capacitador', 'tipo_charla', 'material', 'tiempo_horas', 'observaciones',
         'ruta_pdf_asistencia', 'ruta_pdf_responsabilidades', 'estado',
+        'evaluacion_habilitada', 'evaluacion_token',
     ];
     protected $useTimestamps = true;
 

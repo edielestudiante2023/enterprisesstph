@@ -296,6 +296,8 @@ class ReporteCapacitacionController extends BaseController
         $perfiles = $this->request->getPost('perfil_asistentes');
         $data['perfil_asistentes'] = is_array($perfiles) ? implode(',', $perfiles) : '';
 
+        $data['mostrar_evaluacion_induccion'] = $this->request->getPost('mostrar_evaluacion_induccion') ? 1 : 0;
+
         return $data;
     }
 

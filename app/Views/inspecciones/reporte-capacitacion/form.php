@@ -112,6 +112,24 @@ if ($isEdit && !empty($inspeccion['perfil_asistentes'])) {
             </div>
         </div>
 
+        <!-- RESULTADOS EVALUACIÓN INDUCCIÓN SST -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="card-title" style="font-size:14px; color:#999;">RESULTADOS EVALUACIÓN INDUCCIÓN SST</h6>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="mostrar_evaluacion_induccion"
+                        id="chkMostrarEval" value="1"
+                        <?= !empty($inspeccion['mostrar_evaluacion_induccion']) ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="chkMostrarEval" style="font-size:13px;">
+                        Incluir resultados de evaluación de inducción/reinducción SST
+                    </label>
+                </div>
+                <div id="evalResultadosContainer" style="<?= !empty($inspeccion['mostrar_evaluacion_induccion']) ? '' : 'display:none;' ?>">
+                    <p class="text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Cargando resultados...</p>
+                </div>
+            </div>
+        </div>
+
         <!-- LISTADO DE ASISTENCIA (desde Asistencia Induccion) -->
         <div class="card mb-3">
             <div class="card-body">
@@ -251,8 +269,66 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Escuchar cambios en cliente y fecha
-    document.querySelector('[name="id_cliente"]').addEventListener('change', cargarAsistentes);
-    document.querySelector('[name="fecha_capacitacion"]').addEventListener('change', cargarAsistentes);
+    document.querySelector('[name="id_cliente"]').addEventListener('change', function() {
+        cargarAsistentes();
+        cargarResultadosEval();
+    });
+    document.querySelector('[name="fecha_capacitacion"]').addEventListener('change', function() {
+        cargarAsistentes();
+        cargarResultadosEval();
+    });
+
+    // ============================================================
+    // RESULTADOS EVALUACIÓN INDUCCIÓN SST
+    // ============================================================
+    var chkEval = document.getElementById('chkMostrarEval');
+    var evalContainer = document.getElementById('evalResultadosContainer');
+
+    chkEval.addEventListener('change', function() {
+        evalContainer.style.display = this.checked ? '' : 'none';
+        if (this.checked) cargarResultadosEval();
+    });
+
+    function cargarResultadosEval() {
+        if (!chkEval.checked) return;
+        var idCliente = document.querySelector('[name="id_cliente"]').value;
+        var fecha     = document.querySelector('[name="fecha_capacitacion"]').value;
+        if (!idCliente || !fecha) {
+            evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-info-circle"></i> Seleccione cliente y fecha para ver resultados.</p>';
+            return;
+        }
+        evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Cargando resultados...</p>';
+        $.ajax({
+            url: '/inspecciones/evaluacion-induccion/api-resultados-fecha',
+            data: { id_cliente: idCliente, fecha: fecha },
+            dataType: 'json',
+            success: function(resp) {
+                if (!resp.success) {
+                    evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-exclamation-triangle"></i> ' + (resp.msg || 'Sin resultados de evaluación para esta fecha y cliente.') + '</p>';
+                    return;
+                }
+                var html = '<table class="table table-sm table-bordered" style="font-size:12px;">';
+                html += '<thead><tr><th>#</th><th>Nombre</th><th>Cédula</th><th>Cargo</th><th class="text-center">Calificación</th></tr></thead><tbody>';
+                resp.respuestas.forEach(function(r, i) {
+                    var cls = parseFloat(r.calificacion) >= 70 ? 'text-success' : 'text-danger';
+                    html += '<tr><td>' + (i+1) + '</td><td>' + esc(r.nombre) + '</td><td>' + esc(r.cedula) + '</td><td>' + esc(r.cargo) + '</td><td class="text-center fw-bold ' + cls + '">' + parseFloat(r.calificacion).toFixed(1) + '%</td></tr>';
+                });
+                html += '</tbody><tfoot class="table-light"><tr><td colspan="4" class="text-end fw-bold">Promedio:</td><td class="text-center fw-bold">' + resp.promedio + '%</td></tr></tfoot>';
+                html += '</table><small class="text-muted">' + resp.respuestas.length + ' evaluado(s)</small>';
+                evalContainer.innerHTML = html;
+            },
+            error: function() {
+                evalContainer.innerHTML = '<p class="text-danger" style="font-size:13px;"><i class="fas fa-times-circle"></i> Error al cargar resultados.</p>';
+            }
+        });
+    }
+
+    function esc(str) { return str ? String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
+
+    // Cargar resultados si el checkbox ya está activo al abrir
+    if (chkEval.checked && '<?= $idCliente ?? '' ?>' && document.querySelector('[name="fecha_capacitacion"]').value) {
+        cargarResultadosEval();
+    }
 
     // ============================================================
     // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)

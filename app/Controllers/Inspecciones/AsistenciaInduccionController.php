@@ -8,6 +8,7 @@ use App\Models\AsistenciaInduccionAsistenteModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Models\EvaluacionInduccionModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
@@ -59,6 +60,7 @@ class AsistenciaInduccionController extends BaseController
             'asistentes'  => [],
             'idCliente'   => $idCliente,
             'tiposCharla' => self::TIPOS_CHARLA,
+            'evaluacion'  => null,
         ];
 
         return view('inspecciones/layout_pwa', [
@@ -88,6 +90,11 @@ class AsistenciaInduccionController extends BaseController
         // Insert attendees
         $this->saveAsistentes($idInspeccion);
 
+        // Manejar evaluación si es induccion_reinduccion
+        if (!$isAutosave) {
+            $this->syncEvaluacion($idInspeccion, $data);
+        }
+
         if ($isAutosave) {
             return $this->autosaveJsonSuccess($idInspeccion);
         }
@@ -103,6 +110,7 @@ class AsistenciaInduccionController extends BaseController
             return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'Registro no encontrado');
         }
         $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $evalModel      = new EvaluacionInduccionModel();
 
         $data = [
             'title'       => 'Editar Asistencia Induccion',
@@ -110,6 +118,7 @@ class AsistenciaInduccionController extends BaseController
             'asistentes'  => $asistenteModel->getByAsistencia($id),
             'idCliente'   => $inspeccion['id_cliente'],
             'tiposCharla' => self::TIPOS_CHARLA,
+            'evaluacion'  => $evalModel->getByAsistencia((int)$id),
         ];
 
         return view('inspecciones/layout_pwa', [
@@ -145,6 +154,12 @@ class AsistenciaInduccionController extends BaseController
 
         $asistenteModel->where('id_asistencia', $id)->delete();
         $this->saveAsistentes($id, $firmasPrevias);
+
+        // Manejar evaluación si es induccion_reinduccion
+        if (!$this->isAutosaveRequest()) {
+            $dataActualizada = $this->inspeccionModel->find($id);
+            $this->syncEvaluacion((int)$id, $dataActualizada);
+        }
 
         if ($this->isAutosaveRequest()) {
             return $this->autosaveJsonSuccess((int)$id);
@@ -441,6 +456,43 @@ class AsistenciaInduccionController extends BaseController
             'tiempo_horas' => $this->request->getPost('tiempo_horas'),
             'observaciones'=> $this->request->getPost('observaciones'),
         ];
+    }
+
+    /**
+     * Crea o actualiza el registro de evaluación según el checkbox evaluacion_habilitada.
+     * Solo aplica si tipo_charla = induccion_reinduccion.
+     */
+    private function syncEvaluacion(int $idInspeccion, array $inspeccionData): void
+    {
+        $tipoCharla = $inspeccionData['tipo_charla'] ?? '';
+        $habilitada = (bool) ($this->request->getPost('evaluacion_habilitada') ?? 0);
+
+        if ($tipoCharla !== 'induccion_reinduccion') {
+            return;
+        }
+
+        $evalModel = new EvaluacionInduccionModel();
+        $existente = $evalModel->getByAsistencia($idInspeccion);
+
+        if ($habilitada && !$existente) {
+            // Crear evaluación con token único
+            $token = bin2hex(random_bytes(20));
+            $idEval = $evalModel->insert([
+                'id_asistencia_induccion' => $idInspeccion,
+                'id_cliente'              => $inspeccionData['id_cliente'],
+                'titulo'                  => 'Evaluación Inducción SST',
+                'token'                   => $token,
+                'estado'                  => 'activo',
+            ]);
+            $this->inspeccionModel->update($idInspeccion, [
+                'evaluacion_habilitada' => 1,
+                'evaluacion_token'      => $token,
+            ]);
+        } elseif (!$habilitada && $existente) {
+            // Cerrar evaluación existente
+            $evalModel->update($existente['id'], ['estado' => 'cerrado']);
+            $this->inspeccionModel->update($idInspeccion, ['evaluacion_habilitada' => 0]);
+        }
     }
 
     private function saveAsistentes(int $idInspeccion, array $firmasPrevias = []): void

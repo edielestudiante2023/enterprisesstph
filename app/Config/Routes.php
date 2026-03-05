@@ -816,6 +816,11 @@ $routes->post('/contracts/regenerar-pdf-firmado', 'ContractController::regenerar
 $routes->get('/contracts/estado-firma/(:num)', 'ContractController::estadoFirma/$1');
 // Rutas públicas (sin autenticación) para firma de contratos
 $routes->get('/contrato/firmar/(:segment)', 'ContractController::paginaFirmaContrato/$1');
+
+// Rutas públicas Evaluación Inducción SST (sin autenticación)
+$routes->get('/evaluar/(:segment)/gracias', 'Inspecciones\EvaluacionInduccionController::gracias/$1');
+$routes->post('/evaluar/(:segment)/submit', 'Inspecciones\EvaluacionInduccionController::submit/$1');
+$routes->get('/evaluar/(:segment)', 'Inspecciones\EvaluacionInduccionController::form/$1');
 $routes->post('/contrato/procesar-firma', 'ContractController::procesarFirmaContrato');
 $routes->get('contrato/verificar/(:any)', 'ContractController::verificarFirma/$1');
 $routes->get('contrato/certificado-pdf/(:num)', 'ContractController::certificadoPDF/$1');
@@ -1158,6 +1163,11 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('asistencia-induccion/finalizar/(:num)', 'AsistenciaInduccionController::finalizar/$1');
     $routes->get('asistencia-induccion/delete/(:num)', 'AsistenciaInduccionController::delete/$1');
     $routes->get('asistencia-induccion/enviar-email/(:num)', 'AsistenciaInduccionController::enviarEmail/$1');
+
+    // Evaluación Inducción SST (resultados admin)
+    $routes->get('evaluacion-induccion/resultados/(:num)', 'EvaluacionInduccionController::resultados/$1');
+    $routes->get('evaluacion-induccion/api-resultados', 'EvaluacionInduccionController::apiResultados');
+    $routes->get('evaluacion-induccion/api-resultados-fecha', 'EvaluacionInduccionController::apiResultadosPorFecha');
 
     // Programa Limpieza y Desinfección
     $routes->get('limpieza-desinfeccion', 'ProgramaLimpiezaController::list');

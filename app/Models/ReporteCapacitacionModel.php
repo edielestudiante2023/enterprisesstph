@@ -14,7 +14,7 @@ class ReporteCapacitacionModel extends Model
         'horas_duracion', 'numero_asistentes', 'numero_programados',
         'numero_evaluados', 'promedio_calificaciones', 'foto_listado_asistencia',
         'foto_capacitacion', 'foto_evaluacion', 'foto_otros_1', 'foto_otros_2',
-        'observaciones', 'ruta_pdf', 'estado',
+        'observaciones', 'ruta_pdf', 'estado', 'mostrar_evaluacion_induccion',
     ];
     protected $useTimestamps = true;
 
