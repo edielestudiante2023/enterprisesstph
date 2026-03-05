@@ -1168,6 +1168,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('evaluacion-induccion/resultados/(:num)', 'EvaluacionInduccionController::resultados/$1');
     $routes->get('evaluacion-induccion/api-resultados', 'EvaluacionInduccionController::apiResultados');
     $routes->get('evaluacion-induccion/api-resultados-fecha', 'EvaluacionInduccionController::apiResultadosPorFecha');
+    $routes->get('evaluacion-induccion/qr/(:segment)', 'EvaluacionInduccionController::qr/$1');
 
     // Programa Limpieza y Desinfección
     $routes->get('limpieza-desinfeccion', 'ProgramaLimpiezaController::list');

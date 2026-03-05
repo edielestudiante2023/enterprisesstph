@@ -138,7 +138,7 @@ $action = $isEdit ? '/inspecciones/asistencia-induccion/update/' . $inspeccion['
                 <?php if (!empty($inspeccion['evaluacion_token'])): ?>
                 <div id="evalLinkBox" style="<?= !empty($inspeccion['evaluacion_habilitada']) ? '' : 'display:none;' ?>">
                     <small class="text-muted d-block mb-1">Enlace para compartir con los asistentes:</small>
-                    <div class="input-group input-group-sm">
+                    <div class="input-group input-group-sm mb-2">
                         <input type="text" class="form-control form-control-sm" id="evalLinkInput"
                             value="<?= base_url('evaluar/' . $inspeccion['evaluacion_token']) ?>" readonly>
                         <button class="btn btn-outline-secondary" type="button" onclick="copyEvalLink()" title="Copiar enlace">
@@ -148,6 +148,13 @@ $action = $isEdit ? '/inspecciones/asistencia-induccion/update/' . $inspeccion['
                             target="_blank" title="Ver resultados">
                             <i class="fas fa-chart-bar"></i>
                         </a>
+                    </div>
+                    <!-- QR Code -->
+                    <div class="text-center mt-1">
+                        <img src="/inspecciones/evaluacion-induccion/qr/<?= esc($inspeccion['evaluacion_token']) ?>"
+                            alt="QR Evaluación"
+                            style="width:160px; height:160px; border:1px solid #e0e0e0; border-radius:8px; padding:6px; background:#fff;">
+                        <div style="font-size:11px; color:#999; margin-top:4px;">Escanear para acceder a la evaluación</div>
                     </div>
                 </div>
                 <?php else: ?>

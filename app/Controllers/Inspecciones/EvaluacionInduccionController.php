@@ -7,6 +7,10 @@ use App\Models\EvaluacionInduccionModel;
 use App\Models\EvaluacionInduccionRespuestaModel;
 use App\Models\AsistenciaInduccionModel;
 use App\Models\ClientModel;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Output\QROutputInterface;
 
 class EvaluacionInduccionController extends BaseController
 {
@@ -114,6 +118,34 @@ class EvaluacionInduccionController extends BaseController
             'respuestas'=> $respuestas,
             'promedio'  => number_format($promedio, 2),
         ]);
+    }
+
+    /**
+     * Genera el QR del enlace de evaluación como imagen PNG.
+     * GET /inspecciones/evaluacion-induccion/qr/{token}
+     */
+    public function qr(string $token)
+    {
+        $evaluacion = $this->evalModel->where('token', $token)->first();
+        if (!$evaluacion) {
+            return $this->response->setStatusCode(404)->setBody('Not found');
+        }
+
+        $url = base_url('evaluar/' . $token);
+
+        $options = new QROptions;
+        $options->outputType    = QROutputInterface::GDIMAGE_PNG;
+        $options->eccLevel      = EccLevel::H;
+        $options->scale         = 8;
+        $options->imageBase64   = false;
+        $options->quietzoneSize = 2;
+
+        $png = (new QRCode($options))->render($url);
+
+        return $this->response
+            ->setHeader('Content-Type', 'image/png')
+            ->setHeader('Cache-Control', 'public, max-age=3600')
+            ->setBody($png);
     }
 
     // ── PÚBLICO (sin auth) ───────────────────────────────────────────────────
