@@ -38,18 +38,11 @@ class KpiLimpiezaController extends BaseController
 
     public function list()
     {
-        $role   = session()->get('role');
-        $userId = session()->get('user_id');
-
-        if ($role === 'admin') {
-            $inspecciones = $this->model
-                ->select('tbl_kpi_limpieza.*, tbl_clientes.nombre_cliente')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_kpi_limpieza.id_cliente')
-                ->orderBy('tbl_kpi_limpieza.fecha_inspeccion', 'DESC')
-                ->findAll();
-        } else {
-            $inspecciones = $this->model->getByConsultor($userId);
-        }
+        $inspecciones = $this->model
+            ->select('tbl_kpi_limpieza.*, tbl_clientes.nombre_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_kpi_limpieza.id_cliente')
+            ->orderBy('tbl_kpi_limpieza.fecha_inspeccion', 'DESC')
+            ->findAll();
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/kpi-limpieza/list', [

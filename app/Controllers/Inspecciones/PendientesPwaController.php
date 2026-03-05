@@ -22,27 +22,17 @@ class PendientesPwaController extends BaseController
      */
     public function list($idCliente = null)
     {
-        $userId = session()->get('user_id');
-        $role = session()->get('role');
-
         $pendientes = [];
         $clienteSeleccionado = null;
 
         if ($idCliente) {
             $clienteSeleccionado = $this->clientModel->find($idCliente);
 
-            $builder = $this->pendientesModel
+            $pendientes = $this->pendientesModel
                 ->select('tbl_pendientes.*, tbl_clientes.nombre_cliente')
                 ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_pendientes.id_cliente', 'left')
-                ->where('tbl_pendientes.id_cliente', $idCliente);
-
-            if ($role !== 'admin') {
-                // Consultores ven pendientes de sus clientes
-                $builder->join('tbl_contratos', "tbl_contratos.id_cliente = tbl_pendientes.id_cliente AND tbl_contratos.estado = 'activo'", 'inner')
-                    ->where('tbl_clientes.id_consultor', $userId);
-            }
-
-            $pendientes = $builder->orderBy('tbl_pendientes.fecha_asignacion', 'DESC')
+                ->where('tbl_pendientes.id_cliente', $idCliente)
+                ->orderBy('tbl_pendientes.fecha_asignacion', 'DESC')
                 ->findAll();
         }
 

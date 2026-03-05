@@ -26,18 +26,11 @@ class HvBrigadistaController extends BaseController
      */
     public function list()
     {
-        $userId = session()->get('user_id');
-        $role = session()->get('role');
-
-        if ($role === 'admin') {
-            $registros = $this->hvModel
-                ->select('tbl_hv_brigadista.*, tbl_clientes.nombre_cliente')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_hv_brigadista.id_cliente', 'left')
-                ->orderBy('tbl_hv_brigadista.created_at', 'DESC')
-                ->findAll();
-        } else {
-            $registros = $this->hvModel->getByConsultor($userId);
-        }
+        $registros = $this->hvModel
+            ->select('tbl_hv_brigadista.*, tbl_clientes.nombre_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_hv_brigadista.id_cliente', 'left')
+            ->orderBy('tbl_hv_brigadista.created_at', 'DESC')
+            ->findAll();
 
         $data = [
             'title'     => 'Hoja de Vida Brigadistas',

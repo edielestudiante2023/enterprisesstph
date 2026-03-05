@@ -23,19 +23,14 @@ class ProgramaLimpiezaController extends BaseController
 
     public function list()
     {
-        $userId = session()->get('user_id');
         $role = session()->get('role');
 
-        if ($role === 'admin') {
-            $inspecciones = $this->inspeccionModel
-                ->select('tbl_programa_limpieza.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_programa_limpieza.id_cliente', 'left')
-                ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_programa_limpieza.id_consultor', 'left')
-                ->orderBy('tbl_programa_limpieza.fecha_programa', 'DESC')
-                ->findAll();
-        } else {
-            $inspecciones = $this->inspeccionModel->getByConsultor($userId);
-        }
+        $inspecciones = $this->inspeccionModel
+            ->select('tbl_programa_limpieza.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_programa_limpieza.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_programa_limpieza.id_consultor', 'left')
+            ->orderBy('tbl_programa_limpieza.fecha_programa', 'DESC')
+            ->findAll();
 
         return view('inspecciones/layout_pwa', [
             'title'   => 'Programa Limpieza y Desinfección',

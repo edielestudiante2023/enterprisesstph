@@ -65,19 +65,12 @@ class ProbabilidadPeligrosController extends BaseController
 
     public function list()
     {
-        $userId = session()->get('user_id');
-        $role = session()->get('role');
-
-        if ($role === 'admin') {
-            $inspecciones = $this->inspeccionModel
-                ->select('tbl_probabilidad_peligros.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_probabilidad_peligros.id_cliente', 'left')
-                ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_probabilidad_peligros.id_consultor', 'left')
-                ->orderBy('tbl_probabilidad_peligros.fecha_inspeccion', 'DESC')
-                ->findAll();
-        } else {
-            $inspecciones = $this->inspeccionModel->getByConsultor($userId);
-        }
+        $inspecciones = $this->inspeccionModel
+            ->select('tbl_probabilidad_peligros.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_probabilidad_peligros.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_probabilidad_peligros.id_consultor', 'left')
+            ->orderBy('tbl_probabilidad_peligros.fecha_inspeccion', 'DESC')
+            ->findAll();
 
         $data = [
             'title'        => 'Probabilidad de Ocurrencia de Peligros',

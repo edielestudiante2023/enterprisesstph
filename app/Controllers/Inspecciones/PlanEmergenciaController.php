@@ -75,19 +75,12 @@ class PlanEmergenciaController extends BaseController
 
     public function list()
     {
-        $userId = session()->get('user_id');
-        $role = session()->get('role');
-
-        if ($role === 'admin') {
-            $inspecciones = $this->model
-                ->select('tbl_plan_emergencia.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_plan_emergencia.id_cliente', 'left')
-                ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_plan_emergencia.id_consultor', 'left')
-                ->orderBy('tbl_plan_emergencia.fecha_visita', 'DESC')
-                ->findAll();
-        } else {
-            $inspecciones = $this->model->getByConsultor($userId);
-        }
+        $inspecciones = $this->model
+            ->select('tbl_plan_emergencia.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_plan_emergencia.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_plan_emergencia.id_consultor', 'left')
+            ->orderBy('tbl_plan_emergencia.fecha_visita', 'DESC')
+            ->findAll();
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/plan-emergencia/list', [

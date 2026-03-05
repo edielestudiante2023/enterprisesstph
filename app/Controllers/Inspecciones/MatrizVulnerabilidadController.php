@@ -279,19 +279,12 @@ class MatrizVulnerabilidadController extends BaseController
 
     public function list()
     {
-        $userId = session()->get('user_id');
-        $role = session()->get('role');
-
-        if ($role === 'admin') {
-            $inspecciones = $this->matrizModel
-                ->select('tbl_matriz_vulnerabilidad.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_matriz_vulnerabilidad.id_cliente', 'left')
-                ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_matriz_vulnerabilidad.id_consultor', 'left')
-                ->orderBy('tbl_matriz_vulnerabilidad.fecha_inspeccion', 'DESC')
-                ->findAll();
-        } else {
-            $inspecciones = $this->matrizModel->getByConsultor($userId);
-        }
+        $inspecciones = $this->matrizModel
+            ->select('tbl_matriz_vulnerabilidad.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_matriz_vulnerabilidad.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_matriz_vulnerabilidad.id_consultor', 'left')
+            ->orderBy('tbl_matriz_vulnerabilidad.fecha_inspeccion', 'DESC')
+            ->findAll();
 
         $data = [
             'title'        => 'Matriz de Vulnerabilidad',

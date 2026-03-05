@@ -373,13 +373,7 @@
           <?php endforeach; ?>
           <option value="all" <?= ($selectedYear === 'all') ? 'selected' : '' ?>>Todos los años</option>
         </select>
-        <span class="text-muted small">
-          <?php if ($selectedYear === 'all'): ?>
-            Mostrando todos los reportes (<?= count($reports) ?>)
-          <?php else: ?>
-            Mostrando <?= count($reports) ?> reportes de <?= $selectedYear ?>
-          <?php endif; ?>
-        </span>
+        <span class="text-muted small" id="reportCountLabel">Cargando...</span>
       </div>
 
       <!-- Mensaje informativo -->
@@ -526,8 +520,7 @@
       </div>
     <?php endif; ?>
 
-    <?php if (isset($reports) && !empty($reports)) : ?>
-      <!-- Botón para restablecer filtros y exportar a Excel -->
+      <!-- Botón para restablecer filtros y exportar -->
       <div class="mb-3" style="background: white; padding: 15px; border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
         <button id="clearState" class="btn btn-danger">
           <i class="bi bi-arrow-clockwise"></i> Restablecer Filtros
@@ -552,86 +545,23 @@
         </thead>
         <tfoot>
           <tr>
-            <!-- Sin filtro -->
             <th>Acciones</th>
-            <!-- Dropdown Filtering -->
             <th>Fecha de Creación</th>
             <th>Enlace</th>
-            <!-- Sin filtro -->
             <th>ID</th>
-            <!-- Text Input Filtering -->
             <th>Título del Reporte</th>
-            <!-- Dropdown Filtering -->
             <th>Tipo de Documento</th>
             <th>Tipo de Reporte</th>
-            <!-- Dropdown Filtering -->
             <th>Estado</th>
-            <!-- Text Input Filtering -->
             <th>Observaciones</th>
-            <!-- Sin filtro -->
             <th>ID Cliente</th>
-            <!-- Text Input Filtering -->
             <th>Nombre del Cliente</th>
           </tr>
         </tfoot>
         <tbody>
-          <?php foreach ($reports as $report) : ?>
-            <tr>
-              <!-- Columna Acciones: incluye icono para fila expandible y botones de Editar/Eliminar -->
-              <td>
-                <i class="bi bi-plus-square details-control"></i>
-                <a href="<?= base_url('/editReport/' . $report['id_reporte']) ?>" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Editar Reporte">Editar</a>
-                <a href="<?= base_url('/deleteReport/' . $report['id_reporte']) ?>" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Eliminar Reporte" onclick="return confirm('¿Está seguro de eliminar este reporte?');">Eliminar</a>
-              </td>
-              <!-- Columna Fecha de Creación -->
-              <td data-bs-toggle="tooltip" title="Fecha de Creación: <?= htmlspecialchars($report['created_at']) ?>">
-                <?= htmlspecialchars($report['created_at']) ?>
-              </td>
-              <!-- Columna Enlace: se muestra un icono; se guarda el link en data-link -->
-              <td class="enlace-col" data-link="<?= htmlspecialchars($report['enlace']) ?>" data-bs-toggle="tooltip" title="Abrir documento">
-                <a href="<?= htmlspecialchars($report['enlace']) ?>" target="_blank">
-                  <i class="bi bi-link-45deg"></i>
-                </a>
-              </td>
-              <!-- Columna ID -->
-              <td data-bs-toggle="tooltip" title="ID Reporte: <?= $report['id_reporte'] ?>">
-                <?= $report['id_reporte'] ?>
-              </td>
-              <!-- Columna Título del Reporte -->
-              <td data-bs-toggle="tooltip" title="Título: <?= htmlspecialchars($report['titulo_reporte']) ?>">
-                <?= htmlspecialchars($report['titulo_reporte']) ?>
-              </td>
-              <!-- Columna Tipo de Documento -->
-              <td data-bs-toggle="tooltip" title="Tipo de Documento: <?= htmlspecialchars($details[array_search($report['id_detailreport'], array_column($details, 'id_detailreport'))]['detail_report'] ?? 'N/A') ?>">
-                <?= htmlspecialchars($details[array_search($report['id_detailreport'], array_column($details, 'id_detailreport'))]['detail_report'] ?? 'N/A') ?>
-              </td>
-              <!-- Columna Tipo de Reporte -->
-              <td data-bs-toggle="tooltip" title="Tipo de Reporte: <?= htmlspecialchars($reportTypes[array_search($report['id_report_type'], array_column($reportTypes, 'id_report_type'))]['report_type'] ?? '') ?>">
-                <?= htmlspecialchars($reportTypes[array_search($report['id_report_type'], array_column($reportTypes, 'id_report_type'))]['report_type'] ?? '') ?>
-              </td>
-              <!-- Columna Estado -->
-              <td data-bs-toggle="tooltip" title="Estado: <?= htmlspecialchars($report['estado']) ?>">
-                <?= htmlspecialchars($report['estado']) ?>
-              </td>
-              <!-- Columna Observaciones -->
-              <td class="observaciones-col" data-bs-toggle="tooltip" title="Observaciones: <?= htmlspecialchars($report['observaciones']) ?>">
-                <?= htmlspecialchars($report['observaciones']) ?>
-              </td>
-              <!-- Columna ID Cliente -->
-              <td data-bs-toggle="tooltip" title="ID Cliente: <?= htmlspecialchars($report['id_cliente']) ?>">
-                <?= htmlspecialchars($report['id_cliente']) ?>
-              </td>
-              <!-- Columna Nombre del Cliente -->
-              <td data-bs-toggle="tooltip" title="Nombre del Cliente: <?= htmlspecialchars($clients[array_search($report['id_cliente'], array_column($clients, 'id_cliente'))]['nombre_cliente'] ?? '') ?>">
-                <?= htmlspecialchars($clients[array_search($report['id_cliente'], array_column($clients, 'id_cliente'))]['nombre_cliente'] ?? '') ?>
-              </td>
-            </tr>
-          <?php endforeach; ?>
+          <!-- Server-side DataTables fills this via AJAX -->
         </tbody>
       </table>
-    <?php else : ?>
-      <p class="text-muted">No hay reportes disponibles.</p>
-    <?php endif; ?>
 
     <!-- Sección para Descargar Documentación por Contrato -->
     <div class="mt-5 mb-4">
@@ -743,14 +673,67 @@
     $(document).ready(function () {
       // Variable global para filtro activo de mes
       var activeMonth = null;
+      var selectedYear = '<?= $selectedYear ?>';
 
-      // Cambio de año recarga la página con el parámetro year
+      // Mapeos cliente para Quick Access
+      var reverseClientMap = {
+        <?php foreach ($clients as $client): ?>
+        '<?= addslashes($client['nombre_cliente']) ?>': '<?= $client['id_cliente'] ?>',
+        <?php endforeach; ?>
+      };
+      var clientMap = {
+        <?php foreach ($clients as $client): ?>
+        '<?= $client['id_cliente'] ?>': '<?= addslashes($client['nombre_cliente']) ?>',
+        <?php endforeach; ?>
+      };
+
+      // Helper: get current filter values
+      function getFilterParams() {
+        return {
+          year: selectedYear,
+          client: $('#clientFilter').val() || '',
+          dateFrom: $('#dateFrom').val() || '',
+          dateTo: $('#dateTo').val() || '',
+          month: activeMonth || ''
+        };
+      }
+
+      // Year selector: update var and reload table (no full page reload)
       $('#yearSelector').on('change', function() {
-        var year = $(this).val();
-        window.location.href = '<?= base_url('/reportList') ?>?year=' + year;
+        selectedYear = $(this).val();
+        // Update URL without reload for bookmarking
+        var newUrl = '<?= base_url('/reportList') ?>?year=' + selectedYear;
+        window.history.replaceState({}, '', newUrl);
+        table.ajax.reload();
       });
 
+      // ============================================
+      // DataTables — Server-Side Processing
+      // ============================================
       const table = $('#reportTable').DataTable({
+        serverSide: true,
+        processing: true,
+        ajax: {
+          url: '<?= base_url('/api/reportList') ?>',
+          data: function(d) {
+            var filters = getFilterParams();
+            d.year     = filters.year;
+            d.client   = filters.client;
+            d.dateFrom = filters.dateFrom;
+            d.dateTo   = filters.dateTo;
+            d.month    = filters.month;
+          },
+          dataSrc: function(json) {
+            // Update month cards from server response
+            if (json.monthCounts) {
+              updateMonthCardsFromServer(json.monthCounts);
+            }
+            // Update count label
+            var yearLabel = selectedYear === 'all' ? 'todos los años' : selectedYear;
+            $('#reportCountLabel').text('Mostrando ' + json.recordsFiltered + ' reportes de ' + yearLabel);
+            return json.data;
+          }
+        },
         language: {
           url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
         },
@@ -759,11 +742,7 @@
           [20, 50, 100],
           [20, 50, 100]
         ],
-        // Ordenación por defecto: más reciente primero (Fecha de Creación desc)
-        order: [
-          [1, "desc"]
-        ],
-        // Se deshabilita el ordenamiento en las columnas "Acciones" (índice 0) y "Enlace" (índice 2)
+        order: [[1, "desc"]],
         columnDefs: [
           {
             targets: [0, 2],
@@ -771,7 +750,7 @@
             searchable: false
           },
           {
-            targets: 8, // "Observaciones" ahora es la columna índice 8
+            targets: 8,
             className: "observaciones-col"
           }
         ],
@@ -782,24 +761,21 @@
         stateLoadCallback: function (settings) {
           return JSON.parse(localStorage.getItem('DataTables_reportTable'));
         },
-        dom: 'Bfrtip',
+        dom: 'Blfrtip',
         buttons: [
           {
-            extend: 'excelHtml5',
-            text: '<i class="bi bi-file-earmark-excel"></i> Exportar a Excel',
+            text: '<i class="bi bi-file-earmark-excel"></i> Exportar a CSV',
             className: 'btn btn-success btn-sm',
-            exportOptions: {
-              // Excluir columnas "Acciones" (índice 0) y "Enlace" (índice 2)
-              columns: function (idx, data, node) {
-                return idx !== 0 && idx !== 2;
-              }
-            },
-            title: 'Lista de Reportes',
-            filename: 'Lista_de_Reportes',
-            titleAttr: 'Exportar a Excel',
-            customize: function (xlsx) {
-              var sheet = xlsx.xl.worksheets['sheet1.xml'];
-              $('row:first c', sheet).attr('s', '2');
+            titleAttr: 'Exportar todos los registros filtrados a CSV',
+            action: function() {
+              var params = getFilterParams();
+              var url = '<?= base_url('/api/reportList/export') ?>?'
+                + 'year=' + encodeURIComponent(params.year)
+                + '&client=' + encodeURIComponent(params.client)
+                + '&dateFrom=' + encodeURIComponent(params.dateFrom)
+                + '&dateTo=' + encodeURIComponent(params.dateTo)
+                + '&month=' + encodeURIComponent(params.month);
+              window.location.href = url;
             }
           },
           {
@@ -811,28 +787,32 @@
         ],
         initComplete: function () {
           var api = this.api();
-          // Recorremos todas las columnas para colocar los filtros en el footer
           api.columns().every(function () {
             var column = this;
             var columnIdx = column.index();
             var $footerCell = $(column.footer()).empty();
 
-            // Filtros de tipo input (texto) para: Título del Reporte (índice 4), Observaciones (índice 8) y Nombre del Cliente (índice 10)
+            // Text input filters: Título (4), Observaciones (8), Nombre Cliente (10)
             if ([4, 8, 10].indexOf(columnIdx) !== -1) {
+              var searchTimer = null;
               var input = $('<input type="text" class="form-control form-control-sm" placeholder="Buscar...">')
                 .appendTo($footerCell)
                 .on('keyup change', function () {
-                  if (column.search() !== this.value) {
-                    column.search(this.value).draw();
-                  }
+                  var val = this.value;
+                  clearTimeout(searchTimer);
+                  searchTimer = setTimeout(function() {
+                    if (column.search() !== val) {
+                      column.search(val).draw();
+                    }
+                  }, 400);
                 });
               var state = api.state.loaded();
               if (state && state.columns[columnIdx].search && state.columns[columnIdx].search.search) {
                 input.val(state.columns[columnIdx].search.search);
               }
             }
-            // Filtros dropdown para: Fecha de Creación (índice 1), Tipo de Documento (índice 5), Tipo de Reporte (índice 6) y Estado (índice 7)
-            else if ([1, 5, 6, 7].indexOf(columnIdx) !== -1) {
+            // Dropdown filters: Tipo Documento (5), Tipo Reporte (6), Estado (7)
+            else if ([5, 6, 7].indexOf(columnIdx) !== -1) {
               var select = $('<select class="form-select form-select-sm"><option value="">Todos</option></select>')
                 .appendTo($footerCell)
                 .on('change', function () {
@@ -848,97 +828,50 @@
               }
             }
           });
+
+          // Populate dropdown options via separate AJAX for distinct values
+          loadDropdownOptions();
         },
-        // Actualizar opciones de filtros dropdown en cada draw
-        drawCallback: function (settings) {
-          var api = this.api();
-          api.columns().every(function () {
-            var column = this;
-            var columnIdx = column.index();
-            if ([1, 5, 6, 7].indexOf(columnIdx) !== -1) {
-              var $footerCell = $(column.footer());
-              var select = $footerCell.data('select');
-              if (select) {
-                var currentVal = select.val();
-                select.find('option:not(:first)').remove();
-                column.data({ filter: 'applied' }).unique().sort().each(function (d, j) {
-                  var text = $('<div>').html(d).text();
-                  select.append('<option value="' + text + '">' + text + '</option>');
-                });
-                select.val(currentVal);
-              }
-            }
-          });
+        drawCallback: function () {
+          // Re-populate dropdown options after each server draw
+          loadDropdownOptions();
         }
       });
 
-      // Actualizar contadores de meses
-      function updateMonthlyCounts() {
-        if (!table) return;
-
-        var monthlyCounts = {
-          1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0,
-          7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0
-        };
-
-        table.rows({search: 'applied'}).every(function() {
-          var data = this.data();
-          var createdAt = data[1]; // Columna "Fecha de Creación"
-          if (createdAt) {
-            var parts = createdAt.split("-");
-            if (parts.length >= 2) {
-              var month = parseInt(parts[1], 10);
-              if (month >= 1 && month <= 12) {
-                monthlyCounts[month]++;
+      // Load distinct values for dropdown filters from current data context
+      function loadDropdownOptions() {
+        var api = table;
+        // For server-side mode, we populate from the current page data
+        [5, 6, 7].forEach(function(columnIdx) {
+          var column = api.column(columnIdx);
+          var $footerCell = $(column.footer());
+          var select = $footerCell.data('select');
+          if (select) {
+            var currentVal = select.val();
+            select.find('option:not(:first)').remove();
+            var seen = {};
+            column.data().each(function(d) {
+              var text = $('<div>').html(d).text().trim();
+              if (text && !seen[text]) {
+                seen[text] = true;
+                select.append('<option value="' + text + '">' + text + '</option>');
               }
-            }
+            });
+            select.val(currentVal);
           }
         });
-
-        $('#countEnero').text(monthlyCounts[1]);
-        $('#countFebrero').text(monthlyCounts[2]);
-        $('#countMarzo').text(monthlyCounts[3]);
-        $('#countAbril').text(monthlyCounts[4]);
-        $('#countMayo').text(monthlyCounts[5]);
-        $('#countJunio').text(monthlyCounts[6]);
-        $('#countJulio').text(monthlyCounts[7]);
-        $('#countAgosto').text(monthlyCounts[8]);
-        $('#countSeptiembre').text(monthlyCounts[9]);
-        $('#countOctubre').text(monthlyCounts[10]);
-        $('#countNoviembre').text(monthlyCounts[11]);
-        $('#countDiciembre').text(monthlyCounts[12]);
       }
 
-      // Función para aplicar filtro de mes (client-side)
-      function applyMonthFilter() {
-        if (!table) return;
-
-        // Limpiar filtros personalizados previos de mes
-        $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(function(fn) {
-          return !fn._isMonthFilter;
-        });
-
-        if (activeMonth) {
-          var monthFilter = function(settings, data, dataIndex) {
-            if (settings.nTable.id !== 'reportTable') return true;
-            var createdAt = data[1] || '';
-            if (createdAt) {
-              var parts = createdAt.split("-");
-              if (parts.length >= 2) {
-                return parseInt(parts[1], 10) === parseInt(activeMonth);
-              }
-            }
-            return false;
-          };
-          monthFilter._isMonthFilter = true;
-          $.fn.dataTable.ext.search.push(monthFilter);
+      // Update month card counters from server response
+      function updateMonthCardsFromServer(monthCounts) {
+        var monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                          'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        for (var i = 1; i <= 12; i++) {
+          $('#count' + monthNames[i-1]).text(monthCounts[i] || 0);
         }
-
-        table.draw();
-        updateMonthlyCounts();
       }
 
-      // Click en tarjetas de mes
+      // Click en tarjetas de mes — triggers server-side filter
       $(document).on('click', '.card-month', function() {
         var month = $(this).data('month');
 
@@ -951,18 +884,10 @@
           activeMonth = month;
         }
 
-        applyMonthFilter();
+        table.ajax.reload();
       });
 
-      // Actualizar contadores cuando la tabla se redibuja
-      table.on('draw', function() {
-        updateMonthlyCounts();
-      });
-
-      // Inicializar contadores de meses
-      updateMonthlyCounts();
-
-      // Evento para la fila expandible (row child details)
+      // Expandable row child details
       $('#reportTable tbody').on('click', 'td .details-control', function () {
         var tr = $(this).closest('tr');
         var row = table.row(tr);
@@ -976,7 +901,7 @@
         }
       });
 
-      // Inicializamos Select2
+      // Select2 initialization
       $('#clientFilter').select2({
         placeholder: "Seleccione un cliente",
         allowClear: true,
@@ -988,20 +913,12 @@
         width: '100%'
       });
 
-      // Evento para filtrar la tabla según el cliente seleccionado
-      // IMPORTANTE: registrar ANTES del preload para que trigger('change') funcione
+      // Client filter — triggers server-side reload
       $('#clientFilter').on('change', function () {
         var selected = $(this).val();
-        table.column(10).search(selected ? '^' + selected + '$' : '', true, false).draw();
-        updateMonthlyCounts();
 
-        // Guardar en localStorage para Quick Access (mapeo inverso nombre -> id)
+        // Save to localStorage for Quick Access
         if (selected) {
-          var reverseClientMap = {
-            <?php foreach ($clients as $client): ?>
-            '<?= addslashes($client['nombre_cliente']) ?>': '<?= $client['id_cliente'] ?>',
-            <?php endforeach; ?>
-          };
           var clientId = reverseClientMap[selected];
           if (clientId) {
             localStorage.setItem('selectedClient', clientId);
@@ -1009,79 +926,42 @@
         } else {
           localStorage.removeItem('selectedClient');
         }
+
+        table.ajax.reload();
       });
 
-      // ============================================
-      // Precargar cliente desde localStorage (Quick Access)
-      // ============================================
+      // Preload client from localStorage (Quick Access)
       var storedClientId = localStorage.getItem('selectedClient');
       if (storedClientId) {
-        var clientMap = {
-          <?php foreach ($clients as $client): ?>
-          '<?= $client['id_cliente'] ?>': '<?= addslashes($client['nombre_cliente']) ?>',
-          <?php endforeach; ?>
-        };
-
         var clientName = clientMap[storedClientId];
         if (clientName) {
           $('#clientFilter').val(clientName).trigger('change');
         }
       }
 
-      // Función para aplicar filtro de fechas (con limpieza segura)
-      function applyDateFilter() {
-        var dateFrom = $('#dateFrom').val();
-        var dateTo = $('#dateTo').val();
-
-        // Limpiar solo filtros de fecha previos (no otros)
-        $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(function(fn) {
-          return !fn._isDateFilter;
-        });
-
-        if (dateFrom || dateTo) {
-          var dateFilter = function(settings, data, dataIndex) {
-            if (settings.nTable.id !== 'reportTable') return true;
-
-            var dateCreated = data[1];
-            var tableDateParts = dateCreated.split(' ')[0];
-            var tableDate = new Date(tableDateParts).getTime();
-
-            var fromDate = dateFrom ? new Date(dateFrom).getTime() : null;
-            var toDate = dateTo ? new Date(dateTo + ' 23:59:59').getTime() : null;
-
-            if (fromDate && toDate) return tableDate >= fromDate && tableDate <= toDate;
-            if (fromDate) return tableDate >= fromDate;
-            if (toDate) return tableDate <= toDate;
-            return true;
-          };
-          dateFilter._isDateFilter = true;
-          $.fn.dataTable.ext.search.push(dateFilter);
-        }
-
-        table.draw();
-      }
-
-      // Eventos para los campos de fecha
+      // Date range filters — trigger server-side reload
       $('#dateFrom, #dateTo').on('change', function() {
-        applyDateFilter();
+        table.ajax.reload();
       });
 
-      // Botón para restablecer estado y recargar la página
+      // Reset all filters
       $('#clearState').on('click', function () {
         localStorage.removeItem('DataTables_reportTable');
         localStorage.removeItem('selectedClient');
         table.state.clear();
+        activeMonth = null;
+        $('.card-month').removeClass('active');
+        $('#clientFilter').val('').trigger('change.select2');
         $('#dateFrom, #dateTo').val('');
-        // Limpiar todos los filtros externos
-        $.fn.dataTable.ext.search = [];
-        location.reload();
+        table.search('');
+        table.columns().search('');
+        table.ajax.reload();
       });
 
       // ============================================
       // Descarga de Documentación por Contrato
       // ============================================
 
-      // Habilitar/deshabilitar botones según selección de cliente
       $('#clientDownload').on('change', function() {
         var clientId = $(this).val();
         if (clientId) {
@@ -1091,7 +971,6 @@
         }
       });
 
-      // Botón Ver Documentación - abre vista de selección de contrato/fechas
       $('#btnVerDocumentacion').on('click', function() {
         var clientId = $('#clientDownload').val();
         if (clientId) {
@@ -1099,7 +978,6 @@
         }
       });
 
-      // Botón Descargar ZIP - abre vista de selección de contrato/fechas
       $('#btnDescargarZip').on('click', function() {
         var clientId = $('#clientDownload').val();
         if (clientId) {

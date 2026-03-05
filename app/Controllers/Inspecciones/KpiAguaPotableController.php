@@ -39,18 +39,11 @@ class KpiAguaPotableController extends BaseController
 
     public function list()
     {
-        $role   = session()->get('role');
-        $userId = session()->get('user_id');
-
-        if ($role === 'admin') {
-            $inspecciones = $this->model
-                ->select('tbl_kpi_agua_potable.*, tbl_clientes.nombre_cliente')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_kpi_agua_potable.id_cliente')
-                ->orderBy('tbl_kpi_agua_potable.fecha_inspeccion', 'DESC')
-                ->findAll();
-        } else {
-            $inspecciones = $this->model->getByConsultor($userId);
-        }
+        $inspecciones = $this->model
+            ->select('tbl_kpi_agua_potable.*, tbl_clientes.nombre_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_kpi_agua_potable.id_cliente')
+            ->orderBy('tbl_kpi_agua_potable.fecha_inspeccion', 'DESC')
+            ->findAll();
 
         return view('inspecciones/layout_pwa', [
             'content' => view(static::VIEW_DIR . '/list', [

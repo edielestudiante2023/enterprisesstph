@@ -35,10 +35,7 @@ class ReportController extends Controller
 
     public function reportList()
     {
-        $reporteModel = new ReporteModel();
-        $reportTypeModel = new ReportTypeModel();
         $clientModel = new ClientModel();
-        $detailReportModel = new DetailReportModel();
 
         // Obtener años disponibles dinámicamente desde la BD
         $db = \Config\Database::connect();
@@ -51,27 +48,11 @@ class ReportController extends Controller
             ->getResultArray();
         $years = array_column($availableYears, 'year');
 
-        // Filtro por año: default = año actual, 'all' = todos
         $selectedYear = $this->request->getGet('year') ?? date('Y');
-
-        if ($selectedYear === 'all') {
-            $reports = $reporteModel->orderBy('created_at', 'DESC')->findAll();
-        } else {
-            $reports = $reporteModel
-                ->where('YEAR(created_at)', (int)$selectedYear)
-                ->orderBy('created_at', 'DESC')
-                ->findAll();
-        }
-
-        $reportTypes = $reportTypeModel->findAll();
         $clients = $clientModel->findAll();
-        $details = $detailReportModel->findAll();
 
         $data = [
-            'reports' => $reports,
-            'reportTypes' => $reportTypes,
             'clients' => $clients,
-            'details' => $details,
             'availableYears' => $years,
             'selectedYear' => $selectedYear,
         ];
@@ -264,6 +245,305 @@ class ReportController extends Controller
 
 
 
+
+    /**
+     * API endpoint for DataTables server-side processing.
+     * Returns JSON with paginated, filtered, sorted report data.
+     */
+    public function apiReportList()
+    {
+        $db = \Config\Database::connect();
+
+        // DataTables parameters
+        $draw   = (int) $this->request->getGet('draw');
+        $start  = (int) $this->request->getGet('start');
+        $length = (int) $this->request->getGet('length');
+        $searchValue = $this->request->getGet('search')['value'] ?? '';
+
+        // Custom filters
+        $year     = $this->request->getGet('year') ?? date('Y');
+        $client   = $this->request->getGet('client') ?? '';
+        $dateFrom = $this->request->getGet('dateFrom') ?? '';
+        $dateTo   = $this->request->getGet('dateTo') ?? '';
+        $month    = $this->request->getGet('month') ?? '';
+
+        // Column mapping: DataTables column index => DB column
+        $columns = [
+            0 => null, // Acciones — not sortable/searchable
+            1 => 'r.created_at',
+            2 => null, // Enlace — not sortable/searchable
+            3 => 'r.id_reporte',
+            4 => 'r.titulo_reporte',
+            5 => 'd.detail_report',
+            6 => 'rt.report_type',
+            7 => 'r.estado',
+            8 => 'r.observaciones',
+            9 => 'r.id_cliente',
+            10 => 'c.nombre_cliente',
+        ];
+
+        // Base query builder
+        $baseQuery = function () use ($db) {
+            return $db->table('tbl_reporte r')
+                ->select('r.id_reporte, r.titulo_reporte, r.enlace, r.estado, r.observaciones, r.id_cliente, r.created_at, r.id_report_type, r.id_detailreport')
+                ->select('c.nombre_cliente')
+                ->select('rt.report_type')
+                ->select('d.detail_report')
+                ->join('tbl_clientes c', 'c.id_cliente = r.id_cliente', 'left')
+                ->join('report_type_table rt', 'rt.id_report_type = r.id_report_type', 'left')
+                ->join('detail_report d', 'd.id_detailreport = r.id_detailreport', 'left');
+        };
+
+        // Apply custom filters to a query builder
+        $applyFilters = function ($builder) use ($year, $client, $dateFrom, $dateTo, $month) {
+            if ($year !== 'all' && $year !== '') {
+                $builder->where('YEAR(r.created_at)', (int) $year);
+            }
+            if ($client !== '') {
+                $builder->where('c.nombre_cliente', $client);
+            }
+            if ($dateFrom !== '') {
+                $builder->where('r.created_at >=', $dateFrom . ' 00:00:00');
+            }
+            if ($dateTo !== '') {
+                $builder->where('r.created_at <=', $dateTo . ' 23:59:59');
+            }
+            if ($month !== '') {
+                $builder->where('MONTH(r.created_at)', (int) $month);
+            }
+            return $builder;
+        };
+
+        // 1. Total records (no filters)
+        $recordsTotal = $db->table('tbl_reporte')->countAllResults();
+
+        // 2. Filtered records count (with custom filters + search)
+        $countBuilder = $applyFilters($baseQuery());
+
+        // Global search
+        if ($searchValue !== '') {
+            $countBuilder->groupStart();
+            $countBuilder->like('r.titulo_reporte', $searchValue);
+            $countBuilder->orLike('r.estado', $searchValue);
+            $countBuilder->orLike('r.observaciones', $searchValue);
+            $countBuilder->orLike('c.nombre_cliente', $searchValue);
+            $countBuilder->orLike('d.detail_report', $searchValue);
+            $countBuilder->orLike('rt.report_type', $searchValue);
+            $countBuilder->orLike('r.created_at', $searchValue);
+            $countBuilder->groupEnd();
+        }
+
+        // Column-specific search
+        $dtColumns = $this->request->getGet('columns') ?? [];
+        foreach ($dtColumns as $idx => $col) {
+            $searchVal = $col['search']['value'] ?? '';
+            if ($searchVal !== '' && isset($columns[(int) $idx]) && $columns[(int) $idx] !== null) {
+                $dbCol = $columns[(int) $idx];
+                // Dropdown filters use regex ^value$ — extract the value
+                if (preg_match('/^\^(.+)\$$/', $searchVal, $m)) {
+                    $countBuilder->where($dbCol, $m[1]);
+                } else {
+                    $countBuilder->like($dbCol, $searchVal);
+                }
+            }
+        }
+
+        $recordsFiltered = $countBuilder->countAllResults(false);
+
+        // 3. Data query (with filters + search + order + limit)
+        $dataBuilder = $applyFilters($baseQuery());
+
+        // Global search (same as above)
+        if ($searchValue !== '') {
+            $dataBuilder->groupStart();
+            $dataBuilder->like('r.titulo_reporte', $searchValue);
+            $dataBuilder->orLike('r.estado', $searchValue);
+            $dataBuilder->orLike('r.observaciones', $searchValue);
+            $dataBuilder->orLike('c.nombre_cliente', $searchValue);
+            $dataBuilder->orLike('d.detail_report', $searchValue);
+            $dataBuilder->orLike('rt.report_type', $searchValue);
+            $dataBuilder->orLike('r.created_at', $searchValue);
+            $dataBuilder->groupEnd();
+        }
+
+        // Column-specific search (same as above)
+        foreach ($dtColumns as $idx => $col) {
+            $searchVal = $col['search']['value'] ?? '';
+            if ($searchVal !== '' && isset($columns[(int) $idx]) && $columns[(int) $idx] !== null) {
+                $dbCol = $columns[(int) $idx];
+                if (preg_match('/^\^(.+)\$$/', $searchVal, $m)) {
+                    $dataBuilder->where($dbCol, $m[1]);
+                } else {
+                    $dataBuilder->like($dbCol, $searchVal);
+                }
+            }
+        }
+
+        // Order
+        $orderParam = $this->request->getGet('order') ?? [];
+        if (!empty($orderParam)) {
+            foreach ($orderParam as $o) {
+                $colIdx = (int) $o['column'];
+                $dir = ($o['dir'] === 'asc') ? 'ASC' : 'DESC';
+                if (isset($columns[$colIdx]) && $columns[$colIdx] !== null) {
+                    $dataBuilder->orderBy($columns[$colIdx], $dir);
+                }
+            }
+        } else {
+            $dataBuilder->orderBy('r.created_at', 'DESC');
+        }
+
+        // Pagination
+        if ($length > 0) {
+            $dataBuilder->limit($length, $start);
+        }
+
+        $results = $dataBuilder->get()->getResultArray();
+
+        // Format data for DataTables (array of arrays matching column order)
+        $data = [];
+        $baseUrl = base_url();
+        foreach ($results as $row) {
+            $id = $row['id_reporte'];
+            $enlace = htmlspecialchars($row['enlace'] ?? '', ENT_QUOTES);
+            $data[] = [
+                // Col 0: Acciones
+                '<i class="bi bi-plus-square details-control"></i> '
+                    . '<a href="' . $baseUrl . '/editReport/' . $id . '" class="btn btn-warning btn-sm" title="Editar Reporte">Editar</a> '
+                    . '<a href="' . $baseUrl . '/deleteReport/' . $id . '" class="btn btn-danger btn-sm" title="Eliminar Reporte" onclick="return confirm(\'¿Está seguro de eliminar este reporte?\');">Eliminar</a>',
+                // Col 1: Fecha de Creación
+                htmlspecialchars($row['created_at'] ?? ''),
+                // Col 2: Enlace
+                '<a href="' . $enlace . '" target="_blank"><i class="bi bi-link-45deg"></i></a>',
+                // Col 3: ID
+                $id,
+                // Col 4: Título
+                htmlspecialchars($row['titulo_reporte'] ?? ''),
+                // Col 5: Tipo de Documento
+                htmlspecialchars($row['detail_report'] ?? 'N/A'),
+                // Col 6: Tipo de Reporte
+                htmlspecialchars($row['report_type'] ?? ''),
+                // Col 7: Estado
+                htmlspecialchars($row['estado'] ?? ''),
+                // Col 8: Observaciones
+                htmlspecialchars($row['observaciones'] ?? ''),
+                // Col 9: ID Cliente
+                htmlspecialchars($row['id_cliente'] ?? ''),
+                // Col 10: Nombre del Cliente
+                htmlspecialchars($row['nombre_cliente'] ?? ''),
+            ];
+        }
+
+        // 4. Monthly counts (for month cards) — same filters except month itself
+        $monthBuilder = $db->table('tbl_reporte r')
+            ->select('MONTH(r.created_at) as mes, COUNT(*) as total')
+            ->join('tbl_clientes c', 'c.id_cliente = r.id_cliente', 'left')
+            ->where('r.created_at IS NOT NULL');
+
+        if ($year !== 'all' && $year !== '') {
+            $monthBuilder->where('YEAR(r.created_at)', (int) $year);
+        }
+        if ($client !== '') {
+            $monthBuilder->where('c.nombre_cliente', $client);
+        }
+        if ($dateFrom !== '') {
+            $monthBuilder->where('r.created_at >=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo !== '') {
+            $monthBuilder->where('r.created_at <=', $dateTo . ' 23:59:59');
+        }
+
+        $monthResults = $monthBuilder->groupBy('MONTH(r.created_at)')->get()->getResultArray();
+
+        $monthCounts = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $monthCounts[$i] = 0;
+        }
+        foreach ($monthResults as $mr) {
+            $monthCounts[(int) $mr['mes']] = (int) $mr['total'];
+        }
+
+        return $this->response->setJSON([
+            'draw'            => $draw,
+            'recordsTotal'    => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data'            => $data,
+            'monthCounts'     => $monthCounts,
+        ]);
+    }
+
+    /**
+     * Export all filtered reports as CSV.
+     */
+    public function exportReportList()
+    {
+        $db = \Config\Database::connect();
+
+        // Custom filters (same as apiReportList)
+        $year     = $this->request->getGet('year') ?? date('Y');
+        $client   = $this->request->getGet('client') ?? '';
+        $dateFrom = $this->request->getGet('dateFrom') ?? '';
+        $dateTo   = $this->request->getGet('dateTo') ?? '';
+        $month    = $this->request->getGet('month') ?? '';
+
+        $builder = $db->table('tbl_reporte r')
+            ->select('r.id_reporte, r.created_at, r.titulo_reporte, r.estado, r.observaciones, r.id_cliente')
+            ->select('c.nombre_cliente')
+            ->select('rt.report_type')
+            ->select('d.detail_report')
+            ->join('tbl_clientes c', 'c.id_cliente = r.id_cliente', 'left')
+            ->join('report_type_table rt', 'rt.id_report_type = r.id_report_type', 'left')
+            ->join('detail_report d', 'd.id_detailreport = r.id_detailreport', 'left');
+
+        if ($year !== 'all' && $year !== '') {
+            $builder->where('YEAR(r.created_at)', (int) $year);
+        }
+        if ($client !== '') {
+            $builder->where('c.nombre_cliente', $client);
+        }
+        if ($dateFrom !== '') {
+            $builder->where('r.created_at >=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo !== '') {
+            $builder->where('r.created_at <=', $dateTo . ' 23:59:59');
+        }
+        if ($month !== '') {
+            $builder->where('MONTH(r.created_at)', (int) $month);
+        }
+
+        $builder->orderBy('r.created_at', 'DESC');
+        $results = $builder->get()->getResultArray();
+
+        // Generate CSV with BOM for Excel compatibility
+        $filename = 'Lista_de_Reportes_' . date('Y-m-d') . '.csv';
+
+        $this->response->setHeader('Content-Type', 'text/csv; charset=utf-8');
+        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+
+        $output = fopen('php://output', 'w');
+        // UTF-8 BOM
+        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+        // Header row
+        fputcsv($output, ['ID', 'Fecha de Creación', 'Título del Reporte', 'Tipo de Documento', 'Tipo de Reporte', 'Estado', 'Observaciones', 'ID Cliente', 'Nombre del Cliente']);
+
+        foreach ($results as $row) {
+            fputcsv($output, [
+                $row['id_reporte'],
+                $row['created_at'],
+                $row['titulo_reporte'],
+                $row['detail_report'] ?? 'N/A',
+                $row['report_type'] ?? '',
+                $row['estado'],
+                $row['observaciones'],
+                $row['id_cliente'],
+                $row['nombre_cliente'] ?? '',
+            ]);
+        }
+
+        fclose($output);
+        return $this->response;
+    }
 
     public function editReport($id)
     {

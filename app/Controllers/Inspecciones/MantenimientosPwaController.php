@@ -25,25 +25,17 @@ class MantenimientosPwaController extends BaseController
      */
     public function list($idCliente = null)
     {
-        $userId = session()->get('user_id');
-        $role = session()->get('role');
-
         $vencimientos = [];
         $clienteSeleccionado = null;
 
         if ($idCliente) {
             $clienteSeleccionado = $this->clientModel->find($idCliente);
 
-            $builder = $this->vencimientoModel
+            $vencimientos = $this->vencimientoModel
                 ->select('tbl_vencimientos_mantenimientos.*, tbl_mantenimientos.detalle_mantenimiento')
                 ->join('tbl_mantenimientos', 'tbl_mantenimientos.id_mantenimiento = tbl_vencimientos_mantenimientos.id_mantenimiento', 'left')
-                ->where('tbl_vencimientos_mantenimientos.id_cliente', $idCliente);
-
-            if ($role !== 'admin') {
-                $builder->where('tbl_vencimientos_mantenimientos.id_consultor', $userId);
-            }
-
-            $vencimientos = $builder->orderBy('tbl_vencimientos_mantenimientos.fecha_vencimiento', 'ASC')
+                ->where('tbl_vencimientos_mantenimientos.id_cliente', $idCliente)
+                ->orderBy('tbl_vencimientos_mantenimientos.fecha_vencimiento', 'ASC')
                 ->findAll();
         }
 
@@ -261,19 +253,11 @@ class MantenimientosPwaController extends BaseController
      */
     public function apiVencimientos($idCliente)
     {
-        $userId = session()->get('user_id');
-        $role = session()->get('role');
-
-        $builder = $this->vencimientoModel
+        $vencimientos = $this->vencimientoModel
             ->select('tbl_vencimientos_mantenimientos.*, tbl_mantenimientos.detalle_mantenimiento')
             ->join('tbl_mantenimientos', 'tbl_mantenimientos.id_mantenimiento = tbl_vencimientos_mantenimientos.id_mantenimiento', 'left')
-            ->where('tbl_vencimientos_mantenimientos.id_cliente', $idCliente);
-
-        if ($role !== 'admin') {
-            $builder->where('tbl_vencimientos_mantenimientos.id_consultor', $userId);
-        }
-
-        $vencimientos = $builder->orderBy('tbl_vencimientos_mantenimientos.fecha_vencimiento', 'ASC')
+            ->where('tbl_vencimientos_mantenimientos.id_cliente', $idCliente)
+            ->orderBy('tbl_vencimientos_mantenimientos.fecha_vencimiento', 'ASC')
             ->findAll();
 
         return $this->response->setJSON($vencimientos);

@@ -26,18 +26,11 @@ class EvaluacionSimulacroController extends BaseController
      */
     public function list()
     {
-        $userId = session()->get('user_id');
-        $role = session()->get('role');
-
-        if ($role === 'admin') {
-            $evaluaciones = $this->evalModel
-                ->select('tbl_evaluacion_simulacro.*, tbl_clientes.nombre_cliente')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_simulacro.id_cliente', 'left')
-                ->orderBy('tbl_evaluacion_simulacro.fecha', 'DESC')
-                ->findAll();
-        } else {
-            $evaluaciones = $this->evalModel->getByConsultor($userId);
-        }
+        $evaluaciones = $this->evalModel
+            ->select('tbl_evaluacion_simulacro.*, tbl_clientes.nombre_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_simulacro.id_cliente', 'left')
+            ->orderBy('tbl_evaluacion_simulacro.fecha', 'DESC')
+            ->findAll();
 
         $data = [
             'title'        => 'Evaluacion Simulacro de Evacuacion',

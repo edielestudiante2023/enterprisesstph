@@ -87,6 +87,8 @@ $routes->get('/deleteConsultant/(:num)', 'ConsultantController::deleteConsultant
 
 
 $routes->get('/reportList', 'ReportController::reportList');
+$routes->get('/api/reportList', 'ReportController::apiReportList');
+$routes->get('/api/reportList/export', 'ReportController::exportReportList');
 $routes->get('/addReport', 'ReportController::addReport');
 $routes->post('/addReportPost', 'ReportController::addReportPost');
 $routes->get('/editReport/(:num)', 'ReportController::editReport/$1');

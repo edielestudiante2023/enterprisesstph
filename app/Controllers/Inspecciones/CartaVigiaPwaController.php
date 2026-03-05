@@ -31,25 +31,17 @@ class CartaVigiaPwaController extends BaseController
      */
     public function list($idCliente = null)
     {
-        $userId = session()->get('user_id');
-        $role = session()->get('role');
-
         $cartas = [];
         $clienteSeleccionado = null;
 
         if ($idCliente) {
             $clienteSeleccionado = $this->clientModel->find($idCliente);
 
-            $builder = $this->cartaModel
+            $cartas = $this->cartaModel
                 ->select('tbl_carta_vigia.*, tbl_clientes.nombre_cliente')
                 ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_carta_vigia.id_cliente', 'left')
-                ->where('tbl_carta_vigia.id_cliente', $idCliente);
-
-            if ($role !== 'admin') {
-                $builder->where('tbl_carta_vigia.id_consultor', $userId);
-            }
-
-            $cartas = $builder->orderBy('tbl_carta_vigia.created_at', 'DESC')
+                ->where('tbl_carta_vigia.id_cliente', $idCliente)
+                ->orderBy('tbl_carta_vigia.created_at', 'DESC')
                 ->findAll();
         }
 

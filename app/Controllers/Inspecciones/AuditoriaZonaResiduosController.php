@@ -47,19 +47,12 @@ class AuditoriaZonaResiduosController extends BaseController
 
     public function list()
     {
-        $userId = session()->get('user_id');
-        $role = session()->get('role');
-
-        if ($role === 'admin') {
-            $inspecciones = $this->inspeccionModel
-                ->select('tbl_auditoria_zona_residuos.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_auditoria_zona_residuos.id_cliente', 'left')
-                ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_auditoria_zona_residuos.id_consultor', 'left')
-                ->orderBy('tbl_auditoria_zona_residuos.fecha_inspeccion', 'DESC')
-                ->findAll();
-        } else {
-            $inspecciones = $this->inspeccionModel->getByConsultor($userId);
-        }
+        $inspecciones = $this->inspeccionModel
+            ->select('tbl_auditoria_zona_residuos.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_auditoria_zona_residuos.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_auditoria_zona_residuos.id_consultor', 'left')
+            ->orderBy('tbl_auditoria_zona_residuos.fecha_inspeccion', 'DESC')
+            ->findAll();
 
         $data = [
             'title'        => 'Auditoria Zona Residuos',

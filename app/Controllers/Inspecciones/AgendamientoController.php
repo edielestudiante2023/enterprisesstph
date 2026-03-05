@@ -22,14 +22,7 @@ class AgendamientoController extends BaseController
      */
     public function list()
     {
-        $userId = session()->get('user_id');
-        $role   = session()->get('role');
-
-        if ($role === 'admin') {
-            $agendamientos = $this->model->getAll();
-        } else {
-            $agendamientos = $this->model->getByConsultor($userId);
-        }
+        $agendamientos = $this->model->getAll();
 
         // Agregar última visita a cada agendamiento
         foreach ($agendamientos as &$ag) {
@@ -37,13 +30,9 @@ class AgendamientoController extends BaseController
             $ag['ultima_visita'] = $ultima ? $ultima['fecha_visita'] : null;
         }
 
-        // Clientes activos del consultor para el filtro
+        // Clientes activos para el filtro
         $clientModel = new ClientModel();
-        if ($role === 'admin') {
-            $clientes = $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll();
-        } else {
-            $clientes = $clientModel->where('id_consultor', $userId)->where('estado', 'activo')->orderBy('nombre_cliente')->findAll();
-        }
+        $clientes = $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll();
 
         $data = [
             'title'          => 'Agendamientos',
@@ -62,15 +51,8 @@ class AgendamientoController extends BaseController
      */
     public function create()
     {
-        $userId = session()->get('user_id');
-        $role   = session()->get('role');
-
         $clientModel = new ClientModel();
-        if ($role === 'admin') {
-            $clientes = $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll();
-        } else {
-            $clientes = $clientModel->where('id_consultor', $userId)->where('estado', 'activo')->orderBy('nombre_cliente')->findAll();
-        }
+        $clientes = $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll();
 
         $data = [
             'title'        => 'Nuevo Agendamiento',
@@ -145,20 +127,8 @@ class AgendamientoController extends BaseController
             return redirect()->to('/inspecciones/agendamiento')->with('error', 'Agendamiento no encontrado');
         }
 
-        $userId = session()->get('user_id');
-        $role   = session()->get('role');
-
-        // Solo el consultor dueño o admin pueden editar
-        if ($role !== 'admin' && (int)$agendamiento['id_consultor'] !== (int)$userId) {
-            return redirect()->to('/inspecciones/agendamiento')->with('error', 'No autorizado');
-        }
-
         $clientModel = new ClientModel();
-        if ($role === 'admin') {
-            $clientes = $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll();
-        } else {
-            $clientes = $clientModel->where('id_consultor', $userId)->where('estado', 'activo')->orderBy('nombre_cliente')->findAll();
-        }
+        $clientes = $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll();
 
         // Obtener estandares del cliente para mostrar frecuencia readonly
         $clienteActual = $clientModel->find($agendamiento['id_cliente']);

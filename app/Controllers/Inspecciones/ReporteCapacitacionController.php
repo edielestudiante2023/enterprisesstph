@@ -25,19 +25,12 @@ class ReporteCapacitacionController extends BaseController
 
     public function list()
     {
-        $userId = session()->get('user_id');
-        $role = session()->get('role');
-
-        if ($role === 'admin') {
-            $inspecciones = $this->inspeccionModel
-                ->select('tbl_reporte_capacitacion.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_reporte_capacitacion.id_cliente', 'left')
-                ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_reporte_capacitacion.id_consultor', 'left')
-                ->orderBy('tbl_reporte_capacitacion.fecha_capacitacion', 'DESC')
-                ->findAll();
-        } else {
-            $inspecciones = $this->inspeccionModel->getByConsultor($userId);
-        }
+        $inspecciones = $this->inspeccionModel
+            ->select('tbl_reporte_capacitacion.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_reporte_capacitacion.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_reporte_capacitacion.id_consultor', 'left')
+            ->orderBy('tbl_reporte_capacitacion.fecha_capacitacion', 'DESC')
+            ->findAll();
 
         $data = [
             'title'        => 'Reporte de Capacitacion',

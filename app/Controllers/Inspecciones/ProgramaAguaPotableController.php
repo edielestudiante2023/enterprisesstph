@@ -23,19 +23,14 @@ class ProgramaAguaPotableController extends BaseController
 
     public function list()
     {
-        $userId = session()->get('user_id');
         $role = session()->get('role');
 
-        if ($role === 'admin') {
-            $inspecciones = $this->inspeccionModel
-                ->select('tbl_programa_agua_potable.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_programa_agua_potable.id_cliente', 'left')
-                ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_programa_agua_potable.id_consultor', 'left')
-                ->orderBy('tbl_programa_agua_potable.fecha_programa', 'DESC')
-                ->findAll();
-        } else {
-            $inspecciones = $this->inspeccionModel->getByConsultor($userId);
-        }
+        $inspecciones = $this->inspeccionModel
+            ->select('tbl_programa_agua_potable.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_programa_agua_potable.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_programa_agua_potable.id_consultor', 'left')
+            ->orderBy('tbl_programa_agua_potable.fecha_programa', 'DESC')
+            ->findAll();
 
         return view('inspecciones/layout_pwa', [
             'title'   => 'Abastecimiento Agua Potable',
