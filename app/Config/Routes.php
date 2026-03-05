@@ -1153,6 +1153,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('asistencia-induccion/firmas/(:num)', 'AsistenciaInduccionController::firmas/$1');
     $routes->post('asistencia-induccion/guardar-firma/(:num)', 'AsistenciaInduccionController::guardarFirma/$1');
     $routes->get('asistencia-induccion/pdf/(:num)', 'AsistenciaInduccionController::generatePdf/$1');
+    $routes->get('asistencia-induccion/pdf-responsabilidades/(:num)', 'AsistenciaInduccionController::generatePdfResponsabilidades/$1');
     $routes->get('asistencia-induccion/regenerar/(:num)', 'AsistenciaInduccionController::regenerarPdf/$1');
     $routes->post('asistencia-induccion/finalizar/(:num)', 'AsistenciaInduccionController::finalizar/$1');
     $routes->get('asistencia-induccion/delete/(:num)', 'AsistenciaInduccionController::delete/$1');

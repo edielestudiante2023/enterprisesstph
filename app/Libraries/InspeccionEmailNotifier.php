@@ -27,7 +27,8 @@ class InspeccionEmailNotifier
         string $pdfPath,
         int $idRegistro,
         string $logPrefix = 'Inspeccion',
-        string $responsable = ''
+        string $responsable = '',
+        array $extraAttachments = []
     ): array {
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
@@ -129,6 +130,19 @@ class InspeccionEmailNotifier
             $safeNombre . '_' . $idRegistro . '.pdf',
             'attachment'
         );
+
+        // Adjuntos adicionales (ej: PDF de responsabilidades SST)
+        foreach ($extraAttachments as $extra) {
+            $extraPath = FCPATH . $extra['path'];
+            if (file_exists($extraPath)) {
+                $email->addAttachment(
+                    base64_encode(file_get_contents($extraPath)),
+                    'application/pdf',
+                    $extra['filename'],
+                    'attachment'
+                );
+            }
+        }
 
         $sendgrid = new \SendGrid($sendgridApiKey);
 

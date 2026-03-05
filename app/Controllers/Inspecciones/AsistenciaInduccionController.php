@@ -146,10 +146,6 @@ class AsistenciaInduccionController extends BaseController
         $asistenteModel->where('id_asistencia', $id)->delete();
         $this->saveAsistentes($id, $firmasPrevias);
 
-        if ($this->request->getPost('finalizar')) {
-            return $this->finalizar($id);
-        }
-
         if ($this->isAutosaveRequest()) {
             return $this->autosaveJsonSuccess((int)$id);
         }
@@ -248,6 +244,17 @@ class AsistenciaInduccionController extends BaseController
             return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No encontrado');
         }
 
+        // Validar que todos los asistentes hayan firmado
+        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistentes = $asistenteModel->getByAsistencia($id);
+        if (empty($asistentes)) {
+            return redirect()->to('/inspecciones/asistencia-induccion/edit/' . $id)->with('error', 'Debe agregar al menos un asistente antes de finalizar.');
+        }
+        $sinFirma = array_filter($asistentes, fn($a) => empty($a['firma']));
+        if (!empty($sinFirma)) {
+            return redirect()->to('/inspecciones/asistencia-induccion/firmas/' . $id)->with('error', 'Todos los asistentes deben firmar antes de finalizar. Faltan ' . count($sinFirma) . ' firma(s).');
+        }
+
         $result = $this->generarPdfInterno($id);
         if (!$result) {
             return redirect()->back()->with('error', 'Error al generar PDF');
@@ -273,7 +280,14 @@ class AsistenciaInduccionController extends BaseController
             $this->uploadToReportes($inspeccion, $result['responsabilidades'], 23, 'asist_ind_resp_id:');
         }
 
-        // Enviar email con PDF adjunto
+        // Enviar email con PDF(s) adjunto(s)
+        $extraAttachments = [];
+        if (!empty($result['responsabilidades'])) {
+            $extraAttachments[] = [
+                'path'     => $result['responsabilidades'],
+                'filename' => 'responsabilidades_sst_' . $inspeccion['id'] . '.pdf',
+            ];
+        }
         $emailResult = InspeccionEmailNotifier::enviar(
             (int) $inspeccion['id_cliente'],
             (int) $inspeccion['id_consultor'],
@@ -282,7 +296,8 @@ class AsistenciaInduccionController extends BaseController
             $result['asistencia'],
             (int) $inspeccion['id'],
             'AsistenciaInduccion',
-            $inspeccion['capacitador'] ?? ''
+            $inspeccion['capacitador'] ?? '',
+            $extraAttachments
         );
         $msg = 'Finalizado y PDF generado.';
         if ($emailResult['success']) {
@@ -322,6 +337,34 @@ class AsistenciaInduccionController extends BaseController
         return $this->response
             ->setHeader('Content-Type', 'application/pdf')
             ->setHeader('Content-Disposition', 'inline; filename="asistencia_induccion_' . $id . '.pdf"')
+            ->setBody(file_get_contents($fullPath));
+    }
+
+    public function generatePdfResponsabilidades($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion || $inspeccion['tipo_charla'] !== 'induccion_reinduccion') {
+            return redirect()->to('/inspecciones/asistencia-induccion/view/' . $id)->with('error', 'Este registro no tiene PDF de responsabilidades.');
+        }
+
+        if (!empty($inspeccion['ruta_pdf_responsabilidades']) && file_exists(FCPATH . $inspeccion['ruta_pdf_responsabilidades'])) {
+            $fullPath = FCPATH . $inspeccion['ruta_pdf_responsabilidades'];
+        } else {
+            $result = $this->generarPdfInterno($id);
+            $this->inspeccionModel->update($id, [
+                'ruta_pdf_asistencia'        => $result['asistencia'],
+                'ruta_pdf_responsabilidades' => $result['responsabilidades'],
+            ]);
+            $fullPath = FCPATH . $result['responsabilidades'];
+        }
+
+        if (!file_exists($fullPath)) {
+            return redirect()->back()->with('error', 'PDF no encontrado');
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="responsabilidades_sst_' . $id . '.pdf"')
             ->setBody(file_get_contents($fullPath));
     }
 
@@ -534,6 +577,13 @@ class AsistenciaInduccionController extends BaseController
             return redirect()->to("/inspecciones/asistencia-induccion/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
         }
 
+        $extraAttachments = [];
+        if (!empty($inspeccion['ruta_pdf_responsabilidades'])) {
+            $extraAttachments[] = [
+                'path'     => $inspeccion['ruta_pdf_responsabilidades'],
+                'filename' => 'responsabilidades_sst_' . $inspeccion['id'] . '.pdf',
+            ];
+        }
         $result = InspeccionEmailNotifier::enviar(
             (int) $inspeccion['id_cliente'],
             (int) $inspeccion['id_consultor'],
@@ -542,7 +592,8 @@ class AsistenciaInduccionController extends BaseController
             $inspeccion['ruta_pdf_asistencia'],
             (int) $inspeccion['id'],
             'AsistenciaInduccion',
-            $inspeccion['capacitador'] ?? ''
+            $inspeccion['capacitador'] ?? '',
+            $extraAttachments
         );
 
         if ($result['success']) {

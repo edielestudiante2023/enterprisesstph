@@ -133,10 +133,6 @@ $action = $isEdit ? '/inspecciones/asistencia-induccion/update/' . $inspeccion['
             <button type="submit" class="btn btn-pwa btn-pwa-outline flex-fill">
                 <i class="fas fa-save"></i> Guardar borrador
             </button>
-            <button type="submit" name="finalizar" value="1" class="btn btn-pwa btn-pwa-primary flex-fill"
-                onclick="return confirm('Finalizar asistencia? Se generara el PDF y no podra editarse.')">
-                <i class="fas fa-check-circle"></i> Finalizar
-            </button>
         </div>
     </form>
 </div>

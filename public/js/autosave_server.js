@@ -52,10 +52,20 @@
             }
 
             // Solo incluir file inputs con data-dirty="1" (fotos nuevas)
+            // Usar índice explícito para que el servidor reciba el archivo
+            // en la posición correcta del detalle (extintor, gabinete, etc.)
             var fileInputs = form.querySelectorAll('input[type="file"]');
             fileInputs.forEach(function (input) {
                 if (input.getAttribute('data-dirty') === '1' && input.files.length > 0) {
-                    fd.append(input.name, input.files[0]);
+                    var row = cfg.detailRowSelector ? input.closest(cfg.detailRowSelector) : null;
+                    if (row) {
+                        var allRows = form.querySelectorAll(cfg.detailRowSelector);
+                        var rowIdx = Array.from(allRows).indexOf(row);
+                        var baseName = input.name.replace('[]', '');
+                        fd.append(baseName + '[' + rowIdx + ']', input.files[0]);
+                    } else {
+                        fd.append(input.name, input.files[0]);
+                    }
                 }
             });
 
