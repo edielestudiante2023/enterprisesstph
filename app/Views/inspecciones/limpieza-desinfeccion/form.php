@@ -13,7 +13,7 @@
 
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/limpieza-desinfeccion/update/' . $inspeccion['id'] : '/inspecciones/limpieza-desinfeccion/store';
+$action = $isEdit ? base_url('/inspecciones/limpieza-desinfeccion/update/') . $inspeccion['id'] : base_url('/inspecciones/limpieza-desinfeccion/store');
 $storageKey = $isEdit ? 'limpieza_draft_' . $inspeccion['id'] : 'limpieza_draft_new';
 ?>
 
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Cargar clientes via AJAX + Select2
 var preselectedClient = '<?= esc($idCliente ?? '') ?>';
 $.ajax({
-    url: '/inspecciones/api/clientes',
+    url: '<?= base_url('/inspecciones/api/clientes') ?>',
     dataType: 'json',
     success: function(data) {
         var sel = document.getElementById('selectCliente');
@@ -173,9 +173,9 @@ if (!isEditLocal) {
 // ============================================================
 initAutosave({
     formId: 'limpiezaForm',
-    storeUrl: '/inspecciones/limpieza-desinfeccion/store',
-    updateUrlBase: '/inspecciones/limpieza-desinfeccion/update/',
-    editUrlBase: '/inspecciones/limpieza-desinfeccion/edit/',
+    storeUrl: base_url('/inspecciones/limpieza-desinfeccion/store'),
+    updateUrlBase: base_url('/inspecciones/limpieza-desinfeccion/update/'),
+    editUrlBase: base_url('/inspecciones/limpieza-desinfeccion/edit/'),
     recordId: <?= $inspeccion['id'] ?? 'null' ?>,
     isEdit: <?= $isEdit ? 'true' : 'false' ?>,
     storageKey: STORAGE_KEY,

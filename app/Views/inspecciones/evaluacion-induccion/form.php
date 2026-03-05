@@ -1,12 +1,12 @@
 <?php
 $isEdit = !empty($evaluacion);
 $action = $isEdit
-    ? '/inspecciones/evaluacion-induccion/update/' . $evaluacion['id']
-    : '/inspecciones/evaluacion-induccion/store';
+    ? base_url('/inspecciones/evaluacion-induccion/update/') . $evaluacion['id']
+    : base_url('/inspecciones/evaluacion-induccion/store');
 ?>
 <div class="container-fluid px-3">
     <div class="d-flex align-items-center gap-2 mt-2 mb-3">
-        <a href="/inspecciones/evaluacion-induccion" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i></a>
+        <a href="<?= base_url('/inspecciones/evaluacion-induccion') ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i></a>
         <h6 class="mb-0" style="font-size:15px; font-weight:700;"><?= $isEdit ? 'Editar' : 'Nueva' ?> Evaluación</h6>
     </div>
 
@@ -51,7 +51,16 @@ $action = $isEdit
 </div>
 
 <script>
-$(function() {
-    $('#selectCliente').select2({ placeholder: 'Seleccionar...', width: '100%' });
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof $ !== 'undefined' && $.fn.select2) {
+        $('#selectCliente').select2({ placeholder: 'Seleccionar...', width: '100%' });
+    } else {
+        var check = setInterval(function() {
+            if (typeof $ !== 'undefined' && $.fn.select2) {
+                clearInterval(check);
+                $('#selectCliente').select2({ placeholder: 'Seleccionar...', width: '100%' });
+            }
+        }, 50);
+    }
 });
 </script>

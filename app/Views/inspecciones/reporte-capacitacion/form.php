@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/reporte-capacitacion/update/' . $inspeccion['id'] : '/inspecciones/reporte-capacitacion/store';
+$action = $isEdit ? base_url('/inspecciones/reporte-capacitacion/update/') . $inspeccion['id'] : base_url('/inspecciones/reporte-capacitacion/store');
 $perfilesSeleccionados = [];
 if ($isEdit && !empty($inspeccion['perfil_asistentes'])) {
     $perfilesSeleccionados = explode(',', $inspeccion['perfil_asistentes']);
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedCliente = '<?= $idCliente ?? '' ?>';
 
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
         container.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Cargando...</p>';
 
         $.ajax({
-            url: '/inspecciones/reporte-capacitacion/api-asistentes',
+            url: '<?= base_url('/inspecciones/reporte-capacitacion/api-asistentes') ?>',
             data: { id_cliente: idCliente, fecha: fecha },
             dataType: 'json',
             success: function(data) {
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Buscando...</p>';
         $.ajax({
-            url: '/inspecciones/evaluacion-induccion/api-resultados-fecha',
+            url: '<?= base_url('/inspecciones/evaluacion-induccion/api-resultados-fecha') ?>',
             data: { id_cliente: idCliente, fecha: fecha },
             dataType: 'json',
             success: function(resp) {
@@ -372,9 +372,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'repCapForm',
-        storeUrl: '/inspecciones/reporte-capacitacion/store',
-        updateUrlBase: '/inspecciones/reporte-capacitacion/update/',
-        editUrlBase: '/inspecciones/reporte-capacitacion/edit/',
+        storeUrl: base_url('/inspecciones/reporte-capacitacion/store'),
+        updateUrlBase: base_url('/inspecciones/reporte-capacitacion/update/'),
+        editUrlBase: base_url('/inspecciones/reporte-capacitacion/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

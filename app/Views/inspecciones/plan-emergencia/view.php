@@ -485,21 +485,21 @@ $telefonosCiudad = ($ciudad && isset($telefonos[$ciudad])) ? $telefonos[$ciudad]
     <!-- Acciones -->
     <div class="mb-4">
         <?php if ($inspeccion['estado'] === 'completo' && !empty($inspeccion['ruta_pdf'])): ?>
-        <a href="/inspecciones/plan-emergencia/pdf/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
+        <a href="<?= base_url('/inspecciones/plan-emergencia/pdf/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
             <i class="fas fa-file-pdf"></i> Ver PDF
         </a>
         <?php endif; ?>
     <?php if ($inspeccion['estado'] === 'completo'): ?>
-    <a href="/inspecciones/plan-emergencia/regenerar/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
+    <a href="<?= base_url('/inspecciones/plan-emergencia/regenerar/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
         <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
     </a>
-    <a href="/inspecciones/plan-emergencia/enviar-email/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
+    <a href="<?= base_url('/inspecciones/plan-emergencia/enviar-email/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
         <i class="fas fa-envelope me-2"></i>Enviar por Email
     </a>
     <?php endif; ?>
 
         <?php if ($inspeccion['estado'] !== 'completo'): ?>
-        <a href="/inspecciones/plan-emergencia/edit/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
+        <a href="<?= base_url('/inspecciones/plan-emergencia/edit/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
             <i class="fas fa-edit"></i> Editar
         </a>
         <?php endif; ?>

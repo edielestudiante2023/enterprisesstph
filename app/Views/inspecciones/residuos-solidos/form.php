@@ -13,7 +13,7 @@
 
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/residuos-solidos/update/' . $inspeccion['id'] : '/inspecciones/residuos-solidos/store';
+$action = $isEdit ? base_url('/inspecciones/residuos-solidos/update/') . $inspeccion['id'] : base_url('/inspecciones/residuos-solidos/store');
 $storageKey = $isEdit ? 'residuos_draft_' . $inspeccion['id'] : 'residuos_draft_new';
 ?>
 
@@ -81,7 +81,7 @@ $storageKey = $isEdit ? 'residuos_draft_' . $inspeccion['id'] : 'residuos_draft_
 document.addEventListener('DOMContentLoaded', function() {
 var preselectedClient = '<?= esc($idCliente ?? '') ?>';
 $.ajax({
-    url: '/inspecciones/api/clientes',
+    url: '<?= base_url('/inspecciones/api/clientes') ?>',
     dataType: 'json',
     success: function(data) {
         var sel = document.getElementById('selectCliente');
@@ -170,9 +170,9 @@ if (!isEditLocal) {
 // ============================================================
 initAutosave({
     formId: 'residuosForm',
-    storeUrl: '/inspecciones/residuos-solidos/store',
-    updateUrlBase: '/inspecciones/residuos-solidos/update/',
-    editUrlBase: '/inspecciones/residuos-solidos/edit/',
+    storeUrl: base_url('/inspecciones/residuos-solidos/store'),
+    updateUrlBase: base_url('/inspecciones/residuos-solidos/update/'),
+    editUrlBase: base_url('/inspecciones/residuos-solidos/edit/'),
     recordId: <?= $inspeccion['id'] ?? 'null' ?>,
     isEdit: <?= $isEdit ? 'true' : 'false' ?>,
     storageKey: STORAGE_KEY,

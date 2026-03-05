@@ -1,7 +1,7 @@
 <div class="container-fluid px-3">
     <?php
     $isEdit = !empty($carta);
-    $action = $isEdit ? '/inspecciones/carta-vigia/update/' . $carta['id'] : '/inspecciones/carta-vigia/store';
+    $action = $isEdit ? base_url('/inspecciones/carta-vigia/update/') . $carta['id'] : base_url('/inspecciones/carta-vigia/store');
     ?>
     <form method="post" action="<?= $action ?>" id="formCartaVigia">
         <?= csrf_field() ?>
@@ -69,7 +69,7 @@
             <button type="submit" class="btn btn-pwa btn-pwa-primary">
                 <i class="fas fa-<?= $isEdit ? 'save' : 'paper-plane' ?>"></i> <?= $isEdit ? 'Guardar Cambios' : 'Generar y Enviar' ?>
             </button>
-            <a href="/inspecciones/carta-vigia<?= $idCliente ? '/cliente/' . $idCliente : '' ?>" class="btn btn-outline-secondary">
+            <a href="<?= base_url('/inspecciones/carta-vigia') ?><?= $idCliente ? '/cliente/' . $idCliente : '' ?>" class="btn btn-outline-secondary">
                 Cancelar
             </a>
         </div>
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
         placeholder: 'Buscar cliente...',
         allowClear: true,
         ajax: {
-            url: '/inspecciones/api/clientes',
+            url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             delay: 250,
             processResults: function(data) {
@@ -144,9 +144,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'formCartaVigia',
-        storeUrl: '/inspecciones/carta-vigia/store',
-        updateUrlBase: '/inspecciones/carta-vigia/update/',
-        editUrlBase: '/inspecciones/carta-vigia/edit/',
+        storeUrl: base_url('/inspecciones/carta-vigia/store'),
+        updateUrlBase: base_url('/inspecciones/carta-vigia/update/'),
+        editUrlBase: base_url('/inspecciones/carta-vigia/edit/'),
         recordId: <?= isset($carta) ? $carta['id'] : 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

@@ -19,7 +19,7 @@
 
 <div class="d-grid gap-2 mb-4">
     <?php if (!empty($inspeccion['ruta_pdf'])): ?>
-    <a href="/inspecciones/plan-saneamiento/pdf/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
+    <a href="<?= base_url('/inspecciones/plan-saneamiento/pdf/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
         <i class="fas fa-file-pdf me-2"></i>Ver PDF
     </a>
     <?php endif; ?>

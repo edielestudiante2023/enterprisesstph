@@ -17,6 +17,7 @@ use App\Libraries\TrainingLibrary;
 use App\Libraries\StandardsLibrary;
 use App\Libraries\ClientDocumentInitializerLibrary;
 use App\Models\CicloVisitaModel;
+use App\Models\UserModel;
 use CodeIgniter\Controller;
 
 class ConsultantController extends Controller
@@ -296,6 +297,27 @@ class ConsultantController extends Controller
                 );
             } catch (\Exception $e) {
                 log_message('error', 'Error al enviar email de felicitación: ' . $e->getMessage());
+            }
+
+            // Crear usuario en tbl_usuarios para que el cliente pueda hacer login
+            try {
+                $userModel = new UserModel();
+                $correoCliente = $this->request->getVar('correo_cliente');
+                if (!empty($correoCliente) && filter_var($correoCliente, FILTER_VALIDATE_EMAIL)) {
+                    // Solo crear si no existe ya un usuario con ese email
+                    if (!$userModel->findByEmail($correoCliente)) {
+                        $userModel->skipValidation(false)->insert([
+                            'email'          => $correoCliente,
+                            'password'       => password_hash($passwordPlano, PASSWORD_BCRYPT),
+                            'nombre_completo' => $this->request->getVar('nombre_cliente'),
+                            'tipo_usuario'   => 'client',
+                            'id_entidad'     => $clientId,
+                            'estado'         => 'activo',
+                        ]);
+                    }
+                }
+            } catch (\Exception $e) {
+                log_message('error', 'Error al crear usuario en tbl_usuarios: ' . $e->getMessage());
             }
 
             session()->setFlashdata('msg', 'Cliente agregado exitosamente.' . $emailMsg);
@@ -1234,146 +1256,134 @@ class ConsultantController extends Controller
     private function getWelcomeEmailTemplate($nombreCliente, $usuario, $password, $correo, $consultorNombre, $isResend = false)
     {
         $loginUrl = base_url('/login');
-        $anio = date('Y');
+        $anio     = date('Y');
 
-        $titulo = $isResend ? 'Nuevas Credenciales de Acceso' : 'Bienvenido a Enterprise SST';
-        $mensajeIntro = $isResend
-            ? 'Se han generado nuevas credenciales de acceso para su cuenta en nuestra plataforma.'
-            : 'En nombre de todo el equipo de <strong>Cycloid Talent SAS</strong>, queremos agradecerle profundamente por confiar en nosotros como su empresa de asesoría en el <strong>Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST)</strong>.';
+        if ($isResend) {
+            $encabezado  = 'Tus nuevas credenciales est&aacute;n listas';
+            $subtitulo   = 'Enterprisesst &mdash; Propiedad Horizontal';
+            $intro       = 'Hola <strong>' . htmlspecialchars($nombreCliente) . '</strong>, hemos actualizado las credenciales de tu cuenta. A partir de ahora puedes ingresar con los datos que te compartimos a continuaci&oacute;n.';
+            $cierreTexto = 'Si no solicitaste este cambio o tienes alguna duda, escr&iacute;benos de inmediato y con gusto te ayudamos.';
+        } else {
+            $encabezado  = '&iexcl;Bienvenido(a) a Enterprisesst!';
+            $subtitulo   = 'Gesti&oacute;n de Propiedad Horizontal &mdash; SG-SST';
+            $intro       = 'Hola <strong>' . htmlspecialchars($nombreCliente) . '</strong>, nos alegra mucho tenerte con nosotros.<br><br>
+                            A partir de hoy cuentas con una plataforma dedicada para el seguimiento de tu Sistema de Gesti&oacute;n de Seguridad y Salud en el Trabajo.
+                            <strong>' . htmlspecialchars($consultorNombre) . '</strong> ser&aacute; tu consultor de cabecera y estar&aacute; disponible para acompa&ntilde;arte en cada etapa del proceso.';
+            $cierreTexto = 'Si tienes preguntas o simplemente quieres conocer m&aacute;s sobre tu plataforma, no dudes en escribirnos. &iexcl;Estamos aqu&iacute; para ti!';
+        }
 
-        $mensajeExtra = $isResend
-            ? ''
-            : '<p style="font-size: 15px; color: #4a4a4a; line-height: 1.7;">Es un placer acompañarle en este proceso tan importante para el bienestar de su organización y sus colaboradores. Estamos comprometidos con brindarle el mejor servicio y acompañamiento durante todo el proceso.</p>';
+        return '<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>' . htmlspecialchars($encabezado) . '</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f2f5;font-family:\'Segoe UI\',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f2f5;padding:40px 16px;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.10);">
 
-        return '
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 30px 0;">
-                <tr>
-                    <td align="center">
-                        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+      <!-- Header oscuro -->
+      <tr>
+        <td style="background:#1c2437;padding:36px 40px 28px;text-align:center;">
+          <p style="margin:0 0 8px;color:#d4a94d;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;">' . $subtitulo . '</p>
+          <h1 style="margin:0;color:#fff;font-size:26px;font-weight:700;line-height:1.3;">' . $encabezado . '</h1>
+        </td>
+      </tr>
 
-                            <!-- Header con gradiente dorado -->
-                            <tr>
-                                <td style="background: linear-gradient(135deg, #bd9751, #d4a94d, #c9a04e); padding: 40px 30px; text-align: center;">
-                                    <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,0.2);">' . htmlspecialchars($titulo) . '</h1>
-                                    <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 14px;">Plataforma de Gestión SG-SST</p>
-                                </td>
-                            </tr>
+      <!-- Línea dorada -->
+      <tr><td style="background:linear-gradient(90deg,#bd9751,#d4a94d,#c9a04e);height:4px;font-size:0;">&nbsp;</td></tr>
 
-                            <!-- Cuerpo del email -->
-                            <tr>
-                                <td style="padding: 35px 30px 20px;">
-                                    <p style="font-size: 16px; color: #2c3e50; margin: 0 0 5px;">Estimado(a),</p>
-                                    <h2 style="font-size: 20px; color: #1c2437; margin: 0 0 20px; font-weight: bold;">' . htmlspecialchars($nombreCliente) . '</h2>
+      <!-- Cuerpo -->
+      <tr>
+        <td style="padding:36px 40px 24px;">
+          <p style="margin:0;font-size:15px;color:#3a3a3a;line-height:1.85;">' . $intro . '</p>
+        </td>
+      </tr>
 
-                                    <p style="font-size: 15px; color: #4a4a4a; line-height: 1.7;">' . $mensajeIntro . '</p>
+      <!-- Intro credenciales -->
+      <tr>
+        <td style="padding:0 40px 12px;">
+          <p style="margin:0;font-size:14px;color:#666;">Aquí tienes tus datos para ingresar:</p>
+        </td>
+      </tr>
 
-                                    ' . $mensajeExtra . '
-
-                                    <p style="font-size: 15px; color: #4a4a4a; line-height: 1.7;">A continuación encontrará sus credenciales de acceso a nuestra plataforma:</p>
-                                </td>
-                            </tr>
-
-                            <!-- Caja de credenciales -->
-                            <tr>
-                                <td style="padding: 0 30px 25px;">
-                                    <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #faf8f3, #f5f0e6); border: 2px solid #d4a94d; border-radius: 10px; overflow: hidden;">
-                                        <tr>
-                                            <td style="background: #1c2437; padding: 12px 20px;">
-                                                <p style="color: #d4a94d; margin: 0; font-size: 15px; font-weight: bold;">Sus Credenciales de Acceso</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 20px;">
-                                                <table width="100%" cellpadding="0" cellspacing="0">
-                                                    <tr>
-                                                        <td style="padding: 8px 0; border-bottom: 1px solid #e8dcc8;">
-                                                            <span style="color: #7a6b4f; font-size: 13px; font-weight: bold;">USUARIO</span><br>
-                                                            <span style="color: #1c2437; font-size: 16px; font-weight: bold;">' . htmlspecialchars($usuario) . '</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="padding: 8px 0; border-bottom: 1px solid #e8dcc8;">
-                                                            <span style="color: #7a6b4f; font-size: 13px; font-weight: bold;">CONTRASE&Ntilde;A</span><br>
-                                                            <span style="color: #bd9751; font-size: 18px; font-weight: bold; letter-spacing: 1px;">' . htmlspecialchars($password) . '</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="padding: 8px 0;">
-                                                            <span style="color: #7a6b4f; font-size: 13px; font-weight: bold;">CORREO REGISTRADO</span><br>
-                                                            <span style="color: #1c2437; font-size: 15px;">' . htmlspecialchars($correo) . '</span>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-
-                            <!-- Consultor asignado -->
-                            <tr>
-                                <td style="padding: 0 30px 20px;">
-                                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f0f4f8; border-radius: 8px; border-left: 4px solid #1c2437;">
-                                        <tr>
-                                            <td style="padding: 15px 20px;">
-                                                <p style="margin: 0; font-size: 14px; color: #4a4a4a;">
-                                                    Su consultor asignado es <strong style="color: #1c2437;">' . htmlspecialchars($consultorNombre) . '</strong>,
-                                                    quien le acompañará durante todo el proceso de implementación del SG-SST.
-                                                </p>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-
-                            <!-- Botón de acceso -->
-                            <tr>
-                                <td style="padding: 10px 30px 25px; text-align: center;">
-                                    <a href="' . $loginUrl . '" style="display: inline-block; background: linear-gradient(135deg, #1c2437, #2c3e50); color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 3px 10px rgba(28,36,55,0.3);">Ingresar a la Plataforma</a>
-                                </td>
-                            </tr>
-
-                            <!-- Recomendación de seguridad -->
-                            <tr>
-                                <td style="padding: 0 30px 25px;">
-                                    <p style="font-size: 13px; color: #888; background-color: #fff8ed; padding: 12px 15px; border-radius: 6px; border: 1px solid #f0e0c0; margin: 0;">
-                                        <strong>Recomendación de seguridad:</strong> Le sugerimos cambiar su contraseña después del primer inicio de sesión para mayor protección de su cuenta.
-                                    </p>
-                                </td>
-                            </tr>
-
-                            <!-- Despedida -->
-                            <tr>
-                                <td style="padding: 0 30px 15px;">
-                                    <p style="font-size: 15px; color: #4a4a4a; line-height: 1.7;">Si tiene alguna duda o necesita asistencia, no dude en contactarnos. Estamos para servirle.</p>
-                                    <p style="font-size: 15px; color: #4a4a4a; margin-bottom: 5px;">Con gratitud,</p>
-                                    <p style="font-size: 16px; color: #1c2437; font-weight: bold; margin: 0;">Equipo Cycloid Talent SAS</p>
-                                </td>
-                            </tr>
-
-                            <!-- Footer -->
-                            <tr>
-                                <td style="background-color: #1c2437; padding: 25px 30px; text-align: center;">
-                                    <p style="margin: 0 0 5px; color: #d4a94d; font-size: 14px; font-weight: bold;">Cycloid Talent SAS</p>
-                                    <p style="margin: 0 0 5px; color: rgba(255,255,255,0.7); font-size: 12px;">NIT: 901.653.912</p>
-                                    <p style="margin: 0 0 10px; color: rgba(255,255,255,0.7); font-size: 12px;">Asesores especializados en SG-SST</p>
-                                    <p style="margin: 0; color: rgba(255,255,255,0.5); font-size: 11px;">&copy; ' . $anio . ' Cycloid Talent SAS - Todos los derechos reservados</p>
-                                </td>
-                            </tr>
-
-                        </table>
+      <!-- Caja de credenciales -->
+      <tr>
+        <td style="padding:0 40px 28px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-radius:12px;overflow:hidden;border:1.5px solid #e8dcc8;">
+            <tr>
+              <td style="background:#f9f5ed;padding:12px 22px;border-bottom:1.5px solid #e8dcc8;">
+                <p style="margin:0;font-size:11px;color:#7a6b4f;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">Credenciales de Acceso</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 22px;">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="padding:10px 0;border-bottom:1px solid #f0e8d8;">
+                      <p style="margin:0 0 3px;font-size:10px;color:#bbb;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Correo (usuario de ingreso)</p>
+                      <p style="margin:0;font-size:16px;color:#1c2437;font-weight:600;">' . htmlspecialchars($correo) . '</p>
                     </td>
-                </tr>
-            </table>
-        </body>
-        </html>';
+                  </tr>
+                  <tr>
+                    <td style="padding:10px 0;">
+                      <p style="margin:0 0 3px;font-size:10px;color:#bbb;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Contrase&ntilde;a</p>
+                      <p style="margin:0;font-size:22px;color:#bd9751;font-weight:700;letter-spacing:2px;">' . htmlspecialchars($password) . '</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- Nota seguridad -->
+      <tr>
+        <td style="padding:0 40px 28px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#fffbf2;border-radius:8px;border-left:4px solid #d4a94d;">
+            <tr>
+              <td style="padding:13px 18px;">
+                <p style="margin:0;font-size:13px;color:#6b5c3e;line-height:1.6;">
+                  Recomendamos cambiar tu contrase&ntilde;a la primera vez que ingreses, desde la secci&oacute;n de perfil de tu cuenta.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- Botón -->
+      <tr>
+        <td style="padding:0 40px 36px;text-align:center;">
+          <a href="' . $loginUrl . '" style="display:inline-block;background:#d4a94d;color:#1c2437;padding:16px 48px;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px;letter-spacing:0.5px;">Ingresar a mi plataforma &rarr;</a>
+        </td>
+      </tr>
+
+      <!-- Cierre -->
+      <tr>
+        <td style="padding:24px 40px 32px;border-top:1px solid #f0f0f0;">
+          <p style="margin:0 0 14px;font-size:14px;color:#555;line-height:1.75;">' . $cierreTexto . '</p>
+          <p style="margin:0;font-size:14px;color:#555;">Un abrazo,<br>
+          <strong style="color:#1c2437;font-size:15px;">Equipo Enterprisesst &mdash; Propiedad Horizontal</strong></p>
+        </td>
+      </tr>
+
+      <!-- Footer -->
+      <tr>
+        <td style="background:#1c2437;padding:20px 40px;text-align:center;">
+          <p style="margin:0 0 4px;color:#d4a94d;font-size:13px;font-weight:700;">Cycloid Talent SAS &mdash; NIT 901.653.912</p>
+          <p style="margin:0;color:rgba(255,255,255,0.40);font-size:11px;">&copy; ' . $anio . ' Enterprisesst. Todos los derechos reservados.</p>
+        </td>
+      </tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>';
     }
 
     /**

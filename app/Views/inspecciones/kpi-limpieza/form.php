@@ -15,13 +15,13 @@
 
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/kpi-limpieza/update/' . $inspeccion['id'] : '/inspecciones/kpi-limpieza/store';
+$action = $isEdit ? base_url('/inspecciones/kpi-limpieza/update/') . $inspeccion['id'] : base_url('/inspecciones/kpi-limpieza/store');
 $storageKey = $isEdit ? 'kpi_limpieza_draft_' . $inspeccion['id'] : 'kpi_limpieza_draft_new';
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i><?= esc($title) ?></h5>
-    <a href="/inspecciones/kpi-limpieza" class="btn btn-sm btn-outline-secondary">
+    <a href="<?= base_url('/inspecciones/kpi-limpieza') ?>" class="btn btn-sm btn-outline-secondary">
         <i class="fas fa-arrow-left"></i> Volver
     </a>
 </div>
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var clienteVal = '<?= $isEdit ? $inspeccion['id_cliente'] : ($idCliente ?? '') ?>';
     $('#selectCliente').select2({
         ajax: {
-            url: '/inspecciones/api/clientes',
+            url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             delay: 250,
             processResults: function(data) {
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (clienteVal) {
         $.ajax({
-            url: '/inspecciones/api/clientes',
+            url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             success: function(data) {
                 var found = data.find(function(c) { return c.id_cliente == clienteVal; });
@@ -246,9 +246,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'kpiLimpiezaForm',
-        storeUrl: '/inspecciones/kpi-limpieza/store',
-        updateUrlBase: '/inspecciones/kpi-limpieza/update/',
-        editUrlBase: '/inspecciones/kpi-limpieza/edit/',
+        storeUrl: base_url('/inspecciones/kpi-limpieza/store'),
+        updateUrlBase: base_url('/inspecciones/kpi-limpieza/update/'),
+        editUrlBase: base_url('/inspecciones/kpi-limpieza/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

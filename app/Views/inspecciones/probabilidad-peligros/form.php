@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/probabilidad-peligros/update/' . $inspeccion['id'] : '/inspecciones/probabilidad-peligros/store';
+$action = $isEdit ? base_url('/inspecciones/probabilidad-peligros/update/') . $inspeccion['id'] : base_url('/inspecciones/probabilidad-peligros/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedCliente = '<?= $idCliente ?? '' ?>';
 
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -166,9 +166,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'probPelForm',
-        storeUrl: '/inspecciones/probabilidad-peligros/store',
-        updateUrlBase: '/inspecciones/probabilidad-peligros/update/',
-        editUrlBase: '/inspecciones/probabilidad-peligros/edit/',
+        storeUrl: base_url('/inspecciones/probabilidad-peligros/store'),
+        updateUrlBase: base_url('/inspecciones/probabilidad-peligros/update/'),
+        editUrlBase: base_url('/inspecciones/probabilidad-peligros/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

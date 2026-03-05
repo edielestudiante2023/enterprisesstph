@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/auditoria-zona-residuos/update/' . $inspeccion['id'] : '/inspecciones/auditoria-zona-residuos/store';
+$action = $isEdit ? base_url('/inspecciones/auditoria-zona-residuos/update/') . $inspeccion['id'] : base_url('/inspecciones/auditoria-zona-residuos/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedCliente = '<?= $idCliente ?? '' ?>';
 
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -172,9 +172,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'audResForm',
-        storeUrl: '/inspecciones/auditoria-zona-residuos/store',
-        updateUrlBase: '/inspecciones/auditoria-zona-residuos/update/',
-        editUrlBase: '/inspecciones/auditoria-zona-residuos/edit/',
+        storeUrl: base_url('/inspecciones/auditoria-zona-residuos/store'),
+        updateUrlBase: base_url('/inspecciones/auditoria-zona-residuos/update/'),
+        editUrlBase: base_url('/inspecciones/auditoria-zona-residuos/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

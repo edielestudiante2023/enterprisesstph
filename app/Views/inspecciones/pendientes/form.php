@@ -1,8 +1,8 @@
 <?php
 $isEdit = !empty($edit) && !empty($pendiente);
 $action = $isEdit
-    ? '/inspecciones/pendientes/update/' . $pendiente['id_pendientes']
-    : '/inspecciones/pendientes/store';
+    ? base_url('/inspecciones/pendientes/update/') . $pendiente['id_pendientes']
+    : base_url('/inspecciones/pendientes/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -84,7 +84,7 @@ $action = $isEdit
             <button type="submit" class="btn btn-pwa btn-pwa-primary">
                 <i class="fas fa-save"></i> Guardar
             </button>
-            <a href="/inspecciones/pendientes<?= $idCliente ? '/cliente/' . $idCliente : '' ?>" class="btn btn-outline-secondary">
+            <a href="<?= base_url('/inspecciones/pendientes') ?><?= $idCliente ? '/cliente/' . $idCliente : '' ?>" class="btn btn-outline-secondary">
                 Cancelar
             </a>
         </div>
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
         placeholder: 'Buscar cliente...',
         allowClear: true,
         ajax: {
-            url: '/inspecciones/api/clientes',
+            url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             delay: 250,
             processResults: function(data) {

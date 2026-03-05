@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(nslookup db-mysql-cycloid-do-user-18794030-0.h.db.ondigitalocean.com)"
+      "Bash(php -r \":*)"
+    ],
+    "additionalDirectories": [
+      "c:\\xampp\\htdocs\\enterprisesstph\\app\\Config"
     ]
   }
 }

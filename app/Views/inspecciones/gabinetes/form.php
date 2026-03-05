@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/gabinetes/update/' . $inspeccion['id'] : '/inspecciones/gabinetes/store';
+$action = $isEdit ? base_url('/inspecciones/gabinetes/update/') . $inspeccion['id'] : base_url('/inspecciones/gabinetes/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Select2 clientes ---
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -567,9 +567,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'gabForm',
-        storeUrl: '/inspecciones/gabinetes/store',
-        updateUrlBase: '/inspecciones/gabinetes/update/',
-        editUrlBase: '/inspecciones/gabinetes/edit/',
+        storeUrl: base_url('/inspecciones/gabinetes/store'),
+        updateUrlBase: base_url('/inspecciones/gabinetes/update/'),
+        editUrlBase: base_url('/inspecciones/gabinetes/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

@@ -13,7 +13,7 @@
 
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/control-plagas/update/' . $inspeccion['id'] : '/inspecciones/control-plagas/store';
+$action = $isEdit ? base_url('/inspecciones/control-plagas/update/') . $inspeccion['id'] : base_url('/inspecciones/control-plagas/store');
 $storageKey = $isEdit ? 'plagas_draft_' . $inspeccion['id'] : 'plagas_draft_new';
 ?>
 
@@ -81,7 +81,7 @@ $storageKey = $isEdit ? 'plagas_draft_' . $inspeccion['id'] : 'plagas_draft_new'
 document.addEventListener('DOMContentLoaded', function() {
 var preselectedClient = '<?= esc($idCliente ?? '') ?>';
 $.ajax({
-    url: '/inspecciones/api/clientes',
+    url: '<?= base_url('/inspecciones/api/clientes') ?>',
     dataType: 'json',
     success: function(data) {
         var sel = document.getElementById('selectCliente');
@@ -170,9 +170,9 @@ if (!isEditLocal) {
 // ============================================================
 initAutosave({
     formId: 'plagasForm',
-    storeUrl: '/inspecciones/control-plagas/store',
-    updateUrlBase: '/inspecciones/control-plagas/update/',
-    editUrlBase: '/inspecciones/control-plagas/edit/',
+    storeUrl: base_url('/inspecciones/control-plagas/store'),
+    updateUrlBase: base_url('/inspecciones/control-plagas/update/'),
+    editUrlBase: base_url('/inspecciones/control-plagas/edit/'),
     recordId: <?= $inspeccion['id'] ?? 'null' ?>,
     isEdit: <?= $isEdit ? 'true' : 'false' ?>,
     storageKey: STORAGE_KEY,

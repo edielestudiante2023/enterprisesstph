@@ -46,19 +46,19 @@
                     </span>
                 </div>
                 <div class="mt-2 d-flex gap-1 flex-wrap">
-                    <a href="/inspecciones/hv-brigadista/edit/<?= $hv['id'] ?>" class="btn btn-sm btn-outline-warning">
+                    <a href="<?= base_url('/inspecciones/hv-brigadista/edit/') ?><?= $hv['id'] ?>" class="btn btn-sm btn-outline-warning">
                         <i class="fas fa-edit"></i> Editar
                     </a>
-                    <a href="/inspecciones/hv-brigadista/view/<?= $hv['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    <a href="<?= base_url('/inspecciones/hv-brigadista/view/') ?><?= $hv['id'] ?>" class="btn btn-sm btn-outline-dark">
                         <i class="fas fa-eye"></i> Ver
                     </a>
                     <?php if ($hv['estado'] === 'completo'): ?>
-                        <a href="/inspecciones/hv-brigadista/pdf/<?= $hv['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                        <a href="<?= base_url('/inspecciones/hv-brigadista/pdf/') ?><?= $hv['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
                             <i class="fas fa-file-pdf"></i> PDF
                         </a>
                     <?php endif; ?>
                     <?php if ($hv['estado'] === 'borrador'): ?>
-                        <form action="/inspecciones/hv-brigadista/finalizar/<?= $hv['id'] ?>" method="post" class="d-inline">
+                        <form action="<?= base_url('/inspecciones/hv-brigadista/finalizar/') ?><?= $hv['id'] ?>" method="post" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-success">
                                 <i class="fas fa-check"></i> Finalizar
                             </button>
@@ -80,7 +80,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Select2 filtro
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('filtroCliente');
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmButtonColor: '#dc3545',
         }).then(result => {
             if (result.isConfirmed) {
-                window.location.href = '/inspecciones/hv-brigadista/delete/' + btn.dataset.id;
+                window.location.href = '<?= base_url('/inspecciones/hv-brigadista/delete/') ?>' + btn.dataset.id;
             }
         });
     });

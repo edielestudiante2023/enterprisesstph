@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($acta);
-$action = $isEdit ? '/inspecciones/acta-visita/update/' . $acta['id'] : '/inspecciones/acta-visita/store';
+$action = $isEdit ? base_url('/inspecciones/acta-visita/update/') . $acta['id'] : base_url('/inspecciones/acta-visita/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Select2 para clientes ---
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -540,9 +540,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'actaForm',
-        storeUrl: '/inspecciones/acta-visita/store',
-        updateUrlBase: '/inspecciones/acta-visita/update/',
-        editUrlBase: '/inspecciones/acta-visita/edit/',
+        storeUrl: base_url('/inspecciones/acta-visita/store'),
+        updateUrlBase: base_url('/inspecciones/acta-visita/update/'),
+        editUrlBase: base_url('/inspecciones/acta-visita/edit/'),
         recordId: <?= $acta['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

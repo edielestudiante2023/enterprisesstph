@@ -13,7 +13,7 @@
 
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/plan-saneamiento/update/' . $inspeccion['id'] : '/inspecciones/plan-saneamiento/store';
+$action = $isEdit ? base_url('/inspecciones/plan-saneamiento/update/') . $inspeccion['id'] : base_url('/inspecciones/plan-saneamiento/store');
 $storageKey = $isEdit ? 'saneamiento_draft_' . $inspeccion['id'] : 'saneamiento_draft_new';
 ?>
 
@@ -78,7 +78,7 @@ $storageKey = $isEdit ? 'saneamiento_draft_' . $inspeccion['id'] : 'saneamiento_
 document.addEventListener('DOMContentLoaded', function() {
 var preselectedClient = '<?= esc($idCliente ?? '') ?>';
 $.ajax({
-    url: '/inspecciones/api/clientes',
+    url: '<?= base_url('/inspecciones/api/clientes') ?>',
     dataType: 'json',
     success: function(data) {
         var sel = document.getElementById('selectCliente');
@@ -162,9 +162,9 @@ if (!isEditLocal) {
 // ============================================================
 initAutosave({
     formId: 'saneamientoForm',
-    storeUrl: '/inspecciones/plan-saneamiento/store',
-    updateUrlBase: '/inspecciones/plan-saneamiento/update/',
-    editUrlBase: '/inspecciones/plan-saneamiento/edit/',
+    storeUrl: base_url('/inspecciones/plan-saneamiento/store'),
+    updateUrlBase: base_url('/inspecciones/plan-saneamiento/update/'),
+    editUrlBase: base_url('/inspecciones/plan-saneamiento/edit/'),
     recordId: <?= $inspeccion['id'] ?? 'null' ?>,
     isEdit: <?= $isEdit ? 'true' : 'false' ?>,
     storageKey: STORAGE_KEY,

@@ -15,13 +15,13 @@
 
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/kpi-agua-potable/update/' . $inspeccion['id'] : '/inspecciones/kpi-agua-potable/store';
+$action = $isEdit ? base_url('/inspecciones/kpi-agua-potable/update/') . $inspeccion['id'] : base_url('/inspecciones/kpi-agua-potable/store');
 $storageKey = $isEdit ? 'kpi_agua_potable_draft_' . $inspeccion['id'] : 'kpi_agua_potable_draft_new';
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i><?= esc($title) ?></h5>
-    <a href="/inspecciones/kpi-agua-potable" class="btn btn-sm btn-outline-secondary">
+    <a href="<?= base_url('/inspecciones/kpi-agua-potable') ?>" class="btn btn-sm btn-outline-secondary">
         <i class="fas fa-arrow-left"></i> Volver
     </a>
 </div>
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var clienteVal = '<?= $isEdit ? $inspeccion['id_cliente'] : ($idCliente ?? '') ?>';
     $('#selectCliente').select2({
         ajax: {
-            url: '/inspecciones/api/clientes',
+            url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             delay: 250,
             processResults: function(data) {
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (clienteVal) {
         $.ajax({
-            url: '/inspecciones/api/clientes',
+            url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             success: function(data) {
                 var found = data.find(function(c) { return c.id_cliente == clienteVal; });
@@ -246,9 +246,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'kpiAguaPotableForm',
-        storeUrl: '/inspecciones/kpi-agua-potable/store',
-        updateUrlBase: '/inspecciones/kpi-agua-potable/update/',
-        editUrlBase: '/inspecciones/kpi-agua-potable/edit/',
+        storeUrl: base_url('/inspecciones/kpi-agua-potable/store'),
+        updateUrlBase: base_url('/inspecciones/kpi-agua-potable/update/'),
+        editUrlBase: base_url('/inspecciones/kpi-agua-potable/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

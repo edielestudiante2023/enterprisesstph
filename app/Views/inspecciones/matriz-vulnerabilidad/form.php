@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/matriz-vulnerabilidad/update/' . $inspeccion['id'] : '/inspecciones/matriz-vulnerabilidad/store';
+$action = $isEdit ? base_url('/inspecciones/matriz-vulnerabilidad/update/') . $inspeccion['id'] : base_url('/inspecciones/matriz-vulnerabilidad/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedCliente = '<?= $idCliente ?? '' ?>';
 
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -172,9 +172,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'matVulForm',
-        storeUrl: '/inspecciones/matriz-vulnerabilidad/store',
-        updateUrlBase: '/inspecciones/matriz-vulnerabilidad/update/',
-        editUrlBase: '/inspecciones/matriz-vulnerabilidad/edit/',
+        storeUrl: base_url('/inspecciones/matriz-vulnerabilidad/store'),
+        updateUrlBase: base_url('/inspecciones/matriz-vulnerabilidad/update/'),
+        editUrlBase: base_url('/inspecciones/matriz-vulnerabilidad/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

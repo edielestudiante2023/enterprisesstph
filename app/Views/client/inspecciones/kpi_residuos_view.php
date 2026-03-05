@@ -41,7 +41,7 @@ for ($i = 1; $i <= 4; $i++) {
 <?php endif; ?>
 
 <?php if (!empty($inspeccion['ruta_pdf'])): ?>
-<a href="/inspecciones/kpi-residuos/pdf/<?= $inspeccion['id'] ?>" class="btn btn-primary btn-sm mb-3" target="_blank">
+<a href="<?= base_url('/inspecciones/kpi-residuos/pdf/') ?><?= $inspeccion['id'] ?>" class="btn btn-primary btn-sm mb-3" target="_blank">
     <i class="fas fa-file-pdf me-1"></i> Ver PDF
 </a>
 <?php endif; ?>

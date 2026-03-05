@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/botiquin/update/' . $inspeccion['id'] : '/inspecciones/botiquin/store';
+$action = $isEdit ? base_url('/inspecciones/botiquin/update/') . $inspeccion['id'] : base_url('/inspecciones/botiquin/store');
 
 // Agrupar elementos por grupo
 $grupos = [];
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Select2 clientes ---
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -546,9 +546,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'botForm',
-        storeUrl: '/inspecciones/botiquin/store',
-        updateUrlBase: '/inspecciones/botiquin/update/',
-        editUrlBase: '/inspecciones/botiquin/edit/',
+        storeUrl: base_url('/inspecciones/botiquin/store'),
+        updateUrlBase: base_url('/inspecciones/botiquin/update/'),
+        editUrlBase: base_url('/inspecciones/botiquin/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

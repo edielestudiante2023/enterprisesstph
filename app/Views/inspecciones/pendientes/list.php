@@ -178,7 +178,7 @@
                 </div>
 
                 <div class="d-flex gap-1 mt-2">
-                    <a href="/inspecciones/pendientes/edit/<?= $p['id_pendientes'] ?>" class="btn btn-sm btn-outline-dark btn-action">
+                    <a href="<?= base_url('/inspecciones/pendientes/edit/') ?><?= $p['id_pendientes'] ?>" class="btn btn-sm btn-outline-dark btn-action">
                         <i class="fas fa-edit"></i> Editar
                     </a>
                     <?php if ($estado === 'ABIERTA'): ?>
@@ -201,7 +201,7 @@
 
         <!-- Botón nuevo -->
         <div class="mt-3 mb-4">
-            <a href="/inspecciones/pendientes/create/<?= $idCliente ?>" class="btn btn-pwa btn-pwa-primary">
+            <a href="<?= base_url('/inspecciones/pendientes/create/') ?><?= $idCliente ?>" class="btn btn-pwa btn-pwa-primary">
                 <i class="fas fa-plus"></i> Nuevo Pendiente
             </a>
         </div>
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
         placeholder: 'Buscar cliente...',
         allowClear: true,
         ajax: {
-            url: '/inspecciones/api/clientes',
+            url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             delay: 250,
             processResults: function(data) {
@@ -268,9 +268,9 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#selectCliente').on('change', function() {
         var id = $(this).val();
         if (id) {
-            window.location.href = '/inspecciones/pendientes/cliente/' + id;
+            window.location.href = '<?= base_url('/inspecciones/pendientes/cliente/') ?>' + id;
         } else {
-            window.location.href = '/inspecciones/pendientes';
+            window.location.href = '<?= base_url('/inspecciones/pendientes') ?>';
         }
     });
 
@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmButtonColor: '#dc3545',
             }).then(function(result) {
                 if (result.isConfirmed) {
-                    window.location.href = '/inspecciones/pendientes/delete/' + id;
+                    window.location.href = '<?= base_url('/inspecciones/pendientes/delete/') ?>' + id;
                 }
             });
         });

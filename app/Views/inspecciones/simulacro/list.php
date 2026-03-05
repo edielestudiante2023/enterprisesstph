@@ -53,19 +53,19 @@
                     </span>
                 </div>
                 <div class="mt-2 d-flex gap-1 flex-wrap">
-                    <a href="/inspecciones/simulacro/edit/<?= $ev['id'] ?>" class="btn btn-sm btn-outline-warning">
+                    <a href="<?= base_url('/inspecciones/simulacro/edit/') ?><?= $ev['id'] ?>" class="btn btn-sm btn-outline-warning">
                         <i class="fas fa-edit"></i> Editar
                     </a>
-                    <a href="/inspecciones/simulacro/view/<?= $ev['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    <a href="<?= base_url('/inspecciones/simulacro/view/') ?><?= $ev['id'] ?>" class="btn btn-sm btn-outline-dark">
                         <i class="fas fa-eye"></i> Ver
                     </a>
                     <?php if ($ev['estado'] === 'completo'): ?>
-                        <a href="/inspecciones/simulacro/pdf/<?= $ev['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                        <a href="<?= base_url('/inspecciones/simulacro/pdf/') ?><?= $ev['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
                             <i class="fas fa-file-pdf"></i> PDF
                         </a>
                     <?php endif; ?>
                     <?php if ($ev['estado'] === 'borrador'): ?>
-                        <form action="/inspecciones/simulacro/finalizar/<?= $ev['id'] ?>" method="post" class="d-inline">
+                        <form action="<?= base_url('/inspecciones/simulacro/finalizar/') ?><?= $ev['id'] ?>" method="post" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-success">
                                 <i class="fas fa-check"></i> Finalizar
                             </button>
@@ -87,7 +87,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Select2 filtro
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('filtroCliente');
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmButtonColor: '#dc3545',
         }).then(result => {
             if (result.isConfirmed) {
-                window.location.href = '/inspecciones/simulacro/delete/' + btn.dataset.id;
+                window.location.href = '<?= base_url('/inspecciones/simulacro/delete/') ?>' + btn.dataset.id;
             }
         });
     });

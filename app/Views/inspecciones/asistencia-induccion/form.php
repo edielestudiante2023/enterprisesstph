@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/asistencia-induccion/update/' . $inspeccion['id'] : '/inspecciones/asistencia-induccion/store';
+$action = $isEdit ? base_url('/inspecciones/asistencia-induccion/update/') . $inspeccion['id'] : base_url('/inspecciones/asistencia-induccion/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedCliente = '<?= $idCliente ?? '' ?>';
 
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -221,9 +221,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'asistIndForm',
-        storeUrl: '/inspecciones/asistencia-induccion/store',
-        updateUrlBase: '/inspecciones/asistencia-induccion/update/',
-        editUrlBase: '/inspecciones/asistencia-induccion/edit/',
+        storeUrl: base_url('/inspecciones/asistencia-induccion/store'),
+        updateUrlBase: base_url('/inspecciones/asistencia-induccion/update/'),
+        editUrlBase: base_url('/inspecciones/asistencia-induccion/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

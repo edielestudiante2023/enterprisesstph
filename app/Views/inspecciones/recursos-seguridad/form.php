@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/recursos-seguridad/update/' . $inspeccion['id'] : '/inspecciones/recursos-seguridad/store';
+$action = $isEdit ? base_url('/inspecciones/recursos-seguridad/update/') . $inspeccion['id'] : base_url('/inspecciones/recursos-seguridad/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedCliente = '<?= $idCliente ?? '' ?>';
 
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -171,9 +171,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'recForm',
-        storeUrl: '/inspecciones/recursos-seguridad/store',
-        updateUrlBase: '/inspecciones/recursos-seguridad/update/',
-        editUrlBase: '/inspecciones/recursos-seguridad/edit/',
+        storeUrl: base_url('/inspecciones/recursos-seguridad/store'),
+        updateUrlBase: base_url('/inspecciones/recursos-seguridad/update/'),
+        editUrlBase: base_url('/inspecciones/recursos-seguridad/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

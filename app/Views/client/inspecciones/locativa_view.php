@@ -93,7 +93,7 @@
 <!-- Botón PDF -->
 <?php if (!empty($inspeccion['ruta_pdf'])): ?>
 <div class="text-center mb-4">
-    <a href="/inspecciones/inspeccion-locativa/pdf/<?= $inspeccion['id'] ?>" class="btn btn-pdf" target="_blank">
+    <a href="<?= base_url('/inspecciones/inspeccion-locativa/pdf/') ?><?= $inspeccion['id'] ?>" class="btn btn-pdf" target="_blank">
         <i class="fas fa-file-pdf me-2"></i> Descargar PDF
     </a>
 </div>

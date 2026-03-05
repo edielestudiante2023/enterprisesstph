@@ -21,7 +21,7 @@
     </select>
 </div>
 
-<a href="/inspecciones/kpi-agua-potable/create" class="btn btn-pwa btn-pwa-primary mb-3">
+<a href="<?= base_url('/inspecciones/kpi-agua-potable/create') ?>" class="btn btn-pwa btn-pwa-primary mb-3">
     <i class="fas fa-plus me-2"></i>Nuevo KPI
 </a>
 
@@ -63,17 +63,17 @@
                 </div>
             </div>
             <div class="mt-2 d-flex gap-2">
-                    <a href="/inspecciones/kpi-agua-potable/edit/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    <a href="<?= base_url('/inspecciones/kpi-agua-potable/edit/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                         <i class="fas fa-edit"></i> Editar
                     </a>
                     <a href="#" class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $insp['id'] ?>">
                         <i class="fas fa-trash"></i>
                     </a>
                 <?php if ($insp['estado'] === 'completo'): ?>
-                    <a href="/inspecciones/kpi-agua-potable/view/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    <a href="<?= base_url('/inspecciones/kpi-agua-potable/view/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                         <i class="fas fa-eye"></i> Ver
                     </a>
-                    <a href="/inspecciones/kpi-agua-potable/pdf/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                    <a href="<?= base_url('/inspecciones/kpi-agua-potable/pdf/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
                         <i class="fas fa-file-pdf"></i> PDF
                     </a>
                 <?php endif; ?>
@@ -87,7 +87,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             var sel = document.getElementById('filtroCliente');
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Cancelar'
         }).then(result => {
             if (result.isConfirmed) {
-                window.location.href = '/inspecciones/kpi-agua-potable/delete/' + btn.dataset.id;
+                window.location.href = '<?= base_url('/inspecciones/kpi-agua-potable/delete/') ?>' + btn.dataset.id;
             }
         });
     });
