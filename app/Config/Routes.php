@@ -21,7 +21,7 @@ $routes->post('/forgot-password', 'AuthController::forgotPasswordPost');
 $routes->get('/reset-password/(:any)', 'AuthController::resetPassword/$1');
 $routes->post('/reset-password-post', 'AuthController::resetPasswordPost');
 $routes->get('/dashboardclient', 'ClientController::dashboard');
-$routes->get('/dashboard', 'ClientController::showPanel');
+$routes->get('/dashboard', 'ClientController::dashboard');
 $routes->get('client/dashboard', 'ClientController::dashboard');
 $routes->get('client/suspended', 'AuthController::suspended');
 
