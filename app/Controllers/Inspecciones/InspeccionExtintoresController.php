@@ -332,11 +332,30 @@ class InspeccionExtintoresController extends BaseController
         $pinturas = $this->request->getPost('ext_pintura_cilindro') ?? [];
         $extIds = $this->request->getPost('ext_id') ?? [];
 
+        // DEBUG: log completo para diagnosticar pérdida de fotos
+        $debugLog = WRITEPATH . 'logs/extintores_foto_debug.log';
+        $isAutosave = $this->request->hasHeader('X-Autosave');
+        $ts = date('Y-m-d H:i:s');
+        $debugLines = [
+            "=== [{$ts}] saveExtintores(id={$idInspeccion}) " . ($isAutosave ? 'AUTOSAVE' : 'MANUAL') . " ===",
+            "pinturas count: " . count($pinturas),
+            "extIds: " . json_encode($extIds),
+            "upload_max_filesize: " . ini_get('upload_max_filesize'),
+            "post_max_size: " . ini_get('post_max_size'),
+            "FILES raw keys: " . json_encode(array_keys($_FILES)),
+            "FILES ext_foto: " . (isset($_FILES['ext_foto']) ? json_encode([
+                'name' => $_FILES['ext_foto']['name'] ?? 'N/A',
+                'error' => $_FILES['ext_foto']['error'] ?? 'N/A',
+                'size' => $_FILES['ext_foto']['size'] ?? 'N/A',
+            ]) : 'NOT SET'),
+        ];
+
         // Obtener existentes para preservar fotos
         $existentes = [];
         foreach ($this->detalleModel->getByInspeccion($idInspeccion) as $ext) {
             $existentes[$ext['id']] = $ext;
         }
+        $debugLines[] = "existentes: " . json_encode(array_map(fn($e) => ['id' => $e['id'], 'foto' => $e['foto']], $existentes));
 
         $this->detalleModel->deleteByInspeccion($idInspeccion);
 
@@ -344,8 +363,19 @@ class InspeccionExtintoresController extends BaseController
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
+        $debugLines[] = "dir exists: " . (is_dir($dir) ? 'YES' : 'NO') . " | writable: " . (is_writable($dir) ? 'YES' : 'NO');
 
         $files = $this->request->getFiles();
+        $debugLines[] = "getFiles keys: " . json_encode(array_keys($files));
+        if (isset($files['ext_foto'])) {
+            foreach ($files['ext_foto'] as $idx => $f) {
+                $debugLines[] = "  ext_foto[{$idx}]: valid=" . ($f->isValid() ? 'Y' : 'N')
+                    . " hasMoved=" . ($f->hasMoved() ? 'Y' : 'N')
+                    . " size=" . $f->getSize()
+                    . " error=" . $f->getError()
+                    . " name=" . $f->getName();
+            }
+        }
         $newIds = [];
 
         foreach ($pinturas as $i => $pintura) {
@@ -354,11 +384,15 @@ class InspeccionExtintoresController extends BaseController
 
             // Foto
             $fotoPath = $existente['foto'] ?? null;
+            $debugLines[] = "row {$i}: existenteId={$existenteId} existente_foto=" . ($existente['foto'] ?? 'NULL');
             if (isset($files['ext_foto'][$i]) && $files['ext_foto'][$i]->isValid() && !$files['ext_foto'][$i]->hasMoved()) {
                 $file = $files['ext_foto'][$i];
                 $fileName = $file->getRandomName();
                 $file->move($dir, $fileName);
                 $fotoPath = 'uploads/inspecciones/extintores/fotos/' . $fileName;
+                $debugLines[] = "  -> UPLOADED: {$fotoPath}";
+            } else {
+                $debugLines[] = "  -> NO FILE, keeping: " . ($fotoPath ?? 'NULL');
             }
 
             $this->detalleModel->insert([
@@ -381,7 +415,11 @@ class InspeccionExtintoresController extends BaseController
                 'orden'                => $i + 1,
             ]);
             $newIds[] = $this->detalleModel->getInsertID();
+            $debugLines[] = "  -> INSERTED id=" . $this->detalleModel->getInsertID() . " foto=" . ($fotoPath ?? 'NULL');
         }
+
+        $debugLines[] = "newIds: " . json_encode($newIds);
+        file_put_contents($debugLog, implode("\n", $debugLines) . "\n\n", FILE_APPEND);
 
         return $newIds;
     }
