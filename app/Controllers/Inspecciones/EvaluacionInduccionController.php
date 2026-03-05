@@ -286,11 +286,11 @@ class EvaluacionInduccionController extends BaseController
             $options->outputType    = QROutputInterface::GDIMAGE_PNG;
             $options->eccLevel      = EccLevel::H;
             $options->scale         = 10;
-            $options->imageBase64   = false;
+            $options->imageBase64   = true;
             $options->quietzoneSize = 2;
-            $png = (new QRCode($options))->render($url);
-            return 'data:image/png;base64,' . base64_encode($png);
+            return (new QRCode($options))->render($url);
         } catch (\Throwable $e) {
+            log_message('error', 'QR generation failed: ' . $e->getMessage());
             return '';
         }
     }
