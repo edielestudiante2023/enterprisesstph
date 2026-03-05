@@ -122,7 +122,10 @@ class EvaluacionInduccionController extends BaseController
         $promedio    = $this->respuestaModel->getPromedioByEvaluacion($id);
 
         // QR como base64 inline
-        $qrBase64 = $this->generarQrBase64(base_url('evaluar/' . $evaluacion['token']));
+        $qrUrl = base_url('evaluar/' . $evaluacion['token']);
+        log_message('debug', 'QR URL: ' . $qrUrl);
+        $qrBase64 = $this->generarQrBase64($qrUrl);
+        log_message('debug', 'QR result length: ' . strlen($qrBase64) . ' starts: ' . substr($qrBase64, 0, 30));
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/evaluacion-induccion/view', [
@@ -290,7 +293,7 @@ class EvaluacionInduccionController extends BaseController
             $options->quietzoneSize = 2;
             return (new QRCode($options))->render($url);
         } catch (\Throwable $e) {
-            log_message('error', 'QR generation failed: ' . $e->getMessage());
+            log_message('error', 'QR generation failed: ' . $e->getMessage() . ' | trace: ' . $e->getTraceAsString());
             return '';
         }
     }
