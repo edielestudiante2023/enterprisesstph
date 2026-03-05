@@ -26,9 +26,11 @@
         var recordId = cfg.recordId || null;
         var interval = (cfg.intervalSeconds || 60) * 1000;
         var saving = false;
+        var submitted = false; // true después de un submit manual → bloquea todo autosave posterior
         var pendingSubmitBtn = null;
         var statusEl = document.getElementById('autoSaveStatus');
         var debounceTimer = null;
+        var intervalId = null;
 
         // ── Marcar file inputs como dirty cuando el usuario selecciona archivo ──
         form.addEventListener('change', function (e) {
@@ -113,7 +115,8 @@
 
         // ── Core: ejecutar autosave ──
         function doAutosave() {
-            if (saving) return;
+            // No autosave si ya se hizo submit manual o hay uno en curso
+            if (saving || submitted) return;
 
             if (!hasMinFields()) {
                 saveToLocalStorage();
@@ -144,6 +147,7 @@
                 return resp.json();
             })
             .then(function (data) {
+                if (submitted) return; // El usuario ya hizo submit manual mientras esperábamos respuesta
                 if (data.success) {
                     showStatus('fa-cloud-upload-alt', 'Guardado ' + (data.saved_at || new Date().toLocaleTimeString()), '#28a745');
 
@@ -183,8 +187,10 @@
                 }
             })
             .catch(function () {
-                showStatus('fa-exclamation-triangle', 'Sin conexión — guardado local', '#dc3545');
-                saveToLocalStorage();
+                if (!submitted) {
+                    showStatus('fa-exclamation-triangle', 'Sin conexión — guardado local', '#dc3545');
+                    saveToLocalStorage();
+                }
             })
             .finally(function () {
                 saving = false;
@@ -201,6 +207,11 @@
 
         // ── Interceptar submit manual para evitar race conditions ──
         form.addEventListener('submit', function (e) {
+            // Bloquear todo autosave futuro: el form está navegando
+            submitted = true;
+            clearTimeout(debounceTimer);
+            if (intervalId) { clearInterval(intervalId); intervalId = null; }
+
             // Limpiar localStorage en submit manual
             localStorage.removeItem(cfg.storageKey);
 
@@ -216,10 +227,11 @@
         });
 
         // ── Timer principal: cada 60s ──
-        setInterval(doAutosave, interval);
+        intervalId = setInterval(doAutosave, interval);
 
         // ── Debounce: guardar 5s después del último input ──
         form.addEventListener('input', function () {
+            if (submitted) return;
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(doAutosave, 5000);
         });
@@ -227,6 +239,7 @@
         // ── Select2: guardar 3s después de cambio ──
         if (window.$ && $.fn.select2) {
             $(form).find('select').on('change', function () {
+                if (submitted) return;
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(doAutosave, 3000);
             });

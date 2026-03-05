@@ -349,8 +349,10 @@ class InspeccionGabineteController extends BaseController
 
         // Obtener existentes para preservar fotos
         $existentes = [];
+        $existentesPorOrden = [];
         foreach ($this->detalleModel->getByInspeccion($idInspeccion) as $gab) {
             $existentes[$gab['id']] = $gab;
+            $existentesPorOrden[(int)$gab['orden']] = $gab;
         }
 
         $this->detalleModel->deleteByInspeccion($idInspeccion);
@@ -366,6 +368,10 @@ class InspeccionGabineteController extends BaseController
         foreach ($ubicaciones as $i => $ubicacion) {
             $existenteId = $gabIds[$i] ?? null;
             $existente = $existenteId ? ($existentes[$existenteId] ?? null) : null;
+            // Fallback por posición: si el ID está desactualizado (race condition autosave)
+            if (!$existente) {
+                $existente = $existentesPorOrden[$i + 1] ?? null;
+            }
 
             // Foto
             $fotoPath = $existente['foto'] ?? null;

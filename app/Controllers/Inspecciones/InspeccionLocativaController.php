@@ -333,8 +333,10 @@ class InspeccionLocativaController extends BaseController
 
         // Obtener hallazgos existentes para preservar fotos no resubidas
         $existentes = [];
+        $existentesPorOrden = [];
         foreach ($this->hallazgoModel->getByInspeccion($idInspeccion) as $h) {
             $existentes[$h['id']] = $h;
+            $existentesPorOrden[(int)$h['orden']] = $h;
         }
 
         // Eliminar hallazgos anteriores
@@ -355,6 +357,10 @@ class InspeccionLocativaController extends BaseController
 
             $existenteId = $hallazgoIds[$i] ?? null;
             $existente = $existenteId ? ($existentes[$existenteId] ?? null) : null;
+            // Fallback por posición: si el ID está desactualizado (race condition autosave)
+            if (!$existente) {
+                $existente = $existentesPorOrden[$i + 1] ?? null;
+            }
 
             // Foto del hallazgo
             $imagenPath = $existente['imagen'] ?? null;

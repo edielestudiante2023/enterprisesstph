@@ -347,8 +347,10 @@ class InspeccionSenalizacionController extends BaseController
 
         // Obtener ítems existentes para preservar fotos no resubidas
         $existentes = [];
+        $existentesPorOrden = [];
         foreach ($this->itemModel->getByInspeccion($idInspeccion) as $item) {
             $existentes[$item['id']] = $item;
+            $existentesPorOrden[(int)$item['orden']] = $item;
         }
 
         $this->itemModel->deleteByInspeccion($idInspeccion);
@@ -366,6 +368,10 @@ class InspeccionSenalizacionController extends BaseController
 
             $existenteId = $itemIds[$i] ?? null;
             $existente = $existenteId ? ($existentes[$existenteId] ?? null) : null;
+            // Fallback por posición: si el ID está desactualizado (race condition autosave)
+            if (!$existente) {
+                $existente = $existentesPorOrden[$i + 1] ?? null;
+            }
 
             // Foto
             $fotoPath = $existente['foto'] ?? null;
