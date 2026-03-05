@@ -1164,11 +1164,16 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('asistencia-induccion/delete/(:num)', 'AsistenciaInduccionController::delete/$1');
     $routes->get('asistencia-induccion/enviar-email/(:num)', 'AsistenciaInduccionController::enviarEmail/$1');
 
-    // Evaluación Inducción SST (resultados admin)
-    $routes->get('evaluacion-induccion/resultados/(:num)', 'EvaluacionInduccionController::resultados/$1');
-    $routes->get('evaluacion-induccion/api-resultados', 'EvaluacionInduccionController::apiResultados');
+    // Evaluación Inducción SST (mini-universo CRUD)
+    $routes->get('evaluacion-induccion', 'EvaluacionInduccionController::list');
+    $routes->get('evaluacion-induccion/create', 'EvaluacionInduccionController::create');
+    $routes->post('evaluacion-induccion/store', 'EvaluacionInduccionController::store');
+    $routes->get('evaluacion-induccion/edit/(:num)', 'EvaluacionInduccionController::edit/$1');
+    $routes->post('evaluacion-induccion/update/(:num)', 'EvaluacionInduccionController::update/$1');
+    $routes->get('evaluacion-induccion/view/(:num)', 'EvaluacionInduccionController::view/$1');
+    $routes->get('evaluacion-induccion/delete/(:num)', 'EvaluacionInduccionController::delete/$1');
+    $routes->get('evaluacion-induccion/toggle/(:num)', 'EvaluacionInduccionController::toggleEstado/$1');
     $routes->get('evaluacion-induccion/api-resultados-fecha', 'EvaluacionInduccionController::apiResultadosPorFecha');
-    $routes->get('evaluacion-induccion/qr/(:segment)', 'EvaluacionInduccionController::qr/$1');
 
     // Programa Limpieza y Desinfección
     $routes->get('limpieza-desinfeccion', 'ProgramaLimpiezaController::list');

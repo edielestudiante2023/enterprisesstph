@@ -1,13 +1,13 @@
 # Evaluación de Inducción SST — Documentación técnica
 
-> Estado: **Implementado** | Fecha: 2026-03-05
-> Este patrón es reutilizable para: Capacitación Riesgo Locativo, Primeros Auxilios, etc.
+> Estado: **Implementado v2** | Fecha: 2026-03-05
+> Patrón: **Mini-universo independiente** — reutilizable para Riesgo Locativo, Primeros Auxilios, etc.
 
 ---
 
 ## 1. Qué resuelve
 
-Reemplaza el formulario de Google Forms con un formulario propio de la plataforma para evaluar a los asistentes de una sesión de **Inducción/Reinducción SST**. El consultor habilita el formulario desde la plataforma, comparte un enlace único con los asistentes, y los resultados quedan integrados en el **Reporte de Capacitación**.
+Reemplaza Google Forms con un módulo propio para evaluar asistentes de inducciones SST. Es un módulo **independiente** dentro de `/inspecciones/` con su propio CRUD (list/create/edit/view/delete), formulario público, y QR para compartir.
 
 ---
 
@@ -17,10 +17,10 @@ Reemplaza el formulario de Google Forms con un formulario propio de la plataform
 | Columna | Tipo | Descripción |
 |---|---|---|
 | id | INT UNSIGNED PK | |
-| id_asistencia_induccion | INT UNSIGNED NULL | FK a tbl_asistencia_induccion |
-| id_cliente | INT UNSIGNED | |
+| id_asistencia_induccion | INT UNSIGNED NULL | FK opcional (no obligatoria) |
+| id_cliente | INT UNSIGNED | Conjunto/cliente |
 | titulo | VARCHAR(255) | Título visible en el formulario |
-| token | VARCHAR(64) UNIQUE | Token para el enlace público |
+| token | VARCHAR(64) UNIQUE | Token para enlace público |
 | estado | ENUM('activo','cerrado') | activo = acepta respuestas |
 | created_at / updated_at | DATETIME | |
 
@@ -34,47 +34,51 @@ Reemplaza el formulario de Google Forms con un formulario propio de la plataform
 | whatsapp | VARCHAR(30) | |
 | empresa_contratante | VARCHAR(255) | |
 | cargo | VARCHAR(100) | |
-| id_cliente_conjunto | INT UNSIGNED NULL | Conjunto donde trabaja |
+| id_cliente_conjunto | INT UNSIGNED NULL | Conjunto donde trabaja (Select2) |
 | acepta_tratamiento | TINYINT(1) | 1 = acepta Ley 1581/2012 |
 | respuestas | JSON | `{"0":"c","1":"d",...}` — índice → letra |
 | calificacion | DECIMAL(5,2) | Porcentaje (0-100) |
 | created_at / updated_at | DATETIME | |
 
-### Columnas agregadas a tablas existentes
-- `tbl_asistencia_induccion`: `evaluacion_habilitada` TINYINT(1), `evaluacion_token` VARCHAR(64)
-- `tbl_reporte_capacitacion`: `mostrar_evaluacion_induccion` TINYINT(1)
-
 ---
 
-## 3. Archivos creados
+## 3. Arquitectura — Mini-universo
 
+### Archivos
 | Archivo | Descripción |
 |---|---|
 | `app/Models/EvaluacionInduccionModel.php` | Modelo + constante PREGUNTAS + calcularCalificacion() |
-| `app/Models/EvaluacionInduccionRespuestaModel.php` | Modelo respuestas + getByEvaluacion() + getPromedioByEvaluacion() |
-| `app/Controllers/Inspecciones/EvaluacionInduccionController.php` | Controller: form público, submit, gracias, resultados admin, APIs |
+| `app/Models/EvaluacionInduccionRespuestaModel.php` | Modelo respuestas |
+| `app/Controllers/Inspecciones/EvaluacionInduccionController.php` | CRUD admin + formulario público + API |
+| `app/Views/inspecciones/evaluacion-induccion/list.php` | Listado de evaluaciones |
+| `app/Views/inspecciones/evaluacion-induccion/form.php` | Create/Edit evaluación (admin) |
+| `app/Views/inspecciones/evaluacion-induccion/view.php` | Ver resultados + QR + enlace (admin) |
 | `app/Views/inspecciones/evaluacion-induccion/form-publico.php` | Formulario público (sin auth) |
-| `app/Views/inspecciones/evaluacion-induccion/gracias.php` | Pantalla de confirmación con calificación |
-| `app/Views/inspecciones/evaluacion-induccion/cerrado.php` | Pantalla de evaluación cerrada/no encontrada |
-| `app/Views/inspecciones/evaluacion-induccion/resultados.php` | Vista admin con tabla de calificaciones |
-| `app/SQL/create_evaluacion_induccion.php` | Script de migración SQL |
+| `app/Views/inspecciones/evaluacion-induccion/gracias.php` | Pantalla post-envío |
+| `app/Views/inspecciones/evaluacion-induccion/cerrado.php` | Evaluación cerrada/no encontrada |
 
 ---
 
 ## 4. Rutas
 
-### Públicas (sin auth)
+### Admin (dentro de grupo `/inspecciones/`, requiere auth)
 ```
-GET  /evaluar/{token}          → EvaluacionInduccionController::form($token)
-POST /evaluar/{token}/submit   → EvaluacionInduccionController::submit($token)
-GET  /evaluar/{token}/gracias  → EvaluacionInduccionController::gracias($token)
+GET  evaluacion-induccion                          → list
+GET  evaluacion-induccion/create                   → create
+POST evaluacion-induccion/store                    → store
+GET  evaluacion-induccion/edit/{id}                → edit
+POST evaluacion-induccion/update/{id}              → update
+GET  evaluacion-induccion/view/{id}                → view (QR + enlace + resultados)
+GET  evaluacion-induccion/delete/{id}              → delete
+GET  evaluacion-induccion/toggle/{id}              → toggleEstado (activo↔cerrado)
+GET  evaluacion-induccion/api-resultados-fecha     → API JSON para ReporteCapacitacion
 ```
 
-### Dentro del grupo auth `/inspecciones/...`
+### Públicas (sin auth)
 ```
-GET  evaluacion-induccion/resultados/{id}       → resultados($id)
-GET  evaluacion-induccion/api-resultados        → apiResultados()         [?id_asistencia=N]
-GET  evaluacion-induccion/api-resultados-fecha  → apiResultadosPorFecha() [?id_cliente=N&fecha=Y-m-d]
+GET  /evaluar/{token}          → formulario público
+POST /evaluar/{token}/submit   → procesar respuestas
+GET  /evaluar/{token}/gracias  → pantalla de gracias
 ```
 
 ---
@@ -82,33 +86,38 @@ GET  evaluacion-induccion/api-resultados-fecha  → apiResultadosPorFecha() [?id
 ## 5. Flujo completo
 
 ```
-1. Consultor abre AsistenciaInduccion (tipo = induccion_reinduccion)
-2. Marca checkbox "Habilitar evaluación"
-3. Al guardar → syncEvaluacion() crea registro en tbl_evaluacion_induccion con token
-4. El form muestra el enlace: https://phorizontal.cycloidtalent.com/evaluar/{token}
-5. Consultor comparte el enlace por WhatsApp/QR
-6. Asistentes abren el link → formulario público:
-   a. Autorización Ley 1581 (checkbox obligatorio)
-   b. Datos personales (nombre, cédula, WhatsApp, conjunto Select2, empresa, cargo)
+1. Consultor abre /inspecciones/evaluacion-induccion → listado
+2. Click "Nueva" → selecciona cliente, título → "Crear evaluación"
+3. Se genera token único → se muestra view con:
+   a. QR grande (70vw, max 280px) para escanear desde celular
+   b. Enlace copiable
+   c. Botón abrir formulario
+4. Consultor comparte QR o enlace por WhatsApp
+5. Asistentes abren el link → formulario público:
+   a. Autorización Ley 1581 de 2012 (obligatoria)
+   b. Datos personales (nombre*, cédula*, WhatsApp, conjunto Select2, empresa, cargo)
    c. 10 preguntas SST con opción múltiple
-7. Al enviar → calificacion = (correctas/10)*100, guardado en tbl_evaluacion_induccion_respuesta
-8. Asistente ve pantalla de gracias con su calificación
-9. En ReporteCapacitacion → marcar checkbox "Incluir resultados evaluación"
-   → carga AJAX via api-resultados-fecha con tabla de calificaciones y promedio
+6. Al enviar → calificacion = (correctas/10)*100 → pantalla de gracias con resultado
+7. Consultor ve resultados en tiempo real en /view/{id}
+8. En ReporteCapacitacion → sección read-only carga automáticamente
+   resultados si hay evaluación para el mismo cliente+fecha (sin checkbox)
 ```
 
 ---
 
-## 6. Lógica de calificación
+## 6. QR Code
 
-- Total preguntas: **10**
-- Puntaje: (respuestas correctas / 10) × 100 = porcentaje
-- Aprobado: ≥ 70%
-- Las respuestas correctas están hardcodeadas en `EvaluacionInduccionModel::PREGUNTAS` (constante PHP)
+- Librería: `chillerlan/php-qrcode` v5 (ya en composer)
+- Generación: **base64 inline** en el controller (`generarQrBase64()`)
+- Se embebe como `data:image/png;base64,...` en el `<img>` — no hace request HTTP separado
+- Tamaño responsive: `width:70vw; max-width:280px` — grande en celular, contenido en desktop
+- Scale: 10, ECC Level: H (alta tolerancia a daños)
 
 ---
 
 ## 7. Preguntas — Respuestas correctas
+
+Hardcodeadas en `EvaluacionInduccionModel::PREGUNTAS`
 
 | # | Correcta | Tema |
 |---|---|---|
@@ -125,28 +134,26 @@ GET  evaluacion-induccion/api-resultados-fecha  → apiResultadosPorFecha() [?id
 
 ---
 
-## 8. Archivos modificados
+## 8. Integración con ReporteCapacitacion
 
-| Archivo | Cambio |
-|---|---|
-| `app/Models/AsistenciaInduccionModel.php` | + allowedFields: evaluacion_habilitada, evaluacion_token |
-| `app/Controllers/Inspecciones/AsistenciaInduccionController.php` | + syncEvaluacion(), edit() pasa $evaluacion a view |
-| `app/Views/inspecciones/asistencia-induccion/form.php` | + card EVALUACIÓN con checkbox y link copyable |
-| `app/Models/ReporteCapacitacionModel.php` | + allowedFields: mostrar_evaluacion_induccion |
-| `app/Controllers/Inspecciones/ReporteCapacitacionController.php` | + getInspeccionPostData() recoge mostrar_evaluacion_induccion |
-| `app/Views/inspecciones/reporte-capacitacion/form.php` | + card RESULTADOS EVALUACIÓN + JS cargarResultadosEval() |
-| `app/Config/Routes.php` | + rutas públicas /evaluar/* + rutas auth evaluacion-induccion/* |
+- **Read-only** — sin checkbox. La sección "RESULTADOS EVALUACIÓN INDUCCIÓN SST" se carga automáticamente via AJAX cuando hay cliente+fecha seleccionados.
+- API: `GET /inspecciones/evaluacion-induccion/api-resultados-fecha?id_cliente=N&fecha=Y-m-d`
+- Busca evaluaciones por `id_cliente` y `DATE(created_at)` = fecha
+- Si no hay resultados, muestra mensaje informativo (sin error)
 
 ---
 
-## 9. Patrón para reutilizar (Capacitación Locativo, Primeros Auxilios, etc.)
+## 9. Patrón para reutilizar
 
-Para crear otro tipo de evaluación:
-1. Crear nuevo `EvaluacionXxxModel.php` con `const PREGUNTAS = [...]` específico
-2. Duplicar `EvaluacionInduccionController.php` → cambiar modelo y preguntas
-3. Duplicar views `evaluacion-induccion/` → `evaluacion-xxx/`
-4. Agregar `evaluacion_xxx_habilitada` + `evaluacion_xxx_token` al módulo correspondiente
-5. Agregar rutas públicas `/evaluar-xxx/{token}` + rutas admin
-6. Documentar aquí en OPEN CLAW
+Para crear otro tipo de evaluación (Riesgo Locativo, Primeros Auxilios, etc.):
 
-> La lógica de token único, calificación automática y autorización Ley 1581 es idéntica en todos los casos.
+1. Crear `EvaluacionXxxModel.php` con su propio `const PREGUNTAS = [...]`
+2. Crear `EvaluacionXxxRespuestaModel.php` (copiar del actual)
+3. Crear `EvaluacionXxxController.php` — copiar el actual, cambiar modelos y preguntas
+4. Copiar views `evaluacion-induccion/` → `evaluacion-xxx/`
+5. Agregar tabla `tbl_evaluacion_xxx` + `tbl_evaluacion_xxx_respuesta`
+6. Agregar rutas CRUD en el grupo `/inspecciones/`
+7. Agregar rutas públicas `/evaluar-xxx/{token}`
+8. Documentar aquí
+
+> La lógica de token, QR base64, calificación automática y autorización Ley 1581 es idéntica.

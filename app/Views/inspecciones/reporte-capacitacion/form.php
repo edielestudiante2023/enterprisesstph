@@ -112,20 +112,13 @@ if ($isEdit && !empty($inspeccion['perfil_asistentes'])) {
             </div>
         </div>
 
-        <!-- RESULTADOS EVALUACIÓN INDUCCIÓN SST -->
+        <!-- RESULTADOS EVALUACIÓN INDUCCIÓN SST (read-only, se carga automáticamente) -->
         <div class="card mb-3">
             <div class="card-body">
                 <h6 class="card-title" style="font-size:14px; color:#999;">RESULTADOS EVALUACIÓN INDUCCIÓN SST</h6>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" name="mostrar_evaluacion_induccion"
-                        id="chkMostrarEval" value="1"
-                        <?= !empty($inspeccion['mostrar_evaluacion_induccion']) ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="chkMostrarEval" style="font-size:13px;">
-                        Incluir resultados de evaluación de inducción/reinducción SST
-                    </label>
-                </div>
-                <div id="evalResultadosContainer" style="<?= !empty($inspeccion['mostrar_evaluacion_induccion']) ? '' : 'display:none;' ?>">
-                    <p class="text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Cargando resultados...</p>
+                <small class="text-muted d-block mb-2">Se trae automáticamente si existe evaluación para el mismo cliente y fecha.</small>
+                <div id="evalResultadosContainer">
+                    <p class="text-muted" style="font-size:13px;"><i class="fas fa-info-circle"></i> Seleccione cliente y fecha.</p>
                 </div>
             </div>
         </div>
@@ -279,32 +272,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================================
-    // RESULTADOS EVALUACIÓN INDUCCIÓN SST
+    // RESULTADOS EVALUACIÓN INDUCCIÓN SST (read-only, automático)
     // ============================================================
-    var chkEval = document.getElementById('chkMostrarEval');
     var evalContainer = document.getElementById('evalResultadosContainer');
 
-    chkEval.addEventListener('change', function() {
-        evalContainer.style.display = this.checked ? '' : 'none';
-        if (this.checked) cargarResultadosEval();
-    });
-
-    function cargarResultadosEval() {
-        if (!chkEval.checked) return;
-        var idCliente = document.querySelector('[name="id_cliente"]').value;
-        var fecha     = document.querySelector('[name="fecha_capacitacion"]').value;
+    function cargarResultadosEval(idClienteOverride, fechaOverride) {
+        var idCliente = idClienteOverride || document.querySelector('[name="id_cliente"]').value;
+        var fecha     = fechaOverride || document.querySelector('[name="fecha_capacitacion"]').value;
         if (!idCliente || !fecha) {
-            evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-info-circle"></i> Seleccione cliente y fecha para ver resultados.</p>';
+            evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-info-circle"></i> Seleccione cliente y fecha.</p>';
             return;
         }
-        evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Cargando resultados...</p>';
+        evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Buscando...</p>';
         $.ajax({
             url: '/inspecciones/evaluacion-induccion/api-resultados-fecha',
             data: { id_cliente: idCliente, fecha: fecha },
             dataType: 'json',
             success: function(resp) {
                 if (!resp.success) {
-                    evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-exclamation-triangle"></i> ' + (resp.msg || 'Sin resultados de evaluación para esta fecha y cliente.') + '</p>';
+                    evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;">' + (resp.msg || 'Sin evaluación para este cliente y fecha.') + '</p>';
                     return;
                 }
                 var html = '<table class="table table-sm table-bordered" style="font-size:12px;">';
@@ -325,9 +311,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function esc(str) { return str ? String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
 
-    // Cargar resultados si el checkbox ya está activo al abrir
-    if (chkEval.checked && '<?= $idCliente ?? '' ?>' && document.querySelector('[name="fecha_capacitacion"]').value) {
-        cargarResultadosEval();
+    // Cargar automáticamente si ya hay cliente y fecha
+    if ('<?= $idCliente ?? '' ?>' && document.querySelector('[name="fecha_capacitacion"]').value) {
+        cargarResultadosEval('<?= $idCliente ?? '' ?>', document.querySelector('[name="fecha_capacitacion"]').value);
     }
 
     // ============================================================

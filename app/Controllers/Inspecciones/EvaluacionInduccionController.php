@@ -5,7 +5,6 @@ namespace App\Controllers\Inspecciones;
 use App\Controllers\BaseController;
 use App\Models\EvaluacionInduccionModel;
 use App\Models\EvaluacionInduccionRespuestaModel;
-use App\Models\AsistenciaInduccionModel;
 use App\Models\ClientModel;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
@@ -23,66 +22,151 @@ class EvaluacionInduccionController extends BaseController
         $this->respuestaModel = new EvaluacionInduccionRespuestaModel();
     }
 
-    // ── ADMIN ────────────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════════
+    // CRUD ADMIN (requiere auth, dentro de /inspecciones/...)
+    // ══════════════════════════════════════════════════════════════════════════
 
-    /**
-     * Ver resultados de una evaluación (requiere auth).
-     */
-    public function resultados(int $id)
+    public function list()
+    {
+        $evaluaciones = $this->evalModel
+            ->select('tbl_evaluacion_induccion.*, tbl_clientes.nombre_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_induccion.id_cliente', 'left')
+            ->orderBy('tbl_evaluacion_induccion.created_at', 'DESC')
+            ->findAll();
+
+        // Contar respuestas por evaluación
+        foreach ($evaluaciones as &$e) {
+            $e['total_respuestas'] = $this->respuestaModel->where('id_evaluacion', $e['id'])->countAllResults(false);
+        }
+        unset($e);
+
+        return view('inspecciones/layout_pwa', [
+            'content' => view('inspecciones/evaluacion-induccion/list', ['evaluaciones' => $evaluaciones]),
+            'title'   => 'Evaluaciones Inducción SST',
+        ]);
+    }
+
+    public function create()
+    {
+        $clientModel = new ClientModel();
+
+        return view('inspecciones/layout_pwa', [
+            'content' => view('inspecciones/evaluacion-induccion/form', [
+                'evaluacion' => null,
+                'clientes'   => $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll(),
+            ]),
+            'title' => 'Nueva Evaluación',
+        ]);
+    }
+
+    public function store()
+    {
+        $token = bin2hex(random_bytes(20));
+
+        $this->evalModel->insert([
+            'id_cliente' => (int) $this->request->getPost('id_cliente'),
+            'titulo'     => trim($this->request->getPost('titulo')) ?: 'Evaluación Inducción SST',
+            'token'      => $token,
+            'estado'     => 'activo',
+        ]);
+        $id = $this->evalModel->getInsertID();
+
+        return redirect()->to('/inspecciones/evaluacion-induccion/view/' . $id)
+            ->with('msg', 'Evaluación creada. Comparte el enlace o QR con los asistentes.');
+    }
+
+    public function edit(int $id)
     {
         $evaluacion = $this->evalModel->find($id);
         if (!$evaluacion) {
-            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'Evaluación no encontrada');
+            return redirect()->to('/inspecciones/evaluacion-induccion')->with('error', 'No encontrada');
+        }
+
+        $clientModel = new ClientModel();
+
+        return view('inspecciones/layout_pwa', [
+            'content' => view('inspecciones/evaluacion-induccion/form', [
+                'evaluacion' => $evaluacion,
+                'clientes'   => $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll(),
+            ]),
+            'title' => 'Editar Evaluación',
+        ]);
+    }
+
+    public function update(int $id)
+    {
+        $evaluacion = $this->evalModel->find($id);
+        if (!$evaluacion) {
+            return redirect()->to('/inspecciones/evaluacion-induccion')->with('error', 'No encontrada');
+        }
+
+        $this->evalModel->update($id, [
+            'id_cliente' => (int) $this->request->getPost('id_cliente'),
+            'titulo'     => trim($this->request->getPost('titulo')) ?: 'Evaluación Inducción SST',
+            'estado'     => $this->request->getPost('estado') ?: 'activo',
+        ]);
+
+        return redirect()->to('/inspecciones/evaluacion-induccion/view/' . $id)
+            ->with('msg', 'Evaluación actualizada.');
+    }
+
+    public function view(int $id)
+    {
+        $evaluacion = $this->evalModel->find($id);
+        if (!$evaluacion) {
+            return redirect()->to('/inspecciones/evaluacion-induccion')->with('error', 'No encontrada');
         }
 
         $clientModel = new ClientModel();
         $respuestas  = $this->respuestaModel->getByEvaluacion($id);
         $promedio    = $this->respuestaModel->getPromedioByEvaluacion($id);
 
-        $data = [
-            'title'      => 'Resultados Evaluación',
-            'evaluacion' => $evaluacion,
-            'cliente'    => $clientModel->find($evaluacion['id_cliente']),
-            'respuestas' => $respuestas,
-            'promedio'   => $promedio,
-            'preguntas'  => EvaluacionInduccionModel::PREGUNTAS,
-        ];
+        // QR como base64 inline
+        $qrBase64 = $this->generarQrBase64(base_url('evaluar/' . $evaluacion['token']));
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/evaluacion-induccion/resultados', $data),
-            'title'   => 'Resultados Evaluación',
+            'content' => view('inspecciones/evaluacion-induccion/view', [
+                'evaluacion' => $evaluacion,
+                'cliente'    => $clientModel->find($evaluacion['id_cliente']),
+                'respuestas' => $respuestas,
+                'promedio'   => $promedio,
+                'preguntas'  => EvaluacionInduccionModel::PREGUNTAS,
+                'qrBase64'   => $qrBase64,
+            ]),
+            'title' => 'Ver Evaluación',
         ]);
     }
 
-    /**
-     * API: resultados por id_asistencia (para cargar en reporte-capacitacion).
-     */
-    public function apiResultados()
+    public function delete(int $id)
     {
-        $idAsistencia = (int) $this->request->getGet('id_asistencia');
-        if (!$idAsistencia) {
-            return $this->response->setJSON(['success' => false, 'data' => []]);
-        }
-
-        $evaluacion = $this->evalModel->getByAsistencia($idAsistencia);
+        $evaluacion = $this->evalModel->find($id);
         if (!$evaluacion) {
-            return $this->response->setJSON(['success' => false, 'data' => [], 'msg' => 'Sin evaluación creada']);
+            return redirect()->to('/inspecciones/evaluacion-induccion')->with('error', 'No encontrada');
         }
 
-        $respuestas = $this->respuestaModel->getByEvaluacion((int) $evaluacion['id']);
-        $promedio   = $this->respuestaModel->getPromedioByEvaluacion((int) $evaluacion['id']);
+        $this->respuestaModel->where('id_evaluacion', $id)->delete();
+        $this->evalModel->delete($id);
 
-        return $this->response->setJSON([
-            'success'   => true,
-            'evaluacion'=> $evaluacion,
-            'respuestas'=> $respuestas,
-            'promedio'  => $promedio,
-        ]);
+        return redirect()->to('/inspecciones/evaluacion-induccion')
+            ->with('msg', 'Evaluación eliminada.');
     }
 
-    /**
-     * API: resultados por cliente + fecha (para reporte-capacitacion).
-     */
+    public function toggleEstado(int $id)
+    {
+        $evaluacion = $this->evalModel->find($id);
+        if (!$evaluacion) {
+            return redirect()->to('/inspecciones/evaluacion-induccion')->with('error', 'No encontrada');
+        }
+
+        $nuevoEstado = $evaluacion['estado'] === 'activo' ? 'cerrado' : 'activo';
+        $this->evalModel->update($id, ['estado' => $nuevoEstado]);
+
+        $msg = $nuevoEstado === 'activo' ? 'Evaluación reabierta.' : 'Evaluación cerrada.';
+        return redirect()->to('/inspecciones/evaluacion-induccion/view/' . $id)->with('msg', $msg);
+    }
+
+    // ── API para ReporteCapacitacion ─────────────────────────────────────────
+
     public function apiResultadosPorFecha()
     {
         $idCliente = (int) $this->request->getGet('id_cliente');
@@ -92,68 +176,38 @@ class EvaluacionInduccionController extends BaseController
             return $this->response->setJSON(['success' => false, 'data' => []]);
         }
 
-        // Buscar sesión de asistencia_induccion para ese cliente y fecha
-        $asistenciaModel = new AsistenciaInduccionModel();
-        $sesion = $asistenciaModel
+        // Buscar evaluaciones de este cliente creadas en la misma fecha
+        $evaluaciones = $this->evalModel
             ->where('id_cliente', $idCliente)
-            ->where('fecha_sesion', $fecha)
-            ->where('tipo_charla', 'induccion_reinduccion')
-            ->first();
+            ->where('DATE(created_at)', $fecha)
+            ->findAll();
 
-        if (!$sesion) {
-            return $this->response->setJSON(['success' => false, 'msg' => 'No hay sesión de inducción/reinducción para este cliente y fecha']);
+        if (empty($evaluaciones)) {
+            return $this->response->setJSON(['success' => false, 'msg' => 'No hay evaluaciones para este cliente y fecha.']);
         }
 
-        $evaluacion = $this->evalModel->getByAsistencia((int) $sesion['id']);
-        if (!$evaluacion) {
-            return $this->response->setJSON(['success' => false, 'msg' => 'Evaluación no habilitada para esta sesión', 'id_asistencia' => $sesion['id']]);
+        $evalIds    = array_column($evaluaciones, 'id');
+        $respuestas = $this->respuestaModel->whereIn('id_evaluacion', $evalIds)->orderBy('calificacion', 'DESC')->findAll();
+
+        if (empty($respuestas)) {
+            return $this->response->setJSON(['success' => false, 'msg' => 'Evaluación existe pero sin respuestas aún.']);
         }
 
-        $respuestas = $this->respuestaModel->getByEvaluacion((int) $evaluacion['id']);
-        $promedio   = $this->respuestaModel->getPromedioByEvaluacion((int) $evaluacion['id']);
+        $total = count($respuestas);
+        $suma  = array_sum(array_column($respuestas, 'calificacion'));
+        $prom  = $total > 0 ? round($suma / $total, 2) : 0;
 
         return $this->response->setJSON([
-            'success'   => true,
-            'evaluacion'=> $evaluacion,
-            'respuestas'=> $respuestas,
-            'promedio'  => number_format($promedio, 2),
+            'success'    => true,
+            'respuestas' => $respuestas,
+            'promedio'   => number_format($prom, 2),
         ]);
     }
 
-    /**
-     * Genera el QR del enlace de evaluación como imagen PNG.
-     * GET /inspecciones/evaluacion-induccion/qr/{token}
-     */
-    public function qr(string $token)
-    {
-        $evaluacion = $this->evalModel->where('token', $token)->first();
-        if (!$evaluacion) {
-            return $this->response->setStatusCode(404)->setBody('Not found');
-        }
+    // ══════════════════════════════════════════════════════════════════════════
+    // PÚBLICO (sin auth) — /evaluar/{token}
+    // ══════════════════════════════════════════════════════════════════════════
 
-        $url = base_url('evaluar/' . $token);
-
-        $options = new QROptions;
-        $options->outputType    = QROutputInterface::GDIMAGE_PNG;
-        $options->eccLevel      = EccLevel::H;
-        $options->scale         = 8;
-        $options->imageBase64   = false;
-        $options->quietzoneSize = 2;
-
-        $png = (new QRCode($options))->render($url);
-
-        return $this->response
-            ->setHeader('Content-Type', 'image/png')
-            ->setHeader('Cache-Control', 'public, max-age=3600')
-            ->setBody($png);
-    }
-
-    // ── PÚBLICO (sin auth) ───────────────────────────────────────────────────
-
-    /**
-     * Mostrar formulario público de evaluación.
-     * GET /evaluar/{token}
-     */
     public function form(string $token)
     {
         $evaluacion = $this->evalModel->where('token', $token)->first();
@@ -163,21 +217,14 @@ class EvaluacionInduccionController extends BaseController
         }
 
         $clientModel = new ClientModel();
-        $conjuntos   = $clientModel->where('estado', 'activo')->orderBy('nombre_cliente', 'ASC')->findAll();
 
-        $data = [
+        return view('inspecciones/evaluacion-induccion/form-publico', [
             'evaluacion' => $evaluacion,
-            'conjuntos'  => $conjuntos,
+            'conjuntos'  => $clientModel->where('estado', 'activo')->orderBy('nombre_cliente', 'ASC')->findAll(),
             'preguntas'  => EvaluacionInduccionModel::PREGUNTAS,
-        ];
-
-        return view('inspecciones/evaluacion-induccion/form-publico', $data);
+        ]);
     }
 
-    /**
-     * Procesar respuestas del formulario público.
-     * POST /evaluar/{token}/submit
-     */
     public function submit(string $token)
     {
         $evaluacion = $this->evalModel->where('token', $token)->first();
@@ -186,19 +233,16 @@ class EvaluacionInduccionController extends BaseController
             return redirect()->to('/evaluar/' . $token);
         }
 
-        // Validaciones básicas
         $nombre = trim($this->request->getPost('nombre') ?? '');
         $cedula = trim($this->request->getPost('cedula') ?? '');
 
         if (!$nombre || !$cedula) {
             return redirect()->to('/evaluar/' . $token)->with('error', 'Nombre y cédula son obligatorios.');
         }
-
         if (!$this->request->getPost('acepta_tratamiento')) {
-            return redirect()->to('/evaluar/' . $token)->with('error', 'Debe aceptar el tratamiento de datos personales para continuar.');
+            return redirect()->to('/evaluar/' . $token)->with('error', 'Debe aceptar el tratamiento de datos personales.');
         }
 
-        // Respuestas del cuestionario
         $respuestasRaw = $this->request->getPost('respuesta') ?? [];
         $calificacion  = EvaluacionInduccionModel::calcularCalificacion($respuestasRaw);
 
@@ -218,10 +262,6 @@ class EvaluacionInduccionController extends BaseController
         return redirect()->to('/evaluar/' . $token . '/gracias?cal=' . $calificacion);
     }
 
-    /**
-     * Pantalla de gracias tras enviar evaluación.
-     * GET /evaluar/{token}/gracias
-     */
     public function gracias(string $token)
     {
         $evaluacion = $this->evalModel->where('token', $token)->first();
@@ -229,11 +269,29 @@ class EvaluacionInduccionController extends BaseController
             return redirect()->to('/');
         }
 
-        $cal = (float) ($this->request->getGet('cal') ?? 0);
-
         return view('inspecciones/evaluacion-induccion/gracias', [
             'evaluacion'   => $evaluacion,
-            'calificacion' => $cal,
+            'calificacion' => (float) ($this->request->getGet('cal') ?? 0),
         ]);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // HELPERS
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private function generarQrBase64(string $url): string
+    {
+        try {
+            $options = new QROptions;
+            $options->outputType    = QROutputInterface::GDIMAGE_PNG;
+            $options->eccLevel      = EccLevel::H;
+            $options->scale         = 10;
+            $options->imageBase64   = false;
+            $options->quietzoneSize = 2;
+            $png = (new QRCode($options))->render($url);
+            return 'data:image/png;base64,' . base64_encode($png);
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 }
