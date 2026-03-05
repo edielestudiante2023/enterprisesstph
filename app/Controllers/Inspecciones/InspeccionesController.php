@@ -45,374 +45,150 @@ class InspeccionesController extends BaseController
      */
     public function dashboard()
     {
-        $role = session()->get('role');
-        $userId = session()->get('user_id');
-
         $actaModel = new ActaVisitaModel();
+        $pendientes = $actaModel->getAllPendientes();
+        $totalActas = $actaModel->where('estado', 'completo')->countAllResults();
 
-        // Documentos pendientes del consultor (o todos si es admin)
-        if ($role === 'admin') {
-            $pendientes = $actaModel->getAllPendientes();
-        } else {
-            $pendientes = $actaModel->getPendientesByConsultor($userId);
-        }
-
-        // Conteo de actas completas
-        $totalActas = $actaModel->where('id_consultor', $userId)
-            ->where('estado', 'completo')
-            ->countAllResults();
-
-        // Conteo de locativas completas
         $locativaModel = new InspeccionLocativaModel();
-        $totalLocativas = $locativaModel->where('id_consultor', $userId)
-            ->where('estado', 'completo')
-            ->countAllResults();
+        $totalLocativas = $locativaModel->where('estado', 'completo')->countAllResults();
+        $pendientesLocativas = $locativaModel->getAllPendientes();
 
-        // Pendientes de locativas (borradores)
-        if ($role === 'admin') {
-            $pendientesLocativas = $locativaModel->getAllPendientes();
-        } else {
-            $pendientesLocativas = $locativaModel->getPendientesByConsultor($userId);
-        }
-
-        // Conteo de señalización completas
         $senalizacionModel = new InspeccionSenalizacionModel();
-        $totalSenalizacion = $senalizacionModel->where('id_consultor', $userId)
-            ->where('estado', 'completo')
-            ->countAllResults();
+        $totalSenalizacion = $senalizacionModel->where('estado', 'completo')->countAllResults();
+        $pendientesSenalizacion = $senalizacionModel
+            ->select('tbl_inspeccion_senalizacion.*, tbl_clientes.nombre_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_inspeccion_senalizacion.id_cliente', 'left')
+            ->where('tbl_inspeccion_senalizacion.estado', 'borrador')
+            ->orderBy('tbl_inspeccion_senalizacion.updated_at', 'DESC')
+            ->findAll();
 
-        // Pendientes de señalización (borradores)
-        if ($role === 'admin') {
-            $pendientesSenalizacion = $senalizacionModel
-                ->select('tbl_inspeccion_senalizacion.*, tbl_clientes.nombre_cliente')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_inspeccion_senalizacion.id_cliente', 'left')
-                ->where('tbl_inspeccion_senalizacion.estado', 'borrador')
-                ->orderBy('tbl_inspeccion_senalizacion.updated_at', 'DESC')
-                ->findAll();
-        } else {
-            $pendientesSenalizacion = $senalizacionModel->getPendientesByConsultor($userId);
-        }
-
-        // Conteo de extintores completas
         $extintoresModel = new InspeccionExtintoresModel();
-        $totalExtintores = $extintoresModel->where('id_consultor', $userId)
-            ->where('estado', 'completo')
-            ->countAllResults();
+        $totalExtintores = $extintoresModel->where('estado', 'completo')->countAllResults();
+        $pendientesExtintores = $extintoresModel
+            ->select('tbl_inspeccion_extintores.*, tbl_clientes.nombre_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_inspeccion_extintores.id_cliente', 'left')
+            ->where('tbl_inspeccion_extintores.estado', 'borrador')
+            ->orderBy('tbl_inspeccion_extintores.updated_at', 'DESC')
+            ->findAll();
 
-        // Pendientes de extintores (borradores)
-        if ($role === 'admin') {
-            $pendientesExtintores = $extintoresModel
-                ->select('tbl_inspeccion_extintores.*, tbl_clientes.nombre_cliente')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_inspeccion_extintores.id_cliente', 'left')
-                ->where('tbl_inspeccion_extintores.estado', 'borrador')
-                ->orderBy('tbl_inspeccion_extintores.updated_at', 'DESC')
-                ->findAll();
-        } else {
-            $pendientesExtintores = $extintoresModel->getPendientesByConsultor($userId);
-        }
-
-        // Conteo de botiquín completas
         $botiquinModel = new InspeccionBotiquinModel();
-        $totalBotiquin = $botiquinModel->where('id_consultor', $userId)
-            ->where('estado', 'completo')
-            ->countAllResults();
+        $totalBotiquin = $botiquinModel->where('estado', 'completo')->countAllResults();
+        $pendientesBotiquin = $botiquinModel
+            ->select('tbl_inspeccion_botiquin.*, tbl_clientes.nombre_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_inspeccion_botiquin.id_cliente', 'left')
+            ->where('tbl_inspeccion_botiquin.estado', 'borrador')
+            ->orderBy('tbl_inspeccion_botiquin.updated_at', 'DESC')
+            ->findAll();
 
-        // Pendientes de botiquín (borradores)
-        if ($role === 'admin') {
-            $pendientesBotiquin = $botiquinModel
-                ->select('tbl_inspeccion_botiquin.*, tbl_clientes.nombre_cliente')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_inspeccion_botiquin.id_cliente', 'left')
-                ->where('tbl_inspeccion_botiquin.estado', 'borrador')
-                ->orderBy('tbl_inspeccion_botiquin.updated_at', 'DESC')
-                ->findAll();
-        } else {
-            $pendientesBotiquin = $botiquinModel->getPendientesByConsultor($userId);
-        }
-
-        // Conteo de gabinetes completas
         $gabineteModel = new InspeccionGabineteModel();
-        $totalGabinetes = $gabineteModel->where('id_consultor', $userId)
-            ->where('estado', 'completo')
-            ->countAllResults();
+        $totalGabinetes = $gabineteModel->where('estado', 'completo')->countAllResults();
+        $pendientesGabinetes = $gabineteModel->getAllPendientes();
 
-        // Pendientes de gabinetes (borradores)
-        if ($role === 'admin') {
-            $pendientesGabinetes = $gabineteModel->getAllPendientes();
-        } else {
-            $pendientesGabinetes = $gabineteModel->getPendientesByConsultor($userId);
-        }
-
-        // Conteo de comunicaciones completas
         $comunicacionModel = new InspeccionComunicacionModel();
-        $totalComunicaciones = $comunicacionModel->where('id_consultor', $userId)
-            ->where('estado', 'completo')
-            ->countAllResults();
+        $totalComunicaciones = $comunicacionModel->where('estado', 'completo')->countAllResults();
+        $pendientesComunicaciones = $comunicacionModel->getAllPendientes();
 
-        // Pendientes de comunicaciones (borradores)
-        if ($role === 'admin') {
-            $pendientesComunicaciones = $comunicacionModel->getAllPendientes();
-        } else {
-            $pendientesComunicaciones = $comunicacionModel->getPendientesByConsultor($userId);
-        }
-
-        // Conteo de recursos seguridad completas
         $recursosSeguridadModel = new InspeccionRecursosSeguridadModel();
-        $totalRecursosSeg = $recursosSeguridadModel->where('id_consultor', $userId)
-            ->where('estado', 'completo')
-            ->countAllResults();
+        $totalRecursosSeg = $recursosSeguridadModel->where('estado', 'completo')->countAllResults();
+        $pendientesRecursosSeg = $recursosSeguridadModel->getAllPendientes();
 
-        // Pendientes de recursos seguridad (borradores)
-        if ($role === 'admin') {
-            $pendientesRecursosSeg = $recursosSeguridadModel->getAllPendientes();
-        } else {
-            $pendientesRecursosSeg = $recursosSeguridadModel->getPendientesByConsultor($userId);
-        }
-
-        // Conteo de probabilidad peligros completas
         $probPeligrosModel = new ProbabilidadPeligrosModel();
-        $totalProbPeligros = $probPeligrosModel->where('id_consultor', $userId)
-            ->where('estado', 'completo')
-            ->countAllResults();
+        $totalProbPeligros = $probPeligrosModel->where('estado', 'completo')->countAllResults();
+        $pendientesProbPeligros = $probPeligrosModel->getAllPendientes();
 
-        // Pendientes de probabilidad peligros (borradores)
-        if ($role === 'admin') {
-            $pendientesProbPeligros = $probPeligrosModel->getAllPendientes();
-        } else {
-            $pendientesProbPeligros = $probPeligrosModel->getPendientesByConsultor($userId);
-        }
-
-        // Conteo de matriz vulnerabilidad completas
         $matrizVulModel = new MatrizVulnerabilidadModel();
-        $totalMatrizVul = $matrizVulModel->where('id_consultor', $userId)
-            ->where('estado', 'completo')
-            ->countAllResults();
+        $totalMatrizVul = $matrizVulModel->where('estado', 'completo')->countAllResults();
+        $pendientesMatrizVul = $matrizVulModel->getAllPendientes();
 
-        // Pendientes de matriz vulnerabilidad (borradores)
-        if ($role === 'admin') {
-            $pendientesMatrizVul = $matrizVulModel->getAllPendientes();
-        } else {
-            $pendientesMatrizVul = $matrizVulModel->getPendientesByConsultor($userId);
-        }
-
-        // Conteo de plan emergencia completas
         $planEmgModel = new PlanEmergenciaModel();
-        $totalPlanEmergencia = $planEmgModel->where('id_consultor', $userId)
-            ->where('estado', 'completo')
-            ->countAllResults();
+        $totalPlanEmergencia = $planEmgModel->where('estado', 'completo')->countAllResults();
+        $pendientesPlanEmg = $planEmgModel->getAllPendientes();
 
-        // Pendientes de plan emergencia (borradores)
-        if ($role === 'admin') {
-            $pendientesPlanEmg = $planEmgModel->getAllPendientes();
-        } else {
-            $pendientesPlanEmg = $planEmgModel->getPendientesByConsultor($userId);
-        }
-
-        // Conteo de evaluaciones simulacro completas (derivado via tbl_clientes)
         $evalSimModel = new EvaluacionSimulacroModel();
-        if ($role === 'admin') {
-            $totalSimulacro = $evalSimModel->where('estado', 'completo')->countAllResults();
-            $pendientesSimulacro = $evalSimModel
-                ->select('tbl_evaluacion_simulacro.*, tbl_clientes.nombre_cliente')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_simulacro.id_cliente', 'left')
-                ->where('tbl_evaluacion_simulacro.estado', 'borrador')
-                ->orderBy('tbl_evaluacion_simulacro.updated_at', 'DESC')
-                ->findAll();
-        } else {
-            $totalSimulacro = $evalSimModel
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_simulacro.id_cliente')
-                ->where('tbl_clientes.id_consultor', $userId)
-                ->where('tbl_evaluacion_simulacro.estado', 'completo')
-                ->countAllResults();
-            $pendientesSimulacro = $evalSimModel->getPendientesByConsultor($userId);
-        }
+        $totalSimulacro = $evalSimModel->where('estado', 'completo')->countAllResults();
+        $pendientesSimulacro = $evalSimModel
+            ->select('tbl_evaluacion_simulacro.*, tbl_clientes.nombre_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_simulacro.id_cliente', 'left')
+            ->where('tbl_evaluacion_simulacro.estado', 'borrador')
+            ->orderBy('tbl_evaluacion_simulacro.updated_at', 'DESC')
+            ->findAll();
 
-        // Conteo de HV brigadista completas (derivado via tbl_clientes)
         $hvBrigModel = new HvBrigadistaModel();
-        if ($role === 'admin') {
-            $totalHvBrigadista = $hvBrigModel->where('estado', 'completo')->countAllResults();
-            $pendientesHvBrig = $hvBrigModel
-                ->select('tbl_hv_brigadista.*, tbl_clientes.nombre_cliente')
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_hv_brigadista.id_cliente', 'left')
-                ->where('tbl_hv_brigadista.estado', 'borrador')
-                ->orderBy('tbl_hv_brigadista.updated_at', 'DESC')
-                ->findAll();
-        } else {
-            $totalHvBrigadista = $hvBrigModel
-                ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_hv_brigadista.id_cliente')
-                ->where('tbl_clientes.id_consultor', $userId)
-                ->where('tbl_hv_brigadista.estado', 'completo')
-                ->countAllResults();
-            $pendientesHvBrig = $hvBrigModel->getPendientesByConsultor($userId);
-        }
+        $totalHvBrigadista = $hvBrigModel->where('estado', 'completo')->countAllResults();
+        $pendientesHvBrig = $hvBrigModel
+            ->select('tbl_hv_brigadista.*, tbl_clientes.nombre_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_hv_brigadista.id_cliente', 'left')
+            ->where('tbl_hv_brigadista.estado', 'borrador')
+            ->orderBy('tbl_hv_brigadista.updated_at', 'DESC')
+            ->findAll();
 
-        // Conteo de dotación vigilante completas
         $dotVigModel = new DotacionVigilanteModel();
-        $totalDotVig = $dotVigModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesDotVig = $dotVigModel->getAllPendientes();
-        } else {
-            $pendientesDotVig = $dotVigModel->getPendientesByConsultor($userId);
-        }
+        $totalDotVig = $dotVigModel->where('estado', 'completo')->countAllResults();
+        $pendientesDotVig = $dotVigModel->getAllPendientes();
 
-        // Conteo de dotación aseadora completas
         $dotAseModel = new DotacionAseadoraModel();
-        $totalDotAse = $dotAseModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesDotAse = $dotAseModel->getAllPendientes();
-        } else {
-            $pendientesDotAse = $dotAseModel->getPendientesByConsultor($userId);
-        }
+        $totalDotAse = $dotAseModel->where('estado', 'completo')->countAllResults();
+        $pendientesDotAse = $dotAseModel->getAllPendientes();
 
-        // Conteo de dotación todero completas
         $dotTodModel = new DotacionToderoModel();
-        $totalDotTod = $dotTodModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesDotTod = $dotTodModel->getAllPendientes();
-        } else {
-            $pendientesDotTod = $dotTodModel->getPendientesByConsultor($userId);
-        }
+        $totalDotTod = $dotTodModel->where('estado', 'completo')->countAllResults();
+        $pendientesDotTod = $dotTodModel->getAllPendientes();
 
-        // Conteo de auditoría zona residuos completas
         $audResModel = new AuditoriaZonaResiduosModel();
-        $totalAudRes = $audResModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesAudRes = $audResModel->getAllPendientes();
-        } else {
-            $pendientesAudRes = $audResModel->getPendientesByConsultor($userId);
-        }
+        $totalAudRes = $audResModel->where('estado', 'completo')->countAllResults();
+        $pendientesAudRes = $audResModel->getAllPendientes();
 
-        // Conteo de reporte capacitación completas
         $repCapModel = new ReporteCapacitacionModel();
-        $totalRepCap = $repCapModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesRepCap = $repCapModel->getAllPendientes();
-        } else {
-            $pendientesRepCap = $repCapModel->getPendientesByConsultor($userId);
-        }
+        $totalRepCap = $repCapModel->where('estado', 'completo')->countAllResults();
+        $pendientesRepCap = $repCapModel->getAllPendientes();
 
-        // Conteo de preparación simulacro completas
         $prepSimModel = new PreparacionSimulacroModel();
-        $totalPrepSim = $prepSimModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesPrepSim = $prepSimModel->getAllPendientes();
-        } else {
-            $pendientesPrepSim = $prepSimModel->getPendientesByConsultor($userId);
-        }
+        $totalPrepSim = $prepSimModel->where('estado', 'completo')->countAllResults();
+        $pendientesPrepSim = $prepSimModel->getAllPendientes();
 
-        // Conteo de asistencia inducción completas
         $asistIndModel = new AsistenciaInduccionModel();
-        $totalAsistInd = $asistIndModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesAsistInd = $asistIndModel->getAllPendientes();
-        } else {
-            $pendientesAsistInd = $asistIndModel->getPendientesByConsultor($userId);
-        }
+        $totalAsistInd = $asistIndModel->where('estado', 'completo')->countAllResults();
+        $pendientesAsistInd = $asistIndModel->getAllPendientes();
 
-        // Conteo de programa limpieza completas
         $progLimpModel = new ProgramaLimpiezaModel();
-        $totalProgLimp = $progLimpModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesProgLimp = $progLimpModel->getAllPendientes();
-        } else {
-            $pendientesProgLimp = $progLimpModel->getPendientesByConsultor($userId);
-        }
+        $totalProgLimp = $progLimpModel->where('estado', 'completo')->countAllResults();
+        $pendientesProgLimp = $progLimpModel->getAllPendientes();
 
-        // Conteo de programa residuos completas
         $progResModel = new ProgramaResiduosModel();
-        $totalProgRes = $progResModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesProgRes = $progResModel->getAllPendientes();
-        } else {
-            $pendientesProgRes = $progResModel->getPendientesByConsultor($userId);
-        }
+        $totalProgRes = $progResModel->where('estado', 'completo')->countAllResults();
+        $pendientesProgRes = $progResModel->getAllPendientes();
 
-        // Conteo de programa plagas completas
         $progPlagModel = new ProgramaPlagasModel();
-        $totalProgPlag = $progPlagModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesProgPlag = $progPlagModel->getAllPendientes();
-        } else {
-            $pendientesProgPlag = $progPlagModel->getPendientesByConsultor($userId);
-        }
+        $totalProgPlag = $progPlagModel->where('estado', 'completo')->countAllResults();
+        $pendientesProgPlag = $progPlagModel->getAllPendientes();
 
-        // Conteo de programa agua potable completas
         $progAguaModel = new ProgramaAguaPotableModel();
-        $totalProgAgua = $progAguaModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesProgAgua = $progAguaModel->getAllPendientes();
-        } else {
-            $pendientesProgAgua = $progAguaModel->getPendientesByConsultor($userId);
-        }
+        $totalProgAgua = $progAguaModel->where('estado', 'completo')->countAllResults();
+        $pendientesProgAgua = $progAguaModel->getAllPendientes();
 
-        // Conteo de plan saneamiento completas
         $planSanModel = new PlanSaneamientoModel();
-        $totalPlanSan = $planSanModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesPlanSan = $planSanModel->getAllPendientes();
-        } else {
-            $pendientesPlanSan = $planSanModel->getPendientesByConsultor($userId);
-        }
+        $totalPlanSan = $planSanModel->where('estado', 'completo')->countAllResults();
+        $pendientesPlanSan = $planSanModel->getAllPendientes();
 
-        // Conteo de KPI Limpieza
         $kpiLimpModel = new KpiLimpiezaModel();
-        $totalKpiLimp = $kpiLimpModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesKpiLimp = $kpiLimpModel->getAllPendientes();
-        } else {
-            $pendientesKpiLimp = $kpiLimpModel->getPendientesByConsultor($userId);
-        }
+        $totalKpiLimp = $kpiLimpModel->where('estado', 'completo')->countAllResults();
+        $pendientesKpiLimp = $kpiLimpModel->getAllPendientes();
 
-        // Conteo de KPI Residuos
         $kpiResModel = new KpiResiduosModel();
-        $totalKpiRes = $kpiResModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesKpiRes = $kpiResModel->getAllPendientes();
-        } else {
-            $pendientesKpiRes = $kpiResModel->getPendientesByConsultor($userId);
-        }
+        $totalKpiRes = $kpiResModel->where('estado', 'completo')->countAllResults();
+        $pendientesKpiRes = $kpiResModel->getAllPendientes();
 
-        // Conteo de KPI Plagas
         $kpiPlagModel = new KpiPlagasModel();
-        $totalKpiPlag = $kpiPlagModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesKpiPlag = $kpiPlagModel->getAllPendientes();
-        } else {
-            $pendientesKpiPlag = $kpiPlagModel->getPendientesByConsultor($userId);
-        }
+        $totalKpiPlag = $kpiPlagModel->where('estado', 'completo')->countAllResults();
+        $pendientesKpiPlag = $kpiPlagModel->getAllPendientes();
 
-        // Conteo de KPI Agua Potable
         $kpiAguaModel = new KpiAguaPotableModel();
-        $totalKpiAgua = $kpiAguaModel->where('id_consultor', $userId)->where('estado', 'completo')->countAllResults();
-        if ($role === 'admin') {
-            $pendientesKpiAgua = $kpiAguaModel->getAllPendientes();
-        } else {
-            $pendientesKpiAgua = $kpiAguaModel->getPendientesByConsultor($userId);
-        }
+        $totalKpiAgua = $kpiAguaModel->where('estado', 'completo')->countAllResults();
+        $pendientesKpiAgua = $kpiAguaModel->getAllPendientes();
 
-        // Conteo de vencimientos de mantenimiento sin ejecutar
-        $vencimientoModel = new VencimientosMantenimientoModel();
-        $vencBuilder = $vencimientoModel->where('estado_actividad', 'sin ejecutar');
-        if ($role !== 'admin') {
-            $vencBuilder->where('id_consultor', $userId);
-        }
-        $totalVencimientos = $vencBuilder->countAllResults();
-
-        // Conteo de pendientes (compromisos) abiertos
-        $pendientesCountModel = new PendientesModel();
-        $pendCountBuilder = $pendientesCountModel->where('tbl_pendientes.estado', 'ABIERTA');
-        if ($role !== 'admin') {
-            $pendCountBuilder->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_pendientes.id_cliente')
-                ->where('tbl_clientes.id_consultor', $userId);
-        }
-        $totalPendientesAbiertos = $pendCountBuilder->countAllResults();
-
-        // Conteo de cartas vigía pendientes de firma
-        $cartaVigiaModel = new CartaVigiaModel();
-        $cartaBuilder = $cartaVigiaModel->where('estado_firma', 'pendiente_firma');
-        if ($role !== 'admin') {
-            $cartaBuilder->where('id_consultor', $userId);
-        }
-        $totalCartasVigiaPend = $cartaBuilder->countAllResults();
+        $totalVencimientos = (new VencimientosMantenimientoModel())->where('estado_actividad', 'sin ejecutar')->countAllResults();
+        $totalPendientesAbiertos = (new PendientesModel())->where('estado', 'ABIERTA')->countAllResults();
+        $totalCartasVigiaPend = (new CartaVigiaModel())->where('estado_firma', 'pendiente_firma')->countAllResults();
 
         $data = [
             'title'            => 'Inspecciones SST',
@@ -477,7 +253,7 @@ class InspeccionesController extends BaseController
             'totalVencimientos' => $totalVencimientos,
             'totalPendientesAbiertos' => $totalPendientesAbiertos,
             'totalCartasVigiaPend' => $totalCartasVigiaPend,
-            'totalAgendamientos' => (new AgendamientoModel())->where('id_consultor', $userId)->whereIn('estado', ['pendiente', 'confirmado'])->countAllResults(),
+            'totalAgendamientos' => (new AgendamientoModel())->whereIn('estado', ['pendiente', 'confirmado'])->countAllResults(),
             'nombre'           => session()->get('nombre_usuario'),
         ];
 
