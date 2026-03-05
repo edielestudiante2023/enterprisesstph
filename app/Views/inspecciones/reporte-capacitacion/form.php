@@ -203,15 +203,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 select.appendChild(opt);
             });
             $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
+
+            // Cargar asistentes despues de que Select2 tenga el valor (modo edicion)
+            if (selectedCliente && document.querySelector('[name="fecha_capacitacion"]').value) {
+                cargarAsistentes(selectedCliente, document.querySelector('[name="fecha_capacitacion"]').value);
+            }
         }
     });
 
     // ============================================================
     // LISTADO DE ASISTENCIA (AJAX)
     // ============================================================
-    function cargarAsistentes() {
-        var idCliente = document.querySelector('[name="id_cliente"]').value;
-        var fecha = document.querySelector('[name="fecha_capacitacion"]').value;
+    function cargarAsistentes(idClienteOverride, fechaOverride) {
+        var idCliente = idClienteOverride || document.querySelector('[name="id_cliente"]').value;
+        var fecha = fechaOverride || document.querySelector('[name="fecha_capacitacion"]').value;
         var container = document.getElementById('asistentesContainer');
 
         if (!idCliente || !fecha) {
@@ -248,11 +253,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Escuchar cambios en cliente y fecha
     document.querySelector('[name="id_cliente"]').addEventListener('change', cargarAsistentes);
     document.querySelector('[name="fecha_capacitacion"]').addEventListener('change', cargarAsistentes);
-
-    // Cargar al inicio si ya hay valores (modo edicion)
-    if (selectedCliente && document.querySelector('[name="fecha_capacitacion"]').value) {
-        setTimeout(cargarAsistentes, 500); // esperar que Select2 cargue
-    }
 
     // ============================================================
     // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
