@@ -27,6 +27,7 @@ use App\Models\AuditoriaZonaResiduosModel;
 use App\Models\ReporteCapacitacionModel;
 use App\Models\PreparacionSimulacroModel;
 use App\Models\AsistenciaInduccionModel;
+use App\Models\EvaluacionInduccionModel;
 use App\Models\ProgramaLimpiezaModel;
 use App\Models\ProgramaResiduosModel;
 use App\Models\ProgramaPlagasModel;
@@ -150,6 +151,8 @@ class InspeccionesController extends BaseController
         $totalAsistInd = $asistIndModel->where('estado', 'completo')->countAllResults();
         $pendientesAsistInd = $asistIndModel->getAllPendientes();
 
+        $totalEvalInd = (new EvaluacionInduccionModel())->countAllResults();
+
         $progLimpModel = new ProgramaLimpiezaModel();
         $totalProgLimp = $progLimpModel->where('estado', 'completo')->countAllResults();
         $pendientesProgLimp = $progLimpModel->getAllPendientes();
@@ -241,6 +244,7 @@ class InspeccionesController extends BaseController
             'totalRepCap'      => $totalRepCap,
             'totalPrepSim'     => $totalPrepSim,
             'totalAsistInd'    => $totalAsistInd,
+            'totalEvalInd'     => $totalEvalInd,
             'totalProgLimp'    => $totalProgLimp,
             'totalProgRes'     => $totalProgRes,
             'totalProgPlag'    => $totalProgPlag,

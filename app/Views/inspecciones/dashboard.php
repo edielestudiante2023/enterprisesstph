@@ -899,6 +899,11 @@
             <div><strong>Asistencia</strong></div>
             <div class="count">(<?= $totalAsistInd ?>)</div>
         </a>
+        <a href="/inspecciones/evaluacion-induccion" class="card-tipo">
+            <i class="fas fa-spell-check"></i>
+            <div><strong>Evaluaciones</strong></div>
+            <div class="count">(<?= $totalEvalInd ?>)</div>
+        </a>
         <a href="/inspecciones/limpieza-desinfeccion" class="card-tipo">
             <i class="fas fa-pump-soap"></i>
             <div><strong>Limpieza y Des.</strong></div>
