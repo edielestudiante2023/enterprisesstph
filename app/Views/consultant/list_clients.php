@@ -360,14 +360,19 @@
                                 <td><?= htmlspecialchars($client['nombre_consultor']) ?></td>
                                 <td>
                                     <?php if (!empty($client['logo'])): ?>
-                                        <img src="<?= base_url('uploads/' . htmlspecialchars($client['logo'])) ?>" alt="Logo" width="50" data-bs-toggle="tooltip" title="Logo del Cliente">
+                                        <?php
+                                            $thumbLogo = 'thumb_' . $client['logo'];
+                                            $logoSrc = file_exists(ROOTPATH . 'public/uploads/' . $thumbLogo)
+                                                ? $thumbLogo : $client['logo'];
+                                        ?>
+                                        <img src="<?= base_url('uploads/' . htmlspecialchars($logoSrc)) ?>" alt="Logo" width="50" height="50" loading="lazy" style="object-fit:contain;" data-bs-toggle="tooltip" title="Logo del Cliente">
                                     <?php else: ?>
                                         No disponible
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if (!empty($client['firma_representante_legal'])): ?>
-                                        <img src="<?= base_url('uploads/' . htmlspecialchars($client['firma_representante_legal'])) ?>" alt="Firma" width="50" data-bs-toggle="tooltip" title="Firma del Representante Legal">
+                                        <img src="<?= base_url('uploads/' . htmlspecialchars($client['firma_representante_legal'])) ?>" alt="Firma" width="50" height="50" loading="lazy" style="object-fit:contain;" data-bs-toggle="tooltip" title="Firma del Representante Legal">
                                     <?php else: ?>
                                         No disponible
                                     <?php endif; ?>

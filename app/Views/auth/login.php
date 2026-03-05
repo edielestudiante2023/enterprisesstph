@@ -746,7 +746,7 @@
 <!-- Service Worker Registration (PWA) -->
 <script>
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw_inspecciones.js', { scope: '/' });
+    navigator.serviceWorker.register('/sw_inspecciones.js', { scope: '/inspecciones' });
 }
 </script>
 

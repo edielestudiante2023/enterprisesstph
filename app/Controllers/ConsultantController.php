@@ -81,6 +81,7 @@ class ConsultantController extends Controller
         if ($logo && $logo->isValid() && !$logo->hasMoved()) {
             $logoName = $logo->getRandomName();
             $logo->move($uploadPath, $logoName);
+            $this->generateLogoThumbnail($uploadPath, $logoName);
         }
 
         if ($firma && $firma->isValid() && !$firma->hasMoved()) {
@@ -591,9 +592,16 @@ class ConsultantController extends Controller
         if ($newLogo && $newLogo->isValid() && !$newLogo->hasMoved()) {
             $newLogoName = $newLogo->getRandomName();
             $newLogo->move($uploadPath, $newLogoName);
+            $this->generateLogoThumbnail($uploadPath, $newLogoName);
 
-            if (!empty($client['logo']) && file_exists($uploadPath . '/' . $client['logo'])) {
-                unlink($uploadPath . '/' . $client['logo']);
+            if (!empty($client['logo'])) {
+                if (file_exists($uploadPath . '/' . $client['logo'])) {
+                    unlink($uploadPath . '/' . $client['logo']);
+                }
+                $oldThumb = $uploadPath . '/thumb_' . $client['logo'];
+                if (file_exists($oldThumb)) {
+                    unlink($oldThumb);
+                }
             }
 
             $data['logo'] = $newLogoName;
@@ -1366,5 +1374,49 @@ class ConsultantController extends Controller
             </table>
         </body>
         </html>';
+    }
+
+    /**
+     * Genera un thumbnail de 150x150 del logo subido.
+     * El archivo se guarda como thumb_{filename} en el mismo directorio.
+     */
+    private function generateLogoThumbnail(string $uploadPath, string $logoName): void
+    {
+        if (!function_exists('imagecreatefromstring')) {
+            return;
+        }
+        $srcPath = $uploadPath . '/' . $logoName;
+        if (!file_exists($srcPath)) {
+            return;
+        }
+        $data = @file_get_contents($srcPath);
+        if ($data === false) {
+            return;
+        }
+        $src = @imagecreatefromstring($data);
+        if (!$src) {
+            return;
+        }
+        $srcW = imagesx($src);
+        $srcH = imagesy($src);
+        $size = 150;
+        $ratio = min($size / $srcW, $size / $srcH);
+        $newW = max(1, (int)($srcW * $ratio));
+        $newH = max(1, (int)($srcH * $ratio));
+        $thumb = imagecreatetruecolor($newW, $newH);
+        // Preserve transparency for PNG
+        imagealphablending($thumb, false);
+        imagesavealpha($thumb, true);
+        imagecopyresampled($thumb, $src, 0, 0, 0, 0, $newW, $newH, $srcW, $srcH);
+        $destPath = $uploadPath . '/thumb_' . $logoName;
+        // Save as JPEG unless original is PNG
+        $ext = strtolower(pathinfo($logoName, PATHINFO_EXTENSION));
+        if ($ext === 'png') {
+            imagepng($thumb, $destPath, 8);
+        } else {
+            imagejpeg($thumb, $destPath, 82);
+        }
+        imagedestroy($src);
+        imagedestroy($thumb);
     }
 }
