@@ -245,6 +245,17 @@
             });
         }
 
+        // ── Interceptar form.submit() programático (ej: Finalizar vía SweetAlert) ──
+        // form.submit() NO dispara el evento 'submit', por lo que submitted=true
+        // nunca se setea sin esta sobreescritura, dejando timers activos.
+        var nativeFormSubmit = form.submit.bind(form);
+        form.submit = function () {
+            submitted = true;
+            clearTimeout(debounceTimer);
+            if (intervalId) { clearInterval(intervalId); intervalId = null; }
+            nativeFormSubmit();
+        };
+
         // ── Estado inicial ──
         showStatus('fa-cloud', 'Autoguardado activado', '#999');
     };
