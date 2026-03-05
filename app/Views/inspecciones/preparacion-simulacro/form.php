@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/preparacion-simulacro/update/' . $inspeccion['id'] : '/inspecciones/preparacion-simulacro/store';
+$action = $isEdit ? base_url('/inspecciones/preparacion-simulacro/update/') . $inspeccion['id'] : base_url('/inspecciones/preparacion-simulacro/store');
 $alarmaSeleccionados = $isEdit && !empty($inspeccion['tipo_alarma']) ? explode(',', $inspeccion['tipo_alarma']) : [];
 $distintivosSeleccionados = $isEdit && !empty($inspeccion['distintivos_brigadistas']) ? explode(',', $inspeccion['distintivos_brigadistas']) : [];
 $equiposSeleccionados = $isEdit && !empty($inspeccion['equipos_emergencia']) ? explode(',', $inspeccion['equipos_emergencia']) : [];
@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedCliente = '<?= $idCliente ?? '' ?>';
 
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -318,9 +318,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'prepSimForm',
-        storeUrl: '/inspecciones/preparacion-simulacro/store',
-        updateUrlBase: '/inspecciones/preparacion-simulacro/update/',
-        editUrlBase: '/inspecciones/preparacion-simulacro/edit/',
+        storeUrl: base_url('/inspecciones/preparacion-simulacro/store'),
+        updateUrlBase: base_url('/inspecciones/preparacion-simulacro/update/'),
+        editUrlBase: base_url('/inspecciones/preparacion-simulacro/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/dotacion-todero/update/' . $inspeccion['id'] : '/inspecciones/dotacion-todero/store';
+$action = $isEdit ? base_url('/inspecciones/dotacion-todero/update/') . $inspeccion['id'] : base_url('/inspecciones/dotacion-todero/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedCliente = '<?= $idCliente ?? '' ?>';
 
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -220,9 +220,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'dotTodForm',
-        storeUrl: '/inspecciones/dotacion-todero/store',
-        updateUrlBase: '/inspecciones/dotacion-todero/update/',
-        editUrlBase: '/inspecciones/dotacion-todero/edit/',
+        storeUrl: base_url('/inspecciones/dotacion-todero/store'),
+        updateUrlBase: base_url('/inspecciones/dotacion-todero/update/'),
+        editUrlBase: base_url('/inspecciones/dotacion-todero/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

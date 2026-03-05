@@ -15,12 +15,12 @@
 
 <?php
 $isEdit = !empty($url);
-$action = $isEdit ? '/inspecciones/urls/update/' . $url['id'] : '/inspecciones/urls/store';
+$action = $isEdit ? base_url('/inspecciones/urls/update/') . $url['id'] : base_url('/inspecciones/urls/store');
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0"><i class="fas fa-link me-2"></i><?= esc($title) ?></h5>
-    <a href="/inspecciones/urls" class="btn btn-sm btn-outline-secondary">
+    <a href="<?= base_url('/inspecciones/urls') ?>" class="btn btn-sm btn-outline-secondary">
         <i class="fas fa-arrow-left"></i> Volver
     </a>
 </div>

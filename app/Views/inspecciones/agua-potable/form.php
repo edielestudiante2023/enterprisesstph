@@ -13,7 +13,7 @@
 
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/agua-potable/update/' . $inspeccion['id'] : '/inspecciones/agua-potable/store';
+$action = $isEdit ? base_url('/inspecciones/agua-potable/update/') . $inspeccion['id'] : base_url('/inspecciones/agua-potable/store');
 $storageKey = $isEdit ? 'agua_draft_' . $inspeccion['id'] : 'agua_draft_new';
 ?>
 
@@ -108,7 +108,7 @@ $storageKey = $isEdit ? 'agua_draft_' . $inspeccion['id'] : 'agua_draft_new';
 document.addEventListener('DOMContentLoaded', function() {
 var preselectedClient = '<?= esc($idCliente ?? '') ?>';
 $.ajax({
-    url: '/inspecciones/api/clientes',
+    url: '<?= base_url('/inspecciones/api/clientes') ?>',
     dataType: 'json',
     success: function(data) {
         var sel = document.getElementById('selectCliente');
@@ -200,9 +200,9 @@ if (!isEditLocal) {
 // ============================================================
 initAutosave({
     formId: 'aguaForm',
-    storeUrl: '/inspecciones/agua-potable/store',
-    updateUrlBase: '/inspecciones/agua-potable/update/',
-    editUrlBase: '/inspecciones/agua-potable/edit/',
+    storeUrl: base_url('/inspecciones/agua-potable/store'),
+    updateUrlBase: base_url('/inspecciones/agua-potable/update/'),
+    editUrlBase: base_url('/inspecciones/agua-potable/edit/'),
     recordId: <?= $inspeccion['id'] ?? 'null' ?>,
     isEdit: <?= $isEdit ? 'true' : 'false' ?>,
     storageKey: STORAGE_KEY,

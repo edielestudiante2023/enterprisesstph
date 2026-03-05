@@ -141,7 +141,7 @@
 
                 <div class="d-flex gap-1 mt-2">
                     <?php if ($estado === 'firmado'): ?>
-                        <a href="/inspecciones/carta-vigia/pdf/<?= $c['id'] ?>" target="_blank" class="btn btn-sm btn-success btn-action">
+                        <a href="<?= base_url('/inspecciones/carta-vigia/pdf/') ?><?= $c['id'] ?>" target="_blank" class="btn btn-sm btn-success btn-action">
                             <i class="fas fa-file-pdf"></i> Ver PDF
                         </a>
                     <?php else: ?>
@@ -149,7 +149,7 @@
                             <i class="fas fa-paper-plane"></i> Reenviar
                         </button>
                     <?php endif; ?>
-                    <a href="/inspecciones/carta-vigia/edit/<?= $c['id'] ?>" class="btn btn-sm btn-outline-dark btn-action">
+                    <a href="<?= base_url('/inspecciones/carta-vigia/edit/') ?><?= $c['id'] ?>" class="btn btn-sm btn-outline-dark btn-action">
                         <i class="fas fa-edit"></i> Editar
                     </a>
                     <button type="button" class="btn btn-sm btn-outline-danger btn-action btn-eliminar" data-id="<?= $c['id'] ?>" data-nombre="<?= esc($c['nombre_vigia']) ?>">
@@ -163,7 +163,7 @@
 
         <!-- Botón nueva carta -->
         <div class="mt-3 mb-4">
-            <a href="/inspecciones/carta-vigia/create/<?= $idCliente ?>" class="btn btn-pwa btn-pwa-primary">
+            <a href="<?= base_url('/inspecciones/carta-vigia/create/') ?><?= $idCliente ?>" class="btn btn-pwa btn-pwa-primary">
                 <i class="fas fa-plus"></i> Nueva Carta Vigia
             </a>
         </div>
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
         placeholder: 'Buscar cliente...',
         allowClear: true,
         ajax: {
-            url: '/inspecciones/api/clientes',
+            url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             delay: 250,
             processResults: function(data) {
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     $('#selectCliente').on('change', function() {
         var id = $(this).val();
-        window.location.href = id ? '/inspecciones/carta-vigia/cliente/' + id : '/inspecciones/carta-vigia';
+        window.location.href = id ? base_url('/inspecciones/carta-vigia/cliente/') + id : base_url('/inspecciones/carta-vigia');
     });
 
     // Reenviar email
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmButtonColor: '#dc3545',
             }).then(function(result) {
                 if (result.isConfirmed) {
-                    window.location.href = '/inspecciones/carta-vigia/delete/' + id;
+                    window.location.href = '<?= base_url('/inspecciones/carta-vigia/delete/') ?>' + id;
                 }
             });
         });

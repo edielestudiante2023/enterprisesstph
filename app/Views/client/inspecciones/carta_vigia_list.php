@@ -45,7 +45,7 @@
                 <?php endif; ?>
                 <?php if (!empty($carta['ruta_pdf'])): ?>
                 <div class="mt-3 text-end">
-                    <a href="/inspecciones/carta-vigia/pdf/<?= $carta['id'] ?>" target="_blank"
+                    <a href="<?= base_url('/inspecciones/carta-vigia/pdf/') ?><?= $carta['id'] ?>" target="_blank"
                        style="font-size:12px; color:#bd9751; font-weight:600; text-decoration:none;">
                         <i class="fas fa-file-pdf"></i> Ver PDF <i class="fas fa-chevron-right ms-1"></i>
                     </a>

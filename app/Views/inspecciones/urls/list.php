@@ -15,7 +15,7 @@
     <h5 class="mb-0"><i class="fas fa-link me-2"></i>Accesos Rápidos</h5>
 </div>
 
-<a href="/inspecciones/urls/create" class="btn btn-pwa btn-pwa-primary mb-3">
+<a href="<?= base_url('/inspecciones/urls/create') ?>" class="btn btn-pwa btn-pwa-primary mb-3">
     <i class="fas fa-plus me-2"></i>Nuevo Acceso
 </a>
 
@@ -50,7 +50,7 @@
                     </a>
                 </div>
                 <div class="d-flex gap-1 flex-shrink-0">
-                    <a href="/inspecciones/urls/edit/<?= $u['id'] ?>" class="btn btn-sm btn-outline-dark" style="font-size: 11px; padding: 1px 6px;">
+                    <a href="<?= base_url('/inspecciones/urls/edit/') ?><?= $u['id'] ?>" class="btn btn-sm btn-outline-dark" style="font-size: 11px; padding: 1px 6px;">
                         <i class="fas fa-edit"></i>
                     </a>
                     <a href="#" class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $u['id'] ?>" data-nombre="<?= esc($u['nombre']) ?>" style="font-size: 11px; padding: 1px 6px;">
@@ -81,7 +81,7 @@ document.addEventListener('click', function(e) {
         cancelButtonText: 'Cancelar'
     }).then(result => {
         if (result.isConfirmed) {
-            window.location.href = '/inspecciones/urls/delete/' + id;
+            window.location.href = '<?= base_url('/inspecciones/urls/delete/') ?>' + id;
         }
     });
 });

@@ -181,7 +181,7 @@ function openPhoto(src) {
 <!-- Acciones -->
 <div class="mb-4">
     <?php if (!empty($eval['ruta_pdf'])): ?>
-    <a href="/inspecciones/simulacro/pdf/<?= $eval['id'] ?>" class="btn btn-primary" target="_blank" style="background:#bd9751; border-color:#bd9751;">
+    <a href="<?= base_url('/inspecciones/simulacro/pdf/') ?><?= $eval['id'] ?>" class="btn btn-primary" target="_blank" style="background:#bd9751; border-color:#bd9751;">
         <i class="fas fa-file-pdf"></i> Ver PDF
     </a>
     <?php endif; ?>

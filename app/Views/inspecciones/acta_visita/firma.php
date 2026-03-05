@@ -64,7 +64,7 @@
     </button>
 
     <!-- Volver al acta -->
-    <a href="/inspecciones/acta-visita/edit/<?= $acta['id'] ?>" class="btn btn-pwa btn-pwa-outline mb-4">
+    <a href="<?= base_url('/inspecciones/acta-visita/edit/') ?><?= $acta['id'] ?>" class="btn btn-pwa btn-pwa-outline mb-4">
         <i class="fas fa-arrow-left"></i> Volver al acta
     </a>
 </div>

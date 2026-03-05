@@ -113,7 +113,7 @@
 <!-- Botón PDF -->
 <?php if (!empty($acta['ruta_pdf'])): ?>
 <div class="text-center mb-4">
-    <a href="/inspecciones/acta-visita/pdf/<?= $acta['id'] ?>" class="btn btn-pdf" target="_blank">
+    <a href="<?= base_url('/inspecciones/acta-visita/pdf/') ?><?= $acta['id'] ?>" class="btn btn-pdf" target="_blank">
         <i class="fas fa-file-pdf me-2"></i> Descargar PDF
     </a>
 </div>

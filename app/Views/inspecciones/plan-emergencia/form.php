@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/plan-emergencia/update/' . $inspeccion['id'] : '/inspecciones/plan-emergencia/store';
+$action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspeccion['id'] : base_url('/inspecciones/plan-emergencia/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -556,7 +556,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cargar clientes
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -701,9 +701,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'planEmgForm',
-        storeUrl: '/inspecciones/plan-emergencia/store',
-        updateUrlBase: '/inspecciones/plan-emergencia/update/',
-        editUrlBase: '/inspecciones/plan-emergencia/edit/',
+        storeUrl: base_url('/inspecciones/plan-emergencia/store'),
+        updateUrlBase: base_url('/inspecciones/plan-emergencia/update/'),
+        editUrlBase: base_url('/inspecciones/plan-emergencia/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

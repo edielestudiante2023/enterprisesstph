@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>KPI Control de Plagas</h5>
-    <a href="/inspecciones/kpi-plagas" class="btn btn-sm btn-outline-secondary">
+    <a href="<?= base_url('/inspecciones/kpi-plagas') ?>" class="btn btn-sm btn-outline-secondary">
         <i class="fas fa-arrow-left"></i> Volver
     </a>
 </div>
@@ -61,15 +61,15 @@ for ($i = 1; $i <= 4; $i++) {
 
 <!-- PDF -->
 <?php if (!empty($inspeccion['ruta_pdf'])): ?>
-<a href="/inspecciones/kpi-plagas/pdf/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary mb-4" target="_blank">
+<a href="<?= base_url('/inspecciones/kpi-plagas/pdf/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary mb-4" target="_blank">
     <i class="fas fa-file-pdf me-2"></i>Ver PDF
 </a>
 <?php endif; ?>
     <?php if ($inspeccion['estado'] === 'completo'): ?>
-    <a href="/inspecciones/kpi-plagas/regenerar/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
+    <a href="<?= base_url('/inspecciones/kpi-plagas/regenerar/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
         <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
     </a>
-    <a href="/inspecciones/kpi-plagas/enviar-email/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
+    <a href="<?= base_url('/inspecciones/kpi-plagas/enviar-email/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
         <i class="fas fa-envelope me-2"></i>Enviar por Email
     </a>
     <?php endif; ?>

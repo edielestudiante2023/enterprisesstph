@@ -12,7 +12,7 @@ $c = $cliente;
 
     <h5 class="mt-2 mb-3"><i class="fas fa-id-card-alt"></i> <?= esc($title) ?></h5>
 
-    <form action="/inspecciones/hv-brigadista/update/<?= $h['id'] ?>" method="post" enctype="multipart/form-data" id="formHV">
+    <form action="<?= base_url('/inspecciones/hv-brigadista/update/') ?><?= $h['id'] ?>" method="post" enctype="multipart/form-data" id="formHV">
 
         <!-- Cliente + Fecha -->
         <div class="card mb-2">
@@ -237,7 +237,7 @@ $c = $cliente;
                 <i class="fas fa-check"></i> Finalizar
             </button>
             <?php endif; ?>
-            <a href="/inspecciones/hv-brigadista" class="btn btn-outline-secondary flex-fill">
+            <a href="<?= base_url('/inspecciones/hv-brigadista') ?>" class="btn btn-outline-secondary flex-fill">
                 <i class="fas fa-arrow-left"></i> Volver
             </a>
         </div>
@@ -352,9 +352,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'formHV',
-        storeUrl: '/inspecciones/hv-brigadista/store',
-        updateUrlBase: '/inspecciones/hv-brigadista/update/',
-        editUrlBase: '/inspecciones/hv-brigadista/edit/',
+        storeUrl: base_url('/inspecciones/hv-brigadista/store'),
+        updateUrlBase: base_url('/inspecciones/hv-brigadista/update/'),
+        editUrlBase: base_url('/inspecciones/hv-brigadista/edit/'),
         recordId: <?= $h['id'] ?? 'null' ?>,
         isEdit: true,
         storageKey: 'hv_brig_draft_<?= $h['id'] ?? 'new' ?>',

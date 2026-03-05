@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/comunicaciones/update/' . $inspeccion['id'] : '/inspecciones/comunicaciones/store';
+$action = $isEdit ? base_url('/inspecciones/comunicaciones/update/') . $inspeccion['id'] : base_url('/inspecciones/comunicaciones/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedCliente = '<?= $idCliente ?? '' ?>';
 
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -182,9 +182,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'comForm',
-        storeUrl: '/inspecciones/comunicaciones/store',
-        updateUrlBase: '/inspecciones/comunicaciones/update/',
-        editUrlBase: '/inspecciones/comunicaciones/edit/',
+        storeUrl: base_url('/inspecciones/comunicaciones/store'),
+        updateUrlBase: base_url('/inspecciones/comunicaciones/update/'),
+        editUrlBase: base_url('/inspecciones/comunicaciones/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

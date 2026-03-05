@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/dotacion-aseadora/update/' . $inspeccion['id'] : '/inspecciones/dotacion-aseadora/store';
+$action = $isEdit ? base_url('/inspecciones/dotacion-aseadora/update/') . $inspeccion['id'] : base_url('/inspecciones/dotacion-aseadora/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedCliente = '<?= $idCliente ?? '' ?>';
 
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -220,9 +220,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'dotAseForm',
-        storeUrl: '/inspecciones/dotacion-aseadora/store',
-        updateUrlBase: '/inspecciones/dotacion-aseadora/update/',
-        editUrlBase: '/inspecciones/dotacion-aseadora/edit/',
+        storeUrl: base_url('/inspecciones/dotacion-aseadora/store'),
+        updateUrlBase: base_url('/inspecciones/dotacion-aseadora/update/'),
+        editUrlBase: base_url('/inspecciones/dotacion-aseadora/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

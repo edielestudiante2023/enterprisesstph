@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(nslookup db-mysql-cycloid-do-user-18794030-0.h.db.ondigitalocean.com)"
+      "Bash(nslookup db-mysql-cycloid-do-user-18794030-0.h.db.ondigitalocean.com)",
+      "Bash(/c/xampp/mysql/bin/mysql.exe --host=db-mysql-cycloid-do-user-18794030-0.h.db.ondigitalocean.com --port=25060 --user=cycloid_userdb --password=AVNS_iDypWizlpMRwHIORJGG --ssl-mode=REQUIRED propiedad_horizontal -e \":*)",
+      "Bash(/c/xampp/mysql/bin/mysql.exe --version)",
+      "Bash(/c/xampp/mysql/bin/mysql.exe --host=db-mysql-cycloid-do-user-18794030-0.h.db.ondigitalocean.com --port=25060 --user=cycloid_userdb --password=AVNS_iDypWizlpMRwHIORJGG --ssl propiedad_horizontal -e \":*)",
+      "Bash(DB_PROD_PASS=AVNS_iDypWizlpMRwHIORJGG /c/xampp/php/php.exe app/SQL/create_evaluacion_induccion.php production)",
+      "Bash(php -r \":*)"
+    ],
+    "additionalDirectories": [
+      "c:\\xampp\\htdocs\\enterprisesstph\\app\\Config"
     ]
   }
 }

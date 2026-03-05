@@ -30,7 +30,7 @@ $criterios = [
 ?>
 
 <div class="container-fluid px-3">
-    <form method="post" action="/inspecciones/simulacro/update/<?= $e['id'] ?>" id="formEvalSim" enctype="multipart/form-data">
+    <form method="post" action="<?= base_url('/inspecciones/simulacro/update/') ?><?= $e['id'] ?>" id="formEvalSim" enctype="multipart/form-data">
         <?= csrf_field() ?>
 
         <?php if (session()->getFlashdata('msg')): ?>
@@ -261,7 +261,7 @@ $criterios = [
                 <i class="fas fa-check"></i> Finalizar
             </button>
             <?php endif; ?>
-            <a href="/inspecciones/simulacro" class="btn btn-outline-secondary">Volver</a>
+            <a href="<?= base_url('/inspecciones/simulacro') ?>" class="btn btn-outline-secondary">Volver</a>
         </div>
     </form>
 </div>
@@ -317,9 +317,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'formEvalSim',
-        storeUrl: '/inspecciones/simulacro/store',
-        updateUrlBase: '/inspecciones/simulacro/update/',
-        editUrlBase: '/inspecciones/simulacro/edit/',
+        storeUrl: base_url('/inspecciones/simulacro/store'),
+        updateUrlBase: base_url('/inspecciones/simulacro/update/'),
+        editUrlBase: base_url('/inspecciones/simulacro/edit/'),
         recordId: <?= $e['id'] ?? 'null' ?>,
         isEdit: true,
         storageKey: 'eval_sim_draft_<?= $e['id'] ?? 'new' ?>',

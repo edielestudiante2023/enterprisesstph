@@ -46,24 +46,24 @@
 <!-- Acciones -->
 <div class="d-grid gap-2 mb-4">
     <?php if (!empty($inspeccion['ruta_pdf'])): ?>
-    <a href="/inspecciones/residuos-solidos/pdf/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
+    <a href="<?= base_url('/inspecciones/residuos-solidos/pdf/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
         <i class="fas fa-file-pdf me-2"></i>Ver PDF
     </a>
     <?php endif; ?>
     <?php if ($inspeccion['estado'] === 'completo'): ?>
-    <a href="/inspecciones/residuos-solidos/regenerar/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
+    <a href="<?= base_url('/inspecciones/residuos-solidos/regenerar/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
         <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
     </a>
-    <a href="/inspecciones/residuos-solidos/enviar-email/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
+    <a href="<?= base_url('/inspecciones/residuos-solidos/enviar-email/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
         <i class="fas fa-envelope me-2"></i>Enviar por Email
     </a>
     <?php endif; ?>
     <?php if ($inspeccion['estado'] === 'borrador'): ?>
-    <a href="/inspecciones/residuos-solidos/edit/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
+    <a href="<?= base_url('/inspecciones/residuos-solidos/edit/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
         <i class="fas fa-edit me-2"></i>Editar
     </a>
     <?php endif; ?>
-    <a href="/inspecciones/residuos-solidos" class="btn btn-pwa btn-pwa-outline">
+    <a href="<?= base_url('/inspecciones/residuos-solidos') ?>" class="btn btn-pwa btn-pwa-outline">
         <i class="fas fa-arrow-left me-2"></i>Volver al listado
     </a>
 </div>

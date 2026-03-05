@@ -98,7 +98,7 @@ $tipoLabel = $tiposCharla[$inspeccion['tipo_charla'] ?? ''] ?? $inspeccion['tipo
 
 <div class="mb-4">
     <?php if (!empty($inspeccion['ruta_pdf_asistencia'])): ?>
-    <a href="/inspecciones/asistencia-induccion/pdf/<?= $inspeccion['id'] ?>" class="btn btn-primary" target="_blank" style="background:#bd9751; border-color:#bd9751;">
+    <a href="<?= base_url('/inspecciones/asistencia-induccion/pdf/') ?><?= $inspeccion['id'] ?>" class="btn btn-primary" target="_blank" style="background:#bd9751; border-color:#bd9751;">
         <i class="fas fa-file-pdf"></i> Ver PDF Asistencia
     </a>
     <?php endif; ?>

@@ -6,7 +6,7 @@
 
     <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
         <h5 class="mb-0"><i class="fas fa-running"></i> Evaluacion Simulacro</h5>
-        <a href="/inspecciones/simulacro" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i> Volver</a>
+        <a href="<?= base_url('/inspecciones/simulacro') ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i> Volver</a>
     </div>
 
     <!-- Estado -->
@@ -15,16 +15,16 @@
             <?= $eval['estado'] === 'completo' ? 'Completo' : 'Borrador' ?>
         </span>
         <?php if ($eval['estado'] === 'completo'): ?>
-            <a href="/inspecciones/simulacro/pdf/<?= $eval['id'] ?>" class="btn btn-sm btn-outline-primary ms-2" target="_blank">
+            <a href="<?= base_url('/inspecciones/simulacro/pdf/') ?><?= $eval['id'] ?>" class="btn btn-sm btn-outline-primary ms-2" target="_blank">
                 <i class="fas fa-file-pdf"></i> Ver PDF
             </a>
         <?php else: ?>
-            <form action="/inspecciones/simulacro/finalizar/<?= $eval['id'] ?>" method="post" class="d-inline ms-2">
+            <form action="<?= base_url('/inspecciones/simulacro/finalizar/') ?><?= $eval['id'] ?>" method="post" class="d-inline ms-2">
                 <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check"></i> Finalizar y generar PDF</button>
             </form>
         <?php endif; ?>
     <?php if ($eval['estado'] === 'completo'): ?>
-    <a href="/inspecciones/simulacro/regenerar/<?= $eval['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
+    <a href="<?= base_url('/inspecciones/simulacro/regenerar/') ?><?= $eval['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
         <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
     </a>
     <?php endif; ?>

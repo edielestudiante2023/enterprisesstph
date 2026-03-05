@@ -105,28 +105,28 @@ $tipoLabel = $tiposCharla[$inspeccion['tipo_charla'] ?? ''] ?? $inspeccion['tipo
     <!-- Acciones -->
     <div class="mb-4 d-flex gap-2 flex-wrap">
         <?php if ($inspeccion['estado'] === 'completo' && !empty($inspeccion['ruta_pdf_asistencia'])): ?>
-        <a href="/inspecciones/asistencia-induccion/pdf/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
+        <a href="<?= base_url('/inspecciones/asistencia-induccion/pdf/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
             <i class="fas fa-file-pdf"></i> Ver PDF Asistencia
         </a>
         <?php endif; ?>
         <?php if ($inspeccion['estado'] === 'completo' && !empty($inspeccion['ruta_pdf_responsabilidades'])): ?>
-        <a href="/inspecciones/asistencia-induccion/pdf-responsabilidades/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
+        <a href="<?= base_url('/inspecciones/asistencia-induccion/pdf-responsabilidades/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
             <i class="fas fa-file-pdf"></i> Ver PDF Responsabilidades
         </a>
         <?php endif; ?>
     <?php if ($inspeccion['estado'] === 'completo'): ?>
-    <a href="/inspecciones/asistencia-induccion/regenerar/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
+    <a href="<?= base_url('/inspecciones/asistencia-induccion/regenerar/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
         <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
     </a>
-    <a href="/inspecciones/asistencia-induccion/enviar-email/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar los PDFs por email al cliente, consultor y consultor externo?')">
+    <a href="<?= base_url('/inspecciones/asistencia-induccion/enviar-email/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar los PDFs por email al cliente, consultor y consultor externo?')">
         <i class="fas fa-envelope me-2"></i>Enviar por Email
     </a>
     <?php endif; ?>
         <?php if ($inspeccion['estado'] !== 'completo'): ?>
-        <a href="/inspecciones/asistencia-induccion/firmas/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
+        <a href="<?= base_url('/inspecciones/asistencia-induccion/firmas/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
             <i class="fas fa-signature"></i> Ir a Firmas
         </a>
-        <a href="/inspecciones/asistencia-induccion/edit/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
+        <a href="<?= base_url('/inspecciones/asistencia-induccion/edit/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
             <i class="fas fa-edit"></i> Editar
         </a>
         <?php endif; ?>

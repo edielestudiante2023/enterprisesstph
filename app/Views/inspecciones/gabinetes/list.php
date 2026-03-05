@@ -15,7 +15,7 @@
     </div>
 
     <!-- Boton nueva -->
-    <a href="/inspecciones/gabinetes/create" class="btn btn-pwa btn-pwa-primary mb-3">
+    <a href="<?= base_url('/inspecciones/gabinetes/create') ?>" class="btn btn-pwa btn-pwa-primary mb-3">
         <i class="fas fa-plus"></i> Nueva inspeccion
     </a>
 
@@ -46,17 +46,17 @@
                     </span>
                 </div>
                 <div class="mt-2 d-flex gap-1 flex-wrap">
-                        <a href="/inspecciones/gabinetes/edit/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                        <a href="<?= base_url('/inspecciones/gabinetes/edit/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                             <i class="fas fa-edit"></i> Editar
                         </a>
                         <button type="button" class="btn btn-sm btn-outline-danger btn-delete-insp" data-id="<?= $insp['id'] ?>" data-nombre="<?= esc($insp['nombre_cliente'] ?? '') ?>">
                             <i class="fas fa-trash"></i>
                         </button>
                     <?php if ($insp['estado'] === 'completo'): ?>
-                        <a href="/inspecciones/gabinetes/view/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                        <a href="<?= base_url('/inspecciones/gabinetes/view/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
                             <i class="fas fa-eye"></i> Ver
                         </a>
-                        <a href="/inspecciones/gabinetes/pdf/<?= $insp['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                        <a href="<?= base_url('/inspecciones/gabinetes/pdf/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
                             <i class="fas fa-file-pdf"></i> PDF
                         </a>
                     <?php endif; ?>
@@ -71,7 +71,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('filtroCliente');
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmButtonColor: '#dc3545',
         }).then(result => {
             if (result.isConfirmed) {
-                window.location.href = '/inspecciones/gabinetes/delete/' + btn.dataset.id;
+                window.location.href = '<?= base_url('/inspecciones/gabinetes/delete/') ?>' + btn.dataset.id;
             }
         });
     });

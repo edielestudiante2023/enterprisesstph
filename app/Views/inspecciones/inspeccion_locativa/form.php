@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/inspeccion-locativa/update/' . $inspeccion['id'] : '/inspecciones/inspeccion-locativa/store';
+$action = $isEdit ? base_url('/inspecciones/inspeccion-locativa/update/') . $inspeccion['id'] : base_url('/inspecciones/inspeccion-locativa/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Select2 para clientes ---
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -495,9 +495,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'locativaForm',
-        storeUrl: '/inspecciones/inspeccion-locativa/store',
-        updateUrlBase: '/inspecciones/inspeccion-locativa/update/',
-        editUrlBase: '/inspecciones/inspeccion-locativa/edit/',
+        storeUrl: base_url('/inspecciones/inspeccion-locativa/store'),
+        updateUrlBase: base_url('/inspecciones/inspeccion-locativa/update/'),
+        editUrlBase: base_url('/inspecciones/inspeccion-locativa/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

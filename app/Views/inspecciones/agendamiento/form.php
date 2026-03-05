@@ -1,7 +1,7 @@
 <div class="container-fluid px-3">
     <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
         <h6 class="mb-0"><?= $agendamiento ? 'Editar' : 'Nuevo' ?> Agendamiento</h6>
-        <a href="/inspecciones/agendamiento" class="btn btn-sm btn-outline-dark" style="width:auto;">
+        <a href="<?= base_url('/inspecciones/agendamiento') ?>" class="btn btn-sm btn-outline-dark" style="width:auto;">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
     </div>
@@ -15,7 +15,7 @@
         </div>
     <?php endif; ?>
 
-    <form action="<?= $agendamiento ? '/inspecciones/agendamiento/update/' . $agendamiento['id'] : '/inspecciones/agendamiento/store' ?>" method="POST">
+    <form action="<?= $agendamiento ? base_url('/inspecciones/agendamiento/update/') . $agendamiento['id'] : base_url('/inspecciones/agendamiento/store') ?>" method="POST">
         <?= csrf_field() ?>
 
         <!-- Cliente -->

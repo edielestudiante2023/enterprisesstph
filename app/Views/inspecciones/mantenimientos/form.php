@@ -1,8 +1,8 @@
 <?php
 $isEdit = !empty($edit) && !empty($vencimiento);
 $action = $isEdit
-    ? '/inspecciones/mantenimientos/update/' . $vencimiento['id_vencimientos_mmttos']
-    : '/inspecciones/mantenimientos/store';
+    ? base_url('/inspecciones/mantenimientos/update/') . $vencimiento['id_vencimientos_mmttos']
+    : base_url('/inspecciones/mantenimientos/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -63,7 +63,7 @@ $action = $isEdit
             <button type="submit" class="btn btn-pwa btn-pwa-primary">
                 <i class="fas fa-save"></i> Guardar
             </button>
-            <a href="/inspecciones/mantenimientos<?= $idCliente ? '/cliente/' . $idCliente : '' ?>" class="btn btn-outline-secondary">
+            <a href="<?= base_url('/inspecciones/mantenimientos') ?><?= $idCliente ? '/cliente/' . $idCliente : '' ?>" class="btn btn-outline-secondary">
                 Cancelar
             </a>
         </div>
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
         placeholder: 'Buscar cliente...',
         allowClear: true,
         ajax: {
-            url: '/inspecciones/api/clientes',
+            url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             delay: 250,
             processResults: function(data) {
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         placeholder: 'Buscar tipo...',
         allowClear: true,
         ajax: {
-            url: '/inspecciones/api/mantenimientos-catalog',
+            url: '<?= base_url('/inspecciones/api/mantenimientos-catalog') ?>',
             dataType: 'json',
             delay: 250,
             processResults: function(data) {

@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/senalizacion/update/' . $inspeccion['id'] : '/inspecciones/senalizacion/store';
+$action = $isEdit ? base_url('/inspecciones/senalizacion/update/') . $inspeccion['id'] : base_url('/inspecciones/senalizacion/store');
 $estados = ['NO APLICA', 'NO CUMPLE', 'CUMPLE PARCIALMENTE', 'CUMPLE TOTALMENTE'];
 ?>
 
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Select2 clientes ---
     $.ajax({
-        url: '/inspecciones/api/clientes',
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
         dataType: 'json',
         success: function(data) {
             const select = document.getElementById('selectCliente');
@@ -347,9 +347,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'senalForm',
-        storeUrl: '/inspecciones/senalizacion/store',
-        updateUrlBase: '/inspecciones/senalizacion/update/',
-        editUrlBase: '/inspecciones/senalizacion/edit/',
+        storeUrl: base_url('/inspecciones/senalizacion/store'),
+        updateUrlBase: base_url('/inspecciones/senalizacion/update/'),
+        editUrlBase: base_url('/inspecciones/senalizacion/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

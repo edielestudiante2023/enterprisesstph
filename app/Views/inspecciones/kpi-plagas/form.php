@@ -15,13 +15,13 @@
 
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? '/inspecciones/kpi-plagas/update/' . $inspeccion['id'] : '/inspecciones/kpi-plagas/store';
+$action = $isEdit ? base_url('/inspecciones/kpi-plagas/update/') . $inspeccion['id'] : base_url('/inspecciones/kpi-plagas/store');
 $storageKey = $isEdit ? 'kpi_plagas_draft_' . $inspeccion['id'] : 'kpi_plagas_draft_new';
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i><?= esc($title) ?></h5>
-    <a href="/inspecciones/kpi-plagas" class="btn btn-sm btn-outline-secondary">
+    <a href="<?= base_url('/inspecciones/kpi-plagas') ?>" class="btn btn-sm btn-outline-secondary">
         <i class="fas fa-arrow-left"></i> Volver
     </a>
 </div>
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var clienteVal = '<?= $isEdit ? $inspeccion['id_cliente'] : ($idCliente ?? '') ?>';
     $('#selectCliente').select2({
         ajax: {
-            url: '/inspecciones/api/clientes',
+            url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             delay: 250,
             processResults: function(data) {
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (clienteVal) {
         $.ajax({
-            url: '/inspecciones/api/clientes',
+            url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             success: function(data) {
                 var found = data.find(function(c) { return c.id_cliente == clienteVal; });
@@ -246,9 +246,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'kpiPlagasForm',
-        storeUrl: '/inspecciones/kpi-plagas/store',
-        updateUrlBase: '/inspecciones/kpi-plagas/update/',
-        editUrlBase: '/inspecciones/kpi-plagas/edit/',
+        storeUrl: base_url('/inspecciones/kpi-plagas/store'),
+        updateUrlBase: base_url('/inspecciones/kpi-plagas/update/'),
+        editUrlBase: base_url('/inspecciones/kpi-plagas/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,

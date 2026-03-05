@@ -9,7 +9,7 @@ $totalAsistentes = count($asistentes);
 
     <?php if ($totalAsistentes === 0): ?>
     <div class="alert alert-warning" style="font-size:14px;">
-        No hay asistentes registrados. <a href="/inspecciones/asistencia-induccion/edit/<?= $inspeccion['id'] ?>">Agregar asistentes</a>
+        No hay asistentes registrados. <a href="<?= base_url('/inspecciones/asistencia-induccion/edit/') ?><?= $inspeccion['id'] ?>">Agregar asistentes</a>
     </div>
     <?php else: ?>
 
@@ -93,13 +93,13 @@ $totalAsistentes = count($asistentes);
                 <i class="fas fa-check-circle text-success" style="font-size:40px;"></i>
                 <h6 class="mt-2">Todas las firmas completadas</h6>
                 <p class="text-muted" style="font-size:13px;">Puede finalizar para generar los PDFs y enviar por email.</p>
-                <form method="post" action="/inspecciones/asistencia-induccion/finalizar/<?= $inspeccion['id'] ?>" id="formFinalizar">
+                <form method="post" action="<?= base_url('/inspecciones/asistencia-induccion/finalizar/') ?><?= $inspeccion['id'] ?>" id="formFinalizar">
                     <?= csrf_field() ?>
                     <button type="submit" class="btn btn-pwa btn-pwa-primary mb-2" onclick="return confirm('¿Finalizar asistencia? Se generaran los PDFs y no podra editarse.')">
                         <i class="fas fa-check-circle"></i> Finalizar y generar PDFs
                     </button>
                 </form>
-                <a href="/inspecciones/asistencia-induccion/view/<?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
+                <a href="<?= base_url('/inspecciones/asistencia-induccion/view/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
                     <i class="fas fa-eye"></i> Volver al registro
                 </a>
             </div>
@@ -108,7 +108,7 @@ $totalAsistentes = count($asistentes);
 
     <!-- Boton volver -->
     <div class="mb-4">
-        <a href="/inspecciones/asistencia-induccion/view/<?= $inspeccion['id'] ?>" class="btn btn-sm btn-outline-dark">
+        <a href="<?= base_url('/inspecciones/asistencia-induccion/view/') ?><?= $inspeccion['id'] ?>" class="btn btn-sm btn-outline-dark">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
     </div>

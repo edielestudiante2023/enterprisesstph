@@ -1,7 +1,7 @@
 <div class="container-fluid px-3">
     <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
         <h6 class="mb-0">Agendamientos</h6>
-        <a href="/inspecciones/agendamiento/create" class="btn btn-sm btn-pwa-primary" style="width:auto; padding: 8px 16px;">
+        <a href="<?= base_url('/inspecciones/agendamiento/create') ?>" class="btn btn-sm btn-pwa-primary" style="width:auto; padding: 8px 16px;">
             <i class="fas fa-plus"></i> Nuevo
         </a>
     </div>
@@ -45,7 +45,7 @@
         <div class="text-center text-muted py-5">
             <i class="fas fa-calendar-alt fa-3x mb-3" style="opacity:0.3;"></i>
             <p>No hay agendamientos</p>
-            <a href="/inspecciones/agendamiento/create" class="btn btn-pwa-primary" style="width:auto; padding: 8px 24px;">
+            <a href="<?= base_url('/inspecciones/agendamiento/create') ?>" class="btn btn-pwa-primary" style="width:auto; padding: 8px 24px;">
                 Crear primer agendamiento
             </a>
         </div>
@@ -99,7 +99,7 @@
 
                     <?php if ($ag['estado'] !== 'cancelado' && $ag['estado'] !== 'completado'): ?>
                     <div class="mt-2 d-flex gap-2 flex-wrap">
-                        <a href="/inspecciones/agendamiento/edit/<?= $ag['id'] ?>" class="btn btn-sm btn-outline-dark">
+                        <a href="<?= base_url('/inspecciones/agendamiento/edit/') ?><?= $ag['id'] ?>" class="btn btn-sm btn-outline-dark">
                             <i class="fas fa-edit"></i> Editar
                         </a>
                         <button class="btn btn-sm btn-outline-success btn-send-invite" data-id="<?= $ag['id'] ?>">
