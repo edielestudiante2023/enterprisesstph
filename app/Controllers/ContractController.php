@@ -462,7 +462,8 @@ class ContractController extends Controller
             'banco' => $this->request->getPost('banco'),
             'tipo_cuenta' => $this->request->getPost('tipo_cuenta'),
             'cuenta_bancaria' => $this->request->getPost('cuenta_bancaria'),
-            'clausula_cuarta_duracion' => $this->request->getPost('clausula_cuarta_duracion'),
+            'clausula_cuarta_duracion'  => $this->request->getPost('clausula_cuarta_duracion'),
+            'clausula_primera_objeto'   => $this->request->getPost('clausula_primera_objeto'),
         ];
 
         // Actualizar el contrato con los nuevos datos

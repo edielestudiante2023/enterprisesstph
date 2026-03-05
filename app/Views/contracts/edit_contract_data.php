@@ -260,10 +260,6 @@
                     document.getElementById('preview_email').textContent = selectedOption.dataset.email;
                     document.getElementById('consultor_preview').style.display = 'block';
 
-                    // Actualizar vista previa Cláusula Primera
-                    document.getElementById('clausula1_nombre').textContent = selectedOption.dataset.nombre;
-                    document.getElementById('clausula1_cedula').textContent = selectedOption.dataset.cedula;
-                    document.getElementById('clausula1_licencia').textContent = selectedOption.dataset.licencia;
                 } else {
                     // Limpiar campos
                     document.getElementById('nombre_responsable_sgsst').value = '';
@@ -271,11 +267,6 @@
                     document.getElementById('licencia_responsable_sgsst').value = '';
                     document.getElementById('email_responsable_sgsst').value = '';
                     document.getElementById('consultor_preview').style.display = 'none';
-
-                    // Limpiar vista previa Cláusula Primera
-                    document.getElementById('clausula1_nombre').textContent = '(Seleccione un consultor)';
-                    document.getElementById('clausula1_cedula').textContent = '___';
-                    document.getElementById('clausula1_licencia').textContent = '___';
                 }
             });
 
@@ -313,25 +304,49 @@
                 </div>
             </div>
 
-            <!-- Sección 6: Cláusula Primera - Objeto del Contrato (Vista previa automática) -->
+            <!-- Sección 6: Cláusula Primera - Objeto del Contrato (Editable) -->
             <div class="form-section">
                 <h4 class="section-title"><i class="fas fa-bullseye"></i> Cláusula Primera - Objeto del Contrato</h4>
 
-                <div class="alert alert-info py-2">
-                    <i class="fas fa-info-circle"></i>
-                    Esta cláusula se genera automáticamente con los datos del consultor SG-SST seleccionado arriba.
-                    Seleccione o cambie el consultor para actualizar la vista previa.
+                <div class="alert alert-warning py-2">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Cláusula Personalizable:</strong> Puede editar este texto para indicar, por ejemplo,
+                    que el responsable SG-SST es un consultor pero quien realiza las visitas es una persona designada.
+                    Si se deja vacío, se usará el texto automático con los datos del consultor seleccionado.
                 </div>
 
-                <div class="card">
-                    <div class="card-header bg-light py-2">
-                        <strong><i class="fas fa-file-contract"></i> Vista previa de la Cláusula Primera</strong>
-                    </div>
-                    <div class="card-body" id="clausula1_preview" style="font-size: 0.9rem; line-height: 1.6; text-align: justify;">
-                        <p><b>EL CONTRATISTA</b> se compromete a proporcionar servicios de consultoría para la gestión del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) a favor de <b>EL CONTRATANTE</b> mediante la plataforma <b>EnterpriseSST</b>. Esta plataforma facilita la gestión documental, la programación de actividades y el monitoreo en tiempo real de los planes de trabajo.</p>
-                        <p>Además, se asignará al profesional SG-SST <b><span id="clausula1_nombre"><?= esc($contract['nombre_responsable_sgsst'] ?? '(Seleccione un consultor)') ?></span></b>, identificado con cédula de ciudadanía <b><span id="clausula1_cedula"><?= esc($contract['cedula_responsable_sgsst'] ?? '___') ?></span></b> y licencia ocupacional número <b><span id="clausula1_licencia"><?= esc($contract['licencia_responsable_sgsst'] ?? '___') ?></span></b>, para garantizar el cumplimiento de los estándares mínimos de la <b>Resolución 0312 de 2019</b>.</p>
-                        <p>Estos servicios incluirán la supervisión y seguimiento continuo del sistema, la capacitación a colaboradores en misión y la implementación de medidas preventivas que contribuyan a mejorar la seguridad laboral. A través de <b>EnterpriseSST</b>, se realizará una gestión integral, permitiendo la automatización de reportes, la programación de actividades preventivas y el seguimiento de indicadores de desempeño en tiempo real, asegurando que todas las acciones realizadas estén alineadas con los requisitos legales y los objetivos del sistema de gestión.</p>
-                    </div>
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <button type="button" class="btn btn-outline-secondary" onclick="restaurarClausula1()">
+                        <i class="fas fa-undo me-1"></i> Restaurar automático
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="abrirSweetAlertIA1()">
+                        <i class="fas fa-robot me-1"></i> Generar con IA
+                    </button>
+                    <small class="text-muted">
+                        Edite manualmente o use la IA para personalizar la cláusula
+                    </small>
+                </div>
+
+                <!-- Barra de herramientas post-generación -->
+                <div class="gap-2 mb-2" id="toolbarIA1" style="display: <?= !empty($contract['clausula_primera_objeto']) ? 'flex' : 'none' ?>;">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="abrirSweetAlertIA1(true)" title="Regenerar con instrucciones modificadas">
+                        <i class="fas fa-sync-alt me-1"></i> Regenerar todo
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info" onclick="abrirRefinar1()" title="Agregar instrucciones para refinar el texto">
+                        <i class="fas fa-magic me-1"></i> Refinar con contexto
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="limpiarClausula1()" title="Vaciar el textarea">
+                        <i class="fas fa-eraser me-1"></i> Limpiar
+                    </button>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-file-contract"></i> Texto de la Cláusula Primera</label>
+                    <textarea name="clausula_primera_objeto" id="clausula_primera_objeto" class="form-control" rows="8"
+                              placeholder="Deje vacío para usar el texto automático con los datos del consultor seleccionado, o escriba aquí el texto personalizado..."><?= esc($contract['clausula_primera_objeto'] ?? '') ?></textarea>
+                    <small class="text-muted">
+                        Si se deja vacío, el PDF usará el texto estándar generado automáticamente. Use el botón <strong>Restaurar automático</strong> para ver y editar ese texto base.
+                    </small>
                 </div>
             </div>
 
@@ -676,8 +691,184 @@
         }
 
         // ============================================================
-        // GENERACIÓN DE CLÁUSULA PRIMERA (OBJETO) CON IA
+        // CLÁUSULA PRIMERA (OBJETO) — EDITABLE + IA
         // ============================================================
+
+        function buildDefaultClausula1Text(nombre, cedula, licencia) {
+            nombre   = nombre   || '___';
+            cedula   = cedula   || '___';
+            licencia = licencia || '___';
+            return `EL CONTRATISTA se compromete a proporcionar servicios de consultoría para la gestión del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) a favor de EL CONTRATANTE mediante la plataforma EnterpriseSST. Esta plataforma facilita la gestión documental, la programación de actividades y el monitoreo en tiempo real de los planes de trabajo.\n\nAdemás, se asignará al profesional SG-SST ${nombre}, identificado con cédula de ciudadanía ${cedula} y licencia ocupacional número ${licencia}, para garantizar el cumplimiento de los estándares mínimos de la Resolución 0312 de 2019.\n\nEstos servicios incluirán la supervisión y seguimiento continuo del sistema, la capacitación a colaboradores en misión y la implementación de medidas preventivas que contribuyan a mejorar la seguridad laboral. A través de EnterpriseSST, se realizará una gestión integral, permitiendo la automatización de reportes, la programación de actividades preventivas y el seguimiento de indicadores de desempeño en tiempo real, asegurando que todas las acciones realizadas estén alineadas con los requisitos legales y los objetivos del sistema de gestión.`;
+        }
+
+        function restaurarClausula1() {
+            const sel = document.getElementById('consultor_select');
+            const opt = sel.options[sel.selectedIndex];
+            const nombre   = sel.value ? opt.dataset.nombre   : '';
+            const cedula   = sel.value ? opt.dataset.cedula   : '';
+            const licencia = sel.value ? opt.dataset.licencia : '';
+            document.getElementById('clausula_primera_objeto').value = buildDefaultClausula1Text(nombre, cedula, licencia);
+            document.getElementById('toolbarIA1').style.display = 'none';
+        }
+
+        let ultimosAcuerdos1 = {};
+
+        function abrirSweetAlertIA1(precargar = false) {
+            const sel  = document.getElementById('consultor_select');
+            const opt  = sel.options[sel.selectedIndex];
+            const nombre   = sel.value ? opt.dataset.nombre   : '';
+            const cedula   = sel.value ? opt.dataset.cedula   : '';
+            const licencia = sel.value ? opt.dataset.licencia : '';
+
+            Swal.fire({
+                title: '<i class="fas fa-robot"></i> Generar Cláusula Primera con IA',
+                html: `
+                    <div class="text-start" style="font-size: 14px;">
+                        <p class="text-muted mb-3">Personalice cómo se describe el servicio y quién realiza las visitas.</p>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Descripción del servicio</label>
+                            <input type="text" id="swal1_descripcion" class="form-control"
+                                   placeholder="Ej: Diseño e implementación del SG-SST"
+                                   value="${precargar ? (ultimosAcuerdos1.descripcion || '') : ''}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">¿Quién realiza las visitas?</label>
+                            <select id="swal1_tipo" class="form-select">
+                                <option value="externo" ${(!precargar || ultimosAcuerdos1.tipo === 'externo') ? 'selected' : ''}>El consultor puede delegar visitas a otro profesional del equipo</option>
+                                <option value="directo" ${(precargar && ultimosAcuerdos1.tipo === 'directo') ? 'selected' : ''}>El consultor designado realiza las visitas directamente</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Contexto adicional <small class="text-muted">(opcional)</small></label>
+                            <textarea id="swal1_contexto" class="form-control" rows="2"
+                                      placeholder="Ej: Las visitas serán realizadas por Juan Pérez, técnico designado por el responsable...">${precargar ? (ultimosAcuerdos1.contexto || '') : ''}</textarea>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-robot me-1"></i> Generar Cláusula',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#667eea',
+                cancelButtonColor: '#6c757d',
+                width: '620px',
+                preConfirm: () => {
+                    ultimosAcuerdos1 = {
+                        descripcion: document.getElementById('swal1_descripcion').value,
+                        tipo:        document.getElementById('swal1_tipo').value,
+                        contexto:    document.getElementById('swal1_contexto').value,
+                    };
+                    return {
+                        id_cliente:          '<?= $contract['id_cliente'] ?>',
+                        descripcion_servicio: ultimosAcuerdos1.descripcion,
+                        tipo_consultor:       ultimosAcuerdos1.tipo,
+                        nombre_coordinador:   nombre,
+                        cedula_coordinador:   cedula,
+                        licencia_coordinador: licencia,
+                        contexto_adicional:   ultimosAcuerdos1.contexto
+                    };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    generarClausula1ConIA(result.value, false);
+                }
+            });
+        }
+
+        function abrirRefinar1() {
+            const textoActual = document.getElementById('clausula_primera_objeto').value;
+            if (!textoActual.trim()) {
+                Swal.fire({ icon: 'info', title: 'Sin texto para refinar', text: 'Primero genere o escriba un texto de cláusula.', confirmButtonColor: '#667eea' });
+                return;
+            }
+            Swal.fire({
+                title: '<i class="fas fa-magic"></i> Refinar Cláusula Primera',
+                html: `
+                    <div class="text-start" style="font-size: 14px;">
+                        <p class="text-muted mb-3">Indique qué cambios desea aplicar al texto actual.</p>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Instrucciones de refinamiento</label>
+                            <textarea id="swal1_refinar" class="form-control" rows="3"
+                                      placeholder="Ej: El responsable es Laura García pero las visitas las realiza Pedro Rodríguez como técnico designado..."></textarea>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-magic me-1"></i> Refinar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#17a2b8',
+                cancelButtonColor: '#6c757d',
+                width: '600px',
+                preConfirm: () => {
+                    const instrucciones = document.getElementById('swal1_refinar').value.trim();
+                    if (!instrucciones) { Swal.showValidationMessage('Escriba las instrucciones de refinamiento'); return false; }
+                    return instrucciones;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    generarClausula1ConIA({
+                        id_cliente:        '<?= $contract['id_cliente'] ?>',
+                        texto_actual:       textoActual,
+                        contexto_adicional: result.value,
+                        modo_refinamiento:  true
+                    }, true);
+                }
+            });
+        }
+
+        function generarClausula1ConIA(datos, esRefinamiento) {
+            Swal.fire({
+                title: esRefinamiento ? 'Refinando cláusula...' : 'Generando cláusula...',
+                html: '<div class="d-flex align-items-center justify-content-center gap-2"><div class="spinner-border text-primary" role="status"></div><span>La IA está redactando el texto legal...</span></div>',
+                allowOutsideClick: false, allowEscapeKey: false, showConfirmButton: false
+            });
+
+            fetch('<?= base_url("/contracts/generar-clausula1-ia") ?>', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify(datos)
+            })
+            .then(async resp => {
+                const text = await resp.text();
+                if (!resp.ok) {
+                    let m = 'Error HTTP ' + resp.status;
+                    try { m = JSON.parse(text).message || m; } catch(e) { m += ': ' + text.substring(0, 200); }
+                    throw new Error(m);
+                }
+                return JSON.parse(text);
+            })
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('clausula_primera_objeto').value = data.texto;
+                    document.getElementById('toolbarIA1').style.display = 'flex';
+                    Swal.fire({ icon: 'success', title: esRefinamiento ? 'Cláusula refinada' : 'Cláusula generada',
+                        text: 'El texto ha sido insertado. Puede editarlo libremente antes de guardar.',
+                        confirmButtonColor: '#667eea', timer: 3000, timerProgressBar: true });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'No se pudo generar la cláusula.', confirmButtonColor: '#667eea' });
+                }
+            })
+            .catch(error => {
+                Swal.fire({ icon: 'error', title: 'Error', text: error.message, confirmButtonColor: '#667eea' });
+            });
+        }
+
+        function limpiarClausula1() {
+            Swal.fire({
+                title: 'Limpiar cláusula primera',
+                text: '¿Vaciar el texto? Si se deja vacío el PDF usará el texto automático con los datos del consultor.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, limpiar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('clausula_primera_objeto').value = '';
+                    document.getElementById('toolbarIA1').style.display = 'none';
+                }
+            });
+        }
     </script>
 </body>
 </html>

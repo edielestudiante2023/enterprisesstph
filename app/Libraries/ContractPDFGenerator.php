@@ -168,10 +168,30 @@ class ContractPDFGenerator
     }
 
     /**
-     * Cláusula Primera - Objeto (texto fijo con datos del consultor asignado)
+     * Cláusula Primera - Objeto (personalizable o texto automático con datos del consultor)
      */
     private function buildClausulaObjeto($data)
     {
+        // Si existe texto personalizado, usarlo (mismo procesamiento que cláusula cuarta)
+        if (!empty($data['clausula_primera_objeto'])) {
+            $textoPersonalizado = $data['clausula_primera_objeto'];
+
+            // Convertir markdown **texto** → <b>texto</b>
+            $textoPersonalizado = preg_replace('/\*\*(.+?)\*\*/s', '<b>$1</b>', $textoPersonalizado);
+
+            // Eliminar prefijos de encabezado markdown (# ## ###)
+            $textoPersonalizado = preg_replace('/^#{1,4}\s*/m', '', $textoPersonalizado);
+
+            // Convertir saltos de línea a <br> para HTML
+            $textoPersonalizado = nl2br($textoPersonalizado);
+
+            // Aplicar formato de negritas a términos clave comunes
+            $textoPersonalizado = $this->aplicarNegritasTerminosClave($textoPersonalizado);
+
+            return $textoPersonalizado;
+        }
+
+        // Texto automático con datos del consultor asignado
         $texto = "<b>EL CONTRATISTA</b> se compromete a proporcionar servicios de consultoría para la gestión del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) a favor de <b>EL CONTRATANTE</b> mediante la plataforma <b>EnterpriseSST</b>. Esta plataforma facilita la gestión documental, la programación de actividades y el monitoreo en tiempo real de los planes de trabajo. ";
 
         $texto .= "Además, se asignará al profesional SG-SST <b>" . ($data['nombre_responsable_sgsst'] ?? '') . "</b>, identificado con cédula de ciudadanía <b>" . ($data['cedula_responsable_sgsst'] ?? '') . "</b> y licencia ocupacional número <b>" . ($data['licencia_responsable_sgsst'] ?? '') . "</b>, para garantizar el cumplimiento de los estándares mínimos de la <b>Resolución 0312 de 2019</b>. ";
