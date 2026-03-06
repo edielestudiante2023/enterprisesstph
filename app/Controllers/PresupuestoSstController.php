@@ -37,7 +37,7 @@ class PresupuestoSstController extends BaseController
      */
     public function seleccionar()
     {
-        $clientes = $this->db->table('tbl_cliente')
+        $clientes = $this->db->table('tbl_clientes')
             ->select('id_cliente, nombre_cliente, nit_cliente')
             ->orderBy('nombre_cliente', 'ASC')
             ->get()->getResultArray();
