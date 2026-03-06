@@ -1400,6 +1400,8 @@ $routes->get('consultant/evolucion-plan-trabajo', 'EvolucionPlanTrabajoControlle
 // Presupuesto SST
 // ============================================================================
 $routes->group('presupuesto', ['filter' => 'auth'], function($routes) {
+    // Selector de cliente
+    $routes->get('/', 'PresupuestoSstController::seleccionar');
     // Vistas principales
     $routes->get('(:num)', 'PresupuestoSstController::index/$1');
     $routes->get('(:num)/(:num)', 'PresupuestoSstController::index/$1/$2');

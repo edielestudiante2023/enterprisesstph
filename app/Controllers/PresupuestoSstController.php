@@ -33,6 +33,19 @@ class PresupuestoSstController extends BaseController
     }
 
     /**
+     * Vista intermedia: selector de cliente para presupuesto
+     */
+    public function seleccionar()
+    {
+        $clientes = $this->db->table('tbl_cliente')
+            ->select('id_cliente, nombre_cliente, nit_cliente')
+            ->orderBy('nombre_cliente', 'ASC')
+            ->get()->getResultArray();
+
+        return view('presupuesto/seleccionar_cliente', ['clientes' => $clientes]);
+    }
+
+    /**
      * Genera el código completo del documento con consecutivo
      */
     protected function generarCodigoCompleto(int $idCliente): string
