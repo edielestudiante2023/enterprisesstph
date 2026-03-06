@@ -625,6 +625,11 @@
                     <i class="fas fa-calculator me-2"></i>Presupuesto SST
                 </button>
             </a>
+            <a href="<?= base_url('listado-maestro') ?>" target="_blank" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #e67e22, #f39c12); border: none;">
+                    <i class="fas fa-list-alt me-2"></i>Listado Maestro
+                </button>
+            </a>
         </div>
 
         <!-- Dashboards Analíticos -->

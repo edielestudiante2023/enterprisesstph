@@ -1426,3 +1426,13 @@ $routes->group('presupuesto', ['filter' => 'auth'], function($routes) {
     $routes->get('copiar/(:num)/(:num)/(:num)', 'PresupuestoSstController::copiarDeAnio/$1/$2/$3');
 });
 
+// ============================================================================
+// Listado Maestro de Documentos y Registros
+// ============================================================================
+$routes->group('listado-maestro', ['filter' => 'auth'], function($routes) {
+    $routes->get('/', 'ListadoMaestroController::seleccionar');
+    $routes->get('(:num)', 'ListadoMaestroController::index/$1');
+    $routes->get('pdf/(:num)', 'ListadoMaestroController::exportarPdf/$1');
+    $routes->get('excel/(:num)', 'ListadoMaestroController::exportarExcel/$1');
+});
+
