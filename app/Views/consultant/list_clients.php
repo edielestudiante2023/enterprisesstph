@@ -456,6 +456,9 @@
                                         <button type="button" class="btn btn-sm btn-info btn-resend-credentials" data-id="<?= htmlspecialchars($client['id_cliente']) ?>" data-nombre="<?= htmlspecialchars($client['nombre_cliente']) ?>" data-correo="<?= htmlspecialchars($client['correo_cliente']) ?>" data-bs-toggle="tooltip" title="Reenviar Credenciales de Acceso">
                                             <i class="fas fa-paper-plane"></i>
                                         </button>
+                                        <a href="<?= base_url('presupuesto/' . htmlspecialchars($client['id_cliente'])) ?>" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Presupuesto SST">
+                                            <i class="fas fa-calculator"></i>
+                                        </a>
                                         <a href="<?= base_url('/deleteClient/' . htmlspecialchars($client['id_cliente'])) ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?')" data-bs-toggle="tooltip" title="Eliminar Cliente">
                                             <i class="fas fa-trash"></i>
                                         </a>
