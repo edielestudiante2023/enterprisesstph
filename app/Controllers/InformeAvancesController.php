@@ -261,10 +261,11 @@ class InformeAvancesController extends BaseController
     {
         $service = new MetricasInformeService();
 
-        $fechaDesde = $this->request->getGet('fecha_desde') ?: ($service->getFechaDesde($idCliente) ?: date('Y-m-01'));
+        $anio = (int) ($this->request->getGet('anio') ?: date('Y'));
+        $fechaDesde = $this->request->getGet('fecha_desde') ?: ($service->getFechaDesde($idCliente, $anio) ?: "{$anio}-01-01");
         $fechaHasta = $this->request->getGet('fecha_hasta') ?: date('Y-m-d');
 
-        $metricas = $service->calcularTodas($idCliente, $fechaDesde, $fechaHasta);
+        $metricas = $service->calcularTodas($idCliente, $fechaDesde, $fechaHasta, $anio);
 
         return $this->response->setJSON([
             'success' => true,
@@ -298,13 +299,14 @@ class InformeAvancesController extends BaseController
         $idCliente = (int) $this->request->getPost('id_cliente');
         $fechaDesde = $this->request->getPost('fecha_desde');
         $fechaHasta = $this->request->getPost('fecha_hasta');
+        $anio = (int) ($this->request->getPost('anio') ?: date('Y'));
 
         if (!$idCliente || !$fechaDesde || !$fechaHasta) {
             return $this->response->setJSON(['success' => false, 'error' => 'Datos incompletos']);
         }
 
         $service = new MetricasInformeService();
-        $metricas = $service->calcularTodas($idCliente, $fechaDesde, $fechaHasta);
+        $metricas = $service->calcularTodas($idCliente, $fechaDesde, $fechaHasta, $anio);
         $actividades = $service->recopilarActividadesPeriodo($idCliente, $fechaDesde, $fechaHasta);
 
         $clientModel = new ClientModel();
@@ -327,9 +329,9 @@ class InformeAvancesController extends BaseController
     {
         $clientModel = new ClientModel();
 
-        $clientes = $clientModel->select('tbl_clientes.id_cliente, tbl_clientes.nombre_cliente, tbl_clientes.nit_cliente')
-            ->join('tbl_contratos', "tbl_contratos.id_cliente = tbl_clientes.id_cliente AND tbl_contratos.estado = 'activo'")
-            ->orderBy('tbl_clientes.nombre_cliente', 'ASC')
+        $clientes = $clientModel->select('id_cliente, nombre_cliente, nit_cliente')
+            ->where('estado', 'activo')
+            ->orderBy('nombre_cliente', 'ASC')
             ->findAll();
 
         return $this->response->setJSON($clientes);
@@ -353,7 +355,7 @@ class InformeAvancesController extends BaseController
                 MAX(tbl_acta_visita.fecha_visita) as ultima_visita
             ')
             ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_acta_visita.id_cliente')
-            ->join('tbl_contratos', "tbl_contratos.id_cliente = tbl_clientes.id_cliente AND tbl_contratos.estado = 'activo'", 'inner')
+            ->where('tbl_clientes.estado', 'activo')
             ->where('tbl_acta_visita.fecha_visita >=', $fechaDesde)
             ->where('tbl_acta_visita.fecha_visita <=', $fechaHasta)
             ->groupBy('tbl_clientes.id_cliente')
@@ -787,8 +789,11 @@ PROMPT;
 
         $service = new MetricasInformeService();
 
+        // Año PHVA: por parámetro o año actual
+        $anio = (int) ($this->request->getGet('anio') ?: $this->request->getPost('anio') ?: date('Y'));
+
         // Calcular fechas y métricas
-        $fechaDesde = $service->getFechaDesde($idCliente) ?: date('Y-m-01');
+        $fechaDesde = $service->getFechaDesde($idCliente, $anio) ?: "{$anio}-01-01";
         $fechaHasta = date('Y-m-d');
 
         // Validar que el cliente tuvo al menos una visita en el periodo
@@ -807,7 +812,7 @@ PROMPT;
                 'periodo' => ['desde' => $fechaDesde, 'hasta' => $fechaHasta],
             ]);
         }
-        $metricas = $service->calcularTodas($idCliente, $fechaDesde, $fechaHasta);
+        $metricas = $service->calcularTodas($idCliente, $fechaDesde, $fechaHasta, $anio);
 
         // Generar resumen IA
         $resumen = '';
@@ -826,7 +831,7 @@ PROMPT;
             'id_consultor'                 => $cliente['id_consultor'] ?? 1,
             'fecha_desde'                  => $fechaDesde,
             'fecha_hasta'                  => $fechaHasta,
-            'anio'                         => date('Y'),
+            'anio'                         => $anio,
             'puntaje_anterior'             => $metricas['puntaje_anterior'],
             'puntaje_actual'               => $metricas['puntaje_actual'],
             'diferencia_neta'              => $metricas['diferencia_neta'],

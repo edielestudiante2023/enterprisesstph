@@ -66,13 +66,21 @@
                 <div class="card-header py-3"><i class="fas fa-building me-2"></i>1. Datos Generales</div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <label class="form-label fw-bold">Cliente <span class="text-danger">*</span></label>
                             <select name="id_cliente" id="selectCliente" class="form-select" required>
                                 <option value="">Seleccionar cliente...</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Ciclo PHVA <span class="text-danger">*</span></label>
+                            <select name="anio" id="selectAnio" class="form-select" required>
+                                <?php for ($y = 2026; $y <= 2030; $y++): ?>
+                                <option value="<?= $y ?>" <?= ($informe['anio'] ?? date('Y')) == $y ? 'selected' : '' ?>><?= $y ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
                             <label class="form-label fw-bold">Desde</label>
                             <input type="date" name="fecha_desde" id="fechaDesde" class="form-control" value="<?= esc($informe['fecha_desde'] ?? '') ?>" required>
                         </div>
@@ -459,6 +467,12 @@
             $('#btnGenerarIA').prop('disabled', !clienteId);
         });
 
+        // Recargar métricas al cambiar año
+        $('#selectAnio').on('change', function() {
+            var clienteId = $('#selectCliente').val();
+            if (clienteId && !EDIT_MODE) loadMetricas(clienteId);
+        });
+
         if (EDIT_MODE && PRESELECT_CLIENTE) {
             loadHistorial(PRESELECT_CLIENTE);
             $('#btnGenerarIA').prop('disabled', false);
@@ -600,9 +614,10 @@
         function loadMetricas(clienteId) {
             var desde = $('#fechaDesde').val();
             var hasta = $('#fechaHasta').val();
-            var params = '';
-            if (desde) params += '?fecha_desde=' + desde;
-            if (hasta) params += (params ? '&' : '?') + 'fecha_hasta=' + hasta;
+            var anio = $('#selectAnio').val();
+            var params = '?anio=' + anio;
+            if (desde) params += '&fecha_desde=' + desde;
+            if (hasta) params += '&fecha_hasta=' + hasta;
 
             $('#metricasLoading').removeClass('d-none');
 
@@ -647,10 +662,12 @@
                 if (d.actividades_cerradas_raw && d.actividades_cerradas_raw.length > 0) {
                     var html = '<table class="table table-sm table-bordered"><thead class="table-light"><tr><th>Actividad</th><th>Numeral</th><th>PHVA</th><th>Responsable</th><th>Fecha Cierre</th></tr></thead><tbody>';
                     d.actividades_cerradas_raw.forEach(function(a) {
-                        html += '<tr><td>'+esc(a.actividad_plandetrabajo || '')+'</td><td>'+esc(a.numeral_plandetrabajo || '')+'</td><td>'+esc(a.phva_plandetrabajo || '')+'</td><td>'+esc(a.responsable_sugerido_plandetrabajo || '')+'</td><td>'+a.fecha_transicion+'</td></tr>';
+                        html += '<tr><td>'+esc(a.actividad_plandetrabajo || '')+'</td><td>'+esc(a.numeral_plandetrabajo || '')+'</td><td>'+esc(a.phva_plandetrabajo || '')+'</td><td>'+esc(a.responsable_sugerido_plandetrabajo || '')+'</td><td>'+(a.fecha_cierre || 'Sin fecha')+'</td></tr>';
                     });
                     html += '</tbody></table>';
                     $('#tablaCerradas').html(html);
+                } else {
+                    $('#tablaCerradas').html('');
                 }
 
                 if (d.fecha_desde_sugerida && !$('#fechaDesde').val()) {
@@ -749,7 +766,8 @@
             $.post(BASE + 'informe-avances/generar-resumen', {
                 id_cliente: clienteId,
                 fecha_desde: desde,
-                fecha_hasta: hasta
+                fecha_hasta: hasta,
+                anio: $('#selectAnio').val()
             }, function(resp) {
                 if (resp.success) {
                     $('#resumenAvance').val(resp.resumen);

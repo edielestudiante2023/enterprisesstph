@@ -86,7 +86,7 @@ Metodos:
 
 **Archivo:** `app/Controllers/InformeAvancesController.php`
 
-### Metodos publicos (14)
+### Metodos publicos (16)
 
 | Metodo | Ruta | Tipo |
 |--------|------|------|
@@ -99,7 +99,9 @@ Metodos:
 | `finalizar($id)` | POST /informe-avances/finalizar/{id} | Web |
 | `generatePdf($id)` | GET /informe-avances/pdf/{id} | Web |
 | `delete($id)` | GET /informe-avances/delete/{id} | Web |
-| `calcularMetricas($id)` | GET /informe-avances/api/metricas/{id} | AJAX |
+| `calcularMetricas($id)` | GET /informe-avances/api/metricas/{id}?anio= | AJAX |
+| `apiVencimientos($id)` | GET /informe-avances/api/vencimientos/{id} | AJAX |
+| `apiHistorial($id)` | GET /informe-avances/api/historial/{id} | AJAX |
 | `generarResumen()` | POST /informe-avances/generar-resumen | AJAX+IA |
 | `getClientes()` | GET /informe-avances/api/clientes | AJAX |
 | `getClientesConVisita()` | GET /ext-api/.../clientes-con-visita | API |
@@ -149,7 +151,7 @@ Template DOMPDF siguiendo el formato FT-SST-205:
 
 ### Rutas web (sesion auth)
 ```
-/informe-avances/*  →  filter: auth  →  14 rutas
+/informe-avances/*  →  filter: auth  →  16 rutas
 ```
 
 ### Rutas API (sesion OR API Key)
@@ -180,7 +182,7 @@ Prefijo `ext-api/` (NO `api/`) para evitar conflicto con `$filters['auth']['api/
 ### API Key
 
 ```
-APP_API_KEY=sst_4f480e90e9c67de074c6aa2091e55f9892732f346eb86b20c1a2ea83aecac53c
+APP_API_KEY=<configurada en .env — no exponer en documentacion>
 ```
 
 Configurada en `.env` tanto LOCAL como PRODUCCION (linea 83 del .env del servidor).
@@ -272,7 +274,7 @@ Estilo: gradiente verde (#11998e → #38ef7d), icono fa-chart-line.
 
 | # | Archivo | Cambio |
 |---|---------|--------|
-| 1 | `app/Config/Routes.php` | +20 rutas (web + ext-api) |
+| 1 | `app/Config/Routes.php` | +22 rutas (16 web + 6 ext-api) |
 | 2 | `app/Config/Filters.php` | +2 aliases (apikey, authOrApiKey) |
 | 3 | `app/Views/consultant/dashboard.php` | +boton Informe de Avances |
 | 4 | `app/Views/consultant/admindashboard.php` | +boton Informe de Avances |
