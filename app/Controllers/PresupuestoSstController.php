@@ -79,9 +79,7 @@ class PresupuestoSstController extends BaseController
         $totales = $this->calcularTotales($items);
         $meses = $this->getMesesPresupuesto($presupuesto['mes_inicio'], $anio);
 
-        $contexto = $this->db->table('tbl_cliente_contexto_sst')
-            ->where('id_cliente', $idCliente)
-            ->get()->getRowArray();
+        $contexto = [];
 
         // Consultor
         $consultor = $this->getConsultor($idCliente, $cliente);
