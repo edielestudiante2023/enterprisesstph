@@ -3,7 +3,6 @@
 namespace App\Libraries;
 
 use App\Models\InformeAvancesModel;
-use App\Models\PtaTransicionesModel;
 
 class MetricasInformeService
 {
@@ -16,14 +15,14 @@ class MetricasInformeService
 
     /**
      * Calcula cumplimiento de estándares desde evaluacion_inicial_sst
-     * Fórmula: SUM(puntaje_cuantitativo) / SUM(valor) * 100
-     * valor = peso máximo del ítem, puntaje_cuantitativo = puntaje logrado
+     * Filtrado por año PHVA usando YEAR(updated_at) — la última evaluación del ciclo
      */
-    public function calcularCumplimientoEstandares(int $idCliente): float
+    public function calcularCumplimientoEstandares(int $idCliente, int $anio): float
     {
         $result = $this->db->table('evaluacion_inicial_sst')
             ->select('SUM(valor) as total_maximo, SUM(puntaje_cuantitativo) as total_logrado')
             ->where('id_cliente', $idCliente)
+            ->where('YEAR(updated_at)', $anio)
             ->get()
             ->getRowArray();
 
@@ -36,25 +35,34 @@ class MetricasInformeService
     }
 
     /**
-     * Obtiene puntaje del informe anterior del mismo cliente.
-     * Si es primer informe, retorna 39.75 (línea base Res. 0312/2019).
+     * Obtiene puntaje del informe anterior del mismo cliente EN EL MISMO AÑO.
+     * Si es primer informe del ciclo, retorna 39.75 (línea base Res. 0312/2019).
      */
-    public function getPuntajeAnterior(int $idCliente): float
+    public function getPuntajeAnterior(int $idCliente, int $anio): float
     {
         $model = new InformeAvancesModel();
-        $ultimo = $model->getUltimoByCliente($idCliente);
+        $ultimo = $model->where('id_cliente', $idCliente)
+            ->where('estado', 'completo')
+            ->where('anio', $anio)
+            ->orderBy('fecha_hasta', 'DESC')
+            ->first();
 
         return $ultimo ? floatval($ultimo['puntaje_actual']) : 39.75;
     }
 
     /**
-     * Calcula fecha_desde: día siguiente al último informe completo,
-     * o fecha_inicio del contrato activo si es el primer informe
+     * Calcula fecha_desde:
+     * - Si hay informe previo en el mismo año: día siguiente al último
+     * - Si es primer informe del ciclo: 1 de enero del año seleccionado
      */
-    public function getFechaDesde(int $idCliente): ?string
+    public function getFechaDesde(int $idCliente, int $anio): string
     {
         $model = new InformeAvancesModel();
-        $ultimo = $model->getUltimoByCliente($idCliente);
+        $ultimo = $model->where('id_cliente', $idCliente)
+            ->where('estado', 'completo')
+            ->where('anio', $anio)
+            ->orderBy('fecha_hasta', 'DESC')
+            ->first();
 
         if ($ultimo) {
             $fecha = new \DateTime($ultimo['fecha_hasta']);
@@ -62,44 +70,63 @@ class MetricasInformeService
             return $fecha->format('Y-m-d');
         }
 
-        // Primer informe: usar fecha inicio del contrato activo
-        $contrato = $this->db->table('tbl_contratos')
-            ->select('fecha_inicio')
-            ->where('id_cliente', $idCliente)
-            ->where('estado', 'activo')
-            ->orderBy('fecha_inicio', 'DESC')
-            ->get()
-            ->getRowArray();
-
-        return $contrato ? $contrato['fecha_inicio'] : null;
+        return "{$anio}-01-01";
     }
 
     /**
-     * Indicador plan de trabajo: % actividades CERRADA del total
+     * Indicador plan de trabajo: % actividades cerradas del total del año.
+     * Usa fecha_cierre de tbl_pta_cliente (fecha real de negocio, no audit).
+     * Total = actividades creadas en el año (por created_at).
+     * Cerradas = actividades con fecha_cierre dentro del año.
      */
-    public function calcularIndicadorPlanTrabajo(int $idCliente): float
+    public function calcularIndicadorPlanTrabajo(int $idCliente, int $anio): float
     {
-        $result = $this->db->table('tbl_pta_cliente')
-            ->select("COUNT(*) as total, SUM(CASE WHEN estado_actividad = 'CERRADA' THEN 1 ELSE 0 END) as cerradas")
+        $inicioAnio = "{$anio}-01-01";
+        $finAnio = "{$anio}-12-31";
+
+        // Total de actividades PTA del cliente para este ciclo
+        $totalResult = $this->db->table('tbl_pta_cliente')
+            ->selectCount('*', 'total')
             ->where('id_cliente', $idCliente)
+            ->where('created_at >=', $inicioAnio . ' 00:00:00')
+            ->where('created_at <=', $finAnio . ' 23:59:59')
             ->get()
             ->getRowArray();
 
-        if (!$result || intval($result['total']) == 0) {
+        $total = intval($totalResult['total'] ?? 0);
+        if ($total == 0) {
             return 0.0;
         }
 
-        return round((intval($result['cerradas']) / intval($result['total'])) * 100, 2);
+        // Cerradas en el año — por fecha_cierre (fecha real de negocio)
+        $cerradasResult = $this->db->table('tbl_pta_cliente')
+            ->selectCount('*', 'cerradas')
+            ->where('id_cliente', $idCliente)
+            ->where('fecha_cierre >=', $inicioAnio)
+            ->where('fecha_cierre <=', $finAnio)
+            ->whereIn('estado_actividad', ['CERRADA', 'CERRADA SIN EJECUCIÓN', 'CERRADA POR FIN CONTRATO'])
+            ->get()
+            ->getRowArray();
+
+        $cerradas = intval($cerradasResult['cerradas'] ?? 0);
+
+        return round(($cerradas / $total) * 100, 2);
     }
 
     /**
-     * Indicador capacitación: % ejecutadas vs programadas+ejecutadas
+     * Indicador capacitación: % ejecutadas del total del año
+     * Filtrado por fecha_programada dentro del año
      */
-    public function calcularIndicadorCapacitacion(int $idCliente): float
+    public function calcularIndicadorCapacitacion(int $idCliente, int $anio): float
     {
+        $inicioAnio = "{$anio}-01-01";
+        $finAnio = "{$anio}-12-31";
+
         $result = $this->db->table('tbl_cronog_capacitacion')
             ->select("COUNT(*) as total, SUM(CASE WHEN estado = 'EJECUTADA' THEN 1 ELSE 0 END) as ejecutadas")
             ->where('id_cliente', $idCliente)
+            ->where('fecha_programada >=', $inicioAnio)
+            ->where('fecha_programada <=', $finAnio)
             ->get()
             ->getRowArray();
 
@@ -111,20 +138,25 @@ class MetricasInformeService
     }
 
     /**
-     * Lista de pendientes abiertos del cliente
+     * Lista de pendientes abiertos del cliente, filtrado por año (fecha_asignacion)
      */
-    public function getActividadesAbiertas(int $idCliente): string
+    public function getActividadesAbiertas(int $idCliente, int $anio): string
     {
+        $inicioAnio = "{$anio}-01-01 00:00:00";
+        $finAnio = "{$anio}-12-31 23:59:59";
+
         $rows = $this->db->table('tbl_pendientes')
             ->select('tarea_actividad, responsable, fecha_asignacion')
             ->where('id_cliente', $idCliente)
             ->where('estado', 'ABIERTA')
+            ->where('fecha_asignacion >=', $inicioAnio)
+            ->where('fecha_asignacion <=', $finAnio)
             ->orderBy('fecha_asignacion', 'DESC')
             ->get()
             ->getResultArray();
 
         if (empty($rows)) {
-            return 'No hay actividades abiertas.';
+            return 'No hay actividades abiertas en este ciclo.';
         }
 
         $lines = [];
@@ -137,17 +169,20 @@ class MetricasInformeService
     }
 
     /**
-     * Actividades del PTA cerradas en el periodo (desde tbl_pta_transiciones)
+     * Actividades PTA cerradas en el periodo.
+     * Usa tbl_pta_cliente.fecha_cierre (fecha real de negocio).
      */
     public function getActividadesCerradasPeriodo(int $idCliente, string $desde, string $hasta): array
     {
-        $transModel = new PtaTransicionesModel();
-        return $transModel->getWithFilters([
-            'id_cliente'  => $idCliente,
-            'fecha_desde' => $desde,
-            'fecha_hasta' => $hasta,
-            'estado_nuevo' => 'CERRADA',
-        ]);
+        return $this->db->table('tbl_pta_cliente')
+            ->select('actividad_plandetrabajo, numeral_plandetrabajo, phva_plandetrabajo, responsable_sugerido_plandetrabajo, fecha_cierre, estado_actividad')
+            ->where('id_cliente', $idCliente)
+            ->where('fecha_cierre >=', $desde)
+            ->where('fecha_cierre <=', $hasta)
+            ->whereIn('estado_actividad', ['CERRADA', 'CERRADA SIN EJECUCIÓN', 'CERRADA POR FIN CONTRATO'])
+            ->orderBy('fecha_cierre', 'ASC')
+            ->get()
+            ->getResultArray();
     }
 
     /**
@@ -161,7 +196,7 @@ class MetricasInformeService
 
         $lines = [];
         foreach ($actividades as $act) {
-            $fecha = date('d/m/Y', strtotime($act['fecha_transicion']));
+            $fecha = date('d/m/Y', strtotime($act['fecha_cierre']));
             $actividad = $act['actividad_plandetrabajo'] ?? 'Sin nombre';
             $numeral = $act['numeral_plandetrabajo'] ?? '';
             $phva = $act['phva_plandetrabajo'] ?? '';
@@ -196,43 +231,59 @@ class MetricasInformeService
         return base_url("consultant/dashboard-estandares?cliente={$idCliente}");
     }
 
-    // ─── DESGLOSES POR PILAR (para gráficas Chart.js) ───
+    // ─── DESGLOSES POR PILAR (para gráficas Chart.js) — filtrados por año ───
 
-    public function getDesgloseEstandares(int $idCliente): array
+    public function getDesgloseEstandares(int $idCliente, int $anio): array
     {
         return $this->db->table('evaluacion_inicial_sst')
             ->select("ciclo, SUM(valor) as total_valor, SUM(puntaje_cuantitativo) as total_posible, COUNT(*) as cantidad")
             ->where('id_cliente', $idCliente)
+            ->where('YEAR(updated_at)', $anio)
             ->groupBy('ciclo')
             ->get()
             ->getResultArray();
     }
 
-    public function getDesglosePlanTrabajo(int $idCliente): array
+    public function getDesglosePlanTrabajo(int $idCliente, int $anio): array
     {
+        $inicioAnio = "{$anio}-01-01 00:00:00";
+        $finAnio = "{$anio}-12-31 23:59:59";
+
         return $this->db->table('tbl_pta_cliente')
             ->select("estado_actividad, COUNT(*) as cantidad")
             ->where('id_cliente', $idCliente)
+            ->where('created_at >=', $inicioAnio)
+            ->where('created_at <=', $finAnio)
             ->groupBy('estado_actividad')
             ->get()
             ->getResultArray();
     }
 
-    public function getDesgloseCapacitacion(int $idCliente): array
+    public function getDesgloseCapacitacion(int $idCliente, int $anio): array
     {
+        $inicioAnio = "{$anio}-01-01";
+        $finAnio = "{$anio}-12-31";
+
         return $this->db->table('tbl_cronog_capacitacion')
             ->select("estado, COUNT(*) as cantidad")
             ->where('id_cliente', $idCliente)
+            ->where('fecha_programada >=', $inicioAnio)
+            ->where('fecha_programada <=', $finAnio)
             ->groupBy('estado')
             ->get()
             ->getResultArray();
     }
 
-    public function getDesglosePendientes(int $idCliente): array
+    public function getDesglosePendientes(int $idCliente, int $anio): array
     {
+        $inicioAnio = "{$anio}-01-01 00:00:00";
+        $finAnio = "{$anio}-12-31 23:59:59";
+
         return $this->db->table('tbl_pendientes')
             ->select("estado, COUNT(*) as cantidad, ROUND(AVG(conteo_dias), 1) as promedio_dias")
             ->where('id_cliente', $idCliente)
+            ->where('fecha_asignacion >=', $inicioAnio)
+            ->where('fecha_asignacion <=', $finAnio)
             ->groupBy('estado')
             ->get()
             ->getResultArray();
@@ -240,7 +291,6 @@ class MetricasInformeService
 
     /**
      * Recopila actividades del periodo para el prompt de IA
-     * Junta: actas de visita, inspecciones, capacitaciones ejecutadas, transiciones PTA
      */
     public function recopilarActividadesPeriodo(int $idCliente, string $desde, string $hasta): array
     {
@@ -275,10 +325,10 @@ class MetricasInformeService
             $actividades[] = "Capacitación ejecutada ({$c['fecha_programada']}): {$c['nombre_capacitacion']}";
         }
 
-        // PTA cerradas en el periodo
+        // PTA cerradas en el periodo (por fecha_cierre real)
         $cerradas = $this->getActividadesCerradasPeriodo($idCliente, $desde, $hasta);
         foreach ($cerradas as $t) {
-            $actividades[] = "PTA cerrada ({$t['fecha_transicion']}): {$t['actividad_plandetrabajo']}";
+            $actividades[] = "PTA cerrada ({$t['fecha_cierre']}): {$t['actividad_plandetrabajo']}";
         }
 
         // Pendientes cerrados en el periodo
@@ -300,12 +350,12 @@ class MetricasInformeService
     }
 
     /**
-     * Calcula todas las métricas de un cliente para el informe
+     * Calcula todas las métricas de un cliente para el informe, filtradas por año PHVA
      */
-    public function calcularTodas(int $idCliente, string $fechaDesde, string $fechaHasta): array
+    public function calcularTodas(int $idCliente, string $fechaDesde, string $fechaHasta, int $anio): array
     {
-        $puntajeActual = $this->calcularCumplimientoEstandares($idCliente);
-        $puntajeAnterior = $this->getPuntajeAnterior($idCliente);
+        $puntajeActual = $this->calcularCumplimientoEstandares($idCliente, $anio);
+        $puntajeAnterior = $this->getPuntajeAnterior($idCliente, $anio);
         $diferencia = round($puntajeActual - $puntajeAnterior, 2);
         $estadoAvance = $this->calcularEstadoAvance($diferencia);
 
@@ -316,18 +366,18 @@ class MetricasInformeService
             'puntaje_anterior'             => $puntajeAnterior,
             'diferencia_neta'              => $diferencia,
             'estado_avance'                => $estadoAvance,
-            'indicador_plan_trabajo'       => $this->calcularIndicadorPlanTrabajo($idCliente),
-            'indicador_capacitacion'       => $this->calcularIndicadorCapacitacion($idCliente),
-            'actividades_abiertas'         => $this->getActividadesAbiertas($idCliente),
+            'indicador_plan_trabajo'       => $this->calcularIndicadorPlanTrabajo($idCliente, $anio),
+            'indicador_capacitacion'       => $this->calcularIndicadorCapacitacion($idCliente, $anio),
+            'actividades_abiertas'         => $this->getActividadesAbiertas($idCliente, $anio),
             'actividades_cerradas_periodo' => $this->formatActividadesCerradas($actividadesCerradas),
             'actividades_cerradas_raw'     => $actividadesCerradas,
             'enlace_dashboard'             => $this->getEnlaceDashboard($idCliente),
-            'fecha_desde_sugerida'         => $this->getFechaDesde($idCliente),
+            'fecha_desde_sugerida'         => $this->getFechaDesde($idCliente, $anio),
             // Desgloses por pilar (para gráficas)
-            'desglose_estandares'      => $this->getDesgloseEstandares($idCliente),
-            'desglose_plan_trabajo'    => $this->getDesglosePlanTrabajo($idCliente),
-            'desglose_capacitacion'    => $this->getDesgloseCapacitacion($idCliente),
-            'desglose_pendientes'      => $this->getDesglosePendientes($idCliente),
+            'desglose_estandares'      => $this->getDesgloseEstandares($idCliente, $anio),
+            'desglose_plan_trabajo'    => $this->getDesglosePlanTrabajo($idCliente, $anio),
+            'desglose_capacitacion'    => $this->getDesgloseCapacitacion($idCliente, $anio),
+            'desglose_pendientes'      => $this->getDesglosePendientes($idCliente, $anio),
         ];
     }
 }

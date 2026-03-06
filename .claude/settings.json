@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php -r \":*)"
+      "Bash(php -r \":*)",
+      "Bash(php -r '$db = new mysqli\\(\"\"localhost\"\", \"\"root\"\", \"\"\"\", \"\"propiedad_horizontal\"\"\\); $tables = [\"\"evaluacion_inicial_sst\"\", \"\"tbl_pta_cliente\"\", \"\"tbl_cronog_capacitacion\"\", \"\"tbl_pendientes\"\"]; foreach \\($tables as $t\\) { echo \"\"\\\\n=== $t ===\\\\n\"\"; $r = $db->query\\(\"\"SHOW COLUMNS FROM $t\"\"\\); if \\($r\\) { while \\($row = $r->fetch_assoc\\(\\)\\) { echo $row[\"\"Field\"\"] . \"\" | \"\" . $row[\"\"Type\"\"] . \"\" | \"\" . $row[\"\"Null\"\"] . \"\"\\\\n\"\"; } } else { echo \"\"TABLE NOT FOUND\\\\n\"\"; } }')",
+      "Bash(php -r '$db = new mysqli\\(\"\"localhost\"\", \"\"root\"\", \"\"\"\", \"\"propiedad_horizontal\"\"\\); $r = $db->query\\(\"\"SELECT YEAR\\(created_at\\) as anio, COUNT\\(*\\) as total FROM evaluacion_inicial_sst GROUP BY YEAR\\(created_at\\) ORDER BY anio\"\"\\); while \\($row = $r->fetch_assoc\\(\\)\\) { echo $row[\"\"anio\"\"] . \"\": \"\" . $row[\"\"total\"\"] . \"\" registros\\\\n\"\"; }')",
+      "Bash(php -r '$db = new mysqli\\(\"\"localhost\"\", \"\"root\"\", \"\"\"\", \"\"propiedad_horizontal\"\"\\); $r = $db->query\\(\"\"SELECT YEAR\\(created_at\\) as anio, COUNT\\(*\\) as total FROM tbl_pta_cliente GROUP BY YEAR\\(created_at\\) ORDER BY anio\"\"\\); while \\($row = $r->fetch_assoc\\(\\)\\) { echo $row[\"\"anio\"\"] . \"\": \"\" . $row[\"\"total\"\"] . \"\" registros\\\\n\"\"; } echo \"\"\\\\n--- PTA con fecha_cierre ---\\\\n\"\"; $r = $db->query\\(\"\"SELECT YEAR\\(fecha_cierre\\) as anio, COUNT\\(*\\) as total FROM tbl_pta_cliente WHERE fecha_cierre IS NOT NULL GROUP BY YEAR\\(fecha_cierre\\) ORDER BY anio\"\"\\); while \\($row = $r->fetch_assoc\\(\\)\\) { echo $row[\"\"anio\"\"] . \"\": \"\" . $row[\"\"total\"\"] . \"\" registros\\\\n\"\"; }')"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\enterprisesstph\\app\\Config"
