@@ -225,7 +225,7 @@
                 <div class="card-header py-3"><i class="fas fa-check-circle me-2"></i>4. Actividades PTA Cerradas en el Periodo</div>
                 <div class="card-body">
                     <div id="tablaCerradas" class="mb-2"></div>
-                    <textarea name="actividades_cerradas_periodo" id="actividadesCerradas" class="form-control" rows="5" placeholder="Se auto-pobla al seleccionar cliente..."><?= esc($informe['actividades_cerradas_periodo'] ?? '') ?></textarea>
+                    <textarea name="actividades_cerradas_periodo" id="actividadesCerradas" class="d-none"><?= esc($informe['actividades_cerradas_periodo'] ?? '') ?></textarea>
                 </div>
             </div>
 
@@ -467,10 +467,11 @@
             $('#btnGenerarIA').prop('disabled', !clienteId);
         });
 
-        // Recargar métricas al cambiar año
+        // Recargar métricas e historial al cambiar año
         $('#selectAnio').on('change', function() {
             var clienteId = $('#selectCliente').val();
             if (clienteId && !EDIT_MODE) loadMetricas(clienteId);
+            if (clienteId) loadHistorial(clienteId);
         });
 
         if (EDIT_MODE && PRESELECT_CLIENTE) {
@@ -484,6 +485,23 @@
                     desgloseData = stored;
                     renderDesgloseCharts(stored);
                 } catch(e) {}
+            }
+            // Render stored cerradas text as table in edit mode
+            var cerradasText = $('#actividadesCerradas').val();
+            if (cerradasText && cerradasText.trim() !== '' && cerradasText.indexOf('No se cerraron') === -1) {
+                var lines = cerradasText.trim().split('\n');
+                var html = '<table class="table table-sm table-bordered"><thead class="table-light"><tr><th>Actividad</th><th>Numeral</th><th>PHVA</th><th>Responsable</th><th>Fecha Cierre</th></tr></thead><tbody>';
+                lines.forEach(function(line) {
+                    // Parse: - [numeral] actividad | PHVA: x | Resp: y | Cerrada: fecha
+                    var m = line.match(/^\s*-\s*\[([^\]]*)\]\s*(.*?)\s*\|\s*PHVA:\s*(.*?)\s*\|\s*Resp:\s*(.*?)\s*\|\s*Cerrada:\s*(.*)/);
+                    if (m) {
+                        html += '<tr><td>'+esc(m[2])+'</td><td>'+esc(m[1])+'</td><td>'+esc(m[3])+'</td><td>'+esc(m[4])+'</td><td>'+esc(m[5])+'</td></tr>';
+                    }
+                });
+                html += '</tbody></table>';
+                $('#tablaCerradas').html(html);
+            } else if (cerradasText && cerradasText.indexOf('No se cerraron') !== -1) {
+                $('#tablaCerradas').html('<p class="text-muted mb-0">' + esc(cerradasText) + '</p>');
             }
         }
 
@@ -574,7 +592,8 @@
                            '07':'Jul','08':'Ago','09':'Sep','10':'Oct','11':'Nov','12':'Dic'};
 
         function loadHistorial(clienteId) {
-            $.getJSON(BASE + 'informe-avances/api/historial/' + clienteId, function(resp) {
+            var anio = $('#selectAnio').val() || new Date().getFullYear();
+            $.getJSON(BASE + 'informe-avances/api/historial/' + clienteId + '?anio=' + anio, function(resp) {
                 if (!resp.success) return;
                 var est = resp.estandares || [];
                 var plan = resp.plan || [];

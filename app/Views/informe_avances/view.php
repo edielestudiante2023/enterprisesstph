@@ -188,7 +188,23 @@
         <div class="card card-section">
             <div class="card-header py-3"><i class="fas fa-check-circle me-2"></i>Actividades PTA Cerradas en el Periodo</div>
             <div class="card-body">
-                <div class="resumen-text"><?= nl2br(esc($informe['actividades_cerradas_periodo'])) ?></div>
+                <?php
+                $cerradasText = $informe['actividades_cerradas_periodo'];
+                $cerradasLines = array_filter(explode("\n", trim($cerradasText)), fn($l) => preg_match('/^\s*-\s*\[/', $l));
+                if (!empty($cerradasLines)): ?>
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light"><tr><th>Actividad</th><th>Numeral</th><th>PHVA</th><th>Responsable</th><th>Fecha Cierre</th></tr></thead>
+                    <tbody>
+                    <?php foreach ($cerradasLines as $line):
+                        preg_match('/^\s*-\s*\[([^\]]*)\]\s*(.*?)\s*\|\s*PHVA:\s*(.*?)\s*\|\s*Resp:\s*(.*?)\s*\|\s*Cerrada:\s*(.*)/', $line, $m);
+                        if ($m): ?>
+                        <tr><td><?= esc(trim($m[2])) ?></td><td><?= esc(trim($m[1])) ?></td><td><?= esc(trim($m[3])) ?></td><td><?= esc(trim($m[4])) ?></td><td><?= esc(trim($m[5])) ?></td></tr>
+                    <?php endif; endforeach; ?>
+                    </tbody>
+                </table>
+                <?php else: ?>
+                <div class="resumen-text"><?= nl2br(esc($cerradasText)) ?></div>
+                <?php endif; ?>
             </div>
         </div>
         <?php endif; ?>

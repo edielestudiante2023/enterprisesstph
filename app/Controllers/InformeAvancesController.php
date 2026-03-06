@@ -62,7 +62,7 @@ class InformeAvancesController extends BaseController
         $data = $this->getInformePostData();
         $data['id_consultor'] = $userId;
         $data['estado'] = 'borrador';
-        $data['anio'] = date('Y', strtotime($data['fecha_hasta']));
+        $data['anio'] = $this->request->getPost('anio') ?: date('Y', strtotime($data['fecha_hasta']));
 
         // Subir imágenes de soportes
         for ($i = 1; $i <= 4; $i++) {
@@ -108,7 +108,7 @@ class InformeAvancesController extends BaseController
         }
 
         $data = $this->getInformePostData();
-        $data['anio'] = date('Y', strtotime($data['fecha_hasta']));
+        $data['anio'] = $this->request->getPost('anio') ?: date('Y', strtotime($data['fecha_hasta']));
 
         // Subir imágenes de soportes (solo si hay archivo nuevo)
         for ($i = 1; $i <= 4; $i++) {
@@ -169,8 +169,8 @@ class InformeAvancesController extends BaseController
             'cliente'              => $cliente,
             'consultor'            => $consultor,
             'vencimientos'         => $this->getVencimientosCliente($idCliente),
-            'historialEstandares'  => $this->getHistorialEstandaresCliente($idCliente),
-            'historialPlan'        => $this->getHistorialPlanCliente($idCliente),
+            'historialEstandares'  => $this->getHistorialEstandaresCliente($idCliente, (int) $informe['anio']),
+            'historialPlan'        => $this->getHistorialPlanCliente($idCliente, (int) $informe['anio']),
         ]);
     }
 
@@ -277,10 +277,11 @@ class InformeAvancesController extends BaseController
     public function apiHistorial($idCliente)
     {
         $id = (int) $idCliente;
+        $anio = (int) ($this->request->getGet('anio') ?: date('Y'));
         return $this->response->setJSON([
             'success'   => true,
-            'estandares' => $this->getHistorialEstandaresCliente($id),
-            'plan'       => $this->getHistorialPlanCliente($id),
+            'estandares' => $this->getHistorialEstandaresCliente($id, $anio),
+            'plan'       => $this->getHistorialPlanCliente($id, $anio),
         ]);
     }
 
@@ -475,14 +476,15 @@ class InformeAvancesController extends BaseController
         $vencimientos = $this->getVencimientosCliente((int) $informe['id_cliente']);
 
         $idCliente = (int) $informe['id_cliente'];
+        $anioInforme = (int) $informe['anio'];
         $quickChartEstandares = $this->buildQuickChartUrl(
-            $this->getHistorialEstandaresCliente($idCliente),
+            $this->getHistorialEstandaresCliente($idCliente, $anioInforme),
             'porcentaje_cumplimiento',
             '% Cumplimiento Estandares',
             '#667eea'
         );
         $quickChartPlan = $this->buildQuickChartUrl(
-            $this->getHistorialPlanCliente($idCliente),
+            $this->getHistorialPlanCliente($idCliente, $anioInforme),
             'porcentaje_abiertas',
             '% Actividades Abiertas',
             '#4facfe'
@@ -941,23 +943,27 @@ PROMPT;
     }
 
     // ─── HISTORIAL ESTANDARES por cliente (agrupado por mes) ───
-    private function getHistorialEstandaresCliente(int $idCliente): array
+    private function getHistorialEstandaresCliente(int $idCliente, int $anio = 0): array
     {
         $model = new \App\Models\HistorialEstandaresModel();
-        $registros = $model->where('id_cliente', $idCliente)
-            ->orderBy('fecha_extraccion', 'ASC')
-            ->findAll();
+        $builder = $model->where('id_cliente', $idCliente);
+        if ($anio > 0) {
+            $builder->where('YEAR(fecha_extraccion)', $anio);
+        }
+        $registros = $builder->orderBy('fecha_extraccion', 'ASC')->findAll();
 
         return $this->agruparHistorialPorMes($registros, 'porcentaje_cumplimiento');
     }
 
     // ─── HISTORIAL PLAN DE TRABAJO por cliente (agrupado por mes) ───
-    private function getHistorialPlanCliente(int $idCliente): array
+    private function getHistorialPlanCliente(int $idCliente, int $anio = 0): array
     {
         $model = new \App\Models\HistorialPlanTrabajoModel();
-        $registros = $model->where('id_cliente', $idCliente)
-            ->orderBy('fecha_extraccion', 'ASC')
-            ->findAll();
+        $builder = $model->where('id_cliente', $idCliente);
+        if ($anio > 0) {
+            $builder->where('YEAR(fecha_extraccion)', $anio);
+        }
+        $registros = $builder->orderBy('fecha_extraccion', 'ASC')->findAll();
 
         return $this->agruparHistorialPorMes($registros, 'porcentaje_abiertas');
     }
