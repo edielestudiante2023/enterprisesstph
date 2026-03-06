@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title><?= $codigoDocumento ?? 'FT-SST-001' ?> Presupuesto SST <?= $anio ?></title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 10pt; line-height: 1.15; color: #333; padding: 20px 30px; }
+
+        .encabezado-formal { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .encabezado-formal td { border: 1px solid #333; vertical-align: middle; }
+        .encabezado-logo { width: 120px; padding: 8px; text-align: center; background-color: #ffffff; }
+        .encabezado-logo img { max-width: 100px; max-height: 60px; background-color: #ffffff; }
+        .encabezado-titulo-central { text-align: center; padding: 0; }
+        .encabezado-titulo-central .sistema { font-size: 10pt; font-weight: bold; padding: 6px 10px; border-bottom: 1px solid #333; }
+        .encabezado-titulo-central .nombre-doc { font-size: 10pt; font-weight: bold; padding: 6px 10px; }
+        .encabezado-info { width: 140px; padding: 0; }
+        .encabezado-info-table { width: 100%; border-collapse: collapse; }
+        .encabezado-info-table td { border: none; border-bottom: 1px solid #333; padding: 3px 6px; font-size: 8pt; }
+        .encabezado-info-table tr:last-child td { border-bottom: none; }
+        .encabezado-info-table .label { font-weight: bold; }
+
+        .info-empresa { margin-bottom: 20px; padding: 12px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; }
+        .info-empresa p { margin: 4px 0; }
+        .seccion-titulo { background-color: #1a5f7a; color: white; padding: 8px 12px; margin: 20px 0 10px 0; font-weight: bold; font-size: 11pt; }
+
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .items-table th { background-color: #2c3e50; color: white; padding: 10px 8px; text-align: left; font-size: 10pt; }
+        .items-table th.monto { text-align: right; width: 120px; }
+        .items-table td { border-bottom: 1px solid #dee2e6; padding: 8px; font-size: 9pt; }
+        .items-table .categoria { background-color: #e9ecef; font-weight: bold; padding: 10px 8px; color: #1a5f7a; }
+        .items-table .item-row td { padding-left: 20px; }
+        .items-table .subtotal { background-color: #d4edda; font-weight: bold; }
+        .items-table .total { background-color: #1a5f7a; color: white; font-weight: bold; font-size: 11pt; }
+        .monto { text-align: right; font-family: 'Courier New', monospace; }
+
+        .resumen-box { border: 2px solid #1a5f7a; padding: 15px; margin: 20px 0; background-color: #f8f9fa; }
+        .resumen-box h3 { color: #1a5f7a; margin-bottom: 10px; font-size: 12pt; }
+        .resumen-item { display: table; width: 100%; padding: 5px 0; border-bottom: 1px dotted #ccc; }
+        .resumen-label { display: table-cell; width: 70%; }
+        .resumen-valor { display: table-cell; width: 30%; text-align: right; font-family: 'Courier New', monospace; font-weight: bold; }
+        .resumen-total { margin-top: 10px; padding-top: 10px; border-top: 2px solid #1a5f7a; font-size: 14pt; font-weight: bold; }
+        .resumen-total .resumen-valor { color: #1a5f7a; font-size: 14pt; }
+
+        .firmas-container { margin-top: 50px; page-break-inside: avoid; }
+        .firmas-titulo { text-align: center; font-weight: bold; margin-bottom: 30px; font-size: 11pt; color: #1a5f7a; }
+        .firmas { width: 100%; margin-top: 20px; }
+        .firmas td { width: 33.33%; text-align: center; padding: 20px 15px; vertical-align: bottom; }
+        .firma-linea { border-top: 1px solid #000; margin-top: 60px; padding-top: 8px; font-weight: bold; font-size: 9pt; }
+        .firma-nombre { font-size: 9pt; color: #666; margin-top: 5px; }
+
+        .estado-badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 9pt; font-weight: bold; }
+        .estado-aprobado { background-color: #d4edda; color: #155724; }
+        .estado-borrador { background-color: #e2e3e5; color: #383d41; }
+
+        .footer { position: fixed; bottom: 20px; left: 30px; right: 30px; text-align: center; font-size: 8pt; color: #666; border-top: 1px solid #ddd; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <!-- Encabezado Formal -->
+    <table class="encabezado-formal" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="encabezado-logo" rowspan="2">
+                <?php if (!empty($logoBase64)): ?>
+                    <img src="<?= $logoBase64 ?>" style="max-width:100px; max-height:60px;">
+                <?php else: ?>
+                    <div style="font-size:8pt; font-weight:bold;"><?= esc($cliente['nombre_cliente']) ?></div>
+                <?php endif; ?>
+            </td>
+            <td class="encabezado-titulo-central">
+                <div class="sistema">SISTEMA DE GESTION DE SEGURIDAD Y SALUD EN EL TRABAJO</div>
+            </td>
+            <td class="encabezado-info" rowspan="2">
+                <table class="encabezado-info-table" cellpadding="0" cellspacing="0">
+                    <tr><td class="label">Codigo:</td><td><?= $codigoDocumento ?? 'FT-SST-001' ?></td></tr>
+                    <tr><td class="label">Version:</td><td><?= $versionDocumento ?? '001' ?></td></tr>
+                    <tr><td class="label">Vigencia:</td><td><?= date('d/m/Y') ?></td></tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="encabezado-titulo-central">
+                <div class="nombre-doc"><?= esc(strtoupper($tituloDocumento ?? 'ASIGNACION DE RECURSOS PARA EL SG-SST')) ?></div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Info empresa -->
+    <div class="info-empresa">
+        <p><strong>Empresa:</strong> <?= esc($cliente['nombre_cliente']) ?></p>
+        <p><strong>NIT:</strong> <?= esc($cliente['nit_cliente'] ?? 'N/A') ?></p>
+        <p><strong>Periodo:</strong> Año <?= $anio ?></p>
+        <p>
+            <strong>Estado:</strong>
+            <?php
+            $estado = $presupuesto['estado'] ?? 'borrador';
+            $estadoClass = match($estado) { 'aprobado' => 'estado-aprobado', default => 'estado-borrador' };
+            $estadoTexto = match($estado) { 'aprobado' => 'APROBADO', 'cerrado' => 'CERRADO', default => 'BORRADOR' };
+            ?>
+            <span class="estado-badge <?= $estadoClass ?>"><?= $estadoTexto ?></span>
+        </p>
+    </div>
+
+    <!-- Tabla de Items -->
+    <div class="seccion-titulo">DETALLE DE ASIGNACION DE RECURSOS</div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 8%;">Item</th>
+                <th style="width: 52%;">Actividad / Descripcion</th>
+                <th class="monto">Presupuestado</th>
+                <th class="monto">Ejecutado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($itemsPorCategoria as $codigoCat => $categoria): ?>
+                <tr class="categoria"><td colspan="4"><?= $codigoCat ?>. <?= esc($categoria['nombre']) ?></td></tr>
+                <?php foreach ($categoria['items'] as $item): ?>
+                <tr class="item-row">
+                    <td><?= esc($item['codigo_item']) ?></td>
+                    <td><?= esc($item['actividad']) ?><?php if (!empty($item['descripcion'])): ?><br><small style="color: #666;"><?= esc($item['descripcion']) ?></small><?php endif; ?></td>
+                    <td class="monto">$<?= number_format($item['total_presupuestado'], 0, ',', '.') ?></td>
+                    <td class="monto">$<?= number_format($item['total_ejecutado'], 0, ',', '.') ?></td>
+                </tr>
+                <?php endforeach; ?>
+                <?php $totCat = $totales['por_categoria'][$codigoCat] ?? ['presupuestado' => 0, 'ejecutado' => 0]; ?>
+                <tr class="subtotal">
+                    <td colspan="2" style="text-align: right;">Subtotal <?= $codigoCat ?>:</td>
+                    <td class="monto">$<?= number_format($totCat['presupuestado'], 0, ',', '.') ?></td>
+                    <td class="monto">$<?= number_format($totCat['ejecutado'], 0, ',', '.') ?></td>
+                </tr>
+            <?php endforeach; ?>
+            <tr class="total">
+                <td colspan="2" style="text-align: right;">TOTAL GENERAL:</td>
+                <td class="monto">$<?= number_format($totales['general_presupuestado'], 0, ',', '.') ?></td>
+                <td class="monto">$<?= number_format($totales['general_ejecutado'], 0, ',', '.') ?></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Resumen -->
+    <div class="resumen-box">
+        <h3>RESUMEN PRESUPUESTO <?= $anio ?></h3>
+        <?php foreach ($itemsPorCategoria as $codigoCat => $categoria):
+            $totCat = $totales['por_categoria'][$codigoCat] ?? ['presupuestado' => 0];
+        ?>
+        <div class="resumen-item">
+            <span class="resumen-label"><?= $codigoCat ?>. <?= esc($categoria['nombre']) ?></span>
+            <span class="resumen-valor">$<?= number_format($totCat['presupuestado'], 0, ',', '.') ?></span>
+        </div>
+        <?php endforeach; ?>
+        <div class="resumen-item resumen-total">
+            <span class="resumen-label">TOTAL PRESUPUESTO APROBADO</span>
+            <span class="resumen-valor">$<?= number_format($totales['general_presupuestado'], 0, ',', '.') ?></span>
+        </div>
+    </div>
+
+    <!-- Firmas -->
+    <div class="firmas-container">
+        <div class="firmas-titulo">FIRMAS DE APROBACION DEL PRESUPUESTO</div>
+        <?php
+        $consultorNombre = $consultor['nombre_consultor'] ?? '';
+        $consultorLicencia = $consultor['numero_licencia'] ?? '';
+        $consultorFisica = $consultor['firma_consultor'] ?? '';
+        $consultorBase64 = '';
+        if (!empty($consultorFisica)) {
+            $rutaFirma = FCPATH . 'uploads/' . $consultorFisica;
+            if (file_exists($rutaFirma)) {
+                $consultorBase64 = 'data:image/' . pathinfo($rutaFirma, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($rutaFirma));
+            }
+        }
+        ?>
+        <table class="firmas" style="width: 100%;">
+            <tr>
+                <td>
+                    <?php if (!empty($consultorBase64)): ?>
+                        <img src="<?= $consultorBase64 ?>" style="max-height:60px; max-width:150px;">
+                    <?php endif; ?>
+                    <div class="firma-linea">ELABORO</div>
+                    <div class="firma-nombre"><?= esc($consultorNombre) ?></div>
+                    <?php if (!empty($consultorLicencia)): ?>
+                        <div class="firma-nombre" style="font-size: 7pt;">Lic. SST: <?= esc($consultorLicencia) ?></div>
+                    <?php endif; ?>
+                    <div class="firma-nombre" style="font-size: 7pt; color: #666;">Consultor SST</div>
+                </td>
+                <td>
+                    <div class="firma-linea">APROBO</div>
+                    <div class="firma-nombre"><?= esc($contexto['representante_legal_nombre'] ?? $cliente['representante_legal'] ?? '') ?></div>
+                    <div class="firma-nombre" style="font-size: 7pt; color: #666;">Representante Legal</div>
+                </td>
+                <td>
+                    <div class="firma-linea">REVISO</div>
+                    <div class="firma-nombre"><?= esc($contexto['responsable_sst_nombre'] ?? $contexto['delegado_sst_nombre'] ?? '') ?></div>
+                    <div class="firma-nombre" style="font-size: 7pt; color: #666;">Responsable SG-SST</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <?= $codigoDocumento ?? 'FT-SST-001' ?> | <?= $tituloDocumento ?? 'Asignacion de Recursos para el SG-SST' ?> | <?= esc($cliente['nombre_cliente']) ?> | Año <?= $anio ?>
+    </div>
+</body>
+</html>

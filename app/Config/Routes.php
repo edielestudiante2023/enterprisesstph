@@ -1396,3 +1396,31 @@ $routes->post('admin/snapshots/ejecutar', 'SnapshotController::ejecutar', ['filt
 $routes->get('consultant/evolucion-estandares', 'EvolucionEstandaresController::index');
 $routes->get('consultant/evolucion-plan-trabajo', 'EvolucionPlanTrabajoController::index');
 
+// ============================================================================
+// Presupuesto SST
+// ============================================================================
+$routes->group('presupuesto', ['filter' => 'auth'], function($routes) {
+    // Vistas principales
+    $routes->get('(:num)', 'PresupuestoSstController::index/$1');
+    $routes->get('(:num)/(:num)', 'PresupuestoSstController::index/$1/$2');
+    $routes->get('preview/(:num)/(:num)', 'PresupuestoSstController::preview/$1/$2');
+
+    // AJAX - Edición de items
+    $routes->post('agregar-item', 'PresupuestoSstController::agregarItem');
+    $routes->post('actualizar-monto', 'PresupuestoSstController::actualizarMonto');
+    $routes->post('actualizar-item', 'PresupuestoSstController::actualizarItem');
+    $routes->post('eliminar-item', 'PresupuestoSstController::eliminarItem');
+
+    // Estado y totales
+    $routes->get('totales/(:num)', 'PresupuestoSstController::getTotales/$1');
+    $routes->get('estado/(:num)/(:segment)', 'PresupuestoSstController::cambiarEstado/$1/$2');
+
+    // Exportación
+    $routes->get('pdf/(:num)/(:num)', 'PresupuestoSstController::exportarPdf/$1/$2');
+    $routes->get('word/(:num)/(:num)', 'PresupuestoSstController::exportarWord/$1/$2');
+    $routes->get('excel/(:num)/(:num)', 'PresupuestoSstController::exportarExcel/$1/$2');
+
+    // Copiar de otro año
+    $routes->get('copiar/(:num)/(:num)/(:num)', 'PresupuestoSstController::copiarDeAnio/$1/$2/$3');
+});
+

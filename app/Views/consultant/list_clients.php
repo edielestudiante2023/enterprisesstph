@@ -175,6 +175,41 @@
             color: white;
             margin-bottom: 15px;
         }
+
+        /* Filter Cards */
+        .filter-card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px 18px;
+            min-width: 110px;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            transition: all 0.2s ease;
+            user-select: none;
+            text-align: center;
+        }
+        .filter-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .filter-card.active {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            background: #f0f4ff;
+        }
+        .filter-card-count {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .filter-card-label {
+            font-size: 0.78rem;
+            color: #555;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+        }
     </style>
 </head>
 
@@ -250,6 +285,91 @@
         <h2 class="mb-4">Lista de Clientes</h2>
 
         <?php if (isset($clients) && !empty($clients)): ?>
+            <?php
+                // Contar por estado
+                $estadoCounts = [];
+                $consultorCounts = [];
+                $estandaresCounts = [];
+                foreach ($clients as $c) {
+                    $est = $c['estado'] ?: 'Sin estado';
+                    $estadoCounts[$est] = ($estadoCounts[$est] ?? 0) + 1;
+
+                    $con = $c['nombre_consultor'] ?: 'No asignado';
+                    $consultorCounts[$con] = ($consultorCounts[$con] ?? 0) + 1;
+
+                    // Estándares pueden ser múltiples separados por coma
+                    $rawEst = trim($c['estandares'] ?? '');
+                    if ($rawEst !== '') {
+                        $parts = array_map('trim', explode(',', $rawEst));
+                        foreach ($parts as $p) {
+                            if ($p !== '') {
+                                $estandaresCounts[$p] = ($estandaresCounts[$p] ?? 0) + 1;
+                            }
+                        }
+                    } else {
+                        $estandaresCounts['Sin estándar'] = ($estandaresCounts['Sin estándar'] ?? 0) + 1;
+                    }
+                }
+                ksort($estandaresCounts);
+                ksort($consultorCounts);
+
+                $estadoColors = [
+                    'Activo' => '#28a745',
+                    'Inactivo' => '#dc3545',
+                    'Suspendido' => '#ffc107',
+                    'Sin estado' => '#6c757d',
+                ];
+                $consultorColors = ['#0d6efd','#6610f2','#6f42c1','#d63384','#fd7e14','#20c997','#0dcaf0','#198754'];
+                $estandarColors = ['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b','#858796','#5a5c69','#2e59d9'];
+            ?>
+
+            <!-- Filter Cards -->
+            <div class="mb-4" id="filterCardsSection">
+                <!-- Por Estado -->
+                <h6 class="text-muted mb-2"><i class="fas fa-circle-dot"></i> Filtrar por Estado</h6>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <div class="filter-card active" data-filter-type="estado" data-filter-value="" style="border-left: 4px solid #6c757d;">
+                        <div class="filter-card-count"><?= count($clients) ?></div>
+                        <div class="filter-card-label">Todos</div>
+                    </div>
+                    <?php foreach ($estadoCounts as $estado => $count): ?>
+                        <div class="filter-card" data-filter-type="estado" data-filter-value="<?= htmlspecialchars($estado === 'Sin estado' ? '' : $estado) ?>" style="border-left: 4px solid <?= $estadoColors[$estado] ?? '#6c757d' ?>;">
+                            <div class="filter-card-count" style="color: <?= $estadoColors[$estado] ?? '#6c757d' ?>;"><?= $count ?></div>
+                            <div class="filter-card-label"><?= htmlspecialchars($estado) ?></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <!-- Por Estándares -->
+                <h6 class="text-muted mb-2"><i class="fas fa-certificate"></i> Filtrar por Estándar</h6>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <div class="filter-card active" data-filter-type="estandar" data-filter-value="" style="border-left: 4px solid #6c757d;">
+                        <div class="filter-card-count"><?= count($clients) ?></div>
+                        <div class="filter-card-label">Todos</div>
+                    </div>
+                    <?php $ei = 0; foreach ($estandaresCounts as $estandar => $count): ?>
+                        <div class="filter-card" data-filter-type="estandar" data-filter-value="<?= htmlspecialchars($estandar === 'Sin estándar' ? '' : $estandar) ?>" style="border-left: 4px solid <?= $estandarColors[$ei % count($estandarColors)] ?>;">
+                            <div class="filter-card-count" style="color: <?= $estandarColors[$ei % count($estandarColors)] ?>;"><?= $count ?></div>
+                            <div class="filter-card-label"><?= htmlspecialchars($estandar) ?></div>
+                        </div>
+                    <?php $ei++; endforeach; ?>
+                </div>
+
+                <!-- Por Consultor -->
+                <h6 class="text-muted mb-2"><i class="fas fa-user-tie"></i> Filtrar por Consultor</h6>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <div class="filter-card active" data-filter-type="consultor" data-filter-value="" style="border-left: 4px solid #6c757d;">
+                        <div class="filter-card-count"><?= count($clients) ?></div>
+                        <div class="filter-card-label">Todos</div>
+                    </div>
+                    <?php $ci = 0; foreach ($consultorCounts as $consultor => $count): ?>
+                        <div class="filter-card" data-filter-type="consultor" data-filter-value="<?= htmlspecialchars($consultor) ?>" style="border-left: 4px solid <?= $consultorColors[$ci % count($consultorColors)] ?>;">
+                            <div class="filter-card-count" style="color: <?= $consultorColors[$ci % count($consultorColors)] ?>;"><?= $count ?></div>
+                            <div class="filter-card-label"><?= htmlspecialchars($consultor) ?></div>
+                        </div>
+                    <?php $ci++; endforeach; ?>
+                </div>
+            </div>
             <div class="mb-3 d-flex justify-content-between align-items-center">
                 <div>
                     <button id="clearState" class="btn btn-reset"><i class="fas fa-undo"></i> Restablecer Filtros</button>
@@ -550,8 +670,40 @@
                 // Clear footer inputs
                 $('#clientsTable tfoot input, #clientsTable tfoot select').val('');
 
+                // Reset filter cards
+                $('.filter-card').removeClass('active');
+                $('.filter-card[data-filter-value=""]').addClass('active');
+                activeFilters = { estado: '', estandar: '', consultor: '' };
+
                 // Clear global search
                 table.search('').draw();
+            });
+
+            // Filter cards click handler
+            var filterColMap = { estado: 17, estandar: 21, consultor: 18 };
+            var activeFilters = { estado: '', estandar: '', consultor: '' };
+
+            $('.filter-card').on('click', function () {
+                var type = $(this).data('filter-type');
+                var value = $(this).data('filter-value');
+                var colIdx = filterColMap[type];
+
+                // Toggle active state within same group
+                $('.filter-card[data-filter-type="' + type + '"]').removeClass('active');
+                $(this).addClass('active');
+
+                activeFilters[type] = value;
+
+                // For estandar, use regex to match partial (since a cell can have multiple)
+                if (type === 'estandar' && value !== '') {
+                    table.column(colIdx).search(value, false, false).draw();
+                } else {
+                    table.column(colIdx).search(value).draw();
+                }
+
+                // Sync footer inputs/selects
+                var footerEl = $(table.column(colIdx).footer()).find('input, select');
+                if (footerEl.length) footerEl.val(value);
             });
 
             // Reenviar credenciales de acceso
