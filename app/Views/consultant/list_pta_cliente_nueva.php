@@ -533,20 +533,30 @@
         <!-- Enlaces de navegación -->
         <div class="d-flex gap-2 mb-3">
             <a href="<?= base_url('/dashboardconsultant') ?>" class="btn btn-primary btn-sm">Ir a DashBoard</a>
-            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#renewPlanModal">
+            <button type="button" class="btn btn-warning btn-sm btn-tooltip" data-bs-toggle="modal" data-bs-target="#renewPlanModal"
+                    data-bs-placement="bottom"
+                    title="Elimina las actividades ABIERTA, genera el plan desde la plantilla CSV y no reinserta las que ya estén CERRADA este año. Ideal para iniciar un nuevo ciclo.">
                 <i class="fas fa-sync-alt"></i> Renovar Plan de Trabajo
             </button>
             <?php if (!empty($filters['cliente'])): ?>
-            <button type="button" id="btnEliminarAbiertas" class="btn btn-danger btn-sm" title="Eliminar todas las actividades ABIERTA de este cliente">
+            <button type="button" id="btnEliminarAbiertas" class="btn btn-danger btn-sm btn-tooltip"
+                    data-bs-placement="bottom"
+                    title="Elimina TODAS las actividades en estado ABIERTA de este cliente. Requiere resolver 3 operaciones matemáticas para confirmar. No toca las CERRADA ni GESTIONANDO.">
                 <i class="fas fa-eraser"></i> Eliminar Abiertas
             </button>
-            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#regenerarPlanModal" title="Regenerar plan desde plantilla CSV">
+            <button type="button" class="btn btn-info btn-sm btn-tooltip" data-bs-toggle="modal" data-bs-target="#regenerarPlanModal"
+                    data-bs-placement="bottom"
+                    title="Agrega actividades faltantes desde la plantilla CSV sin tocar las existentes. Si una actividad (texto exacto) ya existe en el año actual (cualquier estado), no la duplica.">
                 <i class="fas fa-redo"></i> Regenerar Plan
             </button>
-            <button type="button" id="btnCrearActividadIA" class="btn btn-purple btn-sm" data-bs-toggle="modal" data-bs-target="#crearActividadIAModal" title="Crear actividad con asistencia de IA">
+            <button type="button" id="btnCrearActividadIA" class="btn btn-purple btn-sm btn-tooltip" data-bs-toggle="modal" data-bs-target="#crearActividadIAModal"
+                    data-bs-placement="bottom"
+                    title="Crea una actividad nueva: busque en el inventario del Decreto 1072 o describa lo que necesita y la IA propondrá 3 opciones profesionales.">
                 <i class="fas fa-robot"></i> Crear con IA
             </button>
-            <button type="button" id="btnSocializarPlanTrabajo" class="btn btn-success btn-sm" title="Enviar Plan de Trabajo por email al cliente y consultor">
+            <button type="button" id="btnSocializarPlanTrabajo" class="btn btn-success btn-sm btn-tooltip"
+                    data-bs-placement="bottom"
+                    title="Envía el Plan de Trabajo actual por email al cliente y al consultor responsable.">
                 <i class="fas fa-envelope"></i> Socializar Plan de Trabajo
             </button>
             <?php endif; ?>
@@ -1072,6 +1082,11 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Inicializar tooltips de Bootstrap en botones con clase btn-tooltip
+            document.querySelectorAll('.btn-tooltip').forEach(function(el) {
+                new bootstrap.Tooltip(el);
+            });
+
             // Variables globales para filtros activos
             var activeYear = null;
             var activeMonth = null;
