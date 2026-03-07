@@ -304,8 +304,8 @@ class InformeAvancesController extends BaseController
             $nombreConsultor = $consultor['nombre_consultor'] ?? '';
             $correoConsultor = $consultor['correo_consultor'] ?? '';
 
-            // Snapshot ESTANDARES — misma lógica que MetricasInformeService::calcularCumplimientoEstandares
-            $estResult = $db->query("SELECT ROUND(SUM(valor), 2) as total_valor, ROUND(SUM(puntaje_cuantitativo), 2) as total_puntaje FROM evaluacion_inicial_sst WHERE id_cliente = ? AND YEAR(updated_at) = ?", [$id, $anio])->getRowArray();
+            // Snapshot ESTANDARES — estado actual acumulado (sin filtro de año)
+            $estResult = $db->query("SELECT ROUND(SUM(valor), 2) as total_valor, ROUND(SUM(puntaje_cuantitativo), 2) as total_puntaje FROM evaluacion_inicial_sst WHERE id_cliente = ?", [$id])->getRowArray();
             $totalValor = floatval($estResult['total_valor'] ?? 0);
             $totalPuntaje = floatval($estResult['total_puntaje'] ?? 0);
             $pctCumplimiento = $totalValor > 0 ? round(min(($totalPuntaje / $totalValor) * 100, 100), 2) : 0;

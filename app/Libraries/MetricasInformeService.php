@@ -22,7 +22,6 @@ class MetricasInformeService
         $result = $this->db->table('evaluacion_inicial_sst')
             ->select('SUM(valor) as total_maximo, SUM(puntaje_cuantitativo) as total_logrado')
             ->where('id_cliente', $idCliente)
-            ->where('YEAR(updated_at)', $anio)
             ->get()
             ->getRowArray();
 
@@ -42,7 +41,6 @@ class MetricasInformeService
         $result = $this->db->table('evaluacion_inicial_sst')
             ->select("SUM(CASE WHEN evaluacion_inicial = 'CUMPLE TOTALMENTE' THEN 1 ELSE 0 END) as cumplen, SUM(CASE WHEN evaluacion_inicial != 'NO APLICA' THEN 1 ELSE 0 END) as evaluables")
             ->where('id_cliente', $idCliente)
-            ->where('YEAR(updated_at)', $anio)
             ->get()
             ->getRowArray();
 
@@ -256,7 +254,6 @@ class MetricasInformeService
         return $this->db->table('evaluacion_inicial_sst')
             ->select("ciclo, SUM(valor) as total_valor, SUM(puntaje_cuantitativo) as total_posible, COUNT(*) as cantidad")
             ->where('id_cliente', $idCliente)
-            ->where('YEAR(updated_at)', $anio)
             ->groupBy('ciclo')
             ->get()
             ->getResultArray();
