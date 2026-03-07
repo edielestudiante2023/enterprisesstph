@@ -1363,6 +1363,7 @@ $routes->group('informe-avances', ['filter' => 'auth'], function($routes) {
     $routes->get('api/vencimientos/(:num)', 'InformeAvancesController::apiVencimientos/$1');
     $routes->get('api/historial/(:num)', 'InformeAvancesController::apiHistorial/$1');
     $routes->get('api/clientes', 'InformeAvancesController::getClientes');
+    $routes->post('api/liquidar/(:num)', 'InformeAvancesController::liquidarSnapshot/$1');
     $routes->post('enviar/(:num)', 'InformeAvancesController::enviar/$1');
 });
 

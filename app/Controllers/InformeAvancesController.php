@@ -273,6 +273,44 @@ class InformeAvancesController extends BaseController
         ]);
     }
 
+    // ─── AJAX: Snapshot (liquidar) un cliente individual ───
+    public function liquidarSnapshot($idCliente)
+    {
+        $id = (int) $idCliente;
+        $db = \Config\Database::connect();
+        $now = date('Y-m-d H:i:s');
+        $mesActual = date('Y-m');
+
+        try {
+            // Eliminar snapshots previos de este cliente en el mes actual
+            $inicioMes = $mesActual . '-01 00:00:00';
+            $finMes = date('Y-m-t', strtotime($inicioMes)) . ' 23:59:59';
+
+            $db->query("DELETE FROM historial_resumen_estandares WHERE id_cliente = ? AND fecha_extraccion >= ? AND fecha_extraccion <= ?", [$id, $inicioMes, $finMes]);
+            $delEst = $db->affectedRows();
+
+            $db->query("DELETE FROM historial_resumen_plan_trabajo WHERE id_cliente = ? AND fecha_extraccion >= ? AND fecha_extraccion <= ?", [$id, $inicioMes, $finMes]);
+            $delPlan = $db->affectedRows();
+
+            // Insertar snapshot fresco desde las vistas
+            $db->query("INSERT INTO historial_resumen_estandares (id_cliente, nombre_cliente, estandares, nombre_consultor, correo_consultor, total_valor, total_puntaje, porcentaje_cumplimiento, fecha_extraccion) SELECT id_cliente, nombre_cliente, estandares, nombre_consultor, correo_consultor, total_valor, total_puntaje, porcentaje_cumplimiento, ? FROM resumen_estandares_cliente WHERE id_cliente = ?", [$now, $id]);
+            $insEst = $db->affectedRows();
+
+            $db->query("INSERT INTO historial_resumen_plan_trabajo (id_cliente, nombre_cliente, estandares, nombre_consultor, correo_consultor, total_actividades, actividades_abiertas, porcentaje_abiertas, fecha_extraccion) SELECT id_cliente, nombre_cliente, estandares, nombre_consultor, correo_consultor, total_actividades, actividades_abiertas, porcentaje_abiertas, ? FROM resumen_mensual_plan_trabajo WHERE id_cliente = ?", [$now, $id]);
+            $insPlan = $db->affectedRows();
+
+            return $this->response->setJSON([
+                'success' => true,
+                'mensaje' => "Snapshot liquidado para cliente {$id}",
+                'estandares' => ['eliminados' => $delEst, 'insertados' => $insEst],
+                'plan' => ['eliminados' => $delPlan, 'insertados' => $insPlan],
+                'fecha' => $now,
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'error' => $e->getMessage()])->setStatusCode(500);
+        }
+    }
+
     // ─── AJAX: Historial evolución de un cliente ───
     public function apiHistorial($idCliente)
     {

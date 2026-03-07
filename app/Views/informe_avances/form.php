@@ -99,14 +99,23 @@
                                 <option value="12">Diciembre</option>
                             </select>
                         </div>
-                        <div class="col-md-1">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">&nbsp;</label>
+                            <button type="button" id="btnLiquidar" class="btn btn-gold w-100" disabled>
+                                <i class="fas fa-camera me-1"></i>Liquidar Informe
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-3">
                             <label class="form-label fw-bold">Desde</label>
                             <input type="date" name="fecha_desde" id="fechaDesde" class="form-control" value="<?= esc($informe['fecha_desde'] ?? '') ?>" required>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label class="form-label fw-bold">Hasta</label>
                             <input type="date" name="fecha_hasta" id="fechaHasta" class="form-control" value="<?= esc($informe['fecha_hasta'] ?? date('Y-m-d')) ?>" required>
                         </div>
+                        <div class="col-md-6 d-flex align-items-end" id="liquidarStatus"></div>
                     </div>
                 </div>
             </div>
@@ -483,6 +492,38 @@
             if (clienteId) loadVencimientos(clienteId);
             if (clienteId) loadHistorial(clienteId);
             $('#btnGenerarIA').prop('disabled', !clienteId);
+            $('#btnLiquidar').prop('disabled', !clienteId);
+        });
+
+        // Botón Liquidar: snapshot individual del cliente
+        $('#btnLiquidar').on('click', function() {
+            var clienteId = $('#selectCliente').val();
+            if (!clienteId) return;
+            var btn = $(this);
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Liquidando...');
+            $('#liquidarStatus').html('');
+            $.ajax({
+                url: BASE + 'informe-avances/api/liquidar/' + clienteId,
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                data: { '<?= csrf_token() ?>': '<?= csrf_hash() ?>' },
+                success: function(resp) {
+                    if (resp.success) {
+                        $('#liquidarStatus').html('<span class="text-success"><i class="fas fa-check-circle me-1"></i>Snapshot tomado (' + resp.fecha + ')</span>');
+                        // Recargar métricas e historial con datos frescos
+                        loadMetricas(clienteId);
+                        loadHistorial(clienteId);
+                    } else {
+                        $('#liquidarStatus').html('<span class="text-danger"><i class="fas fa-times-circle me-1"></i>' + (resp.error || 'Error') + '</span>');
+                    }
+                },
+                error: function() {
+                    $('#liquidarStatus').html('<span class="text-danger"><i class="fas fa-times-circle me-1"></i>Error de conexión</span>');
+                },
+                complete: function() {
+                    btn.prop('disabled', false).html('<i class="fas fa-camera me-1"></i>Liquidar Informe');
+                }
+            });
         });
 
         // Recargar métricas e historial al cambiar año
