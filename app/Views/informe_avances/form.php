@@ -81,10 +81,29 @@
                             </select>
                         </div>
                         <div class="col-md-2">
+                            <label class="form-label fw-bold">Periodo</label>
+                            <select id="selectMes" class="form-select">
+                                <option value="">Manual...</option>
+                                <option value="prev">Mes anterior</option>
+                                <option value="01">Enero</option>
+                                <option value="02">Febrero</option>
+                                <option value="03">Marzo</option>
+                                <option value="04">Abril</option>
+                                <option value="05">Mayo</option>
+                                <option value="06">Junio</option>
+                                <option value="07">Julio</option>
+                                <option value="08">Agosto</option>
+                                <option value="09">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
                             <label class="form-label fw-bold">Desde</label>
                             <input type="date" name="fecha_desde" id="fechaDesde" class="form-control" value="<?= esc($informe['fecha_desde'] ?? '') ?>" required>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold">Hasta</label>
                             <input type="date" name="fecha_hasta" id="fechaHasta" class="form-control" value="<?= esc($informe['fecha_hasta'] ?? date('Y-m-d')) ?>" required>
                         </div>
@@ -122,7 +141,6 @@
                                         <div class="pilar-metric" id="metricEstandares">--</div>
                                         <div class="pilar-detail" id="detailEstandares">Cumplimiento actual</div>
                                         <div class="pilar-detail" id="anteriorEstandares"></div>
-                                        <span class="badge badge-estado mt-2" id="badgeEstadoAvance" style="display:none"></span>
                                     </div>
                                 </div>
                             </div>
@@ -474,6 +492,27 @@
             if (clienteId) loadHistorial(clienteId);
         });
 
+        // Selector de mes → auto-llenar fechas desde/hasta
+        $('#selectMes').on('change', function() {
+            var val = $(this).val();
+            if (!val) return;
+            var anio = parseInt($('#selectAnio').val()) || new Date().getFullYear();
+            var mes, lastDay;
+            if (val === 'prev') {
+                var today = new Date();
+                var prevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                mes = prevMonth.getMonth() + 1;
+                anio = prevMonth.getFullYear();
+                lastDay = new Date(anio, mes, 0).getDate();
+            } else {
+                mes = parseInt(val);
+                lastDay = new Date(anio, mes, 0).getDate();
+            }
+            var mm = mes < 10 ? '0' + mes : '' + mes;
+            $('#fechaDesde').val(anio + '-' + mm + '-01');
+            $('#fechaHasta').val(anio + '-' + mm + '-' + (lastDay < 10 ? '0' + lastDay : lastDay));
+        });
+
         if (EDIT_MODE && PRESELECT_CLIENTE) {
             loadHistorial(PRESELECT_CLIENTE);
             $('#btnGenerarIA').prop('disabled', false);
@@ -715,8 +754,7 @@
             var arrow = diff > 0 ? '&#9650;' : diff < 0 ? '&#9660;' : '';
             var diffColor = diff > 0 ? '#28a745' : diff < 0 ? '#dc3545' : '#6c757d';
             $('#anteriorEstandares').html('Anterior: ' + pant.toFixed(1) + '% <span style="color:' + diffColor + '">' + arrow + (diff > 0 ? '+' : '') + diff.toFixed(1) + ' pp</span>');
-            var estado = data.estado_avance || 'ESTABLE';
-            $('#badgeEstadoAvance').text(estado).removeClass().addClass('badge badge-estado ' + estadoBadgeClass(estado)).show();
+            // estado_avance se guarda en hidden pero no se muestra badge
 
             // === Pilar 2: Plan de Trabajo ===
             destroyChart('plan');

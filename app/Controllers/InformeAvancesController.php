@@ -968,26 +968,23 @@ PROMPT;
         return $this->agruparHistorialPorMes($registros, 'porcentaje_abiertas');
     }
 
-    // ─── Agrupar registros por mes, promediando el campo indicado ───
+    // ─── Agrupar registros por mes, usando el ÚLTIMO valor del mes ───
     private function agruparHistorialPorMes(array $registros, string $campo): array
     {
         $grouped = [];
         foreach ($registros as $r) {
             $mes = substr($r['fecha_extraccion'] ?? '', 0, 7); // 'YYYY-MM'
             if (!$mes) continue;
-            if (!isset($grouped[$mes])) {
-                $grouped[$mes] = ['sum' => 0.0, 'count' => 0];
-            }
-            $grouped[$mes]['sum'] += floatval($r[$campo] ?? 0);
-            $grouped[$mes]['count']++;
+            // Siempre sobrescribe: como vienen ordenados ASC, el último gana
+            $grouped[$mes] = floatval($r[$campo] ?? 0);
         }
         ksort($grouped);
 
         $result = [];
-        foreach ($grouped as $mes => $data) {
+        foreach ($grouped as $mes => $valor) {
             $result[] = [
                 'mes'      => $mes,
-                'promedio' => $data['count'] > 0 ? round($data['sum'] / $data['count'], 2) : 0,
+                'promedio' => round($valor, 2),
             ];
         }
         return $result;
