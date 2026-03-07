@@ -318,15 +318,7 @@
             </div>
             <?php endif; ?>
 
-            <!-- Enlaces opcionales -->
             <input type="hidden" name="enlace_dashboard" id="enlaceDashboard" value="<?= esc($informe['enlace_dashboard'] ?? '') ?>">
-            <div class="card card-section">
-                <div class="card-header py-3"><i class="fas fa-link me-2"></i>Enlaces</div>
-                <div class="card-body">
-                    <label class="form-label">URL del Acta de Visita (opcional)</label>
-                    <input type="url" name="acta_visita_url" class="form-control" value="<?= esc($informe['acta_visita_url'] ?? '') ?>" placeholder="https://...">
-                </div>
-            </div>
 
             <!-- SECCION 7: Soportes -->
             <div class="card card-section">
