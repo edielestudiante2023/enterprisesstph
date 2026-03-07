@@ -527,13 +527,19 @@
             if (clienteId) loadVencimientos(clienteId);
             if (clienteId) loadHistorial(clienteId);
             $('#btnGenerarIA').prop('disabled', !clienteId);
-            $('#btnLiquidar').prop('disabled', !clienteId);
+            $('#btnLiquidar').prop('disabled', !clienteId || !$('#selectMes').val());
+        });
+
+        // Habilitar/deshabilitar Liquidar al cambiar periodo
+        $('#selectMes').on('change', function() {
+            var clienteId = $('#selectCliente').val();
+            $('#btnLiquidar').prop('disabled', !clienteId || !$(this).val());
         });
 
         // Botón Liquidar: snapshot individual del cliente
         $('#btnLiquidar').on('click', function() {
             var clienteId = $('#selectCliente').val();
-            if (!clienteId) return;
+            if (!clienteId || !$('#selectMes').val()) return;
             var btn = $(this);
             btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Liquidando...');
             $('#liquidarStatus').html('');
