@@ -40,10 +40,9 @@ class MetricasInformeService
     public function contarEstandares(int $idCliente, int $anio): array
     {
         $result = $this->db->table('evaluacion_inicial_sst')
-            ->select("SUM(CASE WHEN evaluacion_inicial = 'CUMPLE TOTALMENTE' THEN 1 ELSE 0 END) as cumplen, SUM(CASE WHEN evaluacion_inicial != 'NO APLICA' OR evaluacion_inicial IS NULL OR evaluacion_inicial = '' THEN 1 ELSE 0 END) as evaluables")
+            ->select("SUM(CASE WHEN evaluacion_inicial = 'CUMPLE TOTALMENTE' THEN 1 ELSE 0 END) as cumplen, SUM(CASE WHEN evaluacion_inicial != 'NO APLICA' THEN 1 ELSE 0 END) as evaluables")
             ->where('id_cliente', $idCliente)
             ->where('YEAR(updated_at)', $anio)
-            ->where("evaluacion_inicial !=", 'NO APLICA')
             ->get()
             ->getRowArray();
 
