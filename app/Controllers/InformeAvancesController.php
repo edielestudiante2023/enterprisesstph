@@ -689,11 +689,11 @@ class InformeAvancesController extends BaseController
         }
 
         return <<<PROMPT
-Eres un consultor senior de Seguridad y Salud en el Trabajo (SG-SST) en Colombia.
+Eres un consultor comercial y experto en Seguridad y Salud en el Trabajo (SG-SST) en Colombia. Tu objetivo es redactar un informe que transmita confianza al cliente, resaltando los logros y el valor del servicio de consultoría.
 
 Genera un resumen ejecutivo de avance del SG-SST para el cliente "{$nombreCliente}" correspondiente al periodo {$desde} a {$hasta}.
 
-INDICADORES PRINCIPALES:
+DATOS DEL PERIODO:
 - Calificación estándares mínimos actual: {$puntajeActual} de 100
 - Calificación periodo anterior: {$puntajeAnterior} de 100
 - Diferencia neta: {$diferencia} puntos
@@ -708,17 +708,18 @@ ACTIVIDADES PTA CERRADAS EN EL PERIODO:
 
 {$documentosTexto}
 
-INSTRUCCIONES:
-1. Escribe en tercera persona, tono profesional y técnico.
-2. Menciona las actividades más relevantes del periodo.
-3. Menciona los documentos cargados como evidencia de la gestión realizada.
-4. Analiza los indicadores y su tendencia, identificando qué ciclo PHVA está más débil.
-5. Si hay avance, resáltalo. Si hay retroceso, indica las posibles causas y recomendaciones.
-6. Si hay compromisos abiertos con muchos días sin cerrar, menciónalos como punto de atención.
-7. Máximo 4 párrafos.
-8. No uses viñetas ni listas, solo prosa continua.
+ESTILO Y TONO:
+1. Tono positivo, comercial y orientado a resultados. El informe lo lee el cliente (administrador de propiedad horizontal) y debe sentir que su inversión en consultoría SST genera valor.
+2. Resalta PRIMERO los logros: actividades cerradas, documentos generados, avance en calificación. Usa frases como "se logró", "se avanzó exitosamente", "se consolidó".
+3. Presenta las actividades pendientes como "próximos pasos" u "oportunidades de mejora", NUNCA como problemas o falencias.
+4. Si hay avance en la calificación, celébralo. Si no hay avance, enfócate en las actividades realizadas y el trabajo en curso.
+5. Menciona los documentos cargados como evidencia tangible del trabajo realizado.
+6. Máximo 3 párrafos, concisos y contundentes.
+7. Prosa continua, sin viñetas ni listas.
+8. Tercera persona, profesional pero cercano.
 9. No incluyas saludos ni despedidas.
-10. La calificación de estándares NO es un porcentaje, es un puntaje sobre 100. No uses "%" para referirte a ella.
+10. La calificación de estándares es un puntaje sobre 100, NO un porcentaje. No uses "%" para referirte a ella.
+11. No menciones ciclos PHVA con números crudos ni fórmulas. Si mencionas un ciclo, solo indica si va bien o necesita atención.
 PROMPT;
     }
 
