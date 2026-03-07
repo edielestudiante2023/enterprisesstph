@@ -397,6 +397,25 @@ class MetricasInformeService
             'desglose_plan_trabajo'    => $this->getDesglosePlanTrabajo($idCliente, $anio),
             'desglose_capacitacion'    => $this->getDesgloseCapacitacion($idCliente, $anio),
             'desglose_pendientes'      => $this->getDesglosePendientes($idCliente, $anio),
+            // Documentos cargados en el periodo
+            'documentos_cargados_raw'  => $this->getDocumentosCargados($idCliente, $fechaDesde, $fechaHasta),
         ];
+    }
+
+    /**
+     * Documentos cargados en tbl_reporte para un cliente en el periodo
+     */
+    public function getDocumentosCargados(int $idCliente, string $fechaDesde, string $fechaHasta): array
+    {
+        return $this->db->table('tbl_reporte')
+            ->select('tbl_reporte.titulo_reporte, tbl_reporte.created_at, tbl_reporte.enlace, detail_report.detail_report, report_type_table.report_type')
+            ->join('detail_report', 'detail_report.id_detailreport = tbl_reporte.id_detailreport', 'left')
+            ->join('report_type_table', 'report_type_table.id_report_type = tbl_reporte.id_report_type', 'left')
+            ->where('tbl_reporte.id_cliente', $idCliente)
+            ->where('tbl_reporte.created_at >=', $fechaDesde . ' 00:00:00')
+            ->where('tbl_reporte.created_at <=', $fechaHasta . ' 23:59:59')
+            ->orderBy('tbl_reporte.created_at', 'ASC')
+            ->get()
+            ->getResultArray();
     }
 }

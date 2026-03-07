@@ -219,12 +219,39 @@
         </div>
         <?php endif; ?>
 
-        <!-- Observaciones -->
-        <?php if (!empty($informe['observaciones'])): ?>
+        <!-- Documentos Cargados en el Periodo -->
+        <?php if (!empty($documentosCargados)): ?>
         <div class="card card-section">
-            <div class="card-header py-3"><i class="fas fa-comment-alt me-2"></i>Observaciones</div>
-            <div class="card-body">
-                <div class="resumen-text"><?= nl2br(esc($informe['observaciones'])) ?></div>
+            <div class="card-header py-3"><i class="fas fa-file-upload me-2"></i>Documentos Cargados en el Periodo <span class="badge bg-light text-dark ms-2"><?= count($documentosCargados) ?></span></div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:5%;" class="text-center">#</th>
+                            <th style="width:15%;" class="text-center">Fecha</th>
+                            <th style="width:35%;">Título</th>
+                            <th style="width:20%;">Tipo Documento</th>
+                            <th style="width:20%;">Categoría</th>
+                            <th style="width:5%;" class="text-center">Ver</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($documentosCargados as $idx => $doc): ?>
+                        <tr>
+                            <td class="text-center"><?= $idx + 1 ?></td>
+                            <td class="text-center"><?= date('d/m/Y', strtotime($doc['created_at'])) ?></td>
+                            <td><?= esc($doc['titulo_reporte'] ?? '') ?></td>
+                            <td><?= esc($doc['detail_report'] ?? '') ?></td>
+                            <td><?= esc($doc['report_type'] ?? '') ?></td>
+                            <td class="text-center">
+                                <?php if (!empty($doc['enlace'])): ?>
+                                <a href="<?= esc($doc['enlace']) ?>" target="_blank" class="btn btn-sm btn-outline-primary py-0"><i class="fas fa-external-link-alt"></i></a>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
         <?php endif; ?>

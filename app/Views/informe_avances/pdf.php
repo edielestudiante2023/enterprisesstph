@@ -487,10 +487,27 @@
 <div class="content-text"><?= nl2br(esc($informe['actividades_abiertas'])) ?></div>
 <?php endif; ?>
 
-<!-- OBSERVACIONES -->
-<?php if (!empty($informe['observaciones'])): ?>
-<div class="section-title">OBSERVACIONES</div>
-<div class="content-text"><?= nl2br(esc($informe['observaciones'])) ?></div>
+<!-- DOCUMENTOS CARGADOS EN EL PERIODO -->
+<?php if (!empty($documentosCargados)): ?>
+<div class="section-title">DOCUMENTOS CARGADOS EN EL PERIODO (<?= count($documentosCargados) ?>)</div>
+<table class="actividades-table">
+    <tr>
+        <th style="width:5%;">#</th>
+        <th style="width:15%;">Fecha</th>
+        <th style="width:35%;">Título</th>
+        <th style="width:22%;">Tipo Documento</th>
+        <th style="width:23%;">Categoría</th>
+    </tr>
+    <?php foreach ($documentosCargados as $idx => $doc): ?>
+    <tr>
+        <td style="text-align:center;"><?= $idx + 1 ?></td>
+        <td style="text-align:center;"><?= date('d/m/Y', strtotime($doc['created_at'])) ?></td>
+        <td><?= esc($doc['titulo_reporte'] ?? '') ?></td>
+        <td><?= esc($doc['detail_report'] ?? '') ?></td>
+        <td><?= esc($doc['report_type'] ?? '') ?></td>
+    </tr>
+    <?php endforeach; ?>
+</table>
 <?php endif; ?>
 
 <!-- VENCIMIENTOS DE MANTENIMIENTOS -->

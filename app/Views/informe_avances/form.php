@@ -267,11 +267,11 @@
                 </div>
             </div>
 
-            <!-- SECCION 6: Observaciones -->
+            <!-- SECCION 6: Documentos Cargados en el Periodo -->
             <div class="card card-section">
-                <div class="card-header py-3"><i class="fas fa-comment-alt me-2"></i>6. Observaciones</div>
+                <div class="card-header py-3"><i class="fas fa-file-upload me-2"></i>6. Documentos Cargados en el Periodo</div>
                 <div class="card-body">
-                    <textarea name="observaciones" class="form-control" rows="4" placeholder="Observaciones adicionales..."><?= esc($informe['observaciones'] ?? '') ?></textarea>
+                    <div id="tablaDocumentos" class="mb-2"><p class="text-muted mb-0">Seleccione un cliente y periodo para ver los documentos cargados.</p></div>
                 </div>
             </div>
 
@@ -818,6 +818,20 @@
                     $('#tablaCerradas').html(html);
                 } else {
                     $('#tablaCerradas').html('');
+                }
+
+                // Tabla documentos cargados
+                if (d.documentos_cargados_raw && d.documentos_cargados_raw.length > 0) {
+                    var htmlDoc = '<table class="table table-sm table-bordered"><thead class="table-light"><tr><th>Fecha</th><th>Título</th><th>Tipo Documento</th><th>Categoría</th><th>Enlace</th></tr></thead><tbody>';
+                    d.documentos_cargados_raw.forEach(function(doc) {
+                        var fecha = (doc.created_at || '').substring(0, 10);
+                        var enlace = doc.enlace ? '<a href="'+esc(doc.enlace)+'" target="_blank" class="btn btn-sm btn-outline-primary py-0"><i class="fas fa-external-link-alt"></i></a>' : '';
+                        htmlDoc += '<tr><td>'+esc(fecha)+'</td><td>'+esc(doc.titulo_reporte || '')+'</td><td>'+esc(doc.detail_report || '')+'</td><td>'+esc(doc.report_type || '')+'</td><td class="text-center">'+enlace+'</td></tr>';
+                    });
+                    htmlDoc += '</tbody></table>';
+                    $('#tablaDocumentos').html('<p class="text-muted small mb-2"><i class="fas fa-info-circle me-1"></i>' + d.documentos_cargados_raw.length + ' documento(s) cargado(s) en el periodo</p>' + htmlDoc);
+                } else {
+                    $('#tablaDocumentos').html('<p class="text-muted mb-0">No se encontraron documentos cargados en el periodo seleccionado.</p>');
                 }
 
                 if (d.fecha_desde_sugerida && !$('#fechaDesde').val()) {

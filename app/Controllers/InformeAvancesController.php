@@ -164,6 +164,13 @@ class InformeAvancesController extends BaseController
 
         $idCliente = (int) $informe['id_cliente'];
 
+        $metricasService = new MetricasInformeService();
+        $documentosCargados = $metricasService->getDocumentosCargados(
+            $idCliente,
+            $informe['fecha_desde'] ?? date('Y') . '-01-01',
+            $informe['fecha_hasta'] ?? date('Y-m-d')
+        );
+
         return view('informe_avances/view', [
             'informe'              => $informe,
             'cliente'              => $cliente,
@@ -171,6 +178,7 @@ class InformeAvancesController extends BaseController
             'vencimientos'         => $this->getVencimientosCliente($idCliente),
             'historialEstandares'  => $this->getHistorialEstandaresCliente($idCliente, (int) $informe['anio']),
             'historialPlan'        => $this->getHistorialPlanCliente($idCliente, (int) $informe['anio']),
+            'documentosCargados'   => $documentosCargados,
         ]);
     }
 
@@ -554,6 +562,14 @@ class InformeAvancesController extends BaseController
             '#4facfe'
         );
 
+        // Documentos cargados en el periodo
+        $metricasService = new MetricasInformeService();
+        $documentosCargados = $metricasService->getDocumentosCargados(
+            $idCliente,
+            $informe['fecha_desde'] ?? "{$anioInforme}-01-01",
+            $informe['fecha_hasta'] ?? date('Y-m-d')
+        );
+
         $data = [
             'informe'               => $informe,
             'cliente'               => $cliente,
@@ -564,6 +580,7 @@ class InformeAvancesController extends BaseController
             'vencimientos'          => $vencimientos,
             'quickChartEstandares'  => $quickChartEstandares,
             'quickChartPlan'        => $quickChartPlan,
+            'documentosCargados'    => $documentosCargados,
         ];
 
         $html = view('informe_avances/pdf', $data);
@@ -655,33 +672,53 @@ class InformeAvancesController extends BaseController
         // Desgloses por pilar
         $desgloseTexto = $this->formatDesgloseForPrompt($metricas);
 
+        // Documentos cargados en el periodo
+        $docs = $metricas['documentos_cargados_raw'] ?? [];
+        $documentosTexto = '';
+        if (!empty($docs)) {
+            $documentosTexto = "DOCUMENTOS CARGADOS A LA PLATAFORMA EN EL PERIODO (" . count($docs) . " documentos):\n";
+            foreach ($docs as $doc) {
+                $fecha = substr($doc['created_at'] ?? '', 0, 10);
+                $tipo = $doc['detail_report'] ?? 'Sin tipo';
+                $cat = $doc['report_type'] ?? 'Sin categoría';
+                $titulo = $doc['titulo_reporte'] ?? 'Sin título';
+                $documentosTexto .= "- [{$fecha}] {$titulo} (Tipo: {$tipo}, Categoría: {$cat})\n";
+            }
+        } else {
+            $documentosTexto = "DOCUMENTOS CARGADOS A LA PLATAFORMA EN EL PERIODO: Ninguno.";
+        }
+
         return <<<PROMPT
 Eres un consultor senior de Seguridad y Salud en el Trabajo (SG-SST) en Colombia.
 
 Genera un resumen ejecutivo de avance del SG-SST para el cliente "{$nombreCliente}" correspondiente al periodo {$desde} a {$hasta}.
 
 INDICADORES PRINCIPALES:
-- Puntaje cumplimiento estándares mínimos actual: {$puntajeActual}%
-- Puntaje periodo anterior: {$puntajeAnterior}%
-- Diferencia neta: {$diferencia} puntos porcentuales
+- Calificación estándares mínimos actual: {$puntajeActual} de 100
+- Calificación periodo anterior: {$puntajeAnterior} de 100
+- Diferencia neta: {$diferencia} puntos
 - Estado de avance: {$estado}
 - Indicador plan de trabajo anual: {$planTrabajo}%
 - Indicador programa de capacitación: {$capacitacion}%
 
 {$desgloseTexto}
 
-ACTIVIDADES REALIZADAS EN EL PERIODO:
+ACTIVIDADES PTA CERRADAS EN EL PERIODO:
 {$actividadesTexto}
+
+{$documentosTexto}
 
 INSTRUCCIONES:
 1. Escribe en tercera persona, tono profesional y técnico.
 2. Menciona las actividades más relevantes del periodo.
-3. Analiza los indicadores y su tendencia, identificando qué ciclo PHVA está más débil.
-4. Si hay avance, resáltalo. Si hay retroceso, indica las posibles causas y recomendaciones.
-5. Si hay compromisos abiertos con muchos días sin cerrar, menciónalos como punto de atención.
-6. Máximo 4 párrafos.
-7. No uses viñetas ni listas, solo prosa continua.
-8. No incluyas saludos ni despedidas.
+3. Menciona los documentos cargados como evidencia de la gestión realizada.
+4. Analiza los indicadores y su tendencia, identificando qué ciclo PHVA está más débil.
+5. Si hay avance, resáltalo. Si hay retroceso, indica las posibles causas y recomendaciones.
+6. Si hay compromisos abiertos con muchos días sin cerrar, menciónalos como punto de atención.
+7. Máximo 4 párrafos.
+8. No uses viñetas ni listas, solo prosa continua.
+9. No incluyas saludos ni despedidas.
+10. La calificación de estándares NO es un porcentaje, es un puntaje sobre 100. No uses "%" para referirte a ella.
 PROMPT;
     }
 
