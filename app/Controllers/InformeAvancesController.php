@@ -277,6 +277,7 @@ class InformeAvancesController extends BaseController
     public function liquidarSnapshot($idCliente)
     {
         $id = (int) $idCliente;
+        $anio = (int) ($this->request->getPost('anio') ?: date('Y'));
         $db = \Config\Database::connect();
         $now = date('Y-m-d H:i:s');
         $mesActual = date('Y-m');
@@ -292,18 +293,43 @@ class InformeAvancesController extends BaseController
             $db->query("DELETE FROM historial_resumen_plan_trabajo WHERE id_cliente = ? AND fecha_extraccion >= ? AND fecha_extraccion <= ?", [$id, $inicioMes, $finMes]);
             $delPlan = $db->affectedRows();
 
-            // Insertar snapshot fresco desde las vistas
-            $db->query("INSERT INTO historial_resumen_estandares (id_cliente, nombre_cliente, estandares, nombre_consultor, correo_consultor, total_valor, total_puntaje, porcentaje_cumplimiento, fecha_extraccion) SELECT id_cliente, nombre_cliente, estandares, nombre_consultor, correo_consultor, total_valor, total_puntaje, porcentaje_cumplimiento, ? FROM resumen_estandares_cliente WHERE id_cliente = ?", [$now, $id]);
+            // Datos del cliente
+            $clientModel = new ClientModel();
+            $cliente = $clientModel->find($id);
+            $nombreCliente = $cliente['nombre_cliente'] ?? '';
+            $estandaresCliente = $cliente['estandares'] ?? '';
+
+            $consultantModel = new ConsultantModel();
+            $consultor = !empty($cliente['id_consultor']) ? $consultantModel->find($cliente['id_consultor']) : null;
+            $nombreConsultor = $consultor['nombre_consultor'] ?? '';
+            $correoConsultor = $consultor['correo_consultor'] ?? '';
+
+            // Snapshot ESTANDARES — misma lógica que MetricasInformeService::calcularCumplimientoEstandares
+            $estResult = $db->query("SELECT ROUND(SUM(valor), 2) as total_valor, ROUND(SUM(puntaje_cuantitativo), 2) as total_puntaje FROM evaluacion_inicial_sst WHERE id_cliente = ? AND YEAR(updated_at) = ?", [$id, $anio])->getRowArray();
+            $totalValor = floatval($estResult['total_valor'] ?? 0);
+            $totalPuntaje = floatval($estResult['total_puntaje'] ?? 0);
+            $pctCumplimiento = $totalValor > 0 ? round(min(($totalPuntaje / $totalValor) * 100, 100), 2) : 0;
+
+            $db->query("INSERT INTO historial_resumen_estandares (id_cliente, nombre_cliente, estandares, nombre_consultor, correo_consultor, total_valor, total_puntaje, porcentaje_cumplimiento, fecha_extraccion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [$id, $nombreCliente, $estandaresCliente, $nombreConsultor, $correoConsultor, $totalValor, $totalPuntaje, $pctCumplimiento, $now]);
             $insEst = $db->affectedRows();
 
-            $db->query("INSERT INTO historial_resumen_plan_trabajo (id_cliente, nombre_cliente, estandares, nombre_consultor, correo_consultor, total_actividades, actividades_abiertas, porcentaje_abiertas, fecha_extraccion) SELECT id_cliente, nombre_cliente, estandares, nombre_consultor, correo_consultor, total_actividades, actividades_abiertas, porcentaje_abiertas, ? FROM resumen_mensual_plan_trabajo WHERE id_cliente = ?", [$now, $id]);
+            // Snapshot PLAN TRABAJO — misma lógica que MetricasInformeService::calcularIndicadorPlanTrabajo
+            $inicioAnio = "{$anio}-01-01 00:00:00";
+            $finAnio = "{$anio}-12-31 23:59:59";
+
+            $ptaResult = $db->query("SELECT COUNT(*) as total, SUM(CASE WHEN estado_actividad IN ('CERRADA','CERRADA SIN EJECUCIÓN','CERRADA POR FIN CONTRATO') AND fecha_cierre >= ? AND fecha_cierre <= ? THEN 1 ELSE 0 END) as cerradas, SUM(CASE WHEN estado_actividad = 'ABIERTA' THEN 1 ELSE 0 END) as abiertas FROM tbl_pta_cliente WHERE id_cliente = ? AND created_at >= ? AND created_at <= ?", ["{$anio}-01-01", "{$anio}-12-31", $id, $inicioAnio, $finAnio])->getRowArray();
+            $totalAct = intval($ptaResult['total'] ?? 0);
+            $abiertas = intval($ptaResult['abiertas'] ?? 0);
+            $pctAbiertas = $totalAct > 0 ? round(($abiertas / $totalAct) * 100, 2) : 0;
+
+            $db->query("INSERT INTO historial_resumen_plan_trabajo (id_cliente, nombre_cliente, estandares, nombre_consultor, correo_consultor, total_actividades, actividades_abiertas, porcentaje_abiertas, fecha_extraccion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [$id, $nombreCliente, $estandaresCliente, $nombreConsultor, $correoConsultor, $totalAct, $abiertas, $pctAbiertas, $now]);
             $insPlan = $db->affectedRows();
 
             return $this->response->setJSON([
                 'success' => true,
-                'mensaje' => "Snapshot liquidado para cliente {$id}",
-                'estandares' => ['eliminados' => $delEst, 'insertados' => $insEst],
-                'plan' => ['eliminados' => $delPlan, 'insertados' => $insPlan],
+                'mensaje' => "Snapshot liquidado para cliente {$id} (ciclo {$anio})",
+                'estandares' => ['eliminados' => $delEst, 'insertados' => $insEst, 'porcentaje' => $pctCumplimiento],
+                'plan' => ['eliminados' => $delPlan, 'insertados' => $insPlan, 'porcentaje_abiertas' => $pctAbiertas],
                 'fecha' => $now,
             ]);
         } catch (\Exception $e) {

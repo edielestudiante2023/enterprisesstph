@@ -120,6 +120,9 @@
                 </div>
             </div>
 
+            <!-- Cuerpo del informe: oculto hasta liquidar (en modo crear) -->
+            <div id="informeBody" <?= ($mode !== 'edit') ? 'style="display:none"' : '' ?>>
+
             <!-- SECCION 2: Indicadores por Pilar SG-SST -->
             <div class="card card-section">
                 <div class="card-header py-3">
@@ -351,6 +354,8 @@
                 </div>
             </div>
 
+            </div><!-- /informeBody -->
+
             <!-- Botones -->
             <div class="d-flex gap-2 mb-5">
                 <button type="submit" class="btn btn-gold btn-lg flex-fill">
@@ -536,11 +541,12 @@
                 url: BASE + 'informe-avances/api/liquidar/' + clienteId,
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                data: { '<?= csrf_token() ?>': '<?= csrf_hash() ?>' },
+                data: { '<?= csrf_token() ?>': '<?= csrf_hash() ?>', anio: $('#selectAnio').val() },
                 success: function(resp) {
                     if (resp.success) {
                         $('#liquidarStatus').html('<span class="text-success"><i class="fas fa-check-circle me-1"></i>Snapshot tomado (' + resp.fecha + ')</span>');
-                        // Recargar métricas e historial con datos frescos
+                        // Mostrar cuerpo del informe y recargar datos frescos
+                        $('#informeBody').slideDown();
                         loadMetricas(clienteId);
                         loadHistorial(clienteId);
                     } else {
