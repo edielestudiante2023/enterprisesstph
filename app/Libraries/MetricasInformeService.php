@@ -35,6 +35,25 @@ class MetricasInformeService
     }
 
     /**
+     * Conteo de estándares: cumplen / evaluables (excluye NO APLICA)
+     */
+    public function contarEstandares(int $idCliente, int $anio): array
+    {
+        $result = $this->db->table('evaluacion_inicial_sst')
+            ->select("SUM(CASE WHEN evaluacion_inicial = 'CUMPLE TOTALMENTE' THEN 1 ELSE 0 END) as cumplen, SUM(CASE WHEN evaluacion_inicial != 'NO APLICA' OR evaluacion_inicial IS NULL OR evaluacion_inicial = '' THEN 1 ELSE 0 END) as evaluables")
+            ->where('id_cliente', $idCliente)
+            ->where('YEAR(updated_at)', $anio)
+            ->where("evaluacion_inicial !=", 'NO APLICA')
+            ->get()
+            ->getRowArray();
+
+        return [
+            'cumplen' => intval($result['cumplen'] ?? 0),
+            'evaluables' => intval($result['evaluables'] ?? 0),
+        ];
+    }
+
+    /**
      * Obtiene puntaje del informe anterior del mismo cliente EN EL MISMO AÑO.
      * Si es primer informe del ciclo, retorna 39.75 (línea base Res. 0312/2019).
      */
@@ -361,11 +380,15 @@ class MetricasInformeService
 
         $actividadesCerradas = $this->getActividadesCerradasPeriodo($idCliente, $fechaDesde, $fechaHasta);
 
+        $conteoEstandares = $this->contarEstandares($idCliente, $anio);
+
         return [
             'puntaje_actual'               => $puntajeActual,
             'puntaje_anterior'             => $puntajeAnterior,
             'diferencia_neta'              => $diferencia,
             'estado_avance'                => $estadoAvance,
+            'estandares_cumplen'           => $conteoEstandares['cumplen'],
+            'estandares_evaluables'        => $conteoEstandares['evaluables'],
             'indicador_plan_trabajo'       => $this->calcularIndicadorPlanTrabajo($idCliente, $anio),
             'indicador_capacitacion'       => $this->calcularIndicadorCapacitacion($idCliente, $anio),
             'actividades_abiertas'         => $this->getActividadesAbiertas($idCliente, $anio),

@@ -828,10 +828,12 @@
             var pant = data.puntaje_anterior ?? 39.75;
             var diff = data.diferencia_neta ?? 0;
             $('#metricEstandares').text(pa.toFixed(1) + '%');
+            var cumplen = data.estandares_cumplen ?? 0;
+            var evaluables = data.estandares_evaluables ?? 0;
+            $('#detailEstandares').text(cumplen + ' de ' + evaluables + ' cumplen');
             var arrow = diff > 0 ? '&#9650;' : diff < 0 ? '&#9660;' : '';
             var diffColor = diff > 0 ? '#28a745' : diff < 0 ? '#dc3545' : '#6c757d';
             $('#anteriorEstandares').html('Anterior: ' + pant.toFixed(1) + '% <span style="color:' + diffColor + '">' + arrow + (diff > 0 ? '+' : '') + diff.toFixed(1) + ' pp</span>');
-            // estado_avance se guarda en hidden pero no se muestra badge
 
             // === Pilar 2: Plan de Trabajo ===
             destroyChart('plan');
