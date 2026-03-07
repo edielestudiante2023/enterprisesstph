@@ -786,7 +786,9 @@
                     diferencia_neta: d.diferencia_neta,
                     estado_avance: d.estado_avance,
                     indicador_plan_trabajo: d.indicador_plan_trabajo,
-                    indicador_capacitacion: d.indicador_capacitacion
+                    indicador_capacitacion: d.indicador_capacitacion,
+                    estandares_cumplen: d.estandares_cumplen,
+                    estandares_evaluables: d.estandares_evaluables
                 };
 
                 renderDesgloseCharts(desgloseData);
