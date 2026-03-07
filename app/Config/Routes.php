@@ -439,6 +439,8 @@ $routes->post('matrices/addPost', 'MatricesController::addPost');
 $routes->get('matrices/edit/(:num)', 'MatricesController::edit/$1');
 $routes->post('matrices/editPost/(:num)', 'MatricesController::editPost/$1');
 $routes->get('matrices/delete/(:num)', 'MatricesController::delete/$1');
+$routes->get('matrices/generar/(:num)', 'MatricesController::generarMatricesCliente/$1');
+$routes->get('matrices/generar-todos', 'MatricesController::generarMatricesTodos');
 
 $routes->get('/client/lista-matrices', 'ClientMatrices::index');
 
@@ -689,6 +691,15 @@ $routes->post('/pta-cliente-nueva/updateCerradas', 'PtaClienteNuevaController::u
 
 // Ruta para actualizar fecha por mes seleccionado (botones mensuales)
 $routes->post('/pta-cliente-nueva/updateDateByMonth', 'PtaClienteNuevaController::updateDateByMonth');
+
+// Rutas para Eliminar Abiertas y Regenerar Plan
+$routes->post('/pta-cliente-nueva/deleteAbiertas', 'PtaClienteNuevaController::deleteAbiertas');
+$routes->post('/pta-cliente-nueva/regenerarPlan', 'PtaClienteNuevaController::regenerarPlan');
+
+// Ruta para Crear Actividad con IA
+$routes->post('/pta-cliente-nueva/searchActivities', 'PtaClienteNuevaController::searchActivities');
+$routes->post('/pta-cliente-nueva/generateAiActivity', 'PtaClienteNuevaController::generateAiActivity');
+$routes->post('/pta-cliente-nueva/insertAiActivity', 'PtaClienteNuevaController::insertAiActivity');
 
 $routes->get('consultant/actualizar_pta_cliente', 'CsvUploadController::index'); // Carga la vista
 $routes->post('csv/upload', 'CsvUploadController::upload'); // Procesa el CSV

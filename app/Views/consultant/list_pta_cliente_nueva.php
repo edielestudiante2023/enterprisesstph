@@ -460,6 +460,8 @@
             transition: all 0.2s ease;
         }
         .btn-action:hover { transform: scale(1.1); }
+        .btn-purple { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); border: none; color: #fff; }
+        .btn-purple:hover { background: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
         .btn-action-edit { background: #ffc107; color: #000; }
         .btn-action-edit:hover { background: #ffca2c; color: #000; }
         .btn-action-delete { background: #dc3545; color: #fff; }
@@ -535,6 +537,15 @@
                 <i class="fas fa-sync-alt"></i> Renovar Plan de Trabajo
             </button>
             <?php if (!empty($filters['cliente'])): ?>
+            <button type="button" id="btnEliminarAbiertas" class="btn btn-danger btn-sm" title="Eliminar todas las actividades ABIERTA de este cliente">
+                <i class="fas fa-eraser"></i> Eliminar Abiertas
+            </button>
+            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#regenerarPlanModal" title="Regenerar plan desde plantilla CSV">
+                <i class="fas fa-redo"></i> Regenerar Plan
+            </button>
+            <button type="button" id="btnCrearActividadIA" class="btn btn-purple btn-sm" data-bs-toggle="modal" data-bs-target="#crearActividadIAModal" title="Crear actividad con asistencia de IA">
+                <i class="fas fa-robot"></i> Crear con IA
+            </button>
             <button type="button" id="btnSocializarPlanTrabajo" class="btn btn-success btn-sm" title="Enviar Plan de Trabajo por email al cliente y consultor">
                 <i class="fas fa-envelope"></i> Socializar Plan de Trabajo
             </button>
@@ -1046,6 +1057,8 @@
         <?php endif; ?>
     </div>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- jQuery, Bootstrap 5 y DataTables JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -2104,6 +2117,354 @@
                 });
             });
         });
+    </script>
+
+    <!-- Modal Regenerar Plan -->
+    <div class="modal fade" id="regenerarPlanModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="fas fa-redo"></i> Regenerar Plan de Trabajo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <small><i class="fas fa-info-circle"></i> Se insertarán actividades desde la plantilla CSV. Las actividades que ya existan en el año actual (cualquier estado) serán omitidas.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Año del SGSST <span class="text-danger">*</span></label>
+                        <select class="form-select" id="regenerar_year" required>
+                            <option value="">Seleccione...</option>
+                            <option value="1">Año 1</option>
+                            <option value="2">Año 2</option>
+                            <option value="3">Año 3</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Servicio <span class="text-danger">*</span></label>
+                        <select class="form-select" id="regenerar_service" required>
+                            <option value="">Seleccione...</option>
+                            <option value="mensual">Mensual</option>
+                            <option value="bimensual">Bimensual</option>
+                            <option value="trimestral">Trimestral</option>
+                            <option value="proyecto">Proyecto</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-info text-white" id="btnRegenerar"><i class="fas fa-redo"></i> Regenerar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Crear Actividad con IA -->
+    <div class="modal fade" id="crearActividadIAModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff;">
+                    <h5 class="modal-title"><i class="fas fa-robot"></i> Crear Actividad con IA</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Paso 1: Elegir modo -->
+                    <div id="iaStep1">
+                        <h6 class="mb-3">¿Cómo desea crear la actividad?</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card card-clickable h-100 text-center p-4" id="iaOpcionInventario" style="cursor:pointer; border:2px solid #e3e6f0;">
+                                    <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                                    <h6>Del inventario existente</h6>
+                                    <small class="text-muted">Buscar en las actividades del Decreto 1072</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card card-clickable h-100 text-center p-4" id="iaOpcionNuevo" style="cursor:pointer; border:2px solid #e3e6f0;">
+                                    <i class="fas fa-magic fa-3x text-purple mb-3" style="color:#7c3aed;"></i>
+                                    <h6>Item nuevo con IA</h6>
+                                    <small class="text-muted">Describe lo que necesitas, la IA propone opciones</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 2A: Buscar en inventario -->
+                    <div id="iaStep2A" style="display:none;">
+                        <button class="btn btn-sm btn-outline-secondary mb-3" id="iaBackToStep1A"><i class="fas fa-arrow-left"></i> Volver</button>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="iaSearchInput" placeholder="Escriba parte del nombre de la actividad...">
+                            <button class="btn btn-primary" id="iaSearchBtn"><i class="fas fa-search"></i> Buscar</button>
+                        </div>
+                        <div id="iaSearchResults" style="max-height:300px; overflow-y:auto;"></div>
+                    </div>
+
+                    <!-- Paso 2B: Crear con IA -->
+                    <div id="iaStep2B" style="display:none;">
+                        <button class="btn btn-sm btn-outline-secondary mb-3" id="iaBackToStep1B"><i class="fas fa-arrow-left"></i> Volver</button>
+                        <div class="mb-3">
+                            <label class="form-label">Describa la actividad que necesita:</label>
+                            <textarea class="form-control" id="iaDescripcion" rows="3" placeholder="Ej: necesito una actividad sobre pausas activas para trabajadores administrativos..."></textarea>
+                        </div>
+                        <button class="btn btn-purple text-white mb-3" id="iaGenerarBtn"><i class="fas fa-magic"></i> Generar opciones con IA</button>
+                        <div id="iaGenerating" style="display:none;" class="text-center my-3">
+                            <div class="spinner-border text-purple" role="status" style="color:#7c3aed;"></div>
+                            <p class="mt-2 text-muted">La IA está generando opciones...</p>
+                        </div>
+                        <div id="iaOptions" style="max-height:300px; overflow-y:auto;"></div>
+                        <div id="iaRefineSection" style="display:none;" class="mt-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="iaRefineInput" placeholder="Ajuste o realinee a la IA...">
+                                <button class="btn btn-outline-purple" id="iaRefineBtn" style="border-color:#7c3aed; color:#7c3aed;"><i class="fas fa-sync"></i> Refinar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        var clienteId = '<?= $filters['cliente'] ?? '' ?>';
+        var csrfName = '<?= csrf_token() ?>';
+        var csrfHash = '<?= csrf_hash() ?>';
+
+        // =====================================================================
+        // BOTÓN ELIMINAR ABIERTAS - Triple validación aritmética
+        // =====================================================================
+        $('#btnEliminarAbiertas').on('click', function() {
+            if (!clienteId) { alert('Seleccione un cliente primero.'); return; }
+
+            // Generar 3 operaciones aritméticas aleatorias
+            var ops = [];
+            for (var i = 0; i < 3; i++) {
+                var a = Math.floor(Math.random() * 50) + 10;
+                var b = Math.floor(Math.random() * 20) + 1;
+                var tipo = Math.random() > 0.5 ? '+' : '-';
+                var result = tipo === '+' ? a + b : a - b;
+                ops.push({ expr: a + ' ' + tipo + ' ' + b, result: result });
+            }
+
+            var htmlForm = '<div class="text-start">' +
+                '<div class="alert alert-danger"><strong>ADVERTENCIA:</strong> Esta acción eliminará TODAS las actividades en estado ABIERTA de este cliente. Esta acción no se puede deshacer.</div>' +
+                '<p class="fw-bold">Resuelva las 3 operaciones para confirmar:</p>';
+            for (var i = 0; i < 3; i++) {
+                htmlForm += '<div class="mb-2"><label class="form-label">' + ops[i].expr + ' = </label>' +
+                    '<input type="number" class="form-control form-control-sm arith-input" data-idx="' + i + '" style="max-width:120px; display:inline-block; margin-left:10px;" /></div>';
+            }
+            htmlForm += '</div>';
+
+            Swal.fire({
+                title: 'Eliminar Actividades Abiertas',
+                html: htmlForm,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Eliminar',
+                cancelButtonText: 'Cancelar',
+                preConfirm: () => {
+                    var allCorrect = true;
+                    for (var i = 0; i < 3; i++) {
+                        var val = parseInt($('.arith-input[data-idx="' + i + '"]').val());
+                        if (val !== ops[i].result) { allCorrect = false; break; }
+                    }
+                    if (!allCorrect) {
+                        Swal.showValidationMessage('Una o más respuestas son incorrectas. Intente de nuevo.');
+                        return false;
+                    }
+                    return true;
+                }
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+
+                var $btn = $('#btnEliminarAbiertas');
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Eliminando...');
+
+                $.ajax({
+                    url: '<?= site_url('/pta-cliente-nueva/deleteAbiertas') ?>',
+                    method: 'POST',
+                    data: { id_cliente: clienteId, [csrfName]: csrfHash },
+                    dataType: 'json',
+                    success: function(resp) {
+                        if (resp.success) {
+                            Swal.fire('Listo', resp.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', resp.message, 'error');
+                        }
+                    },
+                    error: function(xhr) { Swal.fire('Error', 'Error de comunicación', 'error'); },
+                    complete: function() { $btn.prop('disabled', false).html('<i class="fas fa-eraser"></i> Eliminar Abiertas'); }
+                });
+            });
+        });
+
+        // =====================================================================
+        // BOTÓN REGENERAR PLAN
+        // =====================================================================
+        $('#btnRegenerar').on('click', function() {
+            var year = $('#regenerar_year').val();
+            var service = $('#regenerar_service').val();
+            if (!year || !service) { alert('Seleccione año y tipo de servicio.'); return; }
+
+            var $btn = $(this);
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Regenerando...');
+
+            $.ajax({
+                url: '<?= site_url('/pta-cliente-nueva/regenerarPlan') ?>',
+                method: 'POST',
+                data: { id_cliente: clienteId, year: year, service_type: service, [csrfName]: csrfHash },
+                dataType: 'json',
+                success: function(resp) {
+                    if (resp.success) {
+                        $('#regenerarPlanModal').modal('hide');
+                        Swal.fire('Plan Regenerado', resp.message, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', resp.message, 'error');
+                    }
+                },
+                error: function() { Swal.fire('Error', 'Error de comunicación', 'error'); },
+                complete: function() { $btn.prop('disabled', false).html('<i class="fas fa-redo"></i> Regenerar'); }
+            });
+        });
+
+        // =====================================================================
+        // CREAR ACTIVIDAD CON IA
+        // =====================================================================
+        var iaLastDescription = '';
+
+        // Paso 1: elegir modo
+        $('#iaOpcionInventario').on('click', function() {
+            $('#iaStep1').hide(); $('#iaStep2A').show();
+            $('#iaSearchInput').focus();
+        });
+        $('#iaOpcionNuevo').on('click', function() {
+            $('#iaStep1').hide(); $('#iaStep2B').show();
+            $('#iaDescripcion').focus();
+        });
+        $('#iaBackToStep1A, #iaBackToStep1B').on('click', function() {
+            $('#iaStep2A, #iaStep2B').hide(); $('#iaStep1').show();
+        });
+
+        // Reset al cerrar modal
+        $('#crearActividadIAModal').on('hidden.bs.modal', function() {
+            $('#iaStep2A, #iaStep2B').hide(); $('#iaStep1').show();
+            $('#iaSearchResults, #iaOptions').empty();
+            $('#iaSearchInput, #iaDescripcion, #iaRefineInput').val('');
+            $('#iaRefineSection').hide();
+        });
+
+        // Opción A: Buscar en inventario
+        $('#iaSearchBtn').on('click', function() { doInventorySearch(); });
+        $('#iaSearchInput').on('keypress', function(e) { if (e.which === 13) doInventorySearch(); });
+
+        function doInventorySearch() {
+            var query = $('#iaSearchInput').val().trim();
+            if (query.length < 3) { alert('Ingrese al menos 3 caracteres.'); return; }
+
+            $('#iaSearchResults').html('<div class="text-center"><div class="spinner-border spinner-border-sm"></div> Buscando...</div>');
+
+            $.ajax({
+                url: '<?= site_url('/pta-cliente-nueva/searchActivities') ?>',
+                method: 'POST',
+                data: { query: query, [csrfName]: csrfHash },
+                dataType: 'json',
+                success: function(resp) {
+                    if (!resp.success || resp.results.length === 0) {
+                        $('#iaSearchResults').html('<div class="alert alert-warning">No se encontraron coincidencias.</div>');
+                        return;
+                    }
+                    var html = '<div class="list-group">';
+                    resp.results.forEach(function(r) {
+                        html += '<button type="button" class="list-group-item list-group-item-action ia-select-activity" ' +
+                            'data-phva="' + escHtml(r.phva) + '" data-numeral="' + escHtml(r.numeral) + '" data-actividad="' + escHtml(r.actividad) + '">' +
+                            '<strong>[' + escHtml(r.phva) + ' - ' + escHtml(r.numeral) + ']</strong> ' + escHtml(r.actividad) + '</button>';
+                    });
+                    html += '</div>';
+                    $('#iaSearchResults').html(html);
+                },
+                error: function() { $('#iaSearchResults').html('<div class="alert alert-danger">Error de comunicación.</div>'); }
+            });
+        }
+
+        // Opción B: Generar con IA
+        $('#iaGenerarBtn').on('click', function() { doAiGenerate($('#iaDescripcion').val().trim(), ''); });
+        $('#iaRefineBtn').on('click', function() { doAiGenerate(iaLastDescription, $('#iaRefineInput').val().trim()); });
+
+        function doAiGenerate(description, context) {
+            if (!description) { alert('Describa la actividad.'); return; }
+            iaLastDescription = description;
+
+            $('#iaGenerating').show();
+            $('#iaOptions').empty();
+            $('#iaRefineSection').hide();
+
+            $.ajax({
+                url: '<?= site_url('/pta-cliente-nueva/generateAiActivity') ?>',
+                method: 'POST',
+                data: { description: description, context: context, [csrfName]: csrfHash },
+                dataType: 'json',
+                success: function(resp) {
+                    $('#iaGenerating').hide();
+                    if (!resp.success) { Swal.fire('Error', resp.message, 'error'); return; }
+
+                    var html = '<div class="list-group">';
+                    resp.options.forEach(function(opt, idx) {
+                        html += '<button type="button" class="list-group-item list-group-item-action ia-select-activity" ' +
+                            'data-phva="' + escHtml(opt.phva) + '" data-numeral="' + escHtml(opt.numeral) + '" data-actividad="' + escHtml(opt.actividad) + '">' +
+                            '<span class="badge bg-primary me-2">Opción ' + (idx+1) + '</span>' +
+                            '<strong>[' + escHtml(opt.phva) + ' - ' + escHtml(opt.numeral) + ']</strong> ' + escHtml(opt.actividad) + '</button>';
+                    });
+                    html += '</div>';
+                    $('#iaOptions').html(html);
+                    $('#iaRefineSection').show();
+                },
+                error: function() { $('#iaGenerating').hide(); Swal.fire('Error', 'Error de comunicación', 'error'); }
+            });
+        }
+
+        // Seleccionar e insertar actividad (ambos modos)
+        $(document).on('click', '.ia-select-activity', function() {
+            var phva = $(this).data('phva');
+            var numeral = $(this).data('numeral');
+            var actividad = $(this).data('actividad');
+
+            Swal.fire({
+                title: 'Confirmar actividad',
+                html: '<p><strong>PHVA:</strong> ' + escHtml(phva) + '</p>' +
+                      '<p><strong>Numeral:</strong> ' + escHtml(numeral) + '</p>' +
+                      '<p><strong>Actividad:</strong> ' + escHtml(actividad) + '</p>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Insertar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#7c3aed'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+
+                $.ajax({
+                    url: '<?= site_url('/pta-cliente-nueva/insertAiActivity') ?>',
+                    method: 'POST',
+                    data: { id_cliente: clienteId, phva: phva, numeral: numeral, actividad: actividad, [csrfName]: csrfHash },
+                    dataType: 'json',
+                    success: function(resp) {
+                        if (resp.success) {
+                            $('#crearActividadIAModal').modal('hide');
+                            Swal.fire('Insertada', resp.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', resp.message, 'error');
+                        }
+                    },
+                    error: function() { Swal.fire('Error', 'Error de comunicación', 'error'); }
+                });
+            });
+        });
+
+        function escHtml(str) {
+            if (!str) return '';
+            return $('<div>').text(str).html();
+        }
+    });
     </script>
 </body>
 

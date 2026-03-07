@@ -3,10 +3,12 @@
 namespace App\Controllers;
 
 use App\Models\PtaClienteNuevaModel;
+use App\Models\PlanModel;
 use App\Models\ClientModel;
 use App\Models\ContractModel;
 use App\Services\PtaAuditService;
 use App\Services\PtaTransicionesService;
+use App\Libraries\WorkPlanLibrary;
 use CodeIgniter\Controller;
 
 class PtaClienteNuevaController extends Controller
@@ -591,6 +593,260 @@ class PtaClienteNuevaController extends Controller
             } else {
                 return $this->response->setJSON(['success' => false, 'message' => 'Error al actualizar']);
             }
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Elimina todas las actividades ABIERTA de un cliente (con triple validación aritmética en frontend)
+     */
+    public function deleteAbiertas()
+    {
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Método no permitido']);
+        }
+
+        $idCliente = $this->request->getPost('id_cliente');
+        if (empty($idCliente)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Cliente no especificado']);
+        }
+
+        try {
+            $db = \Config\Database::connect();
+
+            $count = $db->table('tbl_pta_cliente')
+                ->where('id_cliente', $idCliente)
+                ->where('estado_actividad', 'ABIERTA')
+                ->countAllResults();
+
+            $db->table('tbl_pta_cliente')
+                ->where('id_cliente', $idCliente)
+                ->where('estado_actividad', 'ABIERTA')
+                ->delete();
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "Se eliminaron {$count} actividades ABIERTA del cliente.",
+                'deleted' => $count
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Regenera el plan de trabajo desde CSV sin insertar actividades que ya existan en el año actual
+     */
+    public function regenerarPlan()
+    {
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Método no permitido']);
+        }
+
+        $idCliente = $this->request->getPost('id_cliente');
+        $year = (int) $this->request->getPost('year');
+        $serviceType = strtolower($this->request->getPost('service_type') ?? '');
+
+        if (empty($idCliente) || empty($year) || empty($serviceType)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Todos los campos son obligatorios']);
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $workPlanLibrary = new WorkPlanLibrary();
+            $activities = $workPlanLibrary->getActivities((int)$idCliente, $year, $serviceType);
+
+            if (empty($activities)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'No se encontraron actividades para esta combinación']);
+            }
+
+            // Obtener todos los numerales que ya existen en el año actual (cualquier estado)
+            $currentYear = date('Y');
+            $existingNumerals = $db->table('tbl_pta_cliente')
+                ->select('numeral_plandetrabajo')
+                ->where('id_cliente', $idCliente)
+                ->where("YEAR(fecha_propuesta)", $currentYear)
+                ->get()
+                ->getResultArray();
+            $existingSet = array_column($existingNumerals, 'numeral_plandetrabajo');
+
+            $planModel = new PlanModel();
+            $inserted = 0;
+            $skipped = 0;
+
+            foreach ($activities as $activity) {
+                if (in_array($activity['numeral_plandetrabajo'], $existingSet)) {
+                    $skipped++;
+                    continue;
+                }
+                $planModel->insert($activity);
+                $inserted++;
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "Plan regenerado: {$inserted} actividades insertadas, {$skipped} omitidas (ya existen en {$currentYear}).",
+                'inserted' => $inserted,
+                'skipped' => $skipped
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Busca actividades del inventario CSV por texto parcial
+     */
+    public function searchActivities()
+    {
+        $query = $this->request->getPost('query');
+        if (empty($query) || strlen($query) < 3) {
+            return $this->response->setJSON(['success' => false, 'results' => [], 'message' => 'Ingrese al menos 3 caracteres']);
+        }
+
+        try {
+            $csvPath = ROOTPATH . 'PTA2026.csv';
+            if (!file_exists($csvPath)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Archivo CSV no encontrado']);
+            }
+
+            $results = [];
+            $handle = fopen($csvPath, 'r');
+            $header = fgetcsv($handle, 1000, ';'); // skip header
+
+            while (($row = fgetcsv($handle, 1000, ';')) !== false) {
+                if (count($row) < 11) continue;
+                $actividad = trim($row[2] ?? '');
+                if (empty($actividad)) continue;
+
+                if (stripos($actividad, $query) !== false) {
+                    $results[] = [
+                        'phva' => trim($row[0] ?? ''),
+                        'numeral' => trim($row[1] ?? ''),
+                        'actividad' => $actividad,
+                        'responsable' => trim($row[10] ?? 'CONSULTOR CYCLOID'),
+                    ];
+                }
+            }
+            fclose($handle);
+
+            return $this->response->setJSON(['success' => true, 'results' => $results]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Genera opciones de actividad con IA (OpenAI API)
+     */
+    public function generateAiActivity()
+    {
+        $description = $this->request->getPost('description');
+        $context = $this->request->getPost('context') ?? '';
+
+        if (empty($description)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Descripción requerida']);
+        }
+
+        try {
+            $apiKey = getenv('OPENAI_API_KEY');
+            if (empty($apiKey)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'API key de OpenAI no configurada. Agregue OPENAI_API_KEY en .env']);
+            }
+
+            $systemPrompt = "Eres un experto en Seguridad y Salud en el Trabajo (SST) bajo la normativa colombiana (Decreto 1072 de 2015, Resolución 0312 de 2019). "
+                . "Tu tarea es proponer actividades para el Plan de Trabajo Anual del Sistema de Gestión de SST. "
+                . "Responde SOLO con un JSON array de exactamente 3 opciones. Cada opción debe tener: phva (PLANEAR, HACER, VERIFICAR o ACTUAR), numeral (del estándar mínimo), actividad (descripción profesional concisa). "
+                . "Ejemplo de respuesta: [{\"phva\":\"HACER\",\"numeral\":\"3.1.1\",\"actividad\":\"Realizar evaluaciones médicas ocupacionales periódicas\"}]";
+
+            $userMessage = "Necesito actividades de SST sobre: " . $description;
+            if (!empty($context)) {
+                $userMessage .= "\n\nContexto adicional: " . $context;
+            }
+
+            $ch = curl_init('https://api.openai.com/v1/chat/completions');
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'Authorization: Bearer ' . $apiKey,
+                ],
+                CURLOPT_POSTFIELDS => json_encode([
+                    'model' => 'gpt-4o-mini',
+                    'max_tokens' => 1024,
+                    'messages' => [
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user', 'content' => $userMessage],
+                    ],
+                ]),
+                CURLOPT_TIMEOUT => 30,
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode !== 200) {
+                log_message('error', "OpenAI API error {$httpCode}: {$response}");
+                return $this->response->setJSON(['success' => false, 'message' => 'Error al consultar la IA. Código: ' . $httpCode]);
+            }
+
+            $data = json_decode($response, true);
+            $text = $data['choices'][0]['message']['content'] ?? '';
+
+            // Extraer JSON del texto de respuesta
+            preg_match('/\[.*\]/s', $text, $matches);
+            $options = json_decode($matches[0] ?? '[]', true);
+
+            if (empty($options)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'La IA no generó opciones válidas. Intente reformular.']);
+            }
+
+            return $this->response->setJSON(['success' => true, 'options' => $options]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Inserta una actividad creada con IA o del inventario
+     */
+    public function insertAiActivity()
+    {
+        $idCliente = $this->request->getPost('id_cliente');
+        $phva = $this->request->getPost('phva');
+        $numeral = $this->request->getPost('numeral');
+        $actividad = $this->request->getPost('actividad');
+
+        if (empty($idCliente) || empty($actividad)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Cliente y actividad son requeridos']);
+        }
+
+        try {
+            $planModel = new PlanModel();
+            $data = [
+                'id_cliente' => $idCliente,
+                'phva_plandetrabajo' => $phva ?? '',
+                'numeral_plandetrabajo' => $numeral ?? '',
+                'actividad_plandetrabajo' => $actividad,
+                'responsable_sugerido_plandetrabajo' => 'CONSULTOR CYCLOID',
+                'observaciones' => '',
+                'fecha_propuesta' => date('Y-m-d'),
+                'estado_actividad' => 'ABIERTA',
+                'porcentaje_avance' => 0,
+            ];
+
+            if ($planModel->insert($data)) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Actividad insertada correctamente',
+                    'id' => $planModel->getInsertID()
+                ]);
+            }
+
+            return $this->response->setJSON(['success' => false, 'message' => 'Error al insertar la actividad']);
         } catch (\Exception $e) {
             return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
         }

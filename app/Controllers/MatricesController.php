@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\MatrizModel;
 use App\Models\ClientModel;
+use App\Libraries\MatricesGeneratorLibrary;
 use CodeIgniter\Controller;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -124,5 +125,55 @@ class MatricesController extends Controller
         $model = new MatrizModel();
         $model->delete($id);
         return redirect()->to('/matrices/list')->with('msg', 'Dashboard eliminado exitosamente');
+    }
+
+    /**
+     * Generar matrices personalizadas (EPP + Peligros) para un cliente específico
+     */
+    public function generarMatricesCliente($idCliente)
+    {
+        $clientModel = new ClientModel();
+        $cliente = $clientModel->find($idCliente);
+
+        if (!$cliente) {
+            return redirect()->to('/matrices/list')->with('msg', 'Cliente no encontrado');
+        }
+
+        $lib = new MatricesGeneratorLibrary();
+        $result = $lib->regenerar((int)$idCliente);
+
+        if (!empty($result['errors'])) {
+            return redirect()->to('/matrices/list')->with('msg', 'Errores: ' . implode(', ', $result['errors']));
+        }
+
+        $count = ($result['epp'] ? 1 : 0) + ($result['peligros'] ? 1 : 0);
+        return redirect()->to('/matrices/list')->with('msg', "Se generaron {$count} matrices personalizadas para {$cliente['nombre_cliente']}");
+    }
+
+    /**
+     * Generar matrices para TODOS los clientes que no las tienen
+     */
+    public function generarMatricesTodos()
+    {
+        $clientModel = new ClientModel();
+        $clients = $clientModel->where('estado', 'activo')->findAll();
+
+        $lib = new MatricesGeneratorLibrary();
+        $generados = 0;
+        $errores = 0;
+
+        foreach ($clients as $client) {
+            if ($lib->clienteTieneMatricesLocales((int)$client['id_cliente'])) {
+                continue;
+            }
+            $result = $lib->generarYRegistrar((int)$client['id_cliente']);
+            if (empty($result['errors'])) {
+                $generados++;
+            } else {
+                $errores++;
+            }
+        }
+
+        return redirect()->to('/matrices/list')->with('msg', "Matrices generadas para {$generados} clientes. Errores: {$errores}");
     }
 }

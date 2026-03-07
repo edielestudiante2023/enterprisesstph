@@ -257,12 +257,34 @@ class PlanController extends Controller
                     ->with('warning', 'No se encontraron actividades para la combinación seleccionada (Año ' . $year . ' - ' . ucfirst($serviceType) . ')');
             }
 
-            // Insertar las actividades en la base de datos
+            // Eliminar actividades ABIERTA del cliente antes de insertar
+            $db->table('tbl_pta_cliente')
+                ->where('id_cliente', $idCliente)
+                ->where('estado_actividad', 'ABIERTA')
+                ->delete();
+
+            // Obtener numerales ya CERRADA en el año actual
+            $currentYear = date('Y');
+            $closedNumerals = $db->table('tbl_pta_cliente')
+                ->select('numeral_plandetrabajo')
+                ->where('id_cliente', $idCliente)
+                ->where('estado_actividad', 'CERRADA')
+                ->where("YEAR(fecha_propuesta)", $currentYear)
+                ->get()
+                ->getResultArray();
+            $closedSet = array_column($closedNumerals, 'numeral_plandetrabajo');
+
+            // Insertar las actividades en la base de datos (sin pisar cerradas)
             $planModel = new PlanModel();
             $successCount = 0;
             $errorCount = 0;
+            $skippedCount = 0;
 
             foreach ($activities as $activity) {
+                if (in_array($activity['numeral_plandetrabajo'], $closedSet)) {
+                    $skippedCount++;
+                    continue;
+                }
                 if ($planModel->insert($activity)) {
                     $successCount++;
                 } else {
@@ -277,6 +299,10 @@ class PlanController extends Controller
             $message .= "✓ Año del SGSST: {$year}<br>";
             $message .= "✓ Tipo de Servicio: {$serviceTypeLabel}<br>";
             $message .= "✓ Actividades insertadas: {$successCount}<br>";
+
+            if ($skippedCount > 0) {
+                $message .= "✓ Actividades ya cerradas (omitidas): {$skippedCount}<br>";
+            }
 
             if ($errorCount > 0) {
                 $message .= "✗ Actividades con errores: {$errorCount}<br>";

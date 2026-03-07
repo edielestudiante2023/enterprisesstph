@@ -16,6 +16,7 @@ use App\Libraries\WorkPlanLibrary;
 use App\Libraries\TrainingLibrary;
 use App\Libraries\StandardsLibrary;
 use App\Libraries\ClientDocumentInitializerLibrary;
+use App\Libraries\MatricesGeneratorLibrary;
 use App\Models\CicloVisitaModel;
 use App\Models\UserModel;
 use CodeIgniter\Controller;
@@ -253,6 +254,20 @@ class ConsultantController extends Controller
             } catch (\Exception $e) {
                 // Log del error pero no interrumpir el flujo
                 log_message('error', 'Error al generar Estándares Mínimos automáticos: ' . $e->getMessage());
+            }
+
+            // Generar automáticamente las Matrices SST personalizadas (EPP + Peligros)
+            try {
+                $matricesLib = new MatricesGeneratorLibrary();
+                $matricesResult = $matricesLib->generarYRegistrar((int)$clientId);
+
+                if (!empty($matricesResult['errors'])) {
+                    log_message('error', 'Matrices SST - Errores para cliente ID ' . $clientId . ': ' . implode(', ', $matricesResult['errors']));
+                } else {
+                    log_message('info', "Matrices SST generadas automáticamente para cliente ID {$clientId}");
+                }
+            } catch (\Exception $e) {
+                log_message('error', 'Error al generar Matrices SST automáticas: ' . $e->getMessage());
             }
 
             // Enviar email de bienvenida con credenciales de acceso

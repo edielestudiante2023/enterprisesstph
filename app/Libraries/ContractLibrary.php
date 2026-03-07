@@ -4,6 +4,8 @@ namespace App\Libraries;
 
 use App\Models\ContractModel;
 use App\Models\ClientModel;
+use App\Models\PlanModel;
+use App\Libraries\WorkPlanLibrary;
 
 class ContractLibrary
 {
@@ -57,6 +59,9 @@ class ContractLibrary
 
             // Actualizar las fechas en tbl_clientes para mantener retrocompatibilidad
             $this->updateClientDates($data['id_cliente']);
+
+            // Auto-generar plan de trabajo para el cliente
+            $this->autoGenerateWorkPlan($data['id_cliente'], $data['frecuencia_visitas'] ?? null);
 
             return [
                 'success' => true,
@@ -243,6 +248,67 @@ class ContractLibrary
             'success' => false,
             'message' => 'Error al cancelar el contrato'
         ];
+    }
+
+    /**
+     * Auto-genera el plan de trabajo al crear/renovar un contrato.
+     * 1. Elimina actividades ABIERTA del cliente
+     * 2. Genera desde CSV sin insertar actividades ya CERRADA en el año actual
+     */
+    protected function autoGenerateWorkPlan($idCliente, $frecuenciaVisitas = null)
+    {
+        try {
+            $db = \Config\Database::connect();
+            $planModel = new PlanModel();
+
+            // 1. Eliminar actividades ABIERTA del cliente
+            $db->table('tbl_pta_cliente')
+                ->where('id_cliente', $idCliente)
+                ->where('estado_actividad', 'ABIERTA')
+                ->delete();
+
+            // 2. Detectar año SGSST del cliente
+            $workPlanLibrary = new WorkPlanLibrary();
+            $year = $workPlanLibrary->detectCurrentYear((int)$idCliente) ?? 1;
+
+            // 3. Mapear frecuencia_visitas del contrato al service_type del CSV
+            $serviceTypeMap = [
+                'MENSUAL'    => 'mensual',
+                'BIMENSUAL'  => 'bimensual',
+                'TRIMESTRAL' => 'trimestral',
+                'SEMESTRAL'  => 'proyecto',
+                'ANUAL'      => 'proyecto',
+            ];
+            $serviceType = $serviceTypeMap[strtoupper($frecuenciaVisitas ?? '')] ?? 'mensual';
+
+            // 4. Obtener actividades del CSV filtradas
+            $activities = $workPlanLibrary->getActivities((int)$idCliente, $year, $serviceType);
+
+            // 5. Obtener numerales ya CERRADA en el año actual para este cliente
+            $currentYear = date('Y');
+            $closedNumerals = $db->table('tbl_pta_cliente')
+                ->select('numeral_plandetrabajo')
+                ->where('id_cliente', $idCliente)
+                ->where('estado_actividad', 'CERRADA')
+                ->where("YEAR(fecha_propuesta)", $currentYear)
+                ->get()
+                ->getResultArray();
+            $closedSet = array_column($closedNumerals, 'numeral_plandetrabajo');
+
+            // 6. Insertar solo actividades que no estén cerradas este año
+            $inserted = 0;
+            foreach ($activities as $activity) {
+                if (in_array($activity['numeral_plandetrabajo'], $closedSet)) {
+                    continue;
+                }
+                $planModel->insert($activity);
+                $inserted++;
+            }
+
+            log_message('info', "AutoGenerateWorkPlan: Cliente {$idCliente}, Año {$year}, Servicio {$serviceType}, Insertadas {$inserted}, Cerradas omitidas " . count($closedSet));
+        } catch (\Exception $e) {
+            log_message('error', "AutoGenerateWorkPlan error: " . $e->getMessage());
+        }
     }
 
     /**
