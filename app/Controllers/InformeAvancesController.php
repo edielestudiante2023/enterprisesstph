@@ -730,13 +730,13 @@ PROMPT;
         // Desglose Estándares por ciclo PHVA
         $est = $metricas['desglose_estandares'] ?? [];
         if (!empty($est)) {
-            $lines[] = 'DESGLOSE CUMPLIMIENTO POR CICLO PHVA:';
+            $lines[] = 'DESGLOSE CALIFICACION POR CICLO PHVA (puntaje logrado / puntaje maximo):';
             foreach ($est as $e) {
                 $ciclo = $e['ciclo'] ?? 'Sin ciclo';
-                $valor = floatval($e['total_valor'] ?? 0);
-                $posible = floatval($e['total_posible'] ?? 0);
-                $pct = $posible > 0 ? round(($valor / $posible) * 100, 1) : 0;
-                $lines[] = "- {$ciclo}: {$valor} / {$posible} ({$pct}%)";
+                $logrado = floatval($e['total_valor'] ?? 0);
+                $maximo = floatval($e['total_posible'] ?? 0);
+                $pct = $maximo > 0 ? round(($logrado / $maximo) * 100, 1) : 0;
+                $lines[] = "- {$ciclo}: {$logrado} de {$maximo} ({$pct}%)";
             }
             $lines[] = '';
         }

@@ -252,7 +252,7 @@ class MetricasInformeService
     public function getDesgloseEstandares(int $idCliente, int $anio): array
     {
         return $this->db->table('evaluacion_inicial_sst')
-            ->select("ciclo, SUM(valor) as total_valor, SUM(puntaje_cuantitativo) as total_posible, COUNT(*) as cantidad")
+            ->select("ciclo, SUM(valor) as total_posible, SUM(puntaje_cuantitativo) as total_valor, COUNT(*) as cantidad")
             ->where('id_cliente', $idCliente)
             ->groupBy('ciclo')
             ->get()
