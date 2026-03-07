@@ -53,6 +53,9 @@
             <a href="<?= base_url('listado-maestro/excel/' . $cliente['id_cliente']) ?>" class="btn btn-success btn-sm">
                 <i class="fas fa-file-excel me-1"></i> Excel
             </a>
+            <a href="<?= base_url('listado-maestro/matrices/' . $cliente['id_cliente']) ?>" class="btn btn-warning btn-sm">
+                <i class="fas fa-table me-1"></i> Matrices
+            </a>
             <button onclick="window.print()" class="btn btn-secondary btn-sm">
                 <i class="fas fa-print me-1"></i> Imprimir
             </button>

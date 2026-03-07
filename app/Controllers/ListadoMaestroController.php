@@ -5,9 +5,11 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class ListadoMaestroController extends BaseController
 {
@@ -218,5 +220,342 @@ class ListadoMaestroController extends BaseController
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
         exit;
+    }
+
+    /**
+     * Vista de matrices disponibles para un cliente
+     */
+    public function matrices($idCliente)
+    {
+        $cliente = $this->db->table('tbl_clientes')
+            ->where('id_cliente', $idCliente)
+            ->get()->getRowArray();
+
+        if (!$cliente) {
+            return redirect()->to(base_url('listado-maestro'))->with('error', 'Cliente no encontrado');
+        }
+
+        $contrato = $this->db->table('tbl_contratos')
+            ->where('id_cliente', $idCliente)
+            ->where('estado', 'activo')
+            ->orderBy('fecha_inicio', 'DESC')
+            ->get()->getRowArray();
+
+        return view('listado_maestro/matrices', [
+            'cliente'  => $cliente,
+            'contrato' => $contrato,
+        ]);
+    }
+
+    /**
+     * Generar Matriz EPP personalizada con logo y datos del cliente
+     */
+    public function generarMatrizEpp($idCliente)
+    {
+        $cliente = $this->db->table('tbl_clientes')
+            ->where('id_cliente', $idCliente)
+            ->get()->getRowArray();
+
+        if (!$cliente) {
+            return redirect()->back()->with('error', 'Cliente no encontrado');
+        }
+
+        $contrato = $this->db->table('tbl_contratos')
+            ->where('id_cliente', $idCliente)
+            ->where('estado', 'activo')
+            ->orderBy('fecha_inicio', 'DESC')
+            ->get()->getRowArray();
+
+        $templatePath = APPPATH . 'Templates/matrices/MATRIZ ELEMENTOS DE PROTECCION PROPIEDAD HORIZONTAL.xlsx';
+        if (!file_exists($templatePath)) {
+            return redirect()->back()->with('error', 'Plantilla EPP no encontrada');
+        }
+
+        $spreadsheet = IOFactory::load($templatePath);
+
+        // Preparar logo del cliente
+        $logoPath = null;
+        if (!empty($cliente['logo'])) {
+            $fullLogoPath = FCPATH . 'uploads/' . $cliente['logo'];
+            if (file_exists($fullLogoPath)) {
+                $logoPath = $fullLogoPath;
+            }
+        }
+
+        // Fecha del contrato
+        $fechaContrato = '';
+        if (!empty($contrato['fecha_inicio'])) {
+            setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain');
+            $ts = strtotime($contrato['fecha_inicio']);
+            $fechaContrato = date('j', $ts) . ' de ' . $this->getMesEspanol((int)date('n', $ts)) . ' ' . date('Y', $ts);
+        }
+
+        // Recorrer todas las hojas
+        for ($i = 0; $i < $spreadsheet->getSheetCount(); $i++) {
+            $sheet = $spreadsheet->getSheet($i);
+
+            // Remover imagen existente en A1 y poner la del cliente
+            if ($logoPath) {
+                $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
+            }
+
+            // Insertar nombre del cliente en D2 (debajo del título del sistema)
+            $sheet->setCellValue('D2', $cliente['nombre_cliente']);
+
+            // Insertar fecha del contrato en D3
+            if ($fechaContrato) {
+                $sheet->setCellValue('D3', 'Fecha: ' . $fechaContrato);
+            }
+        }
+
+        $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', $cliente['nombre_cliente']);
+        $filename = "MT-SST-002_Matriz_EPP_{$nombreLimpio}.xlsx";
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Generar Matriz de Peligros personalizada con logo y datos del cliente
+     */
+    public function generarMatrizPeligros($idCliente)
+    {
+        $cliente = $this->db->table('tbl_clientes')
+            ->where('id_cliente', $idCliente)
+            ->get()->getRowArray();
+
+        if (!$cliente) {
+            return redirect()->back()->with('error', 'Cliente no encontrado');
+        }
+
+        $contrato = $this->db->table('tbl_contratos')
+            ->where('id_cliente', $idCliente)
+            ->where('estado', 'activo')
+            ->orderBy('fecha_inicio', 'DESC')
+            ->get()->getRowArray();
+
+        $templatePath = APPPATH . 'Templates/matrices/MT-SST-001 MATRIZ DE PELIGROS.xlsx';
+        if (!file_exists($templatePath)) {
+            return redirect()->back()->with('error', 'Plantilla Peligros no encontrada');
+        }
+
+        $spreadsheet = IOFactory::load($templatePath);
+
+        // Preparar logo del cliente
+        $logoPath = null;
+        if (!empty($cliente['logo'])) {
+            $fullLogoPath = FCPATH . 'uploads/' . $cliente['logo'];
+            if (file_exists($fullLogoPath)) {
+                $logoPath = $fullLogoPath;
+            }
+        }
+
+        // Fecha del contrato
+        $fechaContrato = '';
+        if (!empty($contrato['fecha_inicio'])) {
+            $ts = strtotime($contrato['fecha_inicio']);
+            $fechaContrato = date('j', $ts) . ' de ' . $this->getMesEspanol((int)date('n', $ts)) . ' ' . date('Y', $ts);
+        }
+
+        // Hojas de datos son las primeras 5 (ADMINISTRACIÓN, SERVICIOS GENERALES, OPERACIONES, SEGURIDAD, PARQUEADERO)
+        $hojasConDatos = min(5, $spreadsheet->getSheetCount());
+
+        for ($i = 0; $i < $hojasConDatos; $i++) {
+            $sheet = $spreadsheet->getSheet($i);
+
+            // Reemplazar logo en A1
+            if ($logoPath) {
+                $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
+            }
+
+            // Solo en la primera hoja (ADMINISTRACIÓN) escribir nombre — las demás usan fórmula
+            if ($i === 0) {
+                $sheet->setCellValue('C1', $cliente['nombre_cliente']);
+            }
+
+            // Actualizar fecha de revisión en A5
+            if ($fechaContrato) {
+                $sheet->setCellValue('A5', 'FECHA DE REVISIÓN: ' . $fechaContrato);
+            }
+        }
+
+        $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', $cliente['nombre_cliente']);
+        $filename = "MT-SST-001_Matriz_Peligros_{$nombreLimpio}.xlsx";
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Generar ambas matrices a la vez (ZIP)
+     */
+    public function generarTodasMatrices($idCliente)
+    {
+        $cliente = $this->db->table('tbl_clientes')
+            ->where('id_cliente', $idCliente)
+            ->get()->getRowArray();
+
+        if (!$cliente) {
+            return redirect()->back()->with('error', 'Cliente no encontrado');
+        }
+
+        // Generar ambos archivos en temp
+        $tmpDir = sys_get_temp_dir();
+        $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', $cliente['nombre_cliente']);
+
+        $archivos = [];
+
+        // EPP
+        $archivos[] = $this->generarMatrizEnTemp($idCliente, 'epp', $tmpDir, $nombreLimpio);
+        // Peligros
+        $archivos[] = $this->generarMatrizEnTemp($idCliente, 'peligros', $tmpDir, $nombreLimpio);
+
+        // Crear ZIP
+        $zipName = "Matrices_SST_{$nombreLimpio}.zip";
+        $zipPath = $tmpDir . '/' . $zipName;
+
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            return redirect()->back()->with('error', 'No se pudo crear el ZIP');
+        }
+
+        foreach ($archivos as $archivo) {
+            if ($archivo && file_exists($archivo['path'])) {
+                $zip->addFile($archivo['path'], $archivo['name']);
+            }
+        }
+        $zip->close();
+
+        // Limpiar temporales
+        foreach ($archivos as $archivo) {
+            if ($archivo && file_exists($archivo['path'])) {
+                unlink($archivo['path']);
+            }
+        }
+
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="' . $zipName . '"');
+        header('Content-Length: ' . filesize($zipPath));
+        readfile($zipPath);
+        unlink($zipPath);
+        exit;
+    }
+
+    // ─── Helpers privados ───
+
+    /**
+     * Genera una matriz en archivo temporal y retorna path + nombre
+     */
+    private function generarMatrizEnTemp(int $idCliente, string $tipo, string $tmpDir, string $nombreLimpio): ?array
+    {
+        $cliente = $this->db->table('tbl_clientes')
+            ->where('id_cliente', $idCliente)
+            ->get()->getRowArray();
+
+        $contrato = $this->db->table('tbl_contratos')
+            ->where('id_cliente', $idCliente)
+            ->where('estado', 'activo')
+            ->orderBy('fecha_inicio', 'DESC')
+            ->get()->getRowArray();
+
+        $logoPath = null;
+        if (!empty($cliente['logo'])) {
+            $fullLogoPath = FCPATH . 'uploads/' . $cliente['logo'];
+            if (file_exists($fullLogoPath)) {
+                $logoPath = $fullLogoPath;
+            }
+        }
+
+        $fechaContrato = '';
+        if (!empty($contrato['fecha_inicio'])) {
+            $ts = strtotime($contrato['fecha_inicio']);
+            $fechaContrato = date('j', $ts) . ' de ' . $this->getMesEspanol((int)date('n', $ts)) . ' ' . date('Y', $ts);
+        }
+
+        if ($tipo === 'epp') {
+            $templatePath = APPPATH . 'Templates/matrices/MATRIZ ELEMENTOS DE PROTECCION PROPIEDAD HORIZONTAL.xlsx';
+            $fileName = "MT-SST-002_Matriz_EPP_{$nombreLimpio}.xlsx";
+        } else {
+            $templatePath = APPPATH . 'Templates/matrices/MT-SST-001 MATRIZ DE PELIGROS.xlsx';
+            $fileName = "MT-SST-001_Matriz_Peligros_{$nombreLimpio}.xlsx";
+        }
+
+        if (!file_exists($templatePath)) return null;
+
+        $spreadsheet = IOFactory::load($templatePath);
+
+        if ($tipo === 'epp') {
+            for ($i = 0; $i < $spreadsheet->getSheetCount(); $i++) {
+                $sheet = $spreadsheet->getSheet($i);
+                if ($logoPath) $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
+                $sheet->setCellValue('D2', $cliente['nombre_cliente']);
+                if ($fechaContrato) $sheet->setCellValue('D3', 'Fecha: ' . $fechaContrato);
+            }
+        } else {
+            $hojasConDatos = min(5, $spreadsheet->getSheetCount());
+            for ($i = 0; $i < $hojasConDatos; $i++) {
+                $sheet = $spreadsheet->getSheet($i);
+                if ($logoPath) $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
+                if ($i === 0) $sheet->setCellValue('C1', $cliente['nombre_cliente']);
+                if ($fechaContrato) $sheet->setCellValue('A5', 'FECHA DE REVISIÓN: ' . $fechaContrato);
+            }
+        }
+
+        $tmpPath = $tmpDir . '/' . uniqid() . '.xlsx';
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($tmpPath);
+
+        return ['path' => $tmpPath, 'name' => $fileName];
+    }
+
+    /**
+     * Reemplaza la imagen existente en una celda por una nueva
+     */
+    private function reemplazarImagenEnCelda($sheet, string $celda, string $imagePath, int $width = 100, int $height = 60): void
+    {
+        // Remover drawings existentes en esa celda
+        $drawings = $sheet->getDrawingCollection();
+        $toRemove = [];
+        foreach ($drawings as $key => $drawing) {
+            if ($drawing->getCoordinates() === $celda) {
+                $toRemove[] = $key;
+            }
+        }
+        // Remover en orden inverso para no afectar índices
+        foreach (array_reverse($toRemove) as $key) {
+            $drawings->offsetUnset($key);
+        }
+
+        // Insertar nueva imagen
+        $drawing = new Drawing();
+        $drawing->setName('Logo Cliente');
+        $drawing->setDescription('Logo ' . basename($imagePath));
+        $drawing->setPath($imagePath);
+        $drawing->setCoordinates($celda);
+        $drawing->setWidth($width);
+        $drawing->setHeight($height);
+        $drawing->setOffsetX(5);
+        $drawing->setOffsetY(5);
+        $drawing->setWorksheet($sheet);
+    }
+
+    /**
+     * Retorna el nombre del mes en español
+     */
+    private function getMesEspanol(int $mes): string
+    {
+        $meses = [1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',5=>'mayo',6=>'junio',
+                  7=>'julio',8=>'agosto',9=>'septiembre',10=>'octubre',11=>'noviembre',12=>'diciembre'];
+        return $meses[$mes] ?? '';
     }
 }

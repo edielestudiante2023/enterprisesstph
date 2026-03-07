@@ -1435,5 +1435,11 @@ $routes->group('listado-maestro', ['filter' => 'auth'], function($routes) {
     $routes->get('(:num)', 'ListadoMaestroController::index/$1');
     $routes->get('pdf/(:num)', 'ListadoMaestroController::exportarPdf/$1');
     $routes->get('excel/(:num)', 'ListadoMaestroController::exportarExcel/$1');
+
+    // Matrices personalizadas
+    $routes->get('matrices/(:num)', 'ListadoMaestroController::matrices/$1');
+    $routes->get('matriz-epp/(:num)', 'ListadoMaestroController::generarMatrizEpp/$1');
+    $routes->get('matriz-peligros/(:num)', 'ListadoMaestroController::generarMatrizPeligros/$1');
+    $routes->get('matrices-todas/(:num)', 'ListadoMaestroController::generarTodasMatrices/$1');
 });
 
