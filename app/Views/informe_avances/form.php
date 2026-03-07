@@ -374,6 +374,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     Chart.register(ChartDataLabels);
 
@@ -470,6 +471,35 @@
     }
 
     $(document).ready(function() {
+        // Recordatorio antes de crear informe (solo modo crear)
+        if (!EDIT_MODE) {
+            Swal.fire({
+                title: 'Antes de generar el informe',
+                html: '<div style="text-align:left; font-size:0.95rem;">' +
+                    '<p class="mb-2">Recuerde que debe haber actualizado:</p>' +
+                    '<ul style="list-style:none; padding-left:0;">' +
+                    '<li><i class="fas fa-check-circle text-success me-2"></i>Estado de evaluación de estándares mínimos</li>' +
+                    '<li><i class="fas fa-check-circle text-success me-2"></i>Plan de Trabajo Anual</li>' +
+                    '<li><i class="fas fa-check-circle text-success me-2"></i>Cronograma de capacitaciones</li>' +
+                    '<li><i class="fas fa-check-circle text-success me-2"></i>Mantenimientos vencidos</li>' +
+                    '<li><i class="fas fa-check-circle text-success me-2"></i>Pendientes registrados en acta de visita</li>' +
+                    '</ul>' +
+                    '<p class="mt-2 text-muted" style="font-size:0.85rem;">Si todo está actualizado haga clic en <b>Continuar</b>, de lo contrario gestione primero.</p>' +
+                    '</div>',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-arrow-right me-1"></i>Continuar',
+                cancelButtonText: '<i class="fas fa-external-link-alt me-1"></i>Ir a gestionar',
+                confirmButtonColor: '#bd9751',
+                cancelButtonColor: '#1c2437',
+                allowOutsideClick: false,
+            }).then(function(result) {
+                if (!result.isConfirmed) {
+                    window.location.href = BASE + 'quick-access';
+                }
+            });
+        }
+
         // Initialize Select2 immediately so it always renders
         $('#selectCliente').select2({ theme: 'bootstrap-5', placeholder: 'Buscar cliente...', allowClear: true });
 
