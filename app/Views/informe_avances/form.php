@@ -223,11 +223,11 @@
                     </div>
                     <div class="row" id="evolucionCharts">
                         <div class="col-md-6">
-                            <p class="text-center small text-muted fw-semibold mb-1">% Cumplimiento Estándares</p>
+                            <p class="text-center small text-muted fw-semibold mb-1">Calificación Estándares</p>
                             <canvas id="chartHistEstandares" height="140"></canvas>
                         </div>
                         <div class="col-md-6">
-                            <p class="text-center small text-muted fw-semibold mb-1">% Actividades Abiertas Plan Trabajo</p>
+                            <p class="text-center small text-muted fw-semibold mb-1">Actividades Abiertas Plan Trabajo</p>
                             <canvas id="chartHistPlan" height="140"></canvas>
                         </div>
                     </div>
@@ -677,9 +677,14 @@
         // Chart instances for evolution section
         var chartHistEst = null, chartHistPlan = null;
 
-        function makeLineChart(canvasId, labels, values, label, color) {
+        function makeLineChart(canvasId, labels, values, label, color, opts) {
             var ctx = document.getElementById(canvasId);
             if (!ctx) return null;
+            opts = opts || {};
+            var yScale = { beginAtZero: true, ticks: { font: { size: 10 } } };
+            if (opts.maxY) yScale.max = opts.maxY;
+            if (opts.suffix) yScale.ticks.callback = function(v){ return v + opts.suffix; };
+            if (opts.integer) yScale.ticks.stepSize = 1;
             return new Chart(ctx.getContext('2d'), {
                 type: 'line',
                 data: {
@@ -703,7 +708,7 @@
                         datalabels: { display: false }
                     },
                     scales: {
-                        y: { beginAtZero: true, max: 100, ticks: { callback: function(v){ return v + '%'; } } },
+                        y: yScale,
                         x: { ticks: { font: { size: 10 } } }
                     }
                 }
@@ -744,10 +749,12 @@
                 if (chartHistPlan) { chartHistPlan.destroy(); chartHistPlan = null; }
 
                 if (est.length > 0) {
-                    chartHistEst = makeLineChart('chartHistEstandares', toLabels(est), toValues(est), '% Estándares', '#667eea');
+                    chartHistEst = makeLineChart('chartHistEstandares', toLabels(est), toValues(est), 'Calificación', '#667eea', {maxY: 100});
                 }
                 if (plan.length > 0) {
-                    chartHistPlan = makeLineChart('chartHistPlan', toLabels(plan), toValues(plan), '% Abiertas PTA', '#f093fb');
+                    var planVals = toValues(plan);
+                    var maxPlan = Math.max.apply(null, planVals);
+                    chartHistPlan = makeLineChart('chartHistPlan', toLabels(plan), planVals, 'Abiertas', '#f093fb', {maxY: Math.ceil(maxPlan * 1.1)});
                 }
             });
         }

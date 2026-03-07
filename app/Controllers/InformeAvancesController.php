@@ -544,13 +544,13 @@ class InformeAvancesController extends BaseController
         $quickChartEstandares = $this->buildQuickChartUrl(
             $this->getHistorialEstandaresCliente($idCliente, $anioInforme),
             'porcentaje_cumplimiento',
-            '% Cumplimiento Estandares',
+            'Calificacion Estandares',
             '#667eea'
         );
         $quickChartPlan = $this->buildQuickChartUrl(
             $this->getHistorialPlanCliente($idCliente, $anioInforme),
-            'porcentaje_abiertas',
-            '% Actividades Abiertas',
+            'actividades_abiertas',
+            'Actividades Abiertas PTA',
             '#4facfe'
         );
 
@@ -1029,7 +1029,7 @@ PROMPT;
         }
         $registros = $builder->orderBy('fecha_extraccion', 'ASC')->findAll();
 
-        return $this->agruparHistorialPorMes($registros, 'porcentaje_abiertas');
+        return $this->agruparHistorialPorMes($registros, 'actividades_abiertas');
     }
 
     // ─── Agrupar registros por mes, usando el ÚLTIMO valor del mes ───
@@ -1088,7 +1088,7 @@ PROMPT;
             'options' => [
                 'plugins' => ['legend' => ['display' => false]],
                 'scales'  => [
-                    'y' => ['min' => 0, 'suggestedMax' => 100,
+                    'y' => ['min' => 0,
                             'ticks' => ['font' => ['size' => 9]]],
                     'x' => ['ticks' => ['font' => ['size' => 9]]],
                 ],
