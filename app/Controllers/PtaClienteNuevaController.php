@@ -661,22 +661,22 @@ class PtaClienteNuevaController extends Controller
                 return $this->response->setJSON(['success' => false, 'message' => 'No se encontraron actividades para esta combinación']);
             }
 
-            // Obtener todos los numerales que ya existen en el año actual (cualquier estado)
+            // Obtener todas las actividades que ya existen en el año actual (cualquier estado, por texto exacto)
             $currentYear = date('Y');
-            $existingNumerals = $db->table('tbl_pta_cliente')
-                ->select('numeral_plandetrabajo')
+            $existingActivities = $db->table('tbl_pta_cliente')
+                ->select('actividad_plandetrabajo')
                 ->where('id_cliente', $idCliente)
                 ->where("YEAR(fecha_propuesta)", $currentYear)
                 ->get()
                 ->getResultArray();
-            $existingSet = array_column($existingNumerals, 'numeral_plandetrabajo');
+            $existingSet = array_column($existingActivities, 'actividad_plandetrabajo');
 
             $planModel = new PlanModel();
             $inserted = 0;
             $skipped = 0;
 
             foreach ($activities as $activity) {
-                if (in_array($activity['numeral_plandetrabajo'], $existingSet)) {
+                if (in_array($activity['actividad_plandetrabajo'], $existingSet)) {
                     $skipped++;
                     continue;
                 }

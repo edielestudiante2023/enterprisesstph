@@ -263,16 +263,16 @@ class PlanController extends Controller
                 ->where('estado_actividad', 'ABIERTA')
                 ->delete();
 
-            // Obtener numerales ya CERRADA en el año actual
+            // Obtener actividades ya CERRADA en el año actual (por texto exacto)
             $currentYear = date('Y');
-            $closedNumerals = $db->table('tbl_pta_cliente')
-                ->select('numeral_plandetrabajo')
+            $closedActivities = $db->table('tbl_pta_cliente')
+                ->select('actividad_plandetrabajo')
                 ->where('id_cliente', $idCliente)
                 ->where('estado_actividad', 'CERRADA')
                 ->where("YEAR(fecha_propuesta)", $currentYear)
                 ->get()
                 ->getResultArray();
-            $closedSet = array_column($closedNumerals, 'numeral_plandetrabajo');
+            $closedSet = array_column($closedActivities, 'actividad_plandetrabajo');
 
             // Insertar las actividades en la base de datos (sin pisar cerradas)
             $planModel = new PlanModel();
@@ -281,7 +281,7 @@ class PlanController extends Controller
             $skippedCount = 0;
 
             foreach ($activities as $activity) {
-                if (in_array($activity['numeral_plandetrabajo'], $closedSet)) {
+                if (in_array($activity['actividad_plandetrabajo'], $closedSet)) {
                     $skippedCount++;
                     continue;
                 }

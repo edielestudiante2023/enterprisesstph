@@ -284,21 +284,21 @@ class ContractLibrary
             // 4. Obtener actividades del CSV filtradas
             $activities = $workPlanLibrary->getActivities((int)$idCliente, $year, $serviceType);
 
-            // 5. Obtener numerales ya CERRADA en el año actual para este cliente
+            // 5. Obtener actividades ya CERRADA en el año actual (por texto exacto)
             $currentYear = date('Y');
-            $closedNumerals = $db->table('tbl_pta_cliente')
-                ->select('numeral_plandetrabajo')
+            $closedActivities = $db->table('tbl_pta_cliente')
+                ->select('actividad_plandetrabajo')
                 ->where('id_cliente', $idCliente)
                 ->where('estado_actividad', 'CERRADA')
                 ->where("YEAR(fecha_propuesta)", $currentYear)
                 ->get()
                 ->getResultArray();
-            $closedSet = array_column($closedNumerals, 'numeral_plandetrabajo');
+            $closedSet = array_column($closedActivities, 'actividad_plandetrabajo');
 
-            // 6. Insertar solo actividades que no estén cerradas este año
+            // 6. Insertar solo actividades cuyo texto no coincida con una cerrada este año
             $inserted = 0;
             foreach ($activities as $activity) {
-                if (in_array($activity['numeral_plandetrabajo'], $closedSet)) {
+                if (in_array($activity['actividad_plandetrabajo'], $closedSet)) {
                     continue;
                 }
                 $planModel->insert($activity);
