@@ -350,7 +350,7 @@
 
             <!-- Botones -->
             <div class="d-flex gap-2 mb-5">
-                <button type="submit" class="btn btn-gold btn-lg flex-fill">
+                <button type="submit" id="btnGuardar" class="btn btn-gold btn-lg flex-fill" disabled>
                     <i class="fas fa-save me-2"></i>Guardar Borrador
                 </button>
                 <?php if ($mode === 'edit'): ?>
@@ -939,11 +939,22 @@
             });
         });
 
+        // Toggle Guardar Borrador based on resumen content
+        function toggleGuardar() {
+            $('#btnGuardar').prop('disabled', !$('#resumenAvance').val().trim());
+        }
+        $('#resumenAvance').on('input', toggleGuardar);
+        toggleGuardar(); // check on page load (edit mode may have existing text)
+
         // Capture charts before form submit (async-safe)
         var isSubmitting = false;
         $('#formInforme').on('submit', function(e) {
             if (isSubmitting) return true; // allow native re-submit
             e.preventDefault();
+            if (!$('#resumenAvance').val().trim()) {
+                Swal.fire({icon: 'warning', title: 'Resumen requerido', text: 'Debe generar el resumen con IA antes de guardar el borrador.', confirmButtonColor: '#b8860b'});
+                return false;
+            }
             isSubmitting = true;
             captureAndSetJson().then(function() {
                 document.getElementById('formInforme').submit();
