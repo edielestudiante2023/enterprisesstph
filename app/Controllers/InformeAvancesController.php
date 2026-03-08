@@ -595,7 +595,7 @@ class InformeAvancesController extends BaseController
 
         $pdfDir = 'uploads/informe-avances/pdfs/';
         if (!is_dir(FCPATH . $pdfDir)) {
-            mkdir(FCPATH . $pdfDir, 0755, true);
+            mkdir(FCPATH . $pdfDir, 0775, true);
         }
 
         $pdfFileName = 'informe_avances_' . $id . '_' . date('Ymd_His') . '.pdf';

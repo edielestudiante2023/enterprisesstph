@@ -9,7 +9,10 @@
       "Bash(php -r '$db = new mysqli\\(\"\"localhost\"\", \"\"root\"\", \"\"\"\", \"\"propiedad_horizontal\"\"\\); $r = $db->query\\(\"\"SELECT id_cliente, YEAR\\(updated_at\\) as anio, COUNT\\(*\\) as total FROM evaluacion_inicial_sst GROUP BY id_cliente, YEAR\\(updated_at\\) ORDER BY id_cliente LIMIT 20\"\"\\); while \\($row = $r->fetch_assoc\\(\\)\\) { echo \"\"cliente=\"\" . $row[\"\"id_cliente\"\"] . \"\" anio=\"\" . $row[\"\"anio\"\"] . \"\" registros=\"\" . $row[\"\"total\"\"] . \"\"\\\\n\"\"; }')",
       "Bash(php -r '$db = new mysqli\\(\"\"localhost\"\", \"\"root\"\", \"\"\"\", \"\"propiedad_horizontal\"\"\\); $r = $db->query\\(\"\"SHOW TABLES LIKE \\\\\"\"%acta%\\\\\"\"\"\"\\); while \\($row = $r->fetch_array\\(\\)\\) { echo $row[0] . \"\"\\\\n\"\"; } echo \"\"\\\\n\"\"; $r = $db->query\\(\"\"SHOW TABLES LIKE \\\\\"\"%inspeccion%\\\\\"\"\"\"\\); while \\($row = $r->fetch_array\\(\\)\\) { echo $row[0] . \"\"\\\\n\"\"; } echo \"\"\\\\n\"\"; $r = $db->query\\(\"\"SHOW TABLES LIKE \\\\\"\"%contrato%\\\\\"\"\"\"\\); while \\($row = $r->fetch_array\\(\\)\\) { echo $row[0] . \"\"\\\\n\"\"; }')",
       "Bash(php -r ':*)",
-      "Bash(php -r \"$db = new mysqli\\(''localhost'', ''root'', '''', ''propiedad_horizontal''\\); $r = $db->query\\(''DESCRIBE tbl_matrices''\\); while\\($row = $r->fetch_assoc\\(\\)\\) echo $row[''Field''] . '' | '' . $row[''Type''] . '' | '' . $row[''Null''] . '' | '' . $row[''Key''] . PHP_EOL;\")"
+      "Bash(php -r \"$db = new mysqli\\(''localhost'', ''root'', '''', ''propiedad_horizontal''\\); $r = $db->query\\(''DESCRIBE tbl_matrices''\\); while\\($row = $r->fetch_assoc\\(\\)\\) echo $row[''Field''] . '' | '' . $row[''Type''] . '' | '' . $row[''Null''] . '' | '' . $row[''Key''] . PHP_EOL;\")",
+      "Bash(DB_PROD_PASS='AVNS_iDypWizlpMRwHIORJGG' /c/xampp/php/php.exe app/SQL/fix_historial_2026.php production)",
+      "Bash(DB_PROD_PASS='AVNS_iDypWizlpMRwHIORJGG' /c/xampp/php/php.exe app/SQL/fix_historial_2026_v2.php production)",
+      "Bash(php -d error_reporting=0 -r \":*)"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\enterprisesstph\\app\\Config"

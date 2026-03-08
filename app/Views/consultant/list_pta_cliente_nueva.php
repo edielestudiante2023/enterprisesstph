@@ -650,12 +650,20 @@
             <div class="col-lg-8">
                 <!-- Toggle de filtros por tarjetas -->
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <button class="filter-toggle-btn collapsed" type="button"
-                            data-bs-toggle="collapse" data-bs-target="#cardFiltersPanel"
-                            aria-expanded="false">
-                        <i class="fas fa-layer-group me-2"></i>Filtros por Tarjetas (Año / Estado / Mes)
-                        <i class="fas fa-chevron-down ms-2"></i>
-                    </button>
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="filter-toggle-btn collapsed" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#cardFiltersPanel"
+                                aria-expanded="false">
+                            <i class="fas fa-layer-group me-2"></i>Filtros por Tarjetas (Año / Estado / Mes)
+                            <i class="fas fa-chevron-down ms-2"></i>
+                        </button>
+                        <select id="yearFilterSelect" class="form-select form-select-sm" style="width: auto; min-width: 130px;">
+                            <option value="">Todos</option>
+                            <?php for ($y = 2024; $y <= 2030; $y++): ?>
+                                <option value="<?= $y ?>" <?= ($y == date('Y')) ? 'selected' : '' ?>><?= $y ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
                     <button type="button" id="btnClearCardFilters" class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-times"></i> Limpiar Filtros
                     </button>
@@ -1088,7 +1096,7 @@
             });
 
             // Variables globales para filtros activos
-            var activeYear = null;
+            var activeYear = $('#yearFilterSelect').val() || null;
             var activeMonth = null;
             var activeStatus = null;
 
@@ -1233,6 +1241,17 @@
                 generateYearCards();
             }
 
+            // Cambio en dropdown de año
+            $('#yearFilterSelect').on('change', function() {
+                var year = $(this).val() || null;
+                activeYear = year;
+                $('.card-year').removeClass('active');
+                if (year) {
+                    $('.card-year[data-year="' + year + '"]').addClass('active');
+                }
+                applyFilters();
+            });
+
             // Click en tarjetas de año
             $(document).on('click', '.card-year', function() {
                 var year = $(this).data('year');
@@ -1241,11 +1260,13 @@
                     // Desactivar filtro
                     $(this).removeClass('active');
                     activeYear = null;
+                    $('#yearFilterSelect').val('');
                 } else {
                     // Activar filtro
                     $('.card-year').removeClass('active');
                     $(this).addClass('active');
                     activeYear = year;
+                    $('#yearFilterSelect').val(year);
                 }
 
                 applyFilters();
@@ -1295,6 +1316,7 @@
                 activeStatus = null;
 
                 // Remover clases activas
+                $('#yearFilterSelect').val('');
                 $('.card-year').removeClass('active');
                 $('.card-month').removeClass('active');
                 $('.card-status').removeClass('active');
@@ -1605,6 +1627,12 @@
                 updateMonthlyCounts();
                 generateYearCards();
                 initTruncateButtons();
+
+                // Aplicar filtro de año actual al cargar
+                if (activeYear) {
+                    applyFilters();
+                    $('.card-year[data-year="' + activeYear + '"]').addClass('active');
+                }
 
                 $('#ptaTable tbody').on('dblclick', 'td.editable', function() {
                     var cell = table.cell(this);

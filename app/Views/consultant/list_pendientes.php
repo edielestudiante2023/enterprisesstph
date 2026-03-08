@@ -197,8 +197,14 @@
 
     <!-- Sección de Filtros por Año -->
     <div class="d-flex justify-content-between align-items-center">
-      <div class="section-title mb-0">
-        <i class="fas fa-calendar-alt"></i> Filtrar por Año
+      <div class="section-title mb-0 d-flex align-items-center gap-3">
+        <span><i class="fas fa-calendar-alt"></i> Filtrar por Año</span>
+        <select id="yearFilterSelect" class="form-select form-select-sm" style="width: auto; min-width: 130px;">
+          <option value="">Todos</option>
+          <?php for ($y = 2024; $y <= 2030; $y++): ?>
+            <option value="<?= $y ?>" <?= ($y == date('Y')) ? 'selected' : '' ?>><?= $y ?></option>
+          <?php endfor; ?>
+        </select>
       </div>
       <button type="button" id="btnClearCardFilters" class="btn btn-outline-secondary btn-sm">
         <i class="fas fa-times"></i> Limpiar Filtros de Tarjetas
@@ -457,7 +463,7 @@
 
     $(document).ready(function() {
       // Variables globales para filtros activos
-      var activeYear = null;
+      var activeYear = $('#yearFilterSelect').val() || null;
       var activeMonth = null;
       var activeStatus = null;
 
@@ -770,6 +776,18 @@
         updateMonthlyCounts();
       }
 
+      // Cambio en dropdown de año
+      $('#yearFilterSelect').on('change', function() {
+        var year = $(this).val() || null;
+        activeYear = year;
+        // Sincronizar tarjetas
+        $('.card-year').removeClass('active');
+        if (year) {
+          $('.card-year[data-year="' + year + '"]').addClass('active');
+        }
+        applyFilters();
+      });
+
       // Click en tarjetas de año
       $(document).on('click', '.card-year', function() {
         var year = $(this).data('year');
@@ -777,10 +795,12 @@
         if ($(this).hasClass('active')) {
           $(this).removeClass('active');
           activeYear = null;
+          $('#yearFilterSelect').val('');
         } else {
           $('.card-year').removeClass('active');
           $(this).addClass('active');
           activeYear = year;
+          $('#yearFilterSelect').val(year);
         }
 
         applyFilters();
@@ -824,6 +844,7 @@
         activeMonth = null;
         activeStatus = null;
 
+        $('#yearFilterSelect').val('');
         $('.card-year').removeClass('active');
         $('.card-month').removeClass('active');
         $('.card-status').removeClass('active');
@@ -849,6 +870,13 @@
       updateStatusCounts();
       updateMonthlyCounts();
       generateYearCards();
+
+      // Aplicar filtro de año actual al cargar
+      if (activeYear) {
+        applyFilters();
+        // Sincronizar tarjeta activa
+        $('.card-year[data-year="' + activeYear + '"]').addClass('active');
+      }
 
       // Filtros por columna en el tfoot (se actualizó el selector a .filter-search)
       $('tfoot .filter-search').on('keyup change', function() {
