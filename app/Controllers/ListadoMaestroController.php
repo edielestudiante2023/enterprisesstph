@@ -294,16 +294,12 @@ class ListadoMaestroController extends BaseController
         for ($i = 0; $i < $spreadsheet->getSheetCount(); $i++) {
             $sheet = $spreadsheet->getSheet($i);
 
-            // Remover imagen existente en A1 y poner la del cliente
             if ($logoPath) {
                 $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
             }
 
-            // Insertar nombre del cliente en D2 (debajo del título del sistema)
-            $sheet->setCellValue('D2', $cliente['nombre_cliente']);
-
-            // Insertar fecha del contrato en D3 (siempre sobreescribir para limpiar plantilla)
-            $sheet->setCellValue('D3', $fechaContrato ? 'Fecha: ' . $fechaContrato : '');
+            // M4 = celda FECHA en encabezado EPP (K4:L4 es label "FECHA", M4 es el valor)
+            $sheet->setCellValue('M4', $fechaContrato ?: '');
         }
 
         $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', $cliente['nombre_cliente']);
@@ -493,8 +489,7 @@ class ListadoMaestroController extends BaseController
             for ($i = 0; $i < $spreadsheet->getSheetCount(); $i++) {
                 $sheet = $spreadsheet->getSheet($i);
                 if ($logoPath) $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
-                $sheet->setCellValue('D2', $cliente['nombre_cliente']);
-                $sheet->setCellValue('D3', $fechaContrato ? 'Fecha: ' . $fechaContrato : '');
+                $sheet->setCellValue('M4', $fechaContrato ?: '');
             }
         } else {
             $hojasConDatos = min(5, $spreadsheet->getSheetCount());

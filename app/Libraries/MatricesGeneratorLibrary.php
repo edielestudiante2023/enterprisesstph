@@ -143,8 +143,8 @@ class MatricesGeneratorLibrary
                 for ($i = 0; $i < $spreadsheet->getSheetCount(); $i++) {
                     $sheet = $spreadsheet->getSheet($i);
                     if ($logoPath) $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
-                    $sheet->setCellValue('D2', $cliente['nombre_cliente']);
-                    $sheet->setCellValue('D3', $fechaContrato ? 'Fecha: ' . $fechaContrato : '');
+                    // M4 = celda FECHA en encabezado EPP (K4:L4 es label "FECHA", M4 es el valor)
+                    $sheet->setCellValue('M4', $fechaContrato ?: '');
                 }
             } else {
                 $hojasConDatos = min(5, $spreadsheet->getSheetCount());
