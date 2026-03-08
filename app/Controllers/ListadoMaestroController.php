@@ -282,11 +282,11 @@ class ListadoMaestroController extends BaseController
             }
         }
 
-        // Fecha del contrato
+        // Fecha del contrato (fallback a fecha_ingreso)
         $fechaContrato = '';
-        if (!empty($contrato['fecha_inicio'])) {
-            setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain');
-            $ts = strtotime($contrato['fecha_inicio']);
+        $fechaOrigen = $contrato['fecha_inicio'] ?? $cliente['fecha_ingreso'] ?? null;
+        if (!empty($fechaOrigen)) {
+            $ts = strtotime($fechaOrigen);
             $fechaContrato = date('j', $ts) . ' de ' . $this->getMesEspanol((int)date('n', $ts)) . ' ' . date('Y', $ts);
         }
 
@@ -302,10 +302,8 @@ class ListadoMaestroController extends BaseController
             // Insertar nombre del cliente en D2 (debajo del título del sistema)
             $sheet->setCellValue('D2', $cliente['nombre_cliente']);
 
-            // Insertar fecha del contrato en D3
-            if ($fechaContrato) {
-                $sheet->setCellValue('D3', 'Fecha: ' . $fechaContrato);
-            }
+            // Insertar fecha del contrato en D3 (siempre sobreescribir para limpiar plantilla)
+            $sheet->setCellValue('D3', $fechaContrato ? 'Fecha: ' . $fechaContrato : '');
         }
 
         $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', $cliente['nombre_cliente']);
@@ -355,33 +353,29 @@ class ListadoMaestroController extends BaseController
             }
         }
 
-        // Fecha del contrato
+        // Fecha del contrato (fallback a fecha_ingreso)
         $fechaContrato = '';
-        if (!empty($contrato['fecha_inicio'])) {
-            $ts = strtotime($contrato['fecha_inicio']);
+        $fechaOrigen = $contrato['fecha_inicio'] ?? $cliente['fecha_ingreso'] ?? null;
+        if (!empty($fechaOrigen)) {
+            $ts = strtotime($fechaOrigen);
             $fechaContrato = date('j', $ts) . ' de ' . $this->getMesEspanol((int)date('n', $ts)) . ' ' . date('Y', $ts);
         }
 
-        // Hojas de datos son las primeras 5 (ADMINISTRACIÓN, SERVICIOS GENERALES, OPERACIONES, SEGURIDAD, PARQUEADERO)
+        // Hojas de datos son las primeras 5
         $hojasConDatos = min(5, $spreadsheet->getSheetCount());
 
         for ($i = 0; $i < $hojasConDatos; $i++) {
             $sheet = $spreadsheet->getSheet($i);
 
-            // Reemplazar logo en A1
             if ($logoPath) {
                 $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
             }
 
-            // Solo en la primera hoja (ADMINISTRACIÓN) escribir nombre — las demás usan fórmula
             if ($i === 0) {
                 $sheet->setCellValue('C1', $cliente['nombre_cliente']);
             }
 
-            // Actualizar fecha de revisión en A5
-            if ($fechaContrato) {
-                $sheet->setCellValue('A5', 'FECHA DE REVISIÓN: ' . $fechaContrato);
-            }
+            $sheet->setCellValue('A5', $fechaContrato ? 'FECHA DE REVISIÓN: ' . $fechaContrato : '');
         }
 
         $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', $cliente['nombre_cliente']);
@@ -477,8 +471,9 @@ class ListadoMaestroController extends BaseController
         }
 
         $fechaContrato = '';
-        if (!empty($contrato['fecha_inicio'])) {
-            $ts = strtotime($contrato['fecha_inicio']);
+        $fechaOrigen = $contrato['fecha_inicio'] ?? $cliente['fecha_ingreso'] ?? null;
+        if (!empty($fechaOrigen)) {
+            $ts = strtotime($fechaOrigen);
             $fechaContrato = date('j', $ts) . ' de ' . $this->getMesEspanol((int)date('n', $ts)) . ' ' . date('Y', $ts);
         }
 
@@ -499,7 +494,7 @@ class ListadoMaestroController extends BaseController
                 $sheet = $spreadsheet->getSheet($i);
                 if ($logoPath) $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
                 $sheet->setCellValue('D2', $cliente['nombre_cliente']);
-                if ($fechaContrato) $sheet->setCellValue('D3', 'Fecha: ' . $fechaContrato);
+                $sheet->setCellValue('D3', $fechaContrato ? 'Fecha: ' . $fechaContrato : '');
             }
         } else {
             $hojasConDatos = min(5, $spreadsheet->getSheetCount());
@@ -507,7 +502,7 @@ class ListadoMaestroController extends BaseController
                 $sheet = $spreadsheet->getSheet($i);
                 if ($logoPath) $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
                 if ($i === 0) $sheet->setCellValue('C1', $cliente['nombre_cliente']);
-                if ($fechaContrato) $sheet->setCellValue('A5', 'FECHA DE REVISIÓN: ' . $fechaContrato);
+                $sheet->setCellValue('A5', $fechaContrato ? 'FECHA DE REVISIÓN: ' . $fechaContrato : '');
             }
         }
 

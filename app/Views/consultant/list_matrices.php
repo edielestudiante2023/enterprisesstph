@@ -112,6 +112,7 @@
           <th>Descripción</th>
           <th>Observaciones</th>
           <th>Enlace</th>
+          <th>Fecha</th>
           <th>Cliente</th>
           <th>Acciones</th>
         </tr>
@@ -140,6 +141,7 @@
                    class="btn btn-link text-decoration-none">Ver</a>
               <?php endif; ?>
             </td>
+            <td><?= !empty($matriz['created_at']) ? date('d/m/Y', strtotime($matriz['created_at'])) : '' ?></td>
             <td>
               <?= $clients[array_search($matriz['id_cliente'], array_column($clients, 'id_cliente'))]['nombre_cliente'] ?>
             </td>
@@ -159,6 +161,7 @@
           <th>Descripción</th>
           <th>Observaciones</th>
           <th>Enlace</th>
+          <th>Fecha</th>
           <th>Cliente</th>
           <th>Acciones</th>
         </tr>
@@ -217,8 +220,9 @@
             // 2: Descripción -> dropdown
             // 3: Observaciones -> input de texto
             // 4: Enlace (sin filtro)
-            // 5: Cliente -> input de texto
-            // 6: Acciones (sin filtro)
+            // 5: Fecha (sin filtro)
+            // 6: Cliente -> input de texto
+            // 7: Acciones (sin filtro)
             if (colIdx === 1 || colIdx === 2) {
               // Dropdown filtering para "Tipo" y "Descripción"
               var headerText = $(column.header()).text();
@@ -241,7 +245,7 @@
               Array.from(uniqueData).sort().forEach(function(d) {
                 select.append('<option value="' + d + '">' + d + '</option>');
               });
-            } else if (colIdx === 3 || colIdx === 5) {
+            } else if (colIdx === 3 || colIdx === 6) {
               // Text input filtering para "Observaciones" y "Cliente"
               var headerText = $(column.header()).text();
               var input = $('<input type="text" class="form-control form-control-sm" placeholder="Filtrar ' + headerText + '">')

@@ -85,9 +85,10 @@
             <thead class="table-dark">
                 <tr>
                     <th>Tipo de Matriz o Carpeta</th>
-                    <th>Descripción o Detalle</th>
+                    <th>Descripcion o Detalle</th>
                     <th>Observaciones</th>
                     <th>Enlace</th>
+                    <th>Fecha</th>
                 </tr>
             </thead>
             <tfoot>
@@ -110,6 +111,9 @@
                     <th>
                         <!-- No se aplica filtro a la columna de enlaces -->
                     </th>
+                    <th>
+                        <!-- No se aplica filtro a fecha -->
+                    </th>
                 </tr>
             </tfoot>
             <tbody>
@@ -119,13 +123,25 @@
                         <td><?= htmlspecialchars($matriz['descripcion'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($matriz['observaciones'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
-                            <a href="<?= htmlspecialchars($matriz['enlace'], ENT_QUOTES, 'UTF-8') ?>" 
-                               target="_blank" 
-                               rel="noopener noreferrer" 
-                               class="btn btn-link text-decoration-none" 
-                               data-bs-toggle="tooltip" 
-                               title="Abrir Matriz o Carpeta">Ver</a>
+                            <?php
+                                $enlace = $matriz['enlace'];
+                                $isLocal = strpos($enlace, 'uploads/matrices/') !== false;
+                                $href = $isLocal ? base_url($enlace) : $enlace;
+                            ?>
+                            <?php if ($isLocal): ?>
+                                <a href="<?= htmlspecialchars($href, ENT_QUOTES, 'UTF-8') ?>"
+                                   download class="btn btn-sm btn-success text-decoration-none"
+                                   data-bs-toggle="tooltip" title="Descargar archivo Excel">
+                                    <i class="bi bi-download me-1"></i>Descargar
+                                </a>
+                            <?php else: ?>
+                                <a href="<?= htmlspecialchars($href, ENT_QUOTES, 'UTF-8') ?>"
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="btn btn-link text-decoration-none"
+                                   data-bs-toggle="tooltip" title="Abrir Matriz o Carpeta">Ver</a>
+                            <?php endif; ?>
                         </td>
+                        <td><?= !empty($matriz['created_at']) ? date('d/m/Y', strtotime($matriz['created_at'])) : '' ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

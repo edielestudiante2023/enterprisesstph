@@ -49,10 +49,11 @@ class MatricesGeneratorLibrary
             }
         }
 
-        // Fecha del contrato en español
+        // Fecha del contrato en español (fallback a fecha_ingreso del cliente)
         $fechaContrato = '';
-        if (!empty($contrato['fecha_inicio'])) {
-            $ts = strtotime($contrato['fecha_inicio']);
+        $fechaOrigen = $contrato['fecha_inicio'] ?? $cliente['fecha_ingreso'] ?? null;
+        if (!empty($fechaOrigen)) {
+            $ts = strtotime($fechaOrigen);
             $fechaContrato = date('j', $ts) . ' de ' . $this->getMesEspanol((int)date('n', $ts)) . ' ' . date('Y', $ts);
         }
 
@@ -143,7 +144,7 @@ class MatricesGeneratorLibrary
                     $sheet = $spreadsheet->getSheet($i);
                     if ($logoPath) $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
                     $sheet->setCellValue('D2', $cliente['nombre_cliente']);
-                    if ($fechaContrato) $sheet->setCellValue('D3', 'Fecha: ' . $fechaContrato);
+                    $sheet->setCellValue('D3', $fechaContrato ? 'Fecha: ' . $fechaContrato : '');
                 }
             } else {
                 $hojasConDatos = min(5, $spreadsheet->getSheetCount());
@@ -151,7 +152,7 @@ class MatricesGeneratorLibrary
                     $sheet = $spreadsheet->getSheet($i);
                     if ($logoPath) $this->reemplazarImagenEnCelda($sheet, 'A1', $logoPath, 100, 60);
                     if ($i === 0) $sheet->setCellValue('C1', $cliente['nombre_cliente']);
-                    if ($fechaContrato) $sheet->setCellValue('A5', 'FECHA DE REVISIÓN: ' . $fechaContrato);
+                    $sheet->setCellValue('A5', $fechaContrato ? 'FECHA DE REVISIÓN: ' . $fechaContrato : '');
                 }
             }
 
