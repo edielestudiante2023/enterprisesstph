@@ -432,6 +432,7 @@ $routes->post('lookerstudio/editPost/(:num)', 'LookerStudioController::editPost/
 $routes->get('lookerstudio/delete/(:num)', 'LookerStudioController::delete/$1');
 
 $routes->get('/client/lista-lookerstudio', 'ClientLookerStudioController::index');
+$routes->get('/client/lista-lookerstudio/(:num)', 'ClientLookerStudioController::index/$1');
 
 $routes->get('matrices/list', 'MatricesController::list');
 $routes->get('matrices/add', 'MatricesController::add');
@@ -443,6 +444,7 @@ $routes->get('matrices/generar/(:num)', 'MatricesController::generarMatricesClie
 $routes->get('matrices/generar-todos', 'MatricesController::generarMatricesTodos');
 
 $routes->get('/client/lista-matrices', 'ClientMatrices::index');
+$routes->get('/client/lista-matrices/(:num)', 'ClientMatrices::index/$1');
 
 
 $routes->get('client/panel', 'ClientPanelController::showPanel');

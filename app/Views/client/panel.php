@@ -137,7 +137,7 @@
                                     <div class="col-md-6 mb-4">
                                         <div class="icon-container">
                                             <h5>Dashboard KPI</h5>
-                                            <a href="<?= base_url('/client/lista-lookerstudio') ?>" target="_blank">
+                                            <a href="<?= base_url('/client/lista-lookerstudio/' . $client['id_cliente']) ?>" target="_blank">
                                                 <img src="<?= base_url('/uploads/kpi_image.png') ?>" alt="Ir al Dashboard" class="img-fluid">
                                             </a>
                                         </div>
@@ -145,7 +145,7 @@
                                     <div class="col-md-6 mb-4">
                                         <div class="icon-container">
                                             <h5>Plataformas con colaboración en tiempo real</h5>
-                                            <a href="<?= base_url('/client/lista-matrices') ?>" target="_blank">
+                                            <a href="<?= base_url('/client/lista-matrices/' . $client['id_cliente']) ?>" target="_blank">
                                                 <img src="<?= base_url('/uploads/xlsx.png') ?>" alt="Ir al Dashboard" class="img-fluid">
                                             </a>
                                         </div>
