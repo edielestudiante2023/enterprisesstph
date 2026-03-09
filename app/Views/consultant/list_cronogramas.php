@@ -983,7 +983,6 @@
           url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
         },
         pagingType: "full_numbers",
-        responsive: true,
         autoWidth: false,
         dom: 'Bfltip',
         pageLength: 25,
@@ -1210,6 +1209,10 @@
             }
           });
         }
+      });
+
+      table.on('draw.dt', function() {
+        table.columns.adjust();
       });
 
       table.buttons().container().appendTo('#buttonsContainer');
