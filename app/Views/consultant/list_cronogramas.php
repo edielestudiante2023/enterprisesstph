@@ -393,13 +393,9 @@
     .dataTables_scrollBody table {
       margin: 0 !important;
     }
-    .dataTables_scrollHead,
-    .dataTables_scrollBody {
-      overflow: visible !important;
-    }
-    .dataTables_scrollBody {
-      overflow-x: auto !important;
-      overflow-y: auto !important;
+    .dataTables_scrollHeadInner,
+    .dataTables_scrollHeadInner table {
+      width: 100% !important;
     }
 
     /* Columna de barra de progreso: no recortar */
@@ -1004,7 +1000,14 @@
         requestAnimationFrame(function() {
           requestAnimationFrame(function() {
             if ($.fn.dataTable.isDataTable('#cronogramaTable')) {
-              $('#cronogramaTable').DataTable().columns.adjust();
+              var api = $('#cronogramaTable').DataTable();
+              api.columns.adjust();
+              // Forzar que el header inner tenga el mismo ancho que el body table
+              var bodyWidth = $('#cronogramaTable_wrapper .dataTables_scrollBody table').width();
+              if (bodyWidth) {
+                $('#cronogramaTable_wrapper .dataTables_scrollHeadInner').width(bodyWidth);
+                $('#cronogramaTable_wrapper .dataTables_scrollHeadInner table').width(bodyWidth);
+              }
             }
           });
         });

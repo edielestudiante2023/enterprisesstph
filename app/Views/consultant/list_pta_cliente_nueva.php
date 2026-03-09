@@ -474,13 +474,9 @@
         .dataTables_scrollBody table {
             margin: 0 !important;
         }
-        .dataTables_scrollHead,
-        .dataTables_scrollBody {
-            overflow: visible !important;
-        }
-        .dataTables_scrollBody {
-            overflow-x: auto !important;
-            overflow-y: auto !important;
+        .dataTables_scrollHeadInner,
+        .dataTables_scrollHeadInner table {
+            width: 100% !important;
         }
 
         #ptaTable {
@@ -1516,7 +1512,14 @@
                     requestAnimationFrame(function() {
                         requestAnimationFrame(function() {
                             if ($.fn.dataTable.isDataTable('#ptaTable')) {
-                                $('#ptaTable').DataTable().columns.adjust();
+                                var api = $('#ptaTable').DataTable();
+                                api.columns.adjust();
+                                // Forzar que el header inner tenga el mismo ancho que el body table
+                                var bodyWidth = $('#ptaTable_wrapper .dataTables_scrollBody table').width();
+                                if (bodyWidth) {
+                                    $('#ptaTable_wrapper .dataTables_scrollHeadInner').width(bodyWidth);
+                                    $('#ptaTable_wrapper .dataTables_scrollHeadInner table').width(bodyWidth);
+                                }
                             }
                         });
                     });
