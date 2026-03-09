@@ -445,12 +445,15 @@
 
           // Escuchar cambios de cliente desde Quick Access Dashboard (otras pestañas)
           function _syncClientFromQA(newClientId) {
+            console.log('[Evaluaciones] Sync recibido, cliente:', newClientId);
             if ($('#clientSelect option[value="' + newClientId + '"]').length > 0) {
               $('#clientSelect').val(newClientId).trigger('change');
             }
           }
           window.addEventListener('storage', function(e) {
-            if (e.key === 'selectedClient' && e.newValue) _syncClientFromQA(e.newValue);
+            if (e.key === 'clientSyncTrigger' && e.newValue) {
+              _syncClientFromQA(e.newValue.split('|')[0]);
+            }
           });
           if (typeof BroadcastChannel !== 'undefined') {
             var _qaSyncCh = new BroadcastChannel('quick_access_sync');

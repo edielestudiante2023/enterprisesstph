@@ -324,20 +324,25 @@
                 var $btn = $(this);
                 $btn.addClass('syncing');
 
-                // Guardar en localStorage (dispara evento 'storage' en otras pestañas)
+                // Guardar en localStorage
                 localStorage.setItem('selectedClient', clientId);
                 localStorage.setItem('selectedClientName', clientName);
 
-                // También enviar por BroadcastChannel como refuerzo
+                // Forzar storage event (no se dispara si el valor no cambia)
+                // Truco: setear un key de timestamp que siempre cambia
+                localStorage.setItem('clientSyncTrigger', clientId + '|' + Date.now());
+
+                // Enviar por BroadcastChannel (siempre llega, es el mecanismo principal)
                 syncChannel.postMessage({
                     type: 'clientChange',
                     clientId: clientId,
                     clientName: clientName
                 });
 
+                console.log('[QuickAccess] Sync enviado para cliente:', clientId, clientName);
+
                 setTimeout(function() {
                     $btn.removeClass('syncing');
-                    alert('Cliente "' + clientName + '" sincronizado en todas las vistas abiertas.');
                 }, 800);
             });
 

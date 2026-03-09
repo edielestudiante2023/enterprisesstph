@@ -941,13 +941,18 @@
 
       // Escuchar cambios de cliente desde Quick Access Dashboard (otras pestañas)
       function _syncClientFromQA(newClientId) {
+        console.log('[ReportList] Sync recibido, cliente:', newClientId);
         var name = clientMap[newClientId];
         if (name) {
           $('#clientFilter').val(name).trigger('change');
+          console.log('[ReportList] Cliente cambiado a:', name);
         }
       }
       window.addEventListener('storage', function(e) {
-        if (e.key === 'selectedClient' && e.newValue) _syncClientFromQA(e.newValue);
+        if (e.key === 'clientSyncTrigger' && e.newValue) {
+          var clientId = e.newValue.split('|')[0];
+          _syncClientFromQA(clientId);
+        }
       });
       if (typeof BroadcastChannel !== 'undefined') {
         var _qaSyncCh = new BroadcastChannel('quick_access_sync');
