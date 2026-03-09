@@ -350,6 +350,42 @@ class MetricasInformeService
     }
 
     /**
+     * Desglose PTA del periodo: actividades programadas para el periodo y su estado
+     */
+    public function getDesglosePtaPeriodo(int $idCliente, string $desde, string $hasta): array
+    {
+        // Actividades cuya fecha_propuesta cae en el periodo
+        $programadas = $this->db->table('tbl_pta_cliente')
+            ->select("estado_actividad, COUNT(*) as cantidad")
+            ->where('id_cliente', $idCliente)
+            ->where('fecha_propuesta >=', $desde)
+            ->where('fecha_propuesta <=', $hasta)
+            ->groupBy('estado_actividad')
+            ->get()
+            ->getResultArray();
+
+        $total = 0;
+        $cerradas = 0;
+        $abiertas = 0;
+        foreach ($programadas as $p) {
+            $cant = intval($p['cantidad']);
+            $total += $cant;
+            if (in_array($p['estado_actividad'], ['CERRADA', 'CERRADA SIN EJECUCIÓN', 'CERRADA POR FIN CONTRATO'])) {
+                $cerradas += $cant;
+            } elseif ($p['estado_actividad'] === 'ABIERTA') {
+                $abiertas += $cant;
+            }
+        }
+
+        return [
+            'total_periodo' => $total,
+            'cerradas_periodo' => $cerradas,
+            'abiertas_periodo' => $abiertas,
+            'desglose' => $programadas,
+        ];
+    }
+
+    /**
      * Capacitaciones ejecutadas en el periodo con detalle
      */
     public function getCapacitacionesEjecutadas(int $idCliente, string $desde, string $hasta): array

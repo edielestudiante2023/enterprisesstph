@@ -387,12 +387,13 @@ class InformeAvancesController extends BaseController
         $historialPlan = $this->getHistorialPlanCliente($idCliente, $anio);
         $vencimientos = $this->getVencimientosCliente($idCliente);
         $capacitaciones = $service->getCapacitacionesEjecutadas($idCliente, $fechaDesde, $fechaHasta);
+        $ptaPeriodo = $service->getDesglosePtaPeriodo($idCliente, $fechaDesde, $fechaHasta);
 
         $clientModel = new ClientModel();
         $cliente = $clientModel->find($idCliente);
         $nombreCliente = $cliente['nombre_cliente'] ?? 'Cliente';
 
-        $prompt = $this->buildResumenPrompt($nombreCliente, $fechaDesde, $fechaHasta, $actividades, $metricas, $historialEst, $historialPlan, $vencimientos, $capacitaciones);
+        $prompt = $this->buildResumenPrompt($nombreCliente, $fechaDesde, $fechaHasta, $actividades, $metricas, $historialEst, $historialPlan, $vencimientos, $capacitaciones, $ptaPeriodo);
 
         try {
             $iaService = new IADocumentacionService();
@@ -736,7 +737,7 @@ class InformeAvancesController extends BaseController
     }
 
     // ─── PRIVATE: Construir prompt IA para resumen ───
-    private function buildResumenPrompt(string $nombreCliente, string $desde, string $hasta, array $actividades, array $metricas, array $historialEst = [], array $historialPlan = [], array $vencimientos = [], array $capacitaciones = []): string
+    private function buildResumenPrompt(string $nombreCliente, string $desde, string $hasta, array $actividades, array $metricas, array $historialEst = [], array $historialPlan = [], array $vencimientos = [], array $capacitaciones = [], array $ptaPeriodo = []): string
     {
         $actividadesTexto = empty($actividades) ? 'No se registraron actividades en el periodo.' : implode("\n", $actividades);
 
@@ -821,6 +822,19 @@ class InformeAvancesController extends BaseController
             $capacitacionesTexto = "CAPACITACIONES EJECUTADAS EN EL PERIODO: Ninguna.";
         }
 
+        // Compromisos PTA del periodo evaluado
+        $ptaPeriodoTexto = '';
+        if (!empty($ptaPeriodo) && $ptaPeriodo['total_periodo'] > 0) {
+            $ptaPeriodoTexto = "COMPROMISOS PTA PROGRAMADOS PARA ESTE PERIODO ({$desde} a {$hasta}):\n";
+            $ptaPeriodoTexto .= "- Total programados: {$ptaPeriodo['total_periodo']}\n";
+            $ptaPeriodoTexto .= "- Cerrados: {$ptaPeriodo['cerradas_periodo']}\n";
+            $ptaPeriodoTexto .= "- Aún abiertos: {$ptaPeriodo['abiertas_periodo']}\n";
+            $pctCump = $ptaPeriodo['total_periodo'] > 0 ? round(($ptaPeriodo['cerradas_periodo'] / $ptaPeriodo['total_periodo']) * 100, 1) : 0;
+            $ptaPeriodoTexto .= "- Cumplimiento del periodo: {$pctCump}%\n";
+        } else {
+            $ptaPeriodoTexto = "COMPROMISOS PTA PROGRAMADOS PARA ESTE PERIODO: No hay actividades con fecha propuesta en este rango.";
+        }
+
         return <<<PROMPT
 Eres un consultor comercial y experto en Seguridad y Salud en el Trabajo (SG-SST) en Colombia. Tu objetivo es redactar un informe que transmita confianza al cliente, resaltando los logros y el valor del servicio de consultoría.
 
@@ -843,24 +857,28 @@ ACTIVIDADES PTA CERRADAS EN EL PERIODO:
 
 {$capacitacionesTexto}
 
+{$ptaPeriodoTexto}
+
 {$evolucionTexto}
 {$vencimientosTexto}
 
 ESTILO Y TONO:
 1. Tono positivo, comercial y orientado a resultados. El informe lo lee el cliente (administrador de propiedad horizontal) y debe sentir que su inversión en consultoría SST genera valor.
-2. Resalta PRIMERO los logros: actividades cerradas, documentos generados, capacitaciones ejecutadas, avance en calificación. Usa frases como "se logró", "se avanzó exitosamente", "se consolidó".
-3. Presenta las actividades pendientes como "próximos pasos" u "oportunidades de mejora", NUNCA como problemas o falencias.
-4. Si hay avance en la calificación, celébralo. Si no hay avance, enfócate en las actividades realizadas y el trabajo en curso.
-5. Menciona los documentos cargados como evidencia tangible del trabajo realizado.
-6. Si hay capacitaciones ejecutadas, destácalas mencionando nombre, asistentes y cobertura como logros de formación.
-7. Si hay evolución histórica, menciona la tendencia positiva mes a mes.
-8. Si hay vencimientos próximos o vencidos, menciónalos como un tema que requiere coordinación, sin alarmar.
-8. Máximo 4 párrafos, concisos y contundentes.
-9. Prosa continua, sin viñetas ni listas.
-10. Tercera persona, profesional pero cercano.
-11. No incluyas saludos ni despedidas.
-12. La calificación de estándares es un puntaje sobre 100, NO un porcentaje. No uses "%" para referirte a ella.
-13. No menciones ciclos PHVA con números crudos ni fórmulas. Si mencionas un ciclo, solo indica si va bien o necesita atención.
+2. IMPORTANTE: El resumen debe hablar EXCLUSIVAMENTE de lo que ocurrió en el periodo evaluado ({$desde} a {$hasta}). No menciones totales anuales ni actividades fuera de este periodo.
+3. Resalta PRIMERO los logros del periodo: actividades cerradas, documentos generados, capacitaciones ejecutadas, avance en calificación.
+4. Usa los "COMPROMISOS PTA PROGRAMADOS PARA ESTE PERIODO" para hablar de lo que se debía hacer vs lo que se hizo. No mezcles con el total anual.
+5. Presenta las actividades pendientes del periodo como "próximos pasos" u "oportunidades de mejora", NUNCA como problemas.
+6. Si hay avance en la calificación, celébralo. Si no hay avance, enfócate en las actividades realizadas.
+7. Menciona los documentos cargados como evidencia tangible del trabajo realizado.
+8. Si hay capacitaciones ejecutadas, destácalas mencionando nombre, asistentes y cobertura como logros de formación.
+9. Si hay evolución histórica, menciona la tendencia positiva mes a mes.
+10. Si hay vencimientos próximos o vencidos, menciónalos como un tema que requiere coordinación, sin alarmar.
+11. Máximo 4 párrafos, concisos y contundentes.
+12. Prosa continua, sin viñetas ni listas.
+13. Tercera persona, profesional pero cercano.
+14. No incluyas saludos ni despedidas.
+15. La calificación de estándares es un puntaje sobre 100, NO un porcentaje. No uses "%" para referirte a ella.
+16. No menciones ciclos PHVA con números crudos ni fórmulas. Si mencionas un ciclo, solo indica si va bien o necesita atención.
 PROMPT;
     }
 
@@ -1067,8 +1085,9 @@ PROMPT;
             $historialPlan = $this->getHistorialPlanCliente($idCliente, $anio);
             $vencimientos = $this->getVencimientosCliente($idCliente);
             $capacitaciones = $service->getCapacitacionesEjecutadas($idCliente, $fechaDesde, $fechaHasta);
+            $ptaPeriodo = $service->getDesglosePtaPeriodo($idCliente, $fechaDesde, $fechaHasta);
             $iaService = new IADocumentacionService();
-            $prompt = $this->buildResumenPrompt($cliente['nombre_cliente'], $fechaDesde, $fechaHasta, $actividades, $metricas, $historialEst, $historialPlan, $vencimientos, $capacitaciones);
+            $prompt = $this->buildResumenPrompt($cliente['nombre_cliente'], $fechaDesde, $fechaHasta, $actividades, $metricas, $historialEst, $historialPlan, $vencimientos, $capacitaciones, $ptaPeriodo);
             $resumen = $iaService->generarContenido($prompt, 2000);
         } catch (\Exception $e) {
             $resumen = 'Resumen no disponible: ' . $e->getMessage();
