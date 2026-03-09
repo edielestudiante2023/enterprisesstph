@@ -684,6 +684,11 @@ columns: [{
                 var row = cell.closest('tr');
                 row.find('td').eq(8).text(response.puntaje_cuantitativo);
               }
+              // Refresh indicator cards after any successful change
+              var clientId = $("#clientSelect").val();
+              if (clientId) {
+                loadClientIndicators(clientId);
+              }
             } else {
               alert('Error: ' + response.message);
             }
