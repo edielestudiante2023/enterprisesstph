@@ -486,26 +486,22 @@ class PtaClienteNuevaController extends Controller
             return $this->response->setJSON(['success' => false, 'message' => 'Método no permitido']);
         }
 
-        $idCliente = $this->request->getPost('id_cliente');
+        $idCliente = (int) ($this->request->getPost('id_cliente') ?? 0);
 
         try {
             $db = \Config\Database::connect();
-            $builder = $db->table('tbl_pta_cliente');
 
-            $builder->where('estado_actividad', 'CERRADA')
-                    ->groupStart()
-                        ->where('fecha_cierre IS NULL')
-                        ->orWhere('fecha_cierre', '')
-                    ->groupEnd();
-
-            if (!empty($idCliente)) {
-                $builder->where('id_cliente', $idCliente);
+            $sql = "SELECT COUNT(*) as total FROM tbl_pta_cliente WHERE estado_actividad = 'CERRADA' AND (fecha_cierre IS NULL OR fecha_cierre = '' OR fecha_cierre = '0000-00-00')";
+            if ($idCliente > 0) {
+                $sql .= " AND id_cliente = {$idCliente}";
             }
+            $count = (int) $db->query($sql)->getRow()->total;
 
-            $count = $builder->countAllResults(false);
-
-            // Actualizar: fecha_cierre = fecha_propuesta donde está vacía
-            $db->query("UPDATE tbl_pta_cliente SET fecha_cierre = fecha_propuesta WHERE estado_actividad = 'CERRADA' AND (fecha_cierre IS NULL OR fecha_cierre = '')" . (!empty($idCliente) ? " AND id_cliente = " . (int)$idCliente : ""));
+            $sqlUpdate = "UPDATE tbl_pta_cliente SET fecha_cierre = fecha_propuesta WHERE estado_actividad = 'CERRADA' AND (fecha_cierre IS NULL OR fecha_cierre = '' OR fecha_cierre = '0000-00-00')";
+            if ($idCliente > 0) {
+                $sqlUpdate .= " AND id_cliente = {$idCliente}";
+            }
+            $db->query($sqlUpdate);
 
             return $this->response->setJSON([
                 'success' => true,

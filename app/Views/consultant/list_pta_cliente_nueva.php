@@ -1845,8 +1845,9 @@
                             alert('Error: ' + response.message);
                         }
                     },
-                    error: function() {
-                        alert('Error en la comunicación con el servidor');
+                    error: function(xhr, status, error) {
+                        console.error("Fix cerradas error:", xhr.status, xhr.responseText);
+                        alert('Error en la comunicación con el servidor.\nStatus: ' + xhr.status + '\nError: ' + error + '\nRespuesta: ' + (xhr.responseText || '').substring(0, 500));
                     }
                 });
             });
