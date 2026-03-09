@@ -361,10 +361,6 @@
 
     /* ============ TABLA ESTILIZADA ============ */
     #cronogramaTable { border-collapse: separate; border-spacing: 0; }
-    #cronogramaTable thead th,
-    #cronogramaTable tbody td {
-      box-sizing: border-box;
-    }
     #cronogramaTable thead th {
       background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
       color: #fff;
@@ -388,14 +384,10 @@
     #cronogramaTable tbody tr:hover td { background-color: #f0f4ff !important; }
     #cronogramaTable tbody tr:nth-child(even) td { background-color: #f8f9fc; }
 
-    /* ============ FIX DATATABLES SCROLLX ALIGNMENT ============ */
-    .dataTables_scrollHead table,
-    .dataTables_scrollBody table {
-      margin: 0 !important;
-    }
-    .dataTables_scrollHeadInner,
-    .dataTables_scrollHeadInner table {
-      width: 100% !important;
+    /* ============ SCROLL HORIZONTAL NATIVO ============ */
+    .table-scroll-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* Columna de barra de progreso: no recortar */
@@ -719,7 +711,7 @@
       </div>
     </div>
 
-    <div>
+    <div class="table-scroll-wrapper">
       <table id="cronogramaTable" class="table table-striped table-bordered nowrap" style="width:100%">
         <thead class="table-light">
           <tr>
@@ -995,24 +987,6 @@
           + '</div>';
       }
 
-      // Función para ajustar alineación de columnas con doble rAF
-      function ajustarTablaCronograma() {
-        requestAnimationFrame(function() {
-          requestAnimationFrame(function() {
-            if ($.fn.dataTable.isDataTable('#cronogramaTable')) {
-              var api = $('#cronogramaTable').DataTable();
-              api.columns.adjust();
-              // Forzar que el header inner tenga el mismo ancho que el body table
-              var bodyWidth = $('#cronogramaTable_wrapper .dataTables_scrollBody table').width();
-              if (bodyWidth) {
-                $('#cronogramaTable_wrapper .dataTables_scrollHeadInner').width(bodyWidth);
-                $('#cronogramaTable_wrapper .dataTables_scrollHeadInner table').width(bodyWidth);
-              }
-            }
-          });
-        });
-      }
-
       // Inicializar DataTable con fila expandible y render para inline editing
       var table = $('#cronogramaTable').DataTable({
         stateSave: true,
@@ -1022,11 +996,8 @@
         },
         pagingType: "full_numbers",
         autoWidth: false,
-        deferRender: true,
         dom: 'Bfltip',
         pageLength: 25,
-        scrollX: true,
-        scrollCollapse: true,
         buttons: [{
             extend: 'excelHtml5',
             text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
@@ -1230,12 +1201,8 @@
             }
           }
         ],
-        drawCallback: function() {
-          ajustarTablaCronograma();
-        },
         initComplete: function() {
           var api = this.api();
-          ajustarTablaCronograma();
           api.columns().every(function() {
             var column = this;
             var headerIndex = column.index();
@@ -1256,16 +1223,6 @@
       });
 
       table.buttons().container().appendTo('#buttonsContainer');
-
-      // ResizeObserver para reajustar al cambiar tamaño del contenedor
-      var cronogramaWrapper = document.querySelector('#cronogramaTable_wrapper');
-      if (cronogramaWrapper && typeof ResizeObserver !== 'undefined') {
-        new ResizeObserver(function() { ajustarTablaCronograma(); }).observe(cronogramaWrapper);
-      }
-      // También al evento xhr (cuando llegan datos AJAX)
-      table.on('xhr.dt', function() { ajustarTablaCronograma(); });
-      // Y al resize de ventana
-      $(window).on('resize', function() { ajustarTablaCronograma(); });
 
       // Generar tarjetas de años dinámicamente
       function generateYearCards() {
@@ -1671,7 +1628,7 @@
         if (clientId) {
           localStorage.setItem('selectedClient', clientId);
           table.ajax.reload(function() {
-            table.columns.adjust();
+
             updateStatusCounts();
             updateMonthlyCounts();
             generateYearCards();
@@ -1689,7 +1646,7 @@
           localStorage.setItem('selectedClient', clientId);
           localStorage.setItem('selectedClientName', clientName);
           table.ajax.reload(function() {
-            table.columns.adjust();
+
             updateStatusCounts();
             updateMonthlyCounts();
             generateYearCards();
@@ -1848,7 +1805,7 @@
           success: function(response) {
             if (response.success) {
               // Recargar la tabla sin resetear la paginación
-              table.ajax.reload(function(){ table.columns.adjust(); }, false);
+              table.ajax.reload(null, false);
 
               // Marcar el botón como "tiene fecha"
               $button.addClass('has-date');
