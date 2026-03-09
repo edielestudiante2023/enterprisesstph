@@ -650,11 +650,83 @@ class InformeAvancesController extends BaseController
         ];
 
         if ($existente) {
-            return $reporteModel->update($existente['id_reporte'], $data);
+            $reporteModel->update($existente['id_reporte'], $data);
+        } else {
+            $data['created_at'] = date('Y-m-d H:i:s');
+            $reporteModel->save($data);
         }
 
-        $data['created_at'] = date('Y-m-d H:i:s');
-        return $reporteModel->save($data);
+        // Enviar email al cliente y consultores
+        $this->sendReportEmail($cliente, $data['titulo_reporte'], $data['enlace']);
+
+        return true;
+    }
+
+    // ─── PRIVATE: Enviar email de notificación de reporte ───
+    private function sendReportEmail(array $cliente, string $tituloReporte, string $enlace): void
+    {
+        if (!filter_var($enlace, FILTER_VALIDATE_URL)) {
+            log_message('error', 'Enlace inválido para email informe: ' . $enlace);
+            return;
+        }
+
+        $nombreCliente = $cliente['nombre_cliente'] ?? 'Cliente';
+        $destinatarios = [];
+
+        // Cliente
+        if (!empty($cliente['correo_cliente'])) {
+            $destinatarios[$cliente['correo_cliente']] = $nombreCliente;
+        }
+
+        // Consultor interno
+        if (!empty($cliente['id_consultor'])) {
+            $consultorModel = new ConsultantModel();
+            $consultor = $consultorModel->find($cliente['id_consultor']);
+            if ($consultor && !empty($consultor['correo_consultor'])) {
+                $destinatarios[$consultor['correo_consultor']] = $consultor['nombre_consultor'];
+            }
+        }
+
+        // Consultor externo
+        if (!empty($cliente['email_consultor_externo'])) {
+            $destinatarios[$cliente['email_consultor_externo']] = $cliente['consultor_externo'] ?? 'Consultor Externo';
+        }
+
+        if (empty($destinatarios)) {
+            log_message('warning', 'No hay destinatarios para email de informe avances');
+            return;
+        }
+
+        $email = new \SendGrid\Mail\Mail();
+        $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent");
+        $email->setSubject("Informe de Avances SG-SST - " . $nombreCliente);
+
+        foreach ($destinatarios as $correo => $nombre) {
+            $email->addTo($correo, $nombre);
+        }
+
+        $emailContent = "
+        <h3>Estimado/a {$nombreCliente}</h3>
+        <p style='text-align: justify;'>Nos complace informarle que hemos generado el <strong>{$tituloReporte}</strong> en su plataforma Enterprisesst. Este informe evidencia los avances de nuestra gestión en Seguridad y Salud en el Trabajo (SG-SST).</p>
+        <p style='text-align: justify;'>El documento ya está disponible para su consulta en la sección de documentos. Acceda a su plataforma siguiendo el enlace:</p>
+        <p style='text-align: center;'>
+            <a href='https://phorizontal.cycloidtalent.com/' target='_blank' style='display: inline-block; padding: 15px 25px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 25px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
+                Ir a Enterprisesst
+            </a>
+        </p>
+        <p style='text-align: justify;'>En <strong>Cycloid Talent</strong>, nos distinguimos por ser aliados estratégicos en la administración del SG-SST. Nuestro compromiso es ofrecerle soluciones innovadoras y personalizadas que potencien la seguridad y el bienestar en su copropiedad.</p>
+        <p style='text-align: justify; font-size: 1.1em; font-weight: bold;'>Gracias por confiar en Cycloid Talent, donde su tranquilidad y éxito son nuestra prioridad.</p>
+        ";
+
+        $email->addContent("text/html", $emailContent);
+
+        $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
+        try {
+            $response = $sendgrid->send($email);
+            log_message('info', 'Email informe avances enviado a: ' . implode(', ', array_keys($destinatarios)) . ' - Status: ' . $response->statusCode());
+        } catch (\Exception $e) {
+            log_message('error', 'Error email informe avances: ' . $e->getMessage());
+        }
     }
 
     // ─── PRIVATE: Construir prompt IA para resumen ───
