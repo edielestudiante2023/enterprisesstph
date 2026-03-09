@@ -204,19 +204,16 @@
                         </select>
                         <small class="text-muted">El cliente seleccionado se aplicará a todas las vistas al abrirlas</small>
                     </div>
-                    <div class="col-md-6 text-end d-flex flex-column flex-md-row justify-content-end gap-2">
-                        <button id="syncAllViews" class="btn btn-sync-all">
-                            <i class="fas fa-sync-alt me-2"></i>Cambiar Cliente en Vistas Abiertas
-                        </button>
+                    <div class="col-md-6 text-end">
                         <button id="openAllViews" class="btn btn-open-all">
                             <i class="fas fa-external-link-alt me-2"></i>Abrir Todas las Vistas
                         </button>
                     </div>
                 </div>
-                <div class="alert alert-info mt-3 mb-0" role="alert">
+                <div class="alert alert-warning mt-3 mb-0" role="alert">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>Tip:</strong> Use <strong>"Cambiar Cliente"</strong> para actualizar el cliente en todas las pestañas ya abiertas sin recargarlas manualmente.
-                    Use <strong>"Abrir Todas"</strong> la primera vez para abrir las vistas (habilite pop-ups en su navegador).
+                    <strong>Importante:</strong> Para abrir todas las vistas, debe habilitar los pop-ups en su navegador.
+                    Si solo se abre una ventana, busque el icono de pop-up bloqueado en la barra de direcciones y seleccione "Permitir siempre".
                 </div>
             </div>
 
