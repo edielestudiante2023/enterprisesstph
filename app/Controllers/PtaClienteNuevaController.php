@@ -491,7 +491,7 @@ class PtaClienteNuevaController extends Controller
         try {
             $db = \Config\Database::connect();
 
-            $whereClause = "estado_actividad = 'CERRADA' AND (fecha_cierre IS NULL OR fecha_cierre = '0000-00-00')";
+            $whereClause = "estado_actividad = 'CERRADA' AND fecha_cierre IS NULL";
             if ($idCliente > 0) {
                 $whereClause .= " AND id_cliente = {$idCliente}";
             }
