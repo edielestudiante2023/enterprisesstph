@@ -85,6 +85,8 @@
                             <select id="selectMes" class="form-select">
                                 <option value="">Manual...</option>
                                 <option value="prev">Mes anterior</option>
+                                <option value="bim">Bimestre anterior</option>
+                                <option value="trim">Trimestre anterior</option>
                                 <option value="01">Enero</option>
                                 <option value="02">Febrero</option>
                                 <option value="03">Marzo</option>
@@ -572,20 +574,29 @@
             var val = $(this).val();
             if (!val) return;
             var anio = parseInt($('#selectAnio').val()) || new Date().getFullYear();
-            var mes, lastDay;
-            if (val === 'prev') {
+            var mes, lastDay, fechaDesde, fechaHasta;
+
+            if (val === 'prev' || val === 'bim' || val === 'trim') {
                 var today = new Date();
-                var prevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                mes = prevMonth.getMonth() + 1;
-                anio = prevMonth.getFullYear();
-                lastDay = new Date(anio, mes, 0).getDate();
+                var mesesAtras = val === 'trim' ? 3 : (val === 'bim' ? 2 : 1);
+                // Fecha hasta = último día del mes anterior
+                var hasta = new Date(today.getFullYear(), today.getMonth(), 0);
+                // Fecha desde = retroceder N meses desde el mes anterior
+                var desde = new Date(hasta.getFullYear(), hasta.getMonth() - (mesesAtras - 1), 1);
+                // Limitar: nunca antes del 1 de enero del año en curso
+                var inicioAnio = new Date(today.getFullYear(), 0, 1);
+                if (desde < inicioAnio) desde = inicioAnio;
+
+                fechaDesde = desde.getFullYear() + '-' + String(desde.getMonth()+1).padStart(2,'0') + '-01';
+                fechaHasta = hasta.getFullYear() + '-' + String(hasta.getMonth()+1).padStart(2,'0') + '-' + String(hasta.getDate()).padStart(2,'0');
             } else {
                 mes = parseInt(val);
                 lastDay = new Date(anio, mes, 0).getDate();
+                fechaDesde = anio + '-' + String(mes).padStart(2,'0') + '-01';
+                fechaHasta = anio + '-' + String(mes).padStart(2,'0') + '-' + String(lastDay).padStart(2,'0');
             }
-            var mm = mes < 10 ? '0' + mes : '' + mes;
-            $('#fechaDesde').val(anio + '-' + mm + '-01');
-            $('#fechaHasta').val(anio + '-' + mm + '-' + (lastDay < 10 ? '0' + lastDay : lastDay));
+            $('#fechaDesde').val(fechaDesde);
+            $('#fechaHasta').val(fechaHasta);
         });
 
         if (EDIT_MODE && PRESELECT_CLIENTE) {
