@@ -133,10 +133,10 @@
                 </div>
             </div>
             <div class="col-md-2">
-                <div class="card stats-card bg-info text-white" data-filter="tipo" data-value="renovacion">
+                <div class="card stats-card text-white <?= ($filters['estado'] ?? '') === 'renovado' ? 'active' : '' ?>" style="background-color: #6f42c1;" data-filter="estado" data-value="renovado">
                     <div class="card-body text-center">
-                        <h5 class="card-title"><i class="fas fa-sync"></i> Renovaciones</h5>
-                        <h2><?= $stats['total_renovaciones'] ?? 0 ?></h2>
+                        <h5 class="card-title"><i class="fas fa-check-double"></i> Renovados</h5>
+                        <h2><?= $stats['contratos_renovados'] ?? 0 ?></h2>
                     </div>
                 </div>
             </div>
@@ -212,6 +212,7 @@
                                     <option value="">Todos</option>
                                     <option value="activo" <?= ($filters['estado'] ?? '') === 'activo' ? 'selected' : '' ?>>Activo</option>
                                     <option value="vencido" <?= ($filters['estado'] ?? '') === 'vencido' ? 'selected' : '' ?>>Vencido</option>
+                                    <option value="renovado" <?= ($filters['estado'] ?? '') === 'renovado' ? 'selected' : '' ?>>Renovado</option>
                                     <option value="cancelado" <?= ($filters['estado'] ?? '') === 'cancelado' ? 'selected' : '' ?>>Cancelado</option>
                                 </select>
                             </div>
@@ -264,6 +265,7 @@
                             <th>Días Restantes</th>
                             <th>Tipo</th>
                             <th>Estado</th>
+                            <th>Firma</th>
                             <th>Valor</th>
                             <th>Acciones</th>
                         </tr>
@@ -271,7 +273,7 @@
                     <tbody>
                         <?php if (empty($contracts)): ?>
                             <tr>
-                                <td colspan="12" class="text-center">
+                                <td colspan="13" class="text-center">
                                     <p class="text-muted my-3">No hay contratos para mostrar</p>
                                 </td>
                             </tr>
@@ -341,12 +343,26 @@
                                             $estadoBadge = [
                                                 'activo' => 'success',
                                                 'vencido' => 'danger',
+                                                'renovado' => 'purple',
                                                 'cancelado' => 'secondary'
                                             ];
                                         ?>
-                                        <span class="badge bg-<?= $estadoBadge[$contract['estado']] ?? 'secondary' ?>">
-                                            <?= ucfirst($contract['estado']) ?>
-                                        </span>
+                                        <?php if ($contract['estado'] === 'renovado'): ?>
+                                            <span class="badge" style="background-color: #6f42c1;"><?= ucfirst($contract['estado']) ?></span>
+                                        <?php else: ?>
+                                            <span class="badge bg-<?= $estadoBadge[$contract['estado']] ?? 'secondary' ?>"><?= ucfirst($contract['estado']) ?></span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php
+                                            $firmaLabel = [
+                                                'sin_enviar' => '<span class="badge bg-secondary"><i class="fas fa-file-signature"></i> Sin enviar</span>',
+                                                'pendiente_firma' => '<span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Pendiente</span>',
+                                                'firmado' => '<span class="badge bg-success"><i class="fas fa-check-circle"></i> Firmado</span>'
+                                            ];
+                                            $ef = $contract['estado_firma'] ?? 'sin_enviar';
+                                        ?>
+                                        <?= $firmaLabel[$ef] ?? '<span class="badge bg-secondary">N/A</span>' ?>
                                     </td>
                                     <td>
                                         <?php if ($contract['valor_contrato']): ?>

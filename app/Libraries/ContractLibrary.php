@@ -92,8 +92,8 @@ class ContractLibrary
             ];
         }
 
-        // Marcar el contrato anterior como vencido
-        $this->contractModel->update($idContrato, ['estado' => 'vencido']);
+        // Marcar el contrato anterior como renovado
+        $this->contractModel->update($idContrato, ['estado' => 'renovado']);
 
         // Crear el nuevo contrato heredando todos los campos del anterior
         $newContractData = [
@@ -318,7 +318,7 @@ class ContractLibrary
     {
         return $this->contractModel->where('id_cliente', $idCliente)
                                    ->where('estado', 'activo')
-                                   ->set(['estado' => 'vencido'])
+                                   ->set(['estado' => 'renovado'])
                                    ->update();
     }
 
@@ -393,6 +393,7 @@ class ContractLibrary
             SUM(CASE WHEN tbl_contratos.estado = 'activo' THEN 1 ELSE 0 END) as contratos_activos,
             SUM(CASE WHEN tbl_contratos.estado = 'vencido' THEN 1 ELSE 0 END) as contratos_vencidos,
             SUM(CASE WHEN tbl_contratos.estado = 'cancelado' THEN 1 ELSE 0 END) as contratos_cancelados,
+            SUM(CASE WHEN tbl_contratos.estado = 'renovado' THEN 1 ELSE 0 END) as contratos_renovados,
             SUM(CASE WHEN tbl_contratos.tipo_contrato = 'renovacion' THEN 1 ELSE 0 END) as total_renovaciones,
             SUM(CASE WHEN tbl_contratos.estado = 'activo' THEN tbl_contratos.valor_contrato ELSE 0 END) as valor_total_activos
         ")->get()->getRowArray();
@@ -402,6 +403,7 @@ class ContractLibrary
             'contratos_activos' => 0,
             'contratos_vencidos' => 0,
             'contratos_cancelados' => 0,
+            'contratos_renovados' => 0,
             'total_renovaciones' => 0,
             'valor_total_activos' => 0
         ];

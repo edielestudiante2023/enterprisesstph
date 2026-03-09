@@ -119,9 +119,11 @@
                             ];
                         ?>
                         <h3>
-                            <span class="badge bg-<?= $estadoBadge[$contract['estado']] ?? 'secondary' ?>">
-                                <?= ucfirst($contract['estado']) ?>
-                            </span>
+                            <?php if ($contract['estado'] === 'renovado'): ?>
+                                <span class="badge" style="background-color: #6f42c1;"><?= ucfirst($contract['estado']) ?></span>
+                            <?php else: ?>
+                                <span class="badge bg-<?= $estadoBadge[$contract['estado']] ?? 'secondary' ?>"><?= ucfirst($contract['estado']) ?></span>
+                            <?php endif; ?>
                         </h3>
                     </div>
                 </div>

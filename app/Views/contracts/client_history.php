@@ -63,6 +63,14 @@
             border-color: #dc3545;
             background: #dc3545;
         }
+        .timeline-marker.renewed {
+            border-color: #6f42c1;
+            background: #6f42c1;
+        }
+        .bg-purple {
+            background-color: #6f42c1 !important;
+            color: #fff;
+        }
         .timeline-marker.cancelled {
             border-color: #6c757d;
             background: #6c757d;
@@ -172,6 +180,11 @@
                                     $estadoClass = 'danger';
                                     $estadoBadge = 'bg-danger';
                                     $markerClass = 'expired';
+                                    break;
+                                case 'renovado':
+                                    $estadoClass = 'purple';
+                                    $estadoBadge = 'bg-purple';
+                                    $markerClass = 'renewed';
                                     break;
                                 case 'cancelado':
                                     $estadoClass = 'secondary';
@@ -286,6 +299,8 @@
                                             <span class="badge bg-success">Activo</span>
                                         <?php elseif ($contract['estado'] === 'vencido'): ?>
                                             <span class="badge bg-danger">Vencido</span>
+                                        <?php elseif ($contract['estado'] === 'renovado'): ?>
+                                            <span class="badge" style="background-color: #6f42c1;">Renovado</span>
                                         <?php else: ?>
                                             <span class="badge bg-secondary">Cancelado</span>
                                         <?php endif; ?>

@@ -56,6 +56,7 @@ if (!function_exists('format_contract_status')) {
         $badges = [
             'activo' => '<span class="badge bg-success">Activo</span>',
             'vencido' => '<span class="badge bg-danger">Vencido</span>',
+            'renovado' => '<span class="badge" style="background-color: #6f42c1; color: #fff;">Renovado</span>',
             'cancelado' => '<span class="badge bg-secondary">Cancelado</span>'
         ];
 

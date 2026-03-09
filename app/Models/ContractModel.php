@@ -69,7 +69,7 @@ class ContractModel extends Model
         'fecha_inicio' => 'required|valid_date',
         'fecha_fin' => 'required|valid_date',
         'tipo_contrato' => 'required|in_list[inicial,renovacion,ampliacion]',
-        'estado' => 'required|in_list[activo,vencido,cancelado]'
+        'estado' => 'required|in_list[activo,vencido,cancelado,renovado]'
     ];
 
     protected $validationMessages = [
@@ -163,10 +163,26 @@ class ContractModel extends Model
      */
     public function updateExpiredContracts()
     {
-        return $this->where('estado', 'activo')
-                    ->where('fecha_fin <', date('Y-m-d'))
-                    ->set(['estado' => 'vencido'])
-                    ->update();
+        // Get active contracts that have expired
+        $expired = $this->where('estado', 'activo')
+                        ->where('fecha_fin <', date('Y-m-d'))
+                        ->findAll();
+
+        $updated = 0;
+        foreach ($expired as $contract) {
+            // Check if this client already has a newer active renewal
+            $hasRenewal = $this->where('id_cliente', $contract['id_cliente'])
+                               ->where('tipo_contrato', 'renovacion')
+                               ->where('estado', 'activo')
+                               ->where('id_contrato !=', $contract['id_contrato'])
+                               ->first();
+
+            $newState = $hasRenewal ? 'renovado' : 'vencido';
+            $this->update($contract['id_contrato'], ['estado' => $newState]);
+            $updated++;
+        }
+
+        return $updated;
     }
 
     /**
