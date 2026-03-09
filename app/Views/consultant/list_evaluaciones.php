@@ -11,6 +11,8 @@
   <link href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
   <!-- DataTables Buttons CSS -->
   <link href="https://cdn.datatables.net/buttons/2.3.3/css/buttons.bootstrap5.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <!-- Select2 CSS para select buscable -->
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
@@ -50,6 +52,24 @@
       overflow: hidden;
       text-overflow: ellipsis;
       height: 25px;
+    }
+
+    /* Expandable cell text */
+    .cell-expandable {
+      cursor: pointer;
+      position: relative;
+    }
+    .cell-expandable .expand-icon {
+      font-size: 0.7rem;
+      margin-left: 4px;
+      color: #007bff;
+    }
+    td.expanded-cell {
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: unset !important;
+      max-width: 40ch !important;
+      height: auto !important;
     }
 
     .tooltip-inner {
@@ -217,6 +237,9 @@
       </div>
     </div>
     <button id="clearState" class="btn btn-danger btn-sm mb-3">Restablecer Filtros</button>
+    <button id="toggleExpandAll" class="btn btn-outline-primary btn-sm mb-3 ms-2">
+      <i class="fas fa-expand-alt"></i> Expandir Textos
+    </button>
     <div id="buttonsContainer"></div>
     <div class="table-responsive">
       <table id="evaluacionesTable" class="table table-striped table-bordered nowrap" style="width:100%">
@@ -525,7 +548,7 @@ columns: [{
             data: 'item_del_estandar',
             render: function (data, type, row) {
               if (type === 'display') {
-                return '<span data-bs-toggle="tooltip" title="' + data + '">' + data + '</span>';
+                return '<span class="cell-expandable" data-bs-toggle="tooltip" title="' + data + '">' + data + ' <i class="fas fa-caret-down expand-icon"></i></span>';
               }
               return data;
             }
@@ -801,6 +824,35 @@ columns: [{
       table.on('draw.dt', function () {
         updateFilters(table);
         initializeTooltips();
+      });
+
+      // Click individual para expandir/contraer celda de item_del_estandar
+      $('#evaluacionesTable tbody').on('click', '.cell-expandable', function (e) {
+        e.stopPropagation();
+        var td = $(this).closest('td');
+        td.toggleClass('expanded-cell');
+        var icon = $(this).find('.expand-icon');
+        if (td.hasClass('expanded-cell')) {
+          icon.removeClass('fa-caret-down').addClass('fa-caret-up');
+        } else {
+          icon.removeClass('fa-caret-up').addClass('fa-caret-down');
+        }
+      });
+
+      // Botón global expandir/contraer todos los textos
+      var allExpanded = false;
+      $('#toggleExpandAll').on('click', function () {
+        allExpanded = !allExpanded;
+        var $cells = $('#evaluacionesTable tbody td:nth-child(6)'); // columna item_del_estandar (índice 6)
+        if (allExpanded) {
+          $cells.addClass('expanded-cell');
+          $cells.find('.expand-icon').removeClass('fa-caret-down').addClass('fa-caret-up');
+          $(this).html('<i class="fas fa-compress-alt"></i> Contraer Textos');
+        } else {
+          $cells.removeClass('expanded-cell');
+          $cells.find('.expand-icon').removeClass('fa-caret-up').addClass('fa-caret-down');
+          $(this).html('<i class="fas fa-expand-alt"></i> Expandir Textos');
+        }
       });
 
       // Manejador para el botón de Socializar Evaluación de Estándares
