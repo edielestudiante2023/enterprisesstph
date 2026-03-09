@@ -903,6 +903,9 @@
                             <button type="button" id="btnCalificarCerradas" class="btn btn-warning me-2">
                                 <i class="fas fa-check-double"></i> Calificar Cerradas
                             </button>
+                            <button type="button" id="btnFixCerradasSinFecha" class="btn btn-outline-warning me-2" title="Asignar fecha propuesta como fecha de cierre a las actividades CERRADA sin fecha">
+                                <i class="fas fa-calendar-check"></i> Fix Cerradas sin Fecha
+                            </button>
                             <a href="<?= base_url('/pta-cliente-nueva/add?' . http_build_query($filters)) ?>" class="btn btn-info">
                                 <i class="fas fa-plus"></i> Nuevo
                             </a>
@@ -1727,10 +1730,15 @@
                                             estadoCell.data(buildEstadoBadge('CERRADA')).draw();
                                         }
 
-                                        // Estado cambio -> actualizar progress bar
+                                        // Estado cambio -> actualizar progress bar y fecha_cierre
                                         if (fieldName === 'estado_actividad' && response.porcentaje_avance !== undefined) {
                                             var porcentajeCell = table.cell($td.closest('tr'), 12);
                                             porcentajeCell.data(buildProgressBar(response.porcentaje_avance)).draw();
+                                        }
+                                        // Estado CERRADA -> actualizar fecha_cierre si el backend la asignó
+                                        if (fieldName === 'estado_actividad' && response.fecha_cierre) {
+                                            var fechaCierreCell = table.cell($td.closest('tr'), 10);
+                                            fechaCierreCell.data(response.fecha_cierre).draw();
                                         }
 
                                         // Fecha cierre -> actualizar progress bar
@@ -1809,6 +1817,36 @@
                     error: function(xhr, status, error) {
                         alert('Error en la comunicación con el servidor');
                         console.error(error);
+                    }
+                });
+            });
+
+            // Manejador para Fix Cerradas sin Fecha
+            $('#btnFixCerradasSinFecha').click(function() {
+                var clienteId = '<?= esc($filters['cliente'] ?? '') ?>';
+                if (!clienteId) {
+                    alert('Primero seleccione un cliente');
+                    return;
+                }
+                if (!confirm('¿Asignar la fecha propuesta como fecha de cierre a todas las actividades CERRADA que no tengan fecha de cierre?')) return;
+
+                $.ajax({
+                    url: '<?= site_url('/pta-cliente-nueva/fixCerradasSinFecha') ?>',
+                    method: 'POST',
+                    data: {
+                        id_cliente: clienteId,
+                        '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            if (response.fixed > 0) location.reload();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Error en la comunicación con el servidor');
                     }
                 });
             });

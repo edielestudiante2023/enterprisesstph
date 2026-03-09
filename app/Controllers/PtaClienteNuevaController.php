@@ -216,6 +216,15 @@ class PtaClienteNuevaController extends Controller
 
         // Recoger datos del formulario
         $data = $this->request->getPost();
+
+        // Si se cierra la actividad y no tiene fecha de cierre, asignar fecha_propuesta
+        if (($data['estado_actividad'] ?? '') === 'CERRADA') {
+            $fechaCierre = $data['fecha_cierre'] ?? $datosAnteriores['fecha_cierre'] ?? '';
+            if (empty($fechaCierre)) {
+                $data['fecha_cierre'] = $datosAnteriores['fecha_propuesta'] ?? date('Y-m-d');
+            }
+        }
+
         $ptaModel->update($id, $data);
 
         // Registrar auditoría de múltiples cambios
@@ -324,6 +333,11 @@ class PtaClienteNuevaController extends Controller
             switch ($estado) {
                 case 'CERRADA':
                     $postData['porcentaje_avance'] = 100;
+                    // Si no tiene fecha de cierre, asignar fecha_propuesta como fecha_cierre
+                    $fechaCierreActual = $postData['fecha_cierre'] ?? $datosAnteriores['fecha_cierre'] ?? '';
+                    if (empty($fechaCierreActual)) {
+                        $postData['fecha_cierre'] = $datosAnteriores['fecha_propuesta'] ?? date('Y-m-d');
+                    }
                     break;
                 case 'GESTIONANDO':
                     $postData['porcentaje_avance'] = 50;
@@ -363,6 +377,10 @@ class PtaClienteNuevaController extends Controller
 
         if (isset($postData['porcentaje_avance'])) {
             $response['porcentaje_avance'] = $postData['porcentaje_avance'];
+        }
+
+        if (isset($postData['fecha_cierre'])) {
+            $response['fecha_cierre'] = $postData['fecha_cierre'];
         }
 
         return $this->response->setJSON($response);
@@ -456,6 +474,46 @@ class PtaClienteNuevaController extends Controller
                 'status' => 'error',
                 'message' => 'Error updating records: ' . $e->getMessage()
             ]);
+        }
+    }
+
+    /**
+     * Corrige registros CERRADA que no tienen fecha_cierre, asignando fecha_propuesta
+     */
+    public function fixCerradasSinFecha()
+    {
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Método no permitido']);
+        }
+
+        $idCliente = $this->request->getPost('id_cliente');
+
+        try {
+            $db = \Config\Database::connect();
+            $builder = $db->table('tbl_pta_cliente');
+
+            $builder->where('estado_actividad', 'CERRADA')
+                    ->groupStart()
+                        ->where('fecha_cierre IS NULL')
+                        ->orWhere('fecha_cierre', '')
+                    ->groupEnd();
+
+            if (!empty($idCliente)) {
+                $builder->where('id_cliente', $idCliente);
+            }
+
+            $count = $builder->countAllResults(false);
+
+            // Actualizar: fecha_cierre = fecha_propuesta donde está vacía
+            $db->query("UPDATE tbl_pta_cliente SET fecha_cierre = fecha_propuesta WHERE estado_actividad = 'CERRADA' AND (fecha_cierre IS NULL OR fecha_cierre = '')" . (!empty($idCliente) ? " AND id_cliente = " . (int)$idCliente : ""));
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "Se corrigieron {$count} actividades CERRADA sin fecha de cierre.",
+                'fixed' => $count
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 

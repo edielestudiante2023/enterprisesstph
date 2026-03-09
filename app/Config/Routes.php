@@ -697,6 +697,7 @@ $routes->post('/pta-cliente-nueva/updateDateByMonth', 'PtaClienteNuevaController
 // Rutas para Eliminar Abiertas y Regenerar Plan
 $routes->post('/pta-cliente-nueva/deleteAbiertas', 'PtaClienteNuevaController::deleteAbiertas');
 $routes->post('/pta-cliente-nueva/regenerarPlan', 'PtaClienteNuevaController::regenerarPlan');
+$routes->post('/pta-cliente-nueva/fixCerradasSinFecha', 'PtaClienteNuevaController::fixCerradasSinFecha');
 
 // Ruta para Crear Actividad con IA
 $routes->post('/pta-cliente-nueva/searchActivities', 'PtaClienteNuevaController::searchActivities');
