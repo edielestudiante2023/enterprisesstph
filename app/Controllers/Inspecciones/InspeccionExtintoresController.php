@@ -97,9 +97,13 @@ class InspeccionExtintoresController extends BaseController
             }
         }
 
+        // id_consultor solo se asigna si el usuario es consultor o admin
+        $role = session()->get('role');
+        $idConsultor = in_array($role, ['consultant', 'admin']) ? $userId : null;
+
         $inspeccionData = [
             'id_cliente'                    => $this->request->getPost('id_cliente'),
-            'id_consultor'                  => $userId,
+            'id_consultor'                  => $idConsultor,
             'fecha_inspeccion'              => $this->request->getPost('fecha_inspeccion'),
             'fecha_vencimiento_global'      => $this->request->getPost('fecha_vencimiento_global') ?: null,
             'numero_extintores_totales'     => (int)$this->request->getPost('numero_extintores_totales'),

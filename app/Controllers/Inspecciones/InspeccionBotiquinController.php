@@ -119,7 +119,11 @@ class InspeccionBotiquinController extends BaseController
             }
         }
 
-        $inspeccionData = $this->getInspeccionPostData($userId);
+        // id_consultor solo se asigna si el usuario es consultor o admin
+        $role = session()->get('role');
+        $idConsultor = in_array($role, ['consultant', 'admin']) ? $userId : null;
+
+        $inspeccionData = $this->getInspeccionPostData($idConsultor);
         $inspeccionData['estado'] = 'borrador';
 
         // Fotos del botiquín
@@ -182,7 +186,10 @@ class InspeccionBotiquinController extends BaseController
         }
 
         $userId = session()->get('user_id');
-        $updateData = $this->getInspeccionPostData($userId);
+        // id_consultor solo se asigna si el usuario es consultor o admin
+        $role = session()->get('role');
+        $idConsultor = in_array($role, ['consultant', 'admin']) ? $userId : null;
+        $updateData = $this->getInspeccionPostData($idConsultor);
 
         // Fotos — solo si se sube nueva
         $campos_foto = ['foto_1', 'foto_2', 'foto_tabla_espinal', 'foto_collares', 'foto_inmovilizadores'];

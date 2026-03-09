@@ -116,10 +116,15 @@ class MantenimientosPwaController extends BaseController
             return redirect()->back();
         }
 
+        // id_consultor solo se asigna si el usuario es consultor o admin
+        $role = session()->get('role');
+        $userId = session()->get('user_id');
+        $idConsultor = in_array($role, ['consultant', 'admin']) ? $userId : null;
+
         $this->vencimientoModel->insert([
             'id_cliente'        => $idCliente,
             'id_mantenimiento'  => $idMantenimiento,
-            'id_consultor'      => session()->get('user_id'),
+            'id_consultor'      => $idConsultor,
             'fecha_vencimiento' => $fechaVencimiento,
             'estado_actividad'  => 'sin ejecutar',
             'observaciones'     => $observaciones,

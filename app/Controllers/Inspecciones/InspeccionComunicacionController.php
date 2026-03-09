@@ -81,8 +81,12 @@ class InspeccionComunicacionController extends BaseController
             }
         }
 
+        // id_consultor solo se asigna si el usuario es consultor o admin
+        $role = session()->get('role');
+        $idConsultor = in_array($role, ['consultant', 'admin']) ? $userId : null;
+
         $data = $this->getInspeccionPostData();
-        $data['id_consultor'] = $userId;
+        $data['id_consultor'] = $idConsultor;
         $data['estado'] = 'borrador';
 
         // Fotos evidencia

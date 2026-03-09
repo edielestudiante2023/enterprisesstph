@@ -73,6 +73,10 @@ class AgendamientoController extends BaseController
     {
         $userId = session()->get('user_id');
 
+        // id_consultor solo se asigna si el usuario es consultor o admin
+        $role = session()->get('role');
+        $idConsultor = in_array($role, ['consultant', 'admin']) ? $userId : null;
+
         $rules = [
             'id_cliente'   => 'required|integer',
             'fecha_visita' => 'required|valid_date',
@@ -89,7 +93,7 @@ class AgendamientoController extends BaseController
 
         $data = [
             'id_cliente'          => $this->request->getPost('id_cliente'),
-            'id_consultor'        => $userId,
+            'id_consultor'        => $idConsultor,
             'fecha_visita'        => $this->request->getPost('fecha_visita'),
             'hora_visita'         => $this->request->getPost('hora_visita'),
             'frecuencia'          => $frecuencia,
