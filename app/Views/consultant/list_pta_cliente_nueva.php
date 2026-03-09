@@ -1497,7 +1497,7 @@
                     "lengthChange": true,
                     "responsive": false,
                     "scrollX": true,
-                    "autoWidth": false,
+                    "autoWidth": true,
                     "order": [
                         [11, 'asc'],
                         [9, 'asc'],
@@ -1533,7 +1533,9 @@
                         }
                     }],
                     "initComplete": function() {
-                        this.api().columns().every(function() {
+                        var api = this.api();
+                        setTimeout(function(){ api.columns.adjust(); }, 100);
+                        api.columns().every(function() {
                             var column = this;
                             var select = $('select', column.footer());
                             var input = $('input', column.footer());

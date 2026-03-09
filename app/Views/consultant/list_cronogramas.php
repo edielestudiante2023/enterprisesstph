@@ -380,9 +380,6 @@
       font-size: 13px;
       border-bottom: 1px solid #e9ecef;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 200px;
     }
     #cronogramaTable tbody tr:hover td { background-color: #f0f4ff !important; }
     #cronogramaTable tbody tr:nth-child(even) td { background-color: #f8f9fc; }
@@ -1223,11 +1220,6 @@
         }
       });
 
-      // Re-alinear encabezados con cuerpo después de cada redibujado
-      table.on('draw.dt', function() {
-        setTimeout(function(){ table.columns.adjust(); }, 50);
-      });
-
       table.buttons().container().appendTo('#buttonsContainer');
 
       // Generar tarjetas de años dinámicamente
@@ -1634,6 +1626,7 @@
         if (clientId) {
           localStorage.setItem('selectedClient', clientId);
           table.ajax.reload(function() {
+            table.columns.adjust();
             updateStatusCounts();
             updateMonthlyCounts();
             generateYearCards();
@@ -1651,6 +1644,7 @@
           localStorage.setItem('selectedClient', clientId);
           localStorage.setItem('selectedClientName', clientName);
           table.ajax.reload(function() {
+            table.columns.adjust();
             updateStatusCounts();
             updateMonthlyCounts();
             generateYearCards();
@@ -1809,7 +1803,7 @@
           success: function(response) {
             if (response.success) {
               // Recargar la tabla sin resetear la paginación
-              table.ajax.reload(null, false);
+              table.ajax.reload(function(){ table.columns.adjust(); }, false);
 
               // Marcar el botón como "tiene fecha"
               $button.addClass('has-date');
