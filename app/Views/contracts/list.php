@@ -271,13 +271,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($contracts)): ?>
-                            <tr>
-                                <td colspan="13" class="text-center">
-                                    <p class="text-muted my-3">No hay contratos para mostrar</p>
-                                </td>
-                            </tr>
-                        <?php else: ?>
                             <?php foreach ($contracts as $contract): ?>
                                 <?php
                                     $fechaFin = new DateTime($contract['fecha_fin']);
@@ -391,7 +384,6 @@
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
-                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
