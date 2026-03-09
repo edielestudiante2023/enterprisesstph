@@ -76,13 +76,27 @@ class RecordatorioSinAgendarCron extends BaseCommand
         $errores  = 0;
 
         // ── Enviar a cada consultor interno ──
+        $ccFijos = [
+            'edison.cuervo@cycloidtalent.com' => 'Edison Cuervo',
+            'diana.cuestas@cycloidtalent.com'  => 'Diana Cuestas',
+        ];
+
         foreach ($porConsultor as $idCons => $info) {
             $destinatarios = [];
+            $emailsUsados  = [];
+
             if ($info['correo']) {
                 $destinatarios[] = ['email' => $info['correo'], 'name' => $info['nombre']];
+                $emailsUsados[strtolower($info['correo'])] = true;
             }
-            $destinatarios[] = ['email' => 'edison.cuervo@cycloidtalent.com', 'name' => 'Edison Cuervo'];
-            $destinatarios[] = ['email' => 'diana.cuestas@cycloidtalent.com', 'name' => 'Diana Cuestas'];
+
+            // Agregar CC fijos solo si no están ya como consultor (evitar duplicados en SendGrid)
+            foreach ($ccFijos as $ccEmail => $ccName) {
+                if (!isset($emailsUsados[strtolower($ccEmail)])) {
+                    $destinatarios[] = ['email' => $ccEmail, 'name' => $ccName];
+                    $emailsUsados[strtolower($ccEmail)] = true;
+                }
+            }
 
             $ok = $this->enviarRecordatorio(
                 $destinatarios,
@@ -103,11 +117,18 @@ class RecordatorioSinAgendarCron extends BaseCommand
 
         // ── Enviar a cada consultor externo ──
         foreach ($porExterno as $emailExt => $info) {
-            $destinatarios = [
-                ['email' => $emailExt, 'name' => $info['nombre']],
-                ['email' => 'edison.cuervo@cycloidtalent.com', 'name' => 'Edison Cuervo'],
-                ['email' => 'diana.cuestas@cycloidtalent.com', 'name' => 'Diana Cuestas'],
-            ];
+            $destinatarios = [];
+            $emailsUsados  = [];
+
+            $destinatarios[] = ['email' => $emailExt, 'name' => $info['nombre']];
+            $emailsUsados[strtolower($emailExt)] = true;
+
+            foreach ($ccFijos as $ccEmail => $ccName) {
+                if (!isset($emailsUsados[strtolower($ccEmail)])) {
+                    $destinatarios[] = ['email' => $ccEmail, 'name' => $ccName];
+                    $emailsUsados[strtolower($ccEmail)] = true;
+                }
+            }
 
             $ok = $this->enviarRecordatorio(
                 $destinatarios,
