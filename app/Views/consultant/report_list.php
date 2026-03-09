@@ -489,13 +489,34 @@
 
       <div class="row g-3 align-items-end">
         <!-- Filtro por Cliente -->
-        <div class="col-md-6">
+        <div class="col-md-4">
           <label for="clientFilter" class="form-label">Filtrar por Cliente:</label>
           <select id="clientFilter" class="form-select">
             <option value="">Todos</option>
             <?php foreach ($clients as $client) : ?>
               <option value="<?= htmlspecialchars($client['nombre_cliente']) ?>"><?= htmlspecialchars($client['nombre_cliente']) ?></option>
             <?php endforeach; ?>
+          </select>
+        </div>
+        <!-- Filtro por Mes -->
+        <div class="col-md-2">
+          <label for="monthFilter" class="form-label"><i class="fas fa-calendar-week"></i> Mes:</label>
+          <select id="monthFilter" class="form-select">
+            <option value="">Todos</option>
+            <option value="current">Mes actual</option>
+            <option value="previous">Mes anterior</option>
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
           </select>
         </div>
         <!-- Filtro por Fecha Desde -->
@@ -871,6 +892,34 @@
         }
       }
 
+      // Helper: resolve month dropdown value to actual month number
+      function resolveMonthValue(val) {
+        if (val === 'current') {
+          return new Date().getMonth() + 1; // 1-12
+        } else if (val === 'previous') {
+          var m = new Date().getMonth(); // 0-11
+          return m === 0 ? 12 : m; // Diciembre si estamos en Enero
+        }
+        return val ? parseInt(val) : null;
+      }
+
+      // Month dropdown filter
+      $('#monthFilter').on('change', function() {
+        var val = $(this).val();
+        var monthNum = resolveMonthValue(val);
+
+        // Sync cards
+        $('.card-month').removeClass('active');
+        if (monthNum) {
+          $('.card-month[data-month="' + monthNum + '"]').addClass('active');
+          activeMonth = monthNum;
+        } else {
+          activeMonth = null;
+        }
+
+        table.ajax.reload();
+      });
+
       // Click en tarjetas de mes — triggers server-side filter
       $(document).on('click', '.card-month', function() {
         var month = $(this).data('month');
@@ -878,10 +927,12 @@
         if ($(this).hasClass('active')) {
           $(this).removeClass('active');
           activeMonth = null;
+          $('#monthFilter').val(''); // Sync dropdown
         } else {
           $('.card-month').removeClass('active');
           $(this).addClass('active');
           activeMonth = month;
+          $('#monthFilter').val(String(month)); // Sync dropdown
         }
 
         table.ajax.reload();
@@ -973,6 +1024,7 @@
         table.state.clear();
         activeMonth = null;
         $('.card-month').removeClass('active');
+        $('#monthFilter').val('');
         $('#clientFilter').val('').trigger('change.select2');
         $('#dateFrom, #dateTo').val('');
         table.search('');
