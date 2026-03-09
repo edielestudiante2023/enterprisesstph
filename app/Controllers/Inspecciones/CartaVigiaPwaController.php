@@ -103,10 +103,6 @@ class CartaVigiaPwaController extends BaseController
 
         $userId = session()->get('user_id');
 
-        // id_consultor solo se asigna si el usuario es consultor o admin
-        $role = session()->get('role');
-        $idConsultor = in_array($role, ['consultant', 'admin']) ? $userId : null;
-
         // Generar token de firma
         $token = bin2hex(random_bytes(32));
         $expiracion = date('Y-m-d H:i:s', strtotime('+7 days'));
@@ -114,7 +110,7 @@ class CartaVigiaPwaController extends BaseController
         // Insertar registro
         $this->cartaModel->insert([
             'id_cliente'              => $idCliente,
-            'id_consultor'            => $idConsultor,
+            'id_consultor'            => $userId,
             'nombre_vigia'            => $nombre,
             'documento_vigia'         => $documento,
             'email_vigia'             => $email,

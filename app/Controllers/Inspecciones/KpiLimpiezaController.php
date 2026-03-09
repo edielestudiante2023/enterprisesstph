@@ -79,10 +79,6 @@ class KpiLimpiezaController extends BaseController
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 
-        // id_consultor solo se asigna si el usuario es consultor o admin
-        $role = session()->get('role');
-        $idConsultor = in_array($role, ['consultant', 'admin']) ? $userId : null;
-
         if (!$isAutosave) {
             if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
                 return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
@@ -91,7 +87,7 @@ class KpiLimpiezaController extends BaseController
 
         $data = [
             'id_cliente'          => $this->request->getPost('id_cliente'),
-            'id_consultor'        => $idConsultor,
+            'id_consultor'        => $userId,
             'fecha_inspeccion'    => $this->request->getPost('fecha_inspeccion'),
             'nombre_responsable'  => $this->request->getPost('nombre_responsable'),
             'indicador'           => $this->request->getPost('indicador'),

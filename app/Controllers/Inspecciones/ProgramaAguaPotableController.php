@@ -68,13 +68,9 @@ class ProgramaAguaPotableController extends BaseController
             }
         }
 
-        // id_consultor solo se asigna si el usuario es consultor o admin
-        $role = session()->get('role');
-        $idConsultor = in_array($role, ['consultant', 'admin']) ? $userId : null;
-
         $data = [
             'id_cliente'           => $this->request->getPost('id_cliente'),
-            'id_consultor'         => $idConsultor,
+            'id_consultor'         => $userId,
             'fecha_programa'       => $this->request->getPost('fecha_programa'),
             'nombre_responsable'   => $this->request->getPost('nombre_responsable'),
             'cantidad_tanques'     => $this->request->getPost('cantidad_tanques'),
