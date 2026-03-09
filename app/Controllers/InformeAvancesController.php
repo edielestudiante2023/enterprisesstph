@@ -382,11 +382,16 @@ class InformeAvancesController extends BaseController
         $metricas = $service->calcularTodas($idCliente, $fechaDesde, $fechaHasta, $anio);
         $actividades = $service->recopilarActividadesPeriodo($idCliente, $fechaDesde, $fechaHasta);
 
+        // Datos adicionales para el prompt
+        $historialEst = $this->getHistorialEstandaresCliente($idCliente, $anio);
+        $historialPlan = $this->getHistorialPlanCliente($idCliente, $anio);
+        $vencimientos = $this->getVencimientosCliente($idCliente);
+
         $clientModel = new ClientModel();
         $cliente = $clientModel->find($idCliente);
         $nombreCliente = $cliente['nombre_cliente'] ?? 'Cliente';
 
-        $prompt = $this->buildResumenPrompt($nombreCliente, $fechaDesde, $fechaHasta, $actividades, $metricas);
+        $prompt = $this->buildResumenPrompt($nombreCliente, $fechaDesde, $fechaHasta, $actividades, $metricas, $historialEst, $historialPlan, $vencimientos);
 
         try {
             $iaService = new IADocumentacionService();
@@ -730,7 +735,7 @@ class InformeAvancesController extends BaseController
     }
 
     // ─── PRIVATE: Construir prompt IA para resumen ───
-    private function buildResumenPrompt(string $nombreCliente, string $desde, string $hasta, array $actividades, array $metricas): string
+    private function buildResumenPrompt(string $nombreCliente, string $desde, string $hasta, array $actividades, array $metricas, array $historialEst = [], array $historialPlan = [], array $vencimientos = []): string
     {
         $actividadesTexto = empty($actividades) ? 'No se registraron actividades en el periodo.' : implode("\n", $actividades);
 
@@ -760,6 +765,44 @@ class InformeAvancesController extends BaseController
             $documentosTexto = "DOCUMENTOS CARGADOS A LA PLATAFORMA EN EL PERIODO: Ninguno.";
         }
 
+        // Evolución histórica
+        $mesesNombres = ['01'=>'Ene','02'=>'Feb','03'=>'Mar','04'=>'Abr','05'=>'May','06'=>'Jun',
+                         '07'=>'Jul','08'=>'Ago','09'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Dic'];
+        $evolucionTexto = '';
+        if (!empty($historialEst)) {
+            $evolucionTexto .= "EVOLUCION HISTORICA DE CALIFICACION ESTANDARES (mes a mes):\n";
+            foreach ($historialEst as $h) {
+                $parts = explode('-', $h['mes']);
+                $mesNombre = ($mesesNombres[$parts[1] ?? ''] ?? $parts[1] ?? '') . ' ' . ($parts[0] ?? '');
+                $evolucionTexto .= "- {$mesNombre}: {$h['promedio']} de 100\n";
+            }
+            $evolucionTexto .= "\n";
+        }
+        if (!empty($historialPlan)) {
+            $evolucionTexto .= "EVOLUCION HISTORICA DE ACTIVIDADES ABIERTAS PTA (mes a mes):\n";
+            foreach ($historialPlan as $h) {
+                $parts = explode('-', $h['mes']);
+                $mesNombre = ($mesesNombres[$parts[1] ?? ''] ?? $parts[1] ?? '') . ' ' . ($parts[0] ?? '');
+                $evolucionTexto .= "- {$mesNombre}: {$h['promedio']} actividades abiertas\n";
+            }
+            $evolucionTexto .= "\n";
+        }
+
+        // Vencimientos
+        $vencimientosTexto = '';
+        if (!empty($vencimientos)) {
+            $hoy = date('Y-m-d');
+            $vencidos = 0;
+            $proximos = 0;
+            $vencimientosTexto = "ELEMENTOS CON VENCIMIENTO PROXIMO O VENCIDO (" . count($vencimientos) . " elementos):\n";
+            foreach ($vencimientos as $v) {
+                $estado_v = ($v['fecha_vencimiento'] <= $hoy) ? 'VENCIDO' : 'PROXIMO';
+                if ($estado_v === 'VENCIDO') $vencidos++; else $proximos++;
+                $vencimientosTexto .= "- {$v['detalle_mantenimiento']}: vence {$v['fecha_vencimiento']} ({$estado_v})\n";
+            }
+            $vencimientosTexto .= "Resumen: {$vencidos} vencidos, {$proximos} próximos a vencer.\n";
+        }
+
         return <<<PROMPT
 Eres un consultor comercial y experto en Seguridad y Salud en el Trabajo (SG-SST) en Colombia. Tu objetivo es redactar un informe que transmita confianza al cliente, resaltando los logros y el valor del servicio de consultoría.
 
@@ -780,18 +823,23 @@ ACTIVIDADES PTA CERRADAS EN EL PERIODO:
 
 {$documentosTexto}
 
+{$evolucionTexto}
+{$vencimientosTexto}
+
 ESTILO Y TONO:
 1. Tono positivo, comercial y orientado a resultados. El informe lo lee el cliente (administrador de propiedad horizontal) y debe sentir que su inversión en consultoría SST genera valor.
 2. Resalta PRIMERO los logros: actividades cerradas, documentos generados, avance en calificación. Usa frases como "se logró", "se avanzó exitosamente", "se consolidó".
 3. Presenta las actividades pendientes como "próximos pasos" u "oportunidades de mejora", NUNCA como problemas o falencias.
 4. Si hay avance en la calificación, celébralo. Si no hay avance, enfócate en las actividades realizadas y el trabajo en curso.
 5. Menciona los documentos cargados como evidencia tangible del trabajo realizado.
-6. Máximo 3 párrafos, concisos y contundentes.
-7. Prosa continua, sin viñetas ni listas.
-8. Tercera persona, profesional pero cercano.
-9. No incluyas saludos ni despedidas.
-10. La calificación de estándares es un puntaje sobre 100, NO un porcentaje. No uses "%" para referirte a ella.
-11. No menciones ciclos PHVA con números crudos ni fórmulas. Si mencionas un ciclo, solo indica si va bien o necesita atención.
+6. Si hay evolución histórica, menciona la tendencia positiva mes a mes.
+7. Si hay vencimientos próximos o vencidos, menciónalos como un tema que requiere coordinación, sin alarmar.
+8. Máximo 4 párrafos, concisos y contundentes.
+9. Prosa continua, sin viñetas ni listas.
+10. Tercera persona, profesional pero cercano.
+11. No incluyas saludos ni despedidas.
+12. La calificación de estándares es un puntaje sobre 100, NO un porcentaje. No uses "%" para referirte a ella.
+13. No menciones ciclos PHVA con números crudos ni fórmulas. Si mencionas un ciclo, solo indica si va bien o necesita atención.
 PROMPT;
     }
 
@@ -994,8 +1042,11 @@ PROMPT;
         $resumen = '';
         try {
             $actividades = $service->recopilarActividadesPeriodo($idCliente, $fechaDesde, $fechaHasta);
+            $historialEst = $this->getHistorialEstandaresCliente($idCliente, $anio);
+            $historialPlan = $this->getHistorialPlanCliente($idCliente, $anio);
+            $vencimientos = $this->getVencimientosCliente($idCliente);
             $iaService = new IADocumentacionService();
-            $prompt = $this->buildResumenPrompt($cliente['nombre_cliente'], $fechaDesde, $fechaHasta, $actividades, $metricas);
+            $prompt = $this->buildResumenPrompt($cliente['nombre_cliente'], $fechaDesde, $fechaHasta, $actividades, $metricas, $historialEst, $historialPlan, $vencimientos);
             $resumen = $iaService->generarContenido($prompt, 2000);
         } catch (\Exception $e) {
             $resumen = 'Resumen no disponible: ' . $e->getMessage();
