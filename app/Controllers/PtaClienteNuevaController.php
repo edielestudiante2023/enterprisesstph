@@ -491,16 +491,15 @@ class PtaClienteNuevaController extends Controller
         try {
             $db = \Config\Database::connect();
 
-            $sql = "SELECT COUNT(*) as total FROM tbl_pta_cliente WHERE estado_actividad = 'CERRADA' AND (fecha_cierre IS NULL OR fecha_cierre = '' OR fecha_cierre = '0000-00-00')";
+            $whereClause = "estado_actividad = 'CERRADA' AND (fecha_cierre IS NULL OR fecha_cierre = '0000-00-00')";
             if ($idCliente > 0) {
-                $sql .= " AND id_cliente = {$idCliente}";
+                $whereClause .= " AND id_cliente = {$idCliente}";
             }
+
+            $sql = "SELECT COUNT(*) as total FROM tbl_pta_cliente WHERE {$whereClause}";
             $count = (int) $db->query($sql)->getRow()->total;
 
-            $sqlUpdate = "UPDATE tbl_pta_cliente SET fecha_cierre = fecha_propuesta WHERE estado_actividad = 'CERRADA' AND (fecha_cierre IS NULL OR fecha_cierre = '' OR fecha_cierre = '0000-00-00')";
-            if ($idCliente > 0) {
-                $sqlUpdate .= " AND id_cliente = {$idCliente}";
-            }
+            $sqlUpdate = "UPDATE tbl_pta_cliente SET fecha_cierre = fecha_propuesta WHERE {$whereClause}";
             $db->query($sqlUpdate);
 
             return $this->response->setJSON([
