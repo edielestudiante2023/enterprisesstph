@@ -12,7 +12,11 @@
       "Bash(php -r \"$db = new mysqli\\(''localhost'', ''root'', '''', ''propiedad_horizontal''\\); $r = $db->query\\(''DESCRIBE tbl_matrices''\\); while\\($row = $r->fetch_assoc\\(\\)\\) echo $row[''Field''] . '' | '' . $row[''Type''] . '' | '' . $row[''Null''] . '' | '' . $row[''Key''] . PHP_EOL;\")",
       "Bash(DB_PROD_PASS='AVNS_iDypWizlpMRwHIORJGG' /c/xampp/php/php.exe app/SQL/fix_historial_2026.php production)",
       "Bash(DB_PROD_PASS='AVNS_iDypWizlpMRwHIORJGG' /c/xampp/php/php.exe app/SQL/fix_historial_2026_v2.php production)",
-      "Bash(php -d error_reporting=0 -r \":*)"
+      "Bash(php -d error_reporting=0 -r \":*)",
+      "Read(//c/Program Files/**)",
+      "Bash(/c/xampp/mysql/bin/mysql.exe -u cycloid_userdb -pAVNS_iDypWizlpMRwHIORJGG -h db-mysql-cycloid-do-user-18794030-0.h.db.ondigitalocean.com -P 25060 --ssl-mode=REQUIRED propiedad_horizontal -e \"DESCRIBE tbl_contratos;\")",
+      "Bash(/c/xampp/mysql/bin/mysql.exe -u cycloid_userdb -pAVNS_iDypWizlpMRwHIORJGG -h db-mysql-cycloid-do-user-18794030-0.h.db.ondigitalocean.com -P 25060 --ssl propiedad_horizontal -e \"DESCRIBE tbl_contratos;\")",
+      "Bash(/c/xampp/mysql/bin/mysql.exe --version)"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\enterprisesstph\\app\\Config"

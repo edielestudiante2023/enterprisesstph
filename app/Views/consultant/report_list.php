@@ -939,6 +939,23 @@
         }
       }
 
+      // Escuchar cambios de cliente desde Quick Access Dashboard (otras pestañas)
+      function _syncClientFromQA(newClientId) {
+        var name = clientMap[newClientId];
+        if (name) {
+          $('#clientFilter').val(name).trigger('change');
+        }
+      }
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'selectedClient' && e.newValue) _syncClientFromQA(e.newValue);
+      });
+      if (typeof BroadcastChannel !== 'undefined') {
+        var _qaSyncCh = new BroadcastChannel('quick_access_sync');
+        _qaSyncCh.onmessage = function(e) {
+          if (e.data && e.data.type === 'clientChange') _syncClientFromQA(e.data.clientId);
+        };
+      }
+
       // Date range filters — trigger server-side reload
       $('#dateFrom, #dateTo').on('change', function() {
         table.ajax.reload();

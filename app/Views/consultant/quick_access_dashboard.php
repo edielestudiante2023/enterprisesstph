@@ -92,6 +92,34 @@
             color: var(--white-primary);
         }
 
+        .btn-sync-all {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            border: 2px solid var(--gold-primary);
+            color: var(--white-primary);
+            border-radius: 12px;
+            padding: 15px 30px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(28, 36, 55, 0.3);
+        }
+
+        .btn-sync-all:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(28, 36, 55, 0.5);
+            color: var(--gold-secondary);
+            border-color: var(--gold-secondary);
+        }
+
+        .btn-sync-all.syncing i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .view-card {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             border-radius: 15px;
@@ -176,16 +204,19 @@
                         </select>
                         <small class="text-muted">El cliente seleccionado se aplicará a todas las vistas al abrirlas</small>
                     </div>
-                    <div class="col-md-6 text-end">
+                    <div class="col-md-6 text-end d-flex flex-column flex-md-row justify-content-end gap-2">
+                        <button id="syncAllViews" class="btn btn-sync-all">
+                            <i class="fas fa-sync-alt me-2"></i>Cambiar Cliente en Vistas Abiertas
+                        </button>
                         <button id="openAllViews" class="btn btn-open-all">
                             <i class="fas fa-external-link-alt me-2"></i>Abrir Todas las Vistas
                         </button>
                     </div>
                 </div>
-                <div class="alert alert-warning mt-3 mb-0" role="alert">
+                <div class="alert alert-info mt-3 mb-0" role="alert">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>Importante:</strong> Para abrir todas las vistas, debe habilitar los pop-ups en su navegador.
-                    Si solo se abre una ventana, busque el icono de pop-up bloqueado en la barra de direcciones y seleccione "Permitir siempre".
+                    <strong>Tip:</strong> Use <strong>"Cambiar Cliente"</strong> para actualizar el cliente en todas las pestañas ya abiertas sin recargarlas manualmente.
+                    Use <strong>"Abrir Todas"</strong> la primera vez para abrir las vistas (habilite pop-ups en su navegador).
                 </div>
             </div>
 
@@ -275,6 +306,39 @@
                 } else {
                     localStorage.removeItem('selectedClient');
                 }
+            });
+
+            // Canal de broadcast para sincronizar cliente entre pestañas
+            var syncChannel = new BroadcastChannel('quick_access_sync');
+
+            // Cambiar cliente en todas las vistas abiertas (sin abrir nuevas)
+            $('#syncAllViews').on('click', function() {
+                var clientId = $('#globalClientSelect').val();
+                var clientName = $('#globalClientSelect option:selected').text().trim();
+
+                if (!clientId) {
+                    alert('Por favor seleccione un cliente primero');
+                    return;
+                }
+
+                var $btn = $(this);
+                $btn.addClass('syncing');
+
+                // Guardar en localStorage (dispara evento 'storage' en otras pestañas)
+                localStorage.setItem('selectedClient', clientId);
+                localStorage.setItem('selectedClientName', clientName);
+
+                // También enviar por BroadcastChannel como refuerzo
+                syncChannel.postMessage({
+                    type: 'clientChange',
+                    clientId: clientId,
+                    clientName: clientName
+                });
+
+                setTimeout(function() {
+                    $btn.removeClass('syncing');
+                    alert('Cliente "' + clientName + '" sincronizado en todas las vistas abiertas.');
+                }, 800);
             });
 
             // Abrir todas las vistas en nuevas pestañas

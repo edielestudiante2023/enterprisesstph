@@ -487,6 +487,22 @@
           if (storedClient) {
             $("#clientSelect").val(storedClient).trigger('change');
           }
+
+          // Escuchar cambios de cliente desde Quick Access Dashboard (otras pestañas)
+          function _syncClientFromQA(newClientId) {
+            if ($('#clientSelect option[value="' + newClientId + '"]').length > 0) {
+              $('#clientSelect').val(newClientId).trigger('change');
+            }
+          }
+          window.addEventListener('storage', function(e) {
+            if (e.key === 'selectedClient' && e.newValue) _syncClientFromQA(e.newValue);
+          });
+          if (typeof BroadcastChannel !== 'undefined') {
+            var _qaSyncCh = new BroadcastChannel('quick_access_sync');
+            _qaSyncCh.onmessage = function(e) {
+              if (e.data && e.data.type === 'clientChange') _syncClientFromQA(e.data.clientId);
+            };
+          }
         },
         error: function() {
           alert('Error al cargar la lista de clientes.');

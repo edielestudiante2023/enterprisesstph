@@ -371,6 +371,25 @@
         }, 500);
       }
 
+      // Escuchar cambios de cliente desde Quick Access Dashboard (otras pestañas)
+      function _syncClientFromQA(newClientId) {
+        if ($('.select2-cliente option[value="' + newClientId + '"]').length > 0) {
+          $('.select2-cliente').val(newClientId).trigger('change');
+          setTimeout(function() {
+            $('form[action="<?= current_url() ?>"]').submit();
+          }, 300);
+        }
+      }
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'selectedClient' && e.newValue) _syncClientFromQA(e.newValue);
+      });
+      if (typeof BroadcastChannel !== 'undefined') {
+        var _qaSyncCh = new BroadcastChannel('quick_access_sync');
+        _qaSyncCh.onmessage = function(e) {
+          if (e.data && e.data.type === 'clientChange') _syncClientFromQA(e.data.clientId);
+        };
+      }
+
       // Mantener cliente seleccionado desde la URL
       function mantenerClienteSeleccionado() {
         var urlParams = new URLSearchParams(window.location.search);
