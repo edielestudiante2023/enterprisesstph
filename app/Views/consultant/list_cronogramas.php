@@ -310,16 +310,18 @@
     .mini-progress {
       display: flex;
       align-items: center;
-      gap: 8px;
-      min-width: 100px;
+      gap: 6px;
+      min-width: 120px;
+      width: 120px;
+      flex-wrap: nowrap;
     }
     .mini-progress-bar {
-      flex: 1;
+      flex: 1 1 auto;
       height: 14px;
       background: #dee2e6;
       border-radius: 7px;
       overflow: hidden;
-      min-width: 60px;
+      min-width: 50px;
       box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
     }
     .mini-progress-fill {
@@ -331,7 +333,8 @@
     .mini-progress-text {
       font-size: 13px;
       font-weight: 800;
-      min-width: 40px;
+      flex: 0 0 auto;
+      white-space: nowrap;
       text-align: right;
       color: #333;
     }
@@ -383,6 +386,12 @@
     }
     #cronogramaTable tbody tr:hover td { background-color: #f0f4ff !important; }
     #cronogramaTable tbody tr:nth-child(even) td { background-color: #f8f9fc; }
+
+    /* Columna de barra de progreso: no recortar */
+    .col-progress {
+      overflow: visible !important;
+      min-width: 130px !important;
+    }
 
     /* Columnas con texto truncado: permitir wrap */
     .col-truncate {
@@ -983,7 +992,7 @@
           url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
         },
         pagingType: "full_numbers",
-        autoWidth: false,
+        autoWidth: true,
         dom: 'Bfltip',
         pageLength: 25,
         scrollX: true,
@@ -1151,6 +1160,7 @@
           },
           {
             data: 'porcentaje_cobertura',
+            className: 'col-progress',
             render: function(data, type, row) {
               var asistentes = parseFloat(row.numero_de_asistentes_a_capacitacion) || 0;
               var programados = parseFloat(row.numero_total_de_personas_programadas) || 0;
@@ -1192,6 +1202,8 @@
         ],
         initComplete: function() {
           var api = this.api();
+          // Forzar recálculo de anchos para alinear header con body
+          setTimeout(function(){ api.columns.adjust(); }, 100);
           api.columns().every(function() {
             var column = this;
             var headerIndex = column.index();
@@ -1209,6 +1221,11 @@
             }
           });
         }
+      });
+
+      // Re-alinear encabezados con cuerpo después de cada redibujado
+      table.on('draw.dt', function() {
+        setTimeout(function(){ table.columns.adjust(); }, 50);
       });
 
       table.buttons().container().appendTo('#buttonsContainer');

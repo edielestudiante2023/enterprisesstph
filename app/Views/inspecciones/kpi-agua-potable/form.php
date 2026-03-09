@@ -64,7 +64,7 @@ $storageKey = $isEdit ? 'kpi_agua_potable_draft_' . $inspeccion['id'] : 'kpi_agu
         <div class="card-body p-3">
             <div class="mb-3">
                 <label class="form-label" style="font-size:12px;">Indicador <span class="text-danger">*</span></label>
-                <select name="indicador" class="form-select form-select-sm" required>
+                <select name="indicador" id="selectIndicador" class="form-select form-select-sm" required>
                     <option value="">Seleccione indicador...</option>
                     <?php foreach ($indicadores as $ind): ?>
                         <option value="<?= esc($ind) ?>" <?= ($isEdit && $inspeccion['indicador'] === $ind) ? 'selected' : '' ?>>
@@ -72,6 +72,9 @@ $storageKey = $isEdit ? 'kpi_agua_potable_draft_' . $inspeccion['id'] : 'kpi_agu
                         </option>
                     <?php endforeach; ?>
                 </select>
+            </div>
+            <div id="operacionalizacionBox" class="alert alert-info py-2 px-3 mb-3" style="font-size:12px; display:none;">
+                <i class="fas fa-calculator me-1"></i> <strong>Cómo medir:</strong> <span id="operacionalizacionTexto"></span>
             </div>
             <div class="mb-3">
                 <label class="form-label" style="font-size:12px;">Cumplimiento (%) <span class="text-danger">*</span></label>
@@ -138,6 +141,23 @@ $storageKey = $isEdit ? 'kpi_agua_potable_draft_' . $inspeccion['id'] : 'kpi_agu
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Operacionalización dinámica
+    var opMap = <?= json_encode($operacionalizacion ?? [], JSON_UNESCAPED_UNICODE) ?>;
+    var selInd = document.getElementById('selectIndicador');
+    var opBox = document.getElementById('operacionalizacionBox');
+    var opTxt = document.getElementById('operacionalizacionTexto');
+    function showOp() {
+        var val = selInd.value;
+        if (val && opMap[val]) {
+            opTxt.textContent = opMap[val];
+            opBox.style.display = 'block';
+        } else {
+            opBox.style.display = 'none';
+        }
+    }
+    selInd.addEventListener('change', showOp);
+    showOp();
+
     // Select2 AJAX para clientes
     var clienteVal = '<?= $isEdit ? $inspeccion['id_cliente'] : ($idCliente ?? '') ?>';
     $('#selectCliente').select2({

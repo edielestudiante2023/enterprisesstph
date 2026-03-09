@@ -18,7 +18,12 @@ class KpiLimpiezaController extends BaseController
 
     protected const INDICADORES = [
         'Cumplimiento de actividades de limpieza y desinfección',
-        'Cobertura de desinfección en áreas críticas',
+        'Estado de los elementos de limpieza',
+    ];
+
+    protected const OPERACIONALIZACION = [
+        'Cumplimiento de actividades de limpieza y desinfección' => 'N.° de días registrados en la planilla de limpieza ÷ Días hábiles del periodo evaluado × 100',
+        'Estado de los elementos de limpieza' => 'N.° de elementos de limpieza en buen estado ÷ N.° total de elementos de limpieza verificados × 100',
     ];
 
     protected const PDF_CODE     = 'FT-SST-229';
@@ -58,11 +63,12 @@ class KpiLimpiezaController extends BaseController
     {
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/kpi-limpieza/form', [
-                'title'       => 'Nuevo ' . static::MODULE_LABEL,
-                'inspeccion'  => null,
-                'idCliente'   => $idCliente,
-                'indicadores' => static::INDICADORES,
-                'slug'        => static::ROUTE_SLUG,
+                'title'              => 'Nuevo ' . static::MODULE_LABEL,
+                'inspeccion'         => null,
+                'idCliente'          => $idCliente,
+                'indicadores'        => static::INDICADORES,
+                'operacionalizacion' => static::OPERACIONALIZACION,
+                'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Nuevo ' . static::MODULE_LABEL,
         ]);
@@ -113,11 +119,12 @@ class KpiLimpiezaController extends BaseController
         }
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/kpi-limpieza/form', [
-                'title'       => 'Editar ' . static::MODULE_LABEL,
-                'inspeccion'  => $inspeccion,
-                'idCliente'   => $inspeccion['id_cliente'],
-                'indicadores' => static::INDICADORES,
-                'slug'        => static::ROUTE_SLUG,
+                'title'              => 'Editar ' . static::MODULE_LABEL,
+                'inspeccion'         => $inspeccion,
+                'idCliente'          => $inspeccion['id_cliente'],
+                'indicadores'        => static::INDICADORES,
+                'operacionalizacion' => static::OPERACIONALIZACION,
+                'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Editar ' . static::MODULE_LABEL,
         ]);

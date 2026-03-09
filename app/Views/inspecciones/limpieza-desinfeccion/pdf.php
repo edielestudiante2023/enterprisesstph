@@ -506,29 +506,29 @@
     <table class="data-table" style="margin: 0;">
         <tr><td class="ind-label" style="width: 40%; background: #f0f0f0;">Nombre del indicador</td><td>Cumplimiento de actividades de limpieza y desinfección</td></tr>
         <tr><td class="ind-label" style="background: #f0f0f0;">Tipo de indicador</td><td>Proceso</td></tr>
-        <tr><td class="ind-label" style="background: #f0f0f0;">Fórmula de cálculo</td><td>(Actividades ejecutadas / Actividades programadas) × 100</td></tr>
+        <tr><td class="ind-label" style="background: #f0f0f0;">Fórmula de cálculo</td><td>(N.° de días registrados en la planilla de limpieza ÷ Días hábiles del periodo evaluado) × 100</td></tr>
         <tr><td class="ind-label" style="background: #f0f0f0;">Meta</td><td>Mayor o igual a 95%</td></tr>
         <tr><td class="ind-label" style="background: #f0f0f0;">Periodicidad de medición</td><td>Mensual</td></tr>
-        <tr><td class="ind-label" style="background: #f0f0f0;">Fuente de información</td><td>Cronograma mensual de actividades y formatos diligenciados</td></tr>
+        <tr><td class="ind-label" style="background: #f0f0f0;">Fuente de información</td><td>Planilla de limpieza y desinfección diligenciada</td></tr>
         <tr><td class="ind-label" style="background: #f0f0f0;">Responsable</td><td>Administración del Conjunto Residencial</td></tr>
     </table>
 </div>
-<p>Este indicador permite verificar el grado de cumplimiento del cronograma establecido, evidenciando si las actividades programadas se están ejecutando conforme a lo planificado. Un resultado inferior a la meta establecida deberá generar acciones correctivas.</p>
+<p>Este indicador permite verificar el grado de cumplimiento de las actividades de limpieza y desinfección, evidenciando si se están ejecutando conforme a lo planificado. Un resultado inferior a la meta establecida deberá generar acciones correctivas.</p>
 
-<div class="subsection-title">1.14.2 Cobertura de desinfección en áreas críticas</div>
+<div class="subsection-title">1.14.2 Estado de los elementos de limpieza</div>
 <div class="indicador-box">
     <table class="data-table" style="margin: 0;">
-        <tr><td class="ind-label" style="width: 40%; background: #f0f0f0;">Nombre del indicador</td><td>Cobertura de desinfección en áreas críticas</td></tr>
+        <tr><td class="ind-label" style="width: 40%; background: #f0f0f0;">Nombre del indicador</td><td>Estado de los elementos de limpieza</td></tr>
         <tr><td class="ind-label" style="background: #f0f0f0;">Tipo de indicador</td><td>Proceso</td></tr>
-        <tr><td class="ind-label" style="background: #f0f0f0;">Fórmula de cálculo</td><td>(Áreas críticas desinfectadas / Áreas críticas programadas) × 100</td></tr>
-        <tr><td class="ind-label" style="background: #f0f0f0;">Meta</td><td>100%</td></tr>
+        <tr><td class="ind-label" style="background: #f0f0f0;">Fórmula de cálculo</td><td>(N.° de elementos de limpieza en buen estado ÷ N.° total de elementos de limpieza verificados) × 100</td></tr>
+        <tr><td class="ind-label" style="background: #f0f0f0;">Meta</td><td>Mayor o igual a 90%</td></tr>
         <tr><td class="ind-label" style="background: #f0f0f0;">Periodicidad de medición</td><td>Mensual</td></tr>
-        <tr><td class="ind-label" style="background: #f0f0f0;">Áreas críticas</td><td>Baños, pasamanos, ascensores, barandas, botones, manijas y superficies de alto contacto</td></tr>
-        <tr><td class="ind-label" style="background: #f0f0f0;">Fuente de información</td><td>Formato de desinfección de áreas críticas</td></tr>
+        <tr><td class="ind-label" style="background: #f0f0f0;">Elementos verificados</td><td>Escobas, traperos, cepillos, mopas, baldes, recogedores, atomizadores y demás implementos de aseo</td></tr>
+        <tr><td class="ind-label" style="background: #f0f0f0;">Fuente de información</td><td>Inspección visual directa de elementos de limpieza</td></tr>
         <tr><td class="ind-label" style="background: #f0f0f0;">Responsable</td><td>Administración del Conjunto Residencial</td></tr>
     </table>
 </div>
-<p>Este indicador permite verificar que todas las superficies consideradas de alto riesgo sanitario reciban el tratamiento de desinfección conforme a lo programado. El incumplimiento deberá generar revisión inmediata de la ejecución del programa.</p>
+<p>Este indicador mide el porcentaje de elementos de limpieza que se encuentran en buen estado al momento de la verificación. Permite identificar necesidades de reposición o mantenimiento de los implementos de aseo, garantizando la eficacia de las actividades del Programa.</p>
 
 </body>
 </html>

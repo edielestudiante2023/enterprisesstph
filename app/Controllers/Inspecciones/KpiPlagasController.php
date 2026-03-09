@@ -21,6 +21,11 @@ class KpiPlagasController extends BaseController
         'Ejecución de desratización semestral',
     ];
 
+    protected const OPERACIONALIZACION = [
+        'Ejecución de fumigación semestral' => 'Soportes de fumigación en el periodo evaluado',
+        'Ejecución de desratización semestral' => 'Soportes de desratización en el periodo evaluado',
+    ];
+
     protected const PDF_CODE     = 'FT-SST-231';
     protected const PDF_TITLE    = 'KPI PROGRAMA DE CONTROL INTEGRADO DE PLAGAS';
     protected const PDF_INTRO    = 'Con el fin de verificar la correcta ejecución, eficacia sanitaria y operativa del <strong>Programa de Control Integral de Plagas y Roedores</strong> y garantizar su mejora continua en';
@@ -62,8 +67,9 @@ class KpiPlagasController extends BaseController
                 'title'       => 'Nuevo ' . static::MODULE_LABEL,
                 'inspeccion'  => null,
                 'idCliente'   => $idCliente,
-                'indicadores' => static::INDICADORES,
-                'slug'        => static::ROUTE_SLUG,
+                'indicadores'        => static::INDICADORES,
+                'operacionalizacion' => static::OPERACIONALIZACION,
+                'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Nuevo ' . static::MODULE_LABEL,
         ]);
@@ -116,8 +122,9 @@ class KpiPlagasController extends BaseController
                 'title'       => 'Editar ' . static::MODULE_LABEL,
                 'inspeccion'  => $inspeccion,
                 'idCliente'   => $inspeccion['id_cliente'],
-                'indicadores' => static::INDICADORES,
-                'slug'        => static::ROUTE_SLUG,
+                'indicadores'        => static::INDICADORES,
+                'operacionalizacion' => static::OPERACIONALIZACION,
+                'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Editar ' . static::MODULE_LABEL,
         ]);

@@ -21,6 +21,11 @@ class KpiResiduosController extends BaseController
         'Cumplimiento en separación adecuada de residuos sólidos',
     ];
 
+    protected const OPERACIONALIZACION = [
+        'Cumplimiento de condiciones higiénico–sanitarias del cuarto de residuos' => 'Calificación del estado de aseo del cuarto de residuos de acuerdo con inspección',
+        'Cumplimiento en separación adecuada de residuos sólidos' => 'Calificación de acuerdo con inspección visual directa',
+    ];
+
     protected const PDF_CODE     = 'FT-SST-230';
     protected const PDF_TITLE    = 'KPI PROGRAMA DE MANEJO INTEGRAL DE RESIDUOS SÓLIDOS';
     protected const PDF_INTRO    = 'Con el fin de verificar la eficacia sanitaria y operativa del <strong>Programa De Manejo Integral De Residuos Sólidos</strong> y garantizar su mejora continua en';
@@ -62,8 +67,9 @@ class KpiResiduosController extends BaseController
                 'title'       => 'Nuevo ' . static::MODULE_LABEL,
                 'inspeccion'  => null,
                 'idCliente'   => $idCliente,
-                'indicadores' => static::INDICADORES,
-                'slug'        => static::ROUTE_SLUG,
+                'indicadores'        => static::INDICADORES,
+                'operacionalizacion' => static::OPERACIONALIZACION,
+                'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Nuevo ' . static::MODULE_LABEL,
         ]);
@@ -116,8 +122,9 @@ class KpiResiduosController extends BaseController
                 'title'       => 'Editar ' . static::MODULE_LABEL,
                 'inspeccion'  => $inspeccion,
                 'idCliente'   => $inspeccion['id_cliente'],
-                'indicadores' => static::INDICADORES,
-                'slug'        => static::ROUTE_SLUG,
+                'indicadores'        => static::INDICADORES,
+                'operacionalizacion' => static::OPERACIONALIZACION,
+                'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Editar ' . static::MODULE_LABEL,
         ]);

@@ -18,7 +18,12 @@ class KpiAguaPotableController extends BaseController
 
     protected const INDICADORES = [
         'Continuidad del servicio de agua potable en situaciones de suspensión',
-        'Ejecución de limpieza y desinfección de tanques de agua potable',
+        'Ejecución de limpieza y desinfección de tanques de agua potable (semestral)',
+    ];
+
+    protected const OPERACIONALIZACION = [
+        'Continuidad del servicio de agua potable en situaciones de suspensión' => 'Estado de reserva de agua en el momento de la inspección',
+        'Ejecución de limpieza y desinfección de tanques de agua potable (semestral)' => 'Soportes de lavado de tanque en el periodo evaluado',
     ];
 
     protected const PDF_CODE     = 'FT-SST-232';
@@ -62,8 +67,9 @@ class KpiAguaPotableController extends BaseController
                 'title'       => 'Nuevo ' . static::MODULE_LABEL,
                 'inspeccion'  => null,
                 'idCliente'   => $idCliente,
-                'indicadores' => static::INDICADORES,
-                'slug'        => static::ROUTE_SLUG,
+                'indicadores'        => static::INDICADORES,
+                'operacionalizacion' => static::OPERACIONALIZACION,
+                'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Nuevo ' . static::MODULE_LABEL,
         ]);
@@ -116,8 +122,9 @@ class KpiAguaPotableController extends BaseController
                 'title'       => 'Editar ' . static::MODULE_LABEL,
                 'inspeccion'  => $inspeccion,
                 'idCliente'   => $inspeccion['id_cliente'],
-                'indicadores' => static::INDICADORES,
-                'slug'        => static::ROUTE_SLUG,
+                'indicadores'        => static::INDICADORES,
+                'operacionalizacion' => static::OPERACIONALIZACION,
+                'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Editar ' . static::MODULE_LABEL,
         ]);
