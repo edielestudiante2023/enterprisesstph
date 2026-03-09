@@ -325,21 +325,6 @@ class MetricasInformeService
             $actividades[] = "Visita ({$a['fecha_visita']}): {$a['motivo']}";
         }
 
-        // Capacitaciones ejecutadas en el periodo
-        $caps = $this->db->table('tbl_cronog_capacitacion')
-            ->select('fecha_programada, nombre_capacitacion, estado')
-            ->where('id_cliente', $idCliente)
-            ->where('estado', 'EJECUTADA')
-            ->where('fecha_programada >=', $desde)
-            ->where('fecha_programada <=', $hasta)
-            ->orderBy('fecha_programada', 'ASC')
-            ->get()
-            ->getResultArray();
-
-        foreach ($caps as $c) {
-            $actividades[] = "Capacitación ejecutada ({$c['fecha_programada']}): {$c['nombre_capacitacion']}";
-        }
-
         // PTA cerradas en el periodo (por fecha_cierre real)
         $cerradas = $this->getActividadesCerradasPeriodo($idCliente, $desde, $hasta);
         foreach ($cerradas as $t) {
@@ -362,6 +347,22 @@ class MetricasInformeService
         }
 
         return $actividades;
+    }
+
+    /**
+     * Capacitaciones ejecutadas en el periodo con detalle
+     */
+    public function getCapacitacionesEjecutadas(int $idCliente, string $desde, string $hasta): array
+    {
+        return $this->db->table('tbl_cronog_capacitacion')
+            ->select('fecha_programada, fecha_de_realizacion, nombre_capacitacion, objetivo_capacitacion, perfil_de_asistentes, nombre_del_capacitador, horas_de_duracion_de_la_capacitacion, numero_de_asistentes_a_capacitacion, numero_total_de_personas_programadas, porcentaje_cobertura, promedio_de_calificaciones, observaciones')
+            ->where('id_cliente', $idCliente)
+            ->where('estado', 'EJECUTADA')
+            ->where('fecha_programada >=', $desde)
+            ->where('fecha_programada <=', $hasta)
+            ->orderBy('fecha_programada', 'ASC')
+            ->get()
+            ->getResultArray();
     }
 
     /**

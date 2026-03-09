@@ -386,12 +386,13 @@ class InformeAvancesController extends BaseController
         $historialEst = $this->getHistorialEstandaresCliente($idCliente, $anio);
         $historialPlan = $this->getHistorialPlanCliente($idCliente, $anio);
         $vencimientos = $this->getVencimientosCliente($idCliente);
+        $capacitaciones = $service->getCapacitacionesEjecutadas($idCliente, $fechaDesde, $fechaHasta);
 
         $clientModel = new ClientModel();
         $cliente = $clientModel->find($idCliente);
         $nombreCliente = $cliente['nombre_cliente'] ?? 'Cliente';
 
-        $prompt = $this->buildResumenPrompt($nombreCliente, $fechaDesde, $fechaHasta, $actividades, $metricas, $historialEst, $historialPlan, $vencimientos);
+        $prompt = $this->buildResumenPrompt($nombreCliente, $fechaDesde, $fechaHasta, $actividades, $metricas, $historialEst, $historialPlan, $vencimientos, $capacitaciones);
 
         try {
             $iaService = new IADocumentacionService();
@@ -735,7 +736,7 @@ class InformeAvancesController extends BaseController
     }
 
     // ─── PRIVATE: Construir prompt IA para resumen ───
-    private function buildResumenPrompt(string $nombreCliente, string $desde, string $hasta, array $actividades, array $metricas, array $historialEst = [], array $historialPlan = [], array $vencimientos = []): string
+    private function buildResumenPrompt(string $nombreCliente, string $desde, string $hasta, array $actividades, array $metricas, array $historialEst = [], array $historialPlan = [], array $vencimientos = [], array $capacitaciones = []): string
     {
         $actividadesTexto = empty($actividades) ? 'No se registraron actividades en el periodo.' : implode("\n", $actividades);
 
@@ -803,6 +804,23 @@ class InformeAvancesController extends BaseController
             $vencimientosTexto .= "Resumen: {$vencidos} vencidos, {$proximos} próximos a vencer.\n";
         }
 
+        // Capacitaciones ejecutadas
+        $capacitacionesTexto = '';
+        if (!empty($capacitaciones)) {
+            $capacitacionesTexto = "CAPACITACIONES EJECUTADAS EN EL PERIODO (" . count($capacitaciones) . "):\n";
+            foreach ($capacitaciones as $cap) {
+                $fecha = $cap['fecha_de_realizacion'] ?: $cap['fecha_programada'];
+                $asistentes = $cap['numero_de_asistentes_a_capacitacion'] ?: '?';
+                $programados = $cap['numero_total_de_personas_programadas'] ?: '?';
+                $cobertura = $cap['porcentaje_cobertura'] ? $cap['porcentaje_cobertura'] . '%' : 'N/A';
+                $calificacion = $cap['promedio_de_calificaciones'] ?: 'N/A';
+                $horas = $cap['horas_de_duracion_de_la_capacitacion'] ?: '?';
+                $capacitacionesTexto .= "- [{$fecha}] {$cap['nombre_capacitacion']} — {$horas}h, {$asistentes}/{$programados} asistentes (cobertura: {$cobertura}), calificación promedio: {$calificacion}\n";
+            }
+        } else {
+            $capacitacionesTexto = "CAPACITACIONES EJECUTADAS EN EL PERIODO: Ninguna.";
+        }
+
         return <<<PROMPT
 Eres un consultor comercial y experto en Seguridad y Salud en el Trabajo (SG-SST) en Colombia. Tu objetivo es redactar un informe que transmita confianza al cliente, resaltando los logros y el valor del servicio de consultoría.
 
@@ -823,17 +841,20 @@ ACTIVIDADES PTA CERRADAS EN EL PERIODO:
 
 {$documentosTexto}
 
+{$capacitacionesTexto}
+
 {$evolucionTexto}
 {$vencimientosTexto}
 
 ESTILO Y TONO:
 1. Tono positivo, comercial y orientado a resultados. El informe lo lee el cliente (administrador de propiedad horizontal) y debe sentir que su inversión en consultoría SST genera valor.
-2. Resalta PRIMERO los logros: actividades cerradas, documentos generados, avance en calificación. Usa frases como "se logró", "se avanzó exitosamente", "se consolidó".
+2. Resalta PRIMERO los logros: actividades cerradas, documentos generados, capacitaciones ejecutadas, avance en calificación. Usa frases como "se logró", "se avanzó exitosamente", "se consolidó".
 3. Presenta las actividades pendientes como "próximos pasos" u "oportunidades de mejora", NUNCA como problemas o falencias.
 4. Si hay avance en la calificación, celébralo. Si no hay avance, enfócate en las actividades realizadas y el trabajo en curso.
 5. Menciona los documentos cargados como evidencia tangible del trabajo realizado.
-6. Si hay evolución histórica, menciona la tendencia positiva mes a mes.
-7. Si hay vencimientos próximos o vencidos, menciónalos como un tema que requiere coordinación, sin alarmar.
+6. Si hay capacitaciones ejecutadas, destácalas mencionando nombre, asistentes y cobertura como logros de formación.
+7. Si hay evolución histórica, menciona la tendencia positiva mes a mes.
+8. Si hay vencimientos próximos o vencidos, menciónalos como un tema que requiere coordinación, sin alarmar.
 8. Máximo 4 párrafos, concisos y contundentes.
 9. Prosa continua, sin viñetas ni listas.
 10. Tercera persona, profesional pero cercano.
@@ -1045,8 +1066,9 @@ PROMPT;
             $historialEst = $this->getHistorialEstandaresCliente($idCliente, $anio);
             $historialPlan = $this->getHistorialPlanCliente($idCliente, $anio);
             $vencimientos = $this->getVencimientosCliente($idCliente);
+            $capacitaciones = $service->getCapacitacionesEjecutadas($idCliente, $fechaDesde, $fechaHasta);
             $iaService = new IADocumentacionService();
-            $prompt = $this->buildResumenPrompt($cliente['nombre_cliente'], $fechaDesde, $fechaHasta, $actividades, $metricas, $historialEst, $historialPlan, $vencimientos);
+            $prompt = $this->buildResumenPrompt($cliente['nombre_cliente'], $fechaDesde, $fechaHasta, $actividades, $metricas, $historialEst, $historialPlan, $vencimientos, $capacitaciones);
             $resumen = $iaService->generarContenido($prompt, 2000);
         } catch (\Exception $e) {
             $resumen = 'Resumen no disponible: ' . $e->getMessage();
