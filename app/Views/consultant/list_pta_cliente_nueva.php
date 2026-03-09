@@ -1902,8 +1902,13 @@
                                 return data[2] == activityId; // data[2] es id_ptacliente (shifted +1)
                             });
 
+                            // Obtener nombre de la actividad desde la fila
+                            var activityName = 'Actividad';
                             if (row.length > 0) {
                                 var rowData = row.data();
+                                // data[7] es actividad_plandetrabajo (shifted +1)
+                                var rawHtml = rowData[7] || '';
+                                activityName = $('<div>').html(rawHtml).text().trim() || 'Actividad';
                                 rowData[9] = response.newDate; // Columna 9 es fecha_propuesta (shifted +1)
                                 row.data(rowData).draw(false);
                             }
@@ -1911,20 +1916,45 @@
                             // Agregar clase visual de éxito al botón
                             $button.addClass('has-date');
 
-                            // Mostrar mensaje sutil de éxito
+                            // Toast de éxito con nombre de actividad y mes destino
                             var monthName = new Date(2000, month - 1, 1).toLocaleString('es', { month: 'long' });
-                            var successMsg = $('<small class="text-success ms-2"><i class="fas fa-check"></i></small>');
-                            $button.parent().append(successMsg);
-                            setTimeout(function() {
-                                successMsg.fadeOut(function() { $(this).remove(); });
-                            }, 2000);
+                            monthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: '<strong>' + activityName + '</strong>',
+                                html: 'Movida a <strong>' + monthName + ' (' + response.newDate + ')</strong>',
+                                showConfirmButton: false,
+                                timer: 3500,
+                                timerProgressBar: true
+                            });
 
                         } else {
-                            alert('Error: ' + response.message);
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'error',
+                                title: 'Error al actualizar',
+                                html: response.message || 'No se pudo mover la actividad',
+                                showConfirmButton: false,
+                                timer: 4000,
+                                timerProgressBar: true
+                            });
                         }
                     },
                     error: function(xhr, status, error) {
-                        alert('Error al actualizar la fecha: ' + error);
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Error de conexión',
+                            html: 'No se pudo actualizar la fecha: ' + error,
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true
+                        });
                         console.error('Error AJAX:', xhr.responseText);
                     },
                     complete: function() {
