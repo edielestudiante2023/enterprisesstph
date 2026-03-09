@@ -59,10 +59,17 @@ class CronogcapacitacionController extends Controller
             }
 
             // Generar botones de acciones
-            $cronograma['acciones'] = '<div class="action-group">'
+            $accionesHtml = '<div class="action-group">'
                 . '<a href="' . base_url('/editcronogCapacitacion/' . $cronograma['id_cronograma_capacitacion']) . '" class="btn-action btn-action-edit" title="Editar"><i class="fas fa-pen"></i></a>'
-                . '<a href="' . base_url('/deletecronogCapacitacion/' . $cronograma['id_cronograma_capacitacion']) . '" class="btn-action btn-action-delete" title="Eliminar" onclick="return confirm(\'¿Estás seguro de eliminar este cronograma?\');"><i class="fas fa-trash"></i></a>'
-                . '</div>';
+                . '<a href="' . base_url('/deletecronogCapacitacion/' . $cronograma['id_cronograma_capacitacion']) . '" class="btn-action btn-action-delete" title="Eliminar" onclick="return confirm(\'¿Estás seguro de eliminar este cronograma?\');"><i class="fas fa-trash"></i></a>';
+
+            // Link al reporte de capacitación si existe
+            if (!empty($cronograma['id_reporte_capacitacion'])) {
+                $accionesHtml .= '<a href="' . base_url('/inspecciones/reporte-capacitacion/view/' . $cronograma['id_reporte_capacitacion']) . '" class="btn-action" style="background:#17a2b8;color:#fff;" title="Ver Reporte" target="_blank"><i class="fas fa-file-pdf"></i></a>';
+            }
+
+            $accionesHtml .= '</div>';
+            $cronograma['acciones'] = $accionesHtml;
         }
 
         return $this->response->setJSON($cronogramas);

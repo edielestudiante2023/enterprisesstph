@@ -9,7 +9,7 @@ class ReporteCapacitacionModel extends Model
     protected $table = 'tbl_reporte_capacitacion';
     protected $primaryKey = 'id';
     protected $allowedFields = [
-        'id_cliente', 'id_consultor', 'fecha_capacitacion', 'nombre_capacitacion',
+        'id_cliente', 'id_consultor', 'id_cronograma_capacitacion', 'fecha_capacitacion', 'nombre_capacitacion',
         'objetivo_capacitacion', 'perfil_asistentes', 'nombre_capacitador',
         'horas_duracion', 'numero_asistentes', 'numero_programados',
         'numero_evaluados', 'promedio_calificaciones', 'foto_listado_asistencia',

@@ -38,6 +38,13 @@ if ($isEdit && !empty($inspeccion['perfil_asistentes'])) {
                     </select>
                 </div>
                 <div class="mb-3">
+                    <label class="form-label">Capacitacion del cronograma <small class="text-muted">(opcional)</small></label>
+                    <select name="id_cronograma_capacitacion" id="selectCronograma" class="form-select">
+                        <option value="">-- Sin vincular a cronograma --</option>
+                    </select>
+                    <small class="text-muted">Al seleccionar, se llenan los campos automaticamente.</small>
+                </div>
+                <div class="mb-3">
                     <label class="form-label">Fecha capacitacion *</label>
                     <input type="date" name="fecha_capacitacion" class="form-control"
                         value="<?= $inspeccion['fecha_capacitacion'] ?? date('Y-m-d') ?>" required>
@@ -261,10 +268,84 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // ============================================================
+    // CRONOGRAMAS PENDIENTES (AJAX)
+    // ============================================================
+    var cronogramasData = [];
+    var selectedCronograma = '<?= $inspeccion['id_cronograma_capacitacion'] ?? '' ?>';
+
+    function cargarCronogramasPendientes(idCliente) {
+        var select = document.getElementById('selectCronograma');
+        select.innerHTML = '<option value="">-- Sin vincular a cronograma --</option>';
+        cronogramasData = [];
+
+        if (!idCliente) return;
+
+        $.ajax({
+            url: '<?= base_url('/inspecciones/reporte-capacitacion/api-cronogramas-pendientes') ?>',
+            data: { id_cliente: idCliente },
+            dataType: 'json',
+            success: function(data) {
+                cronogramasData = data;
+                data.forEach(function(c) {
+                    var opt = document.createElement('option');
+                    opt.value = c.id_cronograma_capacitacion;
+                    var fechaProg = c.fecha_programada ? ' (' + c.fecha_programada + ')' : '';
+                    opt.textContent = (c.nombre_capacitacion || 'Sin nombre') + fechaProg;
+                    if (c.id_cronograma_capacitacion == selectedCronograma) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            }
+        });
+    }
+
+    // Auto-fill al seleccionar un cronograma
+    document.getElementById('selectCronograma').addEventListener('change', function() {
+        var id = this.value;
+        if (!id) return;
+
+        var cronog = cronogramasData.find(function(c) { return c.id_cronograma_capacitacion == id; });
+        if (!cronog) return;
+
+        // Llenar campos del formulario
+        var fields = {
+            'nombre_capacitacion': cronog.nombre_capacitacion || '',
+            'objetivo_capacitacion': cronog.objetivo_capacitacion || '',
+            'nombre_capacitador': cronog.nombre_del_capacitador || '',
+            'horas_duracion': cronog.horas_de_duracion_de_la_capacitacion || '',
+            'numero_programados': cronog.numero_total_de_personas_programadas || '',
+        };
+
+        Object.keys(fields).forEach(function(name) {
+            var el = document.querySelector('[name="' + name + '"]');
+            if (el) el.value = fields[name];
+        });
+
+        // Marcar perfiles de asistentes
+        if (cronog.perfil_de_asistentes) {
+            var perfiles = cronog.perfil_de_asistentes.toLowerCase().split(',').map(function(s) { return s.trim(); });
+            document.querySelectorAll('[name="perfil_asistentes[]"]').forEach(function(cb) {
+                cb.checked = perfiles.indexOf(cb.value) !== -1;
+            });
+        }
+
+        // Si hay fecha programada, usarla como fecha por defecto si no hay fecha ya
+        var fechaInput = document.querySelector('[name="fecha_capacitacion"]');
+        if (cronog.fecha_programada && (!fechaInput.value || fechaInput.value === '<?= date('Y-m-d') ?>')) {
+            fechaInput.value = new Date().toISOString().split('T')[0]; // hoy
+        }
+    });
+
+    // Cargar cronogramas al inicio si hay cliente seleccionado
+    if (selectedCliente) {
+        cargarCronogramasPendientes(selectedCliente);
+    }
+
     // Escuchar cambios en cliente y fecha
     document.querySelector('[name="id_cliente"]').addEventListener('change', function() {
         cargarAsistentes();
         cargarResultadosEval();
+        cargarCronogramasPendientes(this.value);
     });
     document.querySelector('[name="fecha_capacitacion"]').addEventListener('change', function() {
         cargarAsistentes();

@@ -9,6 +9,7 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Models\AsistenciaInduccionModel;
 use App\Models\AsistenciaInduccionAsistenteModel;
+use App\Models\CronogcapacitacionModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
@@ -193,6 +194,9 @@ class ReporteCapacitacionController extends BaseController
         $inspeccion = $this->inspeccionModel->find($id);
         $this->uploadToReportes($inspeccion, $pdfPath);
 
+        // Sincronizar datos al cronograma de capacitación
+        $this->syncToCronograma($inspeccion);
+
         // Enviar email con PDF adjunto
         $emailResult = InspeccionEmailNotifier::enviar(
             (int) $inspeccion['id_cliente'],
@@ -297,6 +301,11 @@ class ReporteCapacitacionController extends BaseController
         $data['perfil_asistentes'] = is_array($perfiles) ? implode(',', $perfiles) : '';
 
         $data['mostrar_evaluacion_induccion'] = $this->request->getPost('mostrar_evaluacion_induccion') ? 1 : 0;
+
+        $idCronog = $this->request->getPost('id_cronograma_capacitacion');
+        if ($idCronog) {
+            $data['id_cronograma_capacitacion'] = (int) $idCronog;
+        }
 
         return $data;
     }
@@ -453,6 +462,68 @@ class ReporteCapacitacionController extends BaseController
             ->whereIn('id_asistencia', $ids)
             ->orderBy('id', 'ASC')
             ->findAll();
+    }
+
+    /**
+     * Sincroniza los datos del reporte finalizado al cronograma de capacitación vinculado.
+     */
+    private function syncToCronograma(array $inspeccion): void
+    {
+        $idCronog = $inspeccion['id_cronograma_capacitacion'] ?? null;
+        if (!$idCronog) {
+            return;
+        }
+
+        $cronogModel = new CronogcapacitacionModel();
+        $cronograma = $cronogModel->find($idCronog);
+        if (!$cronograma) {
+            return;
+        }
+
+        $numAsistentes = (int) ($inspeccion['numero_asistentes'] ?? 0);
+        $numProgramados = (int) ($inspeccion['numero_programados'] ?? 0);
+        $porcentaje = $numProgramados > 0
+            ? number_format(($numAsistentes / $numProgramados) * 100, 2) . '%'
+            : '0%';
+
+        $cronogModel->update($idCronog, [
+            'fecha_de_realizacion'                       => $inspeccion['fecha_capacitacion'],
+            'estado'                                     => 'EJECUTADA',
+            'nombre_del_capacitador'                     => $inspeccion['nombre_capacitador'] ?? '',
+            'horas_de_duracion_de_la_capacitacion'       => $inspeccion['horas_duracion'] ?? '',
+            'numero_de_asistentes_a_capacitacion'        => $numAsistentes,
+            'numero_total_de_personas_programadas'       => $numProgramados,
+            'porcentaje_cobertura'                       => $porcentaje,
+            'numero_de_personas_evaluadas'               => (int) ($inspeccion['numero_evaluados'] ?? 0),
+            'promedio_de_calificaciones'                 => $inspeccion['promedio_calificaciones'] ?? '',
+            'observaciones'                              => $inspeccion['observaciones'] ?? '',
+            'id_reporte_capacitacion'                    => (int) $inspeccion['id'],
+        ]);
+    }
+
+    /**
+     * API: devuelve las capacitaciones pendientes del cronograma para un cliente.
+     */
+    public function apiCronogramasPendientes()
+    {
+        $idCliente = (int) $this->request->getGet('id_cliente');
+        if (!$idCliente) {
+            return $this->response->setJSON([]);
+        }
+
+        $cronogModel = new CronogcapacitacionModel();
+
+        // Traer cronogramas del cliente que NO tengan reporte vinculado
+        $cronogramas = $cronogModel
+            ->where('id_cliente', $idCliente)
+            ->groupStart()
+                ->where('id_reporte_capacitacion IS NULL')
+                ->orWhere('id_reporte_capacitacion', 0)
+            ->groupEnd()
+            ->orderBy('fecha_programada', 'ASC')
+            ->findAll();
+
+        return $this->response->setJSON($cronogramas);
     }
 
     private function uploadToReportes(array $inspeccion, string $pdfPath): bool

@@ -30,7 +30,8 @@ class CronogcapacitacionModel extends Model
         'porcentaje_cobertura',
         'numero_de_personas_evaluadas',
         'promedio_de_calificaciones',
-        'observaciones'
+        'observaciones',
+        'id_reporte_capacitacion'
     ];
 
     // Activamos el uso automático de las columnas 'created_at' y 'updated_at'
