@@ -845,12 +845,8 @@ DATOS DEL PERIODO:
 - Calificación periodo anterior: {$puntajeAnterior} de 100
 - Diferencia neta: {$diferencia} puntos
 - Estado de avance: {$estado}
-- Indicador plan de trabajo anual: {$planTrabajo}%
-- Indicador programa de capacitación: {$capacitacion}%
 
-{$desgloseTexto}
-
-ACTIVIDADES PTA CERRADAS EN EL PERIODO:
+ACTIVIDADES CERRADAS EN EL PERIODO:
 {$actividadesTexto}
 
 {$documentosTexto}
@@ -901,31 +897,7 @@ PROMPT;
             $lines[] = '';
         }
 
-        // Plan de trabajo por estado
-        $plan = $metricas['desglose_plan_trabajo'] ?? [];
-        if (!empty($plan)) {
-            $total = array_sum(array_column($plan, 'cantidad'));
-            $lines[] = 'ESTADO DEL PLAN DE TRABAJO ANUAL:';
-            foreach ($plan as $p) {
-                $lines[] = "- {$p['cantidad']} actividades {$p['estado_actividad']}";
-            }
-            $lines[] = "- Total: {$total} actividades";
-            $lines[] = '';
-        }
-
-        // Capacitación por estado
-        $cap = $metricas['desglose_capacitacion'] ?? [];
-        if (!empty($cap)) {
-            $total = array_sum(array_column($cap, 'cantidad'));
-            $lines[] = 'ESTADO DEL PROGRAMA DE CAPACITACIÓN:';
-            foreach ($cap as $c) {
-                $lines[] = "- {$c['cantidad']} {$c['estado']}";
-            }
-            $lines[] = "- Total: {$total} capacitaciones";
-            $lines[] = '';
-        }
-
-        // Pendientes por estado
+        // Pendientes por estado (solo los que tienen días abiertos altos)
         $pend = $metricas['desglose_pendientes'] ?? [];
         if (!empty($pend)) {
             $lines[] = 'ESTADO DE COMPROMISOS/PENDIENTES:';
