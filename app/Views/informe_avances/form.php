@@ -928,6 +928,7 @@
             }, function(resp) {
                 if (resp.success) {
                     $('#resumenAvance').val(resp.resumen);
+                    toggleGuardar();
                 } else {
                     alert('Error IA: ' + (resp.error || 'Error desconocido'));
                 }
