@@ -699,7 +699,7 @@
       </div>
     </div>
 
-    <div class="table-responsive" style="overflow-x: auto; max-width: 100%;">
+    <div>
       <table id="cronogramaTable" class="table table-striped table-bordered nowrap" style="width:100%">
         <thead class="table-light">
           <tr>
@@ -1209,10 +1209,6 @@
             }
           });
         }
-      });
-
-      table.on('draw.dt', function() {
-        table.columns.adjust();
       });
 
       table.buttons().container().appendTo('#buttonsContainer');
