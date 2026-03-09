@@ -60,6 +60,11 @@ class ContractLibrary
             // Actualizar las fechas en tbl_clientes para mantener retrocompatibilidad
             $this->updateClientDates($data['id_cliente']);
 
+            // Activar cliente automáticamente si tiene contrato activo
+            if ($data['estado'] === 'activo') {
+                $this->clientModel->update($data['id_cliente'], ['estado' => 'activo']);
+            }
+
             // Auto-generar plan de trabajo para el cliente
             $this->autoGenerateWorkPlan($data['id_cliente'], $data['frecuencia_visitas'] ?? null);
 
