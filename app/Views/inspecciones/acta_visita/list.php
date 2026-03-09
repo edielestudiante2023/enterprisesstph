@@ -78,7 +78,7 @@
 </div>
 
 <script>
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Cargar clientes en Select2
     $.ajax({
         url: '<?= base_url('/inspecciones/api/clientes') ?>',
@@ -106,23 +106,23 @@ $(document).ready(function() {
             }
         });
     });
-});
 
-// Confirmar eliminación
-document.querySelectorAll('.btn-delete').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const url = this.href;
-        Swal.fire({
-            title: 'Eliminar acta?',
-            text: 'Esta accion no se puede deshacer',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            confirmButtonText: 'Si, eliminar',
-            cancelButtonText: 'Cancelar',
-        }).then(result => {
-            if (result.isConfirmed) window.location.href = url;
+    // Confirmar eliminación
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.href;
+            Swal.fire({
+                title: 'Eliminar acta?',
+                text: 'Esta accion no se puede deshacer',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Si, eliminar',
+                cancelButtonText: 'Cancelar',
+            }).then(result => {
+                if (result.isConfirmed) window.location.href = url;
+            });
         });
     });
 });

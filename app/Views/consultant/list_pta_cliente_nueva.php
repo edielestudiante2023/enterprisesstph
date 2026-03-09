@@ -469,9 +469,27 @@
         .action-group { display: flex; gap: 4px; justify-content: center; }
 
         /* ============ FILAS COMPACTAS Y TABLA ESTILIZADA ============ */
+        /* ============ FIX DATATABLES SCROLLX ALIGNMENT ============ */
+        .dataTables_scrollHead table,
+        .dataTables_scrollBody table {
+            margin: 0 !important;
+        }
+        .dataTables_scrollHead,
+        .dataTables_scrollBody {
+            overflow: visible !important;
+        }
+        .dataTables_scrollBody {
+            overflow-x: auto !important;
+            overflow-y: auto !important;
+        }
+
         #ptaTable {
             border-collapse: separate;
             border-spacing: 0;
+        }
+        #ptaTable thead th,
+        #ptaTable tbody td {
+            box-sizing: border-box;
         }
         #ptaTable thead th {
             background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
@@ -1493,11 +1511,23 @@
                     return '<div class="cell-truncate">' + $('<span/>').text(text).html() + '</div>';
                 }
 
+                // Función para ajustar alineación de columnas con doble rAF
+                function ajustarTablaPta() {
+                    requestAnimationFrame(function() {
+                        requestAnimationFrame(function() {
+                            if ($.fn.dataTable.isDataTable('#ptaTable')) {
+                                $('#ptaTable').DataTable().columns.adjust();
+                            }
+                        });
+                    });
+                }
+
                 table = $('#ptaTable').DataTable({
                     "lengthChange": true,
                     "responsive": false,
                     "scrollX": true,
-                    "autoWidth": true,
+                    "autoWidth": false,
+                    "deferRender": true,
                     "order": [
                         [11, 'asc'],
                         [9, 'asc'],
@@ -1532,9 +1562,12 @@
                             }
                         }
                     }],
+                    "drawCallback": function() {
+                        ajustarTablaPta();
+                    },
                     "initComplete": function() {
                         var api = this.api();
-                        setTimeout(function(){ api.columns.adjust(); }, 100);
+                        ajustarTablaPta();
                         api.columns().every(function() {
                             var column = this;
                             var select = $('select', column.footer());
@@ -1564,6 +1597,14 @@
                         });
                     }
                 });
+
+                // ResizeObserver para reajustar al cambiar tamaño del contenedor
+                var ptaWrapper = document.querySelector('#ptaTable_wrapper');
+                if (ptaWrapper && typeof ResizeObserver !== 'undefined') {
+                    new ResizeObserver(function() { ajustarTablaPta(); }).observe(ptaWrapper);
+                }
+                table.on('xhr.dt', function() { ajustarTablaPta(); });
+                $(window).on('resize', function() { ajustarTablaPta(); });
 
                 // Función para actualizar los contadores de las tarjetas superiores
                 function updateCardCounts() {

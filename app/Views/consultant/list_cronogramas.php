@@ -361,6 +361,10 @@
 
     /* ============ TABLA ESTILIZADA ============ */
     #cronogramaTable { border-collapse: separate; border-spacing: 0; }
+    #cronogramaTable thead th,
+    #cronogramaTable tbody td {
+      box-sizing: border-box;
+    }
     #cronogramaTable thead th {
       background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
       color: #fff;
@@ -383,6 +387,20 @@
     }
     #cronogramaTable tbody tr:hover td { background-color: #f0f4ff !important; }
     #cronogramaTable tbody tr:nth-child(even) td { background-color: #f8f9fc; }
+
+    /* ============ FIX DATATABLES SCROLLX ALIGNMENT ============ */
+    .dataTables_scrollHead table,
+    .dataTables_scrollBody table {
+      margin: 0 !important;
+    }
+    .dataTables_scrollHead,
+    .dataTables_scrollBody {
+      overflow: visible !important;
+    }
+    .dataTables_scrollBody {
+      overflow-x: auto !important;
+      overflow-y: auto !important;
+    }
 
     /* Columna de barra de progreso: no recortar */
     .col-progress {
@@ -981,6 +999,17 @@
           + '</div>';
       }
 
+      // Función para ajustar alineación de columnas con doble rAF
+      function ajustarTablaCronograma() {
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            if ($.fn.dataTable.isDataTable('#cronogramaTable')) {
+              $('#cronogramaTable').DataTable().columns.adjust();
+            }
+          });
+        });
+      }
+
       // Inicializar DataTable con fila expandible y render para inline editing
       var table = $('#cronogramaTable').DataTable({
         stateSave: true,
@@ -989,7 +1018,8 @@
           url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
         },
         pagingType: "full_numbers",
-        autoWidth: true,
+        autoWidth: false,
+        deferRender: true,
         dom: 'Bfltip',
         pageLength: 25,
         scrollX: true,
@@ -1197,10 +1227,12 @@
             }
           }
         ],
+        drawCallback: function() {
+          ajustarTablaCronograma();
+        },
         initComplete: function() {
           var api = this.api();
-          // Forzar recálculo de anchos para alinear header con body
-          setTimeout(function(){ api.columns.adjust(); }, 100);
+          ajustarTablaCronograma();
           api.columns().every(function() {
             var column = this;
             var headerIndex = column.index();
@@ -1221,6 +1253,16 @@
       });
 
       table.buttons().container().appendTo('#buttonsContainer');
+
+      // ResizeObserver para reajustar al cambiar tamaño del contenedor
+      var cronogramaWrapper = document.querySelector('#cronogramaTable_wrapper');
+      if (cronogramaWrapper && typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(function() { ajustarTablaCronograma(); }).observe(cronogramaWrapper);
+      }
+      // También al evento xhr (cuando llegan datos AJAX)
+      table.on('xhr.dt', function() { ajustarTablaCronograma(); });
+      // Y al resize de ventana
+      $(window).on('resize', function() { ajustarTablaCronograma(); });
 
       // Generar tarjetas de años dinámicamente
       function generateYearCards() {
