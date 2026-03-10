@@ -26,13 +26,8 @@ class InformeAvancesController extends BaseController
         $userId = session()->get('user_id');
         $role = session()->get('role');
 
-        if ($role === 'admin') {
-            $informes = $this->informeModel->getByConsultor($userId);
-            $pendientes = $this->informeModel->getAllPendientes();
-        } else {
-            $informes = $this->informeModel->getByConsultor($userId);
-            $pendientes = $this->informeModel->getPendientesByConsultor($userId);
-        }
+        $informes = $this->informeModel->getAll();
+        $pendientes = $this->informeModel->getAllPendientes();
 
         return view('informe_avances/list', [
             'informes'   => $informes,
