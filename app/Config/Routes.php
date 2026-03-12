@@ -710,6 +710,8 @@ $routes->post('csv/upload', 'CsvUploadController::upload'); // Procesa el CSV
 $routes->post('api/getCronogramasAjax', 'CronogramaCapacitacionController::getCronogramasAjax');
 
 $routes->post('api/recalcularConteoDias', 'PendientesController::recalcularConteoDias');
+$routes->post('api/crearPendienteIA', 'PendientesController::crearPendienteIA');
+$routes->post('api/guardarPendienteIA', 'PendientesController::guardarPendienteIA');
 
 // ============================================================================
 // RUTAS DE GESTIÓN DE CONTRATOS

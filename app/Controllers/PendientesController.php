@@ -340,4 +340,106 @@ class PendientesController extends Controller
             'pendientes' => $pendientesActualizados
         ]);
     }
+
+    /**
+     * Genera un pendiente estructurado usando OpenAI
+     */
+    public function crearPendienteIA()
+    {
+        $descripcion = $this->request->getPost('descripcion');
+        $responsable = $this->request->getPost('responsable');
+        $idCliente   = $this->request->getPost('id_cliente');
+
+        if (empty($descripcion) || empty($responsable) || empty($idCliente)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Faltan campos requeridos.']);
+        }
+
+        $apiKey = getenv('OPENAI_API_KEY');
+        if (empty($apiKey)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'API Key de OpenAI no configurada.']);
+        }
+
+        $prompt = "Eres un asistente de gestión SST (Seguridad y Salud en el Trabajo) para propiedad horizontal. "
+            . "El usuario necesita crear un pendiente/tarea. Con base en la siguiente descripción, genera una respuesta JSON con estos campos:\n"
+            . "- tarea_actividad: descripción clara y profesional de la tarea (máximo 500 caracteres)\n"
+            . "- estado_avance: breve estado inicial del avance (ej: 'Pendiente de iniciar', 'En proceso de revisión')\n\n"
+            . "Descripción del usuario: " . $descripcion . "\n"
+            . "Responsable: " . $responsable . "\n\n"
+            . "Responde SOLO con el JSON, sin markdown ni explicaciones.";
+
+        $ch = curl_init('https://api.openai.com/v1/chat/completions');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $apiKey,
+            ],
+            CURLOPT_POSTFIELDS => json_encode([
+                'model' => 'gpt-4o-mini',
+                'messages' => [
+                    ['role' => 'system', 'content' => 'Responde siempre en español y solo con JSON válido.'],
+                    ['role' => 'user', 'content' => $prompt],
+                ],
+                'temperature' => 0.7,
+                'max_tokens' => 500,
+            ]),
+            CURLOPT_TIMEOUT => 30,
+        ]);
+
+        $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Error al conectar con OpenAI (HTTP ' . $httpCode . ').']);
+        }
+
+        $decoded = json_decode($result, true);
+        $content = $decoded['choices'][0]['message']['content'] ?? '';
+
+        // Limpiar posible markdown
+        $content = preg_replace('/^```json\s*/', '', trim($content));
+        $content = preg_replace('/\s*```$/', '', $content);
+
+        $data = json_decode($content, true);
+        if (!$data || !isset($data['tarea_actividad'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No se pudo interpretar la respuesta de la IA.', 'raw' => $content]);
+        }
+
+        return $this->response->setJSON(['success' => true, 'data' => $data]);
+    }
+
+    /**
+     * Guarda un pendiente generado por IA
+     */
+    public function guardarPendienteIA()
+    {
+        $data = [
+            'id_cliente'              => $this->request->getPost('id_cliente'),
+            'fecha_asignacion'        => $this->request->getPost('fecha_asignacion'),
+            'responsable'             => $this->request->getPost('responsable'),
+            'tarea_actividad'         => $this->request->getPost('tarea_actividad'),
+            'estado'                  => $this->request->getPost('estado') ?: 'ABIERTA',
+            'estado_avance'           => $this->request->getPost('estado_avance'),
+            'fecha_cierre'            => null,
+            'evidencia_para_cerrarla' => null,
+        ];
+
+        if (empty($data['id_cliente']) || empty($data['tarea_actividad']) || empty($data['responsable'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Faltan campos requeridos.']);
+        }
+
+        $model = new PendientesModel();
+        if ($model->insert($data)) {
+            $insertedId = $model->getInsertID();
+            // Calcular conteo_dias
+            $conteo_dias = (int) floor((time() - strtotime($data['fecha_asignacion'])) / (60 * 60 * 24));
+            $model->update($insertedId, ['conteo_dias' => $conteo_dias]);
+
+            return $this->response->setJSON(['success' => true, 'id' => $insertedId]);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'Error al guardar el pendiente.']);
+    }
 }

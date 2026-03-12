@@ -173,9 +173,15 @@
           <h6 class="mb-1" style="font-size: 16px;">Ir a Dashboard</h6>
           <a href="<?= base_url('/dashboardconsultant') ?>" class="btn btn-primary btn-sm">Ir a DashBoard</a>
         </div>
+        <div class="text-center me-3">
+          <a href="<?= base_url('/addPendiente') ?>" class="btn btn-success btn-sm px-3 py-2 fw-bold shadow" target="_blank" style="font-size: 15px;">
+            <i class="fas fa-plus-circle me-1"></i> Añadir Pendiente
+          </a>
+        </div>
         <div class="text-center">
-          <h6 class="mb-1" style="font-size: 16px;">Añadir Registro</h6>
-          <a href="<?= base_url('/addPendiente') ?>" class="btn btn-success btn-sm" target="_blank">Añadir Registro</a>
+          <button type="button" id="btnCrearConIA" class="btn btn-sm px-3 py-2 fw-bold shadow" style="font-size: 15px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border: none;">
+            <i class="fas fa-robot me-1"></i> Crear con IA
+          </button>
         </div>
       </div>
     </div>
@@ -442,6 +448,8 @@
   <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.colVis.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.3.3/js/buttons.html5.min.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
     // Función para formatear la fila expandible (child row) si se requiere
@@ -1080,6 +1088,120 @@
         initializeTooltips();
       });
     });
+  </script>
+
+  <script>
+  // --- Crear Pendiente con IA ---
+  $(document).ready(function() {
+    $('#btnCrearConIA').on('click', async function() {
+      // Verificar cliente seleccionado
+      var clienteId = $('#clientSelect').val();
+      var clienteNombre = $('#clientSelect option:selected').text().trim();
+      if (!clienteId) {
+        Swal.fire('Cliente requerido', 'Selecciona un cliente antes de crear con IA.', 'warning');
+        return;
+      }
+
+      // Paso 1: Preguntar responsable
+      var { value: responsable } = await Swal.fire({
+        title: 'Responsable de la actividad',
+        input: 'text',
+        inputPlaceholder: 'Nombre del responsable',
+        icon: 'question',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Siguiente',
+        confirmButtonColor: '#764ba2',
+        inputValidator: function(v) { if (!v) return 'Debes ingresar el responsable'; }
+      });
+      if (!responsable) return;
+
+      // Paso 2: Descripción de la tarea
+      var { value: descripcion } = await Swal.fire({
+        title: 'Describe el pendiente',
+        html: '<p style="font-size:13px;color:#666;">Describe brevemente la tarea o actividad pendiente. La IA estructurara el registro.</p>',
+        input: 'textarea',
+        inputPlaceholder: 'Ej: Actualizar la matriz de riesgos del area de produccion...',
+        icon: 'info',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: '<i class="fas fa-robot"></i> Generar con IA',
+        confirmButtonColor: '#764ba2',
+        inputValidator: function(v) { if (!v) return 'Debes describir la tarea'; }
+      });
+      if (!descripcion) return;
+
+      // Paso 3: Llamar al backend con loading
+      Swal.fire({
+        title: 'Generando pendiente con IA...',
+        html: '<div class="spinner-border text-primary" role="status"></div><p class="mt-2">Procesando con inteligencia artificial</p>',
+        allowOutsideClick: false,
+        showConfirmButton: false
+      });
+
+      try {
+        var response = await $.ajax({
+          url: '<?= base_url("/api/crearPendienteIA") ?>',
+          method: 'POST',
+          dataType: 'json',
+          data: {
+            id_cliente: clienteId,
+            responsable: responsable,
+            descripcion: descripcion
+          }
+        });
+
+        if (response.success) {
+          var d = response.data;
+          var { isConfirmed } = await Swal.fire({
+            title: 'Pendiente generado',
+            icon: 'success',
+            html:
+              '<div style="text-align:left;font-size:13px;">' +
+              '<p><strong>Cliente:</strong> ' + clienteNombre + '</p>' +
+              '<p><strong>Responsable:</strong> ' + responsable + '</p>' +
+              '<p><strong>Tarea:</strong> ' + (d.tarea_actividad || '') + '</p>' +
+              '<p><strong>Estado:</strong> ABIERTA</p>' +
+              (d.estado_avance ? '<p><strong>Avance:</strong> ' + d.estado_avance + '</p>' : '') +
+              '</div>',
+            confirmButtonText: 'Guardar pendiente',
+            confirmButtonColor: '#28a745',
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar'
+          });
+
+          if (isConfirmed) {
+            // Guardar via AJAX al endpoint existente
+            var saveResponse = await $.ajax({
+              url: '<?= base_url("/api/guardarPendienteIA") ?>',
+              method: 'POST',
+              dataType: 'json',
+              data: {
+                id_cliente: clienteId,
+                responsable: responsable,
+                tarea_actividad: d.tarea_actividad,
+                estado: 'ABIERTA',
+                estado_avance: d.estado_avance || '',
+                fecha_asignacion: new Date().toISOString().split('T')[0]
+              }
+            });
+
+            if (saveResponse.success) {
+              Swal.fire('Guardado', 'El pendiente se creo exitosamente.', 'success');
+              $('#pendientesTable').DataTable().ajax.reload();
+            } else {
+              Swal.fire('Error', saveResponse.message || 'No se pudo guardar.', 'error');
+            }
+          }
+        } else {
+          Swal.fire('Error', response.message || 'Error al generar con IA.', 'error');
+        }
+      } catch (err) {
+        Swal.fire('Error', 'No se pudo conectar con el servidor.', 'error');
+        console.error(err);
+      }
+    });
+  });
   </script>
 </body>
 
