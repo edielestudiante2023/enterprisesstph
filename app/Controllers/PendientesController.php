@@ -422,7 +422,7 @@ class PendientesController extends Controller
             'tarea_actividad'         => $this->request->getPost('tarea_actividad'),
             'estado'                  => $this->request->getPost('estado') ?: 'ABIERTA',
             'estado_avance'           => $this->request->getPost('estado_avance'),
-            'fecha_cierre'            => null,
+            'fecha_cierre'            => $this->request->getPost('fecha_cierre') ?: null,
             'evidencia_para_cerrarla' => null,
         ];
 

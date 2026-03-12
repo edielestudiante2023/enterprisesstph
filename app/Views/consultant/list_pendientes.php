@@ -1116,7 +1116,20 @@
       });
       if (!responsable) return;
 
-      // Paso 2: Descripción de la tarea
+      // Paso 2: Fecha estimada de cumplimiento
+      var { value: fechaCierre } = await Swal.fire({
+        title: 'Fecha estimada de cumplimiento',
+        input: 'date',
+        icon: 'question',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Siguiente',
+        confirmButtonColor: '#764ba2',
+        inputValidator: function(v) { if (!v) return 'Debes seleccionar una fecha estimada'; }
+      });
+      if (!fechaCierre) return;
+
+      // Paso 3: Descripción de la tarea
       var { value: descripcion } = await Swal.fire({
         title: 'Describe el pendiente',
         html: '<p style="font-size:13px;color:#666;">Describe brevemente la tarea o actividad pendiente. La IA estructurara el registro.</p>',
@@ -1131,7 +1144,7 @@
       });
       if (!descripcion) return;
 
-      // Paso 3: Llamar al backend con loading
+      // Paso 4: Llamar al backend con loading
       Swal.fire({
         title: 'Generando pendiente con IA...',
         html: '<div class="spinner-border text-primary" role="status"></div><p class="mt-2">Procesando con inteligencia artificial</p>',
@@ -1160,6 +1173,7 @@
               '<div style="text-align:left;font-size:13px;">' +
               '<p><strong>Cliente:</strong> ' + clienteNombre + '</p>' +
               '<p><strong>Responsable:</strong> ' + responsable + '</p>' +
+              '<p><strong>Fecha estimada:</strong> ' + fechaCierre + '</p>' +
               '<p><strong>Tarea:</strong> ' + (d.tarea_actividad || '') + '</p>' +
               '<p><strong>Estado:</strong> ABIERTA</p>' +
               (d.estado_avance ? '<p><strong>Avance:</strong> ' + d.estado_avance + '</p>' : '') +
@@ -1182,7 +1196,8 @@
                 tarea_actividad: d.tarea_actividad,
                 estado: 'ABIERTA',
                 estado_avance: d.estado_avance || '',
-                fecha_asignacion: new Date().toISOString().split('T')[0]
+                fecha_asignacion: new Date().toISOString().split('T')[0],
+                fecha_cierre: fechaCierre
               }
             });
 
