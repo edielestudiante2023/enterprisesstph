@@ -1105,14 +1105,18 @@
       // Paso 1: Preguntar responsable
       var { value: responsable } = await Swal.fire({
         title: 'Responsable de la actividad',
-        input: 'text',
-        inputPlaceholder: 'Nombre del responsable',
+        input: 'select',
+        inputOptions: {
+          'ADMINISTRADOR': 'ADMINISTRADOR',
+          'CONSULTOR CYCLOID TALENT': 'CONSULTOR CYCLOID TALENT'
+        },
+        inputPlaceholder: 'Seleccione el responsable',
         icon: 'question',
         showCancelButton: true,
         cancelButtonText: 'Cancelar',
         confirmButtonText: 'Siguiente',
         confirmButtonColor: '#764ba2',
-        inputValidator: function(v) { if (!v) return 'Debes ingresar el responsable'; }
+        inputValidator: function(v) { if (!v) return 'Debes seleccionar el responsable'; }
       });
       if (!responsable) return;
 
