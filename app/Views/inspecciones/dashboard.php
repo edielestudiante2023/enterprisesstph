@@ -30,11 +30,14 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <?php if ($doc['estado'] === 'borrador'): ?>
                     <a href="<?= base_url('/inspecciones/acta-visita/edit/') ?><?= $doc['id'] ?>" class="btn btn-sm btn-outline-dark">
                         Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                     </a>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/acta-visita/delete/') ?><?= $doc['id'] ?>')">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 <?php else: ?>
                     <a href="<?= base_url('/inspecciones/acta-visita/firma/') ?><?= $doc['id'] ?>" class="btn btn-sm btn-outline-warning">
                         Ir a firmas <i class="fas fa-arrow-right ms-1"></i>
@@ -64,10 +67,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/inspeccion-locativa/edit/') ?><?= $loc['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/inspeccion-locativa/delete/') ?><?= $loc['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -92,10 +98,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/senalizacion/edit/') ?><?= $sen['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/senalizacion/delete/') ?><?= $sen['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -120,10 +129,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/extintores/edit/') ?><?= $ext['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/extintores/delete/') ?><?= $ext['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -148,10 +160,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/botiquin/edit/') ?><?= $bot['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/botiquin/delete/') ?><?= $bot['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -176,10 +191,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/gabinetes/edit/') ?><?= $gab['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/gabinetes/delete/') ?><?= $gab['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -204,10 +222,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/comunicaciones/edit/') ?><?= $com['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/comunicaciones/delete/') ?><?= $com['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -232,10 +253,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/recursos-seguridad/edit/') ?><?= $rec['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/recursos-seguridad/delete/') ?><?= $rec['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -260,10 +284,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/probabilidad-peligros/edit/') ?><?= $pp['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/probabilidad-peligros/delete/') ?><?= $pp['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -288,10 +315,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/matriz-vulnerabilidad/edit/') ?><?= $mv['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/matriz-vulnerabilidad/delete/') ?><?= $mv['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -316,10 +346,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/plan-emergencia/edit/') ?><?= $pe['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/plan-emergencia/delete/') ?><?= $pe['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -347,10 +380,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/simulacro/view/') ?><?= $sim['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Ver <i class="fas fa-eye ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/simulacro/delete/') ?><?= $sim['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -376,10 +412,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/hv-brigadista/view/') ?><?= $hvb['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Ver <i class="fas fa-eye ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/hv-brigadista/delete/') ?><?= $hvb['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -400,10 +439,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/dotacion-vigilante/edit/') ?><?= $dv['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/dotacion-vigilante/delete/') ?><?= $dv['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -424,10 +466,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/dotacion-aseadora/edit/') ?><?= $da['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/dotacion-aseadora/delete/') ?><?= $da['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -448,10 +493,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/dotacion-todero/edit/') ?><?= $dt['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/dotacion-todero/delete/') ?><?= $dt['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -472,10 +520,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/auditoria-zona-residuos/edit/') ?><?= $ar['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/auditoria-zona-residuos/delete/') ?><?= $ar['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -496,10 +547,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/reporte-capacitacion/edit/') ?><?= $rc['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/reporte-capacitacion/delete/') ?><?= $rc['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -520,10 +574,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/preparacion-simulacro/edit/') ?><?= $ps['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/preparacion-simulacro/delete/') ?><?= $ps['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -544,10 +601,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/asistencia-induccion/edit/') ?><?= $ai['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/asistencia-induccion/delete/') ?><?= $ai['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -568,10 +628,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/residuos-solidos/edit/') ?><?= $pr['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/residuos-solidos/delete/') ?><?= $pr['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -592,10 +655,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/control-plagas/edit/') ?><?= $pp['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/control-plagas/delete/') ?><?= $pp['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -616,10 +682,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/limpieza-desinfeccion/edit/') ?><?= $pl['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/limpieza-desinfeccion/delete/') ?><?= $pl['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -640,10 +709,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/agua-potable/edit/') ?><?= $pa['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/agua-potable/delete/') ?><?= $pa['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -664,10 +736,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/plan-saneamiento/edit/') ?><?= $ps['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/plan-saneamiento/delete/') ?><?= $ps['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -688,10 +763,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/kpi-limpieza/edit/') ?><?= $pk['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/kpi-limpieza/delete/') ?><?= $pk['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -712,10 +790,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/kpi-residuos/edit/') ?><?= $pk['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/kpi-residuos/delete/') ?><?= $pk['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -736,10 +817,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/kpi-plagas/edit/') ?><?= $pk['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/kpi-plagas/delete/') ?><?= $pk['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -760,10 +844,13 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-2 d-flex gap-1">
                 <a href="<?= base_url('/inspecciones/kpi-agua-potable/edit/') ?><?= $pk['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/kpi-agua-potable/delete/') ?><?= $pk['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -973,6 +1060,81 @@
 </div>
 
 <script>
+function confirmarEliminar(url) {
+    var ops = ['+', '-', 'x'];
+    var op = ops[Math.floor(Math.random() * ops.length)];
+    var a, b, respuesta;
+    if (op === '+') {
+        a = Math.floor(Math.random() * 20) + 1;
+        b = Math.floor(Math.random() * 20) + 1;
+        respuesta = a + b;
+    } else if (op === '-') {
+        a = Math.floor(Math.random() * 20) + 10;
+        b = Math.floor(Math.random() * a);
+        respuesta = a - b;
+    } else {
+        a = Math.floor(Math.random() * 9) + 2;
+        b = Math.floor(Math.random() * 9) + 2;
+        respuesta = a * b;
+    }
+
+    Swal.fire({
+        title: 'Eliminar registro',
+        html: '<p style="color:#666;font-size:14px;">Esta accion no se puede deshacer.<br>Para confirmar, resuelve la operacion:</p>' +
+              '<div style="font-size:24px;font-weight:700;color:#1c2437;margin:10px 0;">' + a + ' ' + op + ' ' + b + ' = ?</div>',
+        input: 'number',
+        inputPlaceholder: 'Tu respuesta',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        confirmButtonText: 'Eliminar',
+        cancelButtonText: 'Cancelar',
+        inputValidator: function(value) {
+            if (!value && value !== '0') return 'Debes ingresar un numero';
+            if (parseInt(value) !== respuesta) return 'Respuesta incorrecta. Intenta de nuevo.';
+        }
+    }).then(function(result) {
+        if (!result.isConfirmed) return;
+        // Segunda validación
+        var a2, b2, resp2;
+        var op2 = ops[Math.floor(Math.random() * ops.length)];
+        if (op2 === '+') {
+            a2 = Math.floor(Math.random() * 20) + 1;
+            b2 = Math.floor(Math.random() * 20) + 1;
+            resp2 = a2 + b2;
+        } else if (op2 === '-') {
+            a2 = Math.floor(Math.random() * 20) + 10;
+            b2 = Math.floor(Math.random() * a2);
+            resp2 = a2 - b2;
+        } else {
+            a2 = Math.floor(Math.random() * 9) + 2;
+            b2 = Math.floor(Math.random() * 9) + 2;
+            resp2 = a2 * b2;
+        }
+
+        Swal.fire({
+            title: 'Confirmar eliminacion',
+            html: '<p style="color:#dc3545;font-size:14px;font-weight:600;">Segunda verificacion</p>' +
+                  '<div style="font-size:24px;font-weight:700;color:#1c2437;margin:10px 0;">' + a2 + ' ' + op2 + ' ' + b2 + ' = ?</div>',
+            input: 'number',
+            inputPlaceholder: 'Tu respuesta',
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Confirmar eliminacion',
+            cancelButtonText: 'Cancelar',
+            inputValidator: function(value) {
+                if (!value && value !== '0') return 'Debes ingresar un numero';
+                if (parseInt(value) !== resp2) return 'Respuesta incorrecta. Intenta de nuevo.';
+            }
+        }).then(function(result2) {
+            if (result2.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     var input = document.getElementById('buscarInspeccion');
     if (!input) return;
