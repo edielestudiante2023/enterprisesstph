@@ -250,10 +250,11 @@ class AuditoriaZonaResiduosController extends BaseController
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="auditoria_zona_residuos_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="auditoria_zona_residuos_' . $id . '.pdf"');
+        header('Content-Length: ' . filesize($fullPath));
+        readfile($fullPath);
+        exit;
     }
 
     public function delete($id)
@@ -333,7 +334,93 @@ class AuditoriaZonaResiduosController extends BaseController
 
         $fileName = $file->getRandomName();
         $file->move(FCPATH . $dir, $fileName);
+        $fullPath = FCPATH . $dir . $fileName;
+
+        // Comprimir foto: max 1200px, quality 70%
+        $this->comprimirImagen($fullPath, 1200, 70);
+
         return $dir . $fileName;
+    }
+
+    /**
+     * Comprime una imagen en memoria para incrustar en PDF. Retorna JPEG binario.
+     */
+    private function comprimirParaPdf(string $path, int $maxWidth = 800, int $quality = 55): ?string
+    {
+        $info = @getimagesize($path);
+        if (!$info) return null;
+
+        $mime = $info['mime'];
+        $origW = $info[0];
+        $origH = $info[1];
+
+        $src = null;
+        if ($mime === 'image/jpeg') {
+            $src = @imagecreatefromjpeg($path);
+        } elseif ($mime === 'image/png') {
+            $src = @imagecreatefrompng($path);
+        }
+        if (!$src) return null;
+
+        if ($origW > $maxWidth) {
+            $newW = $maxWidth;
+            $newH = (int) round($origH * ($maxWidth / $origW));
+        } else {
+            $newW = $origW;
+            $newH = $origH;
+        }
+
+        $dst = imagecreatetruecolor($newW, $newH);
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+
+        ob_start();
+        imagejpeg($dst, null, $quality);
+        $data = ob_get_clean();
+
+        imagedestroy($src);
+        imagedestroy($dst);
+
+        return $data;
+    }
+
+    /**
+     * Comprime una imagen JPEG/PNG a un ancho máximo y calidad dada.
+     */
+    private function comprimirImagen(string $path, int $maxWidth = 1200, int $quality = 70): void
+    {
+        $info = @getimagesize($path);
+        if (!$info) return;
+
+        $mime = $info['mime'];
+        $origW = $info[0];
+        $origH = $info[1];
+
+        // Solo comprimir si es más grande que maxWidth o si es JPEG/PNG
+        $src = null;
+        if ($mime === 'image/jpeg') {
+            $src = @imagecreatefromjpeg($path);
+        } elseif ($mime === 'image/png') {
+            $src = @imagecreatefrompng($path);
+        }
+        if (!$src) return;
+
+        // Calcular nuevas dimensiones
+        if ($origW > $maxWidth) {
+            $newW = $maxWidth;
+            $newH = (int) round($origH * ($maxWidth / $origW));
+        } else {
+            $newW = $origW;
+            $newH = $origH;
+        }
+
+        $dst = imagecreatetruecolor($newW, $newH);
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+
+        // Guardar siempre como JPEG (más liviano)
+        imagejpeg($dst, $path, $quality);
+
+        imagedestroy($src);
+        imagedestroy($dst);
     }
 
     private function generarPdfInterno(int $id): ?string
@@ -353,7 +440,7 @@ class AuditoriaZonaResiduosController extends BaseController
             }
         }
 
-        // Convert all 12 item photos to base64
+        // Convert all 12 item photos to base64 (compressed for PDF)
         $fotosBase64 = [];
         foreach (self::ITEMS_ZONA as $key => $info) {
             $campo = 'foto_' . $key;
@@ -361,8 +448,10 @@ class AuditoriaZonaResiduosController extends BaseController
             if (!empty($inspeccion[$campo])) {
                 $fotoPath = FCPATH . $inspeccion[$campo];
                 if (file_exists($fotoPath)) {
-                    $mime = mime_content_type($fotoPath);
-                    $fotosBase64[$campo] = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fotoPath));
+                    $compressed = $this->comprimirParaPdf($fotoPath, 800, 55);
+                    if ($compressed) {
+                        $fotosBase64[$campo] = 'data:image/jpeg;base64,' . base64_encode($compressed);
+                    }
                 }
             }
         }
