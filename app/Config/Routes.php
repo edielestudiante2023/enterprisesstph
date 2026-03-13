@@ -730,6 +730,13 @@ $routes->get('/contracts/create', 'ContractController::create');
 $routes->get('/contracts/create/(:num)', 'ContractController::create/$1');
 $routes->post('/contracts/store', 'ContractController::store');
 
+// Editar contrato
+$routes->get('/contracts/edit/(:num)', 'ContractController::edit/$1');
+$routes->post('/contracts/update/(:num)', 'ContractController::update/$1');
+
+// Eliminar contrato
+$routes->post('/contracts/delete/(:num)', 'ContractController::delete/$1');
+
 // Renovar contrato
 $routes->get('/contracts/renew/(:num)', 'ContractController::renew/$1');
 $routes->post('/contracts/process-renewal', 'ContractController::processRenewal');

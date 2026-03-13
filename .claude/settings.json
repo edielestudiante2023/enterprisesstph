@@ -26,7 +26,10 @@
       "Bash(ssh root@66.29.154.174 \"find /www/wwwroot/auditorias/ -name ''*.php'' -newer /www/wwwroot/auditorias/index.php -mtime -30 2>/dev/null | head -20\")",
       "Bash(ssh root@66.29.154.174 \"grep -rl ''eval\\\\|base64_decode\\\\|shell_exec\\\\|system\\(\\\\|passthru\\\\|exec\\('' /www/wwwroot/auditorias/ --include=''*.php'' 2>/dev/null | head -20\")",
       "Read(//c/xampp/**)",
-      "Bash(/c/xampp/mysql/bin/mysqladmin -u root status)"
+      "Bash(/c/xampp/mysql/bin/mysqladmin -u root status)",
+      "Bash(ssh root@66.29.154.174 \"cd /www/wwwroot/phorizontal/enterprisesstph && git log --oneline -1\")",
+      "Bash(ssh root@66.29.154.174 \"cd /www/wwwroot/phorizontal/enterprisesstph && git pull origin main\")",
+      "Bash(ssh root@66.29.154.174 \"ls /www/wwwroot/phorizontal/enterprisesstph/.env*\")"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\enterprisesstph\\app\\Config"

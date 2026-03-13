@@ -340,6 +340,11 @@
                             <i class="fas fa-folder-open"></i> Descargar Documentación
                         </a>
 
+                        <a href="<?= base_url('/contracts/edit/' . $contract['id_contrato']) ?>"
+                           class="btn btn-warning w-100 mb-2">
+                            <i class="fas fa-edit"></i> Editar Contrato
+                        </a>
+
                         <a href="<?= base_url('/editClient/' . $contract['id_cliente']) ?>"
                            class="btn btn-info w-100 mb-2">
                             <i class="fas fa-user-edit"></i> Editar Cliente
@@ -352,6 +357,13 @@
                                 <i class="fas fa-ban"></i> Cancelar Contrato
                             </a>
                         <?php endif; ?>
+
+                        <form id="formEliminarContrato" action="<?= base_url('/contracts/delete/' . $contract['id_contrato']) ?>" method="POST" style="display:inline;" class="w-100">
+                            <?= csrf_field() ?>
+                            <button type="button" class="btn btn-outline-danger w-100 mb-2" onclick="confirmarEliminar()">
+                                <i class="fas fa-trash-alt"></i> Eliminar Contrato
+                            </button>
+                        </form>
 
                         <a href="<?= base_url('/contracts') ?>" class="btn btn-secondary w-100">
                             <i class="fas fa-arrow-left"></i> Volver a Lista
@@ -679,6 +691,43 @@
                     })
                     .catch(error => {
                         Swal.fire('Error', 'Error de conexión: ' + error.message, 'error');
+                    });
+                }
+            });
+        }
+
+        function confirmarEliminar() {
+            Swal.fire({
+                title: '¿Eliminar este contrato?',
+                text: 'Esta acción es irreversible. El contrato y sus archivos asociados serán eliminados permanentemente.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-trash-alt me-1"></i> Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: '¿Está completamente seguro?',
+                        text: 'Escriba "ELIMINAR" para confirmar',
+                        icon: 'error',
+                        input: 'text',
+                        inputPlaceholder: 'ELIMINAR',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Confirmar eliminación',
+                        cancelButtonText: 'Cancelar',
+                        inputValidator: (value) => {
+                            if (value !== 'ELIMINAR') {
+                                return 'Debe escribir "ELIMINAR" para confirmar';
+                            }
+                        }
+                    }).then((result2) => {
+                        if (result2.isConfirmed) {
+                            document.getElementById('formEliminarContrato').submit();
+                        }
                     });
                 }
             });

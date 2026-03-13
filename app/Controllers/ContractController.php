@@ -208,6 +208,94 @@ class ContractController extends Controller
     }
 
     /**
+     * Formulario para editar un contrato existente
+     */
+    public function edit($idContrato)
+    {
+        $contract = $this->contractModel->find($idContrato);
+
+        if (!$contract) {
+            return redirect()->to('/contracts')->with('error', 'Contrato no encontrado');
+        }
+
+        $clients = $this->clientModel->findAll();
+
+        $data = [
+            'contract' => $contract,
+            'clients' => $clients,
+        ];
+
+        return view('contracts/edit', $data);
+    }
+
+    /**
+     * Procesar la actualización de un contrato
+     */
+    public function update($idContrato)
+    {
+        $contract = $this->contractModel->find($idContrato);
+
+        if (!$contract) {
+            return redirect()->to('/contracts')->with('error', 'Contrato no encontrado');
+        }
+
+        $data = [
+            'id_cliente' => $this->request->getPost('id_cliente'),
+            'fecha_inicio' => $this->request->getPost('fecha_inicio'),
+            'fecha_fin' => $this->request->getPost('fecha_fin'),
+            'valor_contrato' => $this->request->getPost('valor_contrato'),
+            'valor_mensual' => $this->request->getPost('valor_mensual'),
+            'numero_cuotas' => $this->request->getPost('numero_cuotas'),
+            'frecuencia_visitas' => $this->request->getPost('frecuencia_visitas'),
+            'tipo_contrato' => $this->request->getPost('tipo_contrato'),
+            'estado' => $this->request->getPost('estado') ?: $contract['estado'],
+            'observaciones' => $this->request->getPost('observaciones'),
+            'clausula_cuarta_duracion' => $this->request->getPost('clausula_cuarta_duracion')
+        ];
+
+        $this->contractModel->update($idContrato, $data);
+
+        // Sincronizar fechas del cliente
+        $this->contractLibrary->updateClientDates($data['id_cliente']);
+
+        return redirect()->to('/contracts/view/' . $idContrato)
+                       ->with('success', 'Contrato actualizado exitosamente');
+    }
+
+    /**
+     * Eliminar un contrato
+     */
+    public function delete($idContrato)
+    {
+        $contract = $this->contractModel->find($idContrato);
+
+        if (!$contract) {
+            return redirect()->to('/contracts')->with('error', 'Contrato no encontrado');
+        }
+
+        // Eliminar PDF asociado si existe
+        if (!empty($contract['ruta_pdf_contrato']) && file_exists(FCPATH . $contract['ruta_pdf_contrato'])) {
+            unlink(FCPATH . $contract['ruta_pdf_contrato']);
+        }
+
+        // Eliminar imagen de firma si existe
+        if (!empty($contract['firma_cliente_imagen']) && file_exists(FCPATH . $contract['firma_cliente_imagen'])) {
+            unlink(FCPATH . $contract['firma_cliente_imagen']);
+        }
+
+        $idCliente = $contract['id_cliente'];
+        $numeroContrato = $contract['numero_contrato'];
+
+        $this->contractModel->delete($idContrato);
+
+        // Sincronizar fechas del cliente
+        $this->contractLibrary->updateClientDates($idCliente);
+
+        return redirect()->to('/contracts')
+                       ->with('success', 'Contrato #' . $numeroContrato . ' eliminado exitosamente');
+    }
+
+    /**
      * Formulario para renovar un contrato
      */
     public function renew($idContrato)
