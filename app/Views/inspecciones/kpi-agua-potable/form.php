@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.btn-photo-camera').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var input = this.closest('.photo-input-group').querySelector('.file-preview');
-            input.setAttribute('capture', 'environment');
+            input.removeAttribute('capture');
             input.click();
         });
     });

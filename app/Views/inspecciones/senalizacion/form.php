@@ -236,11 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const group = (cameraBtn || galleryBtn).closest('.photo-input-group');
         const input = group.querySelector('input[type="file"]');
 
-        if (cameraBtn) {
-            input.setAttribute('capture', 'environment');
-        } else {
-            input.removeAttribute('capture');
-        }
+        input.removeAttribute('capture');
         input.click();
     });
 
