@@ -234,7 +234,7 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                     <div class="col-6">
                                         <label class="form-label" style="font-size:11px;">Estado collares</label>
                                         <select name="estado_collares" class="form-select form-select-sm" style="font-size:12px;">
-                                            <?php foreach ($estadosEquipo as $est): ?>
+                                            <?php foreach ($estadosElemento as $est): ?>
                                             <option value="<?= $est ?>" <?= ($inspeccion['estado_collares'] ?? 'BUEN ESTADO') === $est ? 'selected' : '' ?>><?= $est ?></option>
                                             <?php endforeach; ?>
                                         </select>
@@ -279,7 +279,7 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                     <div class="col-6">
                                         <label class="form-label" style="font-size:11px;">Estado inmovilizadores</label>
                                         <select name="estado_inmovilizadores" class="form-select form-select-sm" style="font-size:12px;">
-                                            <?php foreach ($estadosEquipo as $est): ?>
+                                            <?php foreach ($estadosElemento as $est): ?>
                                             <option value="<?= $est ?>" <?= ($inspeccion['estado_inmovilizadores'] ?? 'BUEN ESTADO') === $est ? 'selected' : '' ?>><?= $est ?></option>
                                             <?php endforeach; ?>
                                         </select>
