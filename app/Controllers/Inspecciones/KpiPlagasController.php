@@ -41,7 +41,7 @@ class KpiPlagasController extends BaseController
     protected const ROUTE_SLUG   = 'kpi-plagas';
     protected const FOTO_DIR     = 'uploads/inspecciones/kpi-plagas/fotos/';
     protected const PDF_DIR      = 'uploads/inspecciones/kpi-plagas/pdfs/';
-    protected const DETAIL_ID    = 35;
+    protected const DETAIL_ID    = 28;
     protected const TAG_PREFIX   = 'kpi_plag_id';
     protected const MODULE_LABEL = 'KPI Plagas';
     protected const VIEW_DIR     = 'inspecciones/kpi-plagas';

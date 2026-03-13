@@ -39,7 +39,7 @@ class KpiResiduosController extends BaseController
     protected const ROUTE_SLUG   = 'kpi-residuos';
     protected const FOTO_DIR     = 'uploads/inspecciones/kpi-residuos/fotos/';
     protected const PDF_DIR      = 'uploads/inspecciones/kpi-residuos/pdfs/';
-    protected const DETAIL_ID    = 34;
+    protected const DETAIL_ID    = 27;
     protected const TAG_PREFIX   = 'kpi_res_id';
     protected const MODULE_LABEL = 'KPI Residuos';
     protected const VIEW_DIR     = 'inspecciones/kpi-residuos';

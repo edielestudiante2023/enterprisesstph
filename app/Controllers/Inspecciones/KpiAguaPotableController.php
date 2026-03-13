@@ -40,7 +40,7 @@ class KpiAguaPotableController extends BaseController
     protected const ROUTE_SLUG   = 'kpi-agua-potable';
     protected const FOTO_DIR     = 'uploads/inspecciones/kpi-agua-potable/fotos/';
     protected const PDF_DIR      = 'uploads/inspecciones/kpi-agua-potable/pdfs/';
-    protected const DETAIL_ID    = 36;
+    protected const DETAIL_ID    = 29;
     protected const TAG_PREFIX   = 'kpi_agua_id';
     protected const MODULE_LABEL = 'KPI Agua Potable';
     protected const VIEW_DIR     = 'inspecciones/kpi-agua-potable';

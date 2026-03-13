@@ -39,7 +39,7 @@ class KpiLimpiezaController extends BaseController
     protected const ROUTE_SLUG   = 'kpi-limpieza';
     protected const FOTO_DIR     = 'uploads/inspecciones/kpi-limpieza/fotos/';
     protected const PDF_DIR      = 'uploads/inspecciones/kpi-limpieza/pdfs/';
-    protected const DETAIL_ID    = 33;
+    protected const DETAIL_ID    = 26;
     protected const TAG_PREFIX   = 'kpi_limp_id';
     protected const MODULE_LABEL = 'KPI Limpieza';
 
