@@ -238,40 +238,27 @@ document.addEventListener('DOMContentLoaded', function() {
     inputDen.addEventListener('input', recalcular);
     onIndicadorChange();
 
-    // Select2 AJAX para clientes
+    // Select2 clientes (pre-carga)
     var clienteVal = '<?= $isEdit ? $inspeccion['id_cliente'] : ($idCliente ?? '') ?>';
-    $('#selectCliente').select2({
-        ajax: {
-            url: '<?= base_url('/inspecciones/api/clientes') ?>',
-            dataType: 'json',
-            delay: 250,
-            processResults: function(data) {
-                return {
-                    results: data.map(function(c) {
-                        return { id: c.id_cliente, text: c.nombre_cliente };
-                    })
-                };
-            },
-            cache: true
-        },
-        placeholder: 'Buscar cliente...',
-        minimumInputLength: 0,
-        width: '100%'
-    });
-
-    if (clienteVal) {
-        $.ajax({
-            url: '<?= base_url('/inspecciones/api/clientes') ?>',
-            dataType: 'json',
-            success: function(data) {
-                var found = data.find(function(c) { return c.id_cliente == clienteVal; });
-                if (found) {
-                    var opt = new Option(found.nombre_cliente, found.id_cliente, true, true);
-                    $('#selectCliente').append(opt).trigger('change');
-                }
+    $.ajax({
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
+        dataType: 'json',
+        success: function(data) {
+            var select = document.getElementById('selectCliente');
+            data.forEach(function(c) {
+                var opt = document.createElement('option');
+                opt.value = c.id_cliente;
+                opt.textContent = c.nombre_cliente;
+                if (clienteVal && c.id_cliente == clienteVal) opt.selected = true;
+                select.appendChild(opt);
+            });
+            $('#selectCliente').select2({ placeholder: 'Buscar cliente...', width: '100%' });
+            if (window._pendingClientRestore) {
+                $('#selectCliente').val(window._pendingClientRestore).trigger('change');
+                window._pendingClientRestore = null;
             }
-        });
-    }
+        }
+    });
 
     // Photo buttons
     document.querySelectorAll('.btn-photo-camera').forEach(function(btn) {
