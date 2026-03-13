@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#1c2437">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -77,7 +77,7 @@
         /* Main content */
         .pwa-main {
             padding-top: 64px;
-            padding-bottom: 72px;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
             min-height: 100vh;
         }
 
@@ -87,7 +87,8 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 64px;
+            height: calc(64px + env(safe-area-inset-bottom, 0px));
+            padding-bottom: env(safe-area-inset-bottom, 0px);
             background: var(--primary-dark);
             display: flex;
             justify-content: space-around;
