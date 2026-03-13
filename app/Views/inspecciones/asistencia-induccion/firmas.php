@@ -70,14 +70,14 @@ $totalAsistentes = count($asistentes);
             </div>
 
             <!-- Navegacion -->
-            <div class="d-flex gap-2 mb-3">
+            <div class="d-grid gap-3 mt-3 mb-5 pb-3">
                 <?php if ($i > 0): ?>
-                <button type="button" class="btn btn-sm btn-outline-dark flex-fill btn-nav" data-target="<?= $i - 1 ?>">
+                <button type="button" class="btn btn-sm btn-outline-dark py-3 btn-nav" style="font-size:17px;" data-target="<?= $i - 1 ?>">
                     <i class="fas fa-arrow-left"></i> Anterior
                 </button>
                 <?php endif; ?>
                 <?php if ($i < $totalAsistentes - 1): ?>
-                <button type="button" class="btn btn-sm btn-outline-dark flex-fill btn-nav" data-target="<?= $i + 1 ?>">
+                <button type="button" class="btn btn-sm btn-outline-dark py-3 btn-nav" style="font-size:17px;" data-target="<?= $i + 1 ?>">
                     Siguiente <i class="fas fa-arrow-right"></i>
                 </button>
                 <?php endif; ?>

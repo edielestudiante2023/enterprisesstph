@@ -59,11 +59,11 @@ $action = $isEdit
         </div>
 
         <!-- Botones -->
-        <div class="d-flex gap-2 mb-4">
-            <button type="submit" class="btn btn-pwa btn-pwa-primary">
+        <div class="d-grid gap-3 mt-3 mb-5 pb-3">
+            <button type="submit" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;">
                 <i class="fas fa-save"></i> Guardar
             </button>
-            <a href="<?= base_url('/inspecciones/mantenimientos') ?><?= $idCliente ? '/cliente/' . $idCliente : '' ?>" class="btn btn-outline-secondary">
+            <a href="<?= base_url('/inspecciones/mantenimientos') ?><?= $idCliente ? '/cliente/' . $idCliente : '' ?>" class="btn btn-outline-secondary py-3" style="font-size:17px;">
                 Cancelar
             </a>
         </div>

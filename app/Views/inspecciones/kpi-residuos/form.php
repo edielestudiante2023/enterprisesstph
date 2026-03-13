@@ -158,12 +158,12 @@ $storageKey = $isEdit ? 'kpi_residuos_draft_' . $inspeccion['id'] : 'kpi_residuo
     </div>
 
     <!-- Botones -->
-    <div class="d-flex gap-2 mb-4">
-        <button type="submit" class="btn btn-pwa btn-pwa-primary flex-fill">
+    <div class="d-grid gap-3 mt-3 mb-5 pb-3">
+        <button type="submit" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;">
             <i class="fas fa-save me-1"></i> Guardar Borrador
         </button>
         <?php if ($isEdit): ?>
-        <button type="button" id="btnFinalizar" class="btn btn-success flex-fill">
+        <button type="button" id="btnFinalizar" class="btn btn-success py-3" style="font-size:17px;">
             <i class="fas fa-check-circle me-1"></i> Finalizar
         </button>
         <?php endif; ?>

@@ -252,16 +252,16 @@ $criterios = [
         <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;"></div>
 
         <!-- Botones -->
-        <div class="d-flex gap-2 mb-4">
-            <button type="submit" class="btn btn-pwa btn-pwa-primary">
+        <div class="d-grid gap-3 mt-3 mb-5 pb-3">
+            <button type="submit" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;">
                 <i class="fas fa-save"></i> Guardar
             </button>
             <?php if (($e['estado'] ?? '') === 'borrador'): ?>
-            <button type="submit" name="finalizar" value="1" class="btn btn-success">
+            <button type="submit" name="finalizar" value="1" class="btn btn-success py-3" style="font-size:17px;">
                 <i class="fas fa-check"></i> Finalizar
             </button>
             <?php endif; ?>
-            <a href="<?= base_url('/inspecciones/simulacro') ?>" class="btn btn-outline-secondary">Volver</a>
+            <a href="<?= base_url('/inspecciones/simulacro') ?>" class="btn btn-outline-secondary py-3" style="font-size:17px;">Volver</a>
         </div>
     </form>
 </div>

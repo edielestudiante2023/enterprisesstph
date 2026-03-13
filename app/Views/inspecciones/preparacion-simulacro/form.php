@@ -240,11 +240,11 @@ $equiposSeleccionados = $isEdit && !empty($inspeccion['equipos_emergencia']) ? e
         <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;"></div>
 
         <!-- 10. BOTONES -->
-        <div class="d-flex gap-2 mb-4">
-            <button type="submit" class="btn btn-pwa btn-pwa-outline flex-fill">
+        <div class="d-grid gap-3 mt-3 mb-5 pb-3">
+            <button type="submit" class="btn btn-pwa btn-pwa-outline py-3" style="font-size:17px;">
                 <i class="fas fa-save"></i> Guardar borrador
             </button>
-            <button type="submit" name="finalizar" value="1" class="btn btn-pwa btn-pwa-primary flex-fill"
+            <button type="submit" name="finalizar" value="1" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;"
                 onclick="return confirm('Finalizar inspeccion? Se generara el PDF y no podra editarse.')">
                 <i class="fas fa-check-circle"></i> Finalizar
             </button>

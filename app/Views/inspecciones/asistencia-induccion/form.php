@@ -129,8 +129,8 @@ $action = $isEdit ? base_url('/inspecciones/asistencia-induccion/update/') . $in
         </div>
 
         <!-- BOTONES -->
-        <div class="d-flex gap-2 mb-4">
-            <button type="submit" class="btn btn-pwa btn-pwa-outline flex-fill">
+        <div class="d-grid gap-3 mt-3 mb-5 pb-3">
+            <button type="submit" class="btn btn-pwa btn-pwa-outline py-3" style="font-size:17px;">
                 <i class="fas fa-save"></i> Guardar borrador
             </button>
         </div>

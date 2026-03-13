@@ -65,11 +65,11 @@
         <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;"></div>
 
         <!-- Botones -->
-        <div class="d-flex gap-2 mb-4">
-            <button type="submit" class="btn btn-pwa btn-pwa-primary">
+        <div class="d-grid gap-3 mt-3 mb-5 pb-3">
+            <button type="submit" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;">
                 <i class="fas fa-<?= $isEdit ? 'save' : 'paper-plane' ?>"></i> <?= $isEdit ? 'Guardar Cambios' : 'Generar y Enviar' ?>
             </button>
-            <a href="<?= base_url('/inspecciones/carta-vigia') ?><?= $idCliente ? '/cliente/' . $idCliente : '' ?>" class="btn btn-outline-secondary">
+            <a href="<?= base_url('/inspecciones/carta-vigia') ?><?= $idCliente ? '/cliente/' . $idCliente : '' ?>" class="btn btn-outline-secondary py-3" style="font-size:17px;">
                 Cancelar
             </a>
         </div>

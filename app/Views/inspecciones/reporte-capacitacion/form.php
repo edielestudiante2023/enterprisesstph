@@ -192,11 +192,11 @@ if ($isEdit && !empty($inspeccion['perfil_asistentes'])) {
         </div>
 
         <!-- BOTONES -->
-        <div class="d-flex gap-2 mb-4">
-            <button type="submit" class="btn btn-pwa btn-pwa-outline flex-fill">
+        <div class="d-grid gap-3 mt-3 mb-5 pb-3">
+            <button type="submit" class="btn btn-pwa btn-pwa-outline py-3" style="font-size:17px;">
                 <i class="fas fa-save"></i> Guardar borrador
             </button>
-            <button type="submit" name="finalizar" value="1" class="btn btn-pwa btn-pwa-primary flex-fill"
+            <button type="submit" name="finalizar" value="1" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;"
                 onclick="return confirm('Finalizar reporte? Se generara el PDF y no podra editarse.')">
                 <i class="fas fa-check-circle"></i> Finalizar
             </button>

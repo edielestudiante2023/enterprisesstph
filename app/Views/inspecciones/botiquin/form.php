@@ -360,11 +360,11 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
         </div>
 
         <!-- Botones -->
-        <div class="mt-3 mb-4">
-            <button type="submit" class="btn btn-pwa btn-pwa-outline">
+        <div class="d-grid gap-3 mt-3 mb-5 pb-3">
+            <button type="submit" class="btn btn-pwa btn-pwa-outline py-3" style="font-size:17px;">
                 <i class="fas fa-save"></i> Guardar borrador
             </button>
-            <button type="submit" name="finalizar" value="1" class="btn btn-pwa btn-pwa-primary" id="btnFinalizar">
+            <button type="submit" name="finalizar" value="1" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;" id="btnFinalizar">
                 <i class="fas fa-check-circle"></i> Finalizar inspeccion
             </button>
         </div>
