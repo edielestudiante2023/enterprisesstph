@@ -18,7 +18,15 @@
       "Bash(/c/xampp/mysql/bin/mysql.exe -u cycloid_userdb -pAVNS_iDypWizlpMRwHIORJGG -h db-mysql-cycloid-do-user-18794030-0.h.db.ondigitalocean.com -P 25060 --ssl propiedad_horizontal -e \"DESCRIBE tbl_contratos;\")",
       "Bash(/c/xampp/mysql/bin/mysql.exe --version)",
       "Bash(find c:xampphtdocsenterprisesstph -type f \\\\\\(-name *.php -o -name *.js -o -name *.html \\\\\\))",
-      "Bash(find c:/xampp/htdocs/enterprisesstph -type f \\\\\\(-name *.php -o -name *.js -o -name *.html \\\\\\) ! -path */vendor/* ! -path */node_modules/*)"
+      "Bash(find c:/xampp/htdocs/enterprisesstph -type f \\\\\\(-name *.php -o -name *.js -o -name *.html \\\\\\) ! -path */vendor/* ! -path */node_modules/*)",
+      "Read(//c/Users/elipt/.ssh/**)",
+      "Bash(ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 root@66.29.154.174 \"echo ''Conexión exitosa!'' && hostname && whoami\")",
+      "Bash(ssh root@66.29.154.174 \"ls /www/wwwroot/\")",
+      "Bash(ssh root@66.29.154.174 \"ls -la /www/wwwroot/auditorias/\")",
+      "Bash(ssh root@66.29.154.174 \"find /www/wwwroot/auditorias/ -name ''*.php'' -newer /www/wwwroot/auditorias/index.php -mtime -30 2>/dev/null | head -20\")",
+      "Bash(ssh root@66.29.154.174 \"grep -rl ''eval\\\\|base64_decode\\\\|shell_exec\\\\|system\\(\\\\|passthru\\\\|exec\\('' /www/wwwroot/auditorias/ --include=''*.php'' 2>/dev/null | head -20\")",
+      "Read(//c/xampp/**)",
+      "Bash(/c/xampp/mysql/bin/mysqladmin -u root status)"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\enterprisesstph\\app\\Config"

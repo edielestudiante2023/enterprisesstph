@@ -15,6 +15,12 @@
                         <i class="fas <?= $tipo['icono'] ?> text-white" style="font-size:1.5rem;"></i>
                     </div>
                     <h5 style="color:#1c2437; font-weight:700;"><?= esc($tipo['nombre']) ?></h5>
+                    <?php if (!empty($tipo['es_dashboard'])): ?>
+                    <div style="font-size:1rem; font-weight:600; color:<?= $tipo['color'] ?>; margin-top:0.5rem;">
+                        <i class="fas fa-table me-1"></i> Ver consolidado
+                    </div>
+                    <small class="text-muted">8 indicadores de saneamiento</small>
+                    <?php else: ?>
                     <div style="font-size:2rem; font-weight:700; color:<?= $tipo['color'] ?>;">
                         <?= $tipo['conteo'] ?>
                     </div>
@@ -25,6 +31,7 @@
                             Última: <?= date('d/m/Y', strtotime($tipo['ultima'][$tipo['campo_fecha']])) ?>
                         </div>
                     <?php endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </a>
@@ -32,7 +39,7 @@
     <?php endforeach; ?>
 </div>
 
-<?php if (array_sum(array_column($tipos, 'conteo')) === 0): ?>
+<?php if (array_sum(array_filter(array_column($tipos, 'conteo'))) === 0): ?>
 <div class="text-center mt-4">
     <div class="card">
         <div class="card-body py-5">

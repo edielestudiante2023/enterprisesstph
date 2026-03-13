@@ -16,14 +16,23 @@ class KpiPlagasController extends BaseController
     use AutosaveJsonTrait;
     protected KpiPlagasModel $model;
 
-    protected const INDICADORES = [
-        'Ejecución de fumigación semestral',
-        'Ejecución de desratización semestral',
-    ];
-
-    protected const OPERACIONALIZACION = [
-        'Ejecución de fumigación semestral' => 'Soportes de fumigación en el periodo evaluado',
-        'Ejecución de desratización semestral' => 'Soportes de desratización en el periodo evaluado',
+    protected const INDICADOR_CONFIG = [
+        'Ejecución de fumigación semestral' => [
+            'formula'           => '(N.° fumigaciones realizadas ÷ 1) × 100',
+            'label_numerador'   => 'N.° de fumigaciones realizadas en el periodo',
+            'label_denominador' => 'Fumigaciones programadas',
+            'meta'              => 100,
+            'meta_texto'        => '100%',
+            'denominador_fijo'  => 1,
+        ],
+        'Ejecución de desratización semestral' => [
+            'formula'           => '(N.° desratizaciones realizadas ÷ 1) × 100',
+            'label_numerador'   => 'N.° de desratizaciones realizadas en el periodo',
+            'label_denominador' => 'Desratizaciones programadas',
+            'meta'              => 100,
+            'meta_texto'        => '100%',
+            'denominador_fijo'  => 1,
+        ],
     ];
 
     protected const PDF_CODE     = 'FT-SST-231';
@@ -67,8 +76,8 @@ class KpiPlagasController extends BaseController
                 'title'       => 'Nuevo ' . static::MODULE_LABEL,
                 'inspeccion'  => null,
                 'idCliente'   => $idCliente,
-                'indicadores'        => static::INDICADORES,
-                'operacionalizacion' => static::OPERACIONALIZACION,
+                'indicadores'        => array_keys(static::INDICADOR_CONFIG),
+                'indicadorConfig'    => static::INDICADOR_CONFIG,
                 'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Nuevo ' . static::MODULE_LABEL,
@@ -86,14 +95,25 @@ class KpiPlagasController extends BaseController
             }
         }
 
+        $indicador = $this->request->getPost('indicador');
+        $num = $this->request->getPost('valor_numerador') !== null && $this->request->getPost('valor_numerador') !== '' ? (int) $this->request->getPost('valor_numerador') : null;
+        $den = $this->request->getPost('valor_denominador') !== null && $this->request->getPost('valor_denominador') !== '' ? (int) $this->request->getPost('valor_denominador') : null;
+        $cumplimiento = ($den !== null && $den > 0) ? round(($num / $den) * 100, 2) : (float)($this->request->getPost('cumplimiento') ?? 0);
+        $meta = static::INDICADOR_CONFIG[$indicador]['meta'] ?? 100;
+        $calificacion = ($den !== null && $den > 0) ? ($cumplimiento >= $meta ? 'CUMPLE' : 'NO CUMPLE') : null;
+
         $data = [
-            'id_cliente'          => $this->request->getPost('id_cliente'),
-            'id_consultor'        => $userId,
-            'fecha_inspeccion'    => $this->request->getPost('fecha_inspeccion'),
-            'nombre_responsable'  => $this->request->getPost('nombre_responsable'),
-            'indicador'           => $this->request->getPost('indicador'),
-            'cumplimiento'        => (float)($this->request->getPost('cumplimiento') ?? 0),
-            'estado'              => 'borrador',
+            'id_cliente'                => $this->request->getPost('id_cliente'),
+            'id_consultor'              => $userId,
+            'fecha_inspeccion'          => $this->request->getPost('fecha_inspeccion'),
+            'nombre_responsable'        => $this->request->getPost('nombre_responsable'),
+            'indicador'                 => $indicador,
+            'cumplimiento'              => $cumplimiento,
+            'valor_numerador'           => $num,
+            'valor_denominador'         => $den,
+            'calificacion_cualitativa'  => $calificacion,
+            'observaciones'             => $this->request->getPost('observaciones'),
+            'estado'                    => 'borrador',
         ];
 
         for ($i = 1; $i <= 4; $i++) {
@@ -122,8 +142,8 @@ class KpiPlagasController extends BaseController
                 'title'       => 'Editar ' . static::MODULE_LABEL,
                 'inspeccion'  => $inspeccion,
                 'idCliente'   => $inspeccion['id_cliente'],
-                'indicadores'        => static::INDICADORES,
-                'operacionalizacion' => static::OPERACIONALIZACION,
+                'indicadores'        => array_keys(static::INDICADOR_CONFIG),
+                'indicadorConfig'    => static::INDICADOR_CONFIG,
                 'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Editar ' . static::MODULE_LABEL,
@@ -140,12 +160,23 @@ class KpiPlagasController extends BaseController
             return redirect()->to('/inspecciones/' . static::ROUTE_SLUG)->with('error', 'No se puede editar');
         }
 
+        $indicador = $this->request->getPost('indicador');
+        $num = $this->request->getPost('valor_numerador') !== null && $this->request->getPost('valor_numerador') !== '' ? (int) $this->request->getPost('valor_numerador') : null;
+        $den = $this->request->getPost('valor_denominador') !== null && $this->request->getPost('valor_denominador') !== '' ? (int) $this->request->getPost('valor_denominador') : null;
+        $cumplimiento = ($den !== null && $den > 0) ? round(($num / $den) * 100, 2) : (float)($this->request->getPost('cumplimiento') ?? 0);
+        $meta = static::INDICADOR_CONFIG[$indicador]['meta'] ?? 100;
+        $calificacion = ($den !== null && $den > 0) ? ($cumplimiento >= $meta ? 'CUMPLE' : 'NO CUMPLE') : null;
+
         $updateData = [
-            'id_cliente'          => $this->request->getPost('id_cliente'),
-            'fecha_inspeccion'    => $this->request->getPost('fecha_inspeccion'),
-            'nombre_responsable'  => $this->request->getPost('nombre_responsable'),
-            'indicador'           => $this->request->getPost('indicador'),
-            'cumplimiento'        => (float)($this->request->getPost('cumplimiento') ?? 0),
+            'id_cliente'                => $this->request->getPost('id_cliente'),
+            'fecha_inspeccion'          => $this->request->getPost('fecha_inspeccion'),
+            'nombre_responsable'        => $this->request->getPost('nombre_responsable'),
+            'indicador'                 => $indicador,
+            'cumplimiento'              => $cumplimiento,
+            'valor_numerador'           => $num,
+            'valor_denominador'         => $den,
+            'calificacion_cualitativa'  => $calificacion,
+            'observaciones'             => $this->request->getPost('observaciones'),
         ];
 
         for ($i = 1; $i <= 4; $i++) {
@@ -182,11 +213,12 @@ class KpiPlagasController extends BaseController
 
         return view('inspecciones/layout_pwa', [
             'content' => view(static::VIEW_DIR . '/view', [
-                'title'      => static::MODULE_LABEL,
-                'inspeccion' => $inspeccion,
-                'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
-                'consultor'  => (new ConsultantModel())->find($inspeccion['id_consultor']),
-                'slug'       => static::ROUTE_SLUG,
+                'title'           => static::MODULE_LABEL,
+                'inspeccion'      => $inspeccion,
+                'cliente'         => (new ClientModel())->find($inspeccion['id_cliente']),
+                'consultor'       => (new ConsultantModel())->find($inspeccion['id_consultor']),
+                'indicadorConfig' => static::INDICADOR_CONFIG,
+                'slug'            => static::ROUTE_SLUG,
             ]),
             'title' => static::MODULE_LABEL,
         ]);
@@ -308,6 +340,7 @@ class KpiPlagasController extends BaseController
             'inspeccion'  => $inspeccion, 'cliente' => $cliente, 'consultor' => $consultor,
             'logoBase64'  => $logoBase64, 'fotosBase64' => $fotosBase64,
             'pdfCode' => static::PDF_CODE, 'pdfTitle' => static::PDF_TITLE, 'pdfIntro' => static::PDF_INTRO,
+            'indicadorConfig' => static::INDICADOR_CONFIG,
         ]);
 
         $dompdf = new Dompdf();

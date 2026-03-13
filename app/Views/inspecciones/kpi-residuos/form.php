@@ -73,14 +73,46 @@ $storageKey = $isEdit ? 'kpi_residuos_draft_' . $inspeccion['id'] : 'kpi_residuo
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div id="operacionalizacionBox" class="alert alert-info py-2 px-3 mb-3" style="font-size:12px; display:none;">
-                <i class="fas fa-calculator me-1"></i> <strong>Cómo medir:</strong> <span id="operacionalizacionTexto"></span>
+            <!-- Fórmula y Meta -->
+            <div id="formulaBox" class="alert alert-info py-2 px-3 mb-3" style="font-size:12px; display:none;">
+                <i class="fas fa-calculator me-1"></i> <strong>Fórmula:</strong> <span id="formulaTexto"></span>
+                <br><i class="fas fa-bullseye me-1"></i> <strong>Meta:</strong> <span id="metaTexto"></span>
             </div>
-            <div class="mb-3">
-                <label class="form-label" style="font-size:12px;">Cumplimiento (%) <span class="text-danger">*</span></label>
-                <input type="number" name="cumplimiento" class="form-control form-control-sm"
-                       min="0" max="100" step="0.1"
-                       value="<?= $isEdit ? esc($inspeccion['cumplimiento']) : '' ?>" required>
+
+            <!-- Numerador / Denominador -->
+            <div id="formulaInputs" style="display:none;">
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <label class="form-label" style="font-size:11px;" id="labelNumerador">Numerador</label>
+                        <input type="number" name="valor_numerador" id="inputNumerador" class="form-control form-control-sm"
+                               min="0" step="1" value="<?= $isEdit ? esc($inspeccion['valor_numerador'] ?? '') : '' ?>">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size:11px;" id="labelDenominador">Denominador</label>
+                        <input type="number" name="valor_denominador" id="inputDenominador" class="form-control form-control-sm"
+                               min="1" step="1" value="<?= $isEdit ? esc($inspeccion['valor_denominador'] ?? '') : '' ?>">
+                    </div>
+                </div>
+
+                <!-- Resultado auto-calculado -->
+                <div class="row g-2 mb-2 align-items-end">
+                    <div class="col-6">
+                        <label class="form-label" style="font-size:11px;">Cumplimiento (%)</label>
+                        <input type="number" name="cumplimiento" id="inputCumplimiento" class="form-control form-control-sm bg-light"
+                               min="0" max="100" step="0.01" readonly
+                               value="<?= $isEdit ? esc($inspeccion['cumplimiento']) : '' ?>">
+                    </div>
+                    <div class="col-6 text-center">
+                        <span id="badgeCualitativa" class="badge fs-6" style="display:none;">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="mb-0">
+                <label class="form-label" style="font-size:12px;">Observaciones</label>
+                <textarea name="observaciones" class="form-control form-control-sm" rows="3"
+                          placeholder="Ej: Solo se inspeccionaron escobas porque la empresa de aseo no trajo los traperos"><?= $isEdit ? esc($inspeccion['observaciones'] ?? '') : '' ?></textarea>
             </div>
         </div>
     </div>
@@ -141,22 +173,70 @@ $storageKey = $isEdit ? 'kpi_residuos_draft_' . $inspeccion['id'] : 'kpi_residuo
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Operacionalización dinámica
-    var opMap = <?= json_encode($operacionalizacion ?? [], JSON_UNESCAPED_UNICODE) ?>;
+    // Configuración de indicadores
+    var indicadorConfig = <?= json_encode($indicadorConfig ?? [], JSON_UNESCAPED_UNICODE) ?>;
     var selInd = document.getElementById('selectIndicador');
-    var opBox = document.getElementById('operacionalizacionBox');
-    var opTxt = document.getElementById('operacionalizacionTexto');
-    function showOp() {
+    var formulaBox = document.getElementById('formulaBox');
+    var formulaInputs = document.getElementById('formulaInputs');
+    var formulaTexto = document.getElementById('formulaTexto');
+    var metaTexto = document.getElementById('metaTexto');
+    var labelNum = document.getElementById('labelNumerador');
+    var labelDen = document.getElementById('labelDenominador');
+    var inputNum = document.getElementById('inputNumerador');
+    var inputDen = document.getElementById('inputDenominador');
+    var inputCumpl = document.getElementById('inputCumplimiento');
+    var badgeCual = document.getElementById('badgeCualitativa');
+
+    function onIndicadorChange() {
         var val = selInd.value;
-        if (val && opMap[val]) {
-            opTxt.textContent = opMap[val];
-            opBox.style.display = 'block';
+        var cfg = indicadorConfig[val];
+        if (!cfg) {
+            formulaBox.style.display = 'none';
+            formulaInputs.style.display = 'none';
+            return;
+        }
+        formulaTexto.textContent = cfg.formula;
+        metaTexto.textContent = cfg.meta_texto;
+        formulaBox.style.display = 'block';
+        formulaInputs.style.display = 'block';
+        labelNum.textContent = cfg.label_numerador;
+        labelDen.textContent = cfg.label_denominador;
+        if (cfg.denominador_fijo) {
+            inputDen.value = cfg.denominador_fijo;
+            inputDen.readOnly = true;
         } else {
-            opBox.style.display = 'none';
+            inputDen.readOnly = false;
+        }
+        recalcular();
+    }
+
+    function recalcular() {
+        var num = parseInt(inputNum.value) || 0;
+        var den = parseInt(inputDen.value) || 0;
+        if (den > 0) {
+            var pct = ((num / den) * 100).toFixed(2);
+            inputCumpl.value = pct;
+            var cfg = indicadorConfig[selInd.value];
+            if (cfg) {
+                if (parseFloat(pct) >= cfg.meta) {
+                    badgeCual.textContent = 'CUMPLE';
+                    badgeCual.className = 'badge fs-6 bg-success';
+                } else {
+                    badgeCual.textContent = 'NO CUMPLE';
+                    badgeCual.className = 'badge fs-6 bg-danger';
+                }
+                badgeCual.style.display = 'inline-block';
+            }
+        } else {
+            inputCumpl.value = '';
+            badgeCual.style.display = 'none';
         }
     }
-    selInd.addEventListener('change', showOp);
-    showOp();
+
+    selInd.addEventListener('change', onIndicadorChange);
+    inputNum.addEventListener('input', recalcular);
+    inputDen.addEventListener('input', recalcular);
+    onIndicadorChange();
 
     // Select2 AJAX para clientes
     var clienteVal = '<?= $isEdit ? $inspeccion['id_cliente'] : ($idCliente ?? '') ?>';
@@ -231,8 +311,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
         if (data.fecha_inspeccion) document.querySelector('[name="fecha_inspeccion"]').value = data.fecha_inspeccion;
         if (data.nombre_responsable) document.querySelector('[name="nombre_responsable"]').value = data.nombre_responsable;
-        if (data.indicador) document.querySelector('[name="indicador"]').value = data.indicador;
-        if (data.cumplimiento) document.querySelector('[name="cumplimiento"]').value = data.cumplimiento;
+        if (data.indicador) { document.querySelector('[name="indicador"]').value = data.indicador; onIndicadorChange(); }
+        if (data.valor_numerador) document.querySelector('[name="valor_numerador"]').value = data.valor_numerador;
+        if (data.valor_denominador) document.querySelector('[name="valor_denominador"]').value = data.valor_denominador;
+        if (data.observaciones) document.querySelector('[name="observaciones"]').value = data.observaciones;
+        recalcular();
     }
 
     if (!isEditLocal) {

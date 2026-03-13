@@ -61,6 +61,7 @@ use App\Controllers\Inspecciones\AuditoriaZonaResiduosController;
 use App\Controllers\Inspecciones\AsistenciaInduccionController;
 use App\Controllers\Inspecciones\ReporteCapacitacionController;
 use App\Controllers\Inspecciones\PreparacionSimulacroController;
+use App\Controllers\Inspecciones\DashboardSaneamientoController;
 use CodeIgniter\Controller;
 
 class ClientInspeccionesController extends Controller
@@ -341,6 +342,16 @@ class ClientInspeccionesController extends Controller
                 'conteo'  => $kpiAguaModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
                 'ultima'  => $kpiAguaModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
                 'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Dashboard Saneamiento',
+                'icono'   => 'fa-clipboard-check',
+                'color'   => '#6a1b9a',
+                'url'     => base_url('client/inspecciones/dashboard-saneamiento'),
+                'conteo'  => null,
+                'ultima'  => null,
+                'campo_fecha' => null,
+                'es_dashboard' => true,
             ],
             [
                 'nombre'  => 'Dotación Vigilante',
@@ -2120,6 +2131,22 @@ class ClientInspeccionesController extends Controller
                 'inspeccion' => $inspeccion,
                 'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
                 'consultor'  => (new ConsultantModel())->find($inspeccion['id_consultor']),
+            ]),
+        ]);
+    }
+
+    public function dashboardSaneamiento()
+    {
+        $clientId = $this->getClientId();
+        if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+
+        $resultados = DashboardSaneamientoController::consolidar($clientId);
+
+        return view('client/inspecciones/layout', [
+            'client'  => (new ClientModel())->find($clientId),
+            'title'   => 'Dashboard Saneamiento',
+            'content' => view('client/inspecciones/dashboard_saneamiento', [
+                'resultados' => $resultados,
             ]),
         ]);
     }

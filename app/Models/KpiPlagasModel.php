@@ -10,7 +10,8 @@ class KpiPlagasModel extends Model
     protected $primaryKey       = 'id';
     protected $allowedFields    = [
         'id_cliente', 'id_consultor', 'fecha_inspeccion', 'nombre_responsable',
-        'indicador', 'cumplimiento',
+        'indicador', 'cumplimiento', 'valor_numerador', 'valor_denominador',
+        'calificacion_cualitativa', 'observaciones',
         'registro_formato_1', 'registro_formato_2', 'registro_formato_3', 'registro_formato_4',
         'ruta_pdf', 'estado',
     ];

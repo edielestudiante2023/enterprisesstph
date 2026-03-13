@@ -23,7 +23,26 @@
             <tr><th>Responsable</th><td><?= esc($inspeccion['nombre_responsable'] ?? 'N/A') ?></td></tr>
             <tr><th>Consultor</th><td><?= esc($consultor['nombre'] ?? 'N/A') ?></td></tr>
             <tr><th>Indicador</th><td><?= esc($inspeccion['indicador']) ?></td></tr>
+            <?php $cfg = ($indicadorConfig[$inspeccion['indicador']] ?? null); ?>
+            <?php if ($cfg): ?>
+            <tr><th>Fórmula</th><td style="font-size:12px;"><?= esc($cfg['formula']) ?></td></tr>
+            <tr><th>Meta</th><td><?= esc($cfg['meta_texto']) ?></td></tr>
+            <?php endif; ?>
+            <?php if ($inspeccion['valor_numerador'] !== null && $inspeccion['valor_denominador'] !== null): ?>
+            <tr><th><?= esc($cfg['label_numerador'] ?? 'Numerador') ?></th><td><?= esc($inspeccion['valor_numerador']) ?></td></tr>
+            <tr><th><?= esc($cfg['label_denominador'] ?? 'Denominador') ?></th><td><?= esc($inspeccion['valor_denominador']) ?></td></tr>
+            <?php endif; ?>
             <tr><th>Cumplimiento</th><td><strong><?= number_format($inspeccion['cumplimiento'], 1) ?>%</strong></td></tr>
+            <?php if (!empty($inspeccion['calificacion_cualitativa'])): ?>
+            <tr><th>Calificación</th><td>
+                <span class="badge <?= $inspeccion['calificacion_cualitativa'] === 'CUMPLE' ? 'bg-success' : 'bg-danger' ?> fs-6">
+                    <?= esc($inspeccion['calificacion_cualitativa']) ?>
+                </span>
+            </td></tr>
+            <?php endif; ?>
+            <?php if (!empty($inspeccion['observaciones'])): ?>
+            <tr><th>Observaciones</th><td><?= esc($inspeccion['observaciones']) ?></td></tr>
+            <?php endif; ?>
             <tr><th>Estado</th><td><span class="badge bg-success">Completo</span></td></tr>
         </table>
     </div>

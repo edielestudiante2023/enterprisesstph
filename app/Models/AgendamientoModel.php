@@ -109,6 +109,158 @@ class AgendamientoModel extends Model
         return date('Y-m-d', strtotime($base . " +{$meses} months"));
     }
 
+    // ─── MÉTODOS DRILL-DOWN (Consultores → Años → Meses → Detalle) ───
+
+    /**
+     * Cards de consultores internos con conteo de agendamientos
+     */
+    public function getResumenConsultoresInternos(): array
+    {
+        $db = \Config\Database::connect();
+        return $db->table('tbl_agendamientos a')
+            ->select('c.id_consultor, c.nombre_consultor, c.foto_consultor, COUNT(a.id) as total,
+                      SUM(CASE WHEN a.estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN a.estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN a.estado = "completado" THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN a.estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->join('tbl_consultor c', 'c.id_consultor = a.id_consultor', 'inner')
+            ->groupBy('c.id_consultor, c.nombre_consultor, c.foto_consultor')
+            ->orderBy('c.nombre_consultor', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Cards de consultores externos (campo texto en tbl_clientes) con conteo
+     */
+    public function getResumenConsultoresExternos(): array
+    {
+        $db = \Config\Database::connect();
+        return $db->table('tbl_agendamientos a')
+            ->select('cl.consultor_externo, COUNT(a.id) as total,
+                      SUM(CASE WHEN a.estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN a.estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN a.estado = "completado" THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN a.estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->join('tbl_clientes cl', 'cl.id_cliente = a.id_cliente', 'inner')
+            ->where('cl.consultor_externo IS NOT NULL')
+            ->where('cl.consultor_externo !=', '')
+            ->groupBy('cl.consultor_externo')
+            ->orderBy('cl.consultor_externo', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Años con agendamientos para un consultor interno
+     */
+    public function getAniosPorConsultorInterno(int $idConsultor): array
+    {
+        $db = \Config\Database::connect();
+        return $db->table('tbl_agendamientos')
+            ->select('YEAR(fecha_visita) as anio, COUNT(id) as total,
+                      SUM(CASE WHEN estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN estado = "completado" THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->where('id_consultor', $idConsultor)
+            ->groupBy('YEAR(fecha_visita)')
+            ->orderBy('anio', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Años con agendamientos para un consultor externo
+     */
+    public function getAniosPorConsultorExterno(string $nombreExterno): array
+    {
+        $db = \Config\Database::connect();
+        return $db->table('tbl_agendamientos a')
+            ->select('YEAR(a.fecha_visita) as anio, COUNT(a.id) as total,
+                      SUM(CASE WHEN a.estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN a.estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN a.estado = "completado" THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN a.estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->join('tbl_clientes cl', 'cl.id_cliente = a.id_cliente', 'inner')
+            ->where('cl.consultor_externo', $nombreExterno)
+            ->groupBy('YEAR(a.fecha_visita)')
+            ->orderBy('anio', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Meses con agendamientos para consultor interno + año
+     */
+    public function getMesesPorConsultorInterno(int $idConsultor, int $anio): array
+    {
+        $db = \Config\Database::connect();
+        return $db->table('tbl_agendamientos')
+            ->select('MONTH(fecha_visita) as mes, COUNT(id) as total,
+                      SUM(CASE WHEN estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN estado = "completado" THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->where('id_consultor', $idConsultor)
+            ->where('YEAR(fecha_visita)', $anio)
+            ->groupBy('MONTH(fecha_visita)')
+            ->orderBy('mes', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Meses con agendamientos para consultor externo + año
+     */
+    public function getMesesPorConsultorExterno(string $nombreExterno, int $anio): array
+    {
+        $db = \Config\Database::connect();
+        return $db->table('tbl_agendamientos a')
+            ->select('MONTH(a.fecha_visita) as mes, COUNT(a.id) as total,
+                      SUM(CASE WHEN a.estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN a.estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN a.estado = "completado" THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN a.estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->join('tbl_clientes cl', 'cl.id_cliente = a.id_cliente', 'inner')
+            ->where('cl.consultor_externo', $nombreExterno)
+            ->where('YEAR(a.fecha_visita)', $anio)
+            ->groupBy('MONTH(a.fecha_visita)')
+            ->orderBy('mes', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Detalle de agendamientos filtrados por consultor interno + año + mes
+     */
+    public function getDetallePorConsultorInterno(int $idConsultor, int $anio, int $mes): array
+    {
+        return $this->select('tbl_agendamientos.*, tbl_clientes.nombre_cliente, tbl_clientes.correo_cliente, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_agendamientos.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_agendamientos.id_consultor', 'left')
+            ->where('tbl_agendamientos.id_consultor', $idConsultor)
+            ->where('YEAR(tbl_agendamientos.fecha_visita)', $anio)
+            ->where('MONTH(tbl_agendamientos.fecha_visita)', $mes)
+            ->orderBy('tbl_agendamientos.fecha_visita', 'ASC')
+            ->findAll();
+    }
+
+    /**
+     * Detalle de agendamientos filtrados por consultor externo + año + mes
+     */
+    public function getDetallePorConsultorExterno(string $nombreExterno, int $anio, int $mes): array
+    {
+        return $this->select('tbl_agendamientos.*, tbl_clientes.nombre_cliente, tbl_clientes.correo_cliente, tbl_clientes.consultor_externo, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_agendamientos.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_agendamientos.id_consultor', 'left')
+            ->where('tbl_clientes.consultor_externo', $nombreExterno)
+            ->where('YEAR(tbl_agendamientos.fecha_visita)', $anio)
+            ->where('MONTH(tbl_agendamientos.fecha_visita)', $mes)
+            ->orderBy('tbl_agendamientos.fecha_visita', 'ASC')
+            ->findAll();
+    }
+
     /**
      * Resumen por consultor para panel admin
      * Retorna: id_consultor, nombre_consultor, total_clientes_activos, agendados_mes, sin_agendar

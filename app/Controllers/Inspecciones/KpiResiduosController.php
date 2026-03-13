@@ -16,14 +16,21 @@ class KpiResiduosController extends BaseController
     use AutosaveJsonTrait;
     protected KpiResiduosModel $model;
 
-    protected const INDICADORES = [
-        'Cumplimiento de condiciones higiénico–sanitarias del cuarto de residuos',
-        'Cumplimiento en separación adecuada de residuos sólidos',
-    ];
-
-    protected const OPERACIONALIZACION = [
-        'Cumplimiento de condiciones higiénico–sanitarias del cuarto de residuos' => 'Calificación del estado de aseo del cuarto de residuos de acuerdo con inspección',
-        'Cumplimiento en separación adecuada de residuos sólidos' => 'Calificación de acuerdo con inspección visual directa',
+    protected const INDICADOR_CONFIG = [
+        'Cumplimiento de condiciones higiénico–sanitarias del cuarto de residuos' => [
+            'formula'           => '(Inspecciones conformes ÷ Inspecciones realizadas) × 100',
+            'label_numerador'   => 'N.° de inspecciones conformes',
+            'label_denominador' => 'N.° de inspecciones realizadas',
+            'meta'              => 100,
+            'meta_texto'        => '100%',
+        ],
+        'Cumplimiento en separación adecuada de residuos sólidos' => [
+            'formula'           => '(Puntos ecológicos correctamente separados ÷ Puntos ecológicos inspeccionados) × 100',
+            'label_numerador'   => 'N.° de puntos ecológicos correctamente separados',
+            'label_denominador' => 'N.° de puntos ecológicos inspeccionados',
+            'meta'              => 90,
+            'meta_texto'        => '≥ 90%',
+        ],
     ];
 
     protected const PDF_CODE     = 'FT-SST-230';
@@ -67,8 +74,8 @@ class KpiResiduosController extends BaseController
                 'title'       => 'Nuevo ' . static::MODULE_LABEL,
                 'inspeccion'  => null,
                 'idCliente'   => $idCliente,
-                'indicadores'        => static::INDICADORES,
-                'operacionalizacion' => static::OPERACIONALIZACION,
+                'indicadores'        => array_keys(static::INDICADOR_CONFIG),
+                'indicadorConfig'    => static::INDICADOR_CONFIG,
                 'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Nuevo ' . static::MODULE_LABEL,
@@ -86,14 +93,25 @@ class KpiResiduosController extends BaseController
             }
         }
 
+        $indicador = $this->request->getPost('indicador');
+        $num = $this->request->getPost('valor_numerador') !== null && $this->request->getPost('valor_numerador') !== '' ? (int) $this->request->getPost('valor_numerador') : null;
+        $den = $this->request->getPost('valor_denominador') !== null && $this->request->getPost('valor_denominador') !== '' ? (int) $this->request->getPost('valor_denominador') : null;
+        $cumplimiento = ($den !== null && $den > 0) ? round(($num / $den) * 100, 2) : (float)($this->request->getPost('cumplimiento') ?? 0);
+        $meta = static::INDICADOR_CONFIG[$indicador]['meta'] ?? 100;
+        $calificacion = ($den !== null && $den > 0) ? ($cumplimiento >= $meta ? 'CUMPLE' : 'NO CUMPLE') : null;
+
         $data = [
-            'id_cliente'          => $this->request->getPost('id_cliente'),
-            'id_consultor'        => $userId,
-            'fecha_inspeccion'    => $this->request->getPost('fecha_inspeccion'),
-            'nombre_responsable'  => $this->request->getPost('nombre_responsable'),
-            'indicador'           => $this->request->getPost('indicador'),
-            'cumplimiento'        => (float)($this->request->getPost('cumplimiento') ?? 0),
-            'estado'              => 'borrador',
+            'id_cliente'                => $this->request->getPost('id_cliente'),
+            'id_consultor'              => $userId,
+            'fecha_inspeccion'          => $this->request->getPost('fecha_inspeccion'),
+            'nombre_responsable'        => $this->request->getPost('nombre_responsable'),
+            'indicador'                 => $indicador,
+            'cumplimiento'              => $cumplimiento,
+            'valor_numerador'           => $num,
+            'valor_denominador'         => $den,
+            'calificacion_cualitativa'  => $calificacion,
+            'observaciones'             => $this->request->getPost('observaciones'),
+            'estado'                    => 'borrador',
         ];
 
         for ($i = 1; $i <= 4; $i++) {
@@ -122,8 +140,8 @@ class KpiResiduosController extends BaseController
                 'title'       => 'Editar ' . static::MODULE_LABEL,
                 'inspeccion'  => $inspeccion,
                 'idCliente'   => $inspeccion['id_cliente'],
-                'indicadores'        => static::INDICADORES,
-                'operacionalizacion' => static::OPERACIONALIZACION,
+                'indicadores'        => array_keys(static::INDICADOR_CONFIG),
+                'indicadorConfig'    => static::INDICADOR_CONFIG,
                 'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Editar ' . static::MODULE_LABEL,
@@ -140,12 +158,23 @@ class KpiResiduosController extends BaseController
             return redirect()->to('/inspecciones/' . static::ROUTE_SLUG)->with('error', 'No se puede editar');
         }
 
+        $indicador = $this->request->getPost('indicador');
+        $num = $this->request->getPost('valor_numerador') !== null && $this->request->getPost('valor_numerador') !== '' ? (int) $this->request->getPost('valor_numerador') : null;
+        $den = $this->request->getPost('valor_denominador') !== null && $this->request->getPost('valor_denominador') !== '' ? (int) $this->request->getPost('valor_denominador') : null;
+        $cumplimiento = ($den !== null && $den > 0) ? round(($num / $den) * 100, 2) : (float)($this->request->getPost('cumplimiento') ?? 0);
+        $meta = static::INDICADOR_CONFIG[$indicador]['meta'] ?? 100;
+        $calificacion = ($den !== null && $den > 0) ? ($cumplimiento >= $meta ? 'CUMPLE' : 'NO CUMPLE') : null;
+
         $updateData = [
-            'id_cliente'          => $this->request->getPost('id_cliente'),
-            'fecha_inspeccion'    => $this->request->getPost('fecha_inspeccion'),
-            'nombre_responsable'  => $this->request->getPost('nombre_responsable'),
-            'indicador'           => $this->request->getPost('indicador'),
-            'cumplimiento'        => (float)($this->request->getPost('cumplimiento') ?? 0),
+            'id_cliente'                => $this->request->getPost('id_cliente'),
+            'fecha_inspeccion'          => $this->request->getPost('fecha_inspeccion'),
+            'nombre_responsable'        => $this->request->getPost('nombre_responsable'),
+            'indicador'                 => $indicador,
+            'cumplimiento'              => $cumplimiento,
+            'valor_numerador'           => $num,
+            'valor_denominador'         => $den,
+            'calificacion_cualitativa'  => $calificacion,
+            'observaciones'             => $this->request->getPost('observaciones'),
         ];
 
         for ($i = 1; $i <= 4; $i++) {
@@ -186,6 +215,7 @@ class KpiResiduosController extends BaseController
                 'inspeccion' => $inspeccion,
                 'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
                 'consultor'  => (new ConsultantModel())->find($inspeccion['id_consultor']),
+                'indicadorConfig' => static::INDICADOR_CONFIG,
                 'slug'       => static::ROUTE_SLUG,
             ]),
             'title' => static::MODULE_LABEL,
@@ -315,6 +345,7 @@ class KpiResiduosController extends BaseController
             'consultor'   => $consultor,
             'logoBase64'  => $logoBase64,
             'fotosBase64' => $fotosBase64,
+            'indicadorConfig' => static::INDICADOR_CONFIG,
             'pdfCode'     => static::PDF_CODE,
             'pdfTitle'    => static::PDF_TITLE,
             'pdfIntro'    => static::PDF_INTRO,

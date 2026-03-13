@@ -513,6 +513,7 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
     $routes->get('kpi-plagas/(:num)', 'ClientInspeccionesController::viewKpiPlagas/$1');
     $routes->get('kpi-agua-potable', 'ClientInspeccionesController::listKpiAguaPotable');
     $routes->get('kpi-agua-potable/(:num)', 'ClientInspeccionesController::viewKpiAguaPotable/$1');
+    $routes->get('dashboard-saneamiento', 'ClientInspeccionesController::dashboardSaneamiento');
 });
 
 $routes->get('/detailreportlist', 'DetailReportController::detailReportList');
@@ -1318,6 +1319,10 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('kpi-agua-potable/delete/(:num)', 'KpiAguaPotableController::delete/$1');
     $routes->get('kpi-agua-potable/enviar-email/(:num)', 'KpiAguaPotableController::enviarEmail/$1');
 
+    // Dashboard Saneamiento (consolidado KPIs)
+    $routes->get('dashboard-saneamiento', 'DashboardSaneamientoController::index');
+    $routes->get('dashboard-saneamiento/(:num)', 'DashboardSaneamientoController::index/$1');
+
     // Accesos Rápidos (URLs)
     $routes->get('urls', 'UrlsPwaController::list');
     $routes->get('urls/create', 'UrlsPwaController::create');
@@ -1326,8 +1331,12 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('urls/update/(:num)', 'UrlsPwaController::update/$1');
     $routes->get('urls/delete/(:num)', 'UrlsPwaController::delete/$1');
 
-    // Agendamiento de Visitas
+    // Agendamiento de Visitas — Drill-down: Consultores → Años → Meses → Detalle
     $routes->get('agendamiento', 'AgendamientoController::list');
+    $routes->get('agendamiento/anios', 'AgendamientoController::porAnio');
+    $routes->get('agendamiento/meses', 'AgendamientoController::porMes');
+    $routes->get('agendamiento/detalle', 'AgendamientoController::detalle');
+    // Agendamiento — CRUD
     $routes->get('agendamiento/create', 'AgendamientoController::create');
     $routes->post('agendamiento/store', 'AgendamientoController::store');
     $routes->get('agendamiento/edit/(:num)', 'AgendamientoController::edit/$1');

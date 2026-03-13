@@ -16,14 +16,22 @@ class KpiAguaPotableController extends BaseController
     use AutosaveJsonTrait;
     protected KpiAguaPotableModel $model;
 
-    protected const INDICADORES = [
-        'Continuidad del servicio de agua potable en situaciones de suspensión',
-        'Ejecución de limpieza y desinfección de tanques de agua potable (semestral)',
-    ];
-
-    protected const OPERACIONALIZACION = [
-        'Continuidad del servicio de agua potable en situaciones de suspensión' => 'Estado de reserva de agua en el momento de la inspección',
-        'Ejecución de limpieza y desinfección de tanques de agua potable (semestral)' => 'Soportes de lavado de tanque en el periodo evaluado',
+    protected const INDICADOR_CONFIG = [
+        'Continuidad del servicio de agua potable en situaciones de suspensión' => [
+            'formula'           => '(Eventos sin afectación ÷ Eventos de suspensión) × 100',
+            'label_numerador'   => 'N.° de eventos sin afectación del servicio',
+            'label_denominador' => 'N.° total de eventos de suspensión',
+            'meta'              => 100,
+            'meta_texto'        => '100%',
+        ],
+        'Ejecución de limpieza y desinfección de tanques de agua potable (semestral)' => [
+            'formula'           => '(N.° limpiezas realizadas ÷ 1) × 100',
+            'label_numerador'   => 'N.° de limpiezas de tanques realizadas en el periodo',
+            'label_denominador' => 'Limpiezas programadas',
+            'meta'              => 100,
+            'meta_texto'        => '100%',
+            'denominador_fijo'  => 1,
+        ],
     ];
 
     protected const PDF_CODE     = 'FT-SST-232';
@@ -67,8 +75,8 @@ class KpiAguaPotableController extends BaseController
                 'title'       => 'Nuevo ' . static::MODULE_LABEL,
                 'inspeccion'  => null,
                 'idCliente'   => $idCliente,
-                'indicadores'        => static::INDICADORES,
-                'operacionalizacion' => static::OPERACIONALIZACION,
+                'indicadores'        => array_keys(static::INDICADOR_CONFIG),
+                'indicadorConfig' => static::INDICADOR_CONFIG,
                 'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Nuevo ' . static::MODULE_LABEL,
@@ -86,14 +94,25 @@ class KpiAguaPotableController extends BaseController
             }
         }
 
+        $indicador = $this->request->getPost('indicador');
+        $num = $this->request->getPost('valor_numerador') !== null && $this->request->getPost('valor_numerador') !== '' ? (int) $this->request->getPost('valor_numerador') : null;
+        $den = $this->request->getPost('valor_denominador') !== null && $this->request->getPost('valor_denominador') !== '' ? (int) $this->request->getPost('valor_denominador') : null;
+        $cumplimiento = ($den !== null && $den > 0) ? round(($num / $den) * 100, 2) : (float)($this->request->getPost('cumplimiento') ?? 0);
+        $meta = static::INDICADOR_CONFIG[$indicador]['meta'] ?? 100;
+        $calificacion = ($den !== null && $den > 0) ? ($cumplimiento >= $meta ? 'CUMPLE' : 'NO CUMPLE') : null;
+
         $data = [
-            'id_cliente'          => $this->request->getPost('id_cliente'),
-            'id_consultor'        => $userId,
-            'fecha_inspeccion'    => $this->request->getPost('fecha_inspeccion'),
-            'nombre_responsable'  => $this->request->getPost('nombre_responsable'),
-            'indicador'           => $this->request->getPost('indicador'),
-            'cumplimiento'        => (float)($this->request->getPost('cumplimiento') ?? 0),
-            'estado'              => 'borrador',
+            'id_cliente'                => $this->request->getPost('id_cliente'),
+            'id_consultor'              => $userId,
+            'fecha_inspeccion'          => $this->request->getPost('fecha_inspeccion'),
+            'nombre_responsable'        => $this->request->getPost('nombre_responsable'),
+            'indicador'                 => $indicador,
+            'cumplimiento'              => $cumplimiento,
+            'valor_numerador'           => $num,
+            'valor_denominador'         => $den,
+            'calificacion_cualitativa'  => $calificacion,
+            'observaciones'             => $this->request->getPost('observaciones'),
+            'estado'                    => 'borrador',
         ];
 
         for ($i = 1; $i <= 4; $i++) {
@@ -122,8 +141,8 @@ class KpiAguaPotableController extends BaseController
                 'title'       => 'Editar ' . static::MODULE_LABEL,
                 'inspeccion'  => $inspeccion,
                 'idCliente'   => $inspeccion['id_cliente'],
-                'indicadores'        => static::INDICADORES,
-                'operacionalizacion' => static::OPERACIONALIZACION,
+                'indicadores'        => array_keys(static::INDICADOR_CONFIG),
+                'indicadorConfig' => static::INDICADOR_CONFIG,
                 'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Editar ' . static::MODULE_LABEL,
@@ -140,12 +159,23 @@ class KpiAguaPotableController extends BaseController
             return redirect()->to('/inspecciones/' . static::ROUTE_SLUG)->with('error', 'No se puede editar');
         }
 
+        $indicador = $this->request->getPost('indicador');
+        $num = $this->request->getPost('valor_numerador') !== null && $this->request->getPost('valor_numerador') !== '' ? (int) $this->request->getPost('valor_numerador') : null;
+        $den = $this->request->getPost('valor_denominador') !== null && $this->request->getPost('valor_denominador') !== '' ? (int) $this->request->getPost('valor_denominador') : null;
+        $cumplimiento = ($den !== null && $den > 0) ? round(($num / $den) * 100, 2) : (float)($this->request->getPost('cumplimiento') ?? 0);
+        $meta = static::INDICADOR_CONFIG[$indicador]['meta'] ?? 100;
+        $calificacion = ($den !== null && $den > 0) ? ($cumplimiento >= $meta ? 'CUMPLE' : 'NO CUMPLE') : null;
+
         $updateData = [
-            'id_cliente'          => $this->request->getPost('id_cliente'),
-            'fecha_inspeccion'    => $this->request->getPost('fecha_inspeccion'),
-            'nombre_responsable'  => $this->request->getPost('nombre_responsable'),
-            'indicador'           => $this->request->getPost('indicador'),
-            'cumplimiento'        => (float)($this->request->getPost('cumplimiento') ?? 0),
+            'id_cliente'                => $this->request->getPost('id_cliente'),
+            'fecha_inspeccion'          => $this->request->getPost('fecha_inspeccion'),
+            'nombre_responsable'        => $this->request->getPost('nombre_responsable'),
+            'indicador'                 => $indicador,
+            'cumplimiento'              => $cumplimiento,
+            'valor_numerador'           => $num,
+            'valor_denominador'         => $den,
+            'calificacion_cualitativa'  => $calificacion,
+            'observaciones'             => $this->request->getPost('observaciones'),
         ];
 
         for ($i = 1; $i <= 4; $i++) {
@@ -186,6 +216,7 @@ class KpiAguaPotableController extends BaseController
                 'inspeccion' => $inspeccion,
                 'cliente'    => (new ClientModel())->find($inspeccion['id_cliente']),
                 'consultor'  => (new ConsultantModel())->find($inspeccion['id_consultor']),
+                'indicadorConfig' => static::INDICADOR_CONFIG,
                 'slug'       => static::ROUTE_SLUG,
             ]),
             'title' => static::MODULE_LABEL,
@@ -308,6 +339,7 @@ class KpiAguaPotableController extends BaseController
             'inspeccion'  => $inspeccion, 'cliente' => $cliente, 'consultor' => $consultor,
             'logoBase64'  => $logoBase64, 'fotosBase64' => $fotosBase64,
             'pdfCode' => static::PDF_CODE, 'pdfTitle' => static::PDF_TITLE, 'pdfIntro' => static::PDF_INTRO,
+            'indicadorConfig' => static::INDICADOR_CONFIG,
         ]);
 
         $dompdf = new Dompdf();

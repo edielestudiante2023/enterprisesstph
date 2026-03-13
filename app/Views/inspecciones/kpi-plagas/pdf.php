@@ -58,7 +58,22 @@ $fechaSgsst = !empty($cliente['fecha_sgsst']) ? date('d/m/Y', strtotime($cliente
     <tr><th style="width:35%;">FECHA DE LA REVISIÓN</th><td><?= $fechaDoc ?></td></tr>
     <tr><th>CLIENTE</th><td><?= esc($nombreCliente) ?></td></tr>
     <tr><th>INDICADOR</th><td><?= esc($inspeccion['indicador']) ?></td></tr>
-    <tr><th>CUMPLIMIENTO</th><td><?= number_format($inspeccion['cumplimiento'], 1) ?>%</td></tr>
+    <?php $cfg = ($indicadorConfig[$inspeccion['indicador']] ?? null); ?>
+    <?php if ($cfg): ?>
+    <tr><th>FÓRMULA</th><td><?= esc($cfg['formula']) ?></td></tr>
+    <tr><th>META</th><td><?= esc($cfg['meta_texto']) ?></td></tr>
+    <?php endif; ?>
+    <?php if ($inspeccion['valor_numerador'] !== null && $inspeccion['valor_denominador'] !== null): ?>
+    <tr><th><?= esc($cfg['label_numerador'] ?? 'NUMERADOR') ?></th><td><?= esc($inspeccion['valor_numerador']) ?></td></tr>
+    <tr><th><?= esc($cfg['label_denominador'] ?? 'DENOMINADOR') ?></th><td><?= esc($inspeccion['valor_denominador']) ?></td></tr>
+    <?php endif; ?>
+    <tr><th>CUMPLIMIENTO</th><td><strong><?= number_format($inspeccion['cumplimiento'], 1) ?>%</strong></td></tr>
+    <?php if (!empty($inspeccion['calificacion_cualitativa'])): ?>
+    <tr><th>CALIFICACIÓN</th><td style="font-weight:bold; color:<?= $inspeccion['calificacion_cualitativa'] === 'CUMPLE' ? '#198754' : '#dc3545' ?>;"><?= esc($inspeccion['calificacion_cualitativa']) ?></td></tr>
+    <?php endif; ?>
+    <?php if (!empty($inspeccion['observaciones'])): ?>
+    <tr><th>OBSERVACIONES</th><td><?= esc($inspeccion['observaciones']) ?></td></tr>
+    <?php endif; ?>
 </table>
 
 <div class="evidence-title">EVIDENCIAS</div>

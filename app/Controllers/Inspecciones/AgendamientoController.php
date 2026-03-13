@@ -18,11 +18,118 @@ class AgendamientoController extends BaseController
     }
 
     /**
-     * Listado de agendamientos del consultor (o todos si admin)
+     * Nivel 1: Cards por consultor interno y consultor externo
      */
     public function list()
     {
-        $agendamientos = $this->model->getAll();
+        $consultoresInternos = $this->model->getResumenConsultoresInternos();
+        $consultoresExternos = $this->model->getResumenConsultoresExternos();
+
+        $data = [
+            'title'                => 'Agendamientos',
+            'consultoresInternos'  => $consultoresInternos,
+            'consultoresExternos'  => $consultoresExternos,
+        ];
+
+        return view('inspecciones/layout_pwa', [
+            'content' => view('inspecciones/agendamiento/consultores', $data),
+            'title'   => 'Agendamientos',
+        ]);
+    }
+
+    /**
+     * Nivel 2: Cards por año para un consultor
+     */
+    public function porAnio()
+    {
+        $tipo = $this->request->getGet('tipo') ?? 'interno';
+        $id   = $this->request->getGet('id');
+        $nombre = $this->request->getGet('nombre');
+
+        if ($tipo === 'interno') {
+            $consultorModel = new ConsultantModel();
+            $consultor = $consultorModel->find($id);
+            $nombreConsultor = $consultor['nombre_consultor'] ?? 'Consultor';
+            $anios = $this->model->getAniosPorConsultorInterno((int)$id);
+        } else {
+            $nombreConsultor = $nombre;
+            $anios = $this->model->getAniosPorConsultorExterno($nombre);
+        }
+
+        $data = [
+            'title'            => $nombreConsultor,
+            'nombreConsultor'  => $nombreConsultor,
+            'tipo'             => $tipo,
+            'id'               => $id,
+            'nombre'           => $nombre,
+            'anios'            => $anios,
+        ];
+
+        return view('inspecciones/layout_pwa', [
+            'content' => view('inspecciones/agendamiento/anios', $data),
+            'title'   => 'Agendamientos - ' . $nombreConsultor,
+        ]);
+    }
+
+    /**
+     * Nivel 3: Cards por mes para un consultor + año
+     */
+    public function porMes()
+    {
+        $tipo   = $this->request->getGet('tipo') ?? 'interno';
+        $id     = $this->request->getGet('id');
+        $nombre = $this->request->getGet('nombre');
+        $anio   = (int)$this->request->getGet('anio');
+
+        if ($tipo === 'interno') {
+            $consultorModel = new ConsultantModel();
+            $consultor = $consultorModel->find($id);
+            $nombreConsultor = $consultor['nombre_consultor'] ?? 'Consultor';
+            $meses = $this->model->getMesesPorConsultorInterno((int)$id, $anio);
+        } else {
+            $nombreConsultor = $nombre;
+            $meses = $this->model->getMesesPorConsultorExterno($nombre, $anio);
+        }
+
+        $data = [
+            'title'            => $nombreConsultor . ' - ' . $anio,
+            'nombreConsultor'  => $nombreConsultor,
+            'tipo'             => $tipo,
+            'id'               => $id,
+            'nombre'           => $nombre,
+            'anio'             => $anio,
+            'meses'            => $meses,
+        ];
+
+        return view('inspecciones/layout_pwa', [
+            'content' => view('inspecciones/agendamiento/meses', $data),
+            'title'   => 'Agendamientos - ' . $nombreConsultor . ' - ' . $anio,
+        ]);
+    }
+
+    /**
+     * Nivel 4: Detalle de agendamientos (consultor + año + mes)
+     */
+    public function detalle()
+    {
+        $tipo   = $this->request->getGet('tipo') ?? 'interno';
+        $id     = $this->request->getGet('id');
+        $nombre = $this->request->getGet('nombre');
+        $anio   = (int)$this->request->getGet('anio');
+        $mes    = (int)$this->request->getGet('mes');
+
+        $mesesNombres = [1=>'Enero',2=>'Febrero',3=>'Marzo',4=>'Abril',5=>'Mayo',6=>'Junio',
+                         7=>'Julio',8=>'Agosto',9=>'Septiembre',10=>'Octubre',11=>'Noviembre',12=>'Diciembre'];
+
+        if ($tipo === 'interno') {
+            $consultorModel = new ConsultantModel();
+            $consultor = $consultorModel->find($id);
+            $nombreConsultor = $consultor['nombre_consultor'] ?? 'Consultor';
+            $agendamientos = $this->model->getDetallePorConsultorInterno((int)$id, $anio, $mes);
+        } else {
+            $nombreConsultor = $nombre;
+            $agendamientos = $this->model->getDetallePorConsultorExterno($nombre, $anio, $mes);
+        }
 
         // Agregar última visita a cada agendamiento
         foreach ($agendamientos as &$ag) {
@@ -30,19 +137,21 @@ class AgendamientoController extends BaseController
             $ag['ultima_visita'] = $ultima ? $ultima['fecha_visita'] : null;
         }
 
-        // Clientes activos para el filtro
-        $clientModel = new ClientModel();
-        $clientes = $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll();
-
         $data = [
-            'title'          => 'Agendamientos',
-            'agendamientos'  => $agendamientos,
-            'clientes'       => $clientes,
+            'title'            => $nombreConsultor . ' - ' . ($mesesNombres[$mes] ?? $mes) . ' ' . $anio,
+            'nombreConsultor'  => $nombreConsultor,
+            'tipo'             => $tipo,
+            'id'               => $id,
+            'nombre'           => $nombre,
+            'anio'             => $anio,
+            'mes'              => $mes,
+            'mesNombre'        => $mesesNombres[$mes] ?? $mes,
+            'agendamientos'    => $agendamientos,
         ];
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/agendamiento/list', $data),
-            'title'   => 'Agendamientos',
+            'content' => view('inspecciones/agendamiento/detalle', $data),
+            'title'   => 'Agendamientos - ' . ($mesesNombres[$mes] ?? $mes) . ' ' . $anio,
         ]);
     }
 

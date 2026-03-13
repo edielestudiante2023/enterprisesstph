@@ -16,14 +16,21 @@ class KpiLimpiezaController extends BaseController
     use AutosaveJsonTrait;
     protected KpiLimpiezaModel $model;
 
-    protected const INDICADORES = [
-        'Cumplimiento de actividades de limpieza y desinfección',
-        'Estado de los elementos de limpieza',
-    ];
-
-    protected const OPERACIONALIZACION = [
-        'Cumplimiento de actividades de limpieza y desinfección' => 'N.° de días registrados en la planilla de limpieza ÷ Días hábiles del periodo evaluado × 100',
-        'Estado de los elementos de limpieza' => 'N.° de elementos de limpieza en buen estado ÷ N.° total de elementos de limpieza verificados × 100',
+    protected const INDICADOR_CONFIG = [
+        'Cumplimiento de actividades de limpieza y desinfección' => [
+            'formula'           => '(N.° días registrados en planilla ÷ Días hábiles del periodo) × 100',
+            'label_numerador'   => 'N.° de días registrados en la planilla de limpieza',
+            'label_denominador' => 'Días hábiles del periodo evaluado',
+            'meta'              => 95,
+            'meta_texto'        => '≥ 95%',
+        ],
+        'Estado de los elementos de limpieza' => [
+            'formula'           => '(N.° elementos en buen estado ÷ N.° total elementos verificados) × 100',
+            'label_numerador'   => 'N.° de elementos de limpieza en buen estado',
+            'label_denominador' => 'N.° total de elementos de limpieza verificados',
+            'meta'              => 90,
+            'meta_texto'        => '≥ 90%',
+        ],
     ];
 
     protected const PDF_CODE     = 'FT-SST-229';
@@ -66,8 +73,8 @@ class KpiLimpiezaController extends BaseController
                 'title'              => 'Nuevo ' . static::MODULE_LABEL,
                 'inspeccion'         => null,
                 'idCliente'          => $idCliente,
-                'indicadores'        => static::INDICADORES,
-                'operacionalizacion' => static::OPERACIONALIZACION,
+                'indicadores'        => array_keys(static::INDICADOR_CONFIG),
+                'indicadorConfig'    => static::INDICADOR_CONFIG,
                 'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Nuevo ' . static::MODULE_LABEL,
@@ -85,14 +92,25 @@ class KpiLimpiezaController extends BaseController
             }
         }
 
+        $indicador = $this->request->getPost('indicador');
+        $num = $this->request->getPost('valor_numerador') !== null && $this->request->getPost('valor_numerador') !== '' ? (int) $this->request->getPost('valor_numerador') : null;
+        $den = $this->request->getPost('valor_denominador') !== null && $this->request->getPost('valor_denominador') !== '' ? (int) $this->request->getPost('valor_denominador') : null;
+        $cumplimiento = ($den !== null && $den > 0) ? round(($num / $den) * 100, 2) : (float)($this->request->getPost('cumplimiento') ?? 0);
+        $meta = static::INDICADOR_CONFIG[$indicador]['meta'] ?? 100;
+        $calificacion = ($den !== null && $den > 0) ? ($cumplimiento >= $meta ? 'CUMPLE' : 'NO CUMPLE') : null;
+
         $data = [
-            'id_cliente'          => $this->request->getPost('id_cliente'),
-            'id_consultor'        => $userId,
-            'fecha_inspeccion'    => $this->request->getPost('fecha_inspeccion'),
-            'nombre_responsable'  => $this->request->getPost('nombre_responsable'),
-            'indicador'           => $this->request->getPost('indicador'),
-            'cumplimiento'        => (float)($this->request->getPost('cumplimiento') ?? 0),
-            'estado'              => 'borrador',
+            'id_cliente'                => $this->request->getPost('id_cliente'),
+            'id_consultor'              => $userId,
+            'fecha_inspeccion'          => $this->request->getPost('fecha_inspeccion'),
+            'nombre_responsable'        => $this->request->getPost('nombre_responsable'),
+            'indicador'                 => $indicador,
+            'cumplimiento'              => $cumplimiento,
+            'valor_numerador'           => $num,
+            'valor_denominador'         => $den,
+            'calificacion_cualitativa'  => $calificacion,
+            'observaciones'             => $this->request->getPost('observaciones'),
+            'estado'                    => 'borrador',
         ];
 
         // Upload fotos
@@ -122,8 +140,8 @@ class KpiLimpiezaController extends BaseController
                 'title'              => 'Editar ' . static::MODULE_LABEL,
                 'inspeccion'         => $inspeccion,
                 'idCliente'          => $inspeccion['id_cliente'],
-                'indicadores'        => static::INDICADORES,
-                'operacionalizacion' => static::OPERACIONALIZACION,
+                'indicadores'        => array_keys(static::INDICADOR_CONFIG),
+                'indicadorConfig'    => static::INDICADOR_CONFIG,
                 'slug'               => static::ROUTE_SLUG,
             ]),
             'title' => 'Editar ' . static::MODULE_LABEL,
@@ -140,12 +158,23 @@ class KpiLimpiezaController extends BaseController
             return redirect()->to('/inspecciones/' . static::ROUTE_SLUG)->with('error', 'No se puede editar');
         }
 
+        $indicador = $this->request->getPost('indicador');
+        $num = $this->request->getPost('valor_numerador') !== null && $this->request->getPost('valor_numerador') !== '' ? (int) $this->request->getPost('valor_numerador') : null;
+        $den = $this->request->getPost('valor_denominador') !== null && $this->request->getPost('valor_denominador') !== '' ? (int) $this->request->getPost('valor_denominador') : null;
+        $cumplimiento = ($den !== null && $den > 0) ? round(($num / $den) * 100, 2) : (float)($this->request->getPost('cumplimiento') ?? 0);
+        $meta = static::INDICADOR_CONFIG[$indicador]['meta'] ?? 100;
+        $calificacion = ($den !== null && $den > 0) ? ($cumplimiento >= $meta ? 'CUMPLE' : 'NO CUMPLE') : null;
+
         $updateData = [
-            'id_cliente'          => $this->request->getPost('id_cliente'),
-            'fecha_inspeccion'    => $this->request->getPost('fecha_inspeccion'),
-            'nombre_responsable'  => $this->request->getPost('nombre_responsable'),
-            'indicador'           => $this->request->getPost('indicador'),
-            'cumplimiento'        => (float)($this->request->getPost('cumplimiento') ?? 0),
+            'id_cliente'                => $this->request->getPost('id_cliente'),
+            'fecha_inspeccion'          => $this->request->getPost('fecha_inspeccion'),
+            'nombre_responsable'        => $this->request->getPost('nombre_responsable'),
+            'indicador'                 => $indicador,
+            'cumplimiento'              => $cumplimiento,
+            'valor_numerador'           => $num,
+            'valor_denominador'         => $den,
+            'calificacion_cualitativa'  => $calificacion,
+            'observaciones'             => $this->request->getPost('observaciones'),
         ];
 
         // Fotos — solo si se sube nueva
@@ -190,7 +219,8 @@ class KpiLimpiezaController extends BaseController
                 'inspeccion' => $inspeccion,
                 'cliente'    => $clientModel->find($inspeccion['id_cliente']),
                 'consultor'  => $consultantModel->find($inspeccion['id_consultor']),
-                'slug'       => static::ROUTE_SLUG,
+                'slug'           => static::ROUTE_SLUG,
+                'indicadorConfig' => static::INDICADOR_CONFIG,
             ]),
             'title' => static::MODULE_LABEL,
         ]);
@@ -345,8 +375,9 @@ class KpiLimpiezaController extends BaseController
             'logoBase64'   => $logoBase64,
             'fotosBase64'  => $fotosBase64,
             'pdfCode'      => static::PDF_CODE,
-            'pdfTitle'     => static::PDF_TITLE,
-            'pdfIntro'     => static::PDF_INTRO,
+            'pdfTitle'        => static::PDF_TITLE,
+            'pdfIntro'        => static::PDF_INTRO,
+            'indicadorConfig' => static::INDICADOR_CONFIG,
         ]);
 
         $dompdf = new Dompdf();
