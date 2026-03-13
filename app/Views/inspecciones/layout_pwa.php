@@ -348,6 +348,44 @@
     });
     </script>
 
+    <!-- Anti-duplicación: bloquear botón submit tras primer clic -->
+    <script>
+    (function() {
+        document.addEventListener('submit', function(e) {
+            var form = e.target;
+            if (!form || form.tagName !== 'FORM') return;
+
+            // Si ya fue enviado, bloquear (protección anti doble-tap)
+            if (form.dataset.submitted === 'true') {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                return;
+            }
+
+            // Marcar como enviado
+            form.dataset.submitted = 'true';
+
+            // Deshabilitar todos los botones submit del form
+            var btns = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+            btns.forEach(function(btn) {
+                btn.disabled = true;
+                var originalHtml = btn.innerHTML;
+                btn.dataset.originalHtml = originalHtml;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            });
+
+            // Re-habilitar después de 8s como fallback (por si hay error de red)
+            setTimeout(function() {
+                form.dataset.submitted = '';
+                btns.forEach(function(btn) {
+                    btn.disabled = false;
+                    if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+                });
+            }, 8000);
+        }, true); // capture phase para interceptar antes que otros handlers
+    })();
+    </script>
+
     <!-- Autosave Server Engine -->
     <script src="/js/autosave_server.js"></script>
 
