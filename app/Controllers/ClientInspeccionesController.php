@@ -68,22 +68,32 @@ class ClientInspeccionesController extends Controller
 {
     /**
      * Verify client session and return client ID, or redirect.
+     * Consultores y admins pueden ver inspecciones de un cliente pasando el ID por parámetro.
      */
-    private function getClientId()
+    private function getClientId(?int $idCliente = null)
     {
         $session = session();
-        if ($session->get('role') !== 'client') {
-            return null;
+        $role = $session->get('role');
+
+        // Consultor o admin viendo inspecciones de un cliente específico
+        if (in_array($role, ['consultant', 'admin']) && $idCliente) {
+            return $idCliente;
         }
-        return $session->get('user_id');
+
+        // Cliente viendo sus propias inspecciones
+        if ($role === 'client') {
+            return $session->get('user_id');
+        }
+
+        return null;
     }
 
     /**
      * Hub principal: cards por tipo de inspección con conteo y última fecha
      */
-    public function dashboard()
+    public function dashboard(?int $idCliente = null)
     {
-        $clientId = $this->getClientId();
+        $clientId = $this->getClientId($idCliente);
         if (!$clientId) {
             return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
         }

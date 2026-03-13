@@ -453,6 +453,7 @@ $routes->get('client/panel/(:num)', 'ClientPanelController::showPanel/$1');
 // Client Inspections (read-only web views)
 $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
     $routes->get('/', 'ClientInspeccionesController::dashboard');
+    $routes->get('(:num)', 'ClientInspeccionesController::dashboard/$1');
     $routes->get('actas-visita', 'ClientInspeccionesController::listActas');
     $routes->get('actas-visita/(:num)', 'ClientInspeccionesController::viewActa/$1');
     $routes->get('locativas', 'ClientInspeccionesController::listLocativas');
