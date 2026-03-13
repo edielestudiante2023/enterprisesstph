@@ -12,7 +12,7 @@
 <?php endif; ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>KPI Residuos Sólidos</h5>
+    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i><?= esc($title) ?></h5>
 </div>
 
 <div class="mb-3">
@@ -21,59 +21,71 @@
     </select>
 </div>
 
-<a href="<?= base_url('/inspecciones/kpi-residuos/create') ?>" class="btn btn-pwa btn-pwa-primary mb-3">
+<a href="<?= base_url('/inspecciones/' . $slug . '/create') ?>" class="btn btn-pwa btn-pwa-primary mb-3">
     <i class="fas fa-plus me-2"></i>Nuevo KPI
 </a>
 
 <div id="listaInspecciones">
-<?php if (empty($inspecciones)): ?>
+<?php if (empty($grupos)): ?>
     <div class="text-center text-muted py-4">
         <i class="fas fa-inbox fa-3x mb-2"></i>
         <p>No hay KPIs registrados.</p>
     </div>
 <?php else: ?>
-    <?php foreach ($inspecciones as $insp): ?>
-    <div class="card card-inspeccion mb-2 card-filtrable" data-cliente="<?= esc($insp['nombre_cliente'] ?? '') ?>">
+    <?php foreach ($grupos as $grupo): ?>
+    <div class="card card-inspeccion mb-2 card-filtrable" data-cliente="<?= esc($grupo['nombre_cliente'] ?? '') ?>">
         <div class="card-body py-3 px-3">
             <div class="d-flex justify-content-between align-items-start">
-                <div>
+                <div style="flex:1;">
                     <strong>
-                        <?php if ($insp['estado'] === 'completo'): ?>
+                        <?php if ($grupo['estado'] === 'completo'): ?>
                             <i class="fas fa-check-circle text-success"></i>
                         <?php else: ?>
                             <i class="fas fa-edit text-warning"></i>
                         <?php endif; ?>
-                        <?= esc($insp['nombre_cliente'] ?? 'Sin cliente') ?>
+                        <?= esc($grupo['nombre_cliente'] ?? 'Sin cliente') ?>
                     </strong>
                     <div class="text-muted" style="font-size: 13px;">
-                        <?= date('d/m/Y', strtotime($insp['fecha_inspeccion'])) ?>
-                        <?php if (!empty($insp['indicador'])): ?>
-                            &middot; <?= esc(mb_substr($insp['indicador'], 0, 40)) ?>...
-                        <?php endif; ?>
+                        <?= date('d/m/Y', strtotime($grupo['fecha_inspeccion'])) ?>
                         &middot;
-                        <span class="badge bg-<?= $insp['estado'] === 'completo' ? 'success' : 'warning text-dark' ?>" style="font-size: 11px;">
-                            <?= $insp['estado'] === 'completo' ? 'Completo' : 'Borrador' ?>
+                        <span class="badge bg-<?= $grupo['estado'] === 'completo' ? 'success' : 'warning text-dark' ?>" style="font-size: 11px;">
+                            <?= $grupo['estado'] === 'completo' ? 'Completo' : 'Borrador' ?>
                         </span>
+                        &middot;
+                        <?= count($grupo['indicadores']) ?>/<?= $totalIndicadores ?> indicador(es)
                     </div>
-                    <?php if (!empty($insp['cumplimiento'])): ?>
-                    <div style="font-size: 13px; margin-top: 2px;">
-                        <strong>Cumplimiento:</strong> <?= number_format($insp['cumplimiento'], 1) ?>%
+                    <?php foreach ($grupo['indicadores'] as $ind): ?>
+                    <div style="font-size: 12px; margin-top: 3px; padding-left: 8px; border-left: 3px solid <?= ($ind['calificacion_cualitativa'] ?? '') === 'CUMPLE' ? '#28a745' : '#dc3545' ?>;">
+                        <strong><?= esc(mb_substr($ind['indicador'], 0, 50)) ?></strong>
+                        <?php if (!empty($ind['cumplimiento'])): ?>
+                            — <?= number_format($ind['cumplimiento'], 1) ?>%
+                            <span class="badge bg-<?= ($ind['calificacion_cualitativa'] ?? '') === 'CUMPLE' ? 'success' : 'danger' ?>" style="font-size: 10px;">
+                                <?= esc($ind['calificacion_cualitativa'] ?? '') ?>
+                            </span>
+                        <?php endif; ?>
                     </div>
-                    <?php endif; ?>
+                    <?php endforeach; ?>
                 </div>
             </div>
-            <div class="mt-2 d-flex gap-2">
-                    <a href="<?= base_url('/inspecciones/kpi-residuos/edit/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
-                        <i class="fas fa-edit"></i> Editar
+            <div class="mt-2 d-flex gap-2 flex-wrap">
+                <?php foreach ($grupo['indicadores'] as $ind): ?>
+                    <a href="<?= base_url('/inspecciones/' . $slug . '/edit/' . $ind['id']) ?>" class="btn btn-sm btn-outline-dark" title="Editar: <?= esc(mb_substr($ind['indicador'], 0, 30)) ?>">
+                        <i class="fas fa-edit"></i> <?= esc(mb_substr($ind['indicador'], 0, 20)) ?>...
                     </a>
-                    <a href="#" class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $insp['id'] ?>">
-                        <i class="fas fa-trash"></i>
+                <?php endforeach; ?>
+                <?php if (count($grupo['indicadores']) < $totalIndicadores && $grupo['estado'] !== 'completo'): ?>
+                    <a href="<?= base_url('/inspecciones/' . $slug . '/create/' . $grupo['id_cliente']) ?>" class="btn btn-sm btn-outline-success" title="Agregar indicador faltante">
+                        <i class="fas fa-plus"></i> Agregar indicador
                     </a>
-                <?php if ($insp['estado'] === 'completo'): ?>
-                    <a href="<?= base_url('/inspecciones/kpi-residuos/view/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                <?php endif; ?>
+                <a href="#" class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $grupo['first_id'] ?>">
+                    <i class="fas fa-trash"></i>
+                </a>
+                <?php if ($grupo['estado'] === 'completo'): ?>
+                    <a href="<?= base_url('/inspecciones/' . $slug . '/view/' . $grupo['first_id']) ?>" class="btn btn-sm btn-outline-dark">
                         <i class="fas fa-eye"></i> Ver
                     </a>
-                    <a href="<?= base_url('/inspecciones/kpi-residuos/pdf/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                    <a href="<?= base_url('/inspecciones/' . $slug . '/pdf/' . $grupo['first_id']) ?>" class="btn btn-sm btn-outline-primary" target="_blank">
                         <i class="fas fa-file-pdf"></i> PDF
                     </a>
                 <?php endif; ?>
@@ -115,15 +127,15 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         Swal.fire({
             title: 'Eliminar KPI?',
-            text: 'Esta acción no se puede deshacer.',
+            text: 'Esta accion no se puede deshacer.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc3545',
-            confirmButtonText: 'Sí, eliminar',
+            confirmButtonText: 'Si, eliminar',
             cancelButtonText: 'Cancelar'
         }).then(result => {
             if (result.isConfirmed) {
-                window.location.href = '<?= base_url('/inspecciones/kpi-residuos/delete/') ?>' + btn.dataset.id;
+                window.location.href = '<?= base_url('/inspecciones/' . $slug . '/delete/') ?>' + btn.dataset.id;
             }
         });
     });

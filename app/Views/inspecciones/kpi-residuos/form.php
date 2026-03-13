@@ -163,8 +163,7 @@ $storageKey = $isEdit ? 'kpi_residuos_draft_' . $inspeccion['id'] : 'kpi_residuo
             <i class="fas fa-save me-1"></i> Guardar Borrador
         </button>
         <?php if ($isEdit): ?>
-        <button type="submit" name="finalizar" value="1" class="btn btn-success flex-fill"
-                onclick="return confirm('¿Finalizar y generar PDF? No podrá editar después.')">
+        <button type="button" id="btnFinalizar" class="btn btn-success flex-fill">
             <i class="fas fa-check-circle me-1"></i> Finalizar
         </button>
         <?php endif; ?>
@@ -288,6 +287,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Botón Finalizar con SweetAlert
+    var btnFinalizar = document.getElementById('btnFinalizar');
+    if (btnFinalizar) {
+        btnFinalizar.addEventListener('click', function() {
+            Swal.fire({
+                icon: 'question',
+                title: 'Finalizar reporte',
+                html: '<p>Se finalizarán <strong>todos los indicadores</strong> de este cliente y fecha, y se generará el PDF.</p><p>No podrá editar después.</p>',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-check-circle"></i> Sí, finalizar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#28a745',
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    window.location.href = '<?= base_url('/inspecciones/' . esc($slug ?? 'kpi-residuos') . '/finalizar-grupo/' . ($inspeccion['id'] ?? '')) ?>';
+                }
+            });
+        });
+    }
+
     // ============================================================
     // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
     // ============================================================
@@ -354,27 +373,38 @@ function openPhoto(src) {
 (function() {
     var savedCliente = '<?= session()->getFlashdata('saved_cliente_id') ?>';
     var savedIndicador = '<?= esc(session()->getFlashdata('saved_indicador') ?? '') ?>';
+    var currentId = <?= $inspeccion['id'] ?? 'null' ?>;
     var indicadores = <?= json_encode(array_keys($indicadorConfig ?? []), JSON_UNESCAPED_UNICODE) ?>;
     var pendientes = indicadores.filter(function(i) { return i !== savedIndicador; });
+    var slug = '<?= esc($slug ?? 'kpi-residuos') ?>';
 
-    if (pendientes.length > 0) {
-        setTimeout(function() {
-            Swal.fire({
-                icon: 'success',
-                title: 'Borrador guardado',
-                html: '<p>¿Desea diligenciar otro indicador para este mismo cliente?</p>' +
-                      '<p style="font-size:13px; color:#666;">Pendiente: <strong>' + pendientes.join(', ') + '</strong></p>',
-                showCancelButton: true,
-                confirmButtonText: '<i class="fas fa-plus-circle"></i> Sí, crear otro indicador',
-                cancelButtonText: 'No, quedarme aquí',
-                confirmButtonColor: '#bd9751',
-            }).then(function(result) {
-                if (result.isConfirmed) {
-                    window.location.href = '<?= base_url('/inspecciones/kpi-residuos/create/') ?>' + savedCliente;
-                }
-            });
-        }, 500);
-    }
+    setTimeout(function() {
+        var htmlMsg = '<p>Borrador guardado correctamente.</p>';
+        if (pendientes.length > 0) {
+            htmlMsg += '<p style="font-size:13px; color:#666;">Indicador(es) pendiente(s): <strong>' + pendientes.join(', ') + '</strong></p>';
+        }
+        htmlMsg += '<p style="font-size:13px;">¿Qué desea hacer?</p>';
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Borrador guardado',
+            html: htmlMsg,
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-check-circle"></i> Finalizar reporte',
+            denyButtonText: pendientes.length > 0 ? '<i class="fas fa-plus-circle"></i> Crear otro indicador' : '',
+            cancelButtonText: '<i class="fas fa-edit"></i> Quedarme aquí',
+            confirmButtonColor: '#28a745',
+            denyButtonColor: '#bd9751',
+            showDenyButton: pendientes.length > 0,
+        }).then(function(result) {
+            if (result.isConfirmed && currentId) {
+                window.location.href = '<?= base_url('/inspecciones/' . ($slug ?? 'kpi-residuos') . '/finalizar-grupo/') ?>' + currentId;
+            } else if (result.isDenied) {
+                window.location.href = '<?= base_url('/inspecciones/' . ($slug ?? 'kpi-residuos') . '/create/') ?>' + savedCliente;
+            }
+        });
+    }, 500);
 })();
 <?php endif; ?>
 </script>

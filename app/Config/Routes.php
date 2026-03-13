@@ -1284,6 +1284,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('kpi-limpieza/finalizar/(:num)', 'KpiLimpiezaController::finalizar/$1');
     $routes->get('kpi-limpieza/delete/(:num)', 'KpiLimpiezaController::delete/$1');
     $routes->get('kpi-limpieza/enviar-email/(:num)', 'KpiLimpiezaController::enviarEmail/$1');
+    $routes->get('kpi-limpieza/finalizar-grupo/(:num)', 'KpiLimpiezaController::finalizarGrupo/$1');
 
     // KPI Programa de Manejo Integral de Residuos Sólidos
     $routes->get('kpi-residuos', 'KpiResiduosController::list');
@@ -1298,6 +1299,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('kpi-residuos/finalizar/(:num)', 'KpiResiduosController::finalizar/$1');
     $routes->get('kpi-residuos/delete/(:num)', 'KpiResiduosController::delete/$1');
     $routes->get('kpi-residuos/enviar-email/(:num)', 'KpiResiduosController::enviarEmail/$1');
+    $routes->get('kpi-residuos/finalizar-grupo/(:num)', 'KpiResiduosController::finalizarGrupo/$1');
 
     // KPI Programa de Control Integrado de Plagas
     $routes->get('kpi-plagas', 'KpiPlagasController::list');
@@ -1312,6 +1314,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('kpi-plagas/finalizar/(:num)', 'KpiPlagasController::finalizar/$1');
     $routes->get('kpi-plagas/delete/(:num)', 'KpiPlagasController::delete/$1');
     $routes->get('kpi-plagas/enviar-email/(:num)', 'KpiPlagasController::enviarEmail/$1');
+    $routes->get('kpi-plagas/finalizar-grupo/(:num)', 'KpiPlagasController::finalizarGrupo/$1');
 
     // KPI Programa de Abastecimiento y Control de Agua Potable
     $routes->get('kpi-agua-potable', 'KpiAguaPotableController::list');
@@ -1326,6 +1329,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('kpi-agua-potable/finalizar/(:num)', 'KpiAguaPotableController::finalizar/$1');
     $routes->get('kpi-agua-potable/delete/(:num)', 'KpiAguaPotableController::delete/$1');
     $routes->get('kpi-agua-potable/enviar-email/(:num)', 'KpiAguaPotableController::enviarEmail/$1');
+    $routes->get('kpi-agua-potable/finalizar-grupo/(:num)', 'KpiAguaPotableController::finalizarGrupo/$1');
 
     // Dashboard Saneamiento (consolidado KPIs)
     $routes->get('dashboard-saneamiento', 'DashboardSaneamientoController::index');
