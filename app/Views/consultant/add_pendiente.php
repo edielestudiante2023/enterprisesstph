@@ -110,7 +110,11 @@
 
                 <div class="mb-3">
                     <label for="responsable" class="form-label">Responsable <span class="text-danger">*</span></label>
-                    <input type="text" name="responsable" id="responsable" class="form-control" placeholder="Ingrese el nombre del responsable" required value="<?= set_value('responsable'); ?>">
+                    <select name="responsable" id="responsable" class="form-control" required>
+                        <option value="">Seleccione el responsable</option>
+                        <option value="ADMINISTRADOR" <?= set_value('responsable') === 'ADMINISTRADOR' ? 'selected' : '' ?>>ADMINISTRADOR</option>
+                        <option value="CONSULTOR CYCLOID TALENT" <?= set_value('responsable') === 'CONSULTOR CYCLOID TALENT' ? 'selected' : '' ?>>CONSULTOR CYCLOID TALENT</option>
+                    </select>
 
                     <?php if (isset($validation) && $validation->hasError('responsable')): ?>
                         <div class="error-message"><?= $validation->getError('responsable') ?></div>

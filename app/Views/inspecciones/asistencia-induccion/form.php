@@ -261,4 +261,77 @@ function removeAsistenteRow(btn) {
         tr.querySelector('td:first-child').textContent = rowCount;
     });
 }
+
+<?php if (session()->getFlashdata('show_firmas_prompt') && $isEdit): ?>
+// ============================================================
+// PROMPT PARA IR A FIRMAS (doble validación aritmética)
+// ============================================================
+(function() {
+    const idInspeccion = <?= $inspeccion['id'] ?>;
+    const firmasUrl = '<?= base_url('/inspecciones/asistencia-induccion/firmas/') ?>' + idInspeccion;
+
+    function randOp() {
+        const ops = [
+            function(){ const a = Math.floor(Math.random()*20)+1, b = Math.floor(Math.random()*20)+1; return {q: a+' + '+b, r: a+b}; },
+            function(){ const a = Math.floor(Math.random()*20)+5, b = Math.floor(Math.random()*a)+1; return {q: a+' - '+b, r: a-b}; },
+            function(){ const a = Math.floor(Math.random()*10)+2, b = Math.floor(Math.random()*10)+2; return {q: a+' × '+b, r: a*b}; }
+        ];
+        return ops[Math.floor(Math.random()*ops.length)]();
+    }
+
+    setTimeout(function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Guardado exitosamente',
+            html: '<p>¿Desea pasar a la pantalla de <strong>firmas</strong> ahora?</p>' +
+                  '<p style="font-size:12px; color:#666;">Se requiere doble validación para continuar</p>',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-signature"></i> Ir a Firmas',
+            cancelButtonText: 'Seguir editando',
+            confirmButtonColor: '#bd9751',
+            cancelButtonColor: '#6c757d',
+        }).then(result => {
+            if (!result.isConfirmed) return;
+
+            const op1 = randOp();
+            Swal.fire({
+                title: 'Validación 1 de 2',
+                html: '<p style="font-size:20px; font-weight:bold;">¿Cuánto es ' + op1.q + '?</p>',
+                input: 'number',
+                inputPlaceholder: 'Resultado',
+                showCancelButton: true,
+                confirmButtonText: 'Verificar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#bd9751',
+                inputValidator: (val) => {
+                    if (!val) return 'Debe ingresar un número';
+                    if (parseInt(val) !== op1.r) return 'Respuesta incorrecta. Intente de nuevo.';
+                }
+            }).then(r1 => {
+                if (!r1.isConfirmed) return;
+
+                const op2 = randOp();
+                Swal.fire({
+                    title: 'Validación 2 de 2',
+                    html: '<p style="font-size:20px; font-weight:bold;">¿Cuánto es ' + op2.q + '?</p>',
+                    input: 'number',
+                    inputPlaceholder: 'Resultado',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ir a Firmas',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#28a745',
+                    inputValidator: (val) => {
+                        if (!val) return 'Debe ingresar un número';
+                        if (parseInt(val) !== op2.r) return 'Respuesta incorrecta. Intente de nuevo.';
+                    }
+                }).then(r2 => {
+                    if (r2.isConfirmed) {
+                        window.location.href = firmasUrl;
+                    }
+                });
+            });
+        });
+    }, 500);
+})();
+<?php endif; ?>
 </script>

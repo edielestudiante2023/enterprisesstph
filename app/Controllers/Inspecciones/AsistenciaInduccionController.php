@@ -93,7 +93,8 @@ class AsistenciaInduccionController extends BaseController
         }
 
         return redirect()->to('/inspecciones/asistencia-induccion/edit/' . $idInspeccion)
-            ->with('msg', 'Asistencia guardada como borrador');
+            ->with('msg', 'Asistencia guardada como borrador')
+            ->with('show_firmas_prompt', true);
     }
 
     public function edit($id)
@@ -151,7 +152,8 @@ class AsistenciaInduccionController extends BaseController
         }
 
         return redirect()->to('/inspecciones/asistencia-induccion/edit/' . $id)
-            ->with('msg', 'Asistencia actualizada');
+            ->with('msg', 'Asistencia actualizada')
+            ->with('show_firmas_prompt', true);
     }
 
     public function view($id)
