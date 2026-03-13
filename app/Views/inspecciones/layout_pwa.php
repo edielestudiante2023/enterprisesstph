@@ -352,6 +352,14 @@
     <!-- Anti-duplicación: bloquear botón submit tras primer clic -->
     <script>
     (function() {
+        // Rastrear qué botón submit fue tocado (móvil no siempre refleja activeElement)
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('button[type="submit"], input[type="submit"]');
+            if (btn && btn.form) {
+                btn.form._lastClickedSubmit = btn;
+            }
+        }, true);
+
         document.addEventListener('submit', function(e) {
             var form = e.target;
             if (!form || form.tagName !== 'FORM') return;
@@ -366,11 +374,15 @@
             // Marcar como enviado
             form.dataset.submitted = 'true';
 
-            // Preservar name/value del botón submit clickeado como hidden input
-            // (al deshabilitar el botón, el browser no lo incluye en el POST)
+            // Identificar el botón clickeado y preservar su name/value
             var btns = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+            var clickedBtn = document.activeElement;
+            if (!clickedBtn || (clickedBtn.type !== 'submit' && clickedBtn.tagName !== 'BUTTON')) {
+                clickedBtn = form._lastClickedSubmit || btns[0];
+            }
+
             btns.forEach(function(btn) {
-                if (btn.name && btn.value && document.activeElement === btn) {
+                if (btn.name && btn.value && btn === clickedBtn) {
                     var hidden = document.createElement('input');
                     hidden.type = 'hidden';
                     hidden.name = btn.name;
@@ -378,17 +390,23 @@
                     form.appendChild(hidden);
                 }
                 btn.disabled = true;
-                var originalHtml = btn.innerHTML;
-                btn.dataset.originalHtml = originalHtml;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
             });
+
+            // Solo el botón clickeado muestra spinner
+            if (clickedBtn && clickedBtn.type === 'submit') {
+                clickedBtn.dataset.originalHtml = clickedBtn.innerHTML;
+                clickedBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            }
 
             // Re-habilitar después de 8s como fallback (por si hay error de red)
             setTimeout(function() {
                 form.dataset.submitted = '';
                 btns.forEach(function(btn) {
                     btn.disabled = false;
-                    if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+                    if (btn.dataset.originalHtml) {
+                        btn.innerHTML = btn.dataset.originalHtml;
+                        delete btn.dataset.originalHtml;
+                    }
                 });
             }, 8000);
         }, true); // capture phase para interceptar antes que otros handlers
