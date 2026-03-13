@@ -268,7 +268,7 @@
                             <?php foreach ($capacitaciones as $cap): ?>
                                 <tr>
                                     <td><?= esc($cap['nombre_cliente']) ?></td>
-                                    <td><?= esc($cap['objetivo_de_capacitacion'] ?? 'N/A') ?></td>
+                                    <td><?= esc($cap['nombre_capacitacion'] ?? 'N/A') ?></td>
                                     <td><?= esc($cap['fecha_programada'] ?? 'N/A') ?></td>
                                     <td><?= esc($cap['fecha_de_realizacion'] ?? 'N/A') ?></td>
                                     <td>
@@ -511,7 +511,7 @@
 
                 dataTable.row.add([
                     item.nombre_cliente,
-                    item.objetivo_de_capacitacion || 'N/A',
+                    item.nombre_capacitacion || 'N/A',
                     item.fecha_programada || 'N/A',
                     item.fecha_de_realizacion || 'N/A',
                     estadoBadge,
