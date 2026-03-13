@@ -349,55 +349,45 @@ $fechaDoc = !empty($inspeccion['fecha_programa']) ? date('d/m/Y', strtotime($ins
 <div class="section-title">RESULTADOS CON CORTE A LA FECHA</div>
 <p><strong>Fecha del registro:</strong> <?= $fechaDoc ?></p>
 
-<table class="resultado-table">
+<?php
+$kpiConDatos = array_filter($kpiConsolidado ?? [], function($k) { return $k['cumplimiento'] !== null; });
+?>
+<?php if (!empty($kpiConDatos)): ?>
+<table class="data-table">
     <tr>
-        <th style="width: 30%;">Campo</th>
-        <th style="width: 50%;">Descripción</th>
-        <th style="width: 20%;">Resultado</th>
+        <th>Programa</th>
+        <th>Indicador</th>
+        <th>Meta</th>
+        <th>Resultado</th>
+        <th>Calificación</th>
+        <th>Fecha</th>
     </tr>
+    <?php foreach ($kpiConDatos as $k): ?>
     <tr>
-        <td><strong>Promedio cumplimiento residuos</strong></td>
-        <td>Promedio porcentual histórico del nivel de cumplimiento del Programa de Manejo Integral de Residuos Sólidos del cliente, calculado con todos los registros de inspección disponibles en el sistema.</td>
-        <td style="text-align: center;">Consultar programa individual</td>
+        <td><?= esc($k['programa']) ?></td>
+        <td><?= esc($k['indicador']) ?></td>
+        <td style="text-align:center;"><?= esc($k['meta_texto']) ?></td>
+        <td style="text-align:center;"><strong><?= number_format($k['cumplimiento'], 1) ?>%</strong></td>
+        <td style="text-align:center; font-weight:bold; color:<?= ($k['calificacion'] === 'CUMPLE') ? '#198754' : '#dc3545' ?>;">
+            <?= esc($k['calificacion'] ?? '—') ?>
+        </td>
+        <td style="text-align:center;"><?= $k['fecha'] ? date('d/m/Y', strtotime($k['fecha'])) : '—' ?></td>
     </tr>
-    <tr>
-        <td><strong>Nivel residuos</strong></td>
-        <td>Clasificación cualitativa del resultado del Programa de Manejo Integral de Residuos Sólidos, obtenida a partir del promedio de cumplimiento (cumple sobresaliente, cumple satisfactorio, cumple aceptable, cumple básico o no cumple).</td>
-        <td style="text-align: center;">Consultar programa individual</td>
-    </tr>
-    <tr>
-        <td><strong>Promedio cumplimiento limpieza y desinfección</strong></td>
-        <td>Promedio porcentual histórico del nivel de cumplimiento del Programa de Limpieza y Desinfección del cliente, calculado con todos los registros de inspección disponibles en el sistema.</td>
-        <td style="text-align: center;">Consultar programa individual</td>
-    </tr>
-    <tr>
-        <td><strong>Nivel limpieza y desinfección</strong></td>
-        <td>Clasificación cualitativa del resultado del Programa de Limpieza y Desinfección, obtenida a partir del promedio de cumplimiento (cumple sobresaliente, cumple satisfactorio, cumple aceptable, cumple básico o no cumple).</td>
-        <td style="text-align: center;">Consultar programa individual</td>
-    </tr>
-    <tr>
-        <td><strong>Promedio cumplimiento agua potable</strong></td>
-        <td>Promedio porcentual histórico del nivel de cumplimiento del Programa de Abastecimiento y Control de Agua Potable del cliente, calculado con todos los registros de inspección disponibles en el sistema.</td>
-        <td style="text-align: center;">Consultar programa individual</td>
-    </tr>
-    <tr>
-        <td><strong>Nivel agua potable</strong></td>
-        <td>Clasificación cualitativa del resultado del Programa de Abastecimiento y Control de Agua Potable, obtenida a partir del promedio de cumplimiento (cumple sobresaliente, cumple satisfactorio, cumple aceptable, cumple básico o no cumple).</td>
-        <td style="text-align: center;">Consultar programa individual</td>
-    </tr>
-    <tr>
-        <td><strong>Promedio cumplimiento plagas</strong></td>
-        <td>Promedio porcentual histórico del nivel de cumplimiento del Programa de Control Integrado de Plagas del cliente, calculado con todos los registros de inspección disponibles en el sistema.</td>
-        <td style="text-align: center;">Consultar programa individual</td>
-    </tr>
-    <tr>
-        <td><strong>Nivel plagas</strong></td>
-        <td>Clasificación cualitativa del resultado del Programa de Control Integrado de Plagas, obtenida a partir del promedio de cumplimiento (cumple sobresaliente, cumple satisfactorio, cumple aceptable, cumple básico o no cumple).</td>
-        <td style="text-align: center;">Consultar programa individual</td>
-    </tr>
+    <?php endforeach; ?>
 </table>
+<?php
+$conObs = array_filter($kpiConDatos, function($k) { return !empty($k['observaciones']); });
+?>
+<?php if (!empty($conObs)): ?>
+<?php foreach ($conObs as $k): ?>
+<p style="font-size:9px; margin:2px 0;"><strong><?= esc($k['indicador']) ?>:</strong> <?= esc($k['observaciones']) ?></p>
+<?php endforeach; ?>
+<?php endif; ?>
+<?php else: ?>
+<p style="text-align:center; color:#999;">Aún no se han registrado indicadores KPI para este cliente.</p>
+<?php endif; ?>
 
-<p class="nota">Nota: Los resultados detallados de cumplimiento y niveles de clasificación se encuentran disponibles en cada programa individual (FT-SST-225 Limpieza y Desinfección, FT-SST-226 Manejo Integral de Residuos Sólidos, FT-SST-227 Control Integrado de Plagas, FT-SST-228 Abastecimiento y Control de Agua Potable). Estos programas pueden ser consultados de manera independiente cuando la autoridad competente lo requiera.</p>
+<p class="nota">Nota: Los resultados detallados de cumplimiento se encuentran disponibles en cada programa individual (FT-SST-225 Limpieza y Desinfección, FT-SST-226 Manejo Integral de Residuos Sólidos, FT-SST-227 Control Integrado de Plagas, FT-SST-228 Abastecimiento y Control de Agua Potable). Estos programas pueden ser consultados de manera independiente cuando la autoridad competente lo requiera.</p>
 
 </body>
 </html>

@@ -368,6 +368,24 @@ class KpiLimpiezaController extends BaseController
             }
         }
 
+        // Histórico de indicadores del programa
+        $kpiPrograma = [];
+        foreach (static::INDICADOR_CONFIG as $nombre => $cfg) {
+            $ultimo = $this->model
+                ->where('id_cliente', $inspeccion['id_cliente'])
+                ->where('estado', 'completo')
+                ->where('indicador', $nombre)
+                ->orderBy('fecha_inspeccion', 'DESC')
+                ->first();
+            $kpiPrograma[] = [
+                'indicador'    => $nombre,
+                'meta_texto'   => $cfg['meta_texto'],
+                'cumplimiento' => $ultimo ? (float) $ultimo['cumplimiento'] : null,
+                'calificacion' => $ultimo['calificacion_cualitativa'] ?? null,
+                'fecha'        => $ultimo ? $ultimo['fecha_inspeccion'] : null,
+            ];
+        }
+
         $html = view('inspecciones/kpi-limpieza/pdf', [
             'inspeccion'   => $inspeccion,
             'cliente'      => $cliente,
@@ -378,6 +396,7 @@ class KpiLimpiezaController extends BaseController
             'pdfTitle'        => static::PDF_TITLE,
             'pdfIntro'        => static::PDF_INTRO,
             'indicadorConfig' => static::INDICADOR_CONFIG,
+            'kpiPrograma'     => $kpiPrograma,
         ]);
 
         $dompdf = new Dompdf();

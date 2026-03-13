@@ -264,11 +264,14 @@ class PlanSaneamientoController extends BaseController
             }
         }
 
+        $kpiConsolidado = DashboardSaneamientoController::consolidar((int) $inspeccion['id_cliente']);
+
         $data = [
-            'inspeccion' => $inspeccion,
-            'cliente'    => $cliente,
-            'consultor'  => $consultor,
-            'logoBase64' => $logoBase64,
+            'inspeccion'      => $inspeccion,
+            'cliente'         => $cliente,
+            'consultor'       => $consultor,
+            'logoBase64'      => $logoBase64,
+            'kpiConsolidado'  => $kpiConsolidado,
         ];
 
         $html = view('inspecciones/plan-saneamiento/pdf', $data);

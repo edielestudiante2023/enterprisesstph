@@ -102,5 +102,34 @@ for ($i = 1; $i <= 4; $i++) {
 <p style="text-align:center; color:#999;">Sin evidencias adjuntas.</p>
 <?php endif; ?>
 
+<?php
+$kpiConDatos = array_filter($kpiPrograma ?? [], function($k) { return $k['cumplimiento'] !== null; });
+?>
+<?php if (!empty($kpiConDatos)): ?>
+<div style="margin-top:25px; page-break-inside:avoid;">
+    <div class="evidence-title">RESUMEN DE INDICADORES DEL PROGRAMA</div>
+    <table class="data-table">
+        <tr>
+            <th>Indicador</th>
+            <th>Meta</th>
+            <th>Resultado</th>
+            <th>Calificación</th>
+            <th>Fecha</th>
+        </tr>
+        <?php foreach ($kpiConDatos as $k): ?>
+        <tr>
+            <td><?= esc($k['indicador']) ?></td>
+            <td><?= esc($k['meta_texto']) ?></td>
+            <td style="text-align:center;"><strong><?= number_format($k['cumplimiento'], 1) ?>%</strong></td>
+            <td style="text-align:center; font-weight:bold; color:<?= ($k['calificacion'] === 'CUMPLE') ? '#198754' : '#dc3545' ?>;">
+                <?= esc($k['calificacion'] ?? '—') ?>
+            </td>
+            <td style="text-align:center;"><?= $k['fecha'] ? date('d/m/Y', strtotime($k['fecha'])) : '—' ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+</div>
+<?php endif; ?>
+
 </body>
 </html>
