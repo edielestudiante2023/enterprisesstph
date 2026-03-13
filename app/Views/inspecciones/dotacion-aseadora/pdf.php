@@ -3,6 +3,19 @@ $colorMap = [
     'bueno' => '#28a745', 'regular' => '#ffc107', 'deficiente' => '#dc3545',
     'no_tiene' => '#6c757d', 'no_aplica' => '#adb5bd',
 ];
+$textColorMap = [
+    'bueno' => 'white', 'regular' => '#333', 'deficiente' => 'white',
+    'no_tiene' => 'white', 'no_aplica' => '#333',
+];
+$conteoEstados = ['bueno' => 0, 'regular' => 0, 'deficiente' => 0, 'no_tiene' => 0, 'no_aplica' => 0];
+$totalEvaluados = 0;
+foreach ($itemsEpp as $key => $info) {
+    $estado = $inspeccion['estado_' . $key] ?? '';
+    if (isset($conteoEstados[$estado])) $conteoEstados[$estado]++;
+    if ($estado !== 'no_aplica' && !empty($estado)) $totalEvaluados++;
+}
+$puntajeBueno = $conteoEstados['bueno'] ?? 0;
+$porcentaje = $totalEvaluados > 0 ? round(($puntajeBueno / $totalEvaluados) * 100) : 0;
 ?>
 <!DOCTYPE html>
 <html>
@@ -129,6 +142,31 @@ $colorMap = [
     </table>
     <?php endif; ?>
 
+    <!-- CRITERIOS DE EVALUACION -->
+    <div class="section-title">CRITERIOS DE EVALUACION</div>
+    <table style="width:100%; border-collapse:collapse; margin-bottom:8px; border:1px solid #ccc;">
+        <tr>
+            <td style="width:15%; text-align:center; padding:2px 6px; border:1px solid #ccc;"><span class="epp-badge" style="background:#28a745;">Bueno</span></td>
+            <td style="padding:2px 6px; font-size:8px; border:1px solid #ccc;">El elemento cumple con los requisitos. En buen estado de conservacion y funcionamiento.</td>
+        </tr>
+        <tr>
+            <td style="text-align:center; padding:2px 6px; border:1px solid #ccc;"><span class="epp-badge" style="background:#ffc107; color:#333;">Regular</span></td>
+            <td style="padding:2px 6px; font-size:8px; border:1px solid #ccc;">El elemento presenta desgaste moderado. Requiere atencion o reemplazo proximo.</td>
+        </tr>
+        <tr>
+            <td style="text-align:center; padding:2px 6px; border:1px solid #ccc;"><span class="epp-badge" style="background:#dc3545;">Deficiente</span></td>
+            <td style="padding:2px 6px; font-size:8px; border:1px solid #ccc;">El elemento esta danado o no cumple su funcion protectora. Requiere reemplazo inmediato.</td>
+        </tr>
+        <tr>
+            <td style="text-align:center; padding:2px 6px; border:1px solid #ccc;"><span class="epp-badge" style="background:#6c757d;">No Tiene</span></td>
+            <td style="padding:2px 6px; font-size:8px; border:1px solid #ccc;">El trabajador no cuenta con este elemento. Debe ser suministrado por el contratista.</td>
+        </tr>
+        <tr>
+            <td style="text-align:center; padding:2px 6px; border:1px solid #ccc;"><span class="epp-badge" style="background:#adb5bd; color:#333;">No Aplica</span></td>
+            <td style="padding:2px 6px; font-size:8px; border:1px solid #ccc;">El elemento no es requerido para las actividades que realiza este trabajador.</td>
+        </tr>
+    </table>
+
     <!-- ESTADO DE DOTACION EPP -->
     <div class="section-title">ESTADO DE DOTACION EPP</div>
     <table class="epp-table">
@@ -150,6 +188,35 @@ $colorMap = [
             </td>
         </tr>
         <?php endforeach; ?>
+    </table>
+
+    <!-- RESUMEN DE CALIFICACION -->
+    <div class="section-title">RESUMEN DE CALIFICACION</div>
+    <table style="width:100%; border-collapse:collapse; margin-bottom:4px; border:1px solid #ccc;">
+        <tr>
+            <th style="background:#e8e8e8; padding:3px 6px; font-size:8px; border:1px solid #ccc;">Estado</th>
+            <?php foreach ($estadosEpp as $val => $label): ?>
+            <th style="background:#e8e8e8; padding:3px 6px; font-size:7px; border:1px solid #ccc;"><span class="epp-badge" style="background:<?= $colorMap[$val] ?? '#6c757d' ?>; color:<?= $textColorMap[$val] ?? 'white' ?>; font-size:7px;"><?= $label ?></span></th>
+            <?php endforeach; ?>
+            <th style="background:#e8e8e8; padding:3px 6px; font-size:8px; border:1px solid #ccc;">Total</th>
+        </tr>
+        <tr>
+            <td style="font-weight:bold; text-align:center; padding:3px 6px; font-size:9px; border:1px solid #ccc;">Cantidad</td>
+            <?php foreach ($estadosEpp as $val => $label): ?>
+            <td style="text-align:center; padding:3px 6px; font-size:9px; border:1px solid #ccc;"><?= $conteoEstados[$val] ?? 0 ?></td>
+            <?php endforeach; ?>
+            <td style="text-align:center; font-weight:bold; padding:3px 6px; font-size:9px; border:1px solid #ccc;"><?= $totalEvaluados ?></td>
+        </tr>
+    </table>
+    <table style="width:100%; border-collapse:collapse; margin-bottom:8px; border:1px solid #ccc;">
+        <tr>
+            <td style="font-weight:bold; padding:3px 6px; font-size:9px; border:1px solid #ccc; width:200px; background:#f7f7f7;">CUMPLIMIENTO (% BUENO):</td>
+            <td style="text-align:center; font-weight:bold; font-size:11px; border:1px solid #ccc; color:<?= $porcentaje >= 80 ? '#28a745' : ($porcentaje >= 50 ? '#fd7e14' : '#dc3545') ?>;"><?= $porcentaje ?>%</td>
+            <td style="font-weight:bold; padding:3px 6px; font-size:9px; border:1px solid #ccc; width:200px; background:#f7f7f7;">CALIFICACION:</td>
+            <td style="text-align:center; font-weight:bold; font-size:9px; border:1px solid #ccc; color:<?= $porcentaje >= 80 ? '#28a745' : ($porcentaje >= 50 ? '#fd7e14' : '#dc3545') ?>;">
+                <?= $porcentaje >= 80 ? 'SATISFACTORIO' : ($porcentaje >= 50 ? 'REQUIERE MEJORA' : 'CRITICO') ?>
+            </td>
+        </tr>
     </table>
 
     <!-- CONCEPTO FINAL -->
