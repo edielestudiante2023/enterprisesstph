@@ -9,11 +9,13 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 use Dompdf\Dompdf;
 
 class AuditoriaZonaResiduosController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected AuditoriaZonaResiduosModel $inspeccionModel;
 
     public const ITEMS_ZONA = [
@@ -342,87 +344,6 @@ class AuditoriaZonaResiduosController extends BaseController
         return $dir . $fileName;
     }
 
-    /**
-     * Comprime una imagen en memoria para incrustar en PDF. Retorna JPEG binario.
-     */
-    private function comprimirParaPdf(string $path, int $maxWidth = 800, int $quality = 55): ?string
-    {
-        $info = @getimagesize($path);
-        if (!$info) return null;
-
-        $mime = $info['mime'];
-        $origW = $info[0];
-        $origH = $info[1];
-
-        $src = null;
-        if ($mime === 'image/jpeg') {
-            $src = @imagecreatefromjpeg($path);
-        } elseif ($mime === 'image/png') {
-            $src = @imagecreatefrompng($path);
-        }
-        if (!$src) return null;
-
-        if ($origW > $maxWidth) {
-            $newW = $maxWidth;
-            $newH = (int) round($origH * ($maxWidth / $origW));
-        } else {
-            $newW = $origW;
-            $newH = $origH;
-        }
-
-        $dst = imagecreatetruecolor($newW, $newH);
-        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
-
-        ob_start();
-        imagejpeg($dst, null, $quality);
-        $data = ob_get_clean();
-
-        imagedestroy($src);
-        imagedestroy($dst);
-
-        return $data;
-    }
-
-    /**
-     * Comprime una imagen JPEG/PNG a un ancho máximo y calidad dada.
-     */
-    private function comprimirImagen(string $path, int $maxWidth = 1200, int $quality = 70): void
-    {
-        $info = @getimagesize($path);
-        if (!$info) return;
-
-        $mime = $info['mime'];
-        $origW = $info[0];
-        $origH = $info[1];
-
-        // Solo comprimir si es más grande que maxWidth o si es JPEG/PNG
-        $src = null;
-        if ($mime === 'image/jpeg') {
-            $src = @imagecreatefromjpeg($path);
-        } elseif ($mime === 'image/png') {
-            $src = @imagecreatefrompng($path);
-        }
-        if (!$src) return;
-
-        // Calcular nuevas dimensiones
-        if ($origW > $maxWidth) {
-            $newW = $maxWidth;
-            $newH = (int) round($origH * ($maxWidth / $origW));
-        } else {
-            $newW = $origW;
-            $newH = $origH;
-        }
-
-        $dst = imagecreatetruecolor($newW, $newH);
-        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
-
-        // Guardar siempre como JPEG (más liviano)
-        imagejpeg($dst, $path, $quality);
-
-        imagedestroy($src);
-        imagedestroy($dst);
-    }
-
     private function generarPdfInterno(int $id): ?string
     {
         $inspeccion = $this->inspeccionModel->find($id);
@@ -435,8 +356,7 @@ class AuditoriaZonaResiduosController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 

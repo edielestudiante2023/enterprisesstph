@@ -16,10 +16,12 @@ use App\Models\VencimientosMantenimientoModel;
 use App\Models\CicloVisitaModel;
 use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 
 class ActaVisitaController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected ActaVisitaModel $actaModel;
     protected ActaVisitaIntegranteModel $integranteModel;
     protected ActaVisitaTemaModel $temaModel;
@@ -402,10 +404,7 @@ class ActaVisitaController extends BaseController
 
         $pdfPath = FCPATH . $pdfRelPath;
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="acta_visita_' . $id . '.pdf"')
-            ->setBody(file_get_contents($pdfPath));
+        $this->servirPdf($pdfPath, 'acta_visita_' . $id . '.pdf');
     }
 
     /**
@@ -600,8 +599,7 @@ class ActaVisitaController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 
@@ -616,9 +614,8 @@ class ActaVisitaController extends BaseController
         foreach ($fotos as $foto) {
             $fotoPath = FCPATH . $foto['ruta_archivo'];
             if (file_exists($fotoPath)) {
-                $mime = mime_content_type($fotoPath);
                 $fotosBase64[] = [
-                    'data'        => 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fotoPath)),
+                    'data'        => $this->fotoABase64ParaPdf($fotoPath),
                     'descripcion' => $foto['descripcion'] ?? '',
                     'tipo'        => $foto['tipo'] ?? 'foto',
                 ];

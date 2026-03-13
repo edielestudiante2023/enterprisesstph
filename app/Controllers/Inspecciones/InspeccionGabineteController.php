@@ -11,10 +11,12 @@ use App\Models\ReporteModel;
 use Dompdf\Dompdf;
 use App\Libraries\InspeccionEmailNotifier;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 
 class InspeccionGabineteController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected InspeccionGabineteModel $inspeccionModel;
     protected GabineteDetalleModel $detalleModel;
 
@@ -249,10 +251,8 @@ class InspeccionGabineteController extends BaseController
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="gabinetes_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        $this->servirPdf($fullPath, 'gabinetes_' . $id . '.pdf');
+        return;
     }
 
     public function delete($id)
@@ -339,6 +339,7 @@ class InspeccionGabineteController extends BaseController
 
         $fileName = $file->getRandomName();
         $file->move(FCPATH . $dir, $fileName);
+        $this->comprimirImagen(FCPATH . $dir . $fileName);
         return $dir . $fileName;
     }
 
@@ -379,6 +380,7 @@ class InspeccionGabineteController extends BaseController
                 $file = $files['gab_foto'][$i];
                 $fileName = $file->getRandomName();
                 $file->move($dir, $fileName);
+                $this->comprimirImagen($dir . $fileName);
                 $fotoPath = 'uploads/inspecciones/gabinetes/fotos/' . $fileName;
             }
 
@@ -417,8 +419,7 @@ class InspeccionGabineteController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 
@@ -429,8 +430,7 @@ class InspeccionGabineteController extends BaseController
             if (!empty($inspeccion[$campo])) {
                 $fotoPath = FCPATH . $inspeccion[$campo];
                 if (file_exists($fotoPath)) {
-                    $mime = mime_content_type($fotoPath);
-                    $fotosBase64[$campo] = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fotoPath));
+                    $fotosBase64[$campo] = $this->fotoABase64ParaPdf($fotoPath);
                 }
             }
         }
@@ -441,8 +441,7 @@ class InspeccionGabineteController extends BaseController
             if (!empty($gab['foto'])) {
                 $fotoPath = FCPATH . $gab['foto'];
                 if (file_exists($fotoPath)) {
-                    $mime = mime_content_type($fotoPath);
-                    $gab['foto_base64'] = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fotoPath));
+                    $gab['foto_base64'] = $this->fotoABase64ParaPdf($fotoPath);
                 }
             }
         }

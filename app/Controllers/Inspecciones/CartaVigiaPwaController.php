@@ -8,11 +8,13 @@ use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 use Dompdf\Dompdf;
 
 class CartaVigiaPwaController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected $cartaModel;
     protected $clientModel;
 
@@ -280,10 +282,7 @@ class CartaVigiaPwaController extends BaseController
             return redirect()->back();
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="carta_vigia_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        $this->servirPdf($fullPath, 'carta_vigia_' . $id . '.pdf');
     }
 
     // ================================
@@ -432,8 +431,7 @@ class CartaVigiaPwaController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 

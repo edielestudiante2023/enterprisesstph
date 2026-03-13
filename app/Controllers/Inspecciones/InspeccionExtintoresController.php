@@ -13,10 +13,12 @@ use App\Models\VencimientosMantenimientoModel;
 use Dompdf\Dompdf;
 use App\Libraries\InspeccionEmailNotifier;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 
 class InspeccionExtintoresController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected InspeccionExtintoresModel $inspeccionModel;
     protected ExtintorDetalleModel $detalleModel;
 
@@ -277,10 +279,8 @@ class InspeccionExtintoresController extends BaseController
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="extintores_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        $this->servirPdf($fullPath, 'extintores_' . $id . '.pdf');
+        return;
     }
 
     public function delete($id)
@@ -364,6 +364,7 @@ class InspeccionExtintoresController extends BaseController
                 $file = $files['ext_foto'][$i];
                 $fileName = $file->getRandomName();
                 $file->move($dir, $fileName);
+                $this->comprimirImagen($dir . $fileName);
                 $fotoPath = 'uploads/inspecciones/extintores/fotos/' . $fileName;
             }
 
@@ -406,8 +407,7 @@ class InspeccionExtintoresController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 
@@ -417,8 +417,7 @@ class InspeccionExtintoresController extends BaseController
             if (!empty($ext['foto'])) {
                 $fotoPath = FCPATH . $ext['foto'];
                 if (file_exists($fotoPath)) {
-                    $mime = mime_content_type($fotoPath);
-                    $ext['foto_base64'] = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fotoPath));
+                    $ext['foto_base64'] = $this->fotoABase64ParaPdf($fotoPath);
                 }
             }
         }

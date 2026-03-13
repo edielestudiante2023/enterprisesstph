@@ -11,10 +11,12 @@ use App\Models\ReporteModel;
 use Dompdf\Dompdf;
 use App\Libraries\InspeccionEmailNotifier;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 
 class InspeccionSenalizacionController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected InspeccionSenalizacionModel $inspeccionModel;
     protected ItemSenalizacionModel $itemModel;
 
@@ -288,10 +290,8 @@ class InspeccionSenalizacionController extends BaseController
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="senalizacion_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        $this->servirPdf($fullPath, 'senalizacion_' . $id . '.pdf');
+        return;
     }
 
     public function delete($id)
@@ -379,6 +379,7 @@ class InspeccionSenalizacionController extends BaseController
                 $file = $files['item_foto'][$i];
                 $fileName = $file->getRandomName();
                 $file->move($dir, $fileName);
+                $this->comprimirImagen($dir . $fileName);
                 $fotoPath = 'uploads/inspecciones/senalizacion/fotos/' . $fileName;
             }
 
@@ -454,8 +455,7 @@ class InspeccionSenalizacionController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 
@@ -465,8 +465,7 @@ class InspeccionSenalizacionController extends BaseController
             if (!empty($item['foto'])) {
                 $fotoPath = FCPATH . $item['foto'];
                 if (file_exists($fotoPath)) {
-                    $mime = mime_content_type($fotoPath);
-                    $item['foto_base64'] = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fotoPath));
+                    $item['foto_base64'] = $this->fotoABase64ParaPdf($fotoPath);
                 }
             }
         }

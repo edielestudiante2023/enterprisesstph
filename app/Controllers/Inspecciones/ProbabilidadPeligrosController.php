@@ -10,10 +10,12 @@ use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 
 class ProbabilidadPeligrosController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected ProbabilidadPeligrosModel $inspeccionModel;
 
     /**
@@ -252,10 +254,7 @@ class ProbabilidadPeligrosController extends BaseController
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="probabilidad_peligros_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        return $this->servirPdf($fullPath, 'probabilidad_peligros_' . $id . '.pdf');
     }
 
     public function delete($id)
@@ -352,8 +351,7 @@ class ProbabilidadPeligrosController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 

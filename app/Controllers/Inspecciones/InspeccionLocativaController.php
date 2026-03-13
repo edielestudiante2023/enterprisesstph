@@ -11,10 +11,12 @@ use App\Models\ReporteModel;
 use Dompdf\Dompdf;
 use App\Libraries\InspeccionEmailNotifier;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 
 class InspeccionLocativaController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected InspeccionLocativaModel $inspeccionModel;
     protected HallazgoLocativoModel $hallazgoModel;
 
@@ -263,10 +265,8 @@ class InspeccionLocativaController extends BaseController
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="inspeccion_locativa_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        $this->servirPdf($fullPath, 'inspeccion_locativa_' . $id . '.pdf');
+        return;
     }
 
     /**
@@ -368,6 +368,7 @@ class InspeccionLocativaController extends BaseController
                 $file = $files['hallazgo_imagen'][$i];
                 $fileName = $file->getRandomName();
                 $file->move($dir, $fileName);
+                $this->comprimirImagen($dir . $fileName);
                 $imagenPath = 'uploads/inspecciones/locativas/hallazgos/' . $fileName;
             }
 
@@ -377,6 +378,7 @@ class InspeccionLocativaController extends BaseController
                 $file = $files['hallazgo_correccion'][$i];
                 $fileName = $file->getRandomName();
                 $file->move($dir, $fileName);
+                $this->comprimirImagen($dir . $fileName);
                 $correccionPath = 'uploads/inspecciones/locativas/hallazgos/' . $fileName;
             }
 
@@ -414,8 +416,7 @@ class InspeccionLocativaController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 
@@ -425,16 +426,14 @@ class InspeccionLocativaController extends BaseController
             if (!empty($h['imagen'])) {
                 $fotoPath = FCPATH . $h['imagen'];
                 if (file_exists($fotoPath)) {
-                    $mime = mime_content_type($fotoPath);
-                    $h['imagen_base64'] = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fotoPath));
+                    $h['imagen_base64'] = $this->fotoABase64ParaPdf($fotoPath);
                 }
             }
             $h['correccion_base64'] = '';
             if (!empty($h['imagen_correccion'])) {
                 $fotoPath = FCPATH . $h['imagen_correccion'];
                 if (file_exists($fotoPath)) {
-                    $mime = mime_content_type($fotoPath);
-                    $h['correccion_base64'] = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fotoPath));
+                    $h['correccion_base64'] = $this->fotoABase64ParaPdf($fotoPath);
                 }
             }
         }

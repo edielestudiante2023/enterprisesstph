@@ -18,10 +18,12 @@ use App\Models\InspeccionComunicacionModel;
 use App\Models\InspeccionGabineteModel;
 use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 
 class PlanEmergenciaController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected PlanEmergenciaModel $model;
 
     public const TELEFONOS = [
@@ -283,10 +285,8 @@ class PlanEmergenciaController extends BaseController
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="plan_emergencia_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        $this->servirPdf($fullPath, 'plan_emergencia_' . $id . '.pdf');
+        return;
     }
 
     public function delete($id)
@@ -431,6 +431,7 @@ class PlanEmergenciaController extends BaseController
 
         $fileName = $file->getRandomName();
         $file->move(FCPATH . $dir, $fileName);
+        $this->comprimirImagen(FCPATH . $dir . $fileName);
         return $dir . $fileName;
     }
 
@@ -485,8 +486,7 @@ class PlanEmergenciaController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 
@@ -497,8 +497,7 @@ class PlanEmergenciaController extends BaseController
             if (!empty($inspeccion[$campo])) {
                 $fotoPath = FCPATH . $inspeccion[$campo];
                 if (file_exists($fotoPath)) {
-                    $mime = mime_content_type($fotoPath);
-                    $fotosBase64[$campo] = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fotoPath));
+                    $fotosBase64[$campo] = $this->fotoABase64ParaPdf($fotoPath);
                 }
             }
         }
@@ -563,8 +562,7 @@ class PlanEmergenciaController extends BaseController
         $diagramaPath = FCPATH . 'uploads/imagenesplanemergencias/emergencias1.jpg';
         $diagramaBase64 = null;
         if (file_exists($diagramaPath)) {
-            $diagramaMime = mime_content_type($diagramaPath);
-            $diagramaBase64 = 'data:' . $diagramaMime . ';base64,' . base64_encode(file_get_contents($diagramaPath));
+            $diagramaBase64 = $this->fotoABase64ParaPdf($diagramaPath);
         }
 
         $data = [

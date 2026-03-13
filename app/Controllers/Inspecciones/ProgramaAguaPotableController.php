@@ -10,10 +10,12 @@ use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 
 class ProgramaAguaPotableController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected ProgramaAguaPotableModel $inspeccionModel;
 
     public function __construct()
@@ -265,8 +267,7 @@ class ProgramaAguaPotableController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $mime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 

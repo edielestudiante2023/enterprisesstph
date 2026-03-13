@@ -10,10 +10,12 @@ use App\Models\ReporteModel;
 use Dompdf\Dompdf;
 use App\Libraries\InspeccionEmailNotifier;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 
 class KpiAguaPotableController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected KpiAguaPotableModel $model;
 
     protected const INDICADOR_CONFIG = [
@@ -261,10 +263,7 @@ class KpiAguaPotableController extends BaseController
         $pdfPath = $this->generarPdfInterno($id);
         if ($pdfPath && file_exists(FCPATH . $pdfPath)) {
             $this->model->update($id, ['ruta_pdf' => $pdfPath]);
-            return $this->response
-                ->setHeader('Content-Type', 'application/pdf')
-                ->setHeader('Content-Disposition', 'inline; filename="kpi-agua-potable-' . $id . '.pdf"')
-                ->setBody(file_get_contents(FCPATH . $pdfPath));
+            $this->servirPdf(FCPATH . $pdfPath, 'kpi-agua-potable-' . $id . '.pdf');
         }
         return redirect()->back()->with('error', 'No se pudo generar el PDF');
     }
@@ -309,6 +308,7 @@ class KpiAguaPotableController extends BaseController
         if (!is_dir(FCPATH . $dir)) mkdir(FCPATH . $dir, 0755, true);
         $fileName = $file->getRandomName();
         $file->move(FCPATH . $dir, $fileName);
+        $this->comprimirImagen(FCPATH . $dir . $fileName);
         return $dir . $fileName;
     }
 
@@ -322,7 +322,7 @@ class KpiAguaPotableController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoBase64 = 'data:' . mime_content_type($logoPath) . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 
@@ -331,7 +331,7 @@ class KpiAguaPotableController extends BaseController
             $campo = "registro_formato_$i";
             $fotosBase64[$campo] = '';
             if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
-                $fotosBase64[$campo] = 'data:' . mime_content_type(FCPATH . $inspeccion[$campo]) . ';base64,' . base64_encode(file_get_contents(FCPATH . $inspeccion[$campo]));
+                $fotosBase64[$campo] = $this->fotoABase64ParaPdf(FCPATH . $inspeccion[$campo]);
             }
         }
 

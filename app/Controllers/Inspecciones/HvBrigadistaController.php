@@ -9,11 +9,13 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 use Dompdf\Dompdf;
 
 class HvBrigadistaController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected HvBrigadistaModel $hvModel;
 
     public function __construct()
@@ -84,10 +86,7 @@ class HvBrigadistaController extends BaseController
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="hv_brigadista_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        return $this->servirPdf($fullPath, 'hv_brigadista_' . $id . '.pdf');
     }
 
     /**
@@ -292,6 +291,7 @@ class HvBrigadistaController extends BaseController
         }
         $fileName = $file->getRandomName();
         $file->move(FCPATH . $dir, $fileName);
+        $this->comprimirImagen(FCPATH . $dir . $fileName);
         return $dir . $fileName;
     }
 
@@ -353,8 +353,7 @@ class HvBrigadistaController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 
@@ -363,8 +362,7 @@ class HvBrigadistaController extends BaseController
         if (!empty($hv['foto_brigadista'])) {
             $fotoPath = FCPATH . $hv['foto_brigadista'];
             if (file_exists($fotoPath)) {
-                $mime = mime_content_type($fotoPath);
-                $fotoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($fotoPath));
+                $fotoBase64 = $this->fotoABase64ParaPdf($fotoPath);
             }
         }
 

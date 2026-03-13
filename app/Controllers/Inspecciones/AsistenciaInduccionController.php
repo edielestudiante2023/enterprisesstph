@@ -11,10 +11,12 @@ use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 
 class AsistenciaInduccionController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected AsistenciaInduccionModel $inspeccionModel;
 
     public const TIPOS_CHARLA = [
@@ -336,10 +338,7 @@ class AsistenciaInduccionController extends BaseController
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="asistencia_induccion_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        $this->servirPdf($fullPath, 'asistencia_induccion_' . $id . '.pdf');
     }
 
     public function generatePdfResponsabilidades($id)
@@ -364,10 +363,7 @@ class AsistenciaInduccionController extends BaseController
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="responsabilidades_sst_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        $this->servirPdf($fullPath, 'responsabilidades_sst_' . $id . '.pdf');
     }
 
     public function delete($id)
@@ -487,8 +483,7 @@ class AsistenciaInduccionController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 

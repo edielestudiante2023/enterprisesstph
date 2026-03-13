@@ -10,10 +10,12 @@ use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 
 class MatrizVulnerabilidadController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
     protected MatrizVulnerabilidadModel $matrizModel;
 
     /**
@@ -467,10 +469,7 @@ class MatrizVulnerabilidadController extends BaseController
             return redirect()->back()->with('error', 'PDF no encontrado');
         }
 
-        return $this->response
-            ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="matriz_vulnerabilidad_' . $id . '.pdf"')
-            ->setBody(file_get_contents($fullPath));
+        return $this->servirPdf($fullPath, 'matriz_vulnerabilidad_' . $id . '.pdf');
     }
 
     public function delete($id)
@@ -573,8 +572,7 @@ class MatrizVulnerabilidadController extends BaseController
         if (!empty($cliente['logo'])) {
             $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
             if (file_exists($logoPath)) {
-                $logoMime = mime_content_type($logoPath);
-                $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = $this->fotoABase64ParaPdf($logoPath);
             }
         }
 
