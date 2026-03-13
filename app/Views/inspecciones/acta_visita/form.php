@@ -261,7 +261,7 @@ $action = $isEdit ? base_url('/inspecciones/acta-visita/update/') . $acta['id'] 
             <button type="submit" class="btn btn-pwa btn-pwa-outline py-3" style="font-size:17px;">
                 <i class="fas fa-save me-1"></i> Guardar borrador
             </button>
-            <button type="submit" name="ir_a_firmas" value="1" class="btn btn-pwa btn-pwa-primary py-3" id="btnIrFirmas" style="font-size:17px;">
+            <button type="button" class="btn btn-pwa btn-pwa-primary py-3" id="btnIrFirmas" style="font-size:17px;">
                 <i class="fas fa-signature me-1"></i> Guardar e ir a firmas
             </button>
         </div>
@@ -439,12 +439,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Validación mínima antes de ir a firmas ---
     document.getElementById('btnIrFirmas').addEventListener('click', function(e) {
-        const cliente = document.getElementById('selectCliente').value;
-        const temas = document.querySelectorAll('.tema-row').length;
-        const integrantes = document.querySelectorAll('.integrante-row').length;
+        var btn = this;
+        var form = document.getElementById('actaForm');
+        var cliente = document.getElementById('selectCliente').value;
+        var temas = document.querySelectorAll('.tema-row').length;
+        var integrantes = document.querySelectorAll('.integrante-row').length;
 
         if (!cliente || temas === 0 || integrantes === 0) {
-            e.preventDefault();
             Swal.fire({
                 icon: 'warning',
                 title: 'Datos incompletos',
@@ -454,7 +455,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     (temas === 0 ? '- Agregar al menos 1 tema<br>' : ''),
                 confirmButtonColor: '#bd9751',
             });
+            return;
         }
+
+        // Inyectar hidden input y submit
+        var hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'ir_a_firmas';
+        hidden.value = '1';
+        form.appendChild(hidden);
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        form._lastClickedSubmit = btn;
+        form.requestSubmit();
     });
 
     // ============================================================
