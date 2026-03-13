@@ -350,4 +350,32 @@ document.addEventListener('DOMContentLoaded', function() {
 function openPhoto(src) {
     Swal.fire({ imageUrl: src, imageAlt: 'Foto', showConfirmButton: false, showCloseButton: true, width: 'auto' });
 }
+
+<?php if (session()->getFlashdata('saved_cliente_id')): ?>
+(function() {
+    var savedCliente = '<?= session()->getFlashdata('saved_cliente_id') ?>';
+    var savedIndicador = '<?= esc(session()->getFlashdata('saved_indicador') ?? '') ?>';
+    var indicadores = <?= json_encode(array_keys($indicadorConfig ?? []), JSON_UNESCAPED_UNICODE) ?>;
+    var pendientes = indicadores.filter(function(i) { return i !== savedIndicador; });
+
+    if (pendientes.length > 0) {
+        setTimeout(function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Borrador guardado',
+                html: '<p>¿Desea diligenciar otro indicador para este mismo cliente?</p>' +
+                      '<p style="font-size:13px; color:#666;">Pendiente: <strong>' + pendientes.join(', ') + '</strong></p>',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-plus-circle"></i> Sí, crear otro indicador',
+                cancelButtonText: 'No, quedarme aquí',
+                confirmButtonColor: '#bd9751',
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    window.location.href = '<?= base_url('/inspecciones/kpi-agua-potable/create/') ?>' + savedCliente;
+                }
+            });
+        }, 500);
+    }
+})();
+<?php endif; ?>
 </script>

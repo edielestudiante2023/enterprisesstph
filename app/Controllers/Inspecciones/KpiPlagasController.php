@@ -130,7 +130,9 @@ class KpiPlagasController extends BaseController
         }
 
         return redirect()->to('/inspecciones/' . static::ROUTE_SLUG . '/edit/' . $id)
-            ->with('msg', 'KPI guardado como borrador');
+            ->with('msg', 'KPI guardado como borrador')
+            ->with('saved_cliente_id', $this->request->getPost('id_cliente'))
+            ->with('saved_indicador', $indicador);
     }
 
     public function edit($id)
@@ -203,7 +205,9 @@ class KpiPlagasController extends BaseController
         }
 
         return redirect()->to('/inspecciones/' . static::ROUTE_SLUG . '/edit/' . $id)
-            ->with('msg', 'KPI actualizado');
+            ->with('msg', 'KPI actualizado')
+            ->with('saved_cliente_id', $this->request->getPost('id_cliente'))
+            ->with('saved_indicador', $indicador);
     }
 
     public function view($id)
