@@ -1036,6 +1036,11 @@
             <div><strong>KPI Agua Potable</strong></div>
             <div class="count">(<?= $totalKpiAgua ?>)</div>
         </a>
+        <a href="<?= base_url('/inspecciones/dashboard-saneamiento') ?>" class="card-tipo" style="border-color:#6a1b9a;">
+            <i class="fas fa-clipboard-check" style="color:#6a1b9a;"></i>
+            <div><strong>Dashboard Saneamiento</strong></div>
+            <div class="count">Consolidado KPIs</div>
+        </a>
         <a href="<?= base_url('/inspecciones/carta-vigia') ?>" class="card-tipo">
             <i class="fas fa-user-shield"></i>
             <div><strong>Carta Vigia</strong></div>
