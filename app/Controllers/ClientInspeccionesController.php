@@ -75,9 +75,17 @@ class ClientInspeccionesController extends Controller
         $session = session();
         $role = $session->get('role');
 
-        // Consultor o admin viendo inspecciones de un cliente específico
-        if (in_array($role, ['consultant', 'admin']) && $idCliente) {
-            return $idCliente;
+        // Consultor o admin: si pasan idCliente, guardarlo en sesión para sub-páginas
+        if (in_array($role, ['consultant', 'admin'])) {
+            if ($idCliente) {
+                $session->set('viewing_client_id', $idCliente);
+                return $idCliente;
+            }
+            // Sub-páginas sin parámetro: leer de sesión
+            $viewingId = $session->get('viewing_client_id');
+            if ($viewingId) {
+                return $viewingId;
+            }
         }
 
         // Cliente viendo sus propias inspecciones
