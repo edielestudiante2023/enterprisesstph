@@ -20,20 +20,18 @@ class KpiPlagasController extends BaseController
 
     protected const INDICADOR_CONFIG = [
         'Ejecución de fumigación semestral' => [
-            'formula'           => '(N.° fumigaciones realizadas ÷ 1) × 100',
+            'formula'           => '(N.° fumigaciones realizadas ÷ Fumigaciones programadas) × 100',
             'label_numerador'   => 'N.° de fumigaciones realizadas en el periodo',
             'label_denominador' => 'Fumigaciones programadas',
             'meta'              => 100,
             'meta_texto'        => '100%',
-            'denominador_fijo'  => 1,
         ],
         'Ejecución de desratización semestral' => [
-            'formula'           => '(N.° desratizaciones realizadas ÷ 1) × 100',
+            'formula'           => '(N.° desratizaciones realizadas ÷ Desratizaciones programadas) × 100',
             'label_numerador'   => 'N.° de desratizaciones realizadas en el periodo',
             'label_denominador' => 'Desratizaciones programadas',
             'meta'              => 100,
             'meta_texto'        => '100%',
-            'denominador_fijo'  => 1,
         ],
     ];
 

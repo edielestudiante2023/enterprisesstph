@@ -27,12 +27,11 @@ class KpiAguaPotableController extends BaseController
             'meta_texto'        => '100%',
         ],
         'Ejecución de limpieza y desinfección de tanques de agua potable (semestral)' => [
-            'formula'           => '(N.° limpiezas realizadas ÷ 1) × 100',
+            'formula'           => '(N.° limpiezas realizadas ÷ Limpiezas programadas) × 100',
             'label_numerador'   => 'N.° de limpiezas de tanques realizadas en el periodo',
             'label_denominador' => 'Limpiezas programadas',
             'meta'              => 100,
             'meta_texto'        => '100%',
-            'denominador_fijo'  => 1,
         ],
     ];
 
