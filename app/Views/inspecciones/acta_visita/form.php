@@ -258,11 +258,11 @@ $action = $isEdit ? base_url('/inspecciones/acta-visita/update/') . $acta['id'] 
 
         <!-- Botones de acción -->
         <div class="d-grid gap-3 mt-3 mb-5 pb-3">
-            <button type="submit" name="ir_a_firmas" value="1" class="btn btn-pwa btn-pwa-primary py-3" id="btnIrFirmas" style="font-size:17px;">
-                <i class="fas fa-signature me-1"></i> Guardar e ir a firmas
-            </button>
             <button type="submit" class="btn btn-pwa btn-pwa-outline py-3" style="font-size:17px;">
                 <i class="fas fa-save me-1"></i> Guardar borrador
+            </button>
+            <button type="submit" name="ir_a_firmas" value="1" class="btn btn-pwa btn-pwa-primary py-3" id="btnIrFirmas" style="font-size:17px;">
+                <i class="fas fa-signature me-1"></i> Guardar e ir a firmas
             </button>
         </div>
     </form>
