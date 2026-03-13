@@ -274,12 +274,12 @@ class AsistenciaInduccionController extends BaseController
 
         $inspeccion = $this->inspeccionModel->find($id);
 
-        // Upload FT-SST-005 (always)
-        $this->uploadToReportes($inspeccion, $result['asistencia'], 22, 'asist_ind_id:');
+        // Upload FT-SST-005 (always) — id_detailreport=34 Asistencia Inducción
+        $this->uploadToReportes($inspeccion, $result['asistencia'], 34, 'asist_ind_id:');
 
-        // Upload FT-SST-003 (only if induccion_reinduccion)
+        // Upload FT-SST-003 (only if induccion_reinduccion) — id_detailreport=35 Responsabilidades SST
         if (!empty($result['responsabilidades'])) {
-            $this->uploadToReportes($inspeccion, $result['responsabilidades'], 23, 'asist_ind_resp_id:');
+            $this->uploadToReportes($inspeccion, $result['responsabilidades'], 35, 'asist_ind_resp_id:');
         }
 
         // Enviar email con PDF(s) adjunto(s)
@@ -418,12 +418,12 @@ class AsistenciaInduccionController extends BaseController
 
         $inspeccion = $this->inspeccionModel->find($id);
 
-        // Upload FT-SST-005 (always)
-        $this->uploadToReportes($inspeccion, $result['asistencia'], 22, 'asist_ind_id:');
+        // Upload FT-SST-005 (always) — id_detailreport=34 Asistencia Inducción
+        $this->uploadToReportes($inspeccion, $result['asistencia'], 34, 'asist_ind_id:');
 
-        // Upload FT-SST-003 (only if induccion_reinduccion)
+        // Upload FT-SST-003 (only if induccion_reinduccion) — id_detailreport=35 Responsabilidades SST
         if (!empty($result['responsabilidades'])) {
-            $this->uploadToReportes($inspeccion, $result['responsabilidades'], 23, 'asist_ind_resp_id:');
+            $this->uploadToReportes($inspeccion, $result['responsabilidades'], 35, 'asist_ind_resp_id:');
         }
 
         return redirect()->to("/inspecciones/asistencia-induccion/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
