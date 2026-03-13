@@ -365,9 +365,17 @@
             // Marcar como enviado
             form.dataset.submitted = 'true';
 
-            // Deshabilitar todos los botones submit del form
+            // Preservar name/value del botón submit clickeado como hidden input
+            // (al deshabilitar el botón, el browser no lo incluye en el POST)
             var btns = form.querySelectorAll('button[type="submit"], input[type="submit"]');
             btns.forEach(function(btn) {
+                if (btn.name && btn.value && document.activeElement === btn) {
+                    var hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = btn.name;
+                    hidden.value = btn.value;
+                    form.appendChild(hidden);
+                }
                 btn.disabled = true;
                 var originalHtml = btn.innerHTML;
                 btn.dataset.originalHtml = originalHtml;
