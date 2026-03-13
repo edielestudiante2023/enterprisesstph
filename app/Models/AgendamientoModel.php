@@ -118,11 +118,11 @@ class AgendamientoModel extends Model
     {
         $db = \Config\Database::connect();
         return $db->table('tbl_agendamientos a')
-            ->select('c.id_consultor, c.nombre_consultor, c.foto_consultor, COUNT(a.id) as total,
-                      SUM(CASE WHEN a.estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
-                      SUM(CASE WHEN a.estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
-                      SUM(CASE WHEN a.estado = "completado" THEN 1 ELSE 0 END) as completados,
-                      SUM(CASE WHEN a.estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->select("c.id_consultor, c.nombre_consultor, c.foto_consultor, COUNT(a.id) as total,
+                      SUM(CASE WHEN a.estado = 'pendiente' THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN a.estado = 'confirmado' THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN a.estado = 'completado' THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN a.estado = 'cancelado' THEN 1 ELSE 0 END) as cancelados")
             ->join('tbl_consultor c', 'c.id_consultor = a.id_consultor', 'inner')
             ->groupBy('c.id_consultor, c.nombre_consultor, c.foto_consultor')
             ->orderBy('c.nombre_consultor', 'ASC')
@@ -137,11 +137,11 @@ class AgendamientoModel extends Model
     {
         $db = \Config\Database::connect();
         return $db->table('tbl_agendamientos a')
-            ->select('cl.consultor_externo, COUNT(a.id) as total,
-                      SUM(CASE WHEN a.estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
-                      SUM(CASE WHEN a.estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
-                      SUM(CASE WHEN a.estado = "completado" THEN 1 ELSE 0 END) as completados,
-                      SUM(CASE WHEN a.estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->select("cl.consultor_externo, COUNT(a.id) as total,
+                      SUM(CASE WHEN a.estado = 'pendiente' THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN a.estado = 'confirmado' THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN a.estado = 'completado' THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN a.estado = 'cancelado' THEN 1 ELSE 0 END) as cancelados")
             ->join('tbl_clientes cl', 'cl.id_cliente = a.id_cliente', 'inner')
             ->where('cl.consultor_externo IS NOT NULL')
             ->where('cl.consultor_externo !=', '')
@@ -158,11 +158,11 @@ class AgendamientoModel extends Model
     {
         $db = \Config\Database::connect();
         return $db->table('tbl_agendamientos')
-            ->select('YEAR(fecha_visita) as anio, COUNT(id) as total,
-                      SUM(CASE WHEN estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
-                      SUM(CASE WHEN estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
-                      SUM(CASE WHEN estado = "completado" THEN 1 ELSE 0 END) as completados,
-                      SUM(CASE WHEN estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->select("YEAR(fecha_visita) as anio, COUNT(id) as total,
+                      SUM(CASE WHEN estado = 'pendiente' THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN estado = 'confirmado' THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN estado = 'completado' THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN estado = 'cancelado' THEN 1 ELSE 0 END) as cancelados")
             ->where('id_consultor', $idConsultor)
             ->groupBy('YEAR(fecha_visita)')
             ->orderBy('anio', 'DESC')
@@ -177,11 +177,11 @@ class AgendamientoModel extends Model
     {
         $db = \Config\Database::connect();
         return $db->table('tbl_agendamientos a')
-            ->select('YEAR(a.fecha_visita) as anio, COUNT(a.id) as total,
-                      SUM(CASE WHEN a.estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
-                      SUM(CASE WHEN a.estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
-                      SUM(CASE WHEN a.estado = "completado" THEN 1 ELSE 0 END) as completados,
-                      SUM(CASE WHEN a.estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->select("YEAR(a.fecha_visita) as anio, COUNT(a.id) as total,
+                      SUM(CASE WHEN a.estado = 'pendiente' THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN a.estado = 'confirmado' THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN a.estado = 'completado' THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN a.estado = 'cancelado' THEN 1 ELSE 0 END) as cancelados")
             ->join('tbl_clientes cl', 'cl.id_cliente = a.id_cliente', 'inner')
             ->where('cl.consultor_externo', $nombreExterno)
             ->groupBy('YEAR(a.fecha_visita)')
@@ -197,11 +197,11 @@ class AgendamientoModel extends Model
     {
         $db = \Config\Database::connect();
         return $db->table('tbl_agendamientos')
-            ->select('MONTH(fecha_visita) as mes, COUNT(id) as total,
-                      SUM(CASE WHEN estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
-                      SUM(CASE WHEN estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
-                      SUM(CASE WHEN estado = "completado" THEN 1 ELSE 0 END) as completados,
-                      SUM(CASE WHEN estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->select("MONTH(fecha_visita) as mes, COUNT(id) as total,
+                      SUM(CASE WHEN estado = 'pendiente' THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN estado = 'confirmado' THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN estado = 'completado' THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN estado = 'cancelado' THEN 1 ELSE 0 END) as cancelados")
             ->where('id_consultor', $idConsultor)
             ->where('YEAR(fecha_visita)', $anio)
             ->groupBy('MONTH(fecha_visita)')
@@ -217,11 +217,11 @@ class AgendamientoModel extends Model
     {
         $db = \Config\Database::connect();
         return $db->table('tbl_agendamientos a')
-            ->select('MONTH(a.fecha_visita) as mes, COUNT(a.id) as total,
-                      SUM(CASE WHEN a.estado = "pendiente" THEN 1 ELSE 0 END) as pendientes,
-                      SUM(CASE WHEN a.estado = "confirmado" THEN 1 ELSE 0 END) as confirmados,
-                      SUM(CASE WHEN a.estado = "completado" THEN 1 ELSE 0 END) as completados,
-                      SUM(CASE WHEN a.estado = "cancelado" THEN 1 ELSE 0 END) as cancelados')
+            ->select("MONTH(a.fecha_visita) as mes, COUNT(a.id) as total,
+                      SUM(CASE WHEN a.estado = 'pendiente' THEN 1 ELSE 0 END) as pendientes,
+                      SUM(CASE WHEN a.estado = 'confirmado' THEN 1 ELSE 0 END) as confirmados,
+                      SUM(CASE WHEN a.estado = 'completado' THEN 1 ELSE 0 END) as completados,
+                      SUM(CASE WHEN a.estado = 'cancelado' THEN 1 ELSE 0 END) as cancelados")
             ->join('tbl_clientes cl', 'cl.id_cliente = a.id_cliente', 'inner')
             ->where('cl.consultor_externo', $nombreExterno)
             ->where('YEAR(a.fecha_visita)', $anio)
