@@ -95,18 +95,16 @@ class AgendamientoModel extends Model
 
         if ($ultimaVisita) {
             $base = $ultimaVisita['fecha_visita'];
-        } else {
-            $base = date('Y-m-d');
+            $meses = match ($frecuencia) {
+                'mensual'    => 1,
+                'bimensual'  => 2,
+                'trimestral' => 3,
+                default      => 1,
+            };
+            return date('Y-m-d', strtotime($base . " +{$meses} months"));
         }
 
-        $meses = match ($frecuencia) {
-            'mensual'    => 1,
-            'bimensual'  => 2,
-            'trimestral' => 3,
-            default      => 1,
-        };
-
-        return date('Y-m-d', strtotime($base . " +{$meses} months"));
+        return date('Y-m-d');
     }
 
     // ─── MÉTODOS DRILL-DOWN (Consultores → Años → Meses → Detalle) ───
