@@ -892,6 +892,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('acta-visita/finalizar/(:num)', 'ActaVisitaController::finalizar/$1');
     $routes->get('acta-visita/delete/(:num)', 'ActaVisitaController::delete/$1');
     $routes->get('acta-visita/enviar-email/(:num)', 'ActaVisitaController::enviarEmail/$1');
+    $routes->get('acta-visita/api/pta-actividades', 'ActaVisitaController::getPtaActividades');
 
     // Inspección Locativa
     $routes->get('inspeccion-locativa', 'InspeccionLocativaController::list');

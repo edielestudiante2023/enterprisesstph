@@ -34,6 +34,24 @@ class PtaClienteNuevaModel extends Model
     /**
      * Obtener registros filtrados.
      */
+    /**
+     * Actividades ABIERTAS de un cliente para el mes de la visita + rezagadas de meses anteriores del mismo año.
+     * Esto asegura que si una actividad de enero sigue abierta en marzo, aparezca para ser cerrada.
+     */
+    public function getAbiertosByClienteYMes(int $idCliente, string $fechaVisita): array
+    {
+        $mes  = (int) date('m', strtotime($fechaVisita));
+        $anio = (int) date('Y', strtotime($fechaVisita));
+
+        return $this->where('id_cliente', $idCliente)
+            ->where('estado_actividad', 'ABIERTA')
+            ->where('YEAR(fecha_propuesta)', $anio)
+            ->where('MONTH(fecha_propuesta) <=', $mes)
+            ->orderBy('fecha_propuesta', 'ASC')
+            ->orderBy('numeral_plandetrabajo', 'ASC')
+            ->findAll();
+    }
+
     public function getFilteredData($clienteId = null, $estado = null, $phva = null, $responsable = null, $fecha = null)
     {
         $query = $this->select('*');

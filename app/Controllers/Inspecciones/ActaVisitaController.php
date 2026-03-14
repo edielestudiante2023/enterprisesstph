@@ -14,6 +14,10 @@ use App\Models\ReporteModel;
 use App\Libraries\InspeccionEmailNotifier;
 use App\Models\VencimientosMantenimientoModel;
 use App\Models\CicloVisitaModel;
+use App\Models\ActaVisitaPtaModel;
+use App\Models\PtaClienteNuevaModel;
+use App\Services\PtaAuditService;
+use App\Services\PtaTransicionesService;
 use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
 use App\Traits\ImagenCompresionTrait;
@@ -128,6 +132,11 @@ class ActaVisitaController extends BaseController
         // Guardar fotos
         $this->saveFotos($idActa);
 
+        // Guardar actividades PTA (solo en submit real, no autosave)
+        if (!$isAutosave) {
+            $this->savePtaActividades($idActa);
+        }
+
         if ($isAutosave) {
             return $this->autosaveJsonSuccess($idActa);
         }
@@ -153,6 +162,7 @@ class ActaVisitaController extends BaseController
             'temas'       => $this->temaModel->getByActa($id),
             'fotos'       => (new ActaVisitaFotoModel())->getByActa($id),
             'compromisos' => (new PendientesModel())->where('id_acta_visita', $id)->findAll(),
+            'ptaLinks'    => (new ActaVisitaPtaModel())->getByActa($id),
         ];
 
         return view('inspecciones/layout_pwa', [
@@ -195,6 +205,11 @@ class ActaVisitaController extends BaseController
         $this->saveCompromisos($id);
         $this->saveFotos($id);
 
+        // Guardar actividades PTA (solo en submit real, no autosave)
+        if (!$this->isAutosaveRequest()) {
+            $this->savePtaActividades($id);
+        }
+
         if ($this->isAutosaveRequest()) {
             return $this->autosaveJsonSuccess((int)$id);
         }
@@ -224,6 +239,7 @@ class ActaVisitaController extends BaseController
             'temas'       => $this->temaModel->getByActa($id),
             'fotos'       => (new ActaVisitaFotoModel())->getByActa($id),
             'compromisos' => (new PendientesModel())->where('id_acta_visita', $id)->findAll(),
+            'ptaCerradas' => (new ActaVisitaPtaModel())->getCerradasByActa($id),
         ];
 
         return view('inspecciones/layout_pwa', [
@@ -438,6 +454,64 @@ class ActaVisitaController extends BaseController
         return redirect()->to('/inspecciones/acta-visita')->with('msg', 'Acta eliminada');
     }
 
+    /**
+     * API: Obtener actividades PTA abiertas para un cliente/mes (AJAX)
+     */
+    public function getPtaActividades()
+    {
+        $idCliente  = (int) $this->request->getGet('id_cliente');
+        $fechaVisita = $this->request->getGet('fecha_visita');
+
+        if (!$idCliente || !$fechaVisita) {
+            return $this->response->setJSON([]);
+        }
+
+        $ptaModel = new PtaClienteNuevaModel();
+        $actividades = $ptaModel->getAbiertosByClienteYMes($idCliente, $fechaVisita);
+
+        // Si es edición, cargar estado previo de checkboxes
+        $idActa = (int) $this->request->getGet('id_acta');
+        $prevLinks = [];
+        if ($idActa) {
+            $linkModel = new ActaVisitaPtaModel();
+            $links = $linkModel->where('id_acta_visita', $idActa)->findAll();
+            foreach ($links as $link) {
+                $prevLinks[$link['id_ptacliente']] = [
+                    'cerrada'       => (bool) $link['cerrada'],
+                    'justificacion' => $link['justificacion_no_cierre'] ?? '',
+                ];
+            }
+
+            // También incluir actividades que ya fueron cerradas en esta acta
+            // (ya no aparecen como ABIERTA pero deben mostrarse checked+disabled)
+            $cerradasEnActa = $linkModel->select('tbl_acta_visita_pta.*, tbl_pta_cliente.actividad_plandetrabajo, tbl_pta_cliente.numeral_plandetrabajo, tbl_pta_cliente.fecha_propuesta, tbl_pta_cliente.estado_actividad')
+                ->join('tbl_pta_cliente', 'tbl_pta_cliente.id_ptacliente = tbl_acta_visita_pta.id_ptacliente', 'left')
+                ->where('tbl_acta_visita_pta.id_acta_visita', $idActa)
+                ->where('tbl_acta_visita_pta.cerrada', 1)
+                ->findAll();
+
+            // Agregar las cerradas que ya no están en la lista de abiertas
+            $idsAbiertas = array_column($actividades, 'id_ptacliente');
+            foreach ($cerradasEnActa as $ca) {
+                if (!in_array($ca['id_ptacliente'], $idsAbiertas)) {
+                    $actividades[] = [
+                        'id_ptacliente'            => $ca['id_ptacliente'],
+                        'actividad_plandetrabajo'  => $ca['actividad_plandetrabajo'],
+                        'numeral_plandetrabajo'    => $ca['numeral_plandetrabajo'],
+                        'fecha_propuesta'          => $ca['fecha_propuesta'],
+                        'estado_actividad'         => $ca['estado_actividad'],
+                        '_ya_cerrada'              => true,
+                    ];
+                }
+            }
+        }
+
+        return $this->response->setJSON([
+            'actividades' => $actividades,
+            'prevLinks'   => $prevLinks,
+        ]);
+    }
+
     // ========== MÉTODOS PRIVADOS ==========
 
     /**
@@ -553,6 +627,77 @@ class ActaVisitaController extends BaseController
     }
 
     /**
+     * Guardar actividades PTA marcadas/no marcadas desde el formulario
+     */
+    private function savePtaActividades(int $idActa): void
+    {
+        $ptaIds           = $this->request->getPost('pta_actividad_id') ?? [];
+        $ptaCheckedIds    = $this->request->getPost('pta_actividad_checked') ?? [];
+        $ptaJustificaciones = $this->request->getPost('pta_justificacion') ?? [];
+
+        if (empty($ptaIds)) {
+            return;
+        }
+
+        $linkModel = new ActaVisitaPtaModel();
+        $ptaModel  = new PtaClienteNuevaModel();
+        $acta      = $this->actaModel->find($idActa);
+        $fechaVisita = $acta['fecha_visita'];
+        $idClienteActa = (int) $acta['id_cliente'];
+
+        // Eliminar links anteriores de esta acta
+        $linkModel->where('id_acta_visita', $idActa)->delete();
+
+        foreach ($ptaIds as $idPta) {
+            $idPta    = (int) $idPta;
+            $isCerrada = in_array((string) $idPta, $ptaCheckedIds);
+            $justificacion = $ptaJustificaciones[$idPta] ?? '';
+
+            // Validar que la actividad PTA pertenece al cliente del acta (seguridad)
+            $ptaRecord = $ptaModel->find($idPta);
+            if (!$ptaRecord || (int) $ptaRecord['id_cliente'] !== $idClienteActa) {
+                continue;
+            }
+
+            // Insertar link
+            $linkModel->insert([
+                'id_acta_visita'          => $idActa,
+                'id_ptacliente'           => $idPta,
+                'cerrada'                 => $isCerrada ? 1 : 0,
+                'justificacion_no_cierre' => $isCerrada ? null : ($justificacion ?: null),
+                'created_at'              => date('Y-m-d H:i:s'),
+            ]);
+
+            if ($isCerrada && $ptaRecord['estado_actividad'] === 'ABIERTA') {
+                // Cerrar la actividad en el PTA
+                $ptaModel->update($idPta, [
+                    'estado_actividad'  => 'CERRADA',
+                    'porcentaje_avance' => 100,
+                    'fecha_cierre'      => $fechaVisita,
+                ]);
+
+                // Auditoría
+                PtaAuditService::log($idPta, 'UPDATE', 'estado_actividad', 'ABIERTA', 'CERRADA', 'ActaVisitaController::savePtaActividades', (int) $acta['id_cliente']);
+                PtaAuditService::log($idPta, 'UPDATE', 'porcentaje_avance', $ptaRecord['porcentaje_avance'], '100', 'ActaVisitaController::savePtaActividades', (int) $acta['id_cliente']);
+                PtaAuditService::log($idPta, 'UPDATE', 'fecha_cierre', $ptaRecord['fecha_cierre'], $fechaVisita, 'ActaVisitaController::savePtaActividades', (int) $acta['id_cliente']);
+                PtaTransicionesService::registrar($idPta, (int) $acta['id_cliente'], 'ABIERTA', 'CERRADA');
+            } elseif (!$isCerrada && !empty($justificacion)) {
+                // Concatenar justificación a observaciones existentes
+                $obsActual = $ptaRecord['observaciones'] ?? '';
+                $separador = $obsActual ? "\n" : '';
+                $append = $separador . "[Acta Visita #{$idActa} - {$fechaVisita}] No cerrada: {$justificacion}";
+                $nuevaObs = $obsActual . $append;
+
+                $ptaModel->update($idPta, [
+                    'observaciones' => $nuevaObs,
+                ]);
+
+                PtaAuditService::log($idPta, 'UPDATE', 'observaciones', $obsActual, $nuevaObs, 'ActaVisitaController::savePtaActividades', (int) $acta['id_cliente']);
+            }
+        }
+    }
+
+    /**
      * Generar PDF con DOMPDF y guardarlo en disco
      */
     private function generarPdfInterno(int $id): ?string
@@ -622,6 +767,9 @@ class ActaVisitaController extends BaseController
             }
         }
 
+        // Actividades PTA cerradas en esta acta
+        $ptaCerradas = (new ActaVisitaPtaModel())->getCerradasByActa($id);
+
         $data = [
             'acta'                => $acta,
             'cliente'             => $cliente,
@@ -634,6 +782,7 @@ class ActaVisitaController extends BaseController
             'firmas'              => $firmas,
             'logoBase64'          => $logoBase64,
             'fotos'               => $fotosBase64,
+            'ptaCerradas'         => $ptaCerradas,
         ];
 
         $html = view('inspecciones/acta_visita/pdf', $data);

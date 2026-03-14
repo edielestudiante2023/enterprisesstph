@@ -196,15 +196,40 @@
         <p class="empty-text">No se registraron temas.</p>
     <?php endif; ?>
 
-    <!-- 4. OBSERVACIONES -->
+    <!-- 4. ACTIVIDADES PTA GESTIONADAS -->
+    <?php if (!empty($ptaCerradas)): ?>
+    <div class="section-title">4. ACTIVIDADES PTA GESTIONADAS</div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width:70px;">NUMERAL</th>
+                <th>ACTIVIDAD</th>
+                <th style="width:80px;">FECHA PROPUESTA</th>
+                <th style="width:60px;">ESTADO</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($ptaCerradas as $pta): ?>
+            <tr>
+                <td><?= esc($pta['numeral_plandetrabajo'] ?? '') ?></td>
+                <td><?= esc($pta['actividad_plandetrabajo'] ?? '') ?></td>
+                <td><?= !empty($pta['fecha_propuesta']) ? date('d/m/Y', strtotime($pta['fecha_propuesta'])) : '-' ?></td>
+                <td style="color:green; font-weight:bold;">CERRADA</td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php endif; ?>
+
+    <!-- 5. OBSERVACIONES -->
     <?php if (!empty($acta['observaciones'])): ?>
-    <div class="section-title">4. OBSERVACIONES</div>
+    <div class="section-title">5. OBSERVACIONES</div>
     <p class="content-text"><?= nl2br(esc($acta['observaciones'])) ?></p>
     <?php endif; ?>
 
-    <!-- 5. COMPROMISOS -->
+    <!-- 6. COMPROMISOS -->
     <?php if (!empty($compromisos)): ?>
-    <div class="section-title">5. COMPROMISOS</div>
+    <div class="section-title">6. COMPROMISOS</div>
     <table class="data-table">
         <thead>
             <tr>
@@ -225,9 +250,9 @@
     </table>
     <?php endif; ?>
 
-    <!-- 6. FOTOS Y SOPORTES -->
+    <!-- 7. FOTOS Y SOPORTES -->
     <?php if (!empty($fotos)): ?>
-    <div class="section-title">6. REGISTRO FOTOGRAFICO</div>
+    <div class="section-title">7. REGISTRO FOTOGRAFICO</div>
     <table class="foto-table">
         <?php foreach (array_chunk($fotos, 3) as $row): ?>
         <tr>

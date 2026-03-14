@@ -55,6 +55,24 @@
     </div>
     <?php endif; ?>
 
+    <!-- Actividades PTA Gestionadas -->
+    <?php if (!empty($ptaCerradas)): ?>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title" style="font-size:14px; color:#999;">ACTIVIDADES PTA GESTIONADAS</h6>
+            <?php foreach ($ptaCerradas as $pta): ?>
+            <div style="font-size:14px; padding:4px 0; border-bottom:1px solid #eee;">
+                <strong><?= esc($pta['numeral_plandetrabajo'] ?? '') ?></strong> - <?= esc($pta['actividad_plandetrabajo'] ?? '') ?>
+                <span class="badge bg-success" style="font-size:10px;">CERRADA</span>
+                <?php if (!empty($pta['fecha_propuesta'])): ?>
+                    <small class="text-muted d-block">Fecha propuesta: <?= date('d/m/Y', strtotime($pta['fecha_propuesta'])) ?></small>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Observaciones -->
     <?php if (!empty($acta['observaciones'])): ?>
     <div class="card mb-3">
