@@ -50,7 +50,9 @@
       "Bash(ssh root@66.29.154.174 \"cd /www/wwwroot/phorizontal/enterprisesstph && rm -f app/SQL/check_pdf_residuos.php && git pull origin main\")",
       "Bash(ssh root@66.29.154.174 \"curl -s -o /dev/null -w ''%{http_code} %{size_download}'' -L -b ''ci_session=dummy'' ''https://phorizontal.cycloidtalent.com/inspecciones/auditoria-zona-residuos/regenerar/1'' 2>&1 || echo ''curl failed''\")",
       "Bash(ssh root@66.29.154.174 \"ls -lh /www/wwwroot/phorizontal/enterprisesstph/public/uploads/inspecciones/zona-residuos/pdfs/ | tail -3\")",
-      "Bash(ssh root@66.29.154.174 \"php -m | grep -i exif\")"
+      "Bash(ssh root@66.29.154.174 \"php -m | grep -i exif\")",
+      "Bash(do sed:*)",
+      "Bash(for f:*)"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\enterprisesstph\\app\\Config"

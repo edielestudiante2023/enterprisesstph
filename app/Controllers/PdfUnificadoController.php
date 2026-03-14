@@ -135,6 +135,10 @@ class PdfUnificadoController extends Controller
 
         $consultant = $this->consultantModel->find($client['id_consultor']);
         $firstContractDate = $this->contractModel->getFirstContractDate($clientId);
+        // Fallback: si no hay contrato, usar fecha_ingreso del cliente
+        if (!$firstContractDate && !empty($client['fecha_ingreso'])) {
+            $firstContractDate = $client['fecha_ingreso'];
+        }
 
         // Obtener accesos según el estándar del cliente
         $estandarNombre = $client['estandares'];

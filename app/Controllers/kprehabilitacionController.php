@@ -60,6 +60,10 @@ class kprehabilitacionController extends Controller
         // Obtener la fecha del primer contrato del cliente
         $contractModel = new ContractModel();
         $firstContractDate = $contractModel->getFirstContractDate($clientId);
+        // Fallback: si no hay contrato, usar fecha_ingreso del cliente
+        if (!$firstContractDate && !empty($client['fecha_ingreso'])) {
+            $firstContractDate = $client['fecha_ingreso'];
+        }
         // Obtener la política de alcohol y drogas del cliente
         $policyTypeId = 46; // Supongamos que el ID de la política de alcohol y drogas es 1
         $id_kpis = 16; // Primer indicador: Plan de Trabajo Anual

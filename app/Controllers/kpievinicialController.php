@@ -77,6 +77,10 @@ class kpievinicialController extends Controller
         // Obtener la fecha del primer contrato del cliente
         $contractModel = new ContractModel();
         $firstContractDate = $contractModel->getFirstContractDate($clientId);
+        // Fallback: si no hay contrato, usar fecha_ingreso del cliente
+        if (!$firstContractDate && !empty($client['fecha_ingreso'])) {
+            $firstContractDate = $client['fecha_ingreso'];
+        }
 
 
         // Obtener la versión más reciente del documento

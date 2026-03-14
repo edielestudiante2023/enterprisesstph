@@ -59,6 +59,10 @@ class PzasignacionresponsableController extends Controller
         // Obtener la fecha del primer contrato del cliente
         $contractModel = new ContractModel();
         $firstContractDate = $contractModel->getFirstContractDate($clientId);
+        // Fallback: si no hay contrato, usar fecha_ingreso del cliente
+        if (!$firstContractDate && !empty($client['fecha_ingreso'])) {
+            $firstContractDate = $client['fecha_ingreso'];
+        }
 
         // Obtener la versión más reciente del documento
         $latestVersion = $versionModel->where('client_id', $clientId)
@@ -137,6 +141,10 @@ class PzasignacionresponsableController extends Controller
         // Obtener la fecha del primer contrato del cliente
         $contractModel = new ContractModel();
         $firstContractDate = $contractModel->getFirstContractDate($clientId);
+        // Fallback: si no hay contrato, usar fecha_ingreso del cliente
+        if (!$firstContractDate && !empty($client['fecha_ingreso'])) {
+            $firstContractDate = $client['fecha_ingreso'];
+        }
 
         $policyTypeId = 1; // Supongamos que el ID de la política de alcohol y drogas es 1
         $clientPolicy = $clientPoliciesModel->where('client_id', $clientId)
