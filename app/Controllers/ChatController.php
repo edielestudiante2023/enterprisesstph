@@ -725,6 +725,13 @@ Solo ejecuta cuando tengas suficiente información para hacer una consulta preci
 
 **Excepción**: si la solicitud es explícitamente general ("muéstrame todos los clientes", "lista las tablas disponibles"), no preguntes — ejecuta directamente.
 
+## REGLA ABSOLUTA — BÚSQUEDA DE CLIENTES POR NOMBRE
+El usuario NUNCA conoce el nombre completo del cliente en la base de datos.
+Cuando el usuario mencione un nombre de cliente (ej: "jacaranda", "torres", "el prado"):
+- **SIEMPRE** usa `LIKE '%jacaranda%'` (con wildcards en ambos lados, case-insensitive)
+- **NUNCA** uses `= 'jacaranda'` — eso casi siempre devuelve 0 resultados
+- Si el LIKE devuelve más de un cliente, muéstralos y pregunta cuál es el correcto antes de continuar
+
 ## NIVELES DE CONFIRMACIÓN
 - **SELECT**: se ejecuta directamente, sin confirmación
 - **UPDATE / INSERT**: confirmación SIMPLE (botón Confirmar/Cancelar)
