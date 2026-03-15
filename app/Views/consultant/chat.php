@@ -1024,6 +1024,47 @@
         document.getElementById('messageInput').focus();
 
         // =====================================================================
+        // INACTIVIDAD: enviar resumen por email al consultor tras 10 min sin uso
+        // =====================================================================
+        const INACTIVITY_MS  = 10 * 60 * 1000; // 10 minutos
+        let inactivityTimer  = null;
+        let sessionEmailSent = false;
+
+        function sendSessionEmail() {
+            if (sessionEmailSent || conversationHistory.length === 0) return;
+            sessionEmailSent = true;
+            const payload = JSON.stringify({ history: conversationHistory });
+            if (navigator.sendBeacon) {
+                const blob = new Blob([payload], { type: 'application/json' });
+                navigator.sendBeacon(BASE_URL + 'chat/end-session', blob);
+            } else {
+                fetch(BASE_URL + 'chat/end-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: payload,
+                    keepalive: true
+                });
+            }
+        }
+
+        function resetInactivityTimer() {
+            sessionEmailSent = false;
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(sendSessionEmail, INACTIVITY_MS);
+        }
+
+        ['keydown', 'mousedown', 'touchstart', 'click'].forEach(function(evt) {
+            document.addEventListener(evt, resetInactivityTimer, { passive: true });
+        });
+
+        window.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden') sendSessionEmail();
+        });
+        window.addEventListener('beforeunload', sendSessionEmail);
+
+        resetInactivityTimer();
+
+        // =====================================================================
         // PWA: Service Worker
         // =====================================================================
         if ('serviceWorker' in navigator) {

@@ -56,6 +56,7 @@ $routes->post('chat/send', 'ChatController::sendMessage');
 $routes->post('chat/confirm', 'ChatController::confirmOperation');
 $routes->post('chat/confirm-delete', 'ChatController::confirmDelete');
 $routes->get('chat/schema', 'ChatController::getSchema');
+$routes->post('chat/end-session', 'ChatController::endSession');
 $routes->get('/admindashboard', 'AdminDashboardController::index');
 $routes->get('/admin/delete-pta-abiertas', 'AdminDashboardController::deletePtaAbiertas');
 $routes->post('/admin/count-pta-abiertas', 'AdminDashboardController::countPtaAbiertas');

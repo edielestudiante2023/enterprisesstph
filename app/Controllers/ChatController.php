@@ -227,6 +227,82 @@ class ChatController extends Controller
         return $this->response->setJSON(['success' => false, 'error' => 'Step inválido']);
     }
 
+    /**
+     * Recibe el historial de conversación al cierre por inactividad
+     * y envía el resumen por email al consultor + copia a otto.chat@cycloidtalent.com
+     */
+    public function endSession()
+    {
+        $session = session();
+        if (!$this->checkAccess($session)) {
+            return $this->response->setJSON(['success' => false, 'error' => 'No autorizado'])->setStatusCode(401);
+        }
+
+        $input   = $this->request->getJSON(true) ?? $this->request->getPost();
+        $history = $input['history'] ?? [];
+
+        if (empty($history)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Sin conversación que enviar']);
+        }
+
+        $userName  = $session->get('nombre_usuario') ?? 'Consultor';
+        $userEmail = $session->get('email_usuario')  ?? '';
+        $now       = date('d/m/Y H:i');
+
+        $transcriptHtml = '';
+        foreach ($history as $msg) {
+            $role    = ($msg['role'] ?? '') === 'user' ? $userName : 'Otto';
+            $content = nl2br(htmlspecialchars($msg['content'] ?? ''));
+            $bg      = ($msg['role'] ?? '') === 'user' ? '#f0f4ff' : '#f9f9f9';
+            $align   = ($msg['role'] ?? '') === 'user' ? 'right' : 'left';
+            $transcriptHtml .= "
+            <tr>
+                <td style='padding:8px 12px; background:{$bg}; text-align:{$align}; border-bottom:1px solid #eee;'>
+                    <strong style='color:#1c2437;'>{$role}:</strong><br>
+                    <span style='color:#333; font-size:14px;'>{$content}</span>
+                </td>
+            </tr>";
+        }
+
+        $html = "
+        <div style='font-family:Arial,sans-serif;max-width:700px;margin:0 auto;padding:20px;'>
+            <div style='text-align:center;margin-bottom:24px;'>
+                <h2 style='color:#1c2437;margin:0;'>Resumen de sesión con Otto</h2>
+                <p style='color:#bd9751;font-size:13px;margin:4px 0 0;'>Propiedad Horizontal · {$now}</p>
+            </div>
+            <p style='color:#333;'>El consultor <strong>{$userName}</strong> tuvo la siguiente conversación con Otto:</p>
+            <table width='100%' cellpadding='0' cellspacing='0' style='border:1px solid #ddd;border-radius:8px;overflow:hidden;'>
+                {$transcriptHtml}
+            </table>
+            <hr style='border:none;border-top:1px solid #e0e0e0;margin:24px 0;'>
+            <p style='color:#999;font-size:12px;text-align:center;'>
+                Cycloid Talent SAS · <a href='https://cycloidtalent.com' style='color:#bd9751;'>www.cycloidtalent.com</a>
+            </p>
+        </div>";
+
+        try {
+            $mail = new \SendGrid\Mail\Mail();
+            $mail->setFrom('notificacion.cycloidtalent@cycloidtalent.com', 'Otto · Cycloid Talent');
+            $mail->setSubject("Resumen sesión Otto · {$userName} · {$now}");
+            if ($userEmail) {
+                $mail->addTo($userEmail, $userName);
+            }
+            $mail->addCc('otto.chat@cycloidtalent.com', 'Otto Chat Log');
+            $mail->addContent('text/html', $html);
+
+            $sg       = new \SendGrid(getenv('SENDGRID_API_KEY'));
+            $response = $sg->send($mail);
+            $sent     = $response->statusCode() >= 200 && $response->statusCode() < 300;
+
+            $this->logOperation('session_end_email', "email={$userEmail} status=" . $response->statusCode(), $session);
+
+            return $this->response->setJSON(['success' => $sent]);
+        } catch (\Throwable $e) {
+            log_message('error', 'ChatController::endSession email error: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
     public function getSchema()
     {
         $session = session();
