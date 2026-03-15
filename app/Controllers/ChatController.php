@@ -605,14 +605,15 @@ class ChatController extends Controller
     protected function buildSystemPrompt(): string
     {
         require_once APPPATH . 'Libraries/OttoArchetype.php';
+        require_once APPPATH . 'Libraries/OttoTableMap.php';
 
-        $db        = \Config\Database::connect();
-        $tableList = implode(', ', $db->listTables());
-        $session   = session();
-        $userName  = $session->get('nombre_usuario') ?? 'Consultor';
-        $userRole  = $session->get('role') ?? '';
+        $db       = \Config\Database::connect();
+        $session  = session();
+        $userName = $session->get('nombre_usuario') ?? 'Consultor';
+        $userRole = $session->get('role') ?? '';
 
-        $base = \OttoArchetype::getSystemPrompt();
+        $base     = \OttoArchetype::getSystemPrompt();
+        $tableMap = \OttoTableMap::getPromptBlock();
 
         return $base . <<<PROMPT
 
@@ -621,9 +622,6 @@ class ChatController extends Controller
 
 ## SESIÓN ACTUAL
 - Usuario: {$userName} (rol: {$userRole})
-
-## TABLAS DISPONIBLES EN LA BASE DE DATOS
-{$tableList}
 
 ## NIVELES DE CONFIRMACIÓN
 - **SELECT**: se ejecuta directamente, sin confirmación
@@ -654,32 +652,10 @@ class ChatController extends Controller
 ## CONTEXTO DEL SISTEMA
 - Base de datos: propiedad_horizontal (MySQL)
 - Framework: CodeIgniter 4
-- Gestiona: conjuntos residenciales, copropiedades, contratos, inspecciones SST, actas de visita, documentos, comités, capacitaciones, indicadores, planes de trabajo, pendientes, mantenimientos
-- La mayoría de tablas usan prefijo 'tbl_', pero hay excepciones importantes (ver abajo)
-- Clientes = conjuntos residenciales / edificios / copropiedades → tabla: **tbl_clientes** (columna: id_cliente, nombre_cliente, estado)
+- La mayoría de tablas usan prefijo tbl_ pero hay excepciones (ver mapa abajo)
+- Clientes = conjuntos residenciales / edificios / copropiedades
 
-## TABLAS CLAVE DEL NEGOCIO (mapeo semántico)
-
-| Concepto del usuario | Tabla real | Columnas principales |
-|---|---|---|
-| plan de trabajo / actividades | **plan_de_trabajo_del_cliente** | id_ptacliente, id_cliente, nombre_cliente, actividad_plandetrabajo, estado_actividad (ABIERTA/CERRADA/GESTIONANDO/CERRADA SIN EJECUCIÓN/CERRADA POR FIN CONTRATO), fecha_propuesta, fecha_cierre, porcentaje_avance |
-| historial plan de trabajo | historial_resumen_plan_trabajo | — |
-| resumen mensual plan | resumen_mensual_plan_trabajo | — |
-| inventario actividades | tbl_inventario_actividades_plandetrabajo | — |
-| acta de visita / actas | tbl_acta_visita | id, id_cliente, fecha_visita, estado |
-| pendientes / compromisos | tbl_pendientes | id, id_acta_visita, detalle_mantenimiento, estado |
-| clientes | tbl_clientes | id_cliente, nombre_cliente, estado |
-| inspecciones | tbl_inspeccion_locativa, tbl_extintor, tbl_gabinete_contra_incendio, tbl_botiquin, tbl_comunicaciones, tbl_senalizacion | id_cliente |
-| contratos | tbl_contratos | — |
-| capacitaciones | tbl_capacitaciones | — |
-| comité COPASST / comités | tbl_comite_copasst, tbl_comite_convivencia | — |
-| documentos | tbl_documentos_cliente | — |
-
-## REGLAS DE INTERPRETACIÓN
-1. Cuando el usuario mencione "mañana tengo visita" o similar, NO filtres por fecha — simplemente muestra las actividades en el estado solicitado
-2. Cuando busques un cliente por nombre, usa `LIKE '%nombre%'` (case-insensitive) en la columna `nombre_cliente` de `tbl_clientes`
-3. Para actividades del plan de trabajo, une `plan_de_trabajo_del_cliente` con `tbl_clientes` via `id_cliente` cuando necesites filtrar por nombre de cliente
-4. Si el usuario dice "abiertas" usa `estado_actividad = 'ABIERTA'`; si dice "en gestión" usa `estado_actividad = 'GESTIONANDO'`
+{$tableMap}
 PROMPT;
     }
 
