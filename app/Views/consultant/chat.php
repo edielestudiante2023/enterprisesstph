@@ -436,6 +436,43 @@
             transform: translateY(-1px);
         }
 
+        /* Confirm buttons */
+        .confirm-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn-confirm {
+            background: #198754;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-confirm:hover { background: #157347; }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-cancel:hover { background: #565e64; }
+
         /* Schema panel */
         .schema-toggle {
             position: fixed;
@@ -677,7 +714,10 @@
             .then(data => {
                 setProcessing(false);
                 if (data.success) {
-                    appendMessage('assistant', data.response, data.tools_used || []);
+                    const hasWriteTool = (data.tools_used || []).some(t =>
+                        (t.tool === 'execute_update' || t.tool === 'execute_insert') && t.status === 'ok'
+                    );
+                    appendMessage('assistant', data.response, data.tools_used || [], hasWriteTool);
                     conversationHistory.push({ role: 'assistant', content: data.response });
                 } else {
                     appendMessage('assistant', 'Error: ' + (data.error || 'Error desconocido'));
@@ -697,7 +737,7 @@
         // =====================================================================
         // Renderizado de mensajes
         // =====================================================================
-        function appendMessage(role, content, toolsUsed = []) {
+        function appendMessage(role, content, toolsUsed = [], showConfirmation = false) {
             const container = document.getElementById('chatMessages');
             const div = document.createElement('div');
             div.className = 'message ' + role;
@@ -712,7 +752,6 @@
             bubble.className = 'message-bubble';
 
             if (role === 'assistant') {
-                // Renderizar Markdown
                 bubble.innerHTML = marked.parse(content || '');
             } else {
                 bubble.textContent = content;
@@ -727,12 +766,58 @@
                 bubble.appendChild(badge);
             }
 
+            // Botones de confirmación para operaciones de escritura
+            if (showConfirmation) {
+                const confirmDiv = document.createElement('div');
+                confirmDiv.className = 'confirm-buttons';
+                confirmDiv.innerHTML = `
+                    <button class="btn-confirm" onclick="confirmOperation(true, this)">
+                        <i class="fas fa-check me-1"></i>Confirmar
+                    </button>
+                    <button class="btn-cancel" onclick="confirmOperation(false, this)">
+                        <i class="fas fa-times me-1"></i>Cancelar
+                    </button>
+                `;
+                bubble.appendChild(confirmDiv);
+            }
+
             div.appendChild(avatar);
             div.appendChild(bubble);
             container.appendChild(div);
 
-            // Scroll al final
             container.scrollTop = container.scrollHeight;
+        }
+
+        // =====================================================================
+        // Confirmación de operaciones de escritura
+        // =====================================================================
+        function confirmOperation(confirm, btnEl) {
+            const buttonsDiv = btnEl.closest('.confirm-buttons');
+            buttonsDiv.innerHTML = confirm
+                ? '<span style="color:#198754;font-size:0.85rem;"><i class="fas fa-spinner fa-spin me-1"></i>Ejecutando...</span>'
+                : '<span style="color:#6c757d;font-size:0.85rem;"><i class="fas fa-ban me-1"></i>Cancelado</span>';
+
+            fetch(BASE_URL + 'chat/confirm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ confirm: confirm })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const msg = confirm
+                        ? (data.message || 'Operación ejecutada correctamente')
+                        : 'Operación cancelada';
+                    buttonsDiv.innerHTML = confirm
+                        ? `<span style="color:#198754;font-size:0.85rem;"><i class="fas fa-check-circle me-1"></i>${msg}</span>`
+                        : `<span style="color:#6c757d;font-size:0.85rem;"><i class="fas fa-ban me-1"></i>${msg}</span>`;
+                } else {
+                    buttonsDiv.innerHTML = `<span style="color:#dc3545;font-size:0.85rem;"><i class="fas fa-exclamation-circle me-1"></i>${data.error || 'Error'}</span>`;
+                }
+            })
+            .catch(err => {
+                buttonsDiv.innerHTML = `<span style="color:#dc3545;font-size:0.85rem;">Error: ${err.message}</span>`;
+            });
         }
 
         // =====================================================================

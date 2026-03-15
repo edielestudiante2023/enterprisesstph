@@ -53,6 +53,7 @@ $routes->get('/dashboardconsultant', 'ConsultantController::index');
 // Chat - Asistente IA
 $routes->get('consultant/chat', 'ChatController::index');
 $routes->post('chat/send', 'ChatController::sendMessage');
+$routes->post('chat/confirm', 'ChatController::confirmOperation');
 $routes->get('chat/schema', 'ChatController::getSchema');
 $routes->get('/admindashboard', 'AdminDashboardController::index');
 $routes->get('/admin/delete-pta-abiertas', 'AdminDashboardController::deletePtaAbiertas');
