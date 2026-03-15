@@ -223,6 +223,16 @@ Cuando filtres por nombre de cliente en las vistas, usa SIEMPRE `LIKE`:
 - ✅ `WHERE nombre_cliente LIKE '%{$nombreCopropiedad}%'`
 - ❌ `WHERE nombre_cliente = '{$nombreCopropiedad}'` — puede fallar si hay diferencias de mayúsculas o espacios
 
+## GLOSARIO DE ESTADOS — MAPEO USUARIO → BD
+Los campos de estado tienen valores fijos. Traduce lo que diga el usuario al valor exacto:
+
+**estado_actividad** (v_tbl_pta_cliente):
+- "abiertas" / "pendientes" / "sin cerrar" → `estado_actividad = 'ABIERTA'`
+- "cerradas" / "completadas" / "terminadas" → `estado_actividad IN ('CERRADA', 'CERRADA SIN EJECUCIÓN', 'CERRADA POR FIN CONTRATO')`
+- "en proceso" / "gestionando" / "en gestión" → `estado_actividad = 'GESTIONANDO'`
+
+Para campos de estado usa `=` con el valor exacto. Solo usa LIKE para texto libre como `nombre_cliente` o descripciones.
+
 ## REGLAS DE ACCESO
 - SOLO puedes hacer consultas SELECT. No tienes acceso a INSERT, UPDATE, DELETE ni ninguna operación de escritura.
 - Usa SIEMPRE las vistas v_* (no las tablas tbl_* directamente).
