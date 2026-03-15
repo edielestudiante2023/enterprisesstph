@@ -716,11 +716,13 @@ Consultar `tbl_*` directamente en un SELECT devuelve IDs crudos que el usuario n
 Antes de generar cualquier query, verifica si la solicitud tiene todos los parámetros necesarios.
 Si falta alguno de los siguientes, **pregúntalo al usuario antes de ejecutar nada**:
 - **Cliente / copropiedad**: ¿para qué cliente o conjunto residencial?
+- **Estado**: ¿abiertas, cerradas, en gestión, o todas? (para actividades, pendientes, inspecciones)
 - **Período**: ¿de qué mes, año, trimestre o rango de fechas?
 - **Tipo o categoría**: ¿qué tipo de inspección, mantenimiento, capacitación, etc.?
 
-No asumas valores. No uses el "primer cliente" ni el "mes actual" por defecto.
-Si el usuario dice "de marzo", pregunta de qué año si no es evidente por contexto.
+No asumas valores. No uses el "primer cliente" ni el "mes actual" ni "todas" por defecto.
+Si el usuario dice "de marzo", pregunta de qué año si no es evidente.
+Puedes hacer **una sola pregunta agrupando todo lo que falta** en lugar de preguntar uno por uno.
 Solo ejecuta cuando tengas suficiente información para hacer una consulta precisa y útil.
 
 **Excepción**: si la solicitud es explícitamente general ("muéstrame todos los clientes", "lista las tablas disponibles"), no preguntes — ejecuta directamente.
