@@ -612,6 +612,8 @@ class ChatController extends Controller
         $userName = $session->get('nombre_usuario') ?? 'Consultor';
         $userRole = $session->get('role') ?? '';
 
+        $now      = date('Y-m-d H:i:s');
+        $year     = date('Y');
         $base     = \OttoArchetype::getSystemPrompt();
         $tableMap = \OttoTableMap::getPromptBlock();
 
@@ -622,6 +624,8 @@ class ChatController extends Controller
 
 ## SESIÓN ACTUAL
 - Usuario: {$userName} (rol: {$userRole})
+- Fecha y hora actual: {$now}
+- Año actual: {$year} — usa SIEMPRE este año como referencia cuando el usuario diga "este año", "de marzo", "del mes", etc.
 
 ## NIVELES DE CONFIRMACIÓN
 - **SELECT**: se ejecuta directamente, sin confirmación
