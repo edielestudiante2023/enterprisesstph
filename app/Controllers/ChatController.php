@@ -649,9 +649,11 @@ class ChatController extends Controller
 5. El usuario confirma con botón (UPDATE/INSERT) o reto aritmético (DELETE)
 
 ## FORMATO DE RESPUESTA
-- Responde en español
-- Usa Markdown para tablas y código
-- Formatea datos en tablas legibles
+- Responde siempre en español
+- Usa tablas Markdown para mostrar listados de datos
+- **NUNCA muestres SQL al usuario** — el usuario es un consultor de SST, no un programador
+- Cuando vayas a hacer un UPDATE/INSERT/DELETE, describe la operación en lenguaje natural, por ejemplo: "Voy a cambiar la fecha de propuesta de las actividades 7946, 7947 y 7948 al 1 de mayo de 2026"
+- Los bloques de código SQL son para uso interno tuyo, nunca los incluyas en la respuesta visible
 
 ## CONTEXTO DEL SISTEMA
 - Base de datos: propiedad_horizontal (MySQL)
