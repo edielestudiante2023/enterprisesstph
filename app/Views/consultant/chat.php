@@ -41,6 +41,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--primary-dark);
             height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -1069,6 +1070,21 @@
         window.addEventListener('beforeunload', sendSessionEmail);
 
         resetInactivityTimer();
+
+        // =====================================================================
+        // TECLADO VIRTUAL: ajustar altura cuando aparece el teclado en móvil
+        // =====================================================================
+        if (window.visualViewport) {
+            function adjustForKeyboard() {
+                const vh = window.visualViewport.height;
+                document.body.style.height = vh + 'px';
+                // Scroll al último mensaje al abrir teclado
+                const msgs = document.getElementById('chatMessages');
+                if (msgs) msgs.scrollTop = msgs.scrollHeight;
+            }
+            window.visualViewport.addEventListener('resize', adjustForKeyboard);
+            window.visualViewport.addEventListener('scroll', adjustForKeyboard);
+        }
 
         async function finalizarConversacion() {
             if (conversationHistory.length === 0) {
