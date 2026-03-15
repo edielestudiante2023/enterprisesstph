@@ -184,7 +184,7 @@ TXT;
             [
                 'table'       => 'tbl_pta_cliente',
                 'priority'    => '(tabla principal del plan de trabajo)',
-                'description' => 'La tabla más importante para el plan de trabajo. Aquí están las actividades del plan anual SST de cada cliente.',
+                'description' => 'La tabla principal del plan de trabajo SST de cada cliente. Aquí están todas las actividades programadas.',
                 'use_for'     => [
                     '¿qué actividades tiene abiertas X cliente?',
                     'plan de trabajo',
@@ -193,19 +193,22 @@ TXT;
                     'porcentaje de avance de actividades',
                 ],
                 'key_columns' => [
-                    'id',
+                    'id_ptacliente (PK)',
                     'id_cliente',
-                    'actividad',
-                    'estado (ABIERTA / CERRADA / GESTIONANDO / CERRADA SIN EJECUCIÓN / CERRADA POR FIN CONTRATO)',
+                    'actividad_plandetrabajo',
+                    'estado_actividad (ENUM: ABIERTA / CERRADA / GESTIONANDO / CERRADA SIN EJECUCIÓN / CERRADA POR FIN CONTRATO)',
                     'fecha_propuesta',
                     'fecha_cierre',
                     'porcentaje_avance',
-                    'responsable',
-                    'phva',
-                    'numeral',
+                    'responsable_definido_paralaactividad',
+                    'phva_plandetrabajo',
+                    'numeral_plandetrabajo',
+                    'tipo_servicio',
+                    'semana',
+                    'observaciones',
                 ],
                 'relations'   => ['id_cliente → tbl_clientes.id_cliente'],
-                'notes'       => 'Aplicar directiva global: año actual + ABIERTA/GESTIONANDO por defecto. Cuando el usuario diga "mañana tengo visita", NO filtrar por fecha — mostrar todas las abiertas.',
+                'notes'       => 'Aplicar directiva global: año actual + ABIERTA/GESTIONANDO por defecto. Cuando el usuario diga "mañana tengo visita", NO filtrar por fecha — mostrar todas las abiertas. PK es id_ptacliente (no id).',
             ],
 
             [
