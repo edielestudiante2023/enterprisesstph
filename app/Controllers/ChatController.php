@@ -250,13 +250,15 @@ class ChatController extends Controller
         return $session->get('isLoggedIn') && in_array($session->get('role'), $this->allowedRoles);
     }
 
+    private static bool $logTableChecked = false;
+
     protected function logOperation(string $type, string $detail, $session): void
     {
         try {
             $db = \Config\Database::connect();
 
-            if (!$db->tableExists('tbl_chat_log')) {
-                $db->query("CREATE TABLE tbl_chat_log (
+            if (!self::$logTableChecked) {
+                $db->query("CREATE TABLE IF NOT EXISTS tbl_chat_log (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     id_usuario INT NOT NULL,
                     rol VARCHAR(20) NOT NULL,
@@ -268,6 +270,7 @@ class ChatController extends Controller
                     INDEX idx_chatlog_tipo (tipo_operacion),
                     INDEX idx_chatlog_fecha (created_at)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                self::$logTableChecked = true;
             }
 
             $db->table('tbl_chat_log')->insert([
