@@ -7,6 +7,7 @@
     <link rel="icon" href="<?= base_url('favicon.ico') ?>" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
@@ -85,6 +86,7 @@
                             <th>Puntaje</th>
                             <th>Estado Avance</th>
                             <th>Estado</th>
+                            <th>Creado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -119,6 +121,9 @@
                                     <?= ucfirst($inf['estado']) ?>
                                 </span>
                             </td>
+                            <td data-order="<?= esc($inf['created_at'] ?? '') ?>">
+                                <?= $inf['created_at'] ? date('d/m/Y', strtotime($inf['created_at'])) : '-' ?>
+                            </td>
                             <td style="white-space:nowrap;">
                                 <a href="<?= base_url('informe-avances/edit/' . $inf['id']) ?>" class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-edit"></i></a>
                                 <?php if ($inf['estado'] === 'completo'): ?>
@@ -139,6 +144,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
     $(document).ready(function() {
@@ -146,6 +155,22 @@
             language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' },
             order: [[1, 'desc']],
             pageLength: 25,
+            dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                 "<'row'<'col-sm-12'B>>" +
+                 "<'row'<'col-sm-12'tr>>" +
+                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel me-1"></i>Exportar Excel',
+                    className: 'btn btn-success btn-sm mb-2',
+                    title: 'Informes de Avances',
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
+                }
+            ],
+            columnDefs: [
+                { orderable: false, targets: 6 }
+            ]
         });
 
         // Populate client filter from table data
