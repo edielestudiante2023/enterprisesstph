@@ -623,9 +623,9 @@
                     <img src="<?= base_url('uploads/logoenterprisesstblancoslogan.png') ?>" alt="Enterprise SST">
                     <img src="<?= base_url('uploads/logocycloidsinfondo.png') ?>" alt="Cycloid" style="max-height:40px;">
                 </div>
-                <div class="nav-title">
+                <div class="nav-title" style="display:flex;align-items:center;gap:8px;">
                     <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
-                    Otto
+                    <span>Otto</span>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;">
                     <button onclick="finalizarConversacion()" style="background:#c0392b;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
