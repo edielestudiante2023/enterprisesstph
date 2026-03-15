@@ -57,6 +57,12 @@ $routes->post('chat/confirm', 'ChatController::confirmOperation');
 $routes->post('chat/confirm-delete', 'ChatController::confirmDelete');
 $routes->get('chat/schema', 'ChatController::getSchema');
 $routes->post('chat/end-session', 'ChatController::endSession');
+
+// Portal Cliente — Otto readonly
+$routes->get('client-chat', 'ClientChatController::index');
+$routes->post('client-chat/send', 'ClientChatController::sendMessage');
+$routes->post('client-chat/end-session', 'ClientChatController::endSession');
+
 $routes->get('/admindashboard', 'AdminDashboardController::index');
 $routes->get('/admin/delete-pta-abiertas', 'AdminDashboardController::deletePtaAbiertas');
 $routes->post('/admin/count-pta-abiertas', 'AdminDashboardController::countPtaAbiertas');

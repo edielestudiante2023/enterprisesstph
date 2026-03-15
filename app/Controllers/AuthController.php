@@ -54,15 +54,19 @@ class AuthController extends Controller
 
             // Configurar sesión según tipo de usuario (detección automática)
             if ($tipoUsuario === 'client') {
+                $clientModel = new ClientModel();
+                $clientData  = $clientModel->find($user['id_entidad']);
                 $session->set([
-                    'user_id'        => $user['id_entidad'], // id_cliente para compatibilidad
-                    'id_usuario'     => $user['id_usuario'],
-                    'id_sesion'      => $idSesion, // ID de la sesión para tracking
-                    'role'           => 'client',
-                    'nombre_usuario' => $user['nombre_completo'] ?? 'Usuario',
-                    'email_usuario'  => $user['email'] ?? '',
-                    'isLoggedIn'     => true,
-                    'last_activity'  => time() // Para control de inactividad
+                    'user_id'            => $user['id_entidad'], // id_cliente para compatibilidad
+                    'id_entidad'         => $user['id_entidad'], // usado por ClientChatController
+                    'id_usuario'         => $user['id_usuario'],
+                    'id_sesion'          => $idSesion, // ID de la sesión para tracking
+                    'role'               => 'client',
+                    'nombre_usuario'     => $user['nombre_completo'] ?? 'Usuario',
+                    'nombre_copropiedad' => $clientData['nombre_cliente'] ?? '',
+                    'email_usuario'      => $user['email'] ?? '',
+                    'isLoggedIn'         => true,
+                    'last_activity'      => time() // Para control de inactividad
                 ]);
                 return redirect()->to('/dashboard');
 

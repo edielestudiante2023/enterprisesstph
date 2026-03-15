@@ -703,6 +703,28 @@ class ChatController extends Controller
 - Fecha y hora actual: {$now}
 - Año actual: {$year} — usa SIEMPRE este año como referencia cuando el usuario diga "este año", "de marzo", "del mes", etc.
 
+## REGLA ABSOLUTA — JERARQUÍA DE CONSULTAS
+**Para SELECT: usa SIEMPRE la vista `v_*` correspondiente si existe.**
+Las vistas ya resuelven todos los IDs a nombres legibles (nombre_cliente, nombre_actividad, tipo_mantenimiento, etc.).
+Consultar `tbl_*` directamente en un SELECT devuelve IDs crudos que el usuario no puede entender.
+- ✅ CORRECTO: `SELECT * FROM v_tbl_pendientes WHERE ...`
+- ❌ INCORRECTO: `SELECT * FROM tbl_pendientes WHERE ...`
+
+**Para INSERT / UPDATE / DELETE: usa SIEMPRE la tabla `tbl_*` directamente** (las vistas son de solo lectura).
+
+## REGLA ABSOLUTA — MAYÉUTICA (preguntar antes de ejecutar)
+Antes de generar cualquier query, verifica si la solicitud tiene todos los parámetros necesarios.
+Si falta alguno de los siguientes, **pregúntalo al usuario antes de ejecutar nada**:
+- **Cliente / copropiedad**: ¿para qué cliente o conjunto residencial?
+- **Período**: ¿de qué mes, año, trimestre o rango de fechas?
+- **Tipo o categoría**: ¿qué tipo de inspección, mantenimiento, capacitación, etc.?
+
+No asumas valores. No uses el "primer cliente" ni el "mes actual" por defecto.
+Si el usuario dice "de marzo", pregunta de qué año si no es evidente por contexto.
+Solo ejecuta cuando tengas suficiente información para hacer una consulta precisa y útil.
+
+**Excepción**: si la solicitud es explícitamente general ("muéstrame todos los clientes", "lista las tablas disponibles"), no preguntes — ejecuta directamente.
+
 ## NIVELES DE CONFIRMACIÓN
 - **SELECT**: se ejecuta directamente, sin confirmación
 - **UPDATE / INSERT**: confirmación SIMPLE (botón Confirmar/Cancelar)
@@ -718,7 +740,7 @@ class ChatController extends Controller
 6. Todas las operaciones quedan registradas en el log de auditoría
 
 ## FLUJO DE ESCRITURA
-1. Consulta con SELECT el estado actual
+1. Consulta con SELECT el estado actual (usando la vista v_* correspondiente)
 2. Muestra al usuario qué existe
 3. Describe qué vas a cambiar/insertar/eliminar
 4. Ejecuta la tool — esto NO ejecuta directamente, genera solicitud de confirmación
