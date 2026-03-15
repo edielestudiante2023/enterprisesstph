@@ -575,6 +575,11 @@
 
         <!-- Botones de Acceso Rápido -->
         <div class="text-center mb-4 quick-access-buttons">
+            <a href="<?= base_url('/consultant/chat') ?>">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #4facfe, #00f2fe); border: none;">
+                    <i class="fas fa-robot me-2"></i>Asistente IA
+                </button>
+            </a>
             <a href="<?= base_url('/inspecciones') ?>" target="_blank" rel="noopener noreferrer">
                 <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;">
                     <i class="fas fa-clipboard-check me-2"></i>Inspecciones SST

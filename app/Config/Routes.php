@@ -49,6 +49,11 @@ $routes->post('consultant/auditoria-visitas/update/(:num)', 'AuditoriaVisitasCon
 $routes->post('consultant/auditoria-visitas/delete/(:num)', 'AuditoriaVisitasController::delete/$1');
 
 $routes->get('/dashboardconsultant', 'ConsultantController::index');
+
+// Chat - Asistente IA
+$routes->get('consultant/chat', 'ChatController::index');
+$routes->post('chat/send', 'ChatController::sendMessage');
+$routes->get('chat/schema', 'ChatController::getSchema');
 $routes->get('/admindashboard', 'AdminDashboardController::index');
 $routes->get('/admin/delete-pta-abiertas', 'AdminDashboardController::deletePtaAbiertas');
 $routes->post('/admin/count-pta-abiertas', 'AdminDashboardController::countPtaAbiertas');

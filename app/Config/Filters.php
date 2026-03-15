@@ -118,6 +118,7 @@ class Filters extends BaseFilters
                 'admindashboard*',
                 'client/*',
                 'consultant/*',
+                'chat/*',
                 'admin/*',
                 'addClient*',
                 'editClient*',
