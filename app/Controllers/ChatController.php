@@ -8,11 +8,13 @@ use CodeIgniter\Controller;
  * ChatController - Módulo de chat con asistente IA para consultores
  *
  * SEGURIDAD:
- * - Roles permitidos: consultant, admin
- * - Queries parametrizados via Query Builder (nunca SQL crudo del usuario)
- * - Confirmación obligatoria antes de UPDATE/INSERT (flujo de 2 pasos)
- * - DELETE/DROP/TRUNCATE bloqueados a nivel de código
+ * - Roles: consultant, admin
+ * - Motor: GPT-4o (OpenAI function calling)
+ * - UPDATE/INSERT: confirmación simple (botón Confirmar/Cancelar)
+ * - DELETE: doble confirmación aritmética (ej: "¿Cuánto es 7+3?")
+ * - DROP/TRUNCATE: bloqueados permanentemente
  * - Log de TODAS las operaciones en tbl_chat_log
+ * - PWA para uso desde celular
  */
 class ChatController extends Controller
 {
@@ -20,15 +22,13 @@ class ChatController extends Controller
     protected string $model;
     protected string $apiUrl = 'https://api.openai.com/v1/chat/completions';
 
-    // Roles que pueden acceder al chat
     protected array $allowedRoles = ['consultant', 'admin'];
 
-    // Tablas del sistema que NO deben ser modificadas
+    // Tablas que NUNCA se pueden modificar ni eliminar registros
     protected array $readOnlyTables = ['tbl_usuarios', 'tbl_sesiones_usuario', 'tbl_roles'];
 
-    // Operaciones SQL prohibidas (NUNCA se ejecutan)
+    // Operaciones SQL prohibidas permanentemente
     protected array $forbiddenPatterns = [
-        '/\bDELETE\b/i',
         '/\bDROP\b/i',
         '/\bTRUNCATE\b/i',
         '/\bALTER\b/i',
@@ -42,7 +42,6 @@ class ChatController extends Controller
         '/\bINTO\s+DUMPFILE\b/i',
     ];
 
-    // Operaciones pendientes de confirmación (en sesión)
     const SESSION_PENDING_KEY = 'chat_pending_operation';
 
     public function __construct()
@@ -52,7 +51,7 @@ class ChatController extends Controller
     }
 
     // =========================================================================
-    // ENDPOINTS PÚBLICOS
+    // ENDPOINTS
     // =========================================================================
 
     public function index()
@@ -77,7 +76,7 @@ class ChatController extends Controller
             return $this->response->setJSON(['success' => false, 'error' => 'No autorizado'])->setStatusCode(401);
         }
 
-        $input = $this->request->getJSON(true) ?? $this->request->getPost();
+        $input               = $this->request->getJSON(true) ?? $this->request->getPost();
         $userMessage         = trim($input['message'] ?? '');
         $conversationHistory = $input['history'] ?? [];
 
@@ -85,13 +84,10 @@ class ChatController extends Controller
             return $this->response->setJSON(['success' => false, 'error' => 'Mensaje vacío']);
         }
 
-        // Log del mensaje del usuario
         $this->logOperation('user_message', $userMessage, $session);
 
         try {
             $result = $this->processWithToolCalling($userMessage, $conversationHistory, $session);
-
-            // Log de la respuesta
             $this->logOperation('assistant_response', substr($result['response'] ?? '', 0, 500), $session);
 
             return $this->response->setJSON([
@@ -110,7 +106,7 @@ class ChatController extends Controller
     }
 
     /**
-     * API: Confirma una operación de escritura pendiente
+     * Confirmación simple para UPDATE/INSERT (botón Confirmar/Cancelar)
      */
     public function confirmOperation()
     {
@@ -123,11 +119,10 @@ class ChatController extends Controller
         $confirm = ($input['confirm'] ?? false) === true;
         $pending = $session->get(self::SESSION_PENDING_KEY);
 
-        if (!$pending) {
+        if (!$pending || !in_array($pending['type'] ?? '', ['UPDATE', 'INSERT'])) {
             return $this->response->setJSON(['success' => false, 'error' => 'No hay operación pendiente']);
         }
 
-        // Limpiar pendiente
         $session->remove(self::SESSION_PENDING_KEY);
 
         if (!$confirm) {
@@ -135,7 +130,6 @@ class ChatController extends Controller
             return $this->response->setJSON(['success' => true, 'message' => 'Operación cancelada']);
         }
 
-        // Ejecutar la operación confirmada
         try {
             $result = $this->executeConfirmedWrite($pending);
             $this->logOperation('write_executed', json_encode([
@@ -143,12 +137,94 @@ class ChatController extends Controller
                 'table'  => $pending['table'],
                 'result' => $result,
             ]), $session);
-
             return $this->response->setJSON($result);
         } catch (\Exception $e) {
             $this->logOperation('write_error', $e->getMessage(), $session);
             return $this->response->setJSON(['success' => false, 'error' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Doble confirmación aritmética para DELETE
+     * Paso 1: El usuario hace clic en "Eliminar" → recibe un reto aritmético
+     * Paso 2: El usuario escribe la respuesta → si es correcta, se ejecuta
+     */
+    public function confirmDelete()
+    {
+        $session = session();
+        if (!$this->checkAccess($session)) {
+            return $this->response->setJSON(['success' => false, 'error' => 'No autorizado'])->setStatusCode(401);
+        }
+
+        $input   = $this->request->getJSON(true) ?? $this->request->getPost();
+        $step    = $input['step'] ?? '';
+        $pending = $session->get(self::SESSION_PENDING_KEY);
+
+        if (!$pending || ($pending['type'] ?? '') !== 'DELETE') {
+            return $this->response->setJSON(['success' => false, 'error' => 'No hay operación DELETE pendiente']);
+        }
+
+        // Paso 1: Generar reto aritmético
+        if ($step === 'challenge') {
+            $a = rand(2, 15);
+            $b = rand(2, 15);
+            $answer = $a + $b;
+
+            // Guardar respuesta correcta en sesión
+            $pending['arithmetic_answer'] = $answer;
+            $session->set(self::SESSION_PENDING_KEY, $pending);
+
+            $this->logOperation('delete_challenge_sent', "Reto: {$a}+{$b}={$answer}", $session);
+
+            return $this->response->setJSON([
+                'success'   => true,
+                'challenge' => "¿Cuánto es {$a} + {$b}?",
+                'message'   => "Para confirmar la eliminación, resuelve esta operación:",
+            ]);
+        }
+
+        // Paso 2: Verificar respuesta
+        if ($step === 'verify') {
+            $userAnswer    = intval($input['answer'] ?? -1);
+            $correctAnswer = $pending['arithmetic_answer'] ?? null;
+
+            if ($correctAnswer === null) {
+                return $this->response->setJSON(['success' => false, 'error' => 'Solicita el reto aritmético primero']);
+            }
+
+            if ($userAnswer !== $correctAnswer) {
+                $this->logOperation('delete_failed_challenge', "Respuesta incorrecta: {$userAnswer} (correcta: {$correctAnswer})", $session);
+                $session->remove(self::SESSION_PENDING_KEY);
+                return $this->response->setJSON([
+                    'success' => false,
+                    'error'   => 'Respuesta incorrecta. Operación cancelada por seguridad.',
+                ]);
+            }
+
+            // Respuesta correcta — ejecutar DELETE
+            $session->remove(self::SESSION_PENDING_KEY);
+
+            try {
+                $result = $this->executeConfirmedWrite($pending);
+                $this->logOperation('delete_executed', json_encode([
+                    'table'  => $pending['table'],
+                    'result' => $result,
+                ]), $session);
+                return $this->response->setJSON($result);
+            } catch (\Exception $e) {
+                $this->logOperation('delete_error', $e->getMessage(), $session);
+                return $this->response->setJSON(['success' => false, 'error' => $e->getMessage()]);
+            }
+        }
+
+        // Cancelar
+        if ($step === 'cancel') {
+            $session->remove(self::SESSION_PENDING_KEY);
+            $this->logOperation('delete_cancelled', json_encode($pending), $session);
+            return $this->response->setJSON(['success' => true, 'message' => 'Eliminación cancelada']);
+        }
+
+        return $this->response->setJSON(['success' => false, 'error' => 'Step inválido']);
     }
 
     public function getSchema()
@@ -166,7 +242,7 @@ class ChatController extends Controller
     }
 
     // =========================================================================
-    // CONTROL DE ACCESO
+    // ACCESO Y LOGGING
     // =========================================================================
 
     protected function checkAccess($session): bool
@@ -174,19 +250,11 @@ class ChatController extends Controller
         return $session->get('isLoggedIn') && in_array($session->get('role'), $this->allowedRoles);
     }
 
-    // =========================================================================
-    // LOGGING
-    // =========================================================================
-
-    /**
-     * Registra TODAS las operaciones del chat en tbl_chat_log
-     */
     protected function logOperation(string $type, string $detail, $session): void
     {
         try {
             $db = \Config\Database::connect();
 
-            // Crear tabla si no existe (solo la primera vez)
             if (!$db->tableExists('tbl_chat_log')) {
                 $db->query("CREATE TABLE tbl_chat_log (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -203,20 +271,19 @@ class ChatController extends Controller
             }
 
             $db->table('tbl_chat_log')->insert([
-                'id_usuario'      => $session->get('id_usuario') ?? 0,
-                'rol'             => $session->get('role') ?? '',
-                'tipo_operacion'  => $type,
-                'detalle'         => mb_substr($detail, 0, 5000),
-                'ip_address'      => $this->request->getIPAddress(),
+                'id_usuario'     => $session->get('id_usuario') ?? 0,
+                'rol'            => $session->get('role') ?? '',
+                'tipo_operacion' => $type,
+                'detalle'        => mb_substr($detail, 0, 5000),
+                'ip_address'     => $this->request->getIPAddress(),
             ]);
         } catch (\Exception $e) {
-            // No fallar si el log falla, solo registrar en archivo
             log_message('error', 'ChatLog failed: ' . $e->getMessage());
         }
     }
 
     // =========================================================================
-    // LÓGICA PRINCIPAL: OpenAI con Function Calling
+    // OPENAI CON FUNCTION CALLING
     // =========================================================================
 
     protected function processWithToolCalling(string $userMessage, array $history, $session): array
@@ -227,8 +294,7 @@ class ChatController extends Controller
 
         $messages = [['role' => 'system', 'content' => $systemPrompt]];
 
-        $recentHistory = array_slice($history, -20);
-        foreach ($recentHistory as $msg) {
+        foreach (array_slice($history, -20) as $msg) {
             if (isset($msg['role']) && isset($msg['content'])) {
                 $messages[] = ['role' => $msg['role'], 'content' => $msg['content']];
             }
@@ -236,8 +302,7 @@ class ChatController extends Controller
 
         $messages[] = ['role' => 'user', 'content' => $userMessage];
 
-        $maxIterations = 8;
-        for ($i = 0; $i < $maxIterations; $i++) {
+        for ($i = 0; $i < 8; $i++) {
             $apiResponse = $this->callOpenAI($messages, $tools);
 
             if (!$apiResponse['success']) {
@@ -252,24 +317,17 @@ class ChatController extends Controller
             }
 
             if ($choice['finish_reason'] === 'stop' || empty($message['tool_calls'])) {
-                return [
-                    'response'   => $message['content'] ?? '',
-                    'tools_used' => $toolsUsed,
-                ];
+                return ['response' => $message['content'] ?? '', 'tools_used' => $toolsUsed];
             }
 
             $messages[] = $message;
 
             foreach ($message['tool_calls'] as $toolCall) {
-                $functionName = $toolCall['function']['name'];
-                $arguments    = json_decode($toolCall['function']['arguments'], true) ?? [];
+                $fn   = $toolCall['function']['name'];
+                $args = json_decode($toolCall['function']['arguments'], true) ?? [];
 
-                $toolResult = $this->executeToolCall($functionName, $arguments, $session);
-                $toolsUsed[] = [
-                    'tool'   => $functionName,
-                    'args'   => $arguments,
-                    'status' => $toolResult['success'] ? 'ok' : 'error',
-                ];
+                $toolResult = $this->executeToolCall($fn, $args, $session);
+                $toolsUsed[] = ['tool' => $fn, 'args' => $args, 'status' => $toolResult['success'] ? 'ok' : 'error'];
 
                 $messages[] = [
                     'role'         => 'tool',
@@ -279,10 +337,7 @@ class ChatController extends Controller
             }
         }
 
-        return [
-            'response'   => 'Se alcanzó el límite de consultas en una sola interacción. Por favor reformula tu pregunta.',
-            'tools_used' => $toolsUsed,
-        ];
+        return ['response' => 'Límite de consultas alcanzado. Reformula tu pregunta.', 'tools_used' => $toolsUsed];
     }
 
     protected function callOpenAI(array $messages, array $tools): array
@@ -291,23 +346,15 @@ class ChatController extends Controller
             return ['success' => false, 'error' => 'OPENAI_API_KEY no configurada'];
         }
 
-        $data = [
-            'model'       => $this->model,
-            'messages'    => $messages,
-            'tools'       => $tools,
-            'temperature' => 0.3,
-            'max_tokens'  => 4000,
-        ];
-
         $ch = curl_init($this->apiUrl);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST           => true,
-            CURLOPT_HTTPHEADER     => [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $this->apiKey,
-            ],
-            CURLOPT_POSTFIELDS     => json_encode($data),
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'Authorization: Bearer ' . $this->apiKey],
+            CURLOPT_POSTFIELDS     => json_encode([
+                'model' => $this->model, 'messages' => $messages, 'tools' => $tools,
+                'temperature' => 0.3, 'max_tokens' => 4000,
+            ]),
             CURLOPT_TIMEOUT        => 120,
             CURLOPT_SSL_VERIFYPEER => false,
         ]);
@@ -317,57 +364,52 @@ class ChatController extends Controller
         $error    = curl_error($ch);
         curl_close($ch);
 
-        if ($error) {
-            return ['success' => false, 'error' => "Error cURL: {$error}"];
-        }
+        if ($error) return ['success' => false, 'error' => "Error cURL: {$error}"];
 
         $result = json_decode($response, true);
-
         if ($httpCode !== 200) {
-            $errorMsg = $result['error']['message'] ?? "Error HTTP {$httpCode}";
-            return ['success' => false, 'error' => $errorMsg];
+            return ['success' => false, 'error' => $result['error']['message'] ?? "Error HTTP {$httpCode}"];
         }
 
         return ['success' => true, 'data' => $result];
     }
 
-    protected function executeToolCall(string $functionName, array $arguments, $session): array
+    protected function executeToolCall(string $fn, array $args, $session): array
     {
-        switch ($functionName) {
+        switch ($fn) {
             case 'list_tables':
                 $this->logOperation('tool_list_tables', '', $session);
                 return $this->toolListTables();
-
             case 'describe_table':
-                $this->logOperation('tool_describe_table', $arguments['table_name'] ?? '', $session);
-                return $this->toolDescribeTable($arguments['table_name'] ?? '');
-
+                $this->logOperation('tool_describe_table', $args['table_name'] ?? '', $session);
+                return $this->toolDescribeTable($args['table_name'] ?? '');
             case 'execute_select':
-                $this->logOperation('tool_select', $arguments['query'] ?? '', $session);
-                return $this->toolExecuteSelect($arguments['query'] ?? '');
-
+                $this->logOperation('tool_select', $args['query'] ?? '', $session);
+                return $this->toolExecuteSelect($args['query'] ?? '');
             case 'execute_update':
-                $this->logOperation('tool_update', $arguments['query'] ?? '', $session);
-                return $this->toolExecuteUpdate($arguments, $session);
-
+                $this->logOperation('tool_update', $args['query'] ?? '', $session);
+                return $this->toolExecuteWrite($args, 'UPDATE', $session);
             case 'execute_insert':
-                $this->logOperation('tool_insert', $arguments['query'] ?? '', $session);
-                return $this->toolExecuteInsert($arguments, $session);
-
+                $this->logOperation('tool_insert', $args['query'] ?? '', $session);
+                return $this->toolExecuteWrite($args, 'INSERT', $session);
+            case 'execute_delete':
+                $this->logOperation('tool_delete', $args['query'] ?? '', $session);
+                return $this->toolExecuteWrite($args, 'DELETE', $session);
             default:
-                return ['success' => false, 'error' => "Tool desconocida: {$functionName}"];
+                return ['success' => false, 'error' => "Tool desconocida: {$fn}"];
         }
     }
 
     // =========================================================================
-    // TOOLS — LECTURA (queries parametrizados con Query Builder)
+    // TOOLS — LECTURA
     // =========================================================================
 
     protected function toolListTables(): array
     {
         try {
-            $db = \Config\Database::connect();
-            return ['success' => true, 'tables' => $db->listTables(), 'count' => count($db->listTables())];
+            $db     = \Config\Database::connect();
+            $tables = $db->listTables();
+            return ['success' => true, 'tables' => $tables, 'count' => count($tables)];
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
@@ -375,80 +417,46 @@ class ChatController extends Controller
 
     protected function toolDescribeTable(string $tableName): array
     {
-        if (empty($tableName)) {
-            return ['success' => false, 'error' => 'Nombre de tabla vacío'];
-        }
+        if (empty($tableName)) return ['success' => false, 'error' => 'Nombre de tabla vacío'];
 
-        // Sanitizar: solo alfanuméricos y underscore
         $tableName = preg_replace('/[^a-zA-Z0-9_]/', '', $tableName);
 
         try {
             $db = \Config\Database::connect();
-
             if (!$db->tableExists($tableName)) {
                 return ['success' => false, 'error' => "Tabla '{$tableName}' no existe"];
             }
 
             $fields = $db->getFieldData($tableName);
             $count  = $db->table($tableName)->countAllResults();
-
             $schema = [];
-            foreach ($fields as $field) {
+            foreach ($fields as $f) {
                 $schema[] = [
-                    'name'        => $field->name,
-                    'type'        => $field->type,
-                    'max_length'  => $field->max_length ?? null,
-                    'nullable'    => $field->nullable ?? null,
-                    'default'     => $field->default ?? null,
-                    'primary_key' => $field->primary_key ?? false,
+                    'name' => $f->name, 'type' => $f->type,
+                    'max_length' => $f->max_length ?? null, 'nullable' => $f->nullable ?? null,
+                    'default' => $f->default ?? null, 'primary_key' => $f->primary_key ?? false,
                 ];
             }
 
-            return [
-                'success'     => true,
-                'table'       => $tableName,
-                'columns'     => $schema,
-                'row_count'   => $count,
-                'is_readonly' => in_array($tableName, $this->readOnlyTables),
-            ];
+            return ['success' => true, 'table' => $tableName, 'columns' => $schema, 'row_count' => $count, 'is_readonly' => in_array($tableName, $this->readOnlyTables)];
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
-    /**
-     * SELECT — Validado y con límite forzado
-     * Nota: Los SELECTs usan query directa porque el Query Builder no soporta
-     * JOINs complejos ni subqueries que el asistente necesita. Se protegen con:
-     * - Validación de patrones prohibidos
-     * - Bloqueo de múltiples statements
-     * - Límite forzado de 50 filas
-     * - Solo SELECT permitido
-     */
     protected function toolExecuteSelect(string $query): array
     {
-        $validation = $this->validateQuery($query, 'SELECT');
-        if (!$validation['valid']) {
-            return ['success' => false, 'error' => $validation['error']];
-        }
+        $v = $this->validateQuery($query, 'SELECT');
+        if (!$v['valid']) return ['success' => false, 'error' => $v['error']];
 
         try {
-            $db     = \Config\Database::connect();
-            $result = $db->query($query);
-            $rows   = $result->getResultArray();
-            $total  = count($rows);
+            $db    = \Config\Database::connect();
+            $rows  = $db->query($query)->getResultArray();
+            $total = count($rows);
 
             if ($total > 50) {
-                $rows = array_slice($rows, 0, 50);
-                return [
-                    'success'    => true,
-                    'data'       => $rows,
-                    'total_rows' => $total,
-                    'truncated'  => true,
-                    'note'       => "Mostrando 50 de {$total} filas. Usa LIMIT para reducir.",
-                ];
+                return ['success' => true, 'data' => array_slice($rows, 0, 50), 'total_rows' => $total, 'truncated' => true, 'note' => "Mostrando 50 de {$total}. Usa LIMIT."];
             }
-
             return ['success' => true, 'data' => $rows, 'total_rows' => $total];
         } catch (\Exception $e) {
             return ['success' => false, 'error' => 'Error SQL: ' . $e->getMessage()];
@@ -456,79 +464,35 @@ class ChatController extends Controller
     }
 
     // =========================================================================
-    // TOOLS — ESCRITURA (con confirmación obligatoria + Query Builder)
+    // TOOLS — ESCRITURA (confirmación simple para UPDATE/INSERT, aritmética para DELETE)
     // =========================================================================
 
-    /**
-     * UPDATE — Parsea la query de OpenAI, la convierte a Query Builder parametrizado
-     * y requiere confirmación del usuario antes de ejecutar
-     */
-    protected function toolExecuteUpdate(array $arguments, $session): array
+    protected function toolExecuteWrite(array $args, string $type, $session): array
     {
-        $rawQuery = trim($arguments['query'] ?? '');
-
-        $validation = $this->validateQuery($rawQuery, 'UPDATE');
-        if (!$validation['valid']) {
-            return ['success' => false, 'error' => $validation['error']];
-        }
+        $rawQuery = trim($args['query'] ?? '');
+        $v = $this->validateQuery($rawQuery, $type);
+        if (!$v['valid']) return ['success' => false, 'error' => $v['error']];
 
         // Parsear tabla
-        if (!preg_match('/UPDATE\s+(\w+)\s+SET\s+/i', $rawQuery, $tableMatch)) {
-            return ['success' => false, 'error' => 'No se pudo parsear la tabla del UPDATE'];
+        $tablePattern = match ($type) {
+            'UPDATE' => '/UPDATE\s+(\w+)/i',
+            'INSERT' => '/INSERT\s+INTO\s+(\w+)/i',
+            'DELETE' => '/DELETE\s+FROM\s+(\w+)/i',
+        };
+
+        if (!preg_match($tablePattern, $rawQuery, $m)) {
+            return ['success' => false, 'error' => "No se pudo parsear la tabla del {$type}"];
         }
-        $table = preg_replace('/[^a-zA-Z0-9_]/', '', $tableMatch[1]);
+
+        $table = preg_replace('/[^a-zA-Z0-9_]/', '', $m[1]);
 
         if (in_array($table, $this->readOnlyTables)) {
             return ['success' => false, 'error' => "La tabla '{$table}' es de solo lectura"];
         }
 
-        if (!preg_match('/\bWHERE\b/i', $rawQuery)) {
-            return ['success' => false, 'error' => 'UPDATE sin WHERE no está permitido'];
-        }
-
-        // Verificar que la tabla existe
-        $db = \Config\Database::connect();
-        if (!$db->tableExists($table)) {
-            return ['success' => false, 'error' => "Tabla '{$table}' no existe"];
-        }
-
-        // Guardar como pendiente — requiere confirmación del usuario
-        $pending = [
-            'type'      => 'UPDATE',
-            'table'     => $table,
-            'raw_query' => $rawQuery,
-            'timestamp' => time(),
-        ];
-        $session->set(self::SESSION_PENDING_KEY, $pending);
-
-        return [
-            'success'              => true,
-            'requires_confirmation' => true,
-            'message'              => "OPERACIÓN PENDIENTE DE CONFIRMACIÓN. Dile al usuario exactamente qué se va a modificar y pídele que haga clic en el botón 'Confirmar' para proceder.",
-            'operation'            => "UPDATE en tabla '{$table}'",
-            'query_preview'        => $rawQuery,
-        ];
-    }
-
-    /**
-     * INSERT — Similar: parsea, valida, requiere confirmación
-     */
-    protected function toolExecuteInsert(array $arguments, $session): array
-    {
-        $rawQuery = trim($arguments['query'] ?? '');
-
-        $validation = $this->validateQuery($rawQuery, 'INSERT');
-        if (!$validation['valid']) {
-            return ['success' => false, 'error' => $validation['error']];
-        }
-
-        if (!preg_match('/INSERT\s+INTO\s+(\w+)/i', $rawQuery, $tableMatch)) {
-            return ['success' => false, 'error' => 'No se pudo parsear la tabla del INSERT'];
-        }
-        $table = preg_replace('/[^a-zA-Z0-9_]/', '', $tableMatch[1]);
-
-        if (in_array($table, $this->readOnlyTables)) {
-            return ['success' => false, 'error' => "La tabla '{$table}' es de solo lectura"];
+        // UPDATE y DELETE deben tener WHERE
+        if (in_array($type, ['UPDATE', 'DELETE']) && !preg_match('/\bWHERE\b/i', $rawQuery)) {
+            return ['success' => false, 'error' => "{$type} sin WHERE no está permitido"];
         }
 
         $db = \Config\Database::connect();
@@ -536,103 +500,81 @@ class ChatController extends Controller
             return ['success' => false, 'error' => "Tabla '{$table}' no existe"];
         }
 
-        $pending = [
-            'type'      => 'INSERT',
+        // Guardar como pendiente
+        $session->set(self::SESSION_PENDING_KEY, [
+            'type'      => $type,
             'table'     => $table,
             'raw_query' => $rawQuery,
             'timestamp' => time(),
-        ];
-        $session->set(self::SESSION_PENDING_KEY, $pending);
+        ]);
+
+        $confirmType = $type === 'DELETE' ? 'aritmética (doble)' : 'simple';
 
         return [
-            'success'              => true,
+            'success'               => true,
             'requires_confirmation' => true,
-            'message'              => "OPERACIÓN PENDIENTE DE CONFIRMACIÓN. Dile al usuario exactamente qué registro se va a crear y pídele que haga clic en el botón 'Confirmar' para proceder.",
-            'operation'            => "INSERT en tabla '{$table}'",
-            'query_preview'        => $rawQuery,
+            'confirmation_type'     => $type === 'DELETE' ? 'arithmetic' : 'simple',
+            'message'               => "OPERACIÓN PENDIENTE DE CONFIRMACIÓN ({$confirmType}). Describe al usuario exactamente qué se va a hacer y pídele que use los botones de confirmación.",
+            'operation'             => "{$type} en tabla '{$table}'",
+            'query_preview'         => $rawQuery,
         ];
     }
 
-    /**
-     * Ejecuta una operación de escritura ya confirmada por el usuario
-     */
     protected function executeConfirmedWrite(array $pending): array
     {
-        // Validar que no haya expirado (máximo 5 minutos)
         if (time() - ($pending['timestamp'] ?? 0) > 300) {
-            return ['success' => false, 'error' => 'La operación expiró. Solicita la operación nuevamente.'];
+            return ['success' => false, 'error' => 'Operación expirada (5 min). Solicítala de nuevo.'];
         }
 
         $rawQuery = $pending['raw_query'] ?? '';
         $type     = $pending['type'] ?? '';
 
-        // Re-validar antes de ejecutar
-        $validation = $this->validateQuery($rawQuery, $type);
-        if (!$validation['valid']) {
-            return ['success' => false, 'error' => $validation['error']];
-        }
+        $v = $this->validateQuery($rawQuery, $type);
+        if (!$v['valid']) return ['success' => false, 'error' => $v['error']];
 
         try {
             $db = \Config\Database::connect();
             $db->query($rawQuery);
+            $affected = $db->affectedRows();
 
-            if ($type === 'UPDATE') {
-                return [
-                    'success'       => true,
-                    'affected_rows' => $db->affectedRows(),
-                    'message'       => $db->affectedRows() . ' fila(s) actualizada(s)',
-                ];
-            } else {
-                return [
-                    'success'   => true,
-                    'insert_id' => $db->insertID(),
-                    'message'   => 'Registro insertado con ID: ' . $db->insertID(),
-                ];
+            if ($type === 'INSERT') {
+                return ['success' => true, 'insert_id' => $db->insertID(), 'message' => 'Registro insertado con ID: ' . $db->insertID()];
             }
+            return ['success' => true, 'affected_rows' => $affected, 'message' => "{$affected} fila(s) afectada(s)"];
         } catch (\Exception $e) {
             return ['success' => false, 'error' => 'Error SQL: ' . $e->getMessage()];
         }
     }
 
     // =========================================================================
-    // VALIDACIÓN Y SEGURIDAD
+    // VALIDACIÓN SQL
     // =========================================================================
 
     protected function validateQuery(string $query, string $expectedType): array
     {
         $query = trim($query);
+        if (empty($query)) return ['valid' => false, 'error' => 'Query vacío'];
 
-        if (empty($query)) {
-            return ['valid' => false, 'error' => 'Query vacío'];
-        }
-
-        // Verificar operaciones prohibidas
         foreach ($this->forbiddenPatterns as $pattern) {
             if (preg_match($pattern, $query)) {
                 return ['valid' => false, 'error' => 'Operación no permitida por política de seguridad'];
             }
         }
 
-        // Verificar tipo esperado
-        $queryUpper = strtoupper(ltrim($query));
-        if (!str_starts_with($queryUpper, $expectedType)) {
-            return ['valid' => false, 'error' => "Se esperaba {$expectedType} pero se recibió otro tipo de query"];
+        if (!str_starts_with(strtoupper(ltrim($query)), $expectedType)) {
+            return ['valid' => false, 'error' => "Se esperaba {$expectedType} pero se recibió otro tipo"];
         }
 
-        // Bloquear múltiples statements (inyección SQL)
-        $withoutStrings = preg_replace("/'[^']*'/", '', $query);
-        $withoutStrings = preg_replace('/"[^"]*"/', '', $withoutStrings);
-        if (substr_count($withoutStrings, ';') > 1) {
+        $clean = preg_replace("/'[^']*'/", '', $query);
+        $clean = preg_replace('/"[^"]*"/', '', $clean);
+
+        if (substr_count($clean, ';') > 1) {
             return ['valid' => false, 'error' => 'No se permiten múltiples statements'];
         }
-
-        // Bloquear comentarios SQL (prevenir bypass)
-        if (preg_match('/\/\*|\*\/|--/', $withoutStrings)) {
+        if (preg_match('/\/\*|\*\/|--/', $clean)) {
             return ['valid' => false, 'error' => 'Comentarios SQL no permitidos'];
         }
-
-        // Bloquear funciones peligrosas
-        if (preg_match('/\b(SLEEP|BENCHMARK|CHAR\s*\(|CONCAT\s*\(.*SELECT|UNION\s+SELECT|0x[0-9a-fA-F]+)/i', $withoutStrings)) {
+        if (preg_match('/\b(SLEEP|BENCHMARK|CHAR\s*\(|CONCAT\s*\(.*SELECT|UNION\s+SELECT|0x[0-9a-fA-F]+)/i', $clean)) {
             return ['valid' => false, 'error' => 'Expresión SQL no permitida'];
         }
 
@@ -641,35 +583,29 @@ class ChatController extends Controller
 
     protected function listAllTables(): array
     {
-        $db     = \Config\Database::connect();
-        $tables = $db->listTables();
+        $db = \Config\Database::connect();
         $result = [];
-
-        foreach ($tables as $table) {
+        foreach ($db->listTables() as $table) {
             try {
-                $count    = $db->table($table)->countAllResults();
-                $result[] = ['name' => $table, 'rows' => $count];
+                $result[] = ['name' => $table, 'rows' => $db->table($table)->countAllResults()];
             } catch (\Exception $e) {
                 $result[] = ['name' => $table, 'rows' => '?'];
             }
         }
-
         return $result;
     }
 
     // =========================================================================
-    // PROMPTS Y TOOLS
+    // SYSTEM PROMPT Y TOOL DEFINITIONS
     // =========================================================================
 
     protected function buildSystemPrompt(): string
     {
         $db        = \Config\Database::connect();
-        $tables    = $db->listTables();
-        $tableList = implode(', ', $tables);
-
-        $session  = session();
-        $userName = $session->get('nombre_usuario') ?? 'Consultor';
-        $userRole = $session->get('role') ?? '';
+        $tableList = implode(', ', $db->listTables());
+        $session   = session();
+        $userName  = $session->get('nombre_usuario') ?? 'Consultor';
+        $userRole  = $session->get('role') ?? '';
 
         return <<<PROMPT
 Eres un asistente experto para consultores de Seguridad y Salud en el Trabajo (SST) en Colombia, especializado en Propiedad Horizontal.
@@ -678,47 +614,45 @@ Tu nombre es "Asistente PH" y trabajas dentro del aplicativo Enterprise SST - Pr
 El usuario actual es: {$userName} (rol: {$userRole})
 
 ## TU ROL
-- Ayudas al consultor a consultar y gestionar datos del sistema de Propiedad Horizontal
-- Puedes consultar cualquier tabla de la base de datos (SELECT)
-- Puedes proponer actualizaciones (UPDATE con WHERE) e inserciones (INSERT)
-- Las operaciones de escritura (UPDATE/INSERT) REQUIEREN CONFIRMACIÓN del usuario
-- NUNCA puedes eliminar datos (DELETE, DROP, TRUNCATE están prohibidos)
+- Ayudas al consultor a consultar y gestionar datos del sistema
+- Puedes: SELECT (consultar), UPDATE (actualizar), INSERT (crear), DELETE (eliminar)
 - Las tablas tbl_usuarios, tbl_sesiones_usuario y tbl_roles son de SOLO LECTURA
 
 ## TABLAS DISPONIBLES
 {$tableList}
 
-## REGLAS DE SEGURIDAD
-1. NUNCA ejecutes DELETE, DROP, TRUNCATE, ALTER, CREATE, GRANT, REVOKE o RENAME
-2. Todo UPDATE DEBE tener cláusula WHERE
-3. Antes de hacer un UPDATE, primero consulta el registro actual con SELECT
-4. Las operaciones de escritura generan una solicitud de confirmación — el usuario debe aprobar
-5. Limita los SELECT a 50 filas con LIMIT cuando no se especifique
-6. Las tablas de usuarios y sesiones son de SOLO LECTURA
-7. Todas las operaciones quedan registradas en el log de auditoría
+## NIVELES DE CONFIRMACIÓN
+- **SELECT**: se ejecuta directamente, sin confirmación
+- **UPDATE / INSERT**: confirmación SIMPLE (botón Confirmar/Cancelar)
+- **DELETE**: confirmación DOBLE con reto aritmético (ej: "¿Cuánto es 7+3?")
+- **DROP / TRUNCATE / ALTER**: PROHIBIDOS permanentemente
 
-## FLUJO DE ESCRITURA (IMPORTANTE)
-Cuando el usuario pida modificar o insertar datos:
-1. Primero consulta con SELECT el estado actual
-2. Muestra al usuario qué existe actualmente
-3. Describe exactamente qué vas a cambiar/insertar
-4. Ejecuta la tool (execute_update o execute_insert) — esto NO ejecuta, solo propone
-5. El sistema mostrará un botón de confirmación al usuario
-6. Solo después de que el usuario confirme, se ejecuta la operación
+## REGLAS DE SEGURIDAD
+1. DROP, TRUNCATE, ALTER, CREATE TABLE, GRANT, REVOKE, RENAME están PROHIBIDOS
+2. UPDATE y DELETE DEBEN tener cláusula WHERE (no afectar toda la tabla)
+3. Antes de modificar/eliminar, primero consulta con SELECT el estado actual
+4. Describe exactamente qué vas a hacer antes de ejecutar la tool
+5. Limita los SELECT a 50 filas con LIMIT cuando no se especifique
+6. Todas las operaciones quedan registradas en el log de auditoría
+
+## FLUJO DE ESCRITURA
+1. Consulta con SELECT el estado actual
+2. Muestra al usuario qué existe
+3. Describe qué vas a cambiar/insertar/eliminar
+4. Ejecuta la tool — esto NO ejecuta directamente, genera solicitud de confirmación
+5. El usuario confirma con botón (UPDATE/INSERT) o reto aritmético (DELETE)
 
 ## FORMATO DE RESPUESTA
 - Responde en español
-- Usa formato Markdown para tablas y código
-- Cuando muestres datos, formátalos en tablas legibles
-- Si haces un cambio, confirma qué se modificó
-- Si no puedes hacer algo, explica por qué
+- Usa Markdown para tablas y código
+- Formatea datos en tablas legibles
 
 ## CONTEXTO DEL SISTEMA
 - Base de datos: propiedad_horizontal (MySQL)
 - Framework: CodeIgniter 4
-- El sistema gestiona: conjuntos residenciales, copropiedades, contratos, inspecciones SST, actas de visita, documentos, comités, capacitaciones, indicadores, planes de trabajo, pendientes, mantenimientos, etc.
-- Prefijo de tablas: la mayoría usa 'tbl_' como prefijo
-- Los clientes son conjuntos residenciales / edificios / copropiedades
+- Gestiona: conjuntos residenciales, copropiedades, contratos, inspecciones SST, actas de visita, documentos, comités, capacitaciones, indicadores, planes de trabajo, pendientes, mantenimientos
+- Prefijo de tablas: 'tbl_'
+- Clientes = conjuntos residenciales / edificios / copropiedades
 PROMPT;
     }
 
@@ -726,81 +660,69 @@ PROMPT;
     {
         return [
             [
-                'type'     => 'function',
+                'type' => 'function',
                 'function' => [
-                    'name'        => 'list_tables',
-                    'description' => 'Lista todas las tablas disponibles en la base de datos',
-                    'parameters'  => [
-                        'type'       => 'object',
-                        'properties' => new \stdClass(),
-                        'required'   => [],
-                    ],
+                    'name' => 'list_tables',
+                    'description' => 'Lista todas las tablas de la base de datos',
+                    'parameters' => ['type' => 'object', 'properties' => new \stdClass(), 'required' => []],
                 ],
             ],
             [
-                'type'     => 'function',
+                'type' => 'function',
                 'function' => [
-                    'name'        => 'describe_table',
-                    'description' => 'Obtiene la estructura (columnas, tipos, nullable, pk) y conteo de filas de una tabla',
-                    'parameters'  => [
-                        'type'       => 'object',
-                        'properties' => [
-                            'table_name' => [
-                                'type'        => 'string',
-                                'description' => 'Nombre de la tabla (ej: tbl_clientes)',
-                            ],
-                        ],
+                    'name' => 'describe_table',
+                    'description' => 'Estructura de una tabla (columnas, tipos, PK) y conteo de filas',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => ['table_name' => ['type' => 'string', 'description' => 'Nombre de la tabla (ej: tbl_clientes)']],
                         'required' => ['table_name'],
                     ],
                 ],
             ],
             [
-                'type'     => 'function',
+                'type' => 'function',
                 'function' => [
-                    'name'        => 'execute_select',
-                    'description' => 'Ejecuta una consulta SELECT. Máximo 50 filas. Usa LIMIT.',
-                    'parameters'  => [
-                        'type'       => 'object',
-                        'properties' => [
-                            'query' => [
-                                'type'        => 'string',
-                                'description' => 'Query SELECT SQL. Ejemplo: SELECT * FROM tbl_clientes WHERE estado = "activo" LIMIT 10',
-                            ],
-                        ],
+                    'name' => 'execute_select',
+                    'description' => 'Ejecuta un SELECT. Máx 50 filas. Usa LIMIT.',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => ['query' => ['type' => 'string', 'description' => 'Query SELECT SQL']],
                         'required' => ['query'],
                     ],
                 ],
             ],
             [
-                'type'     => 'function',
+                'type' => 'function',
                 'function' => [
-                    'name'        => 'execute_update',
-                    'description' => 'PROPONE un UPDATE (no lo ejecuta directamente). Requiere confirmación del usuario. DEBE incluir WHERE.',
-                    'parameters'  => [
-                        'type'       => 'object',
-                        'properties' => [
-                            'query' => [
-                                'type'        => 'string',
-                                'description' => 'Query UPDATE con WHERE obligatorio',
-                            ],
-                        ],
+                    'name' => 'execute_update',
+                    'description' => 'PROPONE un UPDATE (requiere confirmación simple del usuario). DEBE incluir WHERE.',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => ['query' => ['type' => 'string', 'description' => 'Query UPDATE con WHERE']],
                         'required' => ['query'],
                     ],
                 ],
             ],
             [
-                'type'     => 'function',
+                'type' => 'function',
                 'function' => [
-                    'name'        => 'execute_insert',
-                    'description' => 'PROPONE un INSERT (no lo ejecuta directamente). Requiere confirmación del usuario.',
-                    'parameters'  => [
-                        'type'       => 'object',
-                        'properties' => [
-                            'query' => [
-                                'type'        => 'string',
-                                'description' => 'Query INSERT INTO SQL',
-                            ],
-                        ],
+                    'name' => 'execute_insert',
+                    'description' => 'PROPONE un INSERT (requiere confirmación simple del usuario).',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => ['query' => ['type' => 'string', 'description' => 'Query INSERT INTO SQL']],
+                        'required' => ['query'],
+                    ],
+                ],
+            ],
+            [
+                'type' => 'function',
+                'function' => [
+                    'name' => 'execute_delete',
+                    'description' => 'PROPONE un DELETE (requiere doble confirmación aritmética del usuario). DEBE incluir WHERE. Usar con precaución.',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => ['query' => ['type' => 'string', 'description' => 'Query DELETE FROM con WHERE obligatorio']],
                         'required' => ['query'],
                     ],
                 ],

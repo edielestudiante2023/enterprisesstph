@@ -473,6 +473,20 @@
 
         .btn-cancel:hover { background: #565e64; }
 
+        .btn-delete-challenge {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-delete-challenge:hover { background: #bb2d3b; }
+
         /* Schema panel */
         .schema-toggle {
             position: fixed;
@@ -714,10 +728,13 @@
             .then(data => {
                 setProcessing(false);
                 if (data.success) {
-                    const hasWriteTool = (data.tools_used || []).some(t =>
+                    const tools = data.tools_used || [];
+                    const hasSimpleWrite = tools.some(t =>
                         (t.tool === 'execute_update' || t.tool === 'execute_insert') && t.status === 'ok'
                     );
-                    appendMessage('assistant', data.response, data.tools_used || [], hasWriteTool);
+                    const hasDelete = tools.some(t => t.tool === 'execute_delete' && t.status === 'ok');
+                    const confirmType = hasDelete ? 'arithmetic' : (hasSimpleWrite ? 'simple' : null);
+                    appendMessage('assistant', data.response, tools, confirmType);
                     conversationHistory.push({ role: 'assistant', content: data.response });
                 } else {
                     appendMessage('assistant', 'Error: ' + (data.error || 'Error desconocido'));
@@ -737,7 +754,7 @@
         // =====================================================================
         // Renderizado de mensajes
         // =====================================================================
-        function appendMessage(role, content, toolsUsed = [], showConfirmation = false) {
+        function appendMessage(role, content, toolsUsed = [], confirmType = null) {
             const container = document.getElementById('chatMessages');
             const div = document.createElement('div');
             div.className = 'message ' + role;
@@ -766,8 +783,8 @@
                 bubble.appendChild(badge);
             }
 
-            // Botones de confirmación para operaciones de escritura
-            if (showConfirmation) {
+            // Botones de confirmación
+            if (confirmType === 'simple') {
                 const confirmDiv = document.createElement('div');
                 confirmDiv.className = 'confirm-buttons';
                 confirmDiv.innerHTML = `
@@ -775,6 +792,18 @@
                         <i class="fas fa-check me-1"></i>Confirmar
                     </button>
                     <button class="btn-cancel" onclick="confirmOperation(false, this)">
+                        <i class="fas fa-times me-1"></i>Cancelar
+                    </button>
+                `;
+                bubble.appendChild(confirmDiv);
+            } else if (confirmType === 'arithmetic') {
+                const confirmDiv = document.createElement('div');
+                confirmDiv.className = 'confirm-buttons';
+                confirmDiv.innerHTML = `
+                    <button class="btn-delete-challenge" onclick="startDeleteChallenge(this)">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Eliminar (requiere verificación)
+                    </button>
+                    <button class="btn-cancel" onclick="cancelDelete(this)">
                         <i class="fas fa-times me-1"></i>Cancelar
                     </button>
                 `;
@@ -789,7 +818,7 @@
         }
 
         // =====================================================================
-        // Confirmación de operaciones de escritura
+        // Confirmación SIMPLE (UPDATE/INSERT)
         // =====================================================================
         function confirmOperation(confirm, btnEl) {
             const buttonsDiv = btnEl.closest('.confirm-buttons');
@@ -804,20 +833,89 @@
             })
             .then(r => r.json())
             .then(data => {
-                if (data.success) {
-                    const msg = confirm
-                        ? (data.message || 'Operación ejecutada correctamente')
-                        : 'Operación cancelada';
-                    buttonsDiv.innerHTML = confirm
-                        ? `<span style="color:#198754;font-size:0.85rem;"><i class="fas fa-check-circle me-1"></i>${msg}</span>`
-                        : `<span style="color:#6c757d;font-size:0.85rem;"><i class="fas fa-ban me-1"></i>${msg}</span>`;
-                } else {
-                    buttonsDiv.innerHTML = `<span style="color:#dc3545;font-size:0.85rem;"><i class="fas fa-exclamation-circle me-1"></i>${data.error || 'Error'}</span>`;
-                }
+                const msg = data.success ? (data.message || 'OK') : (data.error || 'Error');
+                const color = data.success && confirm ? '#198754' : (data.success ? '#6c757d' : '#dc3545');
+                const icon = data.success && confirm ? 'check-circle' : (data.success ? 'ban' : 'exclamation-circle');
+                buttonsDiv.innerHTML = `<span style="color:${color};font-size:0.85rem;"><i class="fas fa-${icon} me-1"></i>${msg}</span>`;
             })
             .catch(err => {
                 buttonsDiv.innerHTML = `<span style="color:#dc3545;font-size:0.85rem;">Error: ${err.message}</span>`;
             });
+        }
+
+        // =====================================================================
+        // Confirmación DOBLE ARITMÉTICA (DELETE)
+        // =====================================================================
+        function startDeleteChallenge(btnEl) {
+            const buttonsDiv = btnEl.closest('.confirm-buttons');
+            buttonsDiv.innerHTML = '<span style="color:#f39c12;font-size:0.85rem;"><i class="fas fa-spinner fa-spin me-1"></i>Generando reto...</span>';
+
+            fetch(BASE_URL + 'chat/confirm-delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ step: 'challenge' })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) {
+                    buttonsDiv.innerHTML = `<span style="color:#dc3545;font-size:0.85rem;">${data.error}</span>`;
+                    return;
+                }
+                buttonsDiv.innerHTML = `
+                    <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:10px;margin-top:4px;">
+                        <div style="font-weight:600;color:#856404;font-size:0.85rem;margin-bottom:6px;">
+                            <i class="fas fa-shield-alt me-1"></i>${data.challenge}
+                        </div>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <input type="number" id="deleteAnswer" class="form-control form-control-sm" style="width:80px;border-radius:8px;" placeholder="?">
+                            <button class="btn-confirm" style="font-size:0.78rem;padding:4px 12px;" onclick="verifyDeleteAnswer(this)">
+                                <i class="fas fa-check me-1"></i>Verificar
+                            </button>
+                            <button class="btn-cancel" style="font-size:0.78rem;padding:4px 12px;" onclick="cancelDelete(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(err => {
+                buttonsDiv.innerHTML = `<span style="color:#dc3545;font-size:0.85rem;">Error: ${err.message}</span>`;
+            });
+        }
+
+        function verifyDeleteAnswer(btnEl) {
+            const container = btnEl.closest('.confirm-buttons');
+            const answer = document.getElementById('deleteAnswer').value;
+
+            if (!answer) return;
+
+            container.innerHTML = '<span style="color:#f39c12;font-size:0.85rem;"><i class="fas fa-spinner fa-spin me-1"></i>Verificando...</span>';
+
+            fetch(BASE_URL + 'chat/confirm-delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ step: 'verify', answer: parseInt(answer) })
+            })
+            .then(r => r.json())
+            .then(data => {
+                const color = data.success ? '#198754' : '#dc3545';
+                const icon = data.success ? 'check-circle' : 'exclamation-circle';
+                container.innerHTML = `<span style="color:${color};font-size:0.85rem;"><i class="fas fa-${icon} me-1"></i>${data.message || data.error}</span>`;
+            })
+            .catch(err => {
+                container.innerHTML = `<span style="color:#dc3545;font-size:0.85rem;">Error: ${err.message}</span>`;
+            });
+        }
+
+        function cancelDelete(btnEl) {
+            const container = btnEl.closest('.confirm-buttons');
+            container.innerHTML = '<span style="color:#6c757d;font-size:0.85rem;"><i class="fas fa-ban me-1"></i>Eliminación cancelada</span>';
+
+            fetch(BASE_URL + 'chat/confirm-delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ step: 'cancel' })
+            }).catch(() => {});
         }
 
         // =====================================================================
