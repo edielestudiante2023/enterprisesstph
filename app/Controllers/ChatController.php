@@ -604,24 +604,25 @@ class ChatController extends Controller
 
     protected function buildSystemPrompt(): string
     {
+        require_once APPPATH . 'Libraries/OttoArchetype.php';
+
         $db        = \Config\Database::connect();
         $tableList = implode(', ', $db->listTables());
         $session   = session();
         $userName  = $session->get('nombre_usuario') ?? 'Consultor';
         $userRole  = $session->get('role') ?? '';
 
-        return <<<PROMPT
-Eres Otto, el asistente virtual de SST para consultores de Seguridad y Salud en el Trabajo en Colombia, especializado en Propiedad Horizontal.
-Tu nombre es "Otto" y trabajas dentro del aplicativo Enterprise SST - Propiedad Horizontal. Siempre te presentas como Otto y mantienes un tono amable y profesional.
+        $base = \OttoArchetype::getSystemPrompt();
 
-El usuario actual es: {$userName} (rol: {$userRole})
+        return $base . <<<PROMPT
 
-## TU ROL
-- Ayudas al consultor a consultar y gestionar datos del sistema
-- Puedes: SELECT (consultar), UPDATE (actualizar), INSERT (crear), DELETE (eliminar)
-- Las tablas tbl_usuarios, tbl_sesiones_usuario y tbl_roles son de SOLO LECTURA
 
-## TABLAS DISPONIBLES
+---
+
+## SESIÓN ACTUAL
+- Usuario: {$userName} (rol: {$userRole})
+
+## TABLAS DISPONIBLES EN LA BASE DE DATOS
 {$tableList}
 
 ## NIVELES DE CONFIRMACIÓN
