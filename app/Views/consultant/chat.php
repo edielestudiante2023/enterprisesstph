@@ -626,10 +626,16 @@
                     <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
                     Otto
                 </div>
-                <a href="<?= base_url('consultant/dashboard') ?>" class="btn-back">
-                    <i class="fas fa-arrow-left me-1"></i>
-                    <span>Dashboard</span>
-                </a>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <button onclick="finalizarConversacion()" style="background:#c0392b;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                        <i class="fas fa-stop-circle"></i>
+                        <span>Finalizar</span>
+                    </button>
+                    <a href="<?= base_url('consultant/dashboard') ?>" class="btn-back">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -1063,6 +1069,33 @@
         window.addEventListener('beforeunload', sendSessionEmail);
 
         resetInactivityTimer();
+
+        async function finalizarConversacion() {
+            if (conversationHistory.length === 0) {
+                window.location.href = BASE_URL + 'consultant/dashboard';
+                return;
+            }
+            const { isConfirmed } = await Swal.fire({
+                title: '¿Finalizar conversación?',
+                text: 'Se enviará el resumen de esta sesión a tu correo.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, finalizar y enviar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#c0392b',
+            });
+            if (!isConfirmed) return;
+
+            sendSessionEmail();
+            await Swal.fire({
+                title: '¡Listo!',
+                text: 'Resumen enviado a tu correo.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+            });
+            window.location.href = BASE_URL + 'consultant/dashboard';
+        }
 
         // =====================================================================
         // PWA: Service Worker
