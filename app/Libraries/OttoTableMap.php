@@ -32,29 +32,26 @@ TXT;
     }
 
     /**
-     * Retorna el mapa como bloque de texto para el system prompt de OpenAI.
+     * Retorna el mapa en formato compacto para el system prompt de OpenAI.
+     * Formato: tabla | descripción | columnas clave | notas críticas
      */
     public static function getPromptBlock(): string
     {
         $map   = self::getMap();
-        $lines = ["## MAPA SEMÁNTICO DE TABLAS DE NEGOCIO", ""];
+        $lines = [
+            "## TABLAS DE NEGOCIO",
+            "Formato: TABLA | qué contiene | columnas clave | notas",
+            "",
+        ];
 
-        foreach ($map as $entry) {
-            $lines[] = "### `{$entry['table']}`" . (!empty($entry['priority']) ? " ⭐ {$entry['priority']}" : "");
-            $lines[] = "**Qué es:** {$entry['description']}";
-            if (!empty($entry['use_for'])) {
-                $lines[] = "**Úsala cuando pregunten:** " . implode(' / ', $entry['use_for']);
-            }
-            if (!empty($entry['key_columns'])) {
-                $lines[] = "**Columnas clave:** " . implode(', ', $entry['key_columns']);
-            }
-            if (!empty($entry['relations'])) {
-                $lines[] = "**Relaciones:** " . implode('; ', $entry['relations']);
-            }
-            if (!empty($entry['notes'])) {
-                $lines[] = "**Notas:** {$entry['notes']}";
-            }
-            $lines[] = "";
+        foreach ($map as $e) {
+            $cols  = implode(', ', $e['key_columns'] ?? []);
+            $notes = $e['notes'] ?? '';
+            $pri   = !empty($e['priority']) ? ' ' . $e['priority'] : '';
+            $line  = "`{$e['table']}`{$pri} | {$e['description']}";
+            if ($cols)  $line .= " | Cols: {$cols}";
+            if ($notes) $line .= " | ⚠ {$notes}";
+            $lines[] = $line;
         }
 
         return implode("\n", $lines);
