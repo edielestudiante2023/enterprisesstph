@@ -1,8 +1,8 @@
 {
   "id": "/consultant/chat",
-  "name": "Asistente PH - Cycloid",
-  "short_name": "Asistente PH",
-  "description": "Asistente IA con acceso a base de datos de Propiedad Horizontal",
+  "name": "Otto - Asistente SST",
+  "short_name": "Otto SST",
+  "description": "Otto, tu asistente virtual de SST con acceso a base de datos de Propiedad Horizontal",
   "start_url": "/enterprisesstph/public/consultant/chat",
   "scope": "/enterprisesstph/public/",
   "display": "standalone",

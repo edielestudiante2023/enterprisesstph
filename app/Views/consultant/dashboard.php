@@ -577,7 +577,7 @@
         <div class="text-center mb-4 quick-access-buttons">
             <a href="<?= base_url('/consultant/chat') ?>">
                 <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #4facfe, #00f2fe); border: none;">
-                    <i class="fas fa-robot me-2"></i>Asistente IA
+                    <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:20px;height:20px;border-radius:50%;object-fit:cover;margin-right:6px;">Otto
                 </button>
             </a>
             <a href="<?= base_url('/inspecciones') ?>" target="_blank" rel="noopener noreferrer">

@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#1c2437">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Asistente SST - Chat</title>
+    <title>Otto - Asistente SST</title>
     <link rel="icon" href="<?= base_url('favicon.ico') ?>" type="image/x-icon">
     <link rel="manifest" href="<?= base_url('manifest_chat.json') ?>">
     <link rel="apple-touch-icon" href="<?= base_url('assets/icons/icon-192.png?v=2') ?>">
@@ -174,9 +174,17 @@
         }
 
         .message.assistant .message-avatar {
-            background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary));
-            color: white;
+            background: white;
             margin-right: 10px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .message.assistant .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .message-bubble {
@@ -615,8 +623,8 @@
                     <img src="<?= base_url('uploads/logocycloidsinfondo.png') ?>" alt="Cycloid" style="max-height:40px;">
                 </div>
                 <div class="nav-title">
-                    <i class="fas fa-robot"></i>
-                    Asistente SST
+                    <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                    Otto
                 </div>
                 <a href="<?= base_url('consultant/dashboard') ?>" class="btn-back">
                     <i class="fas fa-arrow-left me-1"></i>
@@ -631,11 +639,11 @@
         <!-- Mensajes -->
         <div class="chat-messages" id="chatMessages">
             <div class="welcome-message" id="welcomeMessage">
-                <div class="icon-circle">
-                    <i class="fas fa-robot"></i>
+                <div class="icon-circle" style="background:white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:70px;height:70px;object-fit:cover;border-radius:50%;">
                 </div>
-                <h3>Asistente SST</h3>
-                <p>Tengo acceso a todas las tablas del sistema. Puedo consultar datos, actualizar registros y crear nuevos. Nunca elimino datos.</p>
+                <h3>Hola, soy Otto</h3>
+                <p>Tu asistente virtual de SST. Tengo acceso a todas las tablas del sistema. Puedo consultar datos, actualizar registros y ayudarte con lo que necesites.</p>
                 <div class="suggestion-chips">
                     <div class="suggestion-chip" onclick="sendSuggestion(this)">Listar clientes activos</div>
                     <div class="suggestion-chip" onclick="sendSuggestion(this)">Pendientes abiertos por cliente</div>
@@ -648,8 +656,8 @@
 
         <!-- Typing indicator -->
         <div class="typing-indicator" id="typingIndicator">
-            <div class="message-avatar" style="background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary)); color: white; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; margin-right:10px;">
-                <i class="fas fa-robot"></i>
+            <div class="message-avatar" style="background:white; width:36px; height:36px; border-radius:50%; overflow:hidden; margin-right:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:100%;height:100%;object-fit:cover;">
             </div>
             <div class="typing-dots">
                 <span></span><span></span><span></span>
@@ -761,9 +769,11 @@
 
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
-            avatar.innerHTML = role === 'user'
-                ? '<i class="fas fa-user"></i>'
-                : '<i class="fas fa-robot"></i>';
+            if (role === 'user') {
+                avatar.innerHTML = '<i class="fas fa-user"></i>';
+            } else {
+                avatar.innerHTML = '<img src="' + BASE_URL + 'otto/otto.png" alt="Otto">';
+            }
 
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
