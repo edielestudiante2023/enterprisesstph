@@ -95,7 +95,7 @@ class ChatController extends Controller
                 'response'   => $result['response'],
                 'tools_used' => $result['tools_used'] ?? [],
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             log_message('error', 'ChatController::sendMessage error: ' . $e->getMessage());
             $this->logOperation('error', $e->getMessage(), $session);
             return $this->response->setJSON([
@@ -138,7 +138,7 @@ class ChatController extends Controller
                 'result' => $result,
             ]), $session);
             return $this->response->setJSON($result);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logOperation('write_error', $e->getMessage(), $session);
             return $this->response->setJSON(['success' => false, 'error' => $e->getMessage()]);
         }
@@ -211,7 +211,7 @@ class ChatController extends Controller
                     'result' => $result,
                 ]), $session);
                 return $this->response->setJSON($result);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $this->logOperation('delete_error', $e->getMessage(), $session);
                 return $this->response->setJSON(['success' => false, 'error' => $e->getMessage()]);
             }
@@ -236,7 +236,7 @@ class ChatController extends Controller
 
         try {
             return $this->response->setJSON(['success' => true, 'tables' => $this->listAllTables()]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->response->setJSON(['success' => false, 'error' => $e->getMessage()]);
         }
     }
@@ -280,7 +280,7 @@ class ChatController extends Controller
                 'detalle'        => mb_substr($detail, 0, 5000),
                 'ip_address'     => $this->request->getIPAddress(),
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             log_message('error', 'ChatLog failed: ' . $e->getMessage());
         }
     }
@@ -413,7 +413,7 @@ class ChatController extends Controller
             $db     = \Config\Database::connect();
             $tables = $db->listTables();
             return ['success' => true, 'tables' => $tables, 'count' => count($tables)];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
@@ -442,7 +442,7 @@ class ChatController extends Controller
             }
 
             return ['success' => true, 'table' => $tableName, 'columns' => $schema, 'row_count' => $count, 'is_readonly' => in_array($tableName, $this->readOnlyTables)];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
@@ -461,7 +461,7 @@ class ChatController extends Controller
                 return ['success' => true, 'data' => array_slice($rows, 0, 50), 'total_rows' => $total, 'truncated' => true, 'note' => "Mostrando 50 de {$total}. Usa LIMIT."];
             }
             return ['success' => true, 'data' => $rows, 'total_rows' => $total];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return ['success' => false, 'error' => 'Error SQL: ' . $e->getMessage()];
         }
     }
@@ -544,7 +544,7 @@ class ChatController extends Controller
                 return ['success' => true, 'insert_id' => $db->insertID(), 'message' => 'Registro insertado con ID: ' . $db->insertID()];
             }
             return ['success' => true, 'affected_rows' => $affected, 'message' => "{$affected} fila(s) afectada(s)"];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return ['success' => false, 'error' => 'Error SQL: ' . $e->getMessage()];
         }
     }
@@ -591,7 +591,7 @@ class ChatController extends Controller
         foreach ($db->listTables() as $table) {
             try {
                 $result[] = ['name' => $table, 'rows' => $db->table($table)->countAllResults()];
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $result[] = ['name' => $table, 'rows' => '?'];
             }
         }
