@@ -556,6 +556,15 @@ TXT;
                 'notes'       => '',
             ],
 
+            [
+                'table'       => 'tbl_dotacion_vigilante',
+                'description' => 'Datos de las inspecciones de las dotaciones de los vigilantes.',
+                'use_for'     => ['dotación de vigilantes', '¿ya se revisó la dotación del vigilante de X?', 'inspección dotación vigilante'],
+                'key_columns' => ['id', 'id_cliente', 'fecha', 'nombre_vigilante', 'items_entregados', 'observaciones'],
+                'relations'   => ['id_cliente → tbl_clientes.id_cliente'],
+                'notes'       => '',
+            ],
+
             // ═══════════════════════════════════════════════════════════
             // SIMULACROS
             // ═══════════════════════════════════════════════════════════
