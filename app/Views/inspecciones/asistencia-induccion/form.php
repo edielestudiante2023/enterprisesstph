@@ -56,8 +56,14 @@ $action = $isEdit ? base_url('/inspecciones/asistencia-induccion/update/') . $in
                         value="<?= esc($inspeccion['lugar'] ?? '') ?>" placeholder="Lugar de la sesion">
                 </div>
                 <div class="mb-2">
-                    <label class="form-label" style="font-size:12px;">Objetivo</label>
-                    <textarea name="objetivo" class="form-control form-control-sm" rows="2"
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label mb-0" style="font-size:12px;">Objetivo</label>
+                        <button type="button" id="btnGenerarObjetivo" class="btn btn-sm" onclick="generarObjetivoIA()"
+                            style="font-size:11px; padding:2px 8px; background:#6c63ff; color:#fff; border:none; border-radius:4px;">
+                            ✨ Generar con IA
+                        </button>
+                    </div>
+                    <textarea name="objetivo" id="objetivo" class="form-control form-control-sm" rows="2"
                         placeholder="Objetivo de la sesion..."><?= esc($inspeccion['objetivo'] ?? '') ?></textarea>
                 </div>
                 <div class="mb-2">
@@ -315,4 +321,39 @@ function removeAsistenteRow(btn) {
     }, 500);
 })();
 <?php endif; ?>
+
+// ============================================================
+// GENERAR OBJETIVO CON IA
+// ============================================================
+function generarObjetivoIA() {
+    var tema = document.querySelector('[name="tema"]').value.trim();
+    if (!tema) {
+        Swal.fire({ icon: 'warning', title: 'Falta el tema', text: 'Escribe primero el tema de la sesión.', confirmButtonColor: '#6c63ff' });
+        return;
+    }
+    var btn = document.getElementById('btnGenerarObjetivo');
+    btn.disabled = true;
+    btn.textContent = '⏳ Generando...';
+
+    fetch('<?= base_url('/inspecciones/asistencia-induccion/generar-objetivo') ?>', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ tema: tema })
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.textContent = '✨ Generar con IA';
+        if (data.objetivo) {
+            document.getElementById('objetivo').value = data.objetivo;
+        } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'No se pudo generar el objetivo.', confirmButtonColor: '#6c63ff' });
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.textContent = '✨ Generar con IA';
+        Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo conectar con el servidor.', confirmButtonColor: '#6c63ff' });
+    });
+}
 </script>

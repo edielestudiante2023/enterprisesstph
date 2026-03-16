@@ -1209,6 +1209,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('asistencia-induccion/finalizar/(:num)', 'AsistenciaInduccionController::finalizar/$1');
     $routes->get('asistencia-induccion/delete/(:num)', 'AsistenciaInduccionController::delete/$1');
     $routes->get('asistencia-induccion/enviar-email/(:num)', 'AsistenciaInduccionController::enviarEmail/$1');
+    $routes->post('asistencia-induccion/generar-objetivo', 'AsistenciaInduccionController::generarObjetivo');
 
     // Evaluación Inducción SST (mini-universo CRUD)
     $routes->get('evaluacion-induccion', 'EvaluacionInduccionController::list');

@@ -736,4 +736,69 @@ class AsistenciaInduccionController extends BaseController
         $data['created_at'] = date('Y-m-d H:i:s');
         return $reporteModel->save($data);
     }
+
+    /**
+     * API: genera el objetivo de una sesión de inducción/capacitación usando OpenAI.
+     */
+    public function generarObjetivo()
+    {
+        $tema = trim($this->request->getJSON(true)['tema'] ?? '');
+
+        if (!$tema) {
+            return $this->response->setJSON(['error' => 'Tema vacío.'])->setStatusCode(400);
+        }
+
+        $apiKey = env('OPENAI_API_KEY');
+        if (!$apiKey) {
+            return $this->response->setJSON(['error' => 'API key no configurada.'])->setStatusCode(500);
+        }
+
+        $prompt = "Eres un experto en Seguridad y Salud en el Trabajo (SST) para propiedades horizontales colombianas (conjuntos residenciales y edificios). El personal que asiste a las sesiones son principalmente contratistas de aseo y vigilancia, y ocasionalmente residentes y administración.
+
+Redacta el objetivo de la siguiente sesión de inducción o capacitación en SST: «{$tema}».
+
+El objetivo debe:
+- Ser claro, concreto y profesional
+- Estar en infinitivo (Capacitar, Sensibilizar, Fortalecer, Instruir, etc.)
+- Tener máximo 3 oraciones
+- Mencionar el perfil del personal cuando aplique (contratistas de aseo, vigilancia, residentes o administración)
+- No incluir títulos ni numeración, solo el texto del objetivo";
+
+        $payload = json_encode([
+            'model'       => env('OPENAI_MODEL', 'gpt-4o-mini'),
+            'messages'    => [['role' => 'user', 'content' => $prompt]],
+            'max_tokens'  => 200,
+            'temperature' => 0.6,
+        ]);
+
+        $ch = curl_init('https://api.openai.com/v1/chat/completions');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $apiKey,
+            ],
+            CURLOPT_TIMEOUT => 20,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if (!$response || $httpCode !== 200) {
+            log_message('error', 'AsistenciaInduccion generarObjetivo OpenAI HTTP ' . $httpCode . ': ' . $response);
+            return $this->response->setJSON(['error' => 'Error al contactar la IA. Intenta de nuevo.'])->setStatusCode(500);
+        }
+
+        $data = json_decode($response, true);
+        $objetivo = trim($data['choices'][0]['message']['content'] ?? '');
+
+        if (!$objetivo) {
+            return $this->response->setJSON(['error' => 'La IA no devolvió respuesta.'])->setStatusCode(500);
+        }
+
+        return $this->response->setJSON(['objetivo' => $objetivo]);
+    }
 }
