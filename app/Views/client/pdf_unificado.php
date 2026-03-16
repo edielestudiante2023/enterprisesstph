@@ -368,6 +368,7 @@
                     </a>
                     <form action="<?= base_url('/generarPdfUnificado') ?>" method="post" id="formGenerarPdf" style="display: inline;">
                         <?= csrf_field() ?>
+                        <input type="hidden" name="id_cliente" value="<?= esc($client['id_cliente']) ?>">
                         <button type="submit" class="btn btn-generate" id="btnGenerar">
                             <i class="fas fa-download me-2"></i>Generar y Descargar PDF Unificado
                         </button>

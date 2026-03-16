@@ -121,7 +121,15 @@ class PdfUnificadoController extends Controller
         helper('access_library');
 
         $session = session();
-        $clientId = $session->get('user_id');
+        $role = $session->get('role');
+
+        // Si es consultant/admin y viene id_cliente en POST, usar ese ID
+        $idClientePost = $this->request->getPost('id_cliente');
+        if ($idClientePost && in_array($role, ['consultant', 'admin'])) {
+            $clientId = (int) $idClientePost;
+        } else {
+            $clientId = $session->get('user_id');
+        }
 
         if (!$clientId) {
             return redirect()->to('/login')->with('error', 'Cliente no autenticado.');
