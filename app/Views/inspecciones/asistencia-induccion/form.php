@@ -87,31 +87,6 @@ $action = $isEdit ? base_url('/inspecciones/asistencia-induccion/update/') . $in
             </div>
         </div>
 
-        <!-- ASISTENTES -->
-        <div class="card mb-3">
-            <div class="card-body">
-                <h6 class="card-title" style="font-size:14px; color:#999;">ASISTENTES</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm table-bordered" style="font-size:12px;">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width:5%;">#</th>
-                                <th>Nombre</th>
-                                <th>Cedula</th>
-                                <th>Cargo</th>
-                                <th style="width:8%;">Acc.</th>
-                            </tr>
-                        </thead>
-                        <tbody id="asistentesBody">
-                        </tbody>
-                    </table>
-                </div>
-                <button type="button" class="btn btn-sm btn-outline-success" onclick="addAsistenteRow()">
-                    <i class="fas fa-plus"></i> Agregar asistente
-                </button>
-            </div>
-        </div>
-
         <!-- OBSERVACIONES -->
         <div class="card mb-3">
             <div class="card-body">
