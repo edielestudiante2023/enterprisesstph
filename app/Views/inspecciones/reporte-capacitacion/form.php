@@ -295,6 +295,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (c.id_cronograma_capacitacion == selectedCronograma) opt.selected = true;
                     select.appendChild(opt);
                 });
+                // Auto-seleccionar por fecha si no hay uno ya elegido
+                autoMatchCronogramaPorFecha();
             }
         });
     }
@@ -341,6 +343,27 @@ document.addEventListener('DOMContentLoaded', function() {
         cargarCronogramasPendientes(selectedCliente);
     }
 
+    // Auto-match: selecciona el cronograma cuya fecha_programada coincida en mes y año
+    function autoMatchCronogramaPorFecha() {
+        var select = document.getElementById('selectCronograma');
+        if (select.value) return; // ya hay uno seleccionado manualmente
+        var fecha = document.querySelector('[name="fecha_capacitacion"]').value;
+        if (!fecha || !cronogramasData.length) return;
+        var parts = fecha.split('-'); // YYYY-MM-DD
+        var yyyy = parts[0], mm = parts[1];
+        // Primero buscar coincidencia exacta de día; si no, coincidencia de mes+año
+        var match = cronogramasData.find(function(c) { return c.fecha_programada === fecha; })
+                 || cronogramasData.find(function(c) {
+                        if (!c.fecha_programada) return false;
+                        var p = c.fecha_programada.split('-');
+                        return p[0] === yyyy && p[1] === mm;
+                    });
+        if (match) {
+            select.value = match.id_cronograma_capacitacion;
+            select.dispatchEvent(new Event('change')); // disparar auto-fill de campos
+        }
+    }
+
     // Escuchar cambios en cliente y fecha
     document.querySelector('[name="id_cliente"]').addEventListener('change', function() {
         cargarAsistentes();
@@ -348,6 +371,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cargarCronogramasPendientes(this.value);
     });
     document.querySelector('[name="fecha_capacitacion"]').addEventListener('change', function() {
+        autoMatchCronogramaPorFecha();
         cargarAsistentes();
         cargarResultadosEval();
     });
