@@ -60,6 +60,7 @@ $routes->post('chat/end-session', 'ChatController::endSession');
 
 // Portal Cliente — Otto readonly
 $routes->get('client-chat', 'ClientChatController::index');
+$routes->get('client-chat/(:num)', 'ClientChatController::index/$1');
 $routes->post('client-chat/send', 'ClientChatController::sendMessage');
 $routes->post('client-chat/end-session', 'ClientChatController::endSession');
 

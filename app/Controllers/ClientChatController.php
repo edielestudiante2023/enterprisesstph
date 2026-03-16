@@ -28,28 +28,78 @@ class ClientChatController extends ChatController
 
     protected function checkAccess($session): bool
     {
-        return $session->get('isLoggedIn') && $session->get('role') === 'client';
+        return $session->get('isLoggedIn')
+            && in_array($session->get('role'), ['client', 'consultant', 'admin']);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     // ENDPOINT: pantalla del chat
     // ─────────────────────────────────────────────────────────────────────────
 
-    public function index()
+    public function index($idClienteParam = null)
     {
         $session = session();
         if (!$this->checkAccess($session)) {
             return redirect()->to('/login');
         }
 
+        $role = $session->get('role');
+
+        // Consultor/admin navegando al chat de un cliente específico
+        if ($idClienteParam && in_array($role, ['consultant', 'admin'])) {
+            $clientModel = new \App\Models\ClientModel();
+            $client = $clientModel->find((int) $idClienteParam);
+            if (!$client) {
+                return redirect()->to('/dashboard')->with('error', 'Cliente no encontrado.');
+            }
+            // Guardar en sesión para que sendMessage lo use
+            $session->set('chatting_client_id',   (int) $idClienteParam);
+            $session->set('chatting_client_nombre', $client['nombre_cliente'] ?? '');
+
+            return view('client/chat', [
+                'usuario' => [
+                    'nombre'             => $client['nombre_cliente'],
+                    'role'               => 'client',
+                    'id_cliente'         => (int) $idClienteParam,
+                    'nombre_copropiedad' => $client['nombre_cliente'] ?? '',
+                ],
+            ]);
+        }
+
+        // Cliente logueado directamente
+        $session->remove('chatting_client_id');
+        $session->remove('chatting_client_nombre');
+
         return view('client/chat', [
             'usuario' => [
-                'nombre'      => $session->get('nombre_usuario'),
-                'role'        => 'client',
-                'id_cliente'  => $session->get('id_entidad'),
+                'nombre'             => $session->get('nombre_usuario'),
+                'role'               => 'client',
+                'id_cliente'         => $session->get('id_entidad'),
                 'nombre_copropiedad' => $session->get('nombre_copropiedad') ?? '',
             ],
         ]);
+    }
+
+    /**
+     * Devuelve el id_cliente efectivo: el del cliente visto por el consultor,
+     * o el de la sesión del cliente logueado.
+     */
+    private function resolveClientId(): int
+    {
+        $session = session();
+        $chatting = $session->get('chatting_client_id');
+        if ($chatting) {
+            return (int) $chatting;
+        }
+        return (int) ($session->get('id_entidad') ?? 0);
+    }
+
+    private function resolveClientNombre(): string
+    {
+        $session = session();
+        return $session->get('chatting_client_nombre')
+            ?? $session->get('nombre_copropiedad')
+            ?? '';
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -62,8 +112,8 @@ class ClientChatController extends ChatController
         $v = $this->validateQuery($query, 'SELECT');
         if (!$v['valid']) return ['success' => false, 'error' => $v['error']];
 
-        // Guardrail: la query DEBE hacer referencia al id_cliente del cliente logueado
-        $idCliente = (int) (session()->get('id_entidad') ?? 0);
+        // Guardrail: la query DEBE hacer referencia al id_cliente efectivo
+        $idCliente = $this->resolveClientId();
         if (!$this->queryContainsClientScope($query, $idCliente)) {
             return [
                 'success' => false,
@@ -106,7 +156,7 @@ class ClientChatController extends ChatController
         if (preg_match('/\bnombre_cliente\s*(=|LIKE)\s*[\'"][^\'\"]+[\'"]/i', $query)) return true;
 
         // ¿La copropiedad aparece literalmente como string en la query?
-        $nombreCopropiedad = session()->get('nombre_copropiedad') ?? '';
+        $nombreCopropiedad = $this->resolveClientNombre();
         if ($nombreCopropiedad && stripos($query, $nombreCopropiedad) !== false) return true;
 
         return false;
@@ -167,8 +217,8 @@ class ClientChatController extends ChatController
 
         $session            = session();
         $nombreUsuario      = $session->get('nombre_usuario') ?? 'Cliente';
-        $idCliente          = (int) ($session->get('id_entidad') ?? 0);
-        $nombreCopropiedad  = $session->get('nombre_copropiedad') ?? '';
+        $idCliente          = $this->resolveClientId();
+        $nombreCopropiedad  = $this->resolveClientNombre();
 
         $now  = date('Y-m-d H:i:s');
         $year = date('Y');
