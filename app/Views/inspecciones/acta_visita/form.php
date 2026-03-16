@@ -307,8 +307,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 window._pendingClientRestore = null;
             }
 
-            // Si ya hay cliente seleccionado, cargar temas abiertos
-            if (clienteId) loadTemasAbiertos(clienteId);
+            // Si ya hay cliente seleccionado, cargar temas abiertos y PTA
+            if (clienteId) {
+                loadTemasAbiertos(clienteId);
+                loadPtaActividades();
+            }
         }
     });
 
@@ -430,11 +433,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }).catch(() => {
             container.innerHTML = '<p class="text-danger" style="font-size:13px;"><i class="fas fa-exclamation-circle"></i> Error al cargar actividades PTA.</p>';
         });
-    }
-
-    // Cargar PTA al inicio si ya hay cliente y fecha
-    if (clienteId) {
-        setTimeout(() => loadPtaActividades(), 500);
     }
 
     // --- GPS ---
