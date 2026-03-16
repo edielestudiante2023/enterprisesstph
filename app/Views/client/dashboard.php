@@ -406,8 +406,8 @@
                         </a>
                     </div>
                     <div class="col-lg-3 col-md-6 mb-3">
-                        <a href="<?= base_url('client-chat/' . $client['id_cliente']) ?>" class="btn w-100" style="background: linear-gradient(135deg, #bd9751 0%, #8B6914 100%); color: white; border: none;">
-                            <i class="fas fa-robot me-2"></i> Otto — Asistente IA
+                        <a href="<?= base_url('client-chat') ?>" class="btn w-100 d-flex align-items-center justify-content-center gap-2" style="background: linear-gradient(135deg, #bd9751 0%, #8B6914 100%); color: white; border: none;">
+                            <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:28px;height:28px;border-radius:50%;object-fit:cover;"> Otto — Asistente IA
                         </a>
                     </div>
                 </div>
