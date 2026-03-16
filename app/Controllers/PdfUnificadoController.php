@@ -8,6 +8,7 @@ use App\Models\ContractModel;
 use App\Models\ClientPoliciesModel;
 use App\Models\DocumentVersionModel;
 use App\Models\PolicyTypeModel;
+use App\Models\VigiaModel;
 use CodeIgniter\Controller;
 use CodeIgniter\I18n\Time;
 use Dompdf\Dompdf;
@@ -25,6 +26,7 @@ class PdfUnificadoController extends Controller
     private $clientPoliciesModel;
     private $versionModel;
     private $policyTypeModel;
+    private $vigiaModel;
 
     /**
      * Mapeo de id_acceso → policy_type_id real (obtenido de cada Pz*Controller) + vista
@@ -59,6 +61,7 @@ class PdfUnificadoController extends Controller
         $this->clientPoliciesModel = new ClientPoliciesModel();
         $this->versionModel        = new DocumentVersionModel();
         $this->policyTypeModel     = new PolicyTypeModel();
+        $this->vigiaModel          = new VigiaModel();
     }
 
     /**
@@ -308,6 +311,15 @@ class PdfUnificadoController extends Controller
             $latestVersion['created_at'] = 'PENDIENTE DE CONTRATO';
         }
 
+        // Variables específicas por documento
+        $latestVigia = null;
+        if ($idAcceso === 3) {
+            $latestVigia = $this->vigiaModel
+                ->where('id_cliente', $clientId)
+                ->orderBy('created_at', 'ASC')
+                ->first();
+        }
+
         $data = [
             'client'        => $client,
             'consultant'    => $consultant,
@@ -315,6 +327,7 @@ class PdfUnificadoController extends Controller
             'policyType'    => $policyType,
             'latestVersion' => $latestVersion,
             'allVersions'   => $allVersions,
+            'latestVigia'   => $latestVigia,
         ];
 
         if (!file_exists(APPPATH . 'Views/' . $viewPath . '.php')) {
