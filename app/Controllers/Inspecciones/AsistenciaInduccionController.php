@@ -94,9 +94,8 @@ class AsistenciaInduccionController extends BaseController
             return $this->autosaveJsonSuccess($idInspeccion);
         }
 
-        return redirect()->to('/inspecciones/asistencia-induccion/edit/' . $idInspeccion)
-            ->with('msg', 'Asistencia guardada como borrador')
-            ->with('show_firmas_prompt', true);
+        return redirect()->to('/inspecciones/asistencia-induccion/registrar/' . $idInspeccion)
+            ->with('msg', 'Asistencia creada. Registra los asistentes uno a uno.');
     }
 
     public function edit($id)
@@ -153,9 +152,8 @@ class AsistenciaInduccionController extends BaseController
             return $this->autosaveJsonSuccess((int)$id);
         }
 
-        return redirect()->to('/inspecciones/asistencia-induccion/edit/' . $id)
-            ->with('msg', 'Asistencia actualizada')
-            ->with('show_firmas_prompt', true);
+        return redirect()->to('/inspecciones/asistencia-induccion/registrar/' . $id)
+            ->with('msg', 'Asistencia actualizada.');
     }
 
     public function view($id)
@@ -181,6 +179,100 @@ class AsistenciaInduccionController extends BaseController
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/asistencia-induccion/view', $data),
             'title'   => 'Ver Asistencia',
+        ]);
+    }
+
+    /**
+     * Nueva vista: registro asistente por asistente con firma integrada
+     */
+    public function registrar($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion) {
+            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No encontrado');
+        }
+        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $data = [
+            'title'      => 'Registrar Asistentes',
+            'inspeccion' => $inspeccion,
+            'asistentes' => $asistenteModel->getByAsistencia($id),
+        ];
+        return view('inspecciones/layout_pwa', [
+            'content' => view('inspecciones/asistencia-induccion/registrar', $data),
+            'title'   => 'Registrar Asistentes',
+        ]);
+    }
+
+    /**
+     * AJAX: guardar un asistente con firma integrada
+     */
+    public function storeAsistente($id)
+    {
+        $inspeccion = $this->inspeccionModel->find($id);
+        if (!$inspeccion) {
+            return $this->response->setJSON(['success' => false, 'error' => 'No encontrado']);
+        }
+
+        $nombre = trim($this->request->getPost('nombre') ?? '');
+        if (!$nombre) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Nombre requerido']);
+        }
+
+        $firmaBase64 = $this->request->getPost('firma');
+        $firmaPath = '';
+        if (!empty($firmaBase64)) {
+            $firmaData = str_replace('data:image/png;base64,', '', $firmaBase64);
+            $firmaData = str_replace(' ', '+', $firmaData);
+            $decoded = base64_decode($firmaData);
+            $dir = 'uploads/inspecciones/asistencia-induccion/firmas/';
+            if (!is_dir(FCPATH . $dir)) {
+                mkdir(FCPATH . $dir, 0755, true);
+            }
+            $fileName = 'firma_' . $id . '_' . time() . '_' . mt_rand(100, 999) . '.png';
+            file_put_contents(FCPATH . $dir . $fileName, $decoded);
+            $firmaPath = $dir . $fileName;
+        }
+
+        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel->insert([
+            'id_asistencia' => $id,
+            'nombre'        => $nombre,
+            'cedula'        => $this->request->getPost('cedula') ?? '',
+            'cargo'         => $this->request->getPost('cargo') ?? '',
+            'firma'         => $firmaPath,
+        ]);
+        $idAsistente = $asistenteModel->getInsertID();
+        $total = $asistenteModel->where('id_asistencia', $id)->countAllResults();
+
+        return $this->response->setJSON([
+            'success'      => true,
+            'id_asistente' => $idAsistente,
+            'total'        => $total,
+            'csrf_hash'    => csrf_hash(),
+        ]);
+    }
+
+    /**
+     * AJAX: eliminar un asistente
+     */
+    public function deleteAsistente($idAsistente)
+    {
+        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistente = $asistenteModel->find($idAsistente);
+        if (!$asistente) {
+            return $this->response->setJSON(['success' => false]);
+        }
+        if (!empty($asistente['firma']) && file_exists(FCPATH . $asistente['firma'])) {
+            unlink(FCPATH . $asistente['firma']);
+        }
+        $idAsistencia = $asistente['id_asistencia'];
+        $asistenteModel->delete($idAsistente);
+        $total = $asistenteModel->where('id_asistencia', $idAsistencia)->countAllResults();
+
+        return $this->response->setJSON([
+            'success'   => true,
+            'total'     => $total,
+            'csrf_hash' => csrf_hash(),
         ]);
     }
 

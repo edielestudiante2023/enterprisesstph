@@ -1197,6 +1197,9 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('asistencia-induccion/edit/(:num)', 'AsistenciaInduccionController::edit/$1');
     $routes->post('asistencia-induccion/update/(:num)', 'AsistenciaInduccionController::update/$1');
     $routes->get('asistencia-induccion/view/(:num)', 'AsistenciaInduccionController::view/$1');
+    $routes->get('asistencia-induccion/registrar/(:num)', 'AsistenciaInduccionController::registrar/$1');
+    $routes->post('asistencia-induccion/store-asistente/(:num)', 'AsistenciaInduccionController::storeAsistente/$1');
+    $routes->post('asistencia-induccion/delete-asistente/(:num)', 'AsistenciaInduccionController::deleteAsistente/$1');
     $routes->get('asistencia-induccion/firmas/(:num)', 'AsistenciaInduccionController::firmas/$1');
     $routes->post('asistencia-induccion/guardar-firma/(:num)', 'AsistenciaInduccionController::guardarFirma/$1');
     $routes->get('asistencia-induccion/pdf/(:num)', 'AsistenciaInduccionController::generatePdf/$1');
