@@ -341,6 +341,9 @@ class PdfUnificadoController extends Controller
         $nuevoHeader = $this->buildPdfHeader($client, $policyType, $latestVersion);
         $html = $this->inyectarHeader($html, $nuevoHeader);
 
+        // Normalizar todos los tamaños de fuente a 11px
+        $html = $this->normalizarFuentes($html);
+
         $options = new Options();
         $options->set('isRemoteEnabled', true);
         $options->set('isHtml5ParserEnabled', true);
@@ -378,6 +381,30 @@ class PdfUnificadoController extends Controller
             $html,
             1
         );
+    }
+
+    /**
+     * Inyecta CSS override al final de <head> para normalizar todas las fuentes a 11px.
+     */
+    private function normalizarFuentes(string $html): string
+    {
+        $css = '<style>
+body, p, li, td, th, span, div, blockquote, pre,
+h1, h2, h3, h4, h5, h6,
+.alfa-title, .beta-subtitle, .beta-parrafo,
+.gamma-lista, .delta-lista, .zeta-table,
+.container, .centered-content {
+    font-size: 11px !important;
+    font-family: Arial, sans-serif !important;
+    line-height: 1.5 !important;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold !important;
+    margin-top: 12px !important;
+    margin-bottom: 6px !important;
+}
+</style>';
+        return str_replace('</head>', $css . '</head>', $html);
     }
 
     /**
