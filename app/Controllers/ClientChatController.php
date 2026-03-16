@@ -66,6 +66,11 @@ class ClientChatController extends ChatController
             ]);
         }
 
+        // Consultor/admin sin cliente específico → redirigir
+        if (in_array($role, ['consultant', 'admin'])) {
+            return redirect()->to('/consultor/dashboard')->with('error', 'Selecciona un cliente para abrir su chat con Otto.');
+        }
+
         // Cliente logueado directamente
         $session->remove('chatting_client_id');
         $session->remove('chatting_client_nombre');
@@ -125,11 +130,27 @@ class ClientChatController extends ChatController
             // Usar conexión readonly (Capa 1 de DB)
             $db   = \Config\Database::connect('readonly');
             $rows = $db->query($query)->getResultArray();
+            $total = count($rows);
 
-            if (count($rows) > 50) {
-                return ['success' => true, 'data' => array_slice($rows, 0, 50), 'total_rows' => count($rows), 'truncated' => true];
-            }
-            return ['success' => true, 'data' => $rows, 'total_rows' => count($rows)];
+            $rows = array_slice($rows, 0, 50);
+
+            // Sanitizar para garantizar JSON válido
+            array_walk_recursive($rows, function (&$value) {
+                if (is_string($value)) {
+                    $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+                    if (mb_strlen($value) > 800) {
+                        $value = mb_substr($value, 0, 800) . '…';
+                    }
+                }
+            });
+
+            return [
+                'success'    => true,
+                'data'       => $rows,
+                'total_rows' => $total,
+                'truncated'  => $total > 50,
+                'note'       => $total > 50 ? "Mostrando 50 de {$total}. Usa filtros o LIMIT." : null,
+            ];
         } catch (\Throwable $e) {
             return ['success' => false, 'error' => 'Error SQL: ' . $e->getMessage()];
         }
