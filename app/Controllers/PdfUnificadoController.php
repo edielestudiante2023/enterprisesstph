@@ -381,13 +381,13 @@ class PdfUnificadoController extends Controller
     }
 
     /**
-     * Construye el HTML del encabezado PDF con el diseño corporativo EnterprissesT.
+     * Construye el HTML del encabezado PDF (limpio, sin colores, fuente uniforme).
      * Usa imagen en base64 para garantizar renderizado en DOMPDF sin dependencias HTTP.
      */
     private function buildPdfHeader(array $client, ?array $policyType, array $latestVersion): string
     {
         // Logo del cliente como base64 para DOMPDF
-        $logoSrc = '';
+        $logoSrc  = '';
         $logoPath = FCPATH . 'uploads/' . ($client['logo'] ?? '');
         if (!empty($client['logo']) && file_exists($logoPath)) {
             $mime    = mime_content_type($logoPath);
@@ -395,7 +395,7 @@ class PdfUnificadoController extends Controller
         }
 
         $logoHtml = $logoSrc
-            ? '<img src="' . $logoSrc . '" alt="Logo" style="max-width:90px; max-height:65px; width:auto; height:auto;">'
+            ? '<img src="' . $logoSrc . '" alt="Logo" style="max-width:85px; max-height:65px; width:auto; height:auto;">'
             : '';
 
         $docCode  = trim(($latestVersion['document_type'] ?? '') . '-' . ($latestVersion['acronym'] ?? ''), '-');
@@ -405,38 +405,32 @@ class PdfUnificadoController extends Controller
         $esPendiente = str_contains($fecha, 'PENDIENTE');
 
         $fechaHtml = $esPendiente
-            ? '<span style="color:#e74c3c; font-weight:bold; font-size:8px;">PENDIENTE DE CONTRATO</span>'
+            ? '<span style="color:red; font-weight:bold;">PENDIENTE DE CONTRATO</span>'
             : esc($fecha);
 
+        $td = 'border:1px solid black; padding:8px; font-size:11px; font-family:Arial, sans-serif;';
+
         return '
-<div style="margin-bottom:18px;">
-  <div style="background-color:#C9A84C; height:5px; font-size:0; line-height:0;">&nbsp;</div>
-  <table style="width:100%; border-collapse:collapse; border:1.5px solid #C9A84C;">
+<div style="margin-bottom:16px;">
+  <table style="width:100%; border-collapse:collapse; border:1px solid black;">
     <tr>
-      <td rowspan="2" style="width:14%; border-right:1.5px solid #C9A84C; padding:8px; text-align:center; background-color:#FDFBF5; vertical-align:middle;">
+      <td rowspan="2" style="' . $td . ' width:15%; text-align:center; vertical-align:middle;">
         ' . $logoHtml . '
       </td>
-      <td style="width:56%; text-align:center; font-weight:bold; font-size:10px; padding:7px 10px;
-                 border-right:1.5px solid #C9A84C; border-bottom:1px solid #E8D9B0;
-                 background-color:#FDFBF5; color:#2C3E50; letter-spacing:0.5px; vertical-align:middle;">
+      <td style="' . $td . ' width:55%; text-align:center; font-weight:bold; vertical-align:middle;">
         SISTEMA DE GESTIÓN EN SEGURIDAD Y SALUD EN EL TRABAJO
       </td>
-      <td style="width:30%; font-weight:bold; font-size:14px; padding:7px 10px;
-                 background-color:#C9A84C; color:#fff; vertical-align:middle;
-                 text-align:center; border-bottom:1px solid #b8952e; letter-spacing:1px;">
+      <td style="' . $td . ' width:30%; font-weight:bold; vertical-align:middle;">
         ' . esc($docCode) . '
       </td>
     </tr>
     <tr>
-      <td style="text-align:center; font-weight:bold; font-size:11px; padding:8px 10px;
-                 border-right:1.5px solid #C9A84C; background-color:#2C3E50;
-                 color:#FFFFFF; letter-spacing:0.3px; vertical-align:middle;">
+      <td style="' . $td . ' text-align:center; font-weight:bold; vertical-align:middle;">
         ' . $docTitle . '
       </td>
-      <td style="font-size:10px; padding:7px 10px; background-color:#FDFBF5;
-                 color:#2C3E50; vertical-align:middle; line-height:1.6;">
-        <strong>Versión:</strong> ' . esc($version) . '<br>
-        <strong>Fecha:</strong> ' . $fechaHtml . '
+      <td style="' . $td . ' vertical-align:middle; line-height:1.8;">
+        Versión: ' . esc($version) . '<br>
+        Fecha: ' . $fechaHtml . '
       </td>
     </tr>
   </table>
