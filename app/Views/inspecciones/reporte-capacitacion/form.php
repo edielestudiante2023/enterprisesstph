@@ -62,8 +62,14 @@ if ($isEdit && !empty($inspeccion['perfil_asistentes'])) {
                         value="<?= esc($inspeccion['nombre_capacitacion'] ?? '') ?>" placeholder="Nombre de la capacitacion">
                 </div>
                 <div class="mb-2">
-                    <label class="form-label" style="font-size:12px;">Objetivo de la capacitacion</label>
-                    <textarea name="objetivo_capacitacion" class="form-control form-control-sm" rows="3"
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label mb-0" style="font-size:12px;">Objetivo de la capacitacion</label>
+                        <button type="button" id="btnGenerarObjetivo" class="btn btn-sm" onclick="generarObjetivoIA()"
+                            style="font-size:11px; padding:2px 8px; background:#6c63ff; color:#fff; border:none; border-radius:4px;">
+                            ✨ Generar con IA
+                        </button>
+                    </div>
+                    <textarea name="objetivo_capacitacion" id="objetivo_capacitacion" class="form-control form-control-sm" rows="3"
                         placeholder="Objetivo de la capacitacion..."><?= esc($inspeccion['objetivo_capacitacion'] ?? '') ?></textarea>
                 </div>
                 <div class="mb-2">
@@ -501,4 +507,39 @@ document.addEventListener('DOMContentLoaded', function() {
         },
     });
 });
+
+// ============================================================
+// GENERAR OBJETIVO CON IA
+// ============================================================
+function generarObjetivoIA() {
+    var nombre = document.querySelector('[name="nombre_capacitacion"]').value.trim();
+    if (!nombre) {
+        Swal.fire({ icon: 'warning', title: 'Falta el nombre', text: 'Escribe primero el nombre de la capacitación.', confirmButtonColor: '#6c63ff' });
+        return;
+    }
+    var btn = document.getElementById('btnGenerarObjetivo');
+    btn.disabled = true;
+    btn.textContent = '⏳ Generando...';
+
+    fetch('<?= base_url('/inspecciones/reporte-capacitacion/generar-objetivo') ?>', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ nombre_capacitacion: nombre })
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.textContent = '✨ Generar con IA';
+        if (data.objetivo) {
+            document.getElementById('objetivo_capacitacion').value = data.objetivo;
+        } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'No se pudo generar el objetivo.', confirmButtonColor: '#6c63ff' });
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.textContent = '✨ Generar con IA';
+        Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo conectar con el servidor.', confirmButtonColor: '#6c63ff' });
+    });
+}
 </script>
