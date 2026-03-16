@@ -135,11 +135,30 @@ class ClientChatController extends ChatController
             ];
         }
 
-        // PASO 3: conexión readonly
+        // PASO 3: conexión readonly (config dinámica para evitar env() en property initializer)
         try {
-            log_message('info', "$tag CONNECT_ATTEMPT readonly group");
-            $db = \Config\Database::connect('readonly');
-            log_message('info', "$tag CONNECT_OK driver=" . get_class($db));
+            log_message('info', "$tag CONNECT_ATTEMPT readonly dynamic");
+            $readonlyConfig = [
+                'DSN'      => '',
+                'hostname' => env('readonly.hostname', 'localhost'),
+                'username' => env('readonly.username', 'cycloid_readonly'),
+                'password' => env('readonly.password', ''),
+                'database' => env('readonly.database', 'propiedad_horizontal'),
+                'DBDriver' => 'MySQLi',
+                'DBPrefix' => '',
+                'pConnect' => false,
+                'DBDebug'  => false,
+                'charset'  => 'utf8mb4',
+                'DBCollat' => 'utf8mb4_general_ci',
+                'swapPre'  => '',
+                'encrypt'  => (bool) env('readonly.encrypt', false),
+                'compress' => false,
+                'strictOn' => false,
+                'failover' => [],
+                'port'     => (int) env('readonly.port', 3306),
+            ];
+            $db = \Config\Database::connect($readonlyConfig);
+            log_message('info', "$tag CONNECT_OK host=" . $readonlyConfig['hostname']);
         } catch (\Throwable $e) {
             log_message('error', "$tag CONNECT_FAIL " . $e->getMessage());
             return ['success' => false, 'error' => 'Error de conexión: ' . $e->getMessage()];
