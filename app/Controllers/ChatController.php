@@ -343,18 +343,20 @@ class ChatController extends Controller
         ")->getRowArray();
 
         // Uso por CLIENTE
+        // id_usuario en tbl_chat_log = id en tbl_usuarios → id_entidad = id_cliente en tbl_clientes
         $clientes = $db->query("
             SELECT
-                l.id_usuario                                    AS id_cliente,
-                COALESCE(c.nombre_cliente, CONCAT('Cliente #', l.id_usuario)) AS nombre,
+                c.id_cliente,
+                COALESCE(c.nombre_cliente, CONCAT('Cliente #', u.id_entidad)) AS nombre,
                 SUM(l.tipo_operacion='user_message')            AS mensajes,
                 SUM(l.tipo_operacion='tool_select')             AS consultas,
                 COUNT(DISTINCT DATE(l.created_at))              AS sesiones,
                 MAX(l.created_at)                               AS ultima_actividad
             FROM tbl_chat_log l
-            LEFT JOIN tbl_clientes c ON c.id_cliente = l.id_usuario
+            JOIN tbl_usuarios u ON u.id_usuario = l.id_usuario
+            LEFT JOIN tbl_clientes c ON c.id_cliente = u.id_entidad
             WHERE l.rol = 'client'
-            GROUP BY l.id_usuario
+            GROUP BY c.id_cliente, c.nombre_cliente
             ORDER BY ultima_actividad DESC
         ")->getResultArray();
 
@@ -372,7 +374,7 @@ class ChatController extends Controller
             FROM tbl_chat_log l
             LEFT JOIN tbl_usuarios u ON u.id_usuario = l.id_usuario
             WHERE l.rol IN ('consultant','admin')
-            GROUP BY l.id_usuario
+            GROUP BY l.id_usuario, u.nombre_completo, u.email
             ORDER BY ultima_actividad DESC
         ")->getResultArray();
 
@@ -381,12 +383,12 @@ class ChatController extends Controller
             SELECT
                 l.rol, l.tipo_operacion, l.detalle, l.created_at,
                 CASE WHEN l.rol='client'
-                     THEN COALESCE(c.nombre_cliente, CONCAT('Cliente #', l.id_usuario))
+                     THEN COALESCE(c.nombre_cliente, CONCAT('Cliente #', u.id_entidad))
                      ELSE COALESCE(u.nombre_completo, CONCAT('Usuario #', l.id_usuario))
                 END AS nombre
             FROM tbl_chat_log l
-            LEFT JOIN tbl_clientes c ON c.id_cliente = l.id_usuario AND l.rol='client'
-            LEFT JOIN tbl_usuarios u ON u.id_usuario = l.id_usuario AND l.rol IN ('consultant','admin')
+            JOIN tbl_usuarios u ON u.id_usuario = l.id_usuario
+            LEFT JOIN tbl_clientes c ON c.id_cliente = u.id_entidad AND l.rol = 'client'
             WHERE l.tipo_operacion IN ('user_message','tool_select','tool_update','tool_insert','tool_delete')
             ORDER BY l.created_at DESC
             LIMIT 30
