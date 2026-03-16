@@ -533,10 +533,25 @@ class ChatController extends Controller
             $rows  = $db->query($query)->getResultArray();
             $total = count($rows);
 
-            if ($total > 50) {
-                return ['success' => true, 'data' => array_slice($rows, 0, 50), 'total_rows' => $total, 'truncated' => true, 'note' => "Mostrando 50 de {$total}. Usa LIMIT."];
-            }
-            return ['success' => true, 'data' => $rows, 'total_rows' => $total];
+            $rows = array_slice($rows, 0, 50);
+
+            // Sanitizar campos para garantizar JSON válido
+            array_walk_recursive($rows, function (&$value) {
+                if (is_string($value)) {
+                    $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+                    if (mb_strlen($value) > 800) {
+                        $value = mb_substr($value, 0, 800) . '…';
+                    }
+                }
+            });
+
+            return [
+                'success'    => true,
+                'data'       => $rows,
+                'total_rows' => $total,
+                'truncated'  => $total > 50,
+                'note'       => $total > 50 ? "Mostrando 50 de {$total}. Usa filtros o LIMIT para acotar." : null,
+            ];
         } catch (\Throwable $e) {
             return ['success' => false, 'error' => 'Error SQL: ' . $e->getMessage()];
         }
@@ -757,7 +772,8 @@ Solo usa LIKE para campos de texto libre como `nombre_cliente`, `actividad_pland
 3. Antes de modificar/eliminar, primero consulta con SELECT el estado actual
 4. Describe exactamente qué vas a hacer antes de ejecutar la tool
 5. Limita los SELECT a 50 filas con LIMIT cuando no se especifique
-6. Todas las operaciones quedan registradas en el log de auditoría
+6. **Nunca uses `SELECT *`** — especifica siempre las columnas que necesitas. SELECT * trae campos TEXT muy largos innecesarios que degradan el rendimiento.
+7. Todas las operaciones quedan registradas en el log de auditoría
 
 ## FLUJO DE ESCRITURA
 1. Consulta con SELECT el estado actual (usando la vista v_* correspondiente)
