@@ -59,6 +59,7 @@ $routes->get('chat/schema', 'ChatController::getSchema');
 $routes->post('chat/end-session', 'ChatController::endSession');
 
 // Portal Cliente — Otto readonly
+$routes->get('otto-logs', 'ChatController::ottoDashboard');
 $routes->get('client-chat', 'ClientChatController::index');
 $routes->get('client-chat/(:num)', 'ClientChatController::index/$1');
 $routes->post('client-chat/send', 'ClientChatController::sendMessage');

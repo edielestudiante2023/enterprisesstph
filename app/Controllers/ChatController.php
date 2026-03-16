@@ -318,6 +318,84 @@ class ChatController extends Controller
     }
 
     // =========================================================================
+    // DASHBOARD DE LOGS OTTO
+    // =========================================================================
+
+    public function ottoDashboard()
+    {
+        $session = session();
+        if (!$this->checkAccess($session)) {
+            return redirect()->to('/login');
+        }
+
+        $db = \Config\Database::connect();
+
+        // KPIs globales
+        $kpis = $db->query("
+            SELECT
+                COUNT(DISTINCT CASE WHEN rol='client' THEN id_usuario END)            AS clientes_activos,
+                COUNT(DISTINCT CASE WHEN rol IN ('consultant','admin') THEN id_usuario END) AS consultores_activos,
+                SUM(tipo_operacion='user_message')                                    AS total_mensajes,
+                SUM(tipo_operacion='tool_select')                                     AS total_consultas,
+                SUM(tipo_operacion IN ('tool_update','tool_insert','tool_delete','write_executed','delete_executed')) AS total_escrituras,
+                COUNT(DISTINCT DATE(created_at))                                      AS dias_con_actividad
+            FROM tbl_chat_log
+        ")->getRowArray();
+
+        // Uso por CLIENTE
+        $clientes = $db->query("
+            SELECT
+                l.id_usuario                                    AS id_cliente,
+                COALESCE(c.nombre_cliente, CONCAT('Cliente #', l.id_usuario)) AS nombre,
+                SUM(l.tipo_operacion='user_message')            AS mensajes,
+                SUM(l.tipo_operacion='tool_select')             AS consultas,
+                COUNT(DISTINCT DATE(l.created_at))              AS sesiones,
+                MAX(l.created_at)                               AS ultima_actividad
+            FROM tbl_chat_log l
+            LEFT JOIN tbl_clientes c ON c.id_cliente = l.id_usuario
+            WHERE l.rol = 'client'
+            GROUP BY l.id_usuario
+            ORDER BY ultima_actividad DESC
+        ")->getResultArray();
+
+        // Uso por CONSULTOR
+        $consultores = $db->query("
+            SELECT
+                l.id_usuario,
+                COALESCE(u.nombre_completo, CONCAT('Usuario #', l.id_usuario)) AS nombre,
+                u.email,
+                SUM(l.tipo_operacion='user_message')            AS mensajes,
+                SUM(l.tipo_operacion='tool_select')             AS consultas,
+                SUM(l.tipo_operacion IN ('tool_update','tool_insert','tool_delete','write_executed','delete_executed')) AS escrituras,
+                COUNT(DISTINCT DATE(l.created_at))              AS dias_activo,
+                MAX(l.created_at)                               AS ultima_actividad
+            FROM tbl_chat_log l
+            LEFT JOIN tbl_usuarios u ON u.id_usuario = l.id_usuario
+            WHERE l.rol IN ('consultant','admin')
+            GROUP BY l.id_usuario
+            ORDER BY ultima_actividad DESC
+        ")->getResultArray();
+
+        // Actividad reciente (últimas 30 interacciones de usuario)
+        $recientes = $db->query("
+            SELECT
+                l.rol, l.tipo_operacion, l.detalle, l.created_at,
+                CASE WHEN l.rol='client'
+                     THEN COALESCE(c.nombre_cliente, CONCAT('Cliente #', l.id_usuario))
+                     ELSE COALESCE(u.nombre_completo, CONCAT('Usuario #', l.id_usuario))
+                END AS nombre
+            FROM tbl_chat_log l
+            LEFT JOIN tbl_clientes c ON c.id_cliente = l.id_usuario AND l.rol='client'
+            LEFT JOIN tbl_usuarios u ON u.id_usuario = l.id_usuario AND l.rol IN ('consultant','admin')
+            WHERE l.tipo_operacion IN ('user_message','tool_select','tool_update','tool_insert','tool_delete')
+            ORDER BY l.created_at DESC
+            LIMIT 30
+        ")->getResultArray();
+
+        return view('consultant/otto_dashboard', compact('kpis', 'clientes', 'consultores', 'recientes'));
+    }
+
+    // =========================================================================
     // ACCESO Y LOGGING
     // =========================================================================
 
