@@ -113,47 +113,79 @@ class ClientChatController extends ChatController
 
     protected function toolExecuteSelect(string $query): array
     {
-        // Validación heredada (forbiddenPatterns + tipo SELECT)
-        $v = $this->validateQuery($query, 'SELECT');
-        if (!$v['valid']) return ['success' => false, 'error' => $v['error']];
+        $tag = '[ClientChat::toolExecuteSelect]';
 
-        // Guardrail: la query DEBE hacer referencia al id_cliente efectivo
+        // PASO 1: validación SQL
+        $v = $this->validateQuery($query, 'SELECT');
+        if (!$v['valid']) {
+            log_message('error', "$tag VALIDATE_FAIL query=[$query] reason=[{$v['error']}]");
+            return ['success' => false, 'error' => $v['error']];
+        }
+        log_message('info', "$tag VALIDATE_OK query=[$query]");
+
+        // PASO 2: guardrail de scope
         $idCliente = $this->resolveClientId();
-        if (!$this->queryContainsClientScope($query, $idCliente)) {
+        $scopeOk   = $this->queryContainsClientScope($query, $idCliente);
+        log_message('info', "$tag SCOPE id_cliente=$idCliente scope_ok=" . ($scopeOk ? 'true' : 'false'));
+        if (!$scopeOk) {
+            log_message('error', "$tag SCOPE_BLOCKED id_cliente=$idCliente query=[$query]");
             return [
                 'success' => false,
                 'error'   => "Por seguridad, solo puedes consultar datos de tu copropiedad (id_cliente={$idCliente}). Asegúrate de filtrar por nombre_cliente o id_cliente.",
             ];
         }
 
+        // PASO 3: conexión readonly
         try {
-            // Usar conexión readonly (Capa 1 de DB)
-            $db   = \Config\Database::connect('readonly');
-            $rows = $db->query($query)->getResultArray();
-            $total = count($rows);
-
-            $rows = array_slice($rows, 0, 50);
-
-            // Sanitizar para garantizar JSON válido
-            array_walk_recursive($rows, function (&$value) {
-                if (is_string($value)) {
-                    $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
-                    if (mb_strlen($value) > 800) {
-                        $value = mb_substr($value, 0, 800) . '…';
-                    }
-                }
-            });
-
-            return [
-                'success'    => true,
-                'data'       => $rows,
-                'total_rows' => $total,
-                'truncated'  => $total > 50,
-                'note'       => $total > 50 ? "Mostrando 50 de {$total}. Usa filtros o LIMIT." : null,
-            ];
+            log_message('info', "$tag CONNECT_ATTEMPT readonly group");
+            $db = \Config\Database::connect('readonly');
+            log_message('info', "$tag CONNECT_OK driver=" . get_class($db));
         } catch (\Throwable $e) {
+            log_message('error', "$tag CONNECT_FAIL " . $e->getMessage());
+            return ['success' => false, 'error' => 'Error de conexión: ' . $e->getMessage()];
+        }
+
+        // PASO 4: ejecutar query
+        try {
+            log_message('info', "$tag QUERY_START");
+            $result = $db->query($query);
+            log_message('info', "$tag QUERY_DONE result_type=" . gettype($result));
+            $rows  = $result->getResultArray();
+            $total = count($rows);
+            log_message('info', "$tag ROWS_COUNT total=$total");
+        } catch (\Throwable $e) {
+            log_message('error', "$tag QUERY_FAIL " . $e->getMessage());
             return ['success' => false, 'error' => 'Error SQL: ' . $e->getMessage()];
         }
+
+        // PASO 5: sanitizar
+        $rows = array_slice($rows, 0, 50);
+        array_walk_recursive($rows, function (&$value) {
+            if (is_string($value)) {
+                $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+                if (mb_strlen($value) > 800) {
+                    $value = mb_substr($value, 0, 800) . '…';
+                }
+            }
+        });
+
+        // PASO 6: json_encode test
+        $json = json_encode($rows);
+        $jsonErr = json_last_error();
+        log_message('info', "$tag JSON_ENCODE json_error=$jsonErr json_len=" . strlen($json ?: ''));
+        if ($jsonErr !== JSON_ERROR_NONE) {
+            log_message('error', "$tag JSON_FAIL error=$jsonErr msg=" . json_last_error_msg());
+            return ['success' => false, 'error' => 'Error codificando datos: ' . json_last_error_msg()];
+        }
+
+        log_message('info', "$tag SUCCESS total=$total");
+        return [
+            'success'    => true,
+            'data'       => $rows,
+            'total_rows' => $total,
+            'truncated'  => $total > 50,
+            'note'       => $total > 50 ? "Mostrando 50 de {$total}. Usa filtros o LIMIT." : null,
+        ];
     }
 
     /**
