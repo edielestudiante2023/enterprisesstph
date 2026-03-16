@@ -346,17 +346,17 @@ class ChatController extends Controller
         // id_usuario en tbl_chat_log = id en tbl_usuarios → id_entidad = id_cliente en tbl_clientes
         $clientes = $db->query("
             SELECT
-                c.id_cliente,
-                COALESCE(c.nombre_cliente, CONCAT('Cliente #', u.id_entidad)) AS nombre,
-                SUM(l.tipo_operacion='user_message')            AS mensajes,
-                SUM(l.tipo_operacion='tool_select')             AS consultas,
-                COUNT(DISTINCT DATE(l.created_at))              AS sesiones,
-                MAX(l.created_at)                               AS ultima_actividad
+                ANY_VALUE(c.id_cliente)                                         AS id_cliente,
+                COALESCE(ANY_VALUE(c.nombre_cliente), CONCAT('Cliente #', ANY_VALUE(u.id_entidad))) AS nombre,
+                SUM(l.tipo_operacion='user_message')                            AS mensajes,
+                SUM(l.tipo_operacion='tool_select')                             AS consultas,
+                COUNT(DISTINCT DATE(l.created_at))                              AS sesiones,
+                MAX(l.created_at)                                               AS ultima_actividad
             FROM tbl_chat_log l
             JOIN tbl_usuarios u ON u.id_usuario = l.id_usuario
             LEFT JOIN tbl_clientes c ON c.id_cliente = u.id_entidad
             WHERE l.rol = 'client'
-            GROUP BY c.id_cliente, c.nombre_cliente
+            GROUP BY l.id_usuario
             ORDER BY ultima_actividad DESC
         ")->getResultArray();
 
