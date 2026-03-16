@@ -5,9 +5,56 @@
         <small class="text-muted"><?= date('d \d\e F, Y') ?></small>
     </div>
 
-    <!-- Documentos pendientes -->
+    <!-- Documentos pendientes — acordeón -->
+    <?php
+    $totalPend = count($pendientes ?? [])
+        + count($pendientesLocativas ?? [])
+        + count($pendientesSenalizacion ?? [])
+        + count($pendientesExtintores ?? [])
+        + count($pendientesBotiquin ?? [])
+        + count($pendientesGabinetes ?? [])
+        + count($pendientesComunicaciones ?? [])
+        + count($pendientesRecursosSeg ?? [])
+        + count($pendientesProbPeligros ?? [])
+        + count($pendientesMatrizVul ?? [])
+        + count($pendientesPlanEmg ?? [])
+        + count($pendientesSimulacro ?? [])
+        + count($pendientesHvBrig ?? [])
+        + count($pendientesDotVig ?? [])
+        + count($pendientesDotAse ?? [])
+        + count($pendientesDotTod ?? [])
+        + count($pendientesAudRes ?? [])
+        + count($pendientesRepCap ?? [])
+        + count($pendientesPrepSim ?? [])
+        + count($pendientesAsistInd ?? [])
+        + count($pendientesProgLimp ?? [])
+        + count($pendientesProgRes ?? [])
+        + count($pendientesProgPlag ?? [])
+        + count($pendientesProgAgua ?? [])
+        + count($pendientesPlanSan ?? [])
+        + count($pendientesKpiLimp ?? [])
+        + count($pendientesKpiRes ?? [])
+        + count($pendientesKpiPlag ?? [])
+        + count($pendientesKpiAgua ?? []);
+    ?>
+    <?php if ($totalPend > 0): ?>
+    <div class="accordion mb-3" id="accordionPendientes">
+        <div class="accordion-item" style="border:none;">
+            <h2 class="accordion-header">
+                <button class="accordion-button <?= $totalPend === 0 ? 'collapsed' : '' ?>"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapsePendientes"
+                        style="background:#fff3cd; color:#856404; font-weight:600; font-size:14px;">
+                    <i class="fas fa-clock me-2"></i>
+                    Pendientes
+                    <span class="badge bg-warning text-dark ms-2"><?= $totalPend ?></span>
+                </button>
+            </h2>
+            <div id="collapsePendientes" class="accordion-collapse collapse show">
+                <div class="accordion-body px-0 pt-2 pb-0">
+
     <?php if (!empty($pendientes)): ?>
-    <div class="section-title">Pendientes</div>
     <?php foreach ($pendientes as $doc): ?>
     <div class="card card-inspeccion <?= esc($doc['estado']) ?>">
         <div class="card-body py-3 px-3">
@@ -855,6 +902,12 @@
         </div>
     </div>
     <?php endforeach; ?>
+    <?php endif; ?>
+
+                </div><!-- /accordion-body -->
+            </div><!-- /collapse -->
+        </div><!-- /accordion-item -->
+    </div><!-- /accordion -->
     <?php endif; ?>
 
     <!-- Buscador de inspecciones -->
