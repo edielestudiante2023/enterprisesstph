@@ -196,9 +196,9 @@
         <p class="empty-text">No se registraron temas.</p>
     <?php endif; ?>
 
-    <!-- 4. ACTIVIDADES PTA GESTIONADAS -->
+    <!-- 4. ACTIVIDADES PLAN DE TRABAJO ANUAL GESTIONADAS -->
     <?php if (!empty($ptaCerradas)): ?>
-    <div class="section-title">4. ACTIVIDADES PTA GESTIONADAS</div>
+    <div class="section-title">4. ACTIVIDADES PLAN DE TRABAJO ANUAL GESTIONADAS</div>
     <table class="data-table">
         <thead>
             <tr>
