@@ -209,7 +209,10 @@ $action = $isEdit ? base_url('/inspecciones/acta-visita/update/') . $acta['id'] 
                                                 <input type="date" name="compromiso_fecha[]" class="form-control" value="<?= $comp['fecha_cierre'] ?? '' ?>">
                                             </div>
                                             <div class="col-5">
-                                                <input type="text" name="compromiso_responsable[]" class="form-control" placeholder="Responsable" value="<?= esc($comp['responsable'] ?? '') ?>">
+                                                <select name="compromiso_responsable[]" class="form-select">
+                                                    <option value="ADMINISTRADOR" <?= ($comp['responsable'] ?? '') === 'ADMINISTRADOR' ? 'selected' : '' ?>>ADMINISTRADOR</option>
+                                                    <option value="CONSULTOR CYCLOID TALENT" <?= ($comp['responsable'] ?? '') === 'CONSULTOR CYCLOID TALENT' ? 'selected' : '' ?>>CONSULTOR CYCLOID TALENT</option>
+                                                </select>
                                             </div>
                                             <div class="col-1 text-center">
                                                 <button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" style="min-height:44px;">
@@ -514,7 +517,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             <input type="date" name="compromiso_fecha[]" class="form-control">
                         </div>
                         <div class="col-5">
-                            <input type="text" name="compromiso_responsable[]" class="form-control" placeholder="Responsable">
+                            <select name="compromiso_responsable[]" class="form-select">
+                                <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                                <option value="CONSULTOR CYCLOID TALENT">CONSULTOR CYCLOID TALENT</option>
+                            </select>
                         </div>
                         <div class="col-1 text-center">
                             <button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" style="min-height:44px;">
@@ -689,7 +695,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Compromisos
         (data.compromisos || []).forEach(c => {
-            const html = '<div class="card mb-2 compromiso-row"><div class="card-body p-2"><input type="text" name="compromiso_actividad[]" class="form-control mb-1" placeholder="Actividad" value="' + (c.actividad||'').replace(/"/g,'&quot;') + '"><div class="row g-2"><div class="col-6"><input type="date" name="compromiso_fecha[]" class="form-control" value="' + (c.fecha||'') + '"></div><div class="col-5"><input type="text" name="compromiso_responsable[]" class="form-control" placeholder="Responsable" value="' + (c.responsable||'').replace(/"/g,'&quot;') + '"></div><div class="col-1 text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" style="min-height:44px;"><i class="fas fa-times"></i></button></div></div></div></div>';
+            const resp = (c.responsable||'');
+            const opt1 = '<option value="ADMINISTRADOR"' + (resp==='ADMINISTRADOR'?' selected':'') + '>ADMINISTRADOR</option>';
+            const opt2 = '<option value="CONSULTOR CYCLOID TALENT"' + (resp==='CONSULTOR CYCLOID TALENT'?' selected':'') + '>CONSULTOR CYCLOID TALENT</option>';
+            const html = '<div class="card mb-2 compromiso-row"><div class="card-body p-2"><input type="text" name="compromiso_actividad[]" class="form-control mb-1" placeholder="Actividad" value="' + (c.actividad||'').replace(/"/g,'&quot;') + '"><div class="row g-2"><div class="col-6"><input type="date" name="compromiso_fecha[]" class="form-control" value="' + (c.fecha||'') + '"></div><div class="col-5"><select name="compromiso_responsable[]" class="form-select">' + opt1 + opt2 + '</select></div><div class="col-1 text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" style="min-height:44px;"><i class="fas fa-times"></i></button></div></div></div></div>';
             document.getElementById('compromisosContainer').insertAdjacentHTML('beforeend', html);
         });
 
