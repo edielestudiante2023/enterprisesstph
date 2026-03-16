@@ -420,10 +420,23 @@
                             <?php endif; ?>
 
                         <?php elseif ($estadoFirma === 'pendiente_firma'): ?>
-                            <div class="alert alert-warning py-2 mb-2">
-                                <i class="fas fa-clock"></i> Pendiente de firma del cliente
-                            </div>
+                            <?php
+                            $tokenExpirado = !empty($contract['token_firma_expiracion'])
+                                && strtotime($contract['token_firma_expiracion']) < time();
+                            ?>
+                            <?php if ($tokenExpirado): ?>
+                                <div class="alert alert-danger py-2 mb-2">
+                                    <i class="fas fa-exclamation-circle"></i> Enlace de firma <strong>expirado</strong>
+                                    <br><small>Venció el <?= date('d/m/Y', strtotime($contract['token_firma_expiracion'])) ?></small>
+                                </div>
+                            <?php else: ?>
+                                <div class="alert alert-warning py-2 mb-2">
+                                    <i class="fas fa-clock"></i> Pendiente de firma del cliente
+                                    <br><small>Vence el <?= date('d/m/Y', strtotime($contract['token_firma_expiracion'])) ?></small>
+                                </div>
+                            <?php endif; ?>
                             <?php $linkFirma = base_url('contrato/firmar/' . ($contract['token_firma'] ?? '')); ?>
+                            <?php if (!$tokenExpirado): ?>
                             <div class="btn-group w-100 mb-2">
                                 <button onclick="copiarLinkFirma()" class="btn btn-outline-info" title="Copiar enlace">
                                     <i class="fas fa-copy"></i> Copiar Link
@@ -433,8 +446,9 @@
                                     <i class="fab fa-whatsapp"></i> WhatsApp
                                 </a>
                             </div>
-                            <button onclick="reenviarFirma()" class="btn btn-outline-warning w-100 mb-2">
-                                <i class="fas fa-redo"></i> Reenviar por Email
+                            <?php endif; ?>
+                            <button onclick="reenviarFirma()" class="btn <?= $tokenExpirado ? 'btn-danger' : 'btn-outline-warning' ?> w-100 mb-2">
+                                <i class="fas fa-redo"></i> <?= $tokenExpirado ? 'Renovar enlace y reenviar' : 'Reenviar por Email' ?>
                             </button>
 
                         <?php else: ?>
