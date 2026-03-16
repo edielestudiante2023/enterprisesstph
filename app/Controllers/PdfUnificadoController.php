@@ -27,38 +27,38 @@ class PdfUnificadoController extends Controller
     private $policyTypeModel;
 
     /**
-     * Mapeo de id_acceso a policy_type_id y vista
+     * Mapeo de id_acceso → policy_type_id real (obtenido de cada Pz*Controller) + vista
      */
     private $documentMapping = [
-        1 => ['policy_type_id' => 1, 'view' => 'client/sgsst/1planear/p1_1_1asignacion_responsable', 'nombre' => 'Asignación de Responsable'],
-        2 => ['policy_type_id' => 2, 'view' => 'client/sgsst/1planear/p1_1_2asignacion_responsabilidades', 'nombre' => 'Asignación de Responsabilidades'],
-        3 => ['policy_type_id' => 3, 'view' => 'client/sgsst/1planear/p1_1_3vigia', 'nombre' => 'Asignación de Vigía'],
-        4 => ['policy_type_id' => 4, 'view' => 'client/sgsst/1planear/p1_1_4exoneracion_cocolab', 'nombre' => 'Exoneración COCOLAB'],
-        5 => ['policy_type_id' => 5, 'view' => 'client/sgsst/1planear/p1_1_5registro_asistencia', 'nombre' => 'Registro de Asistencia'],
-        15 => ['policy_type_id' => 15, 'view' => 'client/sgsst/1planear/p1_2_1prgcapacitacion', 'nombre' => 'Programa de Capacitación'],
-        16 => ['policy_type_id' => 16, 'view' => 'client/sgsst/1planear/p1_2_2prginduccion', 'nombre' => 'Programa de Inducción'],
-        17 => ['policy_type_id' => 17, 'view' => 'client/sgsst/1planear/p1_2_3ftevaluacioninduccion', 'nombre' => 'Evaluación de Inducción'],
-        18 => ['policy_type_id' => 18, 'view' => 'client/sgsst/1planear/p2_1_1politicasst', 'nombre' => 'Política de SST'],
-        19 => ['policy_type_id' => 19, 'view' => 'client/sgsst/1planear/p2_1_2politicaalcohol', 'nombre' => 'Política de Alcohol'],
-        20 => ['policy_type_id' => 20, 'view' => 'client/sgsst/1planear/p2_1_3politicaemergencias', 'nombre' => 'Política de Emergencias'],
-        21 => ['policy_type_id' => 21, 'view' => 'client/sgsst/1planear/p2_1_4politicaepps', 'nombre' => 'Política de EPPs'],
-        23 => ['policy_type_id' => 23, 'view' => 'client/sgsst/1planear/p2_1_6reghigsegind', 'nombre' => 'Reglamento de Higiene'],
-        24 => ['policy_type_id' => 24, 'view' => 'client/sgsst/1planear/p2_2_1objetivos', 'nombre' => 'Objetivos del SG-SST'],
-        25 => ['policy_type_id' => 25, 'view' => 'client/sgsst/1planear/p2_5_1documentacion', 'nombre' => 'Documentos del SG-SST'],
-        26 => ['policy_type_id' => 26, 'view' => 'client/sgsst/1planear/p2_5_2rendiciondecuentas', 'nombre' => 'Rendición de Cuentas'],
-        28 => ['policy_type_id' => 28, 'view' => 'client/sgsst/1planear/p2_5_4manproveedores', 'nombre' => 'Manual de Proveedores'],
-        31 => ['policy_type_id' => 31, 'view' => 'client/sgsst/1planear/h1_1_3repoaccidente', 'nombre' => 'Reporte de Accidente'],
-        36 => ['policy_type_id' => 36, 'view' => 'client/sgsst/1planear/h1_1_7identfpeligriesg', 'nombre' => 'Identificación de Peligros'],
+        1  => ['policy_type_id' => 1,  'view' => 'client/sgsst/1planear/p1_1_1asignacion_responsable',      'nombre' => 'Asignación de Responsable'],
+        2  => ['policy_type_id' => 4,  'view' => 'client/sgsst/1planear/p1_1_2asignacion_responsabilidades', 'nombre' => 'Asignación de Responsabilidades'],
+        3  => ['policy_type_id' => 5,  'view' => 'client/sgsst/1planear/p1_1_3vigia',                        'nombre' => 'Asignación de Vigía'],
+        4  => ['policy_type_id' => 6,  'view' => 'client/sgsst/1planear/p1_1_4exoneracion_cocolab',          'nombre' => 'Exoneración COCOLAB'],
+        5  => ['policy_type_id' => 10, 'view' => 'client/sgsst/1planear/p1_1_5registro_asistencia',          'nombre' => 'Registro de Asistencia'],
+        15 => ['policy_type_id' => 18, 'view' => 'client/sgsst/1planear/p1_2_1prgcapacitacion',              'nombre' => 'Programa de Capacitación'],
+        16 => ['policy_type_id' => 19, 'view' => 'client/sgsst/1planear/p1_2_2prginduccion',                 'nombre' => 'Programa de Inducción'],
+        17 => ['policy_type_id' => 20, 'view' => 'client/sgsst/1planear/p1_2_3ftevaluacioninduccion',        'nombre' => 'Evaluación de Inducción'],
+        18 => ['policy_type_id' => 21, 'view' => 'client/sgsst/1planear/p2_1_1politicasst',                  'nombre' => 'Política de SST'],
+        19 => ['policy_type_id' => 22, 'view' => 'client/sgsst/1planear/p2_1_2politicaalcohol',              'nombre' => 'Política de Alcohol'],
+        20 => ['policy_type_id' => 23, 'view' => 'client/sgsst/1planear/p2_1_3politicaemergencias',          'nombre' => 'Política de Emergencias'],
+        21 => ['policy_type_id' => 24, 'view' => 'client/sgsst/1planear/p2_1_4politicaepps',                 'nombre' => 'Política de EPPs'],
+        23 => ['policy_type_id' => 26, 'view' => 'client/sgsst/1planear/p2_1_6reghigsegind',                 'nombre' => 'Reglamento de Higiene'],
+        24 => ['policy_type_id' => 27, 'view' => 'client/sgsst/1planear/p2_2_1objetivos',                    'nombre' => 'Objetivos del SG-SST'],
+        25 => ['policy_type_id' => 28, 'view' => 'client/sgsst/1planear/p2_5_1documentacion',                'nombre' => 'Documentos del SG-SST'],
+        26 => ['policy_type_id' => 29, 'view' => 'client/sgsst/1planear/p2_5_2rendiciondecuentas',           'nombre' => 'Rendición de Cuentas'],
+        28 => ['policy_type_id' => 31, 'view' => 'client/sgsst/1planear/p2_5_4manproveedores',               'nombre' => 'Manual de Proveedores'],
+        31 => ['policy_type_id' => 34, 'view' => 'client/sgsst/1planear/h1_1_3repoaccidente',                'nombre' => 'Reporte de Accidente'],
+        36 => ['policy_type_id' => 39, 'view' => 'client/sgsst/1planear/h1_1_7identfpeligriesg',             'nombre' => 'Identificación de Peligros'],
     ];
 
     public function __construct()
     {
-        $this->clientModel = new ClientModel();
-        $this->consultantModel = new ConsultantModel();
-        $this->contractModel = new ContractModel();
+        $this->clientModel         = new ClientModel();
+        $this->consultantModel     = new ConsultantModel();
+        $this->contractModel       = new ContractModel();
         $this->clientPoliciesModel = new ClientPoliciesModel();
-        $this->versionModel = new DocumentVersionModel();
-        $this->policyTypeModel = new PolicyTypeModel();
+        $this->versionModel        = new DocumentVersionModel();
+        $this->policyTypeModel     = new PolicyTypeModel();
     }
 
     /**
@@ -70,7 +70,6 @@ class PdfUnificadoController extends Controller
 
         $session = session();
 
-        // Si viene parámetro y el usuario es consultant/admin, usar ese ID
         $role = $session->get('role');
         if ($idClienteParam && in_array($role, ['consultant', 'admin'])) {
             $clientId = $idClienteParam;
@@ -88,25 +87,22 @@ class PdfUnificadoController extends Controller
             return redirect()->to('/login')->with('error', 'Cliente no encontrado.');
         }
 
-        // Obtener accesos según el estándar del cliente
         $estandarNombre = $client['estandares'];
         $accesos = get_accesses_by_standard($estandarNombre);
 
-        // Ordenar por dimensión PHVA
         $orden = ["Planear", "Hacer", "Verificar", "Actuar", "Indicadores"];
         usort($accesos, function ($a, $b) use ($orden) {
             return array_search($a['dimension'], $orden) - array_search($b['dimension'], $orden);
         });
 
-        // Filtrar solo los que tienen PDF disponible (excluir indicadores)
-        $accesosConPdf = array_filter($accesos, function($acceso) {
+        $accesosConPdf = array_filter($accesos, function ($acceso) {
             return isset($this->documentMapping[$acceso['id_acceso']]) && $acceso['dimension'] !== 'Indicadores';
         });
 
         return view('client/pdf_unificado', [
-            'client' => $client,
-            'accesos' => $accesosConPdf,
-            'totalDocumentos' => count($accesosConPdf)
+            'client'           => $client,
+            'accesos'          => $accesosConPdf,
+            'totalDocumentos'  => count($accesosConPdf),
         ]);
     }
 
@@ -115,15 +111,14 @@ class PdfUnificadoController extends Controller
      */
     public function generarPdfUnificado()
     {
-        set_time_limit(600); // 10 minutos máximo
+        set_time_limit(600);
         ini_set('memory_limit', '1024M');
 
         helper('access_library');
 
         $session = session();
-        $role = $session->get('role');
+        $role    = $session->get('role');
 
-        // Si es consultant/admin y viene id_cliente en POST, usar ese ID
         $idClientePost = $this->request->getPost('id_cliente');
         if ($idClientePost && in_array($role, ['consultant', 'admin'])) {
             $clientId = (int) $idClientePost;
@@ -141,38 +136,29 @@ class PdfUnificadoController extends Controller
             return redirect()->to('/login')->with('error', 'Cliente no encontrado.');
         }
 
-        $consultant = $this->consultantModel->find($client['id_consultor']);
-        $firstContractDate = $this->contractModel->getFirstContractDate($clientId);
-        // Fallback: si no hay contrato, usar fecha_ingreso del cliente
-        if (!$firstContractDate && !empty($client['fecha_ingreso'])) {
-            $firstContractDate = $client['fecha_ingreso'];
-        }
+        $consultant       = $this->consultantModel->find($client['id_consultor']);
+        $firstContractDate = $this->resolverFechaContrato($clientId, $client);
 
-        // Obtener accesos según el estándar del cliente
         $estandarNombre = $client['estandares'];
         $accesos = get_accesses_by_standard($estandarNombre);
 
-        // Ordenar por dimensión PHVA
         $orden = ["Planear", "Hacer", "Verificar", "Actuar", "Indicadores"];
         usort($accesos, function ($a, $b) use ($orden) {
             return array_search($a['dimension'], $orden) - array_search($b['dimension'], $orden);
         });
 
-        // Filtrar solo los que tienen PDF disponible (excluir indicadores)
-        $accesosConPdf = array_filter($accesos, function($acceso) {
+        $accesosConPdf = array_filter($accesos, function ($acceso) {
             return isset($this->documentMapping[$acceso['id_acceso']]) && $acceso['dimension'] !== 'Indicadores';
         });
 
-        // Directorio temporal para PDFs individuales
         $tempDir = WRITEPATH . 'uploads/temp_pdfs/';
         if (!is_dir($tempDir)) {
             mkdir($tempDir, 0755, true);
         }
 
         $pdfFiles = [];
-        $errores = [];
+        $errores  = [];
 
-        // Generar cada PDF individualmente
         foreach ($accesosConPdf as $acceso) {
             $idAcceso = $acceso['id_acceso'];
 
@@ -184,15 +170,14 @@ class PdfUnificadoController extends Controller
             $pdfPath = $tempDir . 'doc_' . $idAcceso . '_' . uniqid() . '.pdf';
 
             try {
-                // Generar el PDF directamente
                 $pdfContent = $this->generarPdfDirecto($idAcceso, $clientId, $client, $consultant, $firstContractDate);
 
                 if ($pdfContent) {
                     file_put_contents($pdfPath, $pdfContent);
                     $pdfFiles[] = [
-                        'path' => $pdfPath,
-                        'nombre' => $mapping['nombre'],
-                        'id_acceso' => $idAcceso
+                        'path'      => $pdfPath,
+                        'nombre'    => $mapping['nombre'],
+                        'id_acceso' => $idAcceso,
                     ];
                 }
             } catch (\Exception $e) {
@@ -210,14 +195,10 @@ class PdfUnificadoController extends Controller
             return redirect()->back()->with('error', $errorMsg);
         }
 
-        // Fusionar todos los PDFs
         try {
             $pdfFinal = $this->fusionarPdfs($pdfFiles);
-
-            // Limpiar archivos temporales
             $this->limpiarDirectorioTemp($tempDir);
 
-            // Enviar el PDF fusionado
             $nombreArchivo = 'SG-SST_' . preg_replace('/[^a-zA-Z0-9]/', '_', $client['nombre_cliente']) . '_' . date('Y-m-d') . '.pdf';
 
             return $this->response
@@ -233,7 +214,29 @@ class PdfUnificadoController extends Controller
     }
 
     /**
-     * Genera un PDF directamente sin llamadas HTTP
+     * Resuelve la fecha del primer contrato válida (rechaza 0000-00-00 y epoch).
+     */
+    private function resolverFechaContrato($clientId, $client): ?string
+    {
+        $fecha = $this->contractModel->getFirstContractDate($clientId);
+
+        // Rechazar fechas inválidas: nulas, vacías, 0000-00-00 o epoch Unix
+        if ($fecha && ($fecha === '0000-00-00' || strtotime($fecha) <= 86400)) {
+            $fecha = null;
+        }
+
+        // Fallback: fecha_ingreso del cliente
+        if (!$fecha && !empty($client['fecha_ingreso'])) {
+            $ts = strtotime($client['fecha_ingreso']);
+            $fecha = ($ts > 86400) ? $client['fecha_ingreso'] : null;
+        }
+
+        return $fecha;
+    }
+
+    /**
+     * Genera un PDF directamente sin llamadas HTTP.
+     * Inyecta un encabezado rediseñado reemplazando el header original de la vista.
      */
     private function generarPdfDirecto($idAcceso, $clientId, $client, $consultant, $firstContractDate)
     {
@@ -241,12 +244,12 @@ class PdfUnificadoController extends Controller
             return null;
         }
 
-        $mapping = $this->documentMapping[$idAcceso];
+        $mapping      = $this->documentMapping[$idAcceso];
         $policyTypeId = $mapping['policy_type_id'];
-        $viewPath = $mapping['view'];
+        $viewPath     = $mapping['view'];
 
-        // Obtener datos del documento
-        $clientPolicy = $this->clientPoliciesModel->where('client_id', $clientId)
+        $clientPolicy = $this->clientPoliciesModel
+            ->where('client_id', $clientId)
             ->where('policy_type_id', $policyTypeId)
             ->orderBy('id', 'DESC')
             ->first();
@@ -257,7 +260,8 @@ class PdfUnificadoController extends Controller
 
         $policyType = $this->policyTypeModel->find($policyTypeId);
 
-        $latestVersion = $this->versionModel->where('client_id', $clientId)
+        $latestVersion = $this->versionModel
+            ->where('client_id', $clientId)
             ->where('policy_type_id', $policyTypeId)
             ->orderBy('created_at', 'DESC')
             ->first();
@@ -266,12 +270,13 @@ class PdfUnificadoController extends Controller
             return null;
         }
 
-        $allVersions = $this->versionModel->where('client_id', $clientId)
+        $allVersions = $this->versionModel
+            ->where('client_id', $clientId)
             ->where('policy_type_id', $policyTypeId)
             ->orderBy('created_at', 'DESC')
             ->findAll();
 
-        // Sobrescribir fechas con la del primer contrato
+        // Sobreescribir fechas con la del primer contrato
         if ($firstContractDate) {
             $latestVersion['created_at'] = $firstContractDate;
             foreach ($allVersions as &$version) {
@@ -279,10 +284,10 @@ class PdfUnificadoController extends Controller
             }
             unset($version);
         } else {
-            $latestVersion['created_at'] = null;
+            $latestVersion['created_at']  = null;
             $latestVersion['sin_contrato'] = true;
             foreach ($allVersions as &$version) {
-                $version['created_at'] = null;
+                $version['created_at']  = null;
                 $version['sin_contrato'] = true;
             }
             unset($version);
@@ -290,32 +295,39 @@ class PdfUnificadoController extends Controller
 
         // Formatear fecha para mostrar
         if ($latestVersion['created_at']) {
-            $latestVersion['created_at'] = Time::parse($latestVersion['created_at'], 'America/Bogota')
-                ->toLocalizedString('d MMMM yyyy');
-        } elseif (isset($latestVersion['sin_contrato'])) {
+            try {
+                $latestVersion['created_at'] = Time::parse($latestVersion['created_at'], 'America/Bogota')
+                    ->toLocalizedString('d MMMM yyyy');
+            } catch (\Exception $e) {
+                $latestVersion['created_at']  = null;
+                $latestVersion['sin_contrato'] = true;
+            }
+        }
+
+        if (empty($latestVersion['created_at']) && isset($latestVersion['sin_contrato'])) {
             $latestVersion['created_at'] = 'PENDIENTE DE CONTRATO';
         }
 
-        // Preparar datos para la vista
         $data = [
-            'client' => $client,
-            'consultant' => $consultant,
-            'clientPolicy' => $clientPolicy,
-            'policyType' => $policyType,
+            'client'        => $client,
+            'consultant'    => $consultant,
+            'clientPolicy'  => $clientPolicy,
+            'policyType'    => $policyType,
             'latestVersion' => $latestVersion,
-            'allVersions' => $allVersions,
+            'allVersions'   => $allVersions,
         ];
 
-        // Verificar si la vista existe
         if (!file_exists(APPPATH . 'Views/' . $viewPath . '.php')) {
             log_message('warning', 'Vista no encontrada: ' . $viewPath);
             return null;
         }
 
-        // Renderizar la vista
         $html = view($viewPath, $data);
 
-        // Generar PDF con Dompdf
+        // Reemplazar el encabezado original por el nuevo diseño
+        $nuevoHeader = $this->buildPdfHeader($client, $policyType, $latestVersion);
+        $html = $this->inyectarHeader($html, $nuevoHeader);
+
         $options = new Options();
         $options->set('isRemoteEnabled', true);
         $options->set('isHtml5ParserEnabled', true);
@@ -326,6 +338,96 @@ class PdfUnificadoController extends Controller
         $dompdf->render();
 
         return $dompdf->output();
+    }
+
+    /**
+     * Reemplaza el bloque de encabezado original de la vista con el nuevo header.
+     * Soporta dos patrones:
+     *   A) <div class="centered-content"><table>...</table></div>
+     *   B) <table>...</table> directamente después de <body>
+     */
+    private function inyectarHeader(string $html, string $nuevoHeader): string
+    {
+        // Patrón A: <div class="centered-content">...<table>...</table></div>
+        if (preg_match('/<div\s+class="centered-content">/i', $html)) {
+            return preg_replace(
+                '/<div\s+class="centered-content">.*?<\/div>/si',
+                $nuevoHeader,
+                $html,
+                1
+            );
+        }
+
+        // Patrón B: <table> inmediatamente después de <body>
+        return preg_replace(
+            '/(<body[^>]*>)\s*<table\b[^>]*>.*?<\/table>/si',
+            '$1' . "\n" . $nuevoHeader,
+            $html,
+            1
+        );
+    }
+
+    /**
+     * Construye el HTML del encabezado PDF con el diseño corporativo EnterprissesT.
+     * Usa imagen en base64 para garantizar renderizado en DOMPDF sin dependencias HTTP.
+     */
+    private function buildPdfHeader(array $client, ?array $policyType, array $latestVersion): string
+    {
+        // Logo del cliente como base64 para DOMPDF
+        $logoSrc = '';
+        $logoPath = FCPATH . 'uploads/' . ($client['logo'] ?? '');
+        if (!empty($client['logo']) && file_exists($logoPath)) {
+            $mime    = mime_content_type($logoPath);
+            $logoSrc = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        $logoHtml = $logoSrc
+            ? '<img src="' . $logoSrc . '" alt="Logo" style="max-width:90px; max-height:65px; width:auto; height:auto;">'
+            : '';
+
+        $docCode  = trim(($latestVersion['document_type'] ?? '') . '-' . ($latestVersion['acronym'] ?? ''), '-');
+        $docTitle = strtoupper($policyType['type_name'] ?? '');
+        $version  = $latestVersion['version_number'] ?? '1';
+        $fecha    = $latestVersion['created_at'] ?? '';
+        $esPendiente = str_contains($fecha, 'PENDIENTE');
+
+        $fechaHtml = $esPendiente
+            ? '<span style="color:#e74c3c; font-weight:bold; font-size:8px;">PENDIENTE DE CONTRATO</span>'
+            : esc($fecha);
+
+        return '
+<div style="margin-bottom:18px;">
+  <div style="background-color:#C9A84C; height:5px; font-size:0; line-height:0;">&nbsp;</div>
+  <table style="width:100%; border-collapse:collapse; border:1.5px solid #C9A84C;">
+    <tr>
+      <td rowspan="2" style="width:14%; border-right:1.5px solid #C9A84C; padding:8px; text-align:center; background-color:#FDFBF5; vertical-align:middle;">
+        ' . $logoHtml . '
+      </td>
+      <td style="width:56%; text-align:center; font-weight:bold; font-size:10px; padding:7px 10px;
+                 border-right:1.5px solid #C9A84C; border-bottom:1px solid #E8D9B0;
+                 background-color:#FDFBF5; color:#2C3E50; letter-spacing:0.5px; vertical-align:middle;">
+        SISTEMA DE GESTIÓN EN SEGURIDAD Y SALUD EN EL TRABAJO
+      </td>
+      <td style="width:30%; font-weight:bold; font-size:14px; padding:7px 10px;
+                 background-color:#C9A84C; color:#fff; vertical-align:middle;
+                 text-align:center; border-bottom:1px solid #b8952e; letter-spacing:1px;">
+        ' . esc($docCode) . '
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:center; font-weight:bold; font-size:11px; padding:8px 10px;
+                 border-right:1.5px solid #C9A84C; background-color:#2C3E50;
+                 color:#FFFFFF; letter-spacing:0.3px; vertical-align:middle;">
+        ' . $docTitle . '
+      </td>
+      <td style="font-size:10px; padding:7px 10px; background-color:#FDFBF5;
+                 color:#2C3E50; vertical-align:middle; line-height:1.6;">
+        <strong>Versión:</strong> ' . esc($version) . '<br>
+        <strong>Fecha:</strong> ' . $fechaHtml . '
+      </td>
+    </tr>
+  </table>
+</div>';
     }
 
     /**
@@ -342,7 +444,7 @@ class PdfUnificadoController extends Controller
 
                 for ($i = 1; $i <= $pageCount; $i++) {
                     $templateId = $pdf->importPage($i);
-                    $size = $pdf->getTemplateSize($templateId);
+                    $size       = $pdf->getTemplateSize($templateId);
 
                     $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
                     $pdf->useTemplate($templateId);
