@@ -369,6 +369,16 @@ document.addEventListener('DOMContentLoaded', function() {
         cargarAsistentes();
         cargarResultadosEval();
         cargarCronogramasPendientes(this.value);
+        // Instrucción al usuario solo en formulario nuevo
+        if (!isEditLocal && this.value) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Sincronización con cronograma',
+                html: 'Por favor <strong>guarda el borrador</strong> primero para que el sistema pueda sincronizar esta capacitación con el programa de capacitaciones del cliente.',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#3085d6',
+            });
+        }
     });
     document.querySelector('[name="fecha_capacitacion"]').addEventListener('change', function() {
         autoMatchCronogramaPorFecha();
