@@ -60,6 +60,16 @@ class HvBrigadistaModel extends Model
     /**
      * HV por cliente (para portal cliente)
      */
+    public function getAllPendientes()
+    {
+        return $this->select('tbl_hv_brigadista.*, tbl_clientes.nombre_cliente, tbl_clientes.id_consultor, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_hv_brigadista.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_clientes.id_consultor', 'left')
+            ->where('tbl_hv_brigadista.estado', 'borrador')
+            ->orderBy('tbl_hv_brigadista.updated_at', 'DESC')
+            ->findAll();
+    }
+
     public function getByCliente(int $idCliente)
     {
         return $this->where('id_cliente', $idCliente)

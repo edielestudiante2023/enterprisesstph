@@ -59,6 +59,16 @@ class EvaluacionSimulacroModel extends Model
     /**
      * Evaluaciones por cliente (para portal cliente)
      */
+    public function getAllPendientes()
+    {
+        return $this->select('tbl_evaluacion_simulacro.*, tbl_clientes.nombre_cliente, tbl_clientes.id_consultor, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_simulacro.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_clientes.id_consultor', 'left')
+            ->where('tbl_evaluacion_simulacro.estado', 'borrador')
+            ->orderBy('tbl_evaluacion_simulacro.updated_at', 'DESC')
+            ->findAll();
+    }
+
     public function getByCliente(int $idCliente)
     {
         return $this->where('id_cliente', $idCliente)
