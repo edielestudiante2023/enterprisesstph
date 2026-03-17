@@ -514,7 +514,7 @@ class ChatController extends Controller
                 'model' => $this->model, 'messages' => $messages, 'tools' => $tools,
                 'temperature' => 0.3, 'max_tokens' => 4000,
             ]),
-            CURLOPT_TIMEOUT        => 120,
+            CURLOPT_TIMEOUT        => 55,
             CURLOPT_SSL_VERIFYPEER => false,
         ]);
 

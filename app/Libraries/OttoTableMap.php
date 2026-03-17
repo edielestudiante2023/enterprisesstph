@@ -382,9 +382,10 @@ TXT;
                     'clientes pendientes de visita',
                     'ciclo de visitas',
                 ],
-                'key_columns' => ['id', 'id_cliente', 'id_consultor', 'anio', 'mes_esperado', 'id_agendamiento', 'id_acta', 'estatus_agenda (ENUM: pendiente/cumple/incumple)', 'estatus_mes (ENUM: pendiente/cumple/incumple)'],
+                'key_columns' => ['id', 'id_cliente', 'nombre_cliente', 'id_consultor', 'nombre_consultor', 'anio', 'mes_esperado', 'estandar (frecuencia de visita: mensual/bimensual/trimestral/etc)', 'id_agendamiento', 'id_acta', 'estatus_agenda (ENUM: pendiente/cumple/incumple)', 'estatus_mes (ENUM: pendiente/cumple/incumple)', 'fecha_visita'],
                 'relations'   => ['id_cliente → tbl_clientes.id_cliente', 'id_agendamiento → tbl_agendamientos.id'],
-                'notes'       => '',
+                'use_for'     => ['¿qué clientes no han sido visitados este mes?', 'clientes pendientes de visita', 'ciclo de visitas', 'frecuencia de visita de un cliente', '¿cada cuánto visitan a X?'],
+                'notes'       => 'La columna estandar contiene la frecuencia de visita (mensual, bimensual, trimestral). Para consultar la frecuencia de un cliente usar: SELECT nombre_cliente, estandar FROM v_tbl_ciclos_visita WHERE nombre_cliente LIKE \'%nombre%\' LIMIT 1',
             ],
 
             // ═══════════════════════════════════════════════════════════
