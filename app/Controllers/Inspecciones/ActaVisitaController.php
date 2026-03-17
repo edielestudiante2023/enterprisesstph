@@ -713,7 +713,10 @@ class ActaVisitaController extends BaseController
         $pendientesAbiertos = (new PendientesModel())
             ->where('id_cliente', $acta['id_cliente'])
             ->where('estado', 'ABIERTA')
-            ->where('id_acta_visita IS NULL OR id_acta_visita !=', $id)
+            ->groupStart()
+                ->where('id_acta_visita IS NULL', null, false)
+                ->orWhere('id_acta_visita !=', $id)
+            ->groupEnd()
             ->findAll();
 
         // Mantenimientos por vencer
