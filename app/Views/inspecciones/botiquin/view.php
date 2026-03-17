@@ -44,14 +44,21 @@ function estadoColor(string $estado): string {
     </div>
 
     <!-- Fotos del botiquín -->
-    <?php if (!empty($inspeccion['foto_1']) || !empty($inspeccion['foto_2'])): ?>
+    <?php
+    $todasFotos = ['foto_1', 'foto_2', 'foto_tabla_espinal', 'foto_collares', 'foto_inmovilizadores'];
+    $labelsFotos = ['foto_1' => 'Foto 1', 'foto_2' => 'Foto 2', 'foto_tabla_espinal' => 'Tabla espinal', 'foto_collares' => 'Collares', 'foto_inmovilizadores' => 'Inmovilizadores'];
+    $hayFotos = false;
+    foreach ($todasFotos as $c) { if (!empty($inspeccion[$c])) { $hayFotos = true; break; } }
+    ?>
+    <?php if ($hayFotos): ?>
     <div class="card mb-3">
         <div class="card-body">
             <h6 class="card-title" style="font-size:14px; color:#999;">FOTOS DEL BOTIQUIN</h6>
             <div class="row g-2">
-                <?php foreach (['foto_1', 'foto_2'] as $campo): ?>
+                <?php foreach ($todasFotos as $campo): ?>
                     <?php if (!empty($inspeccion[$campo])): ?>
                     <div class="col-6">
+                        <small class="text-muted d-block" style="font-size:11px;"><?= $labelsFotos[$campo] ?></small>
                         <img src="/<?= esc($inspeccion[$campo]) ?>" class="img-fluid rounded"
                              style="max-height:120px; object-fit:cover; cursor:pointer; border:1px solid #ddd;"
                              onclick="openPhoto(this.src)">
@@ -149,19 +156,11 @@ function estadoColor(string $estado): string {
                     </table>
 
                     <?php if ($grupoNombre === 'Equipos de inmovilizacion'): ?>
-                    <!-- Fotos y estado de equipos especiales -->
+                    <!-- Estado de equipos especiales -->
                     <div class="mt-2">
-                        <?php if (!empty($inspeccion['foto_tabla_espinal'])): ?>
-                        <div class="mb-2">
-                            <small class="text-muted">Foto tabla espinal:</small>
-                            <img src="/<?= esc($inspeccion['foto_tabla_espinal']) ?>" class="img-fluid rounded d-block mt-1"
-                                 style="max-height:80px; cursor:pointer; border:1px solid #ddd;" onclick="openPhoto(this.src)">
-                        </div>
-                        <?php endif; ?>
                         <?php if (!empty($inspeccion['obs_tabla_espinal'])): ?>
                         <p style="font-size:12px; margin:0 0 4px;"><i class="fas fa-comment-alt text-muted"></i> <?= esc($inspeccion['obs_tabla_espinal']) ?></p>
                         <?php endif; ?>
-
                         <table class="table table-sm mb-1" style="font-size:12px;">
                             <tr>
                                 <td class="text-muted" style="width:55%;">Estado collares</td>
@@ -172,23 +171,6 @@ function estadoColor(string $estado): string {
                                 <td><strong class="<?= estadoColor($inspeccion['estado_inmovilizadores'] ?? 'BUEN ESTADO') ?>"><?= esc($inspeccion['estado_inmovilizadores'] ?? 'BUEN ESTADO') ?></strong></td>
                             </tr>
                         </table>
-
-                        <div class="row g-2">
-                            <?php if (!empty($inspeccion['foto_collares'])): ?>
-                            <div class="col-6">
-                                <small class="text-muted">Foto collares:</small>
-                                <img src="/<?= esc($inspeccion['foto_collares']) ?>" class="img-fluid rounded d-block mt-1"
-                                     style="max-height:80px; cursor:pointer; border:1px solid #ddd;" onclick="openPhoto(this.src)">
-                            </div>
-                            <?php endif; ?>
-                            <?php if (!empty($inspeccion['foto_inmovilizadores'])): ?>
-                            <div class="col-6">
-                                <small class="text-muted">Foto inmovilizadores:</small>
-                                <img src="/<?= esc($inspeccion['foto_inmovilizadores']) ?>" class="img-fluid rounded d-block mt-1"
-                                     style="max-height:80px; cursor:pointer; border:1px solid #ddd;" onclick="openPhoto(this.src)">
-                            </div>
-                            <?php endif; ?>
-                        </div>
                     </div>
                     <?php endif; ?>
                 </div>
