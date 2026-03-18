@@ -727,7 +727,7 @@ class ConsultantController extends Controller
     public function retirarCliente($id)
     {
         $clientModel = new ClientModel();
-        $client = $clientModel->find($id);
+        $client      = $clientModel->find($id);
 
         if (!$client) {
             return redirect()->to('/listClients')->with('error', 'Cliente no encontrado.');
@@ -758,7 +758,134 @@ class ConsultantController extends Controller
             return redirect()->to('/editClient/' . $id)->with('error', 'Error al retirar el cliente. Intente de nuevo.');
         }
 
-        return redirect()->to('/editClient/' . $id)->with('msg', 'Cliente retirado. Todas sus actividades fueron marcadas como CERRADA POR FIN CONTRATO.');
+        // ── Comunicado oficial: terminación de respaldo SST ──────────────────
+        // Se envía automáticamente al cliente notificando que el consultor
+        // ya no está autorizado para actuar en SST en su nombre.
+        $this->_enviarComunicadoFinAutorizacionSST($client);
+
+        return redirect()->to('/editClient/' . $id)->with('msg', 'Cliente retirado. Todas sus actividades fueron marcadas como CERRADA POR FIN CONTRATO. Comunicado oficial enviado al cliente.');
+    }
+
+    /**
+     * Envía el comunicado oficial de terminación de respaldo SST al cliente.
+     * Se invoca automáticamente desde retirarCliente().
+     */
+    private function _enviarComunicadoFinAutorizacionSST(array $client): void
+    {
+        $idCliente = $client['id_cliente'] ?? 0;
+
+        $apiKey = env('SENDGRID_API_KEY');
+        if (empty($apiKey)) {
+            log_message('error', "SENDGRID_API_KEY no configurada — Comunicado Fin Autorización SST no enviado para cliente {$idCliente}.");
+            return;
+        }
+
+        // ── Datos del cliente ────────────────────────────────────────────────
+        $nombreCliente = $client['nombre_cliente'] ?? 'Sin nombre';
+        $nitCliente    = $client['nit_cliente']    ?? 'Sin NIT';
+        $ciudadCliente = $client['ciudad_cliente'] ?? '';
+        $correoCliente = $client['correo_cliente'] ?? '';
+
+        // ── Datos del consultor asignado ─────────────────────────────────────
+        $consultor        = null;
+        $nombreConsultor  = 'Consultor Cycloid';
+        $cedulaConsultor  = 'No registrada';
+        $licenciaConsultor = 'No registrada';
+        $correoConsultor  = '';
+
+        if (!empty($client['id_consultor'])) {
+            $consultantModel = new ConsultantModel();
+            $consultor = $consultantModel->find($client['id_consultor']);
+        }
+
+        if ($consultor) {
+            $nombreConsultor   = $consultor['nombre_consultor']  ?? 'Consultor Cycloid';
+            $cedulaConsultor   = $consultor['cedula_consultor']  ?? 'No registrada';
+            $licenciaConsultor = $consultor['numero_licencia']   ?? 'No registrada';
+            $correoConsultor   = $consultor['correo_consultor']  ?? '';
+        }
+
+        // ── Construir HTML del email ─────────────────────────────────────────
+        $fechaEmision = date('d \d\e F \d\e Y');
+
+        $htmlEmail = view('emails/fin_autorizacion_sst', [
+            'nombreCliente'    => $nombreCliente,
+            'nitCliente'       => $nitCliente,
+            'ciudadCliente'    => $ciudadCliente,
+            'nombreConsultor'  => $nombreConsultor,
+            'cedulaConsultor'  => $cedulaConsultor,
+            'licenciaConsultor' => $licenciaConsultor,
+            'fechaEmision'     => $fechaEmision,
+        ]);
+
+        // ── Destinatarios ────────────────────────────────────────────────────
+        // TO: el cliente (quien debe dejar de usar las credenciales)
+        // CC: el consultor notificado + equipo interno Cycloid
+
+        if (!empty($correoCliente)) {
+            $toList = [['email' => $correoCliente, 'name' => $nombreCliente]];
+        } else {
+            // Sin correo de cliente: enviamos solo a internos
+            $toList = [['email' => 'head.consultant.cycloidtalent@gmail.com', 'name' => 'Head Consultant Cycloid']];
+            log_message('warning', "Comunicado Fin Autorización SST cliente {$idCliente}: sin correo registrado. Enviado solo a internos.");
+        }
+
+        // CC: el consultor (ve que fue notificado formalmente)
+        $ccList = [];
+        if (!empty($correoConsultor)) {
+            $ccList[] = ['email' => $correoConsultor, 'name' => $nombreConsultor];
+        }
+
+        // BCC: equipo interno Cycloid (copia oculta)
+        $bccList = [
+            ['email' => 'diana.cuestas@cycloidtalent.com',       'name' => 'Diana Cuestas'],
+            ['email' => 'natalia.jimenez@cycloidtalent.com',     'name' => 'Natalia Jiménez'],
+            ['email' => 'edison.cuervo@cycloidtalent.com',       'name' => 'Edison Cuervo'],
+            ['email' => 'head.consultant.cycloidtalent@gmail.com', 'name' => 'Head Consultant Cycloid'],
+        ];
+
+        $personalization = [
+            'to'      => $toList,
+            'subject' => 'Comunicado Oficial — Terminación de Respaldo SST | ' . $nombreCliente . ' | ' . date('d/m/Y'),
+            'bcc'     => $bccList,
+        ];
+        if (!empty($ccList)) {
+            $personalization['cc'] = $ccList;
+        }
+
+        $payload = [
+            'personalizations' => [$personalization],
+            'from' => [
+                'email' => env('SENDGRID_FROM_EMAIL', 'notificacion.cycloidtalent@cycloidtalent.com'),
+                'name'  => env('SENDGRID_FROM_NAME', 'Enterprise SST'),
+            ],
+            'content' => [
+                ['type' => 'text/html', 'value' => $htmlEmail],
+            ],
+        ];
+
+        $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json',
+        ]);
+        curl_setopt($ch, CURLOPT_POST,           true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,     json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT,        60);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+
+        $response  = curl_exec($ch);
+        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            log_message('info', "Comunicado Fin Autorización SST enviado para cliente {$idCliente} ({$nombreCliente}). HTTP {$httpCode}");
+        } else {
+            log_message('error', "SendGrid Error (Fin Autorización SST cliente {$idCliente}) — HTTP {$httpCode}: {$response} | cURL: {$curlError}");
+        }
     }
 
     /**

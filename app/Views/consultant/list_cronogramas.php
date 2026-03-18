@@ -707,6 +707,9 @@
       </div>
       <div class="col-md-5 align-self-end">
         <button id="clearState" class="btn btn-danger btn-sm me-2">Restablecer Filtros</button>
+        <button id="btnEliminarSeleccionados" class="btn btn-danger btn-sm me-2" style="display:none;">
+          <i class="fas fa-trash-alt"></i> Eliminar seleccionados (<span id="countSeleccionados">0</span>)
+        </button>
         <div id="buttonsContainer" class="d-inline-block"></div>
       </div>
     </div>
@@ -715,6 +718,7 @@
       <table id="cronogramaTable" class="table table-striped table-bordered nowrap" style="width:100%">
         <thead class="table-light">
           <tr>
+            <th><input type="checkbox" id="selectAllCheckbox" title="Seleccionar todos"></th>
             <!-- Columna para fila expandible -->
             <th></th>
             <th>#</th>
@@ -740,6 +744,7 @@
         </thead>
         <tfoot class="table-light">
           <tr class="filters">
+            <th></th>
             <th></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar ID"></th>
             <th></th>
@@ -797,6 +802,33 @@
           <!-- Los datos se cargarán vía AJAX -->
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación aritmética para eliminación masiva -->
+  <div class="modal fade" id="modalEliminarBulk" tabindex="-1" aria-labelledby="modalEliminarBulkLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="modalEliminarBulkLabel">
+            <i class="fas fa-exclamation-triangle"></i> Confirmar eliminación
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-2">Vas a eliminar <strong id="bulkDeleteCount">0</strong> registro(s). Esta acción no se puede deshacer.</p>
+          <p class="mb-2">Para confirmar, resuelve:</p>
+          <p class="text-center fs-5 fw-bold" id="bulkMathChallenge"></p>
+          <input type="number" id="bulkMathAnswer" class="form-control" placeholder="Tu respuesta" autocomplete="off">
+          <div id="bulkMathError" class="text-danger small mt-1" style="display:none;">Respuesta incorrecta. Intenta de nuevo.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="btnConfirmarEliminarBulk" class="btn btn-danger">
+            <i class="fas fa-trash-alt"></i> Eliminar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -990,7 +1022,7 @@
       // Inicializar DataTable con fila expandible y render para inline editing
       var table = $('#cronogramaTable').DataTable({
         stateSave: true,
-        order: [[6, 'asc']], // Ordenar por fecha programada ASC por defecto
+        order: [[7, 'asc']], // Ordenar por fecha programada ASC por defecto
         language: {
           url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
         },
@@ -1006,7 +1038,7 @@
             charset: 'UTF-8',
             bom: true,
             exportOptions: {
-              columns: [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+              columns: [2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
               format: {
                 body: function(data, row, column, node) {
                   return $('<div/>').html(data).text();
@@ -1028,6 +1060,15 @@
           dataSrc: ''
         },
         columns: [{
+            data: null,
+            orderable: false,
+            searchable: false,
+            className: 'dt-center',
+            render: function(data, type, row) {
+              return '<input type="checkbox" class="row-checkbox" data-id="' + row.id_cronograma_capacitacion + '">';
+            }
+          },
+          {
             data: null,
             orderable: false,
             className: 'details-control',
@@ -1949,6 +1990,133 @@
           error: function(xhr, status, error) {
             console.error('Error al cargar clientes:', error);
             alert('Error al cargar la lista de clientes');
+          }
+        });
+      });
+
+      // ===================================================================
+      // ELIMINACIÓN INDIVIDUAL VÍA AJAX (sin recarga de página)
+      // ===================================================================
+      $(document).on('click', '.btn-delete-single', function() {
+        var id = $(this).data('id');
+        if (!confirm('¿Estás seguro de eliminar este cronograma?')) return;
+
+        var $btn = $(this);
+        $btn.prop('disabled', true);
+
+        $.ajax({
+          url: '<?= base_url('/deletecronogCapacitacion/ajax/') ?>' + id,
+          method: 'POST',
+          data: { '<?= csrf_token() ?>': '<?= csrf_hash() ?>' },
+          dataType: 'json',
+          success: function(response) {
+            if (response.success) {
+              table.ajax.reload(null, false);
+            } else {
+              alert('Error: ' + response.message);
+              $btn.prop('disabled', false);
+            }
+          },
+          error: function() {
+            alert('Error al eliminar el registro.');
+            $btn.prop('disabled', false);
+          }
+        });
+      });
+
+      // ===================================================================
+      // SELECCIÓN MÚLTIPLE CON CHECKBOXES
+      // ===================================================================
+      function updateBulkDeleteButton() {
+        var count = $('.row-checkbox:checked').length;
+        $('#countSeleccionados').text(count);
+        if (count > 0) {
+          $('#btnEliminarSeleccionados').show();
+        } else {
+          $('#btnEliminarSeleccionados').hide();
+        }
+      }
+
+      // Select-all checkbox en el encabezado
+      $(document).on('change', '#selectAllCheckbox', function() {
+        var checked = $(this).prop('checked');
+        // Sólo las filas visibles en la página actual
+        table.rows({page: 'current'}).nodes().to$().find('.row-checkbox').prop('checked', checked);
+        updateBulkDeleteButton();
+      });
+
+      // Checkbox individual por fila
+      $(document).on('change', '.row-checkbox', function() {
+        var $rowCheckboxes = table.rows({page: 'current'}).nodes().to$().find('.row-checkbox');
+        var total   = $rowCheckboxes.length;
+        var checked = $rowCheckboxes.filter(':checked').length;
+        $('#selectAllCheckbox').prop('indeterminate', checked > 0 && checked < total);
+        $('#selectAllCheckbox').prop('checked', checked === total && total > 0);
+        updateBulkDeleteButton();
+      });
+
+      // Limpiar selección al redibujar la tabla
+      table.on('draw.dt', function() {
+        $('#selectAllCheckbox').prop('checked', false).prop('indeterminate', false);
+        updateBulkDeleteButton();
+      });
+
+      // ===================================================================
+      // ELIMINACIÓN MASIVA CON VALIDACIÓN ARITMÉTICA
+      // ===================================================================
+      var bulkMathA = 0, bulkMathB = 0, selectedIds = [];
+
+      $('#btnEliminarSeleccionados').on('click', function() {
+        selectedIds = [];
+        $('.row-checkbox:checked').each(function() {
+          selectedIds.push($(this).data('id'));
+        });
+        if (selectedIds.length === 0) return;
+
+        // Generar reto aritmético
+        bulkMathA = Math.floor(Math.random() * 20) + 1;
+        bulkMathB = Math.floor(Math.random() * 20) + 1;
+        $('#bulkMathChallenge').text(bulkMathA + ' + ' + bulkMathB + ' = ?');
+        $('#bulkMathAnswer').val('');
+        $('#bulkMathError').hide();
+        $('#bulkDeleteCount').text(selectedIds.length);
+        $('#modalEliminarBulk').modal('show');
+      });
+
+      $('#btnConfirmarEliminarBulk').on('click', function() {
+        var answer = parseInt($('#bulkMathAnswer').val(), 10);
+        if (answer !== bulkMathA + bulkMathB) {
+          $('#bulkMathError').show();
+          $('#bulkMathAnswer').val('').focus();
+          return;
+        }
+
+        var ids = selectedIds;
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Eliminando...');
+
+        $.ajax({
+          url: '<?= base_url('/deletecronogCapacitacion/bulk') ?>',
+          method: 'POST',
+          data: {
+            ids: ids,
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+          },
+          dataType: 'json',
+          success: function(response) {
+            $('#modalEliminarBulk').modal('hide');
+            if (response.success) {
+              table.ajax.reload(null, false);
+            } else {
+              alert('Error: ' + response.message);
+            }
+          },
+          error: function() {
+            alert('Error al eliminar los registros.');
+          },
+          complete: function() {
+            $btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Eliminar');
           }
         });
       });

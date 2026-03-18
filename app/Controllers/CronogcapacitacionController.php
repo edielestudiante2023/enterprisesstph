@@ -61,7 +61,7 @@ class CronogcapacitacionController extends Controller
             // Generar botones de acciones
             $accionesHtml = '<div class="action-group">'
                 . '<a href="' . base_url('/editcronogCapacitacion/' . $cronograma['id_cronograma_capacitacion']) . '" class="btn-action btn-action-edit" title="Editar"><i class="fas fa-pen"></i></a>'
-                . '<a href="' . base_url('/deletecronogCapacitacion/' . $cronograma['id_cronograma_capacitacion']) . '" class="btn-action btn-action-delete" title="Eliminar" onclick="return confirm(\'¿Estás seguro de eliminar este cronograma?\');"><i class="fas fa-trash"></i></a>';
+                . '<button type="button" class="btn-action btn-action-delete btn-delete-single" data-id="' . $cronograma['id_cronograma_capacitacion'] . '" title="Eliminar"><i class="fas fa-trash"></i></button>';
 
             // Link al reporte de capacitación si existe
             if (!empty($cronograma['id_reporte_capacitacion'])) {
@@ -135,17 +135,14 @@ class CronogcapacitacionController extends Controller
     if ($cronogModel->update($id, $updateData)) {
         log_message('debug', 'Registro actualizado correctamente');
         return $this->response->setJSON([
-            'success' => true, 
+            'success' => true,
             'message' => 'Registro actualizado correctamente',
             'newValue' => isset($porcentaje_cobertura) ? $porcentaje_cobertura . '%' : $value
         ]);
-
-            log_message('debug', 'Registro actualizado correctamente');
-            return $this->response->setJSON(['success' => true, 'message' => 'Registro actualizado correctamente']);
-        } else {
-            log_message('error', 'Error al actualizar el registro');
-            return $this->response->setJSON(['success' => false, 'message' => 'No se pudo actualizar el registro']);
-        }
+    } else {
+        log_message('error', 'Error al actualizar el registro');
+        return $this->response->setJSON(['success' => false, 'message' => 'No se pudo actualizar el registro']);
+    }
     }
 
     // Listar todos los cronogramas de capacitación
@@ -304,7 +301,7 @@ class CronogcapacitacionController extends Controller
         }
     }
 
-    // Eliminar cronograma de capacitación
+    // Eliminar cronograma de capacitación (GET - con recarga de página, legacy)
     public function deletecronogCapacitacion($id)
     {
         $cronogModel = new CronogcapacitacionModel();
@@ -314,6 +311,44 @@ class CronogcapacitacionController extends Controller
         } else {
             return redirect()->back()->with('msg', 'Error al eliminar el cronograma');
         }
+    }
+
+    // Eliminar un registro vía AJAX (POST, sin recarga de página)
+    public function deletecronogCapacitacionAjax($id)
+    {
+        $cronogModel = new CronogcapacitacionModel();
+
+        if ($cronogModel->delete($id)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Cronograma eliminado exitosamente']);
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'Error al eliminar el cronograma']);
+        }
+    }
+
+    // Eliminar múltiples registros vía AJAX (POST, sin recarga de página)
+    public function deleteMultiplecronogCapacitacion()
+    {
+        $ids = $this->request->getPost('ids');
+
+        if (empty($ids) || !is_array($ids)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No se recibieron IDs para eliminar']);
+        }
+
+        $ids = array_filter(array_map('intval', $ids));
+
+        if (empty($ids)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'IDs inválidos']);
+        }
+
+        $cronogModel = new CronogcapacitacionModel();
+        $cronogModel->whereIn('id_cronograma_capacitacion', $ids)->delete();
+        $deleted = $cronogModel->db->affectedRows();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'deleted' => $deleted,
+            'message' => $deleted . ' registro(s) eliminado(s) exitosamente'
+        ]);
     }
 
     // Actualizar campos específicos del cronograma de capacitación
