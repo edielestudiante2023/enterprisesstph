@@ -340,6 +340,9 @@ class InspeccionBotiquinController extends BaseController
             return redirect()->to('/inspecciones/botiquin')->with('error', 'Solo se puede regenerar un registro finalizado.');
         }
 
+        // Recalcular pendientes con datos actuales antes de regenerar
+        $this->generarPendientes($id);
+
         $pdfPath = $this->generarPdfInterno($id);
 
         $this->inspeccionModel->update($id, [
