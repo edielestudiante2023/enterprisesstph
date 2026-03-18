@@ -847,7 +847,7 @@ class ConsultantController extends Controller
             ['email' => 'edison.cuervo@cycloidtalent.com',        'name' => 'Edison Cuervo'],
             ['email' => 'head.consultant.cycloidtalent@gmail.com', 'name' => 'Head Consultant Cycloid'],
         ];
-        $bccList = array_filter($bccCandidates, fn($b) => !in_array($b['email'], $usedEmails, true));
+        $bccList = array_values(array_filter($bccCandidates, fn($b) => !in_array($b['email'], $usedEmails, true)));
 
         $personalization = [
             'to'      => $toList,
