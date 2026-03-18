@@ -837,12 +837,17 @@ class ConsultantController extends Controller
         }
 
         // BCC: equipo interno Cycloid (copia oculta)
-        $bccList = [
-            ['email' => 'diana.cuestas@cycloidtalent.com',       'name' => 'Diana Cuestas'],
-            ['email' => 'natalia.jimenez@cycloidtalent.com',     'name' => 'Natalia Jiménez'],
-            ['email' => 'edison.cuervo@cycloidtalent.com',       'name' => 'Edison Cuervo'],
+        // Se excluyen emails que ya aparecen en TO o CC para evitar rechazo de SendGrid
+        $usedEmails = array_column($toList, 'email');
+        foreach ($ccList as $cc) { $usedEmails[] = $cc['email']; }
+
+        $bccCandidates = [
+            ['email' => 'diana.cuestas@cycloidtalent.com',        'name' => 'Diana Cuestas'],
+            ['email' => 'natalia.jimenez@cycloidtalent.com',      'name' => 'Natalia Jiménez'],
+            ['email' => 'edison.cuervo@cycloidtalent.com',        'name' => 'Edison Cuervo'],
             ['email' => 'head.consultant.cycloidtalent@gmail.com', 'name' => 'Head Consultant Cycloid'],
         ];
+        $bccList = array_filter($bccCandidates, fn($b) => !in_array($b['email'], $usedEmails, true));
 
         $personalization = [
             'to'      => $toList,
