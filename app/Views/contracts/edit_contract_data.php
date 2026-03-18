@@ -68,14 +68,16 @@
                                value="<?= htmlspecialchars($contract['numero_contrato']) ?>" readonly>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Fecha de Inicio *</label>
-                        <input type="date" name="fecha_inicio" class="form-control"
-                               value="<?= $contract['fecha_inicio'] ?>" required>
+                        <label class="form-label">Fecha de Inicio</label>
+                        <input type="date" name="fecha_inicio" class="form-control bg-light"
+                               value="<?= $contract['fecha_inicio'] ?>" readonly
+                               title="Para cambiar fechas use Renovar Contrato">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Fecha de Finalización *</label>
-                        <input type="date" name="fecha_fin" class="form-control"
-                               value="<?= $contract['fecha_fin'] ?>" required>
+                        <label class="form-label">Fecha de Finalización</label>
+                        <input type="date" name="fecha_fin" class="form-control bg-light"
+                               value="<?= $contract['fecha_fin'] ?>" readonly
+                               title="Para cambiar fechas use Renovar Contrato">
                     </div>
                 </div>
 

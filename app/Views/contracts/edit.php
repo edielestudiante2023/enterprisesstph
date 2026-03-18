@@ -98,15 +98,17 @@
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="fecha_inicio" class="form-label required-field">Fecha de Inicio</label>
-                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio"
-                               value="<?= esc($contract['fecha_inicio'] ?? '') ?>" required>
+                        <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
+                        <input type="date" class="form-control bg-light" id="fecha_inicio" name="fecha_inicio"
+                               value="<?= esc($contract['fecha_inicio'] ?? '') ?>" readonly
+                               title="Para cambiar fechas use Renovar Contrato">
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label for="fecha_fin" class="form-label required-field">Fecha de Finalización</label>
-                        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin"
-                               value="<?= esc($contract['fecha_fin'] ?? '') ?>" required>
+                        <label for="fecha_fin" class="form-label">Fecha de Finalización</label>
+                        <input type="date" class="form-control bg-light" id="fecha_fin" name="fecha_fin"
+                               value="<?= esc($contract['fecha_fin'] ?? '') ?>" readonly
+                               title="Para cambiar fechas use Renovar Contrato">
                     </div>
                 </div>
 

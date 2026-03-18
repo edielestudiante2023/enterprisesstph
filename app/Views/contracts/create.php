@@ -79,6 +79,7 @@
                             <option value="">Seleccione un cliente...</option>
                             <?php foreach ($clients as $client): ?>
                                 <option value="<?= $client['id_cliente'] ?>"
+                                        data-estandares="<?= esc($client['estandares'] ?? '') ?>"
                                         <?= (isset($selected_client) && $selected_client == $client['id_cliente']) ? 'selected' : '' ?>>
                                     <?= esc($client['nombre_cliente']) ?> - <?= esc($client['nit_cliente']) ?>
                                 </option>
@@ -145,6 +146,7 @@
                             <option value="TRIMESTRAL">Trimestral</option>
                             <option value="SEMESTRAL">Semestral</option>
                             <option value="ANUAL">Anual</option>
+                            <option value="PROYECTO">Proyecto</option>
                         </select>
                     </div>
 
@@ -252,6 +254,25 @@
                     searching: function() {
                         return "Buscando...";
                     }
+                }
+            });
+
+            // Auto-seleccionar frecuencia_visitas según el estandar del cliente
+            const mapaFrecuencia = {
+                'mensual':    'MENSUAL',
+                'bimensual':  'BIMENSUAL',
+                'trimestral': 'TRIMESTRAL',
+                'semestral':  'SEMESTRAL',
+                'anual':      'ANUAL',
+                'proyecto':   'PROYECTO'
+            };
+
+            $('#id_cliente').off('select2:select select2:clear').on('select2:select select2:clear', function() {
+                const selected = $(this).find('option:selected');
+                const estandares = (selected.data('estandares') || '').trim().toLowerCase();
+                const frecuencia = mapaFrecuencia[estandares];
+                if (frecuencia) {
+                    $('#frecuencia_visitas').val(frecuencia);
                 }
             });
         });
