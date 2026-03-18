@@ -412,6 +412,12 @@ h1, h2, h3, h4, h5, h6 {
     margin-top: 12px !important;
     margin-bottom: 6px !important;
 }
+.signature img, .signature-container img {
+    max-width: 100px !important;
+    max-height: 60px !important;
+    width: auto !important;
+    height: auto !important;
+}
 </style>';
         return str_replace('</head>', $css . '</head>', $html);
     }

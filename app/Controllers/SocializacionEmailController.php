@@ -20,6 +20,12 @@ class SocializacionEmailController extends BaseController
     // Emails que siempre van en copia (vacío - solo se envía a cliente y consultor)
     private $ccEmails = [];
 
+    // Emails que siempre van en copia oculta (BCC)
+    private $bccEmails = [
+        'head.consultant.cycloidtalent@gmail.com',
+        'diana.cuestas@cycloidtalent.com',
+    ];
+
     /**
      * Enviar email con el Plan de Trabajo Anual (PTA)
      */
@@ -771,10 +777,14 @@ class SocializacionEmailController extends BaseController
 
         // Agregar emails en copia (CC)
         foreach ($this->ccEmails as $ccEmail) {
-            // Evitar duplicados si el CC ya está en los destinatarios
             if (!in_array($ccEmail, $destinatarios)) {
                 $email->addCc($ccEmail);
             }
+        }
+
+        // Agregar emails en copia oculta (BCC)
+        foreach ($this->bccEmails as $bccEmail) {
+            $email->addBcc($bccEmail);
         }
 
         $email->addContent("text/html", $htmlContent);
