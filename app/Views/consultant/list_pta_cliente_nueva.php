@@ -2519,7 +2519,13 @@
             theme: 'bootstrap-5',
             placeholder: 'Buscar y seleccionar actividades...',
             allowClear: true,
-            dropdownParent: $('#crearActividadIAModal')
+            dropdownParent: $('#crearActividadIAModal'),
+            templateResult: function(opt) {
+                if (!opt.id) return opt.text;
+                var checked = $(opt.element).is(':selected') ? 'checked' : '';
+                return $('<span><input type="checkbox" ' + checked + ' style="margin-right:7px;pointer-events:none;">' + opt.text + '</span>');
+            },
+            templateSelection: function(opt) { return opt.text || opt.id; }
         });
 
         $('#iaInventarioSelect').on('change', function() {
