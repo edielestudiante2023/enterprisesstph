@@ -96,6 +96,9 @@ class SocializacionEmailController extends BaseController
         if ($consultor && !empty($consultor['correo_consultor']) && filter_var($consultor['correo_consultor'], FILTER_VALIDATE_EMAIL)) {
             $destinatarios[] = $consultor['correo_consultor'];
         }
+        if (!empty($cliente['email_consultor_externo']) && filter_var($cliente['email_consultor_externo'], FILTER_VALIDATE_EMAIL)) {
+            $destinatarios[] = $cliente['email_consultor_externo'];
+        }
 
         // Enviar email
         $result = $this->sendSocializacionEmail(
@@ -182,6 +185,9 @@ class SocializacionEmailController extends BaseController
         $destinatarios = [$cliente['correo_cliente']];
         if ($consultor && !empty($consultor['correo_consultor']) && filter_var($consultor['correo_consultor'], FILTER_VALIDATE_EMAIL)) {
             $destinatarios[] = $consultor['correo_consultor'];
+        }
+        if (!empty($cliente['email_consultor_externo']) && filter_var($cliente['email_consultor_externo'], FILTER_VALIDATE_EMAIL)) {
+            $destinatarios[] = $cliente['email_consultor_externo'];
         }
 
         // Enviar email
@@ -272,6 +278,9 @@ class SocializacionEmailController extends BaseController
         $destinatarios = [$cliente['correo_cliente']];
         if ($consultor && !empty($consultor['correo_consultor']) && filter_var($consultor['correo_consultor'], FILTER_VALIDATE_EMAIL)) {
             $destinatarios[] = $consultor['correo_consultor'];
+        }
+        if (!empty($cliente['email_consultor_externo']) && filter_var($cliente['email_consultor_externo'], FILTER_VALIDATE_EMAIL)) {
+            $destinatarios[] = $cliente['email_consultor_externo'];
         }
 
         // Enviar email
