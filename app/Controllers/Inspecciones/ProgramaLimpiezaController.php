@@ -229,6 +229,11 @@ class ProgramaLimpiezaController extends BaseController
         return redirect()->to('/inspecciones/limpieza-desinfeccion')->with('msg', 'Programa eliminado.');
     }
 
+    public function presentacion()
+    {
+        return view('inspecciones/limpieza-desinfeccion/presentacion');
+    }
+
     // ── Métodos privados ──────────────────────────────────────
 
         public function regenerarPdf($id)

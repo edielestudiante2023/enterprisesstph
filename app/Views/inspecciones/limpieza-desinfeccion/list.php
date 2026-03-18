@@ -22,9 +22,14 @@
     </select>
 </div>
 
-<a href="<?= base_url('/inspecciones/limpieza-desinfeccion/create') ?>" class="btn btn-pwa btn-pwa-primary mb-3">
-    <i class="fas fa-plus me-2"></i>Nuevo Programa
-</a>
+<div class="d-flex gap-2 mb-3">
+    <a href="<?= base_url('/inspecciones/limpieza-desinfeccion/create') ?>" class="btn btn-pwa btn-pwa-primary flex-fill">
+        <i class="fas fa-plus me-2"></i>Nuevo Programa
+    </a>
+    <a href="<?= base_url('/inspecciones/limpieza-desinfeccion/presentacion') ?>" class="btn btn-pwa btn-pwa-outline" target="_blank" title="Presentar en TV">
+        <i class="fas fa-tv me-1"></i> Presentar
+    </a>
+</div>
 
 <!-- Cards de inspecciones -->
 <div id="listaInspecciones">

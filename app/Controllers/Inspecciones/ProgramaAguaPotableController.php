@@ -253,6 +253,11 @@ class ProgramaAguaPotableController extends BaseController
         return redirect()->to("/inspecciones/agua-potable/view/{$id}")->with('msg', 'PDF regenerado exitosamente con la plantilla actual.');
     }
 
+    public function presentacion()
+    {
+        return view('inspecciones/agua-potable/presentacion');
+    }
+
     // ── Métodos privados ──────────────────────────────────────
 
     private function generarPdfInterno($id): string

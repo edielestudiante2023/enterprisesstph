@@ -228,6 +228,11 @@ class ProgramaPlagasController extends BaseController
         return redirect()->to('/inspecciones/control-plagas')->with('msg', 'Programa eliminado.');
     }
 
+    public function presentacion()
+    {
+        return view('inspecciones/control-plagas/presentacion');
+    }
+
     // ── Métodos privados ──────────────────────────────────────
 
         public function regenerarPdf($id)

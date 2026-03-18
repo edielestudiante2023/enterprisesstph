@@ -1236,6 +1236,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('limpieza-desinfeccion/finalizar/(:num)', 'ProgramaLimpiezaController::finalizar/$1');
     $routes->get('limpieza-desinfeccion/delete/(:num)', 'ProgramaLimpiezaController::delete/$1');
     $routes->get('limpieza-desinfeccion/enviar-email/(:num)', 'ProgramaLimpiezaController::enviarEmail/$1');
+    $routes->get('limpieza-desinfeccion/presentacion', 'ProgramaLimpiezaController::presentacion');
 
     // Programa Manejo Integral de Residuos Sólidos
     $routes->get('residuos-solidos', 'ProgramaResiduosController::list');
@@ -1250,6 +1251,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('residuos-solidos/finalizar/(:num)', 'ProgramaResiduosController::finalizar/$1');
     $routes->get('residuos-solidos/delete/(:num)', 'ProgramaResiduosController::delete/$1');
     $routes->get('residuos-solidos/enviar-email/(:num)', 'ProgramaResiduosController::enviarEmail/$1');
+    $routes->get('residuos-solidos/presentacion', 'ProgramaResiduosController::presentacion');
 
     // Control Integrado de Plagas
     $routes->get('control-plagas', 'ProgramaPlagasController::list');
@@ -1264,6 +1266,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('control-plagas/finalizar/(:num)', 'ProgramaPlagasController::finalizar/$1');
     $routes->get('control-plagas/delete/(:num)', 'ProgramaPlagasController::delete/$1');
     $routes->get('control-plagas/enviar-email/(:num)', 'ProgramaPlagasController::enviarEmail/$1');
+    $routes->get('control-plagas/presentacion', 'ProgramaPlagasController::presentacion');
 
     // Abastecimiento y Control de Agua Potable
     $routes->get('agua-potable', 'ProgramaAguaPotableController::list');
@@ -1278,6 +1281,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('agua-potable/finalizar/(:num)', 'ProgramaAguaPotableController::finalizar/$1');
     $routes->get('agua-potable/delete/(:num)', 'ProgramaAguaPotableController::delete/$1');
     $routes->get('agua-potable/enviar-email/(:num)', 'ProgramaAguaPotableController::enviarEmail/$1');
+    $routes->get('agua-potable/presentacion', 'ProgramaAguaPotableController::presentacion');
 
     // Plan de Saneamiento Básico
     $routes->get('plan-saneamiento', 'PlanSaneamientoController::list');
@@ -1292,6 +1296,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('plan-saneamiento/finalizar/(:num)', 'PlanSaneamientoController::finalizar/$1');
     $routes->get('plan-saneamiento/delete/(:num)', 'PlanSaneamientoController::delete/$1');
     $routes->get('plan-saneamiento/enviar-email/(:num)', 'PlanSaneamientoController::enviarEmail/$1');
+    $routes->get('plan-saneamiento/presentacion', 'PlanSaneamientoController::presentacion');
 
     // KPI Programa de Limpieza y Desinfección
     $routes->get('kpi-limpieza', 'KpiLimpiezaController::list');

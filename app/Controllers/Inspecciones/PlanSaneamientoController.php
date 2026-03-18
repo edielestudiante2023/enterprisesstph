@@ -228,6 +228,11 @@ class PlanSaneamientoController extends BaseController
         return redirect()->to('/inspecciones/plan-saneamiento')->with('msg', 'Plan eliminado.');
     }
 
+    public function presentacion()
+    {
+        return view('inspecciones/plan-saneamiento/presentacion');
+    }
+
     // ── Métodos privados ──────────────────────────────────────
 
         public function regenerarPdf($id)

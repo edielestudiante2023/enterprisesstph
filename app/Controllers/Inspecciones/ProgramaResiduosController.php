@@ -228,6 +228,11 @@ class ProgramaResiduosController extends BaseController
         return redirect()->to('/inspecciones/residuos-solidos')->with('msg', 'Programa eliminado.');
     }
 
+    public function presentacion()
+    {
+        return view('inspecciones/residuos-solidos/presentacion');
+    }
+
     // ── Métodos privados ──────────────────────────────────────
 
         public function regenerarPdf($id)
