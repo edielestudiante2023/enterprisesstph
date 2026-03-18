@@ -2328,11 +2328,33 @@
                     <!-- Paso 2A: Buscar en inventario -->
                     <div id="iaStep2A" style="display:none;">
                         <button class="btn btn-sm btn-outline-secondary mb-3" id="iaBackToStep1A"><i class="fas fa-arrow-left"></i> Volver</button>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" id="iaSearchInput" placeholder="Escriba parte del nombre de la actividad...">
-                            <button class="btn btn-primary" id="iaSearchBtn"><i class="fas fa-search"></i> Buscar</button>
+                        <div class="mb-3">
+                            <label class="form-label">Seleccione una actividad del inventario:</label>
+                            <select id="iaInventarioSelect" class="form-select" style="width:100%;">
+                                <option value=""></option>
+                                <?php
+                                $csvPath = FCPATH . '../PTA2026.csv';
+                                if (file_exists($csvPath)) {
+                                    $csvFile = fopen($csvPath, 'r');
+                                    $first = true;
+                                    while (($row = fgetcsv($csvFile, 0, ';')) !== false) {
+                                        if ($first) { $first = false; continue; } // skip header
+                                        $phva     = trim($row[0] ?? '');
+                                        $numeral  = trim($row[1] ?? '');
+                                        $actividad = trim($row[2] ?? '');
+                                        if (!$phva || !$actividad) continue;
+                                        $label = '[' . htmlspecialchars($phva) . ' - ' . htmlspecialchars($numeral) . '] ' . htmlspecialchars($actividad);
+                                        echo '<option value="' . htmlspecialchars($actividad) . '" '
+                                            . 'data-phva="' . htmlspecialchars($phva) . '" '
+                                            . 'data-numeral="' . htmlspecialchars($numeral) . '">'
+                                            . $label . '</option>' . "\n";
+                                    }
+                                    fclose($csvFile);
+                                }
+                                ?>
+                            </select>
                         </div>
-                        <div id="iaSearchResults" style="max-height:300px; overflow-y:auto;"></div>
+                        <button class="btn btn-primary" id="iaInventarioAgregar" disabled><i class="fas fa-plus"></i> Agregar actividad</button>
                     </div>
 
                     <!-- Paso 2B: Crear con IA -->
@@ -2485,43 +2507,61 @@
         // Reset al cerrar modal
         $('#crearActividadIAModal').on('hidden.bs.modal', function() {
             $('#iaStep2A, #iaStep2B').hide(); $('#iaStep1').show();
-            $('#iaSearchResults, #iaOptions').empty();
-            $('#iaSearchInput, #iaDescripcion, #iaRefineInput').val('');
+            $('#iaOptions').empty();
+            $('#iaInventarioSelect').val(null).trigger('change');
+            $('#iaInventarioAgregar').prop('disabled', true);
+            $('#iaDescripcion, #iaRefineInput').val('');
             $('#iaRefineSection').hide();
         });
 
-        // Opción A: Buscar en inventario
-        $('#iaSearchBtn').on('click', function() { doInventorySearch(); });
-        $('#iaSearchInput').on('keypress', function(e) { if (e.which === 13) doInventorySearch(); });
+        // Opción A: Select2 inventario
+        $('#iaInventarioSelect').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Buscar actividad...',
+            allowClear: true,
+            dropdownParent: $('#crearActividadIAModal')
+        });
 
-        function doInventorySearch() {
-            var query = $('#iaSearchInput').val().trim();
-            if (query.length < 3) { alert('Ingrese al menos 3 caracteres.'); return; }
+        $('#iaInventarioSelect').on('change', function() {
+            $('#iaInventarioAgregar').prop('disabled', !$(this).val());
+        });
 
-            $('#iaSearchResults').html('<div class="text-center"><div class="spinner-border spinner-border-sm"></div> Buscando...</div>');
+        $('#iaInventarioAgregar').on('click', function() {
+            var $opt = $('#iaInventarioSelect').find('option:selected');
+            var phva     = $opt.data('phva');
+            var numeral  = $opt.data('numeral');
+            var actividad = $opt.val();
+            if (!actividad) return;
 
-            $.ajax({
-                url: '<?= site_url('/pta-cliente-nueva/searchActivities') ?>',
-                method: 'POST',
-                data: { query: query, [csrfName]: csrfHash },
-                dataType: 'json',
-                success: function(resp) {
-                    if (!resp.success || resp.results.length === 0) {
-                        $('#iaSearchResults').html('<div class="alert alert-warning">No se encontraron coincidencias.</div>');
-                        return;
-                    }
-                    var html = '<div class="list-group">';
-                    resp.results.forEach(function(r) {
-                        html += '<button type="button" class="list-group-item list-group-item-action ia-select-activity" ' +
-                            'data-phva="' + escHtml(r.phva) + '" data-numeral="' + escHtml(r.numeral) + '" data-actividad="' + escHtml(r.actividad) + '">' +
-                            '<strong>[' + escHtml(r.phva) + ' - ' + escHtml(r.numeral) + ']</strong> ' + escHtml(r.actividad) + '</button>';
-                    });
-                    html += '</div>';
-                    $('#iaSearchResults').html(html);
-                },
-                error: function() { $('#iaSearchResults').html('<div class="alert alert-danger">Error de comunicación.</div>'); }
+            Swal.fire({
+                title: 'Confirmar actividad',
+                html: '<p><strong>PHVA:</strong> ' + escHtml(phva) + '</p>' +
+                      '<p><strong>Numeral:</strong> ' + escHtml(numeral) + '</p>' +
+                      '<p><strong>Actividad:</strong> ' + escHtml(actividad) + '</p>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Insertar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#7c3aed'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+                $.ajax({
+                    url: '<?= site_url('/pta-cliente-nueva/insertAiActivity') ?>',
+                    method: 'POST',
+                    data: { id_cliente: clienteId, phva: phva, numeral: numeral, actividad: actividad, [csrfName]: csrfHash },
+                    dataType: 'json',
+                    success: function(resp) {
+                        if (resp.success) {
+                            $('#crearActividadIAModal').modal('hide');
+                            Swal.fire('Insertada', resp.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', resp.message, 'error');
+                        }
+                    },
+                    error: function() { Swal.fire('Error', 'Error de comunicación', 'error'); }
+                });
             });
-        }
+        });
 
         // Opción B: Generar con IA
         $('#iaGenerarBtn').on('click', function() { doAiGenerate($('#iaDescripcion').val().trim(), ''); });
