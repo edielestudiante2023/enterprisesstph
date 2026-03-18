@@ -136,9 +136,9 @@
                                 <div class="row justify-content-center text-center">
                                     <div class="col-md-6 mb-4">
                                         <div class="icon-container">
-                                            <h5>Dashboard KPI</h5>
-                                            <a href="<?= base_url('/client/lista-lookerstudio/' . $client['id_cliente']) ?>" target="_blank">
-                                                <img src="<?= base_url('/uploads/kpi_image.png') ?>" alt="Ir al Dashboard" class="img-fluid">
+                                            <h5>Presupuesto <?= date('Y') ?></h5>
+                                            <a href="<?= base_url('/presupuesto/' . $client['id_cliente'] . '/' . date('Y')) ?>" target="_blank">
+                                                <img src="<?= base_url('/uploads/imagen_presupuesto_sst.png') ?>" alt="Ver Presupuesto" class="img-fluid">
                                             </a>
                                         </div>
                                     </div>
