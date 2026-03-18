@@ -101,7 +101,6 @@ class SeguimientoAgendaCron extends BaseCommand
         }
 
         // BCC fijo
-        $email->addBcc('head.consultant.cycloidtalent@gmail.com');
         $email->addBcc('diana.cuestas@cycloidtalent.com');
         $email->addContent('text/plain', $plain);
         $email->addContent('text/html', $html);
