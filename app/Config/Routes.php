@@ -1239,6 +1239,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('limpieza-desinfeccion/delete/(:num)', 'ProgramaLimpiezaController::delete/$1');
     $routes->get('limpieza-desinfeccion/enviar-email/(:num)', 'ProgramaLimpiezaController::enviarEmail/$1');
     $routes->get('limpieza-desinfeccion/presentacion', 'ProgramaLimpiezaController::presentacion');
+    $routes->get('limpieza-desinfeccion/documento', 'ProgramaLimpiezaController::documento');
 
     // Programa Manejo Integral de Residuos Sólidos
     $routes->get('residuos-solidos', 'ProgramaResiduosController::list');
@@ -1254,6 +1255,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('residuos-solidos/delete/(:num)', 'ProgramaResiduosController::delete/$1');
     $routes->get('residuos-solidos/enviar-email/(:num)', 'ProgramaResiduosController::enviarEmail/$1');
     $routes->get('residuos-solidos/presentacion', 'ProgramaResiduosController::presentacion');
+    $routes->get('residuos-solidos/documento', 'ProgramaResiduosController::documento');
 
     // Control Integrado de Plagas
     $routes->get('control-plagas', 'ProgramaPlagasController::list');
@@ -1269,6 +1271,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('control-plagas/delete/(:num)', 'ProgramaPlagasController::delete/$1');
     $routes->get('control-plagas/enviar-email/(:num)', 'ProgramaPlagasController::enviarEmail/$1');
     $routes->get('control-plagas/presentacion', 'ProgramaPlagasController::presentacion');
+    $routes->get('control-plagas/documento', 'ProgramaPlagasController::documento');
 
     // Abastecimiento y Control de Agua Potable
     $routes->get('agua-potable', 'ProgramaAguaPotableController::list');
@@ -1284,6 +1287,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('agua-potable/delete/(:num)', 'ProgramaAguaPotableController::delete/$1');
     $routes->get('agua-potable/enviar-email/(:num)', 'ProgramaAguaPotableController::enviarEmail/$1');
     $routes->get('agua-potable/presentacion', 'ProgramaAguaPotableController::presentacion');
+    $routes->get('agua-potable/documento', 'ProgramaAguaPotableController::documento');
 
     // Plan de Saneamiento Básico
     $routes->get('plan-saneamiento', 'PlanSaneamientoController::list');
@@ -1299,6 +1303,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('plan-saneamiento/delete/(:num)', 'PlanSaneamientoController::delete/$1');
     $routes->get('plan-saneamiento/enviar-email/(:num)', 'PlanSaneamientoController::enviarEmail/$1');
     $routes->get('plan-saneamiento/presentacion', 'PlanSaneamientoController::presentacion');
+    $routes->get('plan-saneamiento/documento', 'PlanSaneamientoController::documento');
 
     // KPI Programa de Limpieza y Desinfección
     $routes->get('kpi-limpieza', 'KpiLimpiezaController::list');
@@ -1463,6 +1468,18 @@ $routes->post('admin/snapshots/ejecutar', 'SnapshotController::ejecutar', ['filt
 // ============================================================================
 $routes->get('consultant/evolucion-estandares', 'EvolucionEstandaresController::index');
 $routes->get('consultant/evolucion-plan-trabajo', 'EvolucionPlanTrabajoController::index');
+
+// ============================================================================
+// Seguimiento Agenda
+// ============================================================================
+$routes->group('seguimiento-agenda', ['filter' => 'auth'], function($routes) {
+    $routes->get('/',                 'SeguimientoAgendaController::index');
+    $routes->post('store',            'SeguimientoAgendaController::store');
+    $routes->post('detener/(:num)',   'SeguimientoAgendaController::detener/$1');
+    $routes->post('reactivar/(:num)', 'SeguimientoAgendaController::reactivar/$1');
+    $routes->post('destroy/(:num)',   'SeguimientoAgendaController::destroy/$1');
+    $routes->get('historial/(:num)',  'SeguimientoAgendaController::historialCliente/$1');
+});
 
 // ============================================================================
 // Presupuesto SST

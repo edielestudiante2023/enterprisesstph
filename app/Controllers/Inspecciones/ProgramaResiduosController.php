@@ -233,6 +233,17 @@ class ProgramaResiduosController extends BaseController
         return view('inspecciones/residuos-solidos/presentacion');
     }
 
+    public function documento()
+    {
+        $data = [
+            'inspeccion' => ['fecha_programa' => date('Y-m-d'), 'nombre_responsable' => 'Administrador(a) del Conjunto'],
+            'cliente'    => ['nombre_cliente' => 'CONJUNTO RESIDENCIAL — EJEMPLO'],
+            'consultor'  => ['nombre_consultor' => 'Consultor SST'],
+            'logoBase64' => '',
+        ];
+        return view('inspecciones/residuos-solidos/pdf', $data);
+    }
+
     // ── Métodos privados ──────────────────────────────────────
 
         public function regenerarPdf($id)

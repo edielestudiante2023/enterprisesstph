@@ -233,6 +233,18 @@ class PlanSaneamientoController extends BaseController
         return view('inspecciones/plan-saneamiento/presentacion');
     }
 
+    public function documento()
+    {
+        $data = [
+            'inspeccion' => ['fecha_programa' => date('Y-m-d'), 'nombre_responsable' => 'Administrador(a) del Conjunto'],
+            'cliente'    => ['nombre_cliente' => 'CONJUNTO RESIDENCIAL — EJEMPLO'],
+            'consultor'  => ['nombre_consultor' => 'Consultor SST'],
+            'logoBase64' => '',
+            'kpis'       => [],
+        ];
+        return view('inspecciones/plan-saneamiento/pdf', $data);
+    }
+
     // ── Métodos privados ──────────────────────────────────────
 
         public function regenerarPdf($id)

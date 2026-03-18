@@ -258,6 +258,23 @@ class ProgramaAguaPotableController extends BaseController
         return view('inspecciones/agua-potable/presentacion');
     }
 
+    public function documento()
+    {
+        $data = [
+            'inspeccion' => [
+                'fecha_programa'       => date('Y-m-d'),
+                'nombre_responsable'   => 'Administrador(a) del Conjunto',
+                'cantidad_tanques'     => '2 tanques',
+                'capacidad_individual' => '5.000 litros',
+                'capacidad_total'      => '10.000 litros',
+            ],
+            'cliente'    => ['nombre_cliente' => 'CONJUNTO RESIDENCIAL — EJEMPLO'],
+            'consultor'  => ['nombre_consultor' => 'Consultor SST'],
+            'logoBase64' => '',
+        ];
+        return view('inspecciones/agua-potable/pdf', $data);
+    }
+
     // ── Métodos privados ──────────────────────────────────────
 
     private function generarPdfInterno($id): string

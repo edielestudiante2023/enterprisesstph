@@ -25,8 +25,11 @@
     <a href="<?= base_url('/inspecciones/plan-saneamiento/create') ?>" class="btn btn-pwa btn-pwa-primary flex-fill">
         <i class="fas fa-plus me-2"></i>Nuevo Plan
     </a>
-    <a href="<?= base_url('/inspecciones/plan-saneamiento/presentacion') ?>" class="btn btn-pwa btn-pwa-outline" target="_blank" title="Presentar en TV">
-        <i class="fas fa-tv me-1"></i> Presentar
+    <a href="<?= base_url('/inspecciones/plan-saneamiento/documento') ?>" class="btn btn-pwa btn-pwa-outline" target="_blank" title="Texto completo del documento">
+        <i class="fas fa-file-alt me-1"></i> Documento
+    </a>
+    <a href="<?= base_url('/inspecciones/plan-saneamiento/presentacion') ?>" class="btn btn-pwa btn-pwa-outline" target="_blank" title="Estructura con candidatos IA">
+        <i class="fas fa-tv me-1"></i> Estructura
     </a>
 </div>
 
