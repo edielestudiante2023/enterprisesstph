@@ -126,7 +126,7 @@
             <p style="margin:0;color:#888;font-size:12px;line-height:1.6;">
               Este comunicado fue generado automáticamente por el sistema <strong>EnterpriseSST</strong>
               al momento del retiro del cliente. Tiene validez como documento oficial.<br>
-              Para consultas, contacte a <a href="mailto:head.consultant.cycloidtalent@gmail.com" style="color:#7b1fa2;">head.consultant.cycloidtalent@gmail.com</a>
+              Para consultas, visítenos en <a href="https://cycloidtalent.com/" style="color:#7b1fa2;">cycloidtalent.com</a>
             </p>
           </td>
         </tr>
