@@ -2329,9 +2329,9 @@
                     <div id="iaStep2A" style="display:none;">
                         <button class="btn btn-sm btn-outline-secondary mb-3" id="iaBackToStep1A"><i class="fas fa-arrow-left"></i> Volver</button>
                         <div class="mb-3">
-                            <label class="form-label">Seleccione una actividad del inventario:</label>
-                            <select id="iaInventarioSelect" class="form-select" style="width:100%;">
-                                <option value=""></option>
+                            <label class="form-label">Seleccione una o varias actividades:</label>
+                            <select id="iaInventarioSelect" class="form-select" style="width:100%;" multiple>
+
                                 <?php
                                 $csvPath = FCPATH . '../PTA2026.csv';
                                 if (file_exists($csvPath)) {
@@ -2354,7 +2354,7 @@
                                 ?>
                             </select>
                         </div>
-                        <button class="btn btn-primary" id="iaInventarioAgregar" disabled><i class="fas fa-plus"></i> Agregar actividad</button>
+                        <button class="btn btn-primary" id="iaInventarioAgregar" disabled><i class="fas fa-plus"></i> Agregar <span id="iaInventarioCount"></span></button>
                     </div>
 
                     <!-- Paso 2B: Crear con IA -->
@@ -2517,27 +2517,27 @@
         // Opción A: Select2 inventario
         $('#iaInventarioSelect').select2({
             theme: 'bootstrap-5',
-            placeholder: 'Buscar actividad...',
+            placeholder: 'Buscar y seleccionar actividades...',
             allowClear: true,
             dropdownParent: $('#crearActividadIAModal')
         });
 
         $('#iaInventarioSelect').on('change', function() {
-            $('#iaInventarioAgregar').prop('disabled', !$(this).val());
+            var n = $(this).val() ? $(this).val().length : 0;
+            $('#iaInventarioAgregar').prop('disabled', n === 0);
+            $('#iaInventarioCount').text(n > 0 ? n + (n === 1 ? ' actividad' : ' actividades') : '');
         });
 
         $('#iaInventarioAgregar').on('click', function() {
-            var $opt = $('#iaInventarioSelect').find('option:selected');
-            var phva     = $opt.data('phva');
-            var numeral  = $opt.data('numeral');
-            var actividad = $opt.val();
-            if (!actividad) return;
+            var $opts = $('#iaInventarioSelect').find('option:selected');
+            if (!$opts.length) return;
+
+            var lista = '';
+            $opts.each(function() { lista += '<li>' + escHtml($(this).val()) + '</li>'; });
 
             Swal.fire({
-                title: 'Confirmar actividad',
-                html: '<p><strong>PHVA:</strong> ' + escHtml(phva) + '</p>' +
-                      '<p><strong>Numeral:</strong> ' + escHtml(numeral) + '</p>' +
-                      '<p><strong>Actividad:</strong> ' + escHtml(actividad) + '</p>',
+                title: 'Confirmar ' + $opts.length + ($opts.length === 1 ? ' actividad' : ' actividades'),
+                html: '<ul style="text-align:left;max-height:200px;overflow-y:auto;">' + lista + '</ul>',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Insertar',
@@ -2545,21 +2545,33 @@
                 confirmButtonColor: '#7c3aed'
             }).then((result) => {
                 if (!result.isConfirmed) return;
-                $.ajax({
-                    url: '<?= site_url('/pta-cliente-nueva/insertAiActivity') ?>',
-                    method: 'POST',
-                    data: { id_cliente: clienteId, phva: phva, numeral: numeral, actividad: actividad, [csrfName]: csrfHash },
-                    dataType: 'json',
-                    success: function(resp) {
-                        if (resp.success) {
-                            $('#crearActividadIAModal').modal('hide');
-                            Swal.fire('Insertada', resp.message, 'success').then(() => location.reload());
-                        } else {
-                            Swal.fire('Error', resp.message, 'error');
-                        }
-                    },
-                    error: function() { Swal.fire('Error', 'Error de comunicación', 'error'); }
+
+                var items = [];
+                $opts.each(function() {
+                    items.push({ phva: $(this).data('phva'), numeral: $(this).data('numeral'), actividad: $(this).val() });
                 });
+
+                var idx = 0;
+                function insertNext() {
+                    if (idx >= items.length) {
+                        $('#crearActividadIAModal').modal('hide');
+                        Swal.fire('Listo', items.length + ' actividad(es) insertada(s).', 'success').then(() => location.reload());
+                        return;
+                    }
+                    var item = items[idx++];
+                    $.ajax({
+                        url: '<?= site_url('/pta-cliente-nueva/insertAiActivity') ?>',
+                        method: 'POST',
+                        data: { id_cliente: clienteId, phva: item.phva, numeral: item.numeral, actividad: item.actividad, [csrfName]: csrfHash },
+                        dataType: 'json',
+                        success: function(resp) {
+                            if (resp.success) { insertNext(); }
+                            else { Swal.fire('Error', resp.message, 'error'); }
+                        },
+                        error: function() { Swal.fire('Error', 'Error de comunicación', 'error'); }
+                    });
+                }
+                insertNext();
             });
         });
 
