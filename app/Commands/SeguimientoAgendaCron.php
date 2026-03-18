@@ -91,6 +91,16 @@ class SeguimientoAgendaCron extends BaseCommand
         $email->setFrom('notificacion.cycloidtalent@cycloidtalent.com', 'SST Cycloid Talent');
         $email->setSubject($seg['asunto']);
         $email->addTo($seg['correo_cliente'], $seg['nombre_cliente']);
+
+        // CC: consultor interno + consultor externo del cliente
+        if (!empty($seg['email_consultor_interno'])) {
+            $email->addCc($seg['email_consultor_interno'], $seg['consultor']);
+        }
+        if (!empty($seg['email_consultor_externo'])) {
+            $email->addCc($seg['email_consultor_externo']);
+        }
+
+        // BCC fijo
         $email->addBcc('head.consultant.cycloidtalent@gmail.com');
         $email->addBcc('diana.cuestas@cycloidtalent.com');
         $email->addContent('text/plain', $plain);
@@ -134,6 +144,11 @@ class SeguimientoAgendaCron extends BaseCommand
               </div>
               {$tablaOpciones}
               <p style='font-size:15px;color:#2b2b2b;line-height:1.7;'>Quedamos atentos a su confirmación.</p>
+              <div style='margin:20px 0;padding:14px 18px;background:#fff8e1;border:2px solid #f59e0b;border-radius:8px;text-align:center;'>
+                <p style='margin:0;font-size:14px;color:#92400e;font-weight:bold;'>
+                  📢 Para notificar a todas las partes interesadas, por favor use <span style='color:#d97706;'>«Responder a todos»</span> al responder este mensaje.
+                </p>
+              </div>
               <div style='margin-top:30px;padding-top:20px;border-top:1px solid #e6edf5;'>
                 <p style='margin:0;font-size:14px;color:#2b2b2b;'><strong>{$seg['consultor']}</strong></p>
                 <p style='margin:4px 0 0 0;font-size:14px;color:#2b2b2b;'>{$seg['cargo_consultor']}</p>
@@ -150,6 +165,7 @@ class SeguimientoAgendaCron extends BaseCommand
         $txt  = $seg['mensaje'] . "\n\n";
         foreach ($opciones as $op) $txt .= "- {$op}\n";
         $txt .= "\nQuedamos atentos a su confirmación.\n\n";
+        $txt .= "NOTA: Para notificar a todas las partes interesadas, por favor use «Responder a todos» al responder este mensaje.\n\n";
         $txt .= $seg['consultor'] . "\n" . $seg['cargo_consultor'] . "\nCycloid Talent SAS";
         return $txt;
     }
