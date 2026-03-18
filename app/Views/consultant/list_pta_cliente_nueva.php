@@ -2519,6 +2519,7 @@
             theme: 'bootstrap-5',
             placeholder: 'Buscar y seleccionar actividades...',
             allowClear: true,
+            closeOnSelect: false,
             dropdownParent: $('#crearActividadIAModal'),
             templateResult: function(opt) {
                 if (!opt.id) return opt.text;
@@ -2526,6 +2527,13 @@
                 return $('<span><input type="checkbox" ' + checked + ' style="margin-right:7px;pointer-events:none;">' + opt.text + '</span>');
             },
             templateSelection: function(opt) { return opt.text || opt.id; }
+        });
+
+        // Preservar texto de búsqueda al seleccionar/deseleccionar
+        $('#iaInventarioSelect').on('select2:select select2:unselect', function() {
+            var search = $(this).data('select2').dropdown.$search || $(this).data('select2').selection.$search;
+            var term = search.val();
+            setTimeout(function() { search.val(term).trigger('input'); }, 0);
         });
 
         $('#iaInventarioSelect').on('change', function() {
