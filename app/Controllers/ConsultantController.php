@@ -806,7 +806,8 @@ class ConsultantController extends Controller
         }
 
         // ── Construir HTML del email ─────────────────────────────────────────
-        $fechaEmision = date('d \d\e F \d\e Y');
+        $meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+        $fechaEmision = date('d') . ' de ' . $meses[(int)date('n') - 1] . ' de ' . date('Y');
 
         $htmlEmail = view('emails/fin_autorizacion_sst', [
             'nombreCliente'    => $nombreCliente,
