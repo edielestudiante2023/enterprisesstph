@@ -206,6 +206,11 @@ class InspeccionBotiquinController extends BaseController
             return $this->finalizar($id);
         }
 
+        // Si es una inspección ya completa, recalcular pendientes para mantener sincronía
+        if (($inspeccion['estado'] ?? '') === 'completo') {
+            $this->generarPendientes($id);
+        }
+
         if ($this->isAutosaveRequest()) {
             return $this->autosaveJsonSuccess((int)$id);
         }
