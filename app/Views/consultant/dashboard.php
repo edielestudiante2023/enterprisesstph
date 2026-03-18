@@ -640,6 +640,11 @@
                     <i class="fas fa-list-alt me-2"></i>Listado Maestro
                 </button>
             </a>
+            <a href="<?= base_url('seguimiento-agenda') ?>" target="_blank" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none;">
+                    <i class="fas fa-calendar-check me-2"></i>Seguimiento Agenda
+                </button>
+            </a>
         </div>
 
         <!-- Dashboards Analíticos -->
