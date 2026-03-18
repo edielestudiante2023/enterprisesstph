@@ -418,6 +418,9 @@ h1, h2, h3, h4, h5, h6 {
     width: auto !important;
     height: auto !important;
 }
+footer {
+    page-break-before: always !important;
+}
 </style>';
         return str_replace('</head>', $css . '</head>', $html);
     }
