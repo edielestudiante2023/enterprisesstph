@@ -437,48 +437,61 @@ class InspeccionBotiquinController extends BaseController
             $config = self::ELEMENTOS[$clave] ?? null;
             if (!$config) continue;
 
-            $label = $config['label'];
-            $min = $config['min'];
+            $label    = $config['label'];
+            $min      = $config['min'];
             $cantidad = (int)$elem['cantidad'];
-            $estado = $elem['estado'];
-            $vencimiento = $elem['fecha_vencimiento'] ?? null;
+            $estado   = $elem['estado'];
+            $venc     = $elem['fecha_vencimiento'] ?? null;
 
-            // Cantidad insuficiente
+            $issues = [];
+
             if ($cantidad < $min) {
-                $pendientes[] = "{$label} - Presenta {$cantidad} unidades (minimo requerido: {$min})";
+                $issues[] = "Cantidad insuficiente: {$cantidad} (min. {$min})";
                 if (!empty($config['medicamento'])) {
                     $tieneMedicamentoFaltante = true;
                 }
             }
 
-            // Estado malo
-            if (in_array($estado, ['ESTADO REGULAR', 'MAL ESTADO', 'SIN EXISTENCIAS'])) {
-                $pendientes[] = "{$label} - Estado: {$estado}";
+            // Solo reportar estado malo si NO es consecuencia directa de cantidad=0
+            if (in_array($estado, ['ESTADO REGULAR', 'MAL ESTADO']) ||
+                ($estado === 'SIN EXISTENCIAS' && $cantidad >= $min)) {
+                $issues[] = "Estado: {$estado}";
             }
 
-            // Vencido
-            if ($config['venc'] && !empty($vencimiento) && $vencimiento < $hoy) {
-                $pendientes[] = "{$label} - VENCIDO (fecha: {$vencimiento})";
+            if ($config['venc'] && !empty($venc) && $venc < $hoy) {
+                $issues[] = 'Vencido (' . date('d/m/Y', strtotime($venc)) . ')';
+            }
+
+            if (!empty($issues)) {
+                $pendientes[] = [
+                    'elemento' => $label,
+                    'cantidad' => $cantidad,
+                    'min'      => $min,
+                    'detalle'  => implode(' — ', $issues),
+                ];
             }
         }
 
-        // Equipos especiales del master
-        if (!empty($inspeccion['estado_collares']) && in_array($inspeccion['estado_collares'], ['ESTADO REGULAR', 'MAL ESTADO'])) {
-            $pendientes[] = "Collares cervicales - Estado: {$inspeccion['estado_collares']}";
-        }
-        if (!empty($inspeccion['estado_inmovilizadores']) && in_array($inspeccion['estado_inmovilizadores'], ['ESTADO REGULAR', 'MAL ESTADO'])) {
-            $pendientes[] = "Inmovilizadores - Estado: {$inspeccion['estado_inmovilizadores']}";
+        // Equipos especiales
+        foreach (['estado_collares' => 'Collares cervicales', 'estado_inmovilizadores' => 'Inmovilizadores'] as $campo => $label) {
+            if (!empty($inspeccion[$campo]) && in_array($inspeccion[$campo], ['ESTADO REGULAR', 'MAL ESTADO'])) {
+                $pendientes[] = [
+                    'elemento' => $label,
+                    'cantidad' => null,
+                    'min'      => null,
+                    'detalle'  => "Estado: {$inspeccion[$campo]}",
+                ];
+            }
         }
 
-        // Disclaimer medicamentos
-        if ($tieneMedicamentoFaltante) {
-            $pendientes[] = "NOTA: Los medicamentos deben ser suministrados bajo prescripcion medica. Cycloid SAS no se hace responsable del uso indebido de los mismos.";
-        }
-
-        $textoFinal = !empty($pendientes) ? implode("\n", $pendientes) : 'Sin pendientes - Botiquin completo';
+        $resultado = [
+            'items'                  => $pendientes,
+            'aviso_medicamentos'     => $tieneMedicamentoFaltante,
+            'sin_pendientes'         => empty($pendientes),
+        ];
 
         $this->inspeccionModel->update($id, [
-            'pendientes_generados' => $textoFinal,
+            'pendientes_generados' => json_encode($resultado, JSON_UNESCAPED_UNICODE),
         ]);
     }
 

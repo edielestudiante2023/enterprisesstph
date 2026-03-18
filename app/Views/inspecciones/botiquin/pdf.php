@@ -288,7 +288,43 @@
     <?php endif; ?>
 
     <!-- PENDIENTES GENERADOS -->
-    <?php if (!empty($inspeccion['pendientes_generados'])): ?>
+    <?php
+    $pend = null;
+    if (!empty($inspeccion['pendientes_generados'])) {
+        $decoded = json_decode($inspeccion['pendientes_generados'], true);
+        $pend = (json_last_error() === JSON_ERROR_NONE) ? $decoded : null;
+    }
+    ?>
+    <?php if ($pend !== null): ?>
+    <div class="section-title">COMPRA DE ELEMENTOS REQUERIDOS / PENDIENTES</div>
+    <?php if ($pend['sin_pendientes']): ?>
+    <p style="font-size:9px; color:#155724;">Botiquin completo — sin pendientes.</p>
+    <?php else: ?>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="text-align:left; width:45%;">Elemento</th>
+                <th style="width:10%;">Cant.</th>
+                <th style="width:10%;">Min.</th>
+                <th style="text-align:left;">Observacion</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($pend['items'] as $p): ?>
+            <tr>
+                <td style="text-align:left;"><?= esc($p['elemento']) ?></td>
+                <td style="color:<?= ($p['cantidad'] !== null && $p['cantidad'] < $p['min']) ? '#721c24' : '#333' ?>; font-weight:bold;"><?= $p['cantidad'] !== null ? $p['cantidad'] : '—' ?></td>
+                <td style="color:#888;"><?= $p['min'] !== null ? $p['min'] : '—' ?></td>
+                <td style="text-align:left; color:#721c24;"><?= esc($p['detalle']) ?></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php if ($pend['aviso_medicamentos']): ?>
+    <p style="font-size:7px; color:#666; margin-top:4px;">* Los medicamentos deben ser suministrados bajo prescripcion medica. Cycloid SAS no se hace responsable del uso indebido.</p>
+    <?php endif; ?>
+    <?php endif; ?>
+    <?php elseif (!empty($inspeccion['pendientes_generados'])): ?>
     <div class="section-title">COMPRA DE ELEMENTOS REQUERIDOS / PENDIENTES</div>
     <div class="pendientes-box">
         <?= nl2br(esc($inspeccion['pendientes_generados'])) ?>

@@ -190,7 +190,44 @@ function estadoColor(string $estado): string {
     <?php endif; ?>
 
     <!-- Pendientes generados -->
-    <?php if (!empty($inspeccion['pendientes_generados'])): ?>
+    <?php
+    $pend = null;
+    if (!empty($inspeccion['pendientes_generados'])) {
+        $decoded = json_decode($inspeccion['pendientes_generados'], true);
+        $pend = (json_last_error() === JSON_ERROR_NONE) ? $decoded : null;
+    }
+    ?>
+    <?php if ($pend !== null): ?>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title" style="font-size:14px; color:#999;">PENDIENTES GENERADOS</h6>
+            <?php if ($pend['sin_pendientes']): ?>
+                <p class="text-success mb-0" style="font-size:13px;"><i class="fas fa-check-circle"></i> Botiquin completo — sin pendientes</p>
+            <?php else: ?>
+                <div class="table-responsive">
+                <table class="table table-sm table-bordered mb-1" style="font-size:12px;">
+                    <thead style="background:#f8f9fa;">
+                        <tr><th>Elemento</th><th style="width:40px; text-align:center;">Cant.</th><th style="width:40px; text-align:center;">Min.</th><th>Observacion</th></tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($pend['items'] as $p): ?>
+                        <tr>
+                            <td><?= esc($p['elemento']) ?></td>
+                            <td class="text-center <?= ($p['cantidad'] !== null && $p['cantidad'] < $p['min']) ? 'text-danger fw-bold' : '' ?>"><?= $p['cantidad'] !== null ? $p['cantidad'] : '—' ?></td>
+                            <td class="text-center text-muted"><?= $p['min'] !== null ? $p['min'] : '—' ?></td>
+                            <td class="text-danger"><?= esc($p['detalle']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                </div>
+                <?php if ($pend['aviso_medicamentos']): ?>
+                <p style="font-size:11px; color:#666; margin:0;"><i class="fas fa-info-circle"></i> Los medicamentos deben ser suministrados bajo prescripcion medica.</p>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php elseif (!empty($inspeccion['pendientes_generados'])): ?>
     <div class="card mb-3">
         <div class="card-body">
             <h6 class="card-title" style="font-size:14px; color:#999;">PENDIENTES GENERADOS</h6>
