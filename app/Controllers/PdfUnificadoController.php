@@ -154,6 +154,15 @@ class PdfUnificadoController extends Controller
             return isset($this->documentMapping[$acceso['id_acceso']]) && $acceso['dimension'] !== 'Indicadores';
         });
 
+        // Filtrar por documentos seleccionados (si el usuario eligió un subconjunto)
+        $seleccionados = $this->request->getPost('documentos');
+        if (!empty($seleccionados)) {
+            $seleccionados = array_map('intval', $seleccionados);
+            $accesosConPdf = array_filter($accesosConPdf, function ($acceso) use ($seleccionados) {
+                return in_array((int)$acceso['id_acceso'], $seleccionados);
+            });
+        }
+
         $tempDir = WRITEPATH . 'uploads/temp_pdfs/';
         if (!is_dir($tempDir)) {
             mkdir($tempDir, 0755, true);

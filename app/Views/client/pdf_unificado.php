@@ -325,55 +325,75 @@
                     </ul>
                 </div>
 
-                <!-- Lista de documentos -->
-                <h5 class="mb-3"><i class="fas fa-list me-2"></i>Documentos que se incluirán:</h5>
-                <div class="document-list">
-                    <?php
-                    $currentDimension = '';
-                    foreach ($accesos as $acceso):
-                        if ($currentDimension !== $acceso['dimension']):
-                            $currentDimension = $acceso['dimension'];
-                    ?>
-                        <div class="document-item" style="background: #f8f9fa; font-weight: 600;">
-                            <div class="icon" style="background: #1c2437;">
-                                <i class="fas fa-folder"></i>
-                            </div>
-                            <span><?= esc($currentDimension) ?></span>
-                        </div>
-                    <?php endif; ?>
-                        <div class="document-item">
-                            <div class="icon">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <span><?= esc($acceso['nombre']) ?></span>
-                            <span class="dimension-badge dimension-<?= strtolower($acceso['dimension']) ?>">
-                                <?= esc($acceso['dimension']) ?>
-                            </span>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-
-                <!-- Barra de progreso -->
-                <div class="progress-container" id="progressContainer">
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" style="width: 0%;" id="progressBar">0%</div>
+                <!-- Toolbar selección -->
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Documentos a incluir:</h5>
+                    <div class="d-flex gap-2 align-items-center">
+                        <span id="contadorSeleccion" class="text-muted" style="font-size:0.9rem;"></span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnSelAll">
+                            <i class="fas fa-check-square me-1"></i>Todos
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnSelNone">
+                            <i class="fas fa-square me-1"></i>Ninguno
+                        </button>
                     </div>
-                    <div class="progress-text" id="progressText">Preparando documentos...</div>
                 </div>
 
-                <!-- Botones -->
-                <div class="text-center mt-4">
-                    <a href="<?= base_url('/dashboard') ?>" class="btn btn-back me-3">
-                        <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
-                    </a>
-                    <form action="<?= base_url('/generarPdfUnificado') ?>" method="post" id="formGenerarPdf" style="display: inline;">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="id_cliente" value="<?= esc($client['id_cliente']) ?>">
+                <!-- Lista de documentos con checkboxes -->
+                <form action="<?= base_url('/generarPdfUnificado') ?>" method="post" id="formGenerarPdf">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="id_cliente" value="<?= esc($client['id_cliente']) ?>">
+
+                    <div class="document-list">
+                        <?php
+                        $currentDimension = '';
+                        foreach ($accesos as $acceso):
+                            if ($currentDimension !== $acceso['dimension']):
+                                $currentDimension = $acceso['dimension'];
+                        ?>
+                            <div class="document-item" style="background: #f8f9fa; font-weight: 600; cursor:pointer;" data-dimension="<?= esc($currentDimension) ?>">
+                                <div class="icon" style="background: #1c2437;">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                                <span><?= esc($currentDimension) ?></span>
+                            </div>
+                        <?php endif; ?>
+                            <div class="document-item" style="cursor:pointer;" onclick="toggleDoc(<?= $acceso['id_acceso'] ?>)">
+                                <input type="checkbox" name="documentos[]" value="<?= $acceso['id_acceso'] ?>"
+                                       id="doc_<?= $acceso['id_acceso'] ?>" checked
+                                       class="form-check-input me-3 doc-checkbox"
+                                       data-dimension="<?= esc($acceso['dimension']) ?>"
+                                       onclick="event.stopPropagation(); actualizarContador();"
+                                       style="width:18px; height:18px; cursor:pointer;">
+                                <div class="icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <span><?= esc($acceso['nombre']) ?></span>
+                                <span class="dimension-badge dimension-<?= strtolower($acceso['dimension']) ?>">
+                                    <?= esc($acceso['dimension']) ?>
+                                </span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <!-- Barra de progreso -->
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 0%;" id="progressBar">0%</div>
+                        </div>
+                        <div class="progress-text" id="progressText">Preparando documentos...</div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="text-center mt-4">
+                        <a href="<?= base_url('/dashboard') ?>" class="btn btn-back me-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                        </a>
                         <button type="submit" class="btn btn-generate" id="btnGenerar">
                             <i class="fas fa-download me-2"></i>Generar y Descargar PDF Unificado
                         </button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -387,8 +407,40 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function actualizarContador() {
+            const total = document.querySelectorAll('.doc-checkbox').length;
+            const sel   = document.querySelectorAll('.doc-checkbox:checked').length;
+            document.getElementById('contadorSeleccion').textContent = sel + ' de ' + total + ' seleccionados';
+            document.getElementById('btnGenerar').disabled = sel === 0;
+        }
+
+        function toggleDoc(id) {
+            const cb = document.getElementById('doc_' + id);
+            cb.checked = !cb.checked;
+            actualizarContador();
+        }
+
+        document.getElementById('btnSelAll').addEventListener('click', function() {
+            document.querySelectorAll('.doc-checkbox').forEach(cb => cb.checked = true);
+            actualizarContador();
+        });
+
+        document.getElementById('btnSelNone').addEventListener('click', function() {
+            document.querySelectorAll('.doc-checkbox').forEach(cb => cb.checked = false);
+            actualizarContador();
+        });
+
+        // Inicializar contador
+        actualizarContador();
+
         document.getElementById('formGenerarPdf').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            const seleccionados = document.querySelectorAll('.doc-checkbox:checked').length;
+            if (seleccionados === 0) {
+                alert('Selecciona al menos un documento.');
+                return;
+            }
 
             const btn = document.getElementById('btnGenerar');
             const progressContainer = document.getElementById('progressContainer');
@@ -396,69 +448,45 @@
             const progressText = document.getElementById('progressText');
             const form = this;
 
-            // Deshabilitar botón y mostrar progreso
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generando PDF...';
             progressContainer.classList.add('active');
 
-            // Simular progreso
             let progress = 0;
             const interval = setInterval(function() {
                 progress += Math.random() * 3;
                 if (progress > 95) progress = 95;
-
                 progressBar.style.width = progress + '%';
                 progressBar.textContent = Math.round(progress) + '%';
                 progressText.textContent = 'Generando documentos... Por favor espere.';
             }, 500);
 
-            // Crear un token único para detectar la descarga
             const downloadToken = Date.now();
             document.cookie = 'downloadToken=' + downloadToken + '; path=/';
 
-            // Crear un iframe oculto para la descarga
             let iframe = document.createElement('iframe');
             iframe.style.display = 'none';
             iframe.name = 'downloadFrame';
             document.body.appendChild(iframe);
 
-            // Modificar el form para usar el iframe
             form.target = 'downloadFrame';
             form.submit();
 
-            // Verificar periódicamente si la descarga comenzó
             let checkCount = 0;
-            const maxChecks = 120; // 2 minutos máximo
             const checkDownload = setInterval(function() {
                 checkCount++;
-
-                // Después de un tiempo razonable, asumir que la descarga se completó
-                if (checkCount >= 40) { // ~20 segundos
+                if (checkCount >= 40) {
                     clearInterval(interval);
                     clearInterval(checkDownload);
-
-                    // Mostrar éxito
                     progressBar.style.width = '100%';
                     progressBar.textContent = '100%';
-                    progressBar.classList.remove('bg-warning');
                     progressBar.classList.add('bg-success');
                     progressText.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i>PDF generado exitosamente. La descarga debería haber comenzado.';
-
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-download me-2"></i>Generar y Descargar PDF Unificado';
-
-                    // Limpiar iframe después de un momento
-                    setTimeout(function() {
-                        if (iframe.parentNode) {
-                            iframe.parentNode.removeChild(iframe);
-                        }
-                    }, 5000);
+                    setTimeout(function() { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); }, 5000);
                 }
-
-                if (checkCount >= maxChecks) {
-                    clearInterval(checkDownload);
-                    clearInterval(interval);
-                }
+                if (checkCount >= 120) { clearInterval(checkDownload); clearInterval(interval); }
             }, 500);
         });
     </script>
