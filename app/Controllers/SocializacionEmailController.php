@@ -9,7 +9,10 @@ use App\Models\ContractModel;
 use App\Models\PtaClienteNuevaModel;
 use App\Models\CronogcapacitacionModel;
 use App\Models\EvaluationModel;
+use App\Models\ReporteModel;
 use SendGrid\Mail\Mail;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 /**
  * Controlador para el envío de emails de socialización del Decreto 1072
@@ -113,6 +116,12 @@ class SocializacionEmailController extends BaseController
             $htmlContent
         );
 
+        // Subir PDF a reportList si el email fue exitoso
+        if ($result['success']) {
+            $titulo = "Socialización Plan de Trabajo {$anioActual} - {$cliente['nombre_cliente']}";
+            $this->guardarPdfEnReportes($htmlContent, $titulo, $cliente, $consultor);
+        }
+
         return $this->response->setJSON($result);
     }
 
@@ -202,6 +211,12 @@ class SocializacionEmailController extends BaseController
             "Socialización Cronograma de Capacitaciones SG-SST {$anioActual} - {$cliente['nombre_cliente']}",
             $htmlContent
         );
+
+        // Subir PDF a reportList si el email fue exitoso
+        if ($result['success']) {
+            $titulo = "Socialización Cronograma Capacitaciones {$anioActual} - {$cliente['nombre_cliente']}";
+            $this->guardarPdfEnReportes($htmlContent, $titulo, $cliente, $consultor);
+        }
 
         return $this->response->setJSON($result);
     }
@@ -295,6 +310,12 @@ class SocializacionEmailController extends BaseController
             "Socialización Evaluación de Estándares Mínimos SG-SST {$anioActual} - {$cliente['nombre_cliente']}",
             $htmlContent
         );
+
+        // Subir PDF a reportList si el email fue exitoso
+        if ($result['success']) {
+            $titulo = "Socialización Evaluación Estándares {$anioActual} - {$cliente['nombre_cliente']}";
+            $this->guardarPdfEnReportes($htmlContent, $titulo, $cliente, $consultor);
+        }
 
         return $this->response->setJSON($result);
     }
@@ -824,6 +845,54 @@ class SocializacionEmailController extends BaseController
                 'success' => false,
                 'message' => 'Error al enviar el correo: ' . $e->getMessage()
             ];
+        }
+    }
+
+    /**
+     * Genera un PDF del contenido HTML y lo guarda en tbl_reporte (reportList)
+     */
+    private function guardarPdfEnReportes(string $htmlContent, string $titulo, array $cliente, ?array $consultor): void
+    {
+        try {
+            $options = new Options();
+            $options->set('isRemoteEnabled', true);
+            $options->set('isHtml5ParserEnabled', true);
+
+            $dompdf = new Dompdf($options);
+            $dompdf->loadHtml($htmlContent);
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+            $pdfContent = $dompdf->output();
+
+            // Guardar archivo
+            $dir = FCPATH . 'uploads/reportes/socializacion/';
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            $nombreArchivo = 'socializacion_' . $cliente['id_cliente'] . '_' . date('Ymd_His') . '.pdf';
+            file_put_contents($dir . $nombreArchivo, $pdfContent);
+
+            $enlace = base_url('uploads/reportes/socializacion/' . $nombreArchivo);
+
+            // Insertar en tbl_reporte
+            $reporteModel = new ReporteModel();
+            $reporteModel->save([
+                'titulo_reporte'  => $titulo,
+                'id_report_type'  => 17,
+                'id_detailreport' => 23,
+                'id_cliente'      => $cliente['id_cliente'],
+                'id_consultor'    => $consultor['id_consultor'] ?? null,
+                'estado'          => 'Entregado',
+                'observaciones'   => 'Generado automáticamente al socializar por email',
+                'enlace'          => $enlace,
+                'created_at'      => date('Y-m-d H:i:s'),
+                'updated_at'      => date('Y-m-d H:i:s'),
+            ]);
+
+            log_message('info', "SocializacionEmail: PDF guardado en reportList — {$titulo}");
+        } catch (\Exception $e) {
+            log_message('error', 'SocializacionEmail: Error al guardar PDF en reportes: ' . $e->getMessage());
         }
     }
 }
