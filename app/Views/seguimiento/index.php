@@ -6,11 +6,24 @@
     <title>Seguimiento de Agenda</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
     <style>
         body { background:#f8f9fa; }
         .badge-activo    { background:#198754; color:#fff; }
         .badge-detenido  { background:#dc3545; color:#fff; }
         .badge-pendiente { background:#6c757d; color:#fff; }
+        .btn-ia {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            font-size: 0.82rem;
+        }
+        .btn-ia:hover { opacity:.88; color:#fff; }
+        .btn-ia:disabled { opacity:.5; }
+        .ia-spinner { display:none; }
+        .btn-ia.loading .ia-spinner { display:inline-block; }
+        .btn-ia.loading .ia-icon    { display:none; }
     </style>
 </head>
 <body>
@@ -123,6 +136,17 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
+
+                <!-- Botón IA -->
+                <div class="mb-3">
+                    <button type="button" class="btn btn-ia btn-sm px-3" id="btnGenerar" onclick="generarConIA()" disabled>
+                        <i class="fas fa-magic ia-icon me-1"></i>
+                        <span class="spinner-border spinner-border-sm ia-spinner me-1" role="status"></span>
+                        Generar texto con IA
+                    </button>
+                    <small class="text-muted ms-2">Selecciona un cliente primero</small>
+                </div>
+
                 <div class="mb-3">
                     <label class="form-label fw-bold">Asunto del correo *</label>
                     <input type="text" class="form-control" id="sel_asunto"
@@ -130,7 +154,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold">Mensaje *</label>
-                    <textarea class="form-control" id="sel_mensaje" rows="4"
+                    <textarea class="form-control" id="sel_mensaje" rows="5"
                               placeholder="Texto del cuerpo del correo..."></textarea>
                 </div>
                 <div class="mb-3">
@@ -177,6 +201,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 const BASE = '<?= base_url() ?>';
 const CSRF_NAME  = '<?= csrf_token() ?>';
@@ -186,6 +212,68 @@ function csrfBody(extra = {}) {
     return new URLSearchParams({ [CSRF_NAME]: CSRF_VALUE, ...extra });
 }
 
+// ── Select2 ──────────────────────────────────────────────────────────────────
+document.getElementById('modalAgregar').addEventListener('shown.bs.modal', function () {
+    $('#sel_cliente').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#modalAgregar'),
+        placeholder: 'Buscar o seleccionar cliente...',
+        allowClear: true,
+        width: '100%'
+    }).off('change.seg').on('change.seg', function () {
+        const tiene = !!$(this).val();
+        const btn   = document.getElementById('btnGenerar');
+        btn.disabled = !tiene;
+        btn.nextElementSibling.textContent = tiene ? 'Haz clic para generar asunto y mensaje automáticamente' : 'Selecciona un cliente primero';
+    });
+});
+
+document.getElementById('modalAgregar').addEventListener('hidden.bs.modal', function () {
+    if ($('#sel_cliente').hasClass('select2-hidden-accessible')) {
+        $('#sel_cliente').select2('destroy');
+    }
+    document.getElementById('btnGenerar').disabled = true;
+});
+
+// ── Generar con IA ───────────────────────────────────────────────────────────
+async function generarConIA() {
+    const clienteOpt = document.getElementById('sel_cliente');
+    const nombreCliente = clienteOpt.options[clienteOpt.selectedIndex]?.text ?? '';
+    if (!nombreCliente || nombreCliente === 'Seleccione un cliente...') {
+        Swal.fire('Atención', 'Selecciona un cliente primero.', 'warning');
+        return;
+    }
+
+    const btn = document.getElementById('btnGenerar');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+        const res  = await fetch(BASE + 'seguimiento-agenda/generar-texto', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+            body: csrfBody({ nombre_cliente: nombreCliente })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            document.getElementById('sel_asunto').value  = data.data.asunto  ?? '';
+            document.getElementById('sel_mensaje').value = data.data.mensaje  ?? '';
+            if (Array.isArray(data.data.opciones_fechas)) {
+                document.getElementById('sel_opciones').value = data.data.opciones_fechas.join('\n');
+            }
+        } else {
+            Swal.fire('Error IA', data.message ?? 'No se pudo generar el texto.', 'error');
+        }
+    } catch (e) {
+        Swal.fire('Error', 'Fallo al contactar el servicio de IA.', 'error');
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+
+// ── CRUD ─────────────────────────────────────────────────────────────────────
 async function guardarSeguimiento() {
     const id_cliente      = document.getElementById('sel_cliente').value;
     const asunto          = document.getElementById('sel_asunto').value.trim();

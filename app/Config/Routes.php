@@ -1479,6 +1479,7 @@ $routes->group('seguimiento-agenda', ['filter' => 'auth'], function($routes) {
     $routes->post('reactivar/(:num)', 'SeguimientoAgendaController::reactivar/$1');
     $routes->post('destroy/(:num)',   'SeguimientoAgendaController::destroy/$1');
     $routes->get('historial/(:num)',  'SeguimientoAgendaController::historialCliente/$1');
+    $routes->post('generar-texto',    'SeguimientoAgendaController::generarTexto');
 });
 
 // ============================================================================
