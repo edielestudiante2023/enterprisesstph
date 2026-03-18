@@ -245,6 +245,11 @@ class ChatController extends Controller
             return $this->response->setJSON(['success' => true, 'message' => 'Sin conversación que enviar']);
         }
 
+        // Email de resumen solo para clientes
+        if ($session->get('role') !== 'client') {
+            return $this->response->setJSON(['success' => true, 'message' => 'Sesión finalizada']);
+        }
+
         $userName  = $session->get('nombre_usuario') ?? 'Consultor';
         $userEmail = $session->get('email_usuario')  ?? '';
         $now       = date('d/m/Y H:i');
