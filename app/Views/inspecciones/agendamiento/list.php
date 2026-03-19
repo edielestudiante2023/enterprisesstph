@@ -30,6 +30,27 @@
         </select>
     </div>
 
+    <!-- Filtro por mes (pills dinámicos) -->
+    <div class="mb-2" id="mesPillsContainer">
+        <div class="d-flex gap-1 flex-wrap" id="mesPills">
+            <button type="button" class="btn btn-sm btn-dark filter-mes active" data-mes="">Todos los meses</button>
+        </div>
+    </div>
+
+    <!-- Rango de fechas -->
+    <div class="mb-2 d-flex gap-2 align-items-center">
+        <div style="flex:1;">
+            <input type="date" id="filterDesde" class="form-control form-control-sm" placeholder="Desde">
+        </div>
+        <span style="font-size:12px;color:#999;">→</span>
+        <div style="flex:1;">
+            <input type="date" id="filterHasta" class="form-control form-control-sm" placeholder="Hasta">
+        </div>
+        <button type="button" id="btnLimpiarFechas" class="btn btn-sm btn-outline-secondary" title="Limpiar fechas">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
     <!-- Filtro por estado -->
     <div class="mb-3">
         <div class="btn-group btn-group-sm w-100" role="group">
@@ -39,6 +60,9 @@
             <button type="button" class="btn btn-outline-secondary filter-estado" data-estado="cancelado">Cancelado</button>
         </div>
     </div>
+
+    <!-- Contador de resultados -->
+    <div id="resultadosCount" class="text-muted mb-2" style="font-size:12px;"></div>
 
     <!-- Lista -->
     <?php if (empty($agendamientos)): ?>
@@ -54,7 +78,9 @@
         <?php foreach ($agendamientos as $ag): ?>
             <div class="card card-inspeccion <?= esc($ag['estado']) ?> ag-item mb-2"
                  data-cliente="<?= strtolower(esc($ag['nombre_cliente'] ?? '')) ?>"
-                 data-estado="<?= esc($ag['estado']) ?>">
+                 data-estado="<?= esc($ag['estado']) ?>"
+                 data-fecha="<?= $ag['fecha_visita'] ?>"
+                 data-mes="<?= date('Y-m', strtotime($ag['fecha_visita'])) ?>">
                 <div class="card-body py-3 px-3">
                     <div class="d-flex justify-content-between align-items-start">
                         <div style="flex:1;">
@@ -121,9 +147,32 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Select2 para filtro de cliente
     $('#filterCliente').select2({ placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
+    $('#filterCliente').on('change', filterItems);
 
-    // Filtro por cliente
-    $('#filterCliente').on('change', function() {
+    // Generar pills de mes desde los datos reales
+    const mesesVistos = {};
+    const nombresMes = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    document.querySelectorAll('.ag-item').forEach(item => {
+        const m = item.dataset.mes; // YYYY-MM
+        if (m && !mesesVistos[m]) {
+            mesesVistos[m] = true;
+            const [anio, mes] = m.split('-');
+            const label = nombresMes[parseInt(mes) - 1] + ' ' + anio;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-sm btn-outline-dark filter-mes';
+            btn.dataset.mes = m;
+            btn.textContent = label;
+            document.getElementById('mesPills').appendChild(btn);
+        }
+    });
+
+    // Click en pills de mes
+    document.getElementById('mesPills').addEventListener('click', function(e) {
+        const btn = e.target.closest('.filter-mes');
+        if (!btn) return;
+        document.querySelectorAll('.filter-mes').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
         filterItems();
     });
 
@@ -135,17 +184,47 @@ document.addEventListener('DOMContentLoaded', function() {
             filterItems();
         });
     });
+
+    // Rango de fechas
+    document.getElementById('filterDesde').addEventListener('change', filterItems);
+    document.getElementById('filterHasta').addEventListener('change', filterItems);
+    document.getElementById('btnLimpiarFechas').addEventListener('click', function() {
+        document.getElementById('filterDesde').value = '';
+        document.getElementById('filterHasta').value = '';
+        filterItems();
+    });
+
+    filterItems(); // inicial para mostrar contador
 });
 
 function filterItems() {
     const clienteFilter = document.getElementById('filterCliente').value.toLowerCase();
-    const estadoFilter = document.querySelector('.filter-estado.active')?.dataset.estado || '';
+    const estadoFilter  = document.querySelector('.filter-estado.active')?.dataset.estado || '';
+    const mesFilter     = document.querySelector('.filter-mes.active')?.dataset.mes || '';
+    const desde         = document.getElementById('filterDesde').value;
+    const hasta         = document.getElementById('filterHasta').value;
 
+    let visibles = 0;
     document.querySelectorAll('.ag-item').forEach(item => {
         const matchCliente = !clienteFilter || item.dataset.cliente === clienteFilter;
-        const matchEstado = !estadoFilter || item.dataset.estado === estadoFilter;
-        item.style.display = (matchCliente && matchEstado) ? '' : 'none';
+        const matchEstado  = !estadoFilter  || item.dataset.estado === estadoFilter;
+        const matchMes     = !mesFilter     || item.dataset.mes === mesFilter;
+        const fecha        = item.dataset.fecha || '';
+        const matchDesde   = !desde || fecha >= desde;
+        const matchHasta   = !hasta || fecha <= hasta;
+
+        const visible = matchCliente && matchEstado && matchMes && matchDesde && matchHasta;
+        item.style.display = visible ? '' : 'none';
+        if (visible) visibles++;
     });
+
+    const total = document.querySelectorAll('.ag-item').length;
+    const counter = document.getElementById('resultadosCount');
+    if (counter) {
+        counter.textContent = visibles === total
+            ? `${total} visita${total !== 1 ? 's' : ''}`
+            : `${visibles} de ${total} visita${total !== 1 ? 's' : ''}`;
+    }
 }
 
 // Enviar invitación
