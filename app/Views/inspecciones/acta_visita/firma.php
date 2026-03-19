@@ -23,7 +23,7 @@
                 <canvas id="canvas-<?= esc($firmante['tipo']) ?>" style="width: 100%; height: 200px; touch-action: none; cursor: crosshair;"></canvas>
             </div>
 
-            <div class="d-flex gap-2 mt-2">
+            <div class="d-flex gap-2 mt-2 flex-wrap">
                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="canvases['<?= esc($firmante['tipo']) ?>'].limpiar()">
                     <i class="fas fa-eraser"></i> Limpiar
                 </button>
@@ -32,6 +32,11 @@
                     No aplica
                 </button>
                 <?php endif; ?>
+                <button type="button" class="btn btn-sm btn-outline-success btn-whatsapp-firma"
+                    data-tipo="<?= esc($firmante['tipo']) ?>"
+                    title="Enviar enlace para firma remota">
+                    <i class="fab fa-whatsapp"></i> Enviar enlace
+                </button>
             </div>
 
             <button type="button" class="btn btn-pwa btn-pwa-primary mt-3"
@@ -287,6 +292,58 @@ function guardarFirma(tipo, paso) {
         });
     });
 }
+
+// WhatsApp firma remota
+document.querySelectorAll('.btn-whatsapp-firma').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const tipo = this.dataset.tipo;
+        const tipoLabel = { administrador: 'Administrador', vigia: 'Vigía SST', consultor: 'Consultor' }[tipo] || tipo;
+
+        Swal.fire({
+            title: 'Enviar enlace de firma',
+            html: `<p style="font-size:14px;">Se generará un enlace para que <strong>${tipoLabel}</strong> firme desde su celular.<br><small class="text-muted">El enlace expira en 24 horas.</small></p>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fab fa-whatsapp"></i> Generar enlace',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#25D366',
+        }).then(function(result) {
+            if (!result.isConfirmed) return;
+
+            Swal.fire({ title: 'Generando enlace...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            fetch('/inspecciones/acta-visita/generar-token-firma/' + actaId, {
+                method: 'POST',
+                body: new URLSearchParams({ tipo: tipo }),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) { Swal.fire('Error', data.error, 'error'); return; }
+
+                const url = data.url;
+                const texto = encodeURIComponent(`Hola, por favor firma el acta de visita SST haciendo clic en este enlace (válido 24 horas):\n${url}`);
+                const waUrl = `https://wa.me/?text=${texto}`;
+
+                Swal.fire({
+                    title: 'Enlace generado',
+                    html: `<p style="font-size:13px;">Comparte este enlace por WhatsApp con el <strong>${tipoLabel}</strong>:</p>
+                           <div style="background:#f8f9fa;border-radius:8px;padding:10px;font-size:11px;word-break:break-all;margin-bottom:12px;">${url}</div>`,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fab fa-whatsapp"></i> Abrir WhatsApp',
+                    cancelButtonText: 'Cerrar',
+                    confirmButtonColor: '#25D366',
+                }).then(r => {
+                    if (r.isConfirmed) window.open(waUrl, '_blank');
+                    // Avanzar al siguiente paso automáticamente
+                    if (pasoActual < totalPasos - 1) cambiarPaso(1);
+                    else updateNav();
+                });
+            })
+            .catch(() => Swal.fire('Error', 'Error de conexión', 'error'));
+        });
+    });
+});
 
 function finalizarActa() {
     Swal.fire({

@@ -512,6 +512,128 @@ class ActaVisitaController extends BaseController
         ]);
     }
 
+    // ========== FIRMA REMOTA (WhatsApp) ==========
+
+    /**
+     * AJAX (auth): genera token y devuelve URL para compartir
+     */
+    public function generarTokenFirma(int $id)
+    {
+        $tipo = $this->request->getPost('tipo');
+        if (!in_array($tipo, ['administrador', 'vigia', 'consultor'])) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Tipo inválido']);
+        }
+
+        $acta = $this->actaModel->find($id);
+        if (!$acta) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Acta no encontrada']);
+        }
+
+        $token     = bin2hex(random_bytes(32));
+        $expiracion = date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+        $this->actaModel->update($id, [
+            'token_firma_remota'     => $token,
+            'token_firma_tipo'       => $tipo,
+            'token_firma_expiracion' => $expiracion,
+        ]);
+
+        $url = base_url("acta-visita/firmar-remoto/{$token}");
+        return $this->response->setJSON(['success' => true, 'url' => $url, 'tipo' => $tipo]);
+    }
+
+    /**
+     * Página pública: canvas de firma para el firmante remoto
+     */
+    public function firmarRemoto(string $token)
+    {
+        $acta = $this->actaModel->where('token_firma_remota', $token)->first();
+
+        if (!$acta) {
+            return view('inspecciones/acta_visita/firma_remota_error', ['mensaje' => 'Este enlace no es válido o ya fue usado.']);
+        }
+
+        if (strtotime($acta['token_firma_expiracion']) < time()) {
+            return view('inspecciones/acta_visita/firma_remota_error', ['mensaje' => 'Este enlace ha expirado. Pida uno nuevo al consultor.']);
+        }
+
+        $campoFirma = 'firma_' . $acta['token_firma_tipo'];
+        if (!empty($acta[$campoFirma])) {
+            return view('inspecciones/acta_visita/firma_remota_error', ['mensaje' => 'Esta firma ya fue registrada.']);
+        }
+
+        $clientModel = new ClientModel();
+        $cliente = $clientModel->find($acta['id_cliente']);
+
+        // Nombre del firmante desde integrantes
+        $integrantes = $this->integranteModel->getByActa($acta['id']);
+        $nombreFirmante = '';
+        foreach ($integrantes as $integrante) {
+            $rol = strtoupper($integrante['rol']);
+            $tipo = $acta['token_firma_tipo'];
+            if ($tipo === 'administrador' && strpos($rol, 'ADMIN') !== false) {
+                $nombreFirmante = $integrante['nombre'];
+                break;
+            }
+            if ($tipo === 'vigia' && strpos($rol, 'VIG') !== false) {
+                $nombreFirmante = $integrante['nombre'];
+                break;
+            }
+            if ($tipo === 'consultor' && strpos($rol, 'CONSULTOR') !== false) {
+                $nombreFirmante = $integrante['nombre'];
+                break;
+            }
+        }
+
+        return view('inspecciones/acta_visita/firma_remota', [
+            'token'          => $token,
+            'acta'           => $acta,
+            'cliente'        => $cliente,
+            'tipo'           => $acta['token_firma_tipo'],
+            'nombreFirmante' => $nombreFirmante,
+        ]);
+    }
+
+    /**
+     * AJAX público: recibe y guarda la firma remota
+     */
+    public function procesarFirmaRemota()
+    {
+        $token       = $this->request->getPost('token');
+        $firmaBase64 = $this->request->getPost('firma_imagen');
+
+        $acta = $this->actaModel->where('token_firma_remota', $token)->first();
+        if (!$acta) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Enlace inválido']);
+        }
+
+        if (strtotime($acta['token_firma_expiracion']) < time()) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Enlace expirado']);
+        }
+
+        $tipo = $acta['token_firma_tipo'];
+        $firmaData = explode(',', $firmaBase64);
+        $firmaDecoded = base64_decode(end($firmaData));
+
+        $dir = FCPATH . 'uploads/inspecciones/firmas/';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $nombreArchivo = "firma_{$tipo}_{$acta['id']}_" . time() . '.png';
+        file_put_contents($dir . $nombreArchivo, $firmaDecoded);
+
+        $campo = "firma_{$tipo}";
+        $this->actaModel->update($acta['id'], [
+            $campo                   => "uploads/inspecciones/firmas/{$nombreArchivo}",
+            'token_firma_remota'     => null,
+            'token_firma_tipo'       => null,
+            'token_firma_expiracion' => null,
+        ]);
+
+        return $this->response->setJSON(['success' => true]);
+    }
+
     // ========== MÉTODOS PRIVADOS ==========
 
     /**

@@ -911,6 +911,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('acta-visita/delete/(:num)', 'ActaVisitaController::delete/$1');
     $routes->get('acta-visita/enviar-email/(:num)', 'ActaVisitaController::enviarEmail/$1');
     $routes->get('acta-visita/api/pta-actividades', 'ActaVisitaController::getPtaActividades');
+    $routes->post('acta-visita/generar-token-firma/(:num)', 'ActaVisitaController::generarTokenFirma/$1');
 
     // Inspección Locativa
     $routes->get('inspeccion-locativa', 'InspeccionLocativaController::list');
@@ -1399,6 +1400,10 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('api/mantenimientos-catalog', 'MantenimientosPwaController::apiAddCatalog');
     $routes->get('api/vencimientos/(:num)', 'MantenimientosPwaController::apiVencimientos/$1');
 });
+
+// Rutas públicas Acta de Visita — firma remota por WhatsApp
+$routes->get('acta-visita/firmar-remoto/(:any)', 'Inspecciones\ActaVisitaController::firmarRemoto/$1');
+$routes->post('acta-visita/procesar-firma-remota', 'Inspecciones\ActaVisitaController::procesarFirmaRemota');
 
 // Rutas públicas Carta Vigía (sin autenticación, patrón de firma contratos)
 $routes->get('carta-vigia/firmar/(:any)', 'Inspecciones\CartaVigiaPwaController::firmar/$1');
