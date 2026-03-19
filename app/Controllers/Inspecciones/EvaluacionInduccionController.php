@@ -5,6 +5,7 @@ namespace App\Controllers\Inspecciones;
 use App\Controllers\BaseController;
 use App\Models\EvaluacionInduccionModel;
 use App\Models\EvaluacionInduccionRespuestaModel;
+use App\Models\EvaluacionSesionModel;
 use App\Models\ClientModel;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
@@ -126,21 +127,43 @@ class EvaluacionInduccionController extends BaseController
             return redirect()->to('/inspecciones/evaluacion-induccion')->with('error', 'No encontrada');
         }
 
-        $clientModel = new ClientModel();
-        $respuestas  = $this->respuestaModel->getByEvaluacion($id);
-        $promedio    = $this->respuestaModel->getPromedioByEvaluacion($id);
+        $clientModel   = new ClientModel();
+        $sesionModel   = new EvaluacionSesionModel();
+        $respuestasAll = $this->respuestaModel->getByEvaluacion($id);
+        $promedio      = $this->respuestaModel->getPromedioByEvaluacion($id);
+
+        // Sesiones agrupadas por cliente+fecha con estadísticas
+        $sesiones = $sesionModel->getSesionesByEvaluacion($id);
+        foreach ($sesiones as &$s) {
+            $db   = \Config\Database::connect();
+            $resp = $db->table('tbl_evaluacion_induccion_respuesta')
+                ->where('id_evaluacion', $id)
+                ->where('id_cliente_conjunto', $s['id_cliente'])
+                ->where('DATE(created_at)', $s['fecha_sesion'])
+                ->orderBy('calificacion', 'DESC')
+                ->get()->getResultArray();
+            $s['respuestas'] = $resp;
+            $s['total']      = count($resp);
+            $cals            = array_column($resp, 'calificacion');
+            $s['promedio']   = $s['total'] > 0 ? round(array_sum($cals) / $s['total'], 1) : 0;
+            $s['aprobados']  = count(array_filter($cals, fn($c) => $c >= 70));
+        }
+        unset($s);
+
+        // Respuestas sin cliente asignado
+        $sinCliente = array_values(array_filter($respuestasAll, fn($r) => empty($r['id_cliente_conjunto'])));
 
         // QR como base64 inline
-        $qrUrl = base_url('evaluar/' . $evaluacion['token']);
-        log_message('debug', 'QR URL: ' . $qrUrl);
+        $qrUrl    = base_url('evaluar/' . $evaluacion['token']);
         $qrBase64 = $this->generarQrBase64($qrUrl);
-        log_message('debug', 'QR result length: ' . strlen($qrBase64) . ' starts: ' . substr($qrBase64, 0, 30));
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/evaluacion-induccion/view', [
                 'evaluacion' => $evaluacion,
                 'cliente'    => $clientModel->find($evaluacion['id_cliente']),
-                'respuestas' => $respuestas,
+                'respuestas' => $respuestasAll,
+                'sesiones'   => $sesiones,
+                'sinCliente' => $sinCliente,
                 'promedio'   => $promedio,
                 'preguntas'  => EvaluacionInduccionModel::PREGUNTAS,
                 'qrBase64'   => $qrBase64,
@@ -262,6 +285,8 @@ class EvaluacionInduccionController extends BaseController
         $respuestasRaw = $this->request->getPost('respuesta') ?? [];
         $calificacion  = EvaluacionInduccionModel::calcularCalificacion($respuestasRaw);
 
+        $idCliente = (int) ($this->request->getPost('id_cliente_conjunto') ?? 0) ?: null;
+
         $this->respuestaModel->insert([
             'id_evaluacion'       => $evaluacion['id'],
             'nombre'              => $nombre,
@@ -269,11 +294,17 @@ class EvaluacionInduccionController extends BaseController
             'whatsapp'            => trim($this->request->getPost('whatsapp') ?? ''),
             'empresa_contratante' => trim($this->request->getPost('empresa_contratante') ?? ''),
             'cargo'               => trim($this->request->getPost('cargo') ?? ''),
-            'id_cliente_conjunto' => (int) ($this->request->getPost('id_cliente_conjunto') ?? 0) ?: null,
+            'id_cliente_conjunto' => $idCliente,
             'acepta_tratamiento'  => 1,
             'respuestas'          => json_encode($respuestasRaw),
             'calificacion'        => $calificacion,
         ]);
+
+        // Auto-crear sesión para este cliente+fecha
+        if ($idCliente) {
+            $sesionModel = new EvaluacionSesionModel();
+            $sesionModel->obtenerOCrear($evaluacion['id'], $idCliente, date('Y-m-d'));
+        }
 
         return redirect()->to('/evaluar/' . $token . '/gracias?cal=' . $calificacion);
     }
