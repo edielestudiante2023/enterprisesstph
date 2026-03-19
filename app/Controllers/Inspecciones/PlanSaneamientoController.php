@@ -242,7 +242,9 @@ class PlanSaneamientoController extends BaseController
             'logoBase64' => '',
             'kpis'       => [],
         ];
-        return view('inspecciones/plan-saneamiento/pdf', $data);
+        $html = view('inspecciones/plan-saneamiento/pdf', $data);
+        $css = '<style>body{font-size:20px!important;line-height:1.8!important;max-width:1100px;margin:40px auto!important;padding:30px!important}.main-title{font-size:30px!important}.subtitle{font-size:24px!important}.section-title{font-size:24px!important;margin-top:32px!important;padding-bottom:6px!important}.subsection-title{font-size:22px!important;margin-top:24px!important}td,th,li,p{font-size:20px!important}.data-table td,.data-table th{padding:10px 14px!important}.header-table .title-cell{font-size:18px!important}.header-table .code-cell{font-size:16px!important}</style>';
+        return str_replace('</head>', $css . '</head>', $html);
     }
 
     // ── Métodos privados ──────────────────────────────────────
