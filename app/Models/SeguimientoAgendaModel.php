@@ -17,9 +17,9 @@ class SeguimientoAgendaModel extends Model
     public function getActivosConCliente(): array
     {
         return $this->db->table('tbl_seguimiento_clientes s')
-            ->select('s.*, c.nombre_cliente, c.correo_cliente, c.nit_cliente, c.email_consultor_externo, u.email AS email_consultor_interno')
+            ->select('s.*, c.nombre_cliente, c.correo_cliente, c.nit_cliente, c.email_consultor_externo, con.correo_consultor AS email_consultor_interno')
             ->join('tbl_clientes c', 'c.id_cliente = s.id_cliente')
-            ->join('tbl_usuarios u', 'u.id_usuario = c.id_consultor', 'left')
+            ->join('tbl_consultor con', 'con.id_consultor = c.id_consultor', 'left')
             ->where('s.activo', 1)
             ->where('s.detenido', 0)
             ->get()->getResultArray();
