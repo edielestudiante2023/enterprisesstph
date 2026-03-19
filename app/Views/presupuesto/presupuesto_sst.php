@@ -95,6 +95,9 @@
                         <button type="button" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalAgregarItem">
                             <i class="bi bi-plus-lg me-1"></i>Agregar Item
                         </button>
+                        <button type="button" class="btn btn-warning btn-sm me-2" id="btnEjecutarLote" title="Marcar ejecutado = presupuestado para items y meses seleccionados">
+                            <i class="bi bi-check2-all me-1"></i>Ejecutar selec.
+                        </button>
                     <?php endif; ?>
 
                     <!-- Cambiar estado -->
@@ -192,7 +195,10 @@
                     <table class="table table-bordered table-sm presupuesto-table mb-0" id="tablaPresupuesto">
                         <thead>
                             <tr>
-                                <th rowspan="2" class="sticky-col" style="width: 35px;">Item</th>
+                                <th rowspan="2" class="sticky-col" style="width: 50px;">
+                                    <?php if ($puedeEditar): ?>
+                                        <input type="checkbox" id="chkAllRows" title="Selec. todos" style="margin-right:3px;">
+                                    <?php endif; ?>Item</th>
                                 <th rowspan="2" class="sticky-col-2 item-actividad">Actividad</th>
                                 <th rowspan="2" class="sticky-col-3 item-descripcion">Descripcion</th>
                                 <?php foreach ($meses as $mes): ?>
@@ -206,7 +212,10 @@
                             <tr>
                                 <?php foreach ($meses as $mes): ?>
                                     <th class="sub-header" style="width: 90px;">Presup.</th>
-                                    <th class="sub-header" style="width: 90px;">Ejec.</th>
+                                    <th class="sub-header" style="width: 90px;">
+                                        <?php if ($puedeEditar): ?>
+                                            <input type="checkbox" class="mes-check" data-mes="<?= $mes['numero'] ?>" title="Selec. <?= $mes['nombre'] ?>" style="margin-right:2px;">
+                                        <?php endif; ?>Ejec.</th>
                                 <?php endforeach; ?>
                                 <th class="sub-header" style="width: 90px;">Presup.</th>
                                 <th class="sub-header" style="width: 90px;">Ejec.</th>
@@ -231,7 +240,12 @@
                             <?php endif; ?>
 
                             <tr data-item-id="<?= $item['id_item'] ?>">
-                                <td class="sticky-col text-center"><?= esc($item['codigo_item']) ?></td>
+                                <td class="sticky-col text-center">
+                                    <?php if ($puedeEditar): ?>
+                                        <input type="checkbox" class="row-check" data-item-id="<?= $item['id_item'] ?>" style="margin-right:3px;">
+                                    <?php endif; ?>
+                                    <?= esc($item['codigo_item']) ?>
+                                </td>
                                 <td class="sticky-col-2 item-actividad">
                                     <?php if ($puedeEditar): ?>
                                         <input type="text" class="form-control form-control-sm actividad-input"
@@ -469,7 +483,9 @@
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const idPresupuesto = <?= $presupuesto['id_presupuesto'] ?>;
-        let saveTimeout = null;
+        // Fix: timeouts por input independientes (shared timeout cancelaba celdas anteriores)
+        const montoTimeouts = new Map();
+        const fieldTimeouts = new Map();
 
         function formatMoney(value) {
             return '$' + parseInt(value || 0).toLocaleString('es-CO');
@@ -481,10 +497,16 @@
             setTimeout(() => indicator.style.display = 'none', 2000);
         }
 
-        // Guardar monto con debounce
+        function showInputError(input) {
+            input.style.borderColor = '#dc3545';
+            setTimeout(() => input.style.borderColor = '', 3000);
+        }
+
+        // Guardar monto con debounce por-input (fix: no cancela otras celdas)
         function saveMonto(input) {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
+            clearTimeout(montoTimeouts.get(input));
+            const tid = setTimeout(() => {
+                montoTimeouts.delete(input);
                 const data = new FormData();
                 data.append('id_item', input.dataset.itemId);
                 data.append('mes', input.dataset.mes);
@@ -494,9 +516,13 @@
 
                 fetch('<?= base_url("presupuesto/actualizar-monto") ?>', {
                     method: 'POST',
+                    credentials: 'same-origin',
                     body: data
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.json();
+                })
                 .then(result => {
                     if (result.success) {
                         const totPresup = document.querySelector(`.total-presupuestado-${input.dataset.itemId}`);
@@ -504,24 +530,28 @@
                         if (totPresup) totPresup.textContent = formatMoney(result.total_presupuestado);
                         if (totEjec) totEjec.textContent = formatMoney(result.total_ejecutado);
                         showSaveIndicator();
+                    } else {
+                        console.warn('Save failed:', result.message);
+                        showInputError(input);
                     }
                 })
-                .catch(error => console.error('Error:', error));
-            }, 500);
+                .catch(error => { console.error('Error guardando:', error); showInputError(input); });
+            }, 700);
+            montoTimeouts.set(input, tid);
         }
 
         document.querySelectorAll('.monto-input').forEach(input => {
             input.addEventListener('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
-            input.addEventListener('change', function() { saveMonto(this); });
             input.addEventListener('blur', function() { saveMonto(this); });
         });
 
         // Guardar actividad/descripcion
         function saveItemField(input) {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
+            clearTimeout(fieldTimeouts.get(input));
+            const tid = setTimeout(() => {
+                fieldTimeouts.delete(input);
                 const row = input.closest('tr');
                 const actividadInput = row.querySelector('.actividad-input');
                 const descripcionInput = row.querySelector('.descripcion-input');
@@ -539,10 +569,49 @@
                 .then(result => { if (result.success) showSaveIndicator(); })
                 .catch(error => console.error('Error:', error));
             }, 500);
+            fieldTimeouts.set(input, tid);
         }
 
         document.querySelectorAll('.actividad-input, .descripcion-input').forEach(input => {
-            input.addEventListener('change', function() { saveItemField(this); });
+            input.addEventListener('blur', function() { saveItemField(this); });
+        });
+
+        // ── Ejecutar en lote ──────────────────────────────────
+        document.getElementById('chkAllRows')?.addEventListener('change', function() {
+            document.querySelectorAll('.row-check').forEach(c => c.checked = this.checked);
+        });
+
+        document.getElementById('btnEjecutarLote')?.addEventListener('click', function() {
+            const items = [...document.querySelectorAll('.row-check:checked')].map(c => c.dataset.itemId);
+            const meses = [...document.querySelectorAll('.mes-check:checked')].map(c => c.dataset.mes);
+
+            if (items.length === 0 || meses.length === 0) {
+                alert('Seleccione al menos un ítem (☑ fila) y un mes (☑ columna Ejec.)');
+                return;
+            }
+
+            if (!confirm(`¿Marcar ejecutado = presupuestado para ${items.length} ítem(s) × ${meses.length} mes(es)?`)) return;
+
+            const data = new FormData();
+            data.append('id_presupuesto', idPresupuesto);
+            data.append('items', JSON.stringify(items));
+            data.append('meses', JSON.stringify(meses));
+
+            fetch('<?= base_url("presupuesto/ejecutar-lote") ?>', {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: data
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    alert('✓ ' + result.actualizados + ' registro(s) actualizados');
+                    window.location.reload();
+                } else {
+                    alert(result.message || 'Error al ejecutar');
+                }
+            })
+            .catch(e => { console.error(e); alert('Error de conexión'); });
         });
 
         // Agregar nuevo item

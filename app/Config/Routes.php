@@ -1498,6 +1498,7 @@ $routes->group('presupuesto', ['filter' => 'auth'], function($routes) {
     $routes->post('actualizar-monto', 'PresupuestoSstController::actualizarMonto');
     $routes->post('actualizar-item', 'PresupuestoSstController::actualizarItem');
     $routes->post('eliminar-item', 'PresupuestoSstController::eliminarItem');
+    $routes->post('ejecutar-lote', 'PresupuestoSstController::ejecutarLote');
 
     // Estado y totales
     $routes->get('totales/(:num)', 'PresupuestoSstController::getTotales/$1');
