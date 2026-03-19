@@ -292,7 +292,7 @@
             <?php if (!empty($firmas['consultor'])): ?>
             <td>
                 <img src="<?= $firmas['consultor'] ?>"><br>
-                <div class="firma-label">CONSULTOR - <?= esc($consultor['nombre_consultor'] ?? '') ?></div>
+                <div class="firma-label">CONSULTOR - <?= esc($nombreConsultorFirma ?? $consultor['nombre_consultor'] ?? '') ?></div>
             </td>
             <?php endif; ?>
         </tr>

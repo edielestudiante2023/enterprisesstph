@@ -755,6 +755,15 @@ class ActaVisitaController extends BaseController
         $consultantModel = new ConsultantModel();
         $consultor = $consultantModel->find($acta['id_consultor']);
 
+        // Nombre real del firmante consultor: puede ser externo (integrante con rol CONSULTOR)
+        $nombreConsultorFirma = $consultor['nombre_consultor'] ?? '';
+        foreach ($integrantes as $integrante) {
+            if (stripos($integrante['rol'], 'CONSULTOR') !== false) {
+                $nombreConsultorFirma = $integrante['nombre'];
+                break;
+            }
+        }
+
         // Fotos del acta convertidas a base64 para DOMPDF
         $fotosBase64 = [];
         $fotosModel = new ActaVisitaFotoModel();
@@ -777,6 +786,7 @@ class ActaVisitaController extends BaseController
             'acta'                => $acta,
             'cliente'             => $cliente,
             'consultor'           => $consultor,
+            'nombreConsultorFirma' => $nombreConsultorFirma,
             'integrantes'         => $integrantes,
             'temas'               => $temas,
             'compromisos'         => $compromisos,
