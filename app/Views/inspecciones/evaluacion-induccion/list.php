@@ -36,9 +36,19 @@
                         <span class="badge bg-<?= $e['estado'] === 'activo' ? 'success' : 'secondary' ?>" style="font-size:10px;">
                             <?= $e['estado'] === 'activo' ? 'Activa' : 'Cerrada' ?>
                         </span>
-                        <div style="font-size:12px; color:#888; margin-top:2px;">
-                            <i class="fas fa-users"></i> <?= $e['total_respuestas'] ?> respuesta(s)
+                        <div style="font-size:12px; color:#888; margin-top:3px;">
+                            <i class="fas fa-users"></i> <?= $e['total_respuestas'] ?> resp.
                         </div>
+                        <?php if ($e['total_respuestas'] > 0): ?>
+                        <div style="margin-top:2px;">
+                            <span style="font-size:12px; font-weight:700; color:<?= $e['promedio'] >= 70 ? '#28a745' : '#dc3545' ?>;">
+                                <?= number_format($e['promedio'], 1) ?>%
+                            </span>
+                            <span style="font-size:11px; color:#28a745; margin-left:4px;">
+                                <?= $e['aprobados'] ?>/<?= $e['total_respuestas'] ?> aprobados
+                            </span>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

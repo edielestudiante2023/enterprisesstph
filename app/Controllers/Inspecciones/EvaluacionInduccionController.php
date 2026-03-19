@@ -34,9 +34,18 @@ class EvaluacionInduccionController extends BaseController
             ->orderBy('tbl_evaluacion_induccion.created_at', 'DESC')
             ->findAll();
 
-        // Contar respuestas por evaluación
+        // Estadísticas por evaluación
         foreach ($evaluaciones as &$e) {
-            $e['total_respuestas'] = $this->respuestaModel->where('id_evaluacion', $e['id'])->countAllResults(false);
+            $respuestas = $this->respuestaModel->where('id_evaluacion', $e['id'])->findAll();
+            $e['total_respuestas'] = count($respuestas);
+            if ($e['total_respuestas'] > 0) {
+                $calificaciones = array_column($respuestas, 'calificacion');
+                $e['promedio']   = round(array_sum($calificaciones) / count($calificaciones), 1);
+                $e['aprobados']  = count(array_filter($calificaciones, fn($c) => $c >= 70));
+            } else {
+                $e['promedio']  = null;
+                $e['aprobados'] = 0;
+            }
         }
         unset($e);
 
@@ -179,10 +188,14 @@ class EvaluacionInduccionController extends BaseController
             return $this->response->setJSON(['success' => false, 'data' => []]);
         }
 
-        // Buscar evaluaciones de este cliente creadas en la misma fecha
+        // Buscar evaluaciones de este cliente: misma semana alrededor de la fecha de capacitación
+        $fechaDesde = date('Y-m-d', strtotime($fecha . ' -7 days'));
+        $fechaHasta = date('Y-m-d', strtotime($fecha . ' +7 days'));
+
         $evaluaciones = $this->evalModel
             ->where('id_cliente', $idCliente)
-            ->where('DATE(created_at)', $fecha)
+            ->where('DATE(created_at) >=', $fechaDesde)
+            ->where('DATE(created_at) <=', $fechaHasta)
             ->findAll();
 
         if (empty($evaluaciones)) {
