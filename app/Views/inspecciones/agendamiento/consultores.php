@@ -197,6 +197,11 @@
                                     <i class="fas fa-user-tie me-1"></i><?= esc($ag['nombre_consultor']) ?>
                                 </div>
                             <?php endif; ?>
+                            <?php if (!empty($ag['consultor_externo'])): ?>
+                                <div style="font-size:12px; color:#888;">
+                                    <i class="fas fa-user-shield me-1"></i><?= esc($ag['consultor_externo']) ?>
+                                </div>
+                            <?php endif; ?>
                             <div class="text-muted" style="font-size: 13px;">
                                 <i class="fas fa-calendar me-1"></i>
                                 <?= date('d/m/Y', strtotime($ag['fecha_visita'])) ?>

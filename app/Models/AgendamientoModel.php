@@ -40,7 +40,7 @@ class AgendamientoModel extends Model
      */
     public function getAll(?string $estado = null)
     {
-        $builder = $this->select('tbl_agendamientos.*, tbl_clientes.nombre_cliente, tbl_clientes.correo_cliente, tbl_consultor.nombre_consultor, tbl_consultor.correo_consultor')
+        $builder = $this->select('tbl_agendamientos.*, tbl_clientes.nombre_cliente, tbl_clientes.correo_cliente, tbl_clientes.consultor_externo, tbl_clientes.email_consultor_externo, tbl_consultor.nombre_consultor, tbl_consultor.correo_consultor')
             ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_agendamientos.id_cliente', 'left')
             ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_agendamientos.id_consultor', 'left')
             ->orderBy('tbl_agendamientos.fecha_visita', 'ASC');
