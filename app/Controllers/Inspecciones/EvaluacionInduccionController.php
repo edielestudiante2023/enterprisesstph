@@ -35,20 +35,18 @@ class EvaluacionInduccionController extends BaseController
             ->orderBy('tbl_evaluacion_induccion.created_at', 'DESC')
             ->findAll();
 
-        // Estadísticas por evaluación
-        foreach ($evaluaciones as &$e) {
+        // Estadísticas por evaluación — solo mostrar las que tienen respuestas
+        $conRespuestas = [];
+        foreach ($evaluaciones as $e) {
             $respuestas = $this->respuestaModel->where('id_evaluacion', $e['id'])->findAll();
             $e['total_respuestas'] = count($respuestas);
-            if ($e['total_respuestas'] > 0) {
-                $calificaciones = array_column($respuestas, 'calificacion');
-                $e['promedio']   = round(array_sum($calificaciones) / count($calificaciones), 1);
-                $e['aprobados']  = count(array_filter($calificaciones, fn($c) => $c >= 70));
-            } else {
-                $e['promedio']  = null;
-                $e['aprobados'] = 0;
-            }
+            if ($e['total_respuestas'] === 0) continue;
+            $calificaciones  = array_column($respuestas, 'calificacion');
+            $e['promedio']   = round(array_sum($calificaciones) / count($calificaciones), 1);
+            $e['aprobados']  = count(array_filter($calificaciones, fn($c) => $c >= 70));
+            $conRespuestas[] = $e;
         }
-        unset($e);
+        $evaluaciones = $conRespuestas;
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/evaluacion-induccion/list', ['evaluaciones' => $evaluaciones]),

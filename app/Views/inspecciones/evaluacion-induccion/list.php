@@ -21,15 +21,15 @@
     <?php else: ?>
     <?php foreach ($evaluaciones as $e): ?>
     <a href="<?= base_url('/inspecciones/evaluacion-induccion/view/') ?><?= $e['id'] ?>" class="text-decoration-none">
-        <div class="card mb-2" style="border-left:4px solid <?= $e['estado'] === 'activo' ? '#28a745' : '#999' ?>;">
+        <div class="card mb-2" style="border-left:4px solid <?= $e['promedio'] >= 70 ? '#28a745' : '#dc3545' ?>;">
             <div class="card-body py-2 px-3">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div style="font-size:14px; font-weight:600; color:#222;">
-                            <?= esc($e['nombre_cliente'] ?? 'Sin cliente') ?>
+                            <?= esc($e['titulo']) ?>
                         </div>
                         <div style="font-size:12px; color:#888;">
-                            <?= esc($e['titulo']) ?> — <?= date('d/m/Y', strtotime($e['created_at'])) ?>
+                            <i class="fas fa-calendar me-1"></i><?= date('d/m/Y', strtotime($e['created_at'])) ?>
                         </div>
                     </div>
                     <div class="text-end">
@@ -39,7 +39,6 @@
                         <div style="font-size:12px; color:#888; margin-top:3px;">
                             <i class="fas fa-users"></i> <?= $e['total_respuestas'] ?> resp.
                         </div>
-                        <?php if ($e['total_respuestas'] > 0): ?>
                         <div style="margin-top:2px;">
                             <span style="font-size:12px; font-weight:700; color:<?= $e['promedio'] >= 70 ? '#28a745' : '#dc3545' ?>;">
                                 <?= number_format($e['promedio'], 1) ?>%
@@ -48,7 +47,6 @@
                                 <?= $e['aprobados'] ?>/<?= $e['total_respuestas'] ?> aprobados
                             </span>
                         </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
