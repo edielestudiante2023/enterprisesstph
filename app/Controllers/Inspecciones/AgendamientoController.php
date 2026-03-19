@@ -24,11 +24,24 @@ class AgendamientoController extends BaseController
     {
         $consultoresInternos = $this->model->getResumenConsultoresInternos();
         $consultoresExternos = $this->model->getResumenConsultoresExternos();
+        $agendamientos       = $this->model->getAll();
+
+        // Lista de clientes únicos para el filtro
+        $clientesMap = [];
+        foreach ($agendamientos as $ag) {
+            $nombre = $ag['nombre_cliente'] ?? '';
+            if ($nombre && !isset($clientesMap[$nombre])) {
+                $clientesMap[$nombre] = $nombre;
+            }
+        }
+        sort($clientesMap);
 
         $data = [
             'title'                => 'Agendamientos',
             'consultoresInternos'  => $consultoresInternos,
             'consultoresExternos'  => $consultoresExternos,
+            'agendamientos'        => $agendamientos,
+            'clientesFlat'         => $clientesMap,
         ];
 
         return view('inspecciones/layout_pwa', [
