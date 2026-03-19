@@ -585,12 +585,41 @@ class ActaVisitaController extends BaseController
             }
         }
 
+        $temas       = $this->temaModel->getByActa($acta['id']);
+        $compromisos = (new PendientesModel())->where('id_acta_visita', $acta['id'])->findAll();
+
+        // Pendientes abiertos del cliente (excluyendo los de esta acta)
+        $pendientesAbiertos = (new PendientesModel())
+            ->where('id_cliente', $acta['id_cliente'])
+            ->where('estado', 'ABIERTA')
+            ->groupStart()
+                ->where('id_acta_visita IS NULL', null, false)
+                ->orWhere('id_acta_visita !=', $acta['id'])
+            ->groupEnd()
+            ->findAll();
+
+        // Mantenimientos vencidos o próximos a vencer
+        $dateThreshold = date('Y-m-d', strtotime('+30 days'));
+        $mantenimientos = (new VencimientosMantenimientoModel())
+            ->select('tbl_vencimientos_mantenimientos.*, tbl_mantenimientos.detalle_mantenimiento')
+            ->join('tbl_mantenimientos', 'tbl_mantenimientos.id_mantenimiento = tbl_vencimientos_mantenimientos.id_mantenimiento', 'left')
+            ->where('tbl_vencimientos_mantenimientos.id_cliente', $acta['id_cliente'])
+            ->where('tbl_vencimientos_mantenimientos.estado_actividad', 'sin ejecutar')
+            ->where('tbl_vencimientos_mantenimientos.fecha_vencimiento <=', $dateThreshold)
+            ->orderBy('tbl_vencimientos_mantenimientos.fecha_vencimiento', 'ASC')
+            ->findAll();
+
         return view('inspecciones/acta_visita/firma_remota', [
-            'token'          => $token,
-            'acta'           => $acta,
-            'cliente'        => $cliente,
-            'tipo'           => $acta['token_firma_tipo'],
-            'nombreFirmante' => $nombreFirmante,
+            'token'              => $token,
+            'acta'               => $acta,
+            'cliente'            => $cliente,
+            'tipo'               => $acta['token_firma_tipo'],
+            'nombreFirmante'     => $nombreFirmante,
+            'integrantes'        => $integrantes,
+            'temas'              => $temas,
+            'compromisos'        => $compromisos,
+            'pendientesAbiertos' => $pendientesAbiertos,
+            'mantenimientos'     => $mantenimientos,
         ]);
     }
 
