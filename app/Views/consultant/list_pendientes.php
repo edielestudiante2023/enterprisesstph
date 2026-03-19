@@ -86,11 +86,18 @@
     th:nth-child(7),
     td:nth-child(7) {
       max-width: 200px;
-      /* Ajusta el valor según necesites */
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    td:nth-child(7).expanded-cell {
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: unset !important;
+      max-width: 400px !important;
+    }
+    .cell-expandable { cursor: pointer; position: relative; }
+    .cell-expandable .expand-icon { font-size: 0.7rem; margin-left: 4px; color: #007bff; }
 
     /* Estilos para tarjetas clickeables */
     .card-clickable {
@@ -369,6 +376,9 @@
 
     <button id="clearState" class="btn btn-danger btn-sm mb-3">Restablecer Filtros</button>
     <button id="btnRecalcularDias" class="btn btn-warning btn-sm mb-3">Recalcular Conteo de Días</button>
+    <button id="toggleExpandAll" class="btn btn-outline-primary btn-sm mb-3 ms-2">
+      <i class="fas fa-expand-alt"></i> Expandir Textos
+    </button>
     <div id="buttonsContainer"></div>
 
     <div class="table-responsive">
@@ -584,7 +594,8 @@
             render: function(data, type, row) {
               data = (data === null || data === "") ? "" : data;
               var displayText = data || '&nbsp;';
-              return '<span class="editable" data-field="tarea_actividad" data-id="' + row.id_pendientes + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
+              var escaped = data.replace(/"/g, '&quot;');
+              return '<span class="editable cell-expandable" data-field="tarea_actividad" data-id="' + row.id_pendientes + '" data-bs-toggle="tooltip" title="' + escaped + '">' + displayText + ' <i class="fas fa-caret-down expand-icon"></i></span>';
             }
           },
           {
@@ -1039,6 +1050,35 @@
             updateMonthlyCounts();
             generateYearCards();
           });
+        }
+      });
+
+      // Click individual para expandir/contraer celda tarea_actividad
+      $('#pendientesTable tbody').on('click', '.cell-expandable', function(e) {
+        e.stopPropagation();
+        var td = $(this).closest('td');
+        td.toggleClass('expanded-cell');
+        var icon = $(this).find('.expand-icon');
+        if (td.hasClass('expanded-cell')) {
+          icon.removeClass('fa-caret-down').addClass('fa-caret-up');
+        } else {
+          icon.removeClass('fa-caret-up').addClass('fa-caret-down');
+        }
+      });
+
+      // Botón global expandir/contraer todos los textos
+      var allExpanded = false;
+      $('#toggleExpandAll').on('click', function() {
+        allExpanded = !allExpanded;
+        var $cells = $('#pendientesTable tbody td:nth-child(7)');
+        if (allExpanded) {
+          $cells.addClass('expanded-cell');
+          $cells.find('.expand-icon').removeClass('fa-caret-down').addClass('fa-caret-up');
+          $(this).html('<i class="fas fa-compress-alt"></i> Contraer Textos');
+        } else {
+          $cells.removeClass('expanded-cell');
+          $cells.find('.expand-icon').removeClass('fa-caret-up').addClass('fa-caret-down');
+          $(this).html('<i class="fas fa-expand-alt"></i> Expandir Textos');
         }
       });
 
