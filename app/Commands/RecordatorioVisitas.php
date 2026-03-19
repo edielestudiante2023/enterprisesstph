@@ -24,9 +24,11 @@ class RecordatorioVisitas extends BaseCommand
 
     public function run(array $params)
     {
-        // Permite pasar --fecha=YYYY-MM-DD para pruebas
-        $fechaParam    = CLI::getOption('fecha');
-        $fechaObjetivo = $fechaParam ?: date('Y-m-d', strtotime('+3 days'));
+        // Acepta fecha como primer argumento posicional: php spark visitas:recordatorio 2026-03-19
+        $fechaParam    = $params[0] ?? null;
+        $fechaObjetivo = ($fechaParam && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaParam))
+            ? $fechaParam
+            : date('Y-m-d', strtotime('+3 days'));
 
         CLI::write('');
         CLI::write('=== Recordatorio Visitas SST ===', 'yellow');
