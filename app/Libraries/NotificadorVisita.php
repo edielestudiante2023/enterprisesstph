@@ -30,9 +30,11 @@ class NotificadorVisita
      * Busca visitas en 3 días y envía recordatorio para cada una.
      * Retorna array con resultados para logging.
      */
-    public function enviarRecordatorios(): array
+    public function enviarRecordatorios(string $fechaObjetivo = ''): array
     {
-        $fechaObjetivo = date('Y-m-d', strtotime('+3 days'));
+        if (!$fechaObjetivo) {
+            $fechaObjetivo = date('Y-m-d', strtotime('+3 days'));
+        }
 
         $visitas = $this->db->table('tbl_agendamientos a')
             ->select('a.*, c.nombre_cliente, c.correo_cliente, c.id_consultor,

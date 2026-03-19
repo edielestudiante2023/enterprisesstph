@@ -24,14 +24,20 @@ class RecordatorioVisitas extends BaseCommand
 
     public function run(array $params)
     {
-        $fechaObjetivo = date('Y-m-d', strtotime('+3 days'));
+        // Permite pasar --fecha=YYYY-MM-DD para pruebas
+        $fechaParam    = CLI::getOption('fecha');
+        $fechaObjetivo = $fechaParam ?: date('Y-m-d', strtotime('+3 days'));
+
         CLI::write('');
         CLI::write('=== Recordatorio Visitas SST ===', 'yellow');
+        if ($fechaParam) {
+            CLI::write("⚠ Modo prueba — fecha forzada: {$fechaObjetivo}", 'red');
+        }
         CLI::write("Buscando visitas para: {$fechaObjetivo}", 'white');
         CLI::write('');
 
         $notificador = new NotificadorVisita();
-        $resultados  = $notificador->enviarRecordatorios();
+        $resultados  = $notificador->enviarRecordatorios($fechaObjetivo);
 
         CLI::write('=== RESULTADOS ===', 'green');
         CLI::write("Emails enviados:        {$resultados['enviados']}", 'green');
