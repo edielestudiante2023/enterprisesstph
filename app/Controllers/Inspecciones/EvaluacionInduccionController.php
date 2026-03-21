@@ -6,6 +6,8 @@ use App\Controllers\BaseController;
 use App\Models\EvaluacionInduccionModel;
 use App\Models\EvaluacionInduccionRespuestaModel;
 use App\Models\EvaluacionSesionModel;
+use App\Models\EvaluacionTemaModel;
+use App\Models\EvaluacionPreguntaModel;
 use App\Models\ClientModel;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
@@ -16,11 +18,15 @@ class EvaluacionInduccionController extends BaseController
 {
     protected EvaluacionInduccionModel $evalModel;
     protected EvaluacionInduccionRespuestaModel $respuestaModel;
+    protected EvaluacionTemaModel $temaModel;
+    protected EvaluacionPreguntaModel $preguntaModel;
 
     public function __construct()
     {
         $this->evalModel      = new EvaluacionInduccionModel();
         $this->respuestaModel = new EvaluacionInduccionRespuestaModel();
+        $this->temaModel      = new EvaluacionTemaModel();
+        $this->preguntaModel  = new EvaluacionPreguntaModel();
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -30,12 +36,13 @@ class EvaluacionInduccionController extends BaseController
     public function list()
     {
         $evaluaciones = $this->evalModel
-            ->select('tbl_evaluacion_induccion.*, tbl_clientes.nombre_cliente')
+            ->select('tbl_evaluacion_induccion.*, tbl_clientes.nombre_cliente, tbl_evaluacion_tema.nombre AS nombre_tema')
             ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_induccion.id_cliente', 'left')
+            ->join('tbl_evaluacion_tema', 'tbl_evaluacion_tema.id = tbl_evaluacion_induccion.id_tema', 'left')
             ->orderBy('tbl_evaluacion_induccion.created_at', 'DESC')
             ->findAll();
 
-        // Estadísticas por evaluación — solo mostrar las que tienen respuestas
+        // Solo mostrar las que tienen respuestas, con estadísticas
         $conRespuestas = [];
         foreach ($evaluaciones as $e) {
             $respuestas = $this->respuestaModel->where('id_evaluacion', $e['id'])->findAll();
@@ -46,10 +53,9 @@ class EvaluacionInduccionController extends BaseController
             $e['aprobados']  = count(array_filter($calificaciones, fn($c) => $c >= 70));
             $conRespuestas[] = $e;
         }
-        $evaluaciones = $conRespuestas;
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/evaluacion-induccion/list', ['evaluaciones' => $evaluaciones]),
+            'content' => view('inspecciones/evaluacion-induccion/list', ['evaluaciones' => $conRespuestas]),
             'title'   => 'Evaluaciones Inducción SST',
         ]);
     }
@@ -62,6 +68,7 @@ class EvaluacionInduccionController extends BaseController
             'content' => view('inspecciones/evaluacion-induccion/form', [
                 'evaluacion' => null,
                 'clientes'   => $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll(),
+                'temas'      => $this->temaModel->getActivos(),
             ]),
             'title' => 'Nueva Evaluación',
         ]);
@@ -73,6 +80,7 @@ class EvaluacionInduccionController extends BaseController
 
         $this->evalModel->insert([
             'id_cliente' => (int) $this->request->getPost('id_cliente'),
+            'id_tema'    => (int) $this->request->getPost('id_tema') ?: null,
             'titulo'     => trim($this->request->getPost('titulo')) ?: 'Evaluación Inducción SST',
             'token'      => $token,
             'estado'     => 'activo',
@@ -96,6 +104,7 @@ class EvaluacionInduccionController extends BaseController
             'content' => view('inspecciones/evaluacion-induccion/form', [
                 'evaluacion' => $evaluacion,
                 'clientes'   => $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll(),
+                'temas'      => $this->temaModel->getActivos(),
             ]),
             'title' => 'Editar Evaluación',
         ]);
@@ -110,6 +119,7 @@ class EvaluacionInduccionController extends BaseController
 
         $this->evalModel->update($id, [
             'id_cliente' => (int) $this->request->getPost('id_cliente'),
+            'id_tema'    => (int) $this->request->getPost('id_tema') ?: null,
             'titulo'     => trim($this->request->getPost('titulo')) ?: 'Evaluación Inducción SST',
             'estado'     => $this->request->getPost('estado') ?: 'activo',
         ]);
@@ -155,15 +165,18 @@ class EvaluacionInduccionController extends BaseController
         $qrUrl    = base_url('evaluar/' . $evaluacion['token']);
         $qrBase64 = $this->generarQrBase64($qrUrl);
 
+        // Nombre del tema
+        $tema = $evaluacion['id_tema'] ? $this->temaModel->find($evaluacion['id_tema']) : null;
+
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/evaluacion-induccion/view', [
                 'evaluacion' => $evaluacion,
                 'cliente'    => $clientModel->find($evaluacion['id_cliente']),
+                'tema'       => $tema,
                 'respuestas' => $respuestasAll,
                 'sesiones'   => $sesiones,
                 'sinCliente' => $sinCliente,
                 'promedio'   => $promedio,
-                'preguntas'  => EvaluacionInduccionModel::PREGUNTAS,
                 'qrBase64'   => $qrBase64,
             ]),
             'title' => 'Ver Evaluación',
@@ -255,10 +268,16 @@ class EvaluacionInduccionController extends BaseController
 
         $clientModel = new ClientModel();
 
+        // Cargar preguntas desde DB según el tema de la evaluación
+        $preguntas = [];
+        if (!empty($evaluacion['id_tema'])) {
+            $preguntas = $this->preguntaModel->getConOpcionesByTema((int) $evaluacion['id_tema']);
+        }
+
         return view('inspecciones/evaluacion-induccion/form-publico', [
             'evaluacion' => $evaluacion,
             'conjuntos'  => $clientModel->where('estado', 'activo')->orderBy('nombre_cliente', 'ASC')->findAll(),
-            'preguntas'  => EvaluacionInduccionModel::PREGUNTAS,
+            'preguntas'  => $preguntas,
         ]);
     }
 
@@ -273,25 +292,46 @@ class EvaluacionInduccionController extends BaseController
         $nombre = trim($this->request->getPost('nombre') ?? '');
         $cedula = trim($this->request->getPost('cedula') ?? '');
 
+        $idCliente = (int) ($this->request->getPost('id_cliente_conjunto') ?? 0) ?: null;
+        $whatsapp  = trim($this->request->getPost('whatsapp') ?? '');
+        $empresa   = trim($this->request->getPost('empresa_contratante') ?? '');
+        $cargo     = trim($this->request->getPost('cargo') ?? '');
+
         if (!$nombre || !$cedula) {
             return redirect()->to('/evaluar/' . $token)->with('error', 'Nombre y cédula son obligatorios.');
+        }
+        if (!$idCliente) {
+            return redirect()->to('/evaluar/' . $token)->with('error', 'Debe seleccionar el conjunto en el cual trabaja.');
+        }
+        if (!$whatsapp) {
+            return redirect()->to('/evaluar/' . $token)->with('error', 'El número de WhatsApp es obligatorio.');
+        }
+        if (!$empresa) {
+            return redirect()->to('/evaluar/' . $token)->with('error', 'El nombre de la empresa contratante es obligatorio.');
+        }
+        if (!$cargo) {
+            return redirect()->to('/evaluar/' . $token)->with('error', 'El cargo es obligatorio.');
         }
         if (!$this->request->getPost('acepta_tratamiento')) {
             return redirect()->to('/evaluar/' . $token)->with('error', 'Debe aceptar el tratamiento de datos personales.');
         }
 
-        $respuestasRaw = $this->request->getPost('respuesta') ?? [];
-        $calificacion  = EvaluacionInduccionModel::calcularCalificacion($respuestasRaw);
+        // Cargar preguntas para calcular calificación
+        $preguntas = [];
+        if (!empty($evaluacion['id_tema'])) {
+            $preguntas = $this->preguntaModel->getConOpcionesByTema((int) $evaluacion['id_tema']);
+        }
 
-        $idCliente = (int) ($this->request->getPost('id_cliente_conjunto') ?? 0) ?: null;
+        $respuestasRaw = $this->request->getPost('respuesta') ?? [];
+        $calificacion  = EvaluacionPreguntaModel::calcularCalificacion($respuestasRaw, $preguntas);
 
         $this->respuestaModel->insert([
             'id_evaluacion'       => $evaluacion['id'],
             'nombre'              => $nombre,
             'cedula'              => $cedula,
-            'whatsapp'            => trim($this->request->getPost('whatsapp') ?? ''),
-            'empresa_contratante' => trim($this->request->getPost('empresa_contratante') ?? ''),
-            'cargo'               => trim($this->request->getPost('cargo') ?? ''),
+            'whatsapp'            => $whatsapp,
+            'empresa_contratante' => $empresa,
+            'cargo'               => $cargo,
             'id_cliente_conjunto' => $idCliente,
             'acepta_tratamiento'  => 1,
             'respuestas'          => json_encode($respuestasRaw),
@@ -335,7 +375,7 @@ class EvaluacionInduccionController extends BaseController
             $options->quietzoneSize = 2;
             return (new QRCode($options))->render($url);
         } catch (\Throwable $e) {
-            log_message('error', 'QR generation failed: ' . $e->getMessage() . ' | trace: ' . $e->getTraceAsString());
+            log_message('error', 'QR generation failed: ' . $e->getMessage());
             return '';
         }
     }

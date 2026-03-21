@@ -84,13 +84,13 @@
                         placeholder="Sin puntos ni guiones" inputmode="numeric">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" style="font-size:13px;">Número de WhatsApp</label>
-                    <input type="text" name="whatsapp" class="form-control form-control-sm"
+                    <label class="form-label" style="font-size:13px;">Número de WhatsApp *</label>
+                    <input type="text" name="whatsapp" class="form-control form-control-sm" required
                         placeholder="Ej: 3001234567" inputmode="numeric">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" style="font-size:13px;">Conjunto en el cual trabaja</label>
-                    <select name="id_cliente_conjunto" id="selectConjunto" class="form-select form-select-sm">
+                    <label class="form-label" style="font-size:13px;">Conjunto en el cual trabaja *</label>
+                    <select name="id_cliente_conjunto" id="selectConjunto" class="form-select form-select-sm" required>
                         <option value="">Seleccionar conjunto...</option>
                         <?php foreach ($conjuntos as $c): ?>
                         <option value="<?= $c['id_cliente'] ?>"><?= esc($c['nombre_cliente']) ?></option>
@@ -98,13 +98,13 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" style="font-size:13px;">Nombre de su empresa contratante</label>
-                    <input type="text" name="empresa_contratante" class="form-control form-control-sm"
+                    <label class="form-label" style="font-size:13px;">Nombre de su empresa contratante *</label>
+                    <input type="text" name="empresa_contratante" class="form-control form-control-sm" required
                         placeholder="Empresa para la que trabaja">
                 </div>
                 <div class="mb-2">
-                    <label class="form-label" style="font-size:13px;">¿Cuál es su cargo?</label>
-                    <input type="text" name="cargo" class="form-control form-control-sm"
+                    <label class="form-label" style="font-size:13px;">¿Cuál es su cargo? *</label>
+                    <input type="text" name="cargo" class="form-control form-control-sm" required
                         placeholder="Ej: Guarda de seguridad, Todero...">
                 </div>
             </div>
@@ -149,8 +149,18 @@ $(function() {
         allowClear: true,
     });
 
-    $('#evalForm').on('submit', function() {
+    $('#evalForm').on('submit', function(e) {
+        if (!$('#selectConjunto').val()) {
+            e.preventDefault();
+            alert('Debe seleccionar el conjunto en el cual trabaja.');
+            $('#selectConjunto').next('.select2').find('.select2-selection').css('border-color','#dc3545');
+            return false;
+        }
         $('#btnEnviar').prop('disabled', true).text('Enviando...');
+    });
+
+    $('#selectConjunto').on('change', function() {
+        $(this).next('.select2').find('.select2-selection').css('border-color','');
     });
 });
 </script>
