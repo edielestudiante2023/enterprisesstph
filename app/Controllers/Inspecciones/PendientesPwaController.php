@@ -176,7 +176,8 @@ class PendientesPwaController extends BaseController
             return $this->response->setStatusCode(404)->setJSON(['error' => 'No encontrado']);
         }
 
-        $nuevoEstado = $this->request->getJSON(true)['estado'] ?? '';
+        $json = $this->request->getJSON(true);
+        $nuevoEstado = $json['estado'] ?? '';
         $estadosValidos = ['ABIERTA', 'CERRADA', 'SIN RESPUESTA DEL CLIENTE'];
 
         if (!in_array($nuevoEstado, $estadosValidos)) {
@@ -185,7 +186,7 @@ class PendientesPwaController extends BaseController
 
         $updateData = ['estado' => $nuevoEstado];
         if ($nuevoEstado === 'CERRADA' && empty($pendiente['fecha_cierre'])) {
-            $updateData['fecha_cierre'] = date('Y-m-d');
+            $updateData['fecha_cierre'] = !empty($json['fecha_cierre']) ? $json['fecha_cierre'] : date('Y-m-d');
         }
 
         $this->pendientesModel->update($id, $updateData);

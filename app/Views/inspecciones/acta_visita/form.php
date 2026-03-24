@@ -332,6 +332,10 @@ document.addEventListener('DOMContentLoaded', function() {
         loadPtaActividades();
     });
 
+    function getFechaVisita() {
+        return document.querySelector('[name="fecha_visita"]').value || new Date().toISOString().split('T')[0];
+    }
+
     function loadTemasAbiertos(idCliente) {
         const container = document.getElementById('temasAbiertosContent');
         container.innerHTML = '<p class="text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando...</p>';
@@ -342,33 +346,111 @@ document.addEventListener('DOMContentLoaded', function() {
         ]).then(([pendientes, mantenimientos]) => {
             let html = '';
 
-            // Mantenimientos
+            // --- Mantenimientos ---
             html += '<h6 style="font-size:14px; font-weight:700;">Mantenimientos por vencer</h6>';
             if (mantenimientos.length === 0) {
                 html += '<p style="font-size:13px; color:green;"><i class="fas fa-check-circle"></i> Sin mantenimientos por vencer</p>';
             } else {
-                html += '<ul style="font-size:13px; padding-left:20px;">';
                 mantenimientos.forEach(m => {
-                    html += '<li>' + (m.detalle_mantenimiento || 'Mantenimiento') + ' - Vence: ' + m.fecha_vencimiento + '</li>';
+                    html += '<div class="form-check mb-2" style="border-bottom:1px solid #eee; padding-bottom:6px;">' +
+                        '<input class="form-check-input mmto-checkbox" type="checkbox" id="mmto_' + m.id_vencimientos_mmttos + '" data-id="' + m.id_vencimientos_mmttos + '" data-nombre="' + (m.detalle_mantenimiento || 'Mantenimiento').replace(/"/g,'') + '">' +
+                        '<label class="form-check-label" for="mmto_' + m.id_vencimientos_mmttos + '" style="font-size:13px;">' +
+                        '<strong>' + (m.detalle_mantenimiento || 'Mantenimiento') + '</strong>' +
+                        '<br><small style="color:#888;">Vence: ' + (m.fecha_vencimiento || '') + '</small>' +
+                        '</label></div>';
                 });
-                html += '</ul>';
             }
 
-            // Pendientes
+            // --- Pendientes ---
             html += '<h6 style="font-size:14px; font-weight:700; margin-top:12px;">Pendientes abiertos</h6>';
             if (pendientes.length === 0) {
                 html += '<p style="font-size:13px; color:green;"><i class="fas fa-check-circle"></i> Sin pendientes abiertos</p>';
             } else {
-                html += '<ul style="font-size:13px; padding-left:20px;">';
                 pendientes.forEach(p => {
                     var fecha = p.fecha_asignacion ? p.fecha_asignacion.split('-').reverse().join('/') : '';
                     var cierre = p.fecha_cierre ? ' → Cierre: ' + p.fecha_cierre.split('-').reverse().join('/') : '';
-                    html += '<li>' + p.tarea_actividad + ' - ' + (p.responsable || '') + '<br><small style="color:#888;">Asignado: ' + fecha + cierre + ' (' + p.conteo_dias + ' dias)</small></li>';
+                    html += '<div class="form-check mb-2" style="border-bottom:1px solid #eee; padding-bottom:6px;">' +
+                        '<input class="form-check-input pend-checkbox" type="checkbox" id="pend_' + p.id_pendientes + '" data-id="' + p.id_pendientes + '">' +
+                        '<label class="form-check-label" for="pend_' + p.id_pendientes + '" style="font-size:13px;">' +
+                        (p.tarea_actividad || '') +
+                        (p.responsable ? ' <small class="text-muted">— ' + p.responsable + '</small>' : '') +
+                        '<br><small style="color:#888;">Asignado: ' + fecha + cierre + (p.conteo_dias ? ' (' + p.conteo_dias + ' días)' : '') + '</small>' +
+                        '</label></div>';
                 });
-                html += '</ul>';
             }
 
             container.innerHTML = html;
+            bindTemasAbiertosHandlers();
+        });
+    }
+
+    function bindTemasAbiertosHandlers() {
+        // Mantenimientos — SweetAlert para confirmar fecha
+        document.querySelectorAll('.mmto-checkbox').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                if (!this.checked) return;
+                const id = this.dataset.id;
+                const nombre = this.dataset.nombre;
+                const fechaVisita = getFechaVisita();
+                const self = this;
+
+                Swal.fire({
+                    title: 'Marcar como ejecutado',
+                    html: '<p style="font-size:14px;margin-bottom:8px;"><strong>' + nombre + '</strong></p>' +
+                          '<label style="font-size:13px;">Fecha de ejecución:</label>' +
+                          '<input type="date" id="swalFechaEjec" class="swal2-input" value="' + fechaVisita + '">',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Confirmar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#28a745',
+                    preConfirm: () => {
+                        const fecha = document.getElementById('swalFechaEjec').value;
+                        if (!fecha) { Swal.showValidationMessage('Ingresa la fecha'); return false; }
+                        return fecha;
+                    }
+                }).then(function(result) {
+                    if (!result.isConfirmed) { self.checked = false; return; }
+                    fetch('/inspecciones/mantenimientos/ejecutado/' + id, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        body: JSON.stringify({ fecha_realizacion: result.value })
+                    }).then(r => r.json()).then(data => {
+                        if (data.success) {
+                            self.disabled = true;
+                            self.closest('.form-check').style.opacity = '0.5';
+                            self.closest('.form-check').querySelector('label').innerHTML += ' <span class="badge bg-success" style="font-size:10px;">EJECUTADO ' + result.value + '</span>';
+                        } else {
+                            self.checked = false;
+                            Swal.fire('Error', 'No se pudo actualizar', 'error');
+                        }
+                    }).catch(() => { self.checked = false; Swal.fire('Error', 'Error de conexión', 'error'); });
+                });
+            });
+        });
+
+        // Pendientes — cierre directo con fecha de visita
+        document.querySelectorAll('.pend-checkbox').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                if (!this.checked) return;
+                const id = this.dataset.id;
+                const fechaVisita = getFechaVisita();
+                const self = this;
+                fetch('/inspecciones/pendientes/estado/' + id, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: JSON.stringify({ estado: 'CERRADA', fecha_cierre: fechaVisita })
+                }).then(r => r.json()).then(data => {
+                    if (data.success) {
+                        self.disabled = true;
+                        self.closest('.form-check').style.opacity = '0.5';
+                        self.closest('.form-check').querySelector('label').innerHTML += ' <span class="badge bg-success" style="font-size:10px;">CERRADO</span>';
+                    } else {
+                        self.checked = false;
+                        Swal.fire('Error', 'No se pudo cerrar', 'error');
+                    }
+                }).catch(() => { self.checked = false; Swal.fire('Error', 'Error de conexión', 'error'); });
+            });
         });
     }
 

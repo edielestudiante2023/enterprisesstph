@@ -190,9 +190,12 @@ class MantenimientosPwaController extends BaseController
             return $this->response->setStatusCode(404)->setJSON(['error' => 'No encontrado']);
         }
 
+        $json = $this->request->getJSON(true);
+        $fechaRealizacion = !empty($json['fecha_realizacion']) ? $json['fecha_realizacion'] : date('Y-m-d');
+
         $this->vencimientoModel->update($id, [
             'estado_actividad'  => 'ejecutado',
-            'fecha_realizacion' => date('Y-m-d'),
+            'fecha_realizacion' => $fechaRealizacion,
         ]);
 
         return $this->response->setJSON(['success' => true]);
