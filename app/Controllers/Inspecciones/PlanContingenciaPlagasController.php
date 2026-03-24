@@ -257,7 +257,7 @@ class PlanContingenciaPlagasController extends BaseController
             'inspeccion' => [
                 'fecha_programa'     => date('Y-m-d'),
                 'nombre_responsable' => 'Administrador(a) del Conjunto',
-                'empresa_fumigadora' => '[Empresa certificada de control de plagas contratada por la copropiedad — nombre, teléfono y persona de contacto]',
+                'empresa_fumigadora' => 'Gestionar con una empresa certificada en control de plagas que garantice registro sanitario vigente ante la Secretaría de Salud, experiencia comprobada en propiedad horizontal y disponibilidad para atención de emergencias en menos de 24 horas.',
             ],
             'cliente'    => ['nombre_cliente' => 'CONJUNTO RESIDENCIAL — EJEMPLO'],
             'consultor'  => ['nombre_consultor' => 'Consultor SST'],
