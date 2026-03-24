@@ -21,7 +21,6 @@
             <tr><th style="width:35%;">Cliente</th><td><?= esc($cliente['nombre_cliente'] ?? 'N/A') ?></td></tr>
             <tr><th>Fecha</th><td><?= date('d/m/Y', strtotime($inspeccion['fecha_inspeccion'])) ?></td></tr>
             <tr><th>Responsable</th><td><?= esc($inspeccion['nombre_responsable'] ?? 'N/A') ?></td></tr>
-            <tr><th>Consultor</th><td><?= esc($consultor['nombre'] ?? 'N/A') ?></td></tr>
             <tr><th>Indicador</th><td><?= esc($inspeccion['indicador']) ?></td></tr>
             <?php $cfg = ($indicadorConfig[$inspeccion['indicador']] ?? null); ?>
             <?php if ($cfg): ?>
