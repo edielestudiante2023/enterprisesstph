@@ -598,21 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- Interceptar submit del form (Guardar borrador) ---
-    document.getElementById('actaForm').addEventListener('submit', function(e) {
-        // No interceptar autosave ni si ya fue procesado
-        if (this._ptaProcessed || this._isAutosave) return;
-
-        const hasPtaItems = document.querySelectorAll('.pta-item').length > 0;
-        if (!hasPtaItems) return;
-
-        e.preventDefault();
-        const form = this;
-        askPtaJustifications(() => {
-            form._ptaProcessed = true;
-            form.requestSubmit();
-        });
-    });
+    // Las justificaciones PTA solo se piden desde btnIrFirmas (Guardar e ir a firmas).
 
     // --- Validación mínima antes de ir a firmas ---
     document.getElementById('btnIrFirmas').addEventListener('click', function(e) {
