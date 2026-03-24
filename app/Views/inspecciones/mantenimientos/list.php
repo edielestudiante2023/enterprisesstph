@@ -225,31 +225,23 @@ document.addEventListener('DOMContentLoaded', function() {
     if (defaultPill) defaultPill.click();
 
     // === Select2 clientes via AJAX ===
-    $('#selectCliente').select2({
-        placeholder: 'Buscar cliente...',
-        allowClear: true,
-        ajax: {
-            url: '<?= base_url('/inspecciones/api/clientes') ?>',
-            dataType: 'json',
-            delay: 250,
-            data: function(params) { return { term: params.term || '' }; },
-            processResults: function(data) {
-                return {
-                    results: data.map(function(c) {
-                        return { id: c.id_cliente, text: c.nombre_cliente };
-                    })
-                };
-            },
-            cache: true
-        },
-        minimumInputLength: 0
+    $.ajax({
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
+        dataType: 'json',
+        success: function(data) {
+            var select = document.getElementById('selectCliente');
+            data.forEach(function(c) {
+                var opt = document.createElement('option');
+                opt.value = c.id_cliente;
+                opt.textContent = c.nombre_cliente;
+                select.appendChild(opt);
+            });
+            $('#selectCliente').select2({ placeholder: 'Buscar cliente...', allowClear: true, width: '100%' });
+            <?php if ($idCliente ?? null): ?>
+            $('#selectCliente').val('<?= $idCliente ?>').trigger('change');
+            <?php endif; ?>
+        }
     });
-
-    // Pre-seleccionar cliente si viene en URL
-    <?php if ($idCliente && $clienteSeleccionado): ?>
-    var option = new Option('<?= esc($clienteSeleccionado['nombre_cliente']) ?>', '<?= $idCliente ?>', true, true);
-    $('#selectCliente').append(option).trigger('change');
-    <?php endif; ?>
 
     // Navegar al cambiar cliente
     $('#selectCliente').on('change', function() {
