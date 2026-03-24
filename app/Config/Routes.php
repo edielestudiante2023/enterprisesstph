@@ -1226,6 +1226,14 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('evaluacion-induccion/toggle/(:num)', 'EvaluacionInduccionController::toggleEstado/$1');
     $routes->get('evaluacion-induccion/api-resultados-fecha', 'EvaluacionInduccionController::apiResultadosPorFecha');
 
+    // Temas de Evaluación (gestión de preguntas dinámicas)
+    $routes->get('evaluacion-tema', 'EvaluacionTemaController::list');
+    $routes->get('evaluacion-tema/create', 'EvaluacionTemaController::create');
+    $routes->post('evaluacion-tema/store', 'EvaluacionTemaController::store');
+    $routes->get('evaluacion-tema/edit/(:num)', 'EvaluacionTemaController::edit/$1');
+    $routes->post('evaluacion-tema/update/(:num)', 'EvaluacionTemaController::update/$1');
+    $routes->get('evaluacion-tema/delete/(:num)', 'EvaluacionTemaController::delete/$1');
+
     // Programa Limpieza y Desinfección
     $routes->get('limpieza-desinfeccion', 'ProgramaLimpiezaController::list');
     $routes->get('limpieza-desinfeccion/create', 'ProgramaLimpiezaController::create');

@@ -16,6 +16,23 @@ $action = $isEdit
         <div class="card mb-3">
             <div class="card-body">
                 <div class="mb-3">
+                    <label class="form-label" style="font-size:13px;">Tema de preguntas *</label>
+                    <select name="id_tema" id="selectTema" class="form-select form-select-sm" required>
+                        <option value="">Seleccionar tema...</option>
+                        <?php foreach ($temas as $t): ?>
+                        <option value="<?= $t['id'] ?>" <?= ($evaluacion['id_tema'] ?? '') == $t['id'] ? 'selected' : '' ?>>
+                            <?= esc($t['nombre']) ?> (<?= $t['total_preguntas'] ?> preguntas)
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="form-text" style="font-size:11px;">
+                        <a href="<?= base_url('/inspecciones/evaluacion-tema') ?>" target="_blank">
+                            <i class="fas fa-cog"></i> Gestionar temas y preguntas
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label" style="font-size:13px;">Cliente (conjunto) *</label>
                     <select name="id_cliente" id="selectCliente" class="form-select form-select-sm" required>
                         <option value="">Seleccionar...</option>
@@ -26,12 +43,14 @@ $action = $isEdit
                         <?php endforeach; ?>
                     </select>
                 </div>
+
                 <div class="mb-3">
                     <label class="form-label" style="font-size:13px;">Título</label>
                     <input type="text" name="titulo" class="form-control form-control-sm"
                         value="<?= esc($evaluacion['titulo'] ?? 'Evaluación Inducción SST') ?>"
                         placeholder="Evaluación Inducción SST">
                 </div>
+
                 <?php if ($isEdit): ?>
                 <div class="mb-2">
                     <label class="form-label" style="font-size:13px;">Estado</label>
@@ -52,15 +71,14 @@ $action = $isEdit
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    if (typeof $ !== 'undefined' && $.fn.select2) {
-        $('#selectCliente').select2({ placeholder: 'Seleccionar...', width: '100%' });
-    } else {
-        var check = setInterval(function() {
-            if (typeof $ !== 'undefined' && $.fn.select2) {
-                clearInterval(check);
-                $('#selectCliente').select2({ placeholder: 'Seleccionar...', width: '100%' });
-            }
-        }, 50);
+    function initSelect2() {
+        if (typeof $ !== 'undefined' && $.fn.select2) {
+            $('#selectCliente').select2({ placeholder: 'Seleccionar...', width: '100%' });
+            $('#selectTema').select2({ placeholder: 'Seleccionar tema...', width: '100%' });
+        } else {
+            setTimeout(initSelect2, 50);
+        }
     }
+    initSelect2();
 });
 </script>
