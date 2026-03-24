@@ -593,13 +593,16 @@ El objetivo debe:
         }
 
         $cronogModel = new CronogcapacitacionModel();
+        $idReporte   = (int) $this->request->getGet('id_reporte');
 
-        // Traer cronogramas del cliente que NO tengan reporte vinculado
+        // Traer cronogramas del cliente que no tengan reporte vinculado,
+        // o que ya estén vinculados al reporte que se está editando.
         $cronogramas = $cronogModel
             ->where('id_cliente', $idCliente)
             ->groupStart()
                 ->where('id_reporte_capacitacion IS NULL')
                 ->orWhere('id_reporte_capacitacion', 0)
+                ->orWhere('id_reporte_capacitacion', $idReporte ?: 0)
             ->groupEnd()
             ->orderBy('fecha_programada', 'ASC')
             ->findAll();

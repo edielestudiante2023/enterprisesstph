@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         $.ajax({
             url: '<?= base_url('/inspecciones/reporte-capacitacion/api-cronogramas-pendientes') ?>',
-            data: { id_cliente: idCliente },
+            data: { id_cliente: idCliente, id_reporte: <?= $inspeccion['id'] ?? 0 ?> },
             dataType: 'json',
             success: function(data) {
                 cronogramasData = data;
