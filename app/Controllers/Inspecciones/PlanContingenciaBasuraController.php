@@ -332,7 +332,7 @@ class PlanContingenciaBasuraController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 38)
+            ->where('id_detailreport', 39)
             ->like('observaciones', 'cont_basura_id:' . $inspeccion['id'])
             ->first();
 
@@ -345,7 +345,7 @@ class PlanContingenciaBasuraController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'PLAN CONTINGENCIA BASURA - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_programa'],
-            'id_detailreport' => 38,
+            'id_detailreport' => 39,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',
