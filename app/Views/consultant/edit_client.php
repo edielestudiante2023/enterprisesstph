@@ -388,13 +388,13 @@
                                 <input type="text" name="ciudad_cliente" value="<?= esc($client['ciudad_cliente']) ?>" class="form-control">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label"><i class="fas fa-list-check"></i>Tipo de Servicio</label>
-                                <select name="estandares" class="form-select">
-                                    <option value="Mensual"    <?= $client['estandares'] === 'Mensual'    ? 'selected' : '' ?>>Mensual</option>
-                                    <option value="Bimensual"  <?= $client['estandares'] === 'Bimensual'  ? 'selected' : '' ?>>Bimensual</option>
-                                    <option value="Trimestral" <?= $client['estandares'] === 'Trimestral' ? 'selected' : '' ?>>Trimestral</option>
-                                    <option value="Proyecto"   <?= $client['estandares'] === 'Proyecto'   ? 'selected' : '' ?>>Proyecto</option>
-                                </select>
+                                <label class="form-label"><i class="fas fa-list-check"></i>Tipo de Servicio SST</label>
+                                <div class="form-control bg-light d-flex align-items-center gap-2" style="min-height:38px;">
+                                    <span class="badge bg-primary"><?= esc($client['estandares'] ?? 'No definido') ?></span>
+                                    <small class="text-muted">(Definido por el contrato activo)</small>
+                                </div>
+                                <input type="hidden" name="estandares" value="<?= esc($client['estandares'] ?? '') ?>">
+                                <small class="text-muted" style="font-size:.75rem;">Para cambiar, edite la frecuencia en el <a href="<?= base_url('/contracts') ?>">contrato activo</a>.</small>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label"><i class="fas fa-code-branch"></i>Código Actividad Económica</label>

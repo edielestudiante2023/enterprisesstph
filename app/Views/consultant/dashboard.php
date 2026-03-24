@@ -585,6 +585,11 @@
                     <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:20px;height:20px;border-radius:50%;object-fit:cover;margin-right:6px;">Monitor Otto
                 </button>
             </a>
+            <a href="<?= base_url('/clients/nuevo') ?>" target="_blank" rel="noopener noreferrer">
+                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #2d6a4f, #40916c); border: none;">
+                    <i class="fas fa-file-contract me-2"></i>Nuevo Cliente
+                </button>
+            </a>
             <a href="<?= base_url('/inspecciones') ?>" target="_blank" rel="noopener noreferrer">
                 <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;">
                     <i class="fas fa-clipboard-check me-2"></i>Inspecciones SST

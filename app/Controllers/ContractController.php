@@ -258,6 +258,12 @@ class ContractController extends Controller
         // Sincronizar fechas del cliente
         $this->contractLibrary->updateClientDates($data['id_cliente']);
 
+        // Sincronizar estandares en tbl_clientes desde frecuencia_visitas
+        $this->contractLibrary->syncEstandaresFromContract(
+            (int)$data['id_cliente'],
+            $data['frecuencia_visitas'] ?? null
+        );
+
         return redirect()->to('/contracts/view/' . $idContrato)
                        ->with('success', 'Contrato actualizado exitosamente');
     }
@@ -563,6 +569,14 @@ class ContractController extends Controller
 
         // Obtener el contrato actualizado con datos del cliente
         $contract = $this->contractLibrary->getContractWithClient($idContrato);
+
+        // Sincronizar estandares en tbl_clientes desde frecuencia_visitas
+        if (!empty($contract['id_cliente']) && !empty($data['frecuencia_visitas'])) {
+            $this->contractLibrary->syncEstandaresFromContract(
+                (int)$contract['id_cliente'],
+                $data['frecuencia_visitas']
+            );
+        }
 
         try {
             // 1. Generar el PDF

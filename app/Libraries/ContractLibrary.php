@@ -68,6 +68,9 @@ class ContractLibrary
             // Auto-generar plan de trabajo para el cliente
             $this->autoGenerateWorkPlan($data['id_cliente'], $data['frecuencia_visitas'] ?? null);
 
+            // Sincronizar estandares en tbl_clientes desde frecuencia_visitas del contrato
+            $this->syncEstandaresFromContract($data['id_cliente'], $data['frecuencia_visitas'] ?? null);
+
             return [
                 'success' => true,
                 'message' => 'Contrato creado exitosamente',
@@ -344,6 +347,27 @@ class ContractLibrary
         }
 
         return false;
+    }
+
+    /**
+     * Sincroniza tbl_clientes.estandares derivándolo de tbl_contratos.frecuencia_visitas.
+     * Se llama en createContract(), renewContract() y al editar un contrato,
+     * garantizando que ambos campos estén siempre alineados.
+     */
+    public function syncEstandaresFromContract(int $idCliente, ?string $frecuenciaVisitas): void
+    {
+        $map = [
+            'MENSUAL'    => 'Mensual',
+            'BIMENSUAL'  => 'Bimensual',
+            'TRIMESTRAL' => 'Trimestral',
+            'PROYECTO'   => 'Proyecto',
+            'SEMESTRAL'  => 'Proyecto',
+            'ANUAL'      => 'Proyecto',
+        ];
+        $estandares = $map[strtoupper($frecuenciaVisitas ?? '')] ?? null;
+        if ($estandares) {
+            $this->clientModel->update($idCliente, ['estandares' => $estandares]);
+        }
     }
 
     /**

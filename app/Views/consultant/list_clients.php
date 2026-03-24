@@ -260,7 +260,7 @@
             <!-- Botón Derecho -->
             <div style="text-align: center;">
                 <h2 style="margin: 0; font-size: 16px;">Añadir Registro</h2>
-                <a href="<?= base_url('/addClient') ?>" class="btn btn-success btn-sm mt-2" target="_blank">Añadir Registro</a>
+                <a href="<?= base_url('/clients/nuevo') ?>" class="btn btn-success btn-sm mt-2" target="_blank">Añadir Registro</a>
             </div>
         </div>
     </nav>

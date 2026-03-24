@@ -35,19 +35,9 @@ class ConsultantController extends Controller
 
     public function addClient()
     {
-        $consultantModel = new ConsultantModel();
-        $consultants = $consultantModel->findAll(); // Recupera todos los consultores
-
-        // Verifica que los consultores se están cargando
-        if (empty($consultants)) {
-            log_message('error', 'No se encontraron consultores en la base de datos.');
-        }
-
-        // Pasa los consultores a la vista
-        $data = [
-            'consultants' => $consultants
-        ];
-        return view('consultant/add_client', $data);
+        // Redirigir al nuevo flujo onboarding (contrato primero)
+        return redirect()->to('/clients/nuevo')
+            ->with('msg', 'Use el nuevo formulario de alta de clientes.');
     }
 
 
@@ -619,7 +609,7 @@ class ConsultantController extends Controller
             'plazo_cartera' => $this->request->getVar('plazo_cartera'),
             'fecha_cierre_facturacion' => !empty($fechaCierre) ? (int) $fechaCierre : null,
             'fecha_asignacion_cronograma' => !empty($fechaAsignacion) ? $fechaAsignacion : null,
-            'estandares' => $this->request->getVar('estandares')
+            // estandares es derivado del contrato activo — no se edita manualmente
         ];
 
         $uploadPath = ROOTPATH . 'public/uploads';

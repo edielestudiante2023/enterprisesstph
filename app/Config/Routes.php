@@ -88,6 +88,10 @@ $routes->get('planillas-seguridad-social/download/(:num)', 'PlanillaSegSocialCon
 $routes->get('/addClient', 'ConsultantController::addClient');
 $routes->post('/addClient', 'ConsultantController::addClientPost');
 
+// Nuevo flujo onboarding — contrato primero
+$routes->get('/clients/nuevo', 'ClientOnboardingController::create');
+$routes->post('/clients/nuevo/store', 'ClientOnboardingController::store');
+
 $routes->get('/prueba_form', 'PruebaController::index');
 $routes->post('/prueba_save', 'PruebaController::save');
 
