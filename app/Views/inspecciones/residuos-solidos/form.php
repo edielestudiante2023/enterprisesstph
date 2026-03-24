@@ -12,9 +12,10 @@
 <?php endif; ?>
 
 <?php
-$isEdit = !empty($inspeccion);
-$action = $isEdit ? base_url('/inspecciones/residuos-solidos/update/') . $inspeccion['id'] : base_url('/inspecciones/residuos-solidos/store');
-$storageKey = $isEdit ? 'residuos_draft_' . $inspeccion['id'] : 'residuos_draft_new';
+$isEdit        = !empty($inspeccion);
+$action        = $isEdit ? base_url('/inspecciones/residuos-solidos/update/') . $inspeccion['id'] : base_url('/inspecciones/residuos-solidos/store');
+$storageKey    = $isEdit ? 'residuos_draft_' . $inspeccion['id'] : 'residuos_draft_new';
+$flujoResidente = $isEdit ? ($inspeccion['flujo_residente'] ?? '') : '';
 ?>
 
 <h5 class="mb-3">
@@ -59,7 +60,7 @@ $storageKey = $isEdit ? 'residuos_draft_' . $inspeccion['id'] : 'residuos_draft_
         <div class="card-body">
             <label class="form-label fw-bold">Descripción del flujo</label>
             <textarea name="flujo_residente" class="form-control" rows="5"
-                      placeholder="Describa el recorrido que realiza el residente para depositar sus residuos. Ej: El residente deposita sus residuos en el punto ecológico del piso → el recuperador recorre los pisos en horario de 7am a 9am → transporta al cuarto de residuos → organiza en contenedores según clasificación."><?= esc($inspeccion['flujo_residente'] ?? '') ?></textarea>
+                      placeholder="Ej: El residente sale del apartamento, deposita sus residuos separados en el punto ecológico del piso en horario de 7am a 9am. El recuperador recorre los pisos, recolecta y transporta al cuarto de residuos, donde organiza en los contenedores según clasificación para entrega al prestador del servicio."><?= esc($flujoResidente) ?></textarea>
             <small class="text-muted">Este texto aparecerá en la sección 1.11.1 del documento PDF.</small>
         </div>
     </div>
