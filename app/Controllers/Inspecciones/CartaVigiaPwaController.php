@@ -266,6 +266,35 @@ class CartaVigiaPwaController extends BaseController
     }
 
     /**
+     * AJAX: Generar nuevo token y devolver URL para compartir (sin enviar email)
+     */
+    public function generarEnlace($id)
+    {
+        $carta = $this->cartaModel->find($id);
+        if (!$carta) {
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'error' => 'No encontrada']);
+        }
+
+        if ($carta['estado_firma'] === 'firmado') {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'error' => 'Ya esta firmada']);
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $expiracion = date('Y-m-d H:i:s', strtotime('+7 days'));
+
+        $this->cartaModel->update($id, [
+            'token_firma'            => $token,
+            'token_firma_expiracion' => $expiracion,
+            'estado_firma'           => 'pendiente_firma',
+        ]);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'url'     => base_url("carta-vigia/firmar/{$token}"),
+        ]);
+    }
+
+    /**
      * Ver PDF firmado
      */
     public function verPdf($id)

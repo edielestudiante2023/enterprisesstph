@@ -145,8 +145,11 @@
                             <i class="fas fa-file-pdf"></i> Ver PDF
                         </a>
                     <?php else: ?>
+                        <button type="button" class="btn btn-sm btn-outline-success btn-action btn-whatsapp" data-id="<?= $c['id'] ?>" data-nombre="<?= esc($c['nombre_vigia']) ?>">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
                         <button type="button" class="btn btn-sm btn-outline-warning btn-action btn-reenviar" data-id="<?= $c['id'] ?>">
-                            <i class="fas fa-paper-plane"></i> Reenviar
+                            <i class="fas fa-paper-plane"></i> Email
                         </button>
                     <?php endif; ?>
                     <a href="<?= base_url('/inspecciones/carta-vigia/edit/') ?><?= $c['id'] ?>" class="btn btn-sm btn-outline-dark btn-action">
@@ -248,6 +251,49 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                     .catch(function() { Swal.fire('Error', 'Error de conexion', 'error'); });
                 }
+            });
+        });
+    });
+
+    // WhatsApp — compartir enlace de firma
+    document.querySelectorAll('.btn-whatsapp').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.dataset.id;
+            var nombre = this.dataset.nombre;
+            Swal.fire({
+                title: 'Compartir enlace de firma',
+                html: '<p style="font-size:14px;">Se generará un enlace para que <strong>' + nombre + '</strong> firme desde su celular.<br><small class="text-muted">El enlace expira en 7 días.</small></p>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fab fa-whatsapp"></i> Generar enlace',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#25D366',
+            }).then(function(result) {
+                if (!result.isConfirmed) return;
+                Swal.fire({ title: 'Generando enlace...', allowOutsideClick: false, didOpen: function() { Swal.showLoading(); } });
+                fetch('<?= base_url('/inspecciones/carta-vigia/generar-enlace/') ?>' + id, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (!data.success) { Swal.fire('Error', data.error || 'No se pudo generar', 'error'); return; }
+                    var url = data.url;
+                    var texto = encodeURIComponent('Hola ' + nombre + ', por favor firma tu carta de designación como Vigía SST haciendo clic en este enlace (válido 7 días):\n' + url);
+                    var waUrl = 'https://wa.me/?text=' + texto;
+                    Swal.fire({
+                        title: 'Enlace generado',
+                        html: '<p style="font-size:13px;">Comparte este enlace por WhatsApp con <strong>' + nombre + '</strong>:</p>' +
+                              '<div style="background:#f8f9fa;border-radius:8px;padding:10px;font-size:11px;word-break:break-all;margin-bottom:12px;">' + url + '</div>',
+                        showCancelButton: true,
+                        confirmButtonText: '<i class="fab fa-whatsapp"></i> Abrir WhatsApp',
+                        cancelButtonText: 'Cerrar',
+                        confirmButtonColor: '#25D366',
+                    }).then(function(r) {
+                        if (r.isConfirmed) window.open(waUrl, '_blank');
+                    });
+                })
+                .catch(function() { Swal.fire('Error', 'Error de conexión', 'error'); });
             });
         });
     });

@@ -1196,6 +1196,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('carta-vigia/update/(:num)', 'CartaVigiaPwaController::update/$1');
     $routes->get('carta-vigia/delete/(:num)', 'CartaVigiaPwaController::delete/$1');
     $routes->post('carta-vigia/reenviar/(:num)', 'CartaVigiaPwaController::reenviar/$1');
+    $routes->post('carta-vigia/generar-enlace/(:num)', 'CartaVigiaPwaController::generarEnlace/$1');
     $routes->get('carta-vigia/pdf/(:num)', 'CartaVigiaPwaController::verPdf/$1');
 
     // Asistencia Induccion
