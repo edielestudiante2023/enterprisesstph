@@ -1205,6 +1205,26 @@
             <div><strong>Pendientes</strong></div>
             <div class="count">(<?= $totalPendientesAbiertos ?> abiertas)</div>
         </a>
+        <a href="<?= base_url('/inspecciones/lavado-tanques') ?>" class="card-tipo">
+            <i class="fas fa-water"></i>
+            <div><strong>Lavado Tanques</strong></div>
+            <div class="count">(<?= $totalLavadoTanques ?>)</div>
+        </a>
+        <a href="<?= base_url('/inspecciones/fumigacion') ?>" class="card-tipo">
+            <i class="fas fa-bug"></i>
+            <div><strong>Fumigación</strong></div>
+            <div class="count">(<?= $totalFumigacion ?>)</div>
+        </a>
+        <a href="<?= base_url('/inspecciones/desratizacion') ?>" class="card-tipo">
+            <i class="fas fa-mouse"></i>
+            <div><strong>Desratización</strong></div>
+            <div class="count">(<?= $totalDesratizacion ?>)</div>
+        </a>
+        <a href="<?= base_url('/inspecciones/planilla-seg-social') ?>" class="card-tipo">
+            <i class="fas fa-file-invoice"></i>
+            <div><strong>Planilla SS</strong></div>
+            <div class="count">(<?= $totalPlanillaSS ?>)</div>
+        </a>
         <a href="<?= base_url('/inspecciones/urls') ?>" class="card-tipo">
             <i class="fas fa-link"></i>
             <div><strong>Accesos Rápidos</strong></div>

@@ -1458,6 +1458,35 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('api/mantenimientos-catalog', 'MantenimientosPwaController::apiCatalog');
     $routes->post('api/mantenimientos-catalog', 'MantenimientosPwaController::apiAddCatalog');
     $routes->get('api/vencimientos/(:num)', 'MantenimientosPwaController::apiVencimientos/$1');
+
+    // Certificados de servicio: Lavado de Tanques (2), Fumigación (3), Desratización (4)
+    $routes->get('lavado-tanques',                   'CertificadoServicioController::list/2');
+    $routes->get('lavado-tanques/create',            'CertificadoServicioController::create/2');
+    $routes->get('lavado-tanques/create/(:num)',     'CertificadoServicioController::create/2/$1');
+    $routes->post('lavado-tanques/store',            'CertificadoServicioController::store/2');
+    $routes->post('lavado-tanques/delete/(:num)',    'CertificadoServicioController::delete/$1');
+
+    $routes->get('fumigacion',                       'CertificadoServicioController::list/3');
+    $routes->get('fumigacion/create',                'CertificadoServicioController::create/3');
+    $routes->get('fumigacion/create/(:num)',         'CertificadoServicioController::create/3/$1');
+    $routes->post('fumigacion/store',                'CertificadoServicioController::store/3');
+    $routes->post('fumigacion/delete/(:num)',        'CertificadoServicioController::delete/$1');
+
+    $routes->get('desratizacion',                    'CertificadoServicioController::list/4');
+    $routes->get('desratizacion/create',             'CertificadoServicioController::create/4');
+    $routes->get('desratizacion/create/(:num)',      'CertificadoServicioController::create/4/$1');
+    $routes->post('desratizacion/store',             'CertificadoServicioController::store/4');
+    $routes->post('desratizacion/delete/(:num)',     'CertificadoServicioController::delete/$1');
+
+    // API: vencimiento pendiente para cliente+tipo
+    $routes->get('certificado-servicio/vencimiento/(:num)', 'CertificadoServicioController::apiVencimientoPendiente/$1');
+
+    // Planilla Seguridad Social
+    $routes->get('planilla-seg-social',              'PlanillaSSController::list');
+    $routes->get('planilla-seg-social/create',       'PlanillaSSController::create');
+    $routes->get('planilla-seg-social/create/(:num)','PlanillaSSController::create/$1');
+    $routes->post('planilla-seg-social/store',       'PlanillaSSController::store');
+    $routes->post('planilla-seg-social/delete/(:num)','PlanillaSSController::delete/$1');
 });
 
 // Rutas públicas Acta de Visita — firma remota por WhatsApp

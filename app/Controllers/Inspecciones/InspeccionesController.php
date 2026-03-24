@@ -41,6 +41,8 @@ use App\Models\KpiResiduosModel;
 use App\Models\KpiPlagasModel;
 use App\Models\KpiAguaPotableModel;
 use App\Models\AgendamientoModel;
+use App\Models\CertificadoServicioModel;
+use App\Models\PlanillaSSModel;
 
 class InspeccionesController extends BaseController
 {
@@ -208,6 +210,12 @@ class InspeccionesController extends BaseController
         $totalPendientesAbiertos = (new PendientesModel())->where('estado', 'ABIERTA')->countAllResults();
         $totalCartasVigiaPend = (new CartaVigiaModel())->where('estado_firma', 'pendiente_firma')->countAllResults();
 
+        $certModel = new CertificadoServicioModel();
+        $totalLavadoTanques  = $certModel->where('id_mantenimiento', 2)->countAllResults();
+        $totalFumigacion     = $certModel->where('id_mantenimiento', 3)->countAllResults();
+        $totalDesratizacion  = $certModel->where('id_mantenimiento', 4)->countAllResults();
+        $totalPlanillaSS     = (new PlanillaSSModel())->countAllResults();
+
         $data = [
             'title'            => 'Inspecciones SST',
             'pendientes'       => $pendientes,
@@ -279,6 +287,10 @@ class InspeccionesController extends BaseController
             'totalPendientesAbiertos' => $totalPendientesAbiertos,
             'totalCartasVigiaPend' => $totalCartasVigiaPend,
             'totalAgendamientos' => (new AgendamientoModel())->whereIn('estado', ['pendiente', 'confirmado'])->countAllResults(),
+            'totalLavadoTanques'  => $totalLavadoTanques,
+            'totalFumigacion'     => $totalFumigacion,
+            'totalDesratizacion'  => $totalDesratizacion,
+            'totalPlanillaSS'     => $totalPlanillaSS,
             'nombre'           => session()->get('nombre_usuario'),
         ];
 
