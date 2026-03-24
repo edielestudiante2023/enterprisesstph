@@ -1,0 +1,131 @@
+<?php if (session()->getFlashdata('msg')): ?>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <?= session()->getFlashdata('msg') ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
+<?php if (session()->getFlashdata('error')): ?>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <?= session()->getFlashdata('error') ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="fas fa-trash-alt me-2"></i>Plan Contingencia — Recolección de Basuras</h5>
+</div>
+
+<div class="mb-3">
+    <select id="filtroCliente" class="form-select">
+        <option value="">Todos los clientes</option>
+    </select>
+</div>
+
+<div class="d-flex gap-2 mb-3">
+    <a href="<?= base_url('/inspecciones/contingencia-basura/create') ?>" class="btn btn-pwa btn-pwa-primary flex-fill">
+        <i class="fas fa-plus me-2"></i>Nuevo Plan
+    </a>
+    <a href="<?= base_url('/inspecciones/contingencia-basura/documento') ?>" class="btn btn-pwa btn-pwa-outline" target="_blank" title="Texto completo del documento">
+        <i class="fas fa-file-alt me-1"></i> Documento
+    </a>
+</div>
+
+<div id="listaInspecciones">
+<?php if (empty($inspecciones)): ?>
+    <div class="text-center text-muted py-4">
+        <i class="fas fa-inbox fa-3x mb-2"></i>
+        <p>No hay planes registrados.</p>
+    </div>
+<?php else: ?>
+    <?php foreach ($inspecciones as $insp): ?>
+    <div class="card card-inspeccion mb-2 card-filtrable" data-cliente="<?= esc($insp['nombre_cliente'] ?? '') ?>">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <?php if ($insp['estado'] === 'completo'): ?>
+                            <i class="fas fa-check-circle text-success"></i>
+                        <?php else: ?>
+                            <i class="fas fa-edit text-warning"></i>
+                        <?php endif; ?>
+                        <?= esc($insp['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($insp['fecha_programa'])) ?>
+                        <?php if (!empty($insp['nombre_responsable'])): ?>
+                            &middot; <?= esc($insp['nombre_responsable']) ?>
+                        <?php endif; ?>
+                        &middot;
+                        <span class="badge bg-<?= $insp['estado'] === 'completo' ? 'success' : 'warning text-dark' ?>" style="font-size: 11px;">
+                            <?= $insp['estado'] === 'completo' ? 'Completo' : 'Borrador' ?>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-2">
+                <a href="<?= base_url('/inspecciones/contingencia-basura/edit/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a href="#" class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $insp['id'] ?>">
+                    <i class="fas fa-trash"></i>
+                </a>
+                <?php if ($insp['estado'] === 'completo'): ?>
+                <a href="<?= base_url('/inspecciones/contingencia-basura/view/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    <i class="fas fa-eye"></i> Ver
+                </a>
+                <a href="<?= base_url('/inspecciones/contingencia-basura/pdf/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+<?php endif; ?>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    $.ajax({
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
+        dataType: 'json',
+        success: function(data) {
+            var sel = document.getElementById('filtroCliente');
+            data.forEach(function(c) {
+                var opt = document.createElement('option');
+                opt.value = c.nombre_cliente;
+                opt.textContent = c.nombre_cliente;
+                sel.appendChild(opt);
+            });
+            $('#filtroCliente').select2({ placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
+        }
+    });
+
+    $('#filtroCliente').on('change', function() {
+        var val = this.value.toLowerCase();
+        document.querySelectorAll('.card-filtrable').forEach(function(card) {
+            var cliente = card.dataset.cliente.toLowerCase();
+            card.style.display = (!val || cliente.includes(val)) ? '' : 'none';
+        });
+    });
+
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('.btn-delete');
+        if (!btn) return;
+        e.preventDefault();
+        Swal.fire({
+            title: 'Eliminar plan?',
+            text: 'Esta acción no se puede deshacer.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.isConfirmed) {
+                window.location.href = '<?= base_url('/inspecciones/contingencia-basura/delete/') ?>' + btn.dataset.id;
+            }
+        });
+    });
+});
+</script>

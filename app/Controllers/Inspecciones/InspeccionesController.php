@@ -33,6 +33,9 @@ use App\Models\ProgramaResiduosModel;
 use App\Models\ProgramaPlagasModel;
 use App\Models\ProgramaAguaPotableModel;
 use App\Models\PlanSaneamientoModel;
+use App\Models\PlanContingenciaPlagasModel;
+use App\Models\PlanContingenciaAguaModel;
+use App\Models\PlanContingenciaBasuraModel;
 use App\Models\KpiLimpiezaModel;
 use App\Models\KpiResiduosModel;
 use App\Models\KpiPlagasModel;
@@ -173,6 +176,18 @@ class InspeccionesController extends BaseController
         $totalPlanSan = $planSanModel->where('estado', 'completo')->countAllResults();
         $pendientesPlanSan = $planSanModel->getAllPendientes();
 
+        $contPlagasModel = new PlanContingenciaPlagasModel();
+        $totalContPlagas = $contPlagasModel->where('estado', 'completo')->countAllResults();
+        $pendientesContPlagas = $contPlagasModel->getAllPendientes();
+
+        $contAguaModel = new PlanContingenciaAguaModel();
+        $totalContAgua = $contAguaModel->where('estado', 'completo')->countAllResults();
+        $pendientesContAgua = $contAguaModel->getAllPendientes();
+
+        $contBasuraModel = new PlanContingenciaBasuraModel();
+        $totalContBasura = $contBasuraModel->where('estado', 'completo')->countAllResults();
+        $pendientesContBasura = $contBasuraModel->getAllPendientes();
+
         $kpiLimpModel = new KpiLimpiezaModel();
         $totalKpiLimp = $kpiLimpModel->where('estado', 'completo')->countAllResults();
         $pendientesKpiLimp = $kpiLimpModel->getAllPendientes();
@@ -220,6 +235,9 @@ class InspeccionesController extends BaseController
             'pendientesProgPlag' => $pendientesProgPlag,
             'pendientesProgAgua' => $pendientesProgAgua,
             'pendientesPlanSan' => $pendientesPlanSan,
+            'pendientesContPlagas' => $pendientesContPlagas,
+            'pendientesContAgua' => $pendientesContAgua,
+            'pendientesContBasura' => $pendientesContBasura,
             'pendientesKpiLimp' => $pendientesKpiLimp,
             'pendientesKpiRes' => $pendientesKpiRes,
             'pendientesKpiPlag' => $pendientesKpiPlag,
@@ -250,6 +268,9 @@ class InspeccionesController extends BaseController
             'totalProgPlag'    => $totalProgPlag,
             'totalProgAgua'    => $totalProgAgua,
             'totalPlanSan'     => $totalPlanSan,
+            'totalContPlagas'  => $totalContPlagas,
+            'totalContAgua'    => $totalContAgua,
+            'totalContBasura'  => $totalContBasura,
             'totalKpiLimp'     => $totalKpiLimp,
             'totalKpiRes'      => $totalKpiRes,
             'totalKpiPlag'     => $totalKpiPlag,

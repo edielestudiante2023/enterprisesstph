@@ -796,6 +796,87 @@
     <?php endforeach; ?>
     <?php endif; ?>
 
+    <!-- Pendientes Contingencia Plagas -->
+    <?php if (!empty($pendientesContPlagas)): ?>
+    <?php foreach ($pendientesContPlagas as $cp): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Contingencia Plagas - <?= esc($cp['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($cp['fecha_programa'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-1">
+                <a href="<?= base_url('/inspecciones/contingencia-plagas/edit/') ?><?= $cp['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/contingencia-plagas/delete/') ?><?= $cp['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes Contingencia Agua -->
+    <?php if (!empty($pendientesContAgua)): ?>
+    <?php foreach ($pendientesContAgua as $ca): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Contingencia Agua - <?= esc($ca['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($ca['fecha_programa'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-1">
+                <a href="<?= base_url('/inspecciones/contingencia-agua/edit/') ?><?= $ca['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/contingencia-agua/delete/') ?><?= $ca['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes Contingencia Basura -->
+    <?php if (!empty($pendientesContBasura)): ?>
+    <?php foreach ($pendientesContBasura as $cb): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Contingencia Basura - <?= esc($cb['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($cb['fecha_programa'])) ?> &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-1">
+                <a href="<?= base_url('/inspecciones/contingencia-basura/edit/') ?><?= $cb['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/contingencia-basura/delete/') ?><?= $cb['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
     <!-- Pendientes KPI Limpieza -->
     <?php if (!empty($pendientesKpiLimp)): ?>
     <?php foreach ($pendientesKpiLimp as $pk): ?>
@@ -1068,6 +1149,21 @@
             <i class="fas fa-shield-alt"></i>
             <div><strong>Plan Saneamiento</strong></div>
             <div class="count">(<?= $totalPlanSan ?>)</div>
+        </a>
+        <a href="<?= base_url('/inspecciones/contingencia-plagas') ?>" class="card-tipo">
+            <i class="fas fa-bug"></i>
+            <div><strong>Cont. Plagas</strong></div>
+            <div class="count">(<?= $totalContPlagas ?>)</div>
+        </a>
+        <a href="<?= base_url('/inspecciones/contingencia-agua') ?>" class="card-tipo">
+            <i class="fas fa-tint-slash"></i>
+            <div><strong>Cont. Sin Agua</strong></div>
+            <div class="count">(<?= $totalContAgua ?>)</div>
+        </a>
+        <a href="<?= base_url('/inspecciones/contingencia-basura') ?>" class="card-tipo">
+            <i class="fas fa-trash-alt"></i>
+            <div><strong>Cont. Basura</strong></div>
+            <div class="count">(<?= $totalContBasura ?>)</div>
         </a>
         <a href="<?= base_url('/inspecciones/kpi-limpieza') ?>" class="card-tipo">
             <i class="fas fa-chart-line"></i>

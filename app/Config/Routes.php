@@ -1318,6 +1318,51 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('plan-saneamiento/presentacion', 'PlanSaneamientoController::presentacion');
     $routes->get('plan-saneamiento/documento', 'PlanSaneamientoController::documento');
 
+    // Plan de Contingencias — Infestación de Plagas (FT-SST-233)
+    $routes->get('contingencia-plagas', 'PlanContingenciaPlagasController::list');
+    $routes->get('contingencia-plagas/create', 'PlanContingenciaPlagasController::create');
+    $routes->get('contingencia-plagas/create/(:num)', 'PlanContingenciaPlagasController::create/$1');
+    $routes->post('contingencia-plagas/store', 'PlanContingenciaPlagasController::store');
+    $routes->get('contingencia-plagas/edit/(:num)', 'PlanContingenciaPlagasController::edit/$1');
+    $routes->post('contingencia-plagas/update/(:num)', 'PlanContingenciaPlagasController::update/$1');
+    $routes->get('contingencia-plagas/view/(:num)', 'PlanContingenciaPlagasController::view/$1');
+    $routes->get('contingencia-plagas/pdf/(:num)', 'PlanContingenciaPlagasController::generatePdf/$1');
+    $routes->get('contingencia-plagas/regenerar/(:num)', 'PlanContingenciaPlagasController::regenerarPdf/$1');
+    $routes->post('contingencia-plagas/finalizar/(:num)', 'PlanContingenciaPlagasController::finalizar/$1');
+    $routes->get('contingencia-plagas/delete/(:num)', 'PlanContingenciaPlagasController::delete/$1');
+    $routes->get('contingencia-plagas/enviar-email/(:num)', 'PlanContingenciaPlagasController::enviarEmail/$1');
+    $routes->get('contingencia-plagas/documento', 'PlanContingenciaPlagasController::documento');
+
+    // Plan de Contingencia — Sin Suministro de Agua (FT-SST-234)
+    $routes->get('contingencia-agua', 'PlanContingenciaAguaController::list');
+    $routes->get('contingencia-agua/create', 'PlanContingenciaAguaController::create');
+    $routes->get('contingencia-agua/create/(:num)', 'PlanContingenciaAguaController::create/$1');
+    $routes->post('contingencia-agua/store', 'PlanContingenciaAguaController::store');
+    $routes->get('contingencia-agua/edit/(:num)', 'PlanContingenciaAguaController::edit/$1');
+    $routes->post('contingencia-agua/update/(:num)', 'PlanContingenciaAguaController::update/$1');
+    $routes->get('contingencia-agua/view/(:num)', 'PlanContingenciaAguaController::view/$1');
+    $routes->get('contingencia-agua/pdf/(:num)', 'PlanContingenciaAguaController::generatePdf/$1');
+    $routes->get('contingencia-agua/regenerar/(:num)', 'PlanContingenciaAguaController::regenerarPdf/$1');
+    $routes->post('contingencia-agua/finalizar/(:num)', 'PlanContingenciaAguaController::finalizar/$1');
+    $routes->get('contingencia-agua/delete/(:num)', 'PlanContingenciaAguaController::delete/$1');
+    $routes->get('contingencia-agua/enviar-email/(:num)', 'PlanContingenciaAguaController::enviarEmail/$1');
+    $routes->get('contingencia-agua/documento', 'PlanContingenciaAguaController::documento');
+
+    // Plan de Contingencia — Recolección de Basuras (FT-SST-235)
+    $routes->get('contingencia-basura', 'PlanContingenciaBasuraController::list');
+    $routes->get('contingencia-basura/create', 'PlanContingenciaBasuraController::create');
+    $routes->get('contingencia-basura/create/(:num)', 'PlanContingenciaBasuraController::create/$1');
+    $routes->post('contingencia-basura/store', 'PlanContingenciaBasuraController::store');
+    $routes->get('contingencia-basura/edit/(:num)', 'PlanContingenciaBasuraController::edit/$1');
+    $routes->post('contingencia-basura/update/(:num)', 'PlanContingenciaBasuraController::update/$1');
+    $routes->get('contingencia-basura/view/(:num)', 'PlanContingenciaBasuraController::view/$1');
+    $routes->get('contingencia-basura/pdf/(:num)', 'PlanContingenciaBasuraController::generatePdf/$1');
+    $routes->get('contingencia-basura/regenerar/(:num)', 'PlanContingenciaBasuraController::regenerarPdf/$1');
+    $routes->post('contingencia-basura/finalizar/(:num)', 'PlanContingenciaBasuraController::finalizar/$1');
+    $routes->get('contingencia-basura/delete/(:num)', 'PlanContingenciaBasuraController::delete/$1');
+    $routes->get('contingencia-basura/enviar-email/(:num)', 'PlanContingenciaBasuraController::enviarEmail/$1');
+    $routes->get('contingencia-basura/documento', 'PlanContingenciaBasuraController::documento');
+
     // KPI Programa de Limpieza y Desinfección
     $routes->get('kpi-limpieza', 'KpiLimpiezaController::list');
     $routes->get('kpi-limpieza/create', 'KpiLimpiezaController::create');
