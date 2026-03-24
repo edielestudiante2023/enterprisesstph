@@ -199,11 +199,22 @@
       "Bash(ssh root@66.29.154.174 \"mv /www/wwwroot/cycloidtalent /www/wwwroot/cycloidtalent_old && echo ''renombrado OK''\")",
       "Bash(ssh root@66.29.154.174 \"cd /www/wwwroot && git clone https://github.com/edielestudiante2023/cycloidtalent.git && echo ''clone OK''\")",
       "Bash(ssh root@66.29.154.174 \"ls /www/wwwroot/cycloidtalent/public/\")",
-      "Bash(ssh root@66.29.154.174:*)"
+      "Bash(ssh root@66.29.154.174:*)",
+      "Bash(netstat -ano)",
+      "Bash(scp /tmp/q_finlandia.php root@66.29.154.174:/tmp/q_finlandia.php)",
+      "Bash(scp /c/tmp/q_finlandia.php root@66.29.154.174:/tmp/q_finlandia.php)",
+      "Bash(scp /c/tmp/fix_finlandia_freq.php root@66.29.154.174:/tmp/fix_finlandia_freq.php)",
+      "Bash(python -c \":*)",
+      "Bash(echo \"$f tiene processResults\")",
+      "Bash(scp /c/xampp/htdocs/enterprisesstph/app/SQL/sync_estandares_from_contratos.php root@66.29.154.174:/tmp/sync_estandares.php)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(scp c:/xampp/htdocs/enterprisesstph/public/uploads/canecas_colores.png root@66.29.154.174:/www/wwwroot/phorizontal/enterprisesstph/public/uploads/)"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\enterprisesstph\\app\\Config",
-      "\\tmp"
+      "\\tmp",
+      "c:\\tmp"
     ]
   }
 }

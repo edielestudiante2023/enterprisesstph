@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     $('#selectCliente').on('change', function() {
         var id = $(this).val();
-        window.location.href = id ? base_url('/inspecciones/carta-vigia/cliente/') + id : base_url('/inspecciones/carta-vigia');
+        window.location.href = id ? '<?= base_url('/inspecciones/carta-vigia/cliente/') ?>' + id : '<?= base_url('/inspecciones/carta-vigia') ?>';
     });
 
     // Reenviar email
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmButtonColor: '#bd9751',
             }).then(function(result) {
                 if (result.isConfirmed) {
-                    fetch('/inspecciones/carta-vigia/reenviar/' + id, {
+                    fetch('<?= base_url('/inspecciones/carta-vigia/reenviar/') ?>' + id, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                     })
