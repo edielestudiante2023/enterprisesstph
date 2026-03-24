@@ -222,25 +222,19 @@ class EvaluacionInduccionController extends BaseController
             return $this->response->setJSON(['success' => false, 'data' => []]);
         }
 
-        // Buscar evaluaciones de este cliente: misma semana alrededor de la fecha de capacitación
+        // Buscar respuestas por id_cliente_conjunto (cliente del conjunto) ±7 días
         $fechaDesde = date('Y-m-d', strtotime($fecha . ' -7 days'));
         $fechaHasta = date('Y-m-d', strtotime($fecha . ' +7 days'));
 
-        $evaluaciones = $this->evalModel
-            ->where('id_cliente', $idCliente)
+        $respuestas = $this->respuestaModel
+            ->where('id_cliente_conjunto', $idCliente)
             ->where('DATE(created_at) >=', $fechaDesde)
             ->where('DATE(created_at) <=', $fechaHasta)
+            ->orderBy('calificacion', 'DESC')
             ->findAll();
 
-        if (empty($evaluaciones)) {
-            return $this->response->setJSON(['success' => false, 'msg' => 'No hay evaluaciones para este cliente y fecha.']);
-        }
-
-        $evalIds    = array_column($evaluaciones, 'id');
-        $respuestas = $this->respuestaModel->whereIn('id_evaluacion', $evalIds)->orderBy('calificacion', 'DESC')->findAll();
-
         if (empty($respuestas)) {
-            return $this->response->setJSON(['success' => false, 'msg' => 'Evaluación existe pero sin respuestas aún.']);
+            return $this->response->setJSON(['success' => false, 'msg' => 'No hay evaluaciones para este cliente y fecha.']);
         }
 
         $total = count($respuestas);

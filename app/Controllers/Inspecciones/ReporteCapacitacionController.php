@@ -535,13 +535,15 @@ El objetivo debe:
      */
     private function fetchEvaluaciones(int $idCliente, string $fecha): array
     {
-        $db = \Config\Database::connect();
-        return $db->table('tbl_evaluacion_induccion_respuesta r')
-            ->join('tbl_evaluacion_induccion e', 'e.id = r.id_evaluacion')
-            ->where('r.id_cliente_conjunto', $idCliente)
-            ->where('DATE(r.created_at)', $fecha)
-            ->select('r.nombre, r.cedula, r.empresa_contratante, r.cargo, r.calificacion')
-            ->orderBy('r.calificacion', 'DESC')
+        $db         = \Config\Database::connect();
+        $fechaDesde = date('Y-m-d', strtotime($fecha . ' -7 days'));
+        $fechaHasta = date('Y-m-d', strtotime($fecha . ' +7 days'));
+        return $db->table('tbl_evaluacion_induccion_respuesta')
+            ->where('id_cliente_conjunto', $idCliente)
+            ->where('DATE(created_at) >=', $fechaDesde)
+            ->where('DATE(created_at) <=', $fechaHasta)
+            ->select('nombre, cedula, empresa_contratante, cargo, calificacion')
+            ->orderBy('calificacion', 'DESC')
             ->get()->getResultArray();
     }
 
