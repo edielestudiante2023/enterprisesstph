@@ -402,6 +402,55 @@ class ActaVisitaController extends BaseController
     }
 
     /**
+     * Finalizar acta sin firma del cliente (administrador/vigía)
+     */
+    public function finalizarSinFirma($id)
+    {
+        $acta = $this->actaModel->find($id);
+        if (!$acta) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Acta no encontrada']);
+        }
+
+        $motivo = trim($this->request->getJSON(true)['motivo'] ?? '');
+        if (!$motivo) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Debes indicar el motivo']);
+        }
+
+        if (empty($acta['firma_consultor'])) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Falta la firma del consultor']);
+        }
+
+        $this->actaModel->update($id, ['motivo_sin_firma' => $motivo]);
+
+        $pdfPath = $this->generarPdfInterno($id);
+        if (!$pdfPath) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Error al generar PDF']);
+        }
+
+        $this->actaModel->update($id, ['ruta_pdf' => $pdfPath, 'estado' => 'completo']);
+
+        $acta = $this->actaModel->find($id);
+        $this->uploadToReportes($acta, $pdfPath);
+
+        InspeccionEmailNotifier::enviar(
+            (int) $acta['id_cliente'],
+            (int) $acta['id_consultor'],
+            'ACTA DE VISITA',
+            $acta['fecha_visita'],
+            $pdfPath,
+            (int) $acta['id'],
+            'ActaVisita'
+        );
+
+        $this->actualizarCicloVisita($acta);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'pdf_url' => base_url($pdfPath),
+        ]);
+    }
+
+    /**
      * Ver/descargar PDF - siempre regenera desde el template actual
      */
     public function generatePdf($id)

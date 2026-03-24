@@ -67,6 +67,9 @@
     <button type="button" class="btn btn-pwa btn-pwa-primary mb-4" id="btnFinalizar" style="display:none;" onclick="finalizarActa()">
         <i class="fas fa-file-pdf"></i> Finalizar y generar PDF
     </button>
+    <button type="button" class="btn btn-pwa btn-pwa-outline mb-4" id="btnFinalizarSinFirma" style="display:none;" onclick="finalizarSinFirma()">
+        <i class="fas fa-file-alt"></i> Finalizar sin firma del cliente
+    </button>
 
     <!-- Volver al acta -->
     <a href="<?= base_url('/inspecciones/acta-visita/edit/') ?><?= $acta['id'] ?>" class="btn btn-pwa btn-pwa-outline mb-4">
@@ -224,9 +227,9 @@ function updateNav() {
     document.getElementById('btnPrev').style.display = pasoActual > 0 ? '' : 'none';
     document.getElementById('btnNext').style.display = pasoActual < totalPasos - 1 ? '' : 'none';
 
-    // Show finalizar if all required signatures are done or we're on last step
-    const allSigned = document.querySelectorAll('.firma-step').length > 0;
-    document.getElementById('btnFinalizar').style.display = pasoActual === totalPasos - 1 ? '' : 'none';
+    const esUltimoPaso = pasoActual === totalPasos - 1;
+    document.getElementById('btnFinalizar').style.display = esUltimoPaso ? '' : 'none';
+    document.getElementById('btnFinalizarSinFirma').style.display = esUltimoPaso ? '' : 'none';
 }
 
 function guardarFirma(tipo, paso) {
@@ -344,6 +347,69 @@ document.querySelectorAll('.btn-whatsapp-firma').forEach(function(btn) {
         });
     });
 });
+
+function finalizarSinFirma() {
+    const motivos = [
+        'Cliente no disponible durante la visita',
+        'Firma enviada por WhatsApp/email, pendiente de respuesta',
+        'Token de firma vencido por demora del cliente',
+    ];
+    const opcionesHtml = motivos.map((m, i) =>
+        `<label style="display:block;text-align:left;padding:6px 0;font-size:14px;cursor:pointer;">
+            <input type="radio" name="motivoSinFirma" value="${m}" style="margin-right:8px;">${m}
+        </label>`
+    ).join('');
+
+    Swal.fire({
+        title: 'Finalizar sin firma del cliente',
+        html: `<p style="font-size:13px;color:#666;">El acta quedará completa. El PDF indicará el motivo por el que no se obtuvo la firma.</p>
+               <div style="text-align:left;margin-top:8px;">${opcionesHtml}</div>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Finalizar sin firma',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#bd9751',
+        preConfirm: () => {
+            const sel = document.querySelector('input[name="motivoSinFirma"]:checked');
+            if (!sel) {
+                Swal.showValidationMessage('Selecciona el motivo');
+                return false;
+            }
+            return sel.value;
+        },
+    }).then(result => {
+        if (!result.isConfirmed) return;
+        const motivo = result.value;
+
+        Swal.fire({ title: 'Generando PDF...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        fetch('/inspecciones/acta-visita/finalizar-sin-firma/' + actaId, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ motivo: motivo }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            Swal.close();
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Acta finalizada',
+                    text: 'PDF generado sin firma del cliente',
+                    confirmButtonColor: '#28a745',
+                    confirmButtonText: 'Ver PDF',
+                    showCancelButton: true,
+                    cancelButtonText: 'Volver al inicio',
+                }).then(r => {
+                    if (r.isConfirmed) window.open(data.pdf_url, '_blank');
+                    window.location.href = '/inspecciones';
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.error });
+            }
+        });
+    });
+}
 
 function finalizarActa() {
     Swal.fire({

@@ -912,6 +912,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('acta-visita/pdf/(:num)', 'ActaVisitaController::generatePdf/$1');
     $routes->get('acta-visita/regenerar/(:num)', 'ActaVisitaController::regenerarPdf/$1');
     $routes->post('acta-visita/finalizar/(:num)', 'ActaVisitaController::finalizar/$1');
+    $routes->post('acta-visita/finalizar-sin-firma/(:num)', 'ActaVisitaController::finalizarSinFirma/$1');
     $routes->get('acta-visita/delete/(:num)', 'ActaVisitaController::delete/$1');
     $routes->get('acta-visita/enviar-email/(:num)', 'ActaVisitaController::enviarEmail/$1');
     $routes->get('acta-visita/api/pta-actividades', 'ActaVisitaController::getPtaActividades');
