@@ -8,6 +8,15 @@ use App\Models\UserModel;
 use App\Models\ReporteModel;
 use App\Libraries\ContractLibrary;
 use App\Libraries\ContractPDFGenerator;
+use App\Libraries\WorkPlanLibrary;
+use App\Libraries\TrainingLibrary;
+use App\Libraries\StandardsLibrary;
+use App\Libraries\ClientDocumentInitializerLibrary;
+use App\Libraries\MatricesGeneratorLibrary;
+use App\Models\CicloVisitaModel;
+use App\Models\PlanModel;
+use App\Models\CronogcapacitacionModel;
+use App\Models\SimpleEvaluationModel;
 use CodeIgniter\Controller;
 use SendGrid\Mail\Mail;
 
@@ -1187,6 +1196,91 @@ Genera únicamente el texto de la cláusula, listo para insertar en el contrato.
                 'token_firma' => null,
                 'token_firma_expiracion' => null
             ]);
+
+        // ── Activar prospecto al firmar ──────────────────────────────────
+        // Si el cliente estaba en estado 'prospecto', ahora se activa y se
+        // inicializa todo el ecosistema (PTA, capacitaciones, estándares, etc.)
+        try {
+            $clienteActual = $db->table('tbl_clientes')
+                ->where('id_cliente', $contrato['id_cliente'])
+                ->get()->getRowArray();
+
+            if ($clienteActual && $clienteActual['estado'] === 'prospecto') {
+                // 1. Activar cliente
+                $db->table('tbl_clientes')
+                    ->where('id_cliente', $contrato['id_cliente'])
+                    ->update(['estado' => 'activo']);
+
+                $clientId    = (int)$contrato['id_cliente'];
+                $estandares  = $clienteActual['estandares'] ?? 'Mensual';
+                $idConsultor = (int)($clienteActual['id_consultor'] ?? 1);
+
+                // 2. Documentos del cliente
+                ClientDocumentInitializerLibrary::initialize($clientId);
+
+                // 3. Plan de trabajo año 1
+                $tipoServicio = strtolower($estandares);
+                $workPlanLib  = new WorkPlanLibrary();
+                $activities   = $workPlanLib->getActivities($clientId, 1, $tipoServicio);
+                if (!empty($activities)) {
+                    $planModel = new PlanModel();
+                    foreach ($activities as $act) {
+                        $planModel->insert($act);
+                    }
+                }
+
+                // 4. Ciclo de visita
+                (new CicloVisitaModel())->generarPrimerCiclo($clientId, $idConsultor, $estandares);
+
+                // 5. Cronograma de capacitaciones
+                $trainingLib = new TrainingLibrary();
+                $trainings   = $trainingLib->getTrainings($clientId, $tipoServicio);
+                if (!empty($trainings)) {
+                    $cronogModel = new CronogcapacitacionModel();
+                    foreach ($trainings as $t) {
+                        $cronogModel->insert($t);
+                    }
+                }
+
+                // 6. Estándares mínimos
+                $standardsLib = new StandardsLibrary();
+                $standards    = $standardsLib->getStandards($clientId);
+                if (!empty($standards)) {
+                    $evalModel = new SimpleEvaluationModel();
+                    foreach ($standards as $s) {
+                        $evalModel->insert($s);
+                    }
+                }
+
+                // 7. Matrices SST
+                (new MatricesGeneratorLibrary())->generarYRegistrar($clientId);
+
+                // 8. Usuario portal cliente
+                $userModel = new UserModel();
+                if (!empty($clienteActual['correo_cliente']) && !$userModel->findByEmail($clienteActual['correo_cliente'])) {
+                    $tempPass = 'Ent' . rand(10000, 99999) . '!';
+                    $userId   = $userModel->createUser([
+                        'email'          => $clienteActual['correo_cliente'],
+                        'password'       => $tempPass,
+                        'nombre_completo'=> $clienteActual['nombre_cliente'],
+                        'tipo_usuario'   => 'client',
+                        'id_entidad'     => $clientId,
+                        'estado'         => 'activo',
+                    ]);
+                    if ($userId) {
+                        $this->enviarEmailCredenciales(
+                            $clienteActual['correo_cliente'],
+                            $clienteActual['nombre_cliente'],
+                            $tempPass
+                        );
+                    }
+                }
+
+                log_message('info', "Prospecto {$clientId} activado al firmar contrato {$contrato['id_contrato']}");
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error activando prospecto al firmar: ' . $e->getMessage());
+        }
 
         // Regenerar el PDF del contrato para incluir la firma del cliente
         try {

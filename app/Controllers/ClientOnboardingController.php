@@ -104,7 +104,7 @@ class ClientOnboardingController extends Controller
             'nombre_rep_legal'            => $request->getPost('nombre_rep_legal'),
             'cedula_rep_legal'            => $request->getPost('cedula_rep_legal'),
             'ciudad_cliente'              => $request->getPost('ciudad_cliente'),
-            'estado'                      => 'activo',
+            'estado'                      => 'prospecto',
             'id_consultor'                => $idConsultor,
             'vendedor'                    => $request->getPost('vendedor'),
             'plazo_cartera'               => $request->getPost('plazo_cartera'),
@@ -149,8 +149,8 @@ class ClientOnboardingController extends Controller
             'clausula_cuarta_duracion'=> $request->getPost('clausula_cuarta_duracion'),
         ];
 
-        $contractResult = $contractLibrary->createContract($contractData);
-        // createContract() llama autoGenerateWorkPlan() + syncEstandaresFromContract() internamente
+        // skip_init=true: no activa cliente ni genera PTA — se dispara al firmar
+        $contractResult = $contractLibrary->createContract($contractData, ['skip_init' => true]);
 
         if (!$contractResult['success']) {
             log_message('error', "Onboarding: contrato no creado para cliente {$clientId}: " . $contractResult['message']);
@@ -161,102 +161,13 @@ class ClientOnboardingController extends Controller
 
         $contractId = $contractResult['contract_id'];
 
-        // ── Inicializaciones downstream ───────────────────────────────────
-
-        // Documentos del cliente
-        ClientDocumentInitializerLibrary::initialize($clientId);
-
-        // Ciclo de visita (usa estandares ya derivado)
-        try {
-            (new CicloVisitaModel())->generarPrimerCiclo(
-                (int)$clientId,
-                (int)$idConsultor,
-                $estandares
-            );
-        } catch (\Exception $e) {
-            log_message('error', 'Onboarding: error CicloVisita para cliente ' . $clientId . ': ' . $e->getMessage());
-        }
-
-        // Cronograma de capacitaciones
-        // Nota: WorkPlanLibrary (Plan de Trabajo) ya fue generado por ContractLibrary::createContract()
-        try {
-            $tipoServicio    = strtolower($estandares);
-            $trainingLibrary = new TrainingLibrary();
-            $trainings       = $trainingLibrary->getTrainings($clientId, $tipoServicio);
-            if (!empty($trainings)) {
-                $cronogModel   = new CronogcapacitacionModel();
-                foreach ($trainings as $training) {
-                    $cronogModel->insert($training);
-                }
-            }
-        } catch (\Exception $e) {
-            log_message('error', 'Onboarding: error Capacitaciones para cliente ' . $clientId . ': ' . $e->getMessage());
-        }
-
-        // Estándares mínimos
-        try {
-            $standardsLibrary = new StandardsLibrary();
-            $standards        = $standardsLibrary->getStandards($clientId);
-            if (!empty($standards)) {
-                $evaluationModel = new SimpleEvaluationModel();
-                foreach ($standards as $standard) {
-                    $evaluationModel->insert($standard);
-                }
-            }
-        } catch (\Exception $e) {
-            log_message('error', 'Onboarding: error Estándares para cliente ' . $clientId . ': ' . $e->getMessage());
-        }
-
-        // Matrices SST
-        try {
-            $matricesLib = new MatricesGeneratorLibrary();
-            $matricesLib->generarYRegistrar((int)$clientId);
-        } catch (\Exception $e) {
-            log_message('error', 'Onboarding: error Matrices para cliente ' . $clientId . ': ' . $e->getMessage());
-        }
-
-        // Usuario en tbl_usuarios
-        try {
-            if (!empty($correoCliente) && filter_var($correoCliente, FILTER_VALIDATE_EMAIL)) {
-                $userModel = new UserModel();
-                if (!$userModel->findByEmail($correoCliente)) {
-                    $userModel->skipValidation(false)->insert([
-                        'email'           => $correoCliente,
-                        'password'        => password_hash($passwordPlano, PASSWORD_BCRYPT),
-                        'nombre_completo' => $request->getPost('nombre_cliente'),
-                        'tipo_usuario'    => 'client',
-                        'id_entidad'      => $clientId,
-                        'estado'          => 'activo',
-                    ]);
-                }
-            }
-        } catch (\Exception $e) {
-            log_message('error', 'Onboarding: error usuario tbl_usuarios para cliente ' . $clientId . ': ' . $e->getMessage());
-        }
-
-        // Email de bienvenida al cliente
-        $emailMsg = '';
-        try {
-            if (!empty($correoCliente) && filter_var($correoCliente, FILTER_VALIDATE_EMAIL)) {
-                $consultantModel = new ConsultantModel();
-                $consultor       = $consultantModel->find($idConsultor);
-                $nombreConsultor = $consultor ? ($consultor['nombre_consultor'] ?? 'Consultor SST') : 'Consultor SST';
-                $this->sendWelcomeCredentialsEmail(
-                    $request->getPost('nombre_cliente'),
-                    $request->getPost('usuario'),
-                    $passwordPlano,
-                    $correoCliente,
-                    $nombreConsultor
-                );
-                $emailMsg = ' Se enviaron las credenciales al correo del cliente.';
-            }
-        } catch (\Exception $e) {
-            log_message('error', 'Onboarding: error email bienvenida para cliente ' . $clientId . ': ' . $e->getMessage());
-            $emailMsg = ' No se pudo enviar el email de credenciales.';
-        }
+        // ── Sin inicializaciones ──────────────────────────────────────────
+        // El cliente queda como 'prospecto'. Toda la inicialización
+        // (CicloVisita, PTA, Capacitaciones, Estándares, Matrices, Usuario)
+        // se dispara en ContractController cuando el cliente firma el contrato.
 
         return redirect()->to('/contracts/view/' . $contractId)
-            ->with('success', 'Cliente y contrato creados exitosamente.' . $emailMsg);
+            ->with('success', 'Prospecto creado. Envíe el contrato a firma para activar al cliente.');
     }
 
     // ────────────────────────────────────────────────────────────────────

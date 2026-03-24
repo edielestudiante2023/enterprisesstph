@@ -314,9 +314,13 @@
                 ksort($consultorCounts);
 
                 $estadoColors = [
-                    'Activo' => '#28a745',
-                    'Inactivo' => '#dc3545',
+                    'Activo'     => '#28a745',
+                    'Inactivo'   => '#dc3545',
                     'Suspendido' => '#ffc107',
+                    'prospecto'  => '#0d6efd',
+                    'activo'     => '#28a745',
+                    'inactivo'   => '#dc3545',
+                    'pendiente'  => '#ffc107',
                     'Sin estado' => '#6c757d',
                 ];
                 $consultorColors = ['#0d6efd','#6610f2','#6f42c1','#d63384','#fd7e14','#20c997','#0dcaf0','#198754'];

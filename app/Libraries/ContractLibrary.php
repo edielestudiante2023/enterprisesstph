@@ -21,8 +21,9 @@ class ContractLibrary
     /**
      * Crea un nuevo contrato para un cliente
      */
-    public function createContract($data)
+    public function createContract($data, array $options = [])
     {
+        $skipInit = $options['skip_init'] ?? false;
         // Validar que el cliente existe
         $client = $this->clientModel->find($data['id_cliente']);
         if (!$client) {
@@ -60,13 +61,15 @@ class ContractLibrary
             // Actualizar las fechas en tbl_clientes para mantener retrocompatibilidad
             $this->updateClientDates($data['id_cliente']);
 
-            // Activar cliente automáticamente si tiene contrato activo
-            if ($data['estado'] === 'activo') {
-                $this->clientModel->update($data['id_cliente'], ['estado' => 'activo']);
-            }
+            if (!$skipInit) {
+                // Activar cliente automáticamente si tiene contrato activo
+                if ($data['estado'] === 'activo') {
+                    $this->clientModel->update($data['id_cliente'], ['estado' => 'activo']);
+                }
 
-            // Auto-generar plan de trabajo para el cliente
-            $this->autoGenerateWorkPlan($data['id_cliente'], $data['frecuencia_visitas'] ?? null);
+                // Auto-generar plan de trabajo para el cliente
+                $this->autoGenerateWorkPlan($data['id_cliente'], $data['frecuencia_visitas'] ?? null);
+            }
 
             // Sincronizar estandares en tbl_clientes desde frecuencia_visitas del contrato
             $this->syncEstandaresFromContract($data['id_cliente'], $data['frecuencia_visitas'] ?? null);
