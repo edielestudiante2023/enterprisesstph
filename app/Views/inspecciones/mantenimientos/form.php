@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             $('#selectCliente').select2({ placeholder: 'Buscar cliente...', allowClear: true, width: '100%' });
             <?php if ($idCliente ?? null): ?>
-            $('#selectCliente').val('<?= $idCliente ?>').trigger('change');
+            $('#selectCliente').val('<?= $idCliente ?>').trigger('change.select2');
             <?php endif; ?>
         }
     });

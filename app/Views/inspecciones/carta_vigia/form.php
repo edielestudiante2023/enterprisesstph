@@ -91,15 +91,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             $('#selectCliente').select2({ placeholder: 'Buscar cliente...', allowClear: true, width: '100%' });
             <?php if ($idCliente ?? null): ?>
-            $('#selectCliente').val('<?= $idCliente ?>').trigger('change');
+            $('#selectCliente').val('<?= $idCliente ?>').trigger('change.select2');
             <?php endif; ?>
         }
     });
-
-    <?php if ($idCliente && $cliente): ?>
-    var optCliente = new Option('<?= esc($cliente['nombre_cliente']) ?>', '<?= $idCliente ?>', true, true);
-    $('#selectCliente').append(optCliente).trigger('change');
-    <?php endif; ?>
 
     // ============================================================
     // AUTOGUARDADO EN LOCALSTORAGE (restauracion inicial)

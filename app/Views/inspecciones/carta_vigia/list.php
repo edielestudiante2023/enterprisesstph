@@ -210,15 +210,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             $('#selectCliente').select2({ placeholder: 'Buscar cliente...', allowClear: true, width: '100%' });
             <?php if ($idCliente ?? null): ?>
-            $('#selectCliente').val('<?= $idCliente ?>').trigger('change');
+            $('#selectCliente').val('<?= $idCliente ?>').trigger('change.select2');
             <?php endif; ?>
         }
     });
-
-    <?php if ($idCliente && $clienteSeleccionado): ?>
-    var option = new Option('<?= esc($clienteSeleccionado['nombre_cliente']) ?>', '<?= $idCliente ?>', true, true);
-    $('#selectCliente').append(option).trigger('change');
-    <?php endif; ?>
 
     $('#selectCliente').on('change', function() {
         var id = $(this).val();
