@@ -167,6 +167,29 @@ if (!empty($inspeccion['numero_programados']) && $inspeccion['numero_programados
     </table>
     <?php endif; ?>
 
+    <!-- RESULTADOS DE EVALUACION -->
+    <?php if (!empty($evaluaciones)): ?>
+    <div class="section-title">RESULTADOS DE EVALUACION</div>
+    <table class="indicadores-table">
+        <tr>
+            <th style="width:8%; text-align:center;">#</th>
+            <th>Nombre</th>
+            <th style="width:20%;">Cedula</th>
+            <th style="width:22%;">Empresa</th>
+            <th style="width:14%; text-align:center;">Calificacion</th>
+        </tr>
+        <?php foreach ($evaluaciones as $i => $e): ?>
+        <tr>
+            <td style="text-align:center;"><?= $i + 1 ?></td>
+            <td><?= esc($e['nombre'] ?? '') ?></td>
+            <td><?= esc($e['cedula'] ?? '') ?></td>
+            <td><?= esc($e['empresa_contratante'] ?? '') ?></td>
+            <td style="text-align:center; font-weight:bold;"><?= number_format((float)($e['calificacion'] ?? 0), 1) ?>%</td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+    <?php endif; ?>
+
     <!-- REGISTRO FOTOGRAFICO -->
     <?php
     $fotosCampos = [

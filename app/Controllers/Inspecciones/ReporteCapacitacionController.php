@@ -9,6 +9,7 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Models\AsistenciaInduccionModel;
 use App\Models\AsistenciaInduccionAsistenteModel;
+use App\Models\EvaluacionInduccionRespuestaModel;
 use App\Models\CronogcapacitacionModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
@@ -156,10 +157,8 @@ class ReporteCapacitacionController extends BaseController
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 
-        $asistentes = $this->fetchAsistentes(
-            (int) $inspeccion['id_cliente'],
-            $inspeccion['fecha_capacitacion']
-        );
+        $asistentes   = $this->fetchAsistentes((int) $inspeccion['id_cliente'], $inspeccion['fecha_capacitacion']);
+        $evaluaciones = $this->fetchEvaluaciones((int) $inspeccion['id_cliente'], $inspeccion['fecha_capacitacion']);
 
         $data = [
             'title'      => 'Ver Reporte de Capacitacion',
@@ -167,7 +166,8 @@ class ReporteCapacitacionController extends BaseController
             'cliente'    => $clientModel->find($inspeccion['id_cliente']),
             'consultor'  => $consultantModel->find($inspeccion['id_consultor']),
             'perfilesAsistentes' => ReporteCapacitacionModel::PERFILES_ASISTENTES,
-            'asistentes' => $asistentes,
+            'asistentes'   => $asistentes,
+            'evaluaciones' => $evaluaciones,
         ];
 
         return view('inspecciones/layout_pwa', [
@@ -354,10 +354,8 @@ class ReporteCapacitacionController extends BaseController
             }
         }
 
-        $asistentes = $this->fetchAsistentes(
-            (int) $inspeccion['id_cliente'],
-            $inspeccion['fecha_capacitacion']
-        );
+        $asistentes   = $this->fetchAsistentes((int) $inspeccion['id_cliente'], $inspeccion['fecha_capacitacion']);
+        $evaluaciones = $this->fetchEvaluaciones((int) $inspeccion['id_cliente'], $inspeccion['fecha_capacitacion']);
 
         $data = [
             'inspeccion'  => $inspeccion,
@@ -366,7 +364,8 @@ class ReporteCapacitacionController extends BaseController
             'perfilesAsistentes' => ReporteCapacitacionModel::PERFILES_ASISTENTES,
             'logoBase64'  => $logoBase64,
             'fotosBase64' => $fotosBase64,
-            'asistentes'  => $asistentes,
+            'asistentes'   => $asistentes,
+            'evaluaciones' => $evaluaciones,
         ];
 
         $html = view('inspecciones/reporte-capacitacion/pdf', $data);
@@ -529,6 +528,21 @@ El objetivo debe:
             ->whereIn('id_asistencia', $ids)
             ->orderBy('id', 'ASC')
             ->findAll();
+    }
+
+    /**
+     * Devuelve los resultados de evaluación del cliente en la fecha dada.
+     */
+    private function fetchEvaluaciones(int $idCliente, string $fecha): array
+    {
+        $db = \Config\Database::connect();
+        return $db->table('tbl_evaluacion_induccion_respuesta r')
+            ->join('tbl_evaluacion_induccion e', 'e.id = r.id_evaluacion')
+            ->where('r.id_cliente_conjunto', $idCliente)
+            ->where('DATE(r.created_at)', $fecha)
+            ->select('r.nombre, r.cedula, r.empresa_contratante, r.cargo, r.calificacion')
+            ->orderBy('r.calificacion', 'DESC')
+            ->get()->getResultArray();
     }
 
     /**

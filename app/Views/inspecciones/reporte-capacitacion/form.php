@@ -259,6 +259,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     container.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-exclamation-triangle"></i> No hay registros de asistencia para esta fecha y cliente.</p>';
                     return;
                 }
+                // Auto-rellenar numero_asistentes si el campo esta vacio
+                var inputAsistentes = document.querySelector('[name="numero_asistentes"]');
+                if (inputAsistentes && !inputAsistentes.value) {
+                    inputAsistentes.value = data.length;
+                }
                 var html = '<table class="table table-sm table-bordered" style="font-size:13px;">';
                 html += '<thead><tr><th>#</th><th>Nombre</th><th>Cedula</th><th>Cargo</th></tr></thead><tbody>';
                 data.forEach(function(a, i) {
@@ -379,10 +384,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isEditLocal && this.value) {
             Swal.fire({
                 icon: 'info',
-                title: 'Sincronización con cronograma',
-                html: 'Por favor <strong>guarda el borrador</strong> primero para que el sistema pueda sincronizar esta capacitación con el programa de capacitaciones del cliente.',
+                title: 'Datos precargados automáticamente',
+                html: 'Al seleccionar el cliente y la fecha, el sistema cargará automáticamente el <strong>listado de asistencia</strong> y los <strong>resultados de evaluación</strong> registrados para ese día.<br><br>Si cambias la fecha, los datos se actualizan solos.',
                 confirmButtonText: 'Entendido',
-                confirmButtonColor: '#3085d6',
+                confirmButtonColor: '#bd9751',
             });
         }
     });
@@ -414,6 +419,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;">' + (resp.msg || 'Sin evaluación para este cliente y fecha.') + '</p>';
                     return;
                 }
+                // Auto-rellenar campos de evaluacion si estan vacios
+                var inputEvaluados = document.querySelector('[name="numero_evaluados"]');
+                var inputPromedio  = document.querySelector('[name="promedio_calificaciones"]');
+                if (inputEvaluados && !inputEvaluados.value) inputEvaluados.value = resp.respuestas.length;
+                if (inputPromedio  && !inputPromedio.value)  inputPromedio.value  = resp.promedio;
+
                 var html = '<table class="table table-sm table-bordered" style="font-size:12px;">';
                 html += '<thead><tr><th>#</th><th>Nombre</th><th>Cédula</th><th>Cargo</th><th class="text-center">Calificación</th></tr></thead><tbody>';
                 resp.respuestas.forEach(function(r, i) {
@@ -423,6 +434,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 html += '</tbody><tfoot class="table-light"><tr><td colspan="4" class="text-end fw-bold">Promedio:</td><td class="text-center fw-bold">' + resp.promedio + '%</td></tr></tfoot>';
                 html += '</table><small class="text-muted">' + resp.respuestas.length + ' evaluado(s)</small>';
                 evalContainer.innerHTML = html;
+
+                // Toast confirmación
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'success',
+                    title: 'Datos precargados automáticamente',
+                    showConfirmButton: false, timer: 2500, timerProgressBar: true
+                });
             },
             error: function() {
                 evalContainer.innerHTML = '<p class="text-danger" style="font-size:13px;"><i class="fas fa-times-circle"></i> Error al cargar resultados.</p>';

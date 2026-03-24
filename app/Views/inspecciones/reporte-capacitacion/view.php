@@ -100,6 +100,32 @@ if (!empty($inspeccion['numero_programados']) && $inspeccion['numero_programados
         </div>
     </div>
 
+    <!-- Resultados de evaluacion -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title" style="font-size:14px; color:#999;">RESULTADOS DE EVALUACION</h6>
+            <?php if (!empty($evaluaciones)): ?>
+            <table class="table table-sm table-bordered mb-1" style="font-size:13px;">
+                <thead><tr><th>#</th><th>Nombre</th><th>Cedula</th><th>Empresa</th><th>Calificacion</th></tr></thead>
+                <tbody>
+                <?php foreach ($evaluaciones as $i => $e): ?>
+                    <tr>
+                        <td><?= $i + 1 ?></td>
+                        <td><?= esc($e['nombre'] ?? '') ?></td>
+                        <td><?= esc($e['cedula'] ?? '') ?></td>
+                        <td><?= esc($e['empresa_contratante'] ?? '') ?></td>
+                        <td><strong><?= number_format((float)($e['calificacion'] ?? 0), 1) ?>%</strong></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            <small class="text-muted"><?= count($evaluaciones) ?> evaluado(s) — datos de Evaluacion/Induccion</small>
+            <?php else: ?>
+            <p class="text-muted mb-0" style="font-size:13px;">No hay resultados de evaluacion para esta fecha y cliente.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <!-- Fotos -->
     <?php
     $fotos = [
