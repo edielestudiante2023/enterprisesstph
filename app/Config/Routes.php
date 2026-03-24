@@ -1464,6 +1464,9 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
 $routes->get('acta-visita/firmar-remoto/(:any)', 'Inspecciones\ActaVisitaController::firmarRemoto/$1');
 $routes->post('acta-visita/procesar-firma-remota', 'Inspecciones\ActaVisitaController::procesarFirmaRemota');
 
+// Evaluaciones rápidas post-visita (acceso por token, sin auth)
+$routes->get('acta-visita/evaluaciones-visita/(:num)/(:any)', 'Inspecciones\ActaVisitaController::evaluacionesVisita/$1/$2');
+
 // Rutas públicas Carta Vigía (sin autenticación, patrón de firma contratos)
 $routes->get('carta-vigia/firmar/(:any)', 'Inspecciones\CartaVigiaPwaController::firmar/$1');
 $routes->post('carta-vigia/procesar-firma', 'Inspecciones\CartaVigiaPwaController::procesarFirma');

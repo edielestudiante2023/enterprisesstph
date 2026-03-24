@@ -394,6 +394,9 @@ class ActaVisitaController extends BaseController
         // ─── Hook: Actualizar ciclo de visita en tbl_ciclos_visita ───
         $this->actualizarCicloVisita($acta);
 
+        // Email al consultor con enlace de evaluaciones rápidas
+        $this->enviarEmailEvaluacionesRapidas($acta);
+
         return $this->response->setJSON([
             'success'   => true,
             'pdf_url'   => base_url($pdfPath),
@@ -443,6 +446,7 @@ class ActaVisitaController extends BaseController
         );
 
         $this->actualizarCicloVisita($acta);
+        $this->enviarEmailEvaluacionesRapidas($acta);
 
         return $this->response->setJSON([
             'success' => true,
@@ -1147,5 +1151,111 @@ class ActaVisitaController extends BaseController
                 (int)$acta['id_consultor']
             );
         }
+    }
+
+    // ============================================================
+    // EVALUACIONES RÁPIDAS POST-VISITA
+    // ============================================================
+
+    private function generarTokenEvaluacion(int $actaId, int $clienteId): string
+    {
+        return substr(hash('sha256', $actaId . '|' . $clienteId . '|evvisita2026'), 0, 24);
+    }
+
+    /**
+     * Página pública de evaluaciones rápidas (acceso por token)
+     */
+    public function evaluacionesVisita(int $actaId, string $token)
+    {
+        $acta = $this->actaModel->find($actaId);
+        if (!$acta || $acta['estado'] !== 'completo') {
+            return view('inspecciones/acta_visita/evaluaciones_visita_error', [
+                'mensaje' => 'Este enlace no es válido o el acta aún no ha sido finalizada.',
+            ]);
+        }
+
+        if (!hash_equals($this->generarTokenEvaluacion($actaId, (int)$acta['id_cliente']), $token)) {
+            return view('inspecciones/acta_visita/evaluaciones_visita_error', [
+                'mensaje' => 'Enlace inválido.',
+            ]);
+        }
+
+        $cliente = $this->clientModel->find($acta['id_cliente']);
+
+        $evaluacionModel = new \App\Models\EvaluationModel();
+        $evaluaciones = $evaluacionModel
+            ->where('id_cliente', $acta['id_cliente'])
+            ->groupStart()
+                ->where('evaluacion_inicial IS NULL', null, false)
+                ->orWhere('evaluacion_inicial', '')
+                ->orWhere('evaluacion_inicial', '-')
+                ->orWhere('evaluacion_inicial', 'NO CUMPLE')
+            ->groupEnd()
+            ->orderBy('estandar', 'ASC')
+            ->orderBy('numeral', 'ASC')
+            ->findAll();
+
+        return view('inspecciones/acta_visita/evaluaciones_visita', [
+            'acta'        => $acta,
+            'cliente'     => $cliente,
+            'evaluaciones' => $evaluaciones,
+        ]);
+    }
+
+    /**
+     * Enviar email al consultor con enlace de evaluaciones rápidas
+     */
+    private function enviarEmailEvaluacionesRapidas(array $acta): void
+    {
+        $consultor = (new ConsultantModel())->find($acta['id_consultor']);
+        if (!$consultor || empty($consultor['correo_consultor'])) return;
+
+        $apiKey = env('SENDGRID_API_KEY');
+        if (!$apiKey) return;
+
+        $cliente  = $this->clientModel->find($acta['id_cliente']);
+        $token    = $this->generarTokenEvaluacion((int)$acta['id'], (int)$acta['id_cliente']);
+        $url      = base_url("acta-visita/evaluaciones-visita/{$acta['id']}/{$token}");
+        $fecha    = date('d/m/Y', strtotime($acta['fecha_visita']));
+        $nomCli   = htmlspecialchars($cliente['nombre_cliente'] ?? '');
+        $nomCons  = htmlspecialchars($consultor['nombre_consultor'] ?? 'Consultor');
+        $urlEsc   = htmlspecialchars($url);
+
+        $html = "
+        <div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:0 auto;'>
+            <div style='background:#1c2437;padding:20px;text-align:center;border-radius:10px 10px 0 0;'>
+                <h1 style='color:#bd9751;margin:0;font-size:20px;'>Evaluación Rápida Post-Visita</h1>
+            </div>
+            <div style='padding:25px;background:#f8f9fa;border-radius:0 0 10px 10px;'>
+                <p>Hola <strong>{$nomCons}</strong>,</p>
+                <p>El acta de visita del <strong>{$fecha}</strong> para <strong>{$nomCli}</strong> ha sido finalizada.</p>
+                <p>Usa este enlace para marcar los ítems de cumplimiento que se cerraron en esta visita:</p>
+                <div style='text-align:center;margin:24px 0;'>
+                    <a href='{$urlEsc}' style='background:#bd9751;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;'>
+                        ✔ Actualizar Evaluaciones
+                    </a>
+                </div>
+                <p style='font-size:12px;color:#999;word-break:break-all;'>Enlace directo: {$urlEsc}</p>
+                <p style='color:#999;font-size:11px;margin-top:20px;'>Generado por SG-SST Cycloid Talent.</p>
+            </div>
+        </div>";
+
+        $payload = json_encode([
+            'personalizations' => [['to' => [['email' => $consultor['correo_consultor'], 'name' => $nomCons]], 'subject' => "Evaluaciones rápidas — {$nomCli} — {$fecha}"]],
+            'from'    => ['email' => 'notificacion.cycloidtalent@cycloidtalent.com', 'name' => 'Cycloid Talent - SG-SST'],
+            'content' => [['type' => 'text/html', 'value' => $html]],
+        ]);
+
+        $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
+        curl_setopt_array($ch, [
+            CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . $apiKey, 'Content-Type: application/json'],
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_TIMEOUT        => 30,
+        ]);
+        curl_exec($ch);
+        curl_close($ch);
     }
 }
