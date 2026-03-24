@@ -27,10 +27,6 @@
     ul, ol { margin: 4px 0 8px 18px; font-size: 10px; }
     li { margin-bottom: 2px; }
     .nota { font-size: 8.5px; color: #555; font-style: italic; margin: 4px 0; }
-    .firma-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-    .firma-table td { border: 1px solid #999; padding: 8px; text-align: center; width: 33%; font-size: 9px; }
-    .firma-cell-top { border-bottom: none; height: 40px; }
-    .firma-cell-bot { border-top: 1px solid #666; }
 </style>
 </head>
 <body>
@@ -189,30 +185,6 @@
     <strong>✓ BUENA PRÁCTICA:</strong> Mantener siempre actualizado el contacto del proveedor alternativo de recolección y realizar una simulación del plan al menos una vez al año, coordinada con el Consultor SST.
 </div>
 
-<!-- FIRMAS -->
-<table class="firma-table">
-    <tr>
-        <td class="firma-cell-top"></td>
-        <td class="firma-cell-top"></td>
-        <td class="firma-cell-top"></td>
-    </tr>
-    <tr>
-        <td class="firma-cell-bot">
-            <strong>Administrador(a)</strong><br>
-            <?= esc($inspeccion['nombre_responsable'] ?? '___________________') ?><br>
-            <?= esc($cliente['nombre_cliente'] ?? '') ?>
-        </td>
-        <td class="firma-cell-bot">
-            <strong>Consultor SST</strong><br>
-            <?= esc($consultor['nombre_consultor'] ?? '___________________') ?>
-        </td>
-        <td class="firma-cell-bot">
-            <strong>Representante Consejo</strong><br>
-            ___________________<br>
-            Consejo de Administración
-        </td>
-    </tr>
-</table>
 
 </body>
 </html>
