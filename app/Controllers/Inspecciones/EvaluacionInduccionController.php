@@ -222,7 +222,7 @@ class EvaluacionInduccionController extends BaseController
             return $this->response->setJSON(['success' => false, 'data' => []]);
         }
 
-        // Buscar respuestas por id_cliente_conjunto (cliente del conjunto) ±7 días
+        // Buscar respuestas por id_cliente_conjunto ±7 días
         $fechaDesde = date('Y-m-d', strtotime($fecha . ' -7 days'));
         $fechaHasta = date('Y-m-d', strtotime($fecha . ' +7 days'));
 
