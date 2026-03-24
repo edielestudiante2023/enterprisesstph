@@ -29,9 +29,6 @@
     <a href="<?= base_url('/inspecciones/limpieza-desinfeccion/documento') ?>" class="btn btn-pwa btn-pwa-outline" target="_blank" title="Texto completo del documento">
         <i class="fas fa-file-alt me-1"></i> Documento
     </a>
-    <a href="<?= base_url('/inspecciones/limpieza-desinfeccion/presentacion') ?>" class="btn btn-pwa btn-pwa-outline" target="_blank" title="Estructura con candidatos IA">
-        <i class="fas fa-tv me-1"></i> Estructura
-    </a>
 </div>
 
 <!-- Cards de inspecciones -->

@@ -51,6 +51,19 @@ $storageKey = $isEdit ? 'residuos_draft_' . $inspeccion['id'] : 'residuos_draft_
         </div>
     </div>
 
+    <!-- FLUJO DEL RESIDENTE -->
+    <div class="card mb-3">
+        <div class="card-header" style="background: #1c2437; color: white;">
+            <i class="fas fa-route me-1"></i> Flujo del residente para disposición de residuos
+        </div>
+        <div class="card-body">
+            <label class="form-label fw-bold">Descripción del flujo</label>
+            <textarea name="flujo_residente" class="form-control" rows="5"
+                      placeholder="Describa el recorrido que realiza el residente para depositar sus residuos. Ej: El residente deposita sus residuos en el punto ecológico del piso → el recuperador recorre los pisos en horario de 7am a 9am → transporta al cuarto de residuos → organiza en contenedores según clasificación."><?= esc($inspeccion['flujo_residente'] ?? '') ?></textarea>
+            <small class="text-muted">Este texto aparecerá en la sección 1.11.1 del documento PDF.</small>
+        </div>
+    </div>
+
     <!-- Info del documento -->
     <div class="card mb-3">
         <div class="card-body">
@@ -136,6 +149,7 @@ var isEditLocal = <?= $isEdit ? 'true' : 'false' ?>;
 function restoreFromLocal(data) {
     if (data.fecha_programa) document.querySelector('[name="fecha_programa"]').value = data.fecha_programa;
     if (data.nombre_responsable) document.querySelector('[name="nombre_responsable"]').value = data.nombre_responsable;
+    if (data.flujo_residente) document.querySelector('[name="flujo_residente"]').value = data.flujo_residente;
     if (data.id_cliente) window._pendingClientRestore = data.id_cliente;
 }
 

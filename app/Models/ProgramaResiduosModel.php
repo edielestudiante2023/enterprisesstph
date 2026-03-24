@@ -10,7 +10,7 @@ class ProgramaResiduosModel extends Model
     protected $primaryKey = 'id';
     protected $allowedFields = [
         'id_cliente', 'id_consultor', 'fecha_programa', 'nombre_responsable',
-        'ruta_pdf', 'estado',
+        'flujo_residente', 'ruta_pdf', 'estado',
     ];
     protected $useTimestamps = true;
 

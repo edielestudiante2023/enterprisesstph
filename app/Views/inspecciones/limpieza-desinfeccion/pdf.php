@@ -199,6 +199,7 @@
     <li>Canales de aguas lluvias</li>
     <li>Canales de aguas negras</li>
     <li>Parqueaderos comunales</li>
+    <li>Cuarto de bombas</li>
 </ul>
 <p>El Programa contempla la ejecución de actividades rutinarias, periódicas y extraordinarias, de acuerdo con los cronogramas establecidos, garantizando el uso exclusivo de productos de limpieza y desinfección debidamente rotulados, aprobados para uso doméstico o institucional, y aplicados conforme a las fichas técnicas y hojas de seguridad (SDS) suministradas por el fabricante.</p>
 
@@ -368,6 +369,76 @@
     </tr>
 </table>
 
+<!-- Tabla dilución hipoclorito -->
+<div class="subsection-title">Tabla de dilución del hipoclorito de sodio</div>
+<p>El hipoclorito de sodio es el desinfectante de mayor uso en la copropiedad por su eficacia, disponibilidad y bajo costo. Para garantizar su correcto uso, se establecen las siguientes diluciones según la concentración del producto comercial y el área de aplicación:</p>
+<table class="data-table">
+    <tr>
+        <th>USO / ÁREA</th>
+        <th>CONC. PRODUCTO COMERCIAL</th>
+        <th>DILUCIÓN RECOMENDADA</th>
+        <th>mL HIPOCLORITO × LITRO DE AGUA</th>
+        <th>TIEMPO DE CONTACTO</th>
+    </tr>
+    <tr>
+        <td>Desinfección general de pisos y superficies</td>
+        <td>5,25% (doméstico)</td>
+        <td>0,05%</td>
+        <td>10 mL × 1 L</td>
+        <td>10 minutos</td>
+    </tr>
+    <tr>
+        <td>Desinfección general de pisos y superficies</td>
+        <td>13% (industrial)</td>
+        <td>0,05%</td>
+        <td>4 mL × 1 L</td>
+        <td>10 minutos</td>
+    </tr>
+    <tr>
+        <td>Baños, unidad sanitaria, áreas críticas</td>
+        <td>5,25% (doméstico)</td>
+        <td>0,1%</td>
+        <td>20 mL × 1 L</td>
+        <td>10 minutos</td>
+    </tr>
+    <tr>
+        <td>Baños, unidad sanitaria, áreas críticas</td>
+        <td>13% (industrial)</td>
+        <td>0,1%</td>
+        <td>8 mL × 1 L</td>
+        <td>10 minutos</td>
+    </tr>
+    <tr>
+        <td>Contenedores de residuos y unidad de almacenamiento</td>
+        <td>5,25% (doméstico)</td>
+        <td>0,2%</td>
+        <td>40 mL × 1 L</td>
+        <td>15 minutos</td>
+    </tr>
+    <tr>
+        <td>Contenedores de residuos y unidad de almacenamiento</td>
+        <td>13% (industrial)</td>
+        <td>0,2%</td>
+        <td>15 mL × 1 L</td>
+        <td>15 minutos</td>
+    </tr>
+    <tr>
+        <td>Cuarto de bombas</td>
+        <td>5,25% (doméstico)</td>
+        <td>0,1%</td>
+        <td>20 mL × 1 L</td>
+        <td>10 minutos</td>
+    </tr>
+    <tr>
+        <td>Cuarto de bombas</td>
+        <td>13% (industrial)</td>
+        <td>0,1%</td>
+        <td>8 mL × 1 L</td>
+        <td>10 minutos</td>
+    </tr>
+</table>
+<p class="nota">Nota: La dilución se calcula sobre la fórmula: mL de hipoclorito = (% concentración deseada × 1000 mL) ÷ % concentración del producto. Las medidas se expresan por cada litro de agua limpia. No mezclar con detergente, amoniaco, vinagre ni otros productos químicos. Preparar la solución justo antes de su uso y desecharla al finalizar la jornada.</p>
+
 <!-- 1.7 TÉCNICAS -->
 <div class="section-title">1.7 TÉCNICAS DE LIMPIEZA Y DESINFECCIÓN</div>
 <p>Con el fin de garantizar la efectividad del proceso de limpieza y desinfección y prevenir la contaminación cruzada, se deberán aplicar de manera obligatoria las siguientes técnicas inductivas:</p>
@@ -469,6 +540,7 @@
     <tr><td>Contenedores y unidad de residuos</td><td>Diaria</td></tr>
     <tr><td>Canales de aguas lluvias y negras</td><td>Semestral</td></tr>
     <tr><td>Techos y partes altas</td><td>Semestral</td></tr>
+    <tr><td>Cuarto de bombas</td><td>Mensual</td></tr>
 </table>
 <p>Las frecuencias podrán ajustarse cuando se evidencien condiciones especiales de suciedad, incremento del uso de áreas, hallazgos sanitarios, brotes, quejas recurrentes o requerimientos de la autoridad sanitaria.</p>
 

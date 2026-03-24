@@ -179,7 +179,7 @@
     <li>Uso de zonas comunes</li>
     <li>Usuarios, visitantes, proveedores y contratistas</li>
 </ul>
-<p>El Programa es de obligatorio cumplimiento para residentes, personal administrativo, personal de servicios generales, empresas contratistas y terceros que desarrollen actividades dentro de la copropiedad.</p>
+<p>El Programa es de obligatorio cumplimiento para residentes, personal administrativo, recuperador o responsable designado para la recolección y clasificación de residuos, empresas contratistas y terceros que desarrollen actividades dentro de la copropiedad.</p>
 <p>Incluye las etapas de separación en la fuente, recolección interna, transporte interno, almacenamiento temporal, aprovechamiento, entrega al prestador del servicio público de aseo y manejo de residuos peligrosos cuando se generen.</p>
 
 <!-- 1.3 DEFINICIONES -->
@@ -217,7 +217,7 @@
 <div class="section-title">1.4 PRECAUCIONES DE SEGURIDAD Y OBSERVACIONES GENERALES</div>
 <p>Para la adecuada implementación del Programa de Desechos Sólidos en <?= esc($nombreCliente) ?>, se deberán cumplir las siguientes medidas:</p>
 <ul class="lista-items">
-    <li>Uso permanente y obligatorio de los Elementos de Protección Personal (EPP) por parte del personal de servicios generales.</li>
+    <li>Uso permanente y obligatorio de los Elementos de Protección Personal (EPP) por parte del recuperador o responsable designado para la recolección y clasificación de residuos.</li>
     <li>Higienización de manos al finalizar las actividades de recolección y manejo de residuos.</li>
     <li>Cabello recogido y cubierto durante la ejecución de las labores.</li>
     <li>Prohibición de fumar, comer o beber durante las actividades de manejo de residuos.</li>
@@ -228,7 +228,7 @@
 <!-- 1.5 RECOLECCIÓN EN LA FUENTE -->
 <div class="section-title">1.5 RECOLECCIÓN DE RESIDUOS EN LA FUENTE</div>
 <ol class="lista-items" type="a">
-    <li>El personal de servicios generales deberá colocarse los EPP antes de iniciar la recolección.</li>
+    <li>El recuperador o responsable designado para la recolección y clasificación de residuos deberá colocarse los EPP antes de iniciar la recolección.</li>
     <li>Preparar los implementos necesarios: carro recolector (practicwagon o similar), escoba, recogedor y bolsas según clasificación.</li>
     <li>Verificar el adecuado estado físico, de limpieza y desinfección del carro recolector.</li>
     <li>Identificar y controlar condiciones inseguras.</li>
@@ -258,8 +258,8 @@
 <div class="definition-term">Administración del Conjunto:</div>
 <p class="definition-text">Implementación, control, seguimiento y mejora continua del Programa.</p>
 
-<div class="definition-term">Personal de Servicios Generales:</div>
-<p class="definition-text">Ejecución operativa de la recolección, limpieza y manejo interno de los residuos.</p>
+<div class="definition-term">Recuperador o Responsable Designado:</div>
+<p class="definition-text">Ejecución operativa de la recolección, clasificación y manejo interno de los residuos, utilizando los EPP establecidos, siguiendo las rutas sanitarias y diligenciando los registros correspondientes.</p>
 
 <div class="definition-term">Residentes y Usuarios:</div>
 <p class="definition-text">Separación en la fuente y disposición adecuada de los residuos.</p>
@@ -374,13 +374,44 @@
 <div class="definition-term">e. RAEE – Residuos de Aparatos Eléctricos y Electrónicos</div>
 <p class="definition-text">Corresponden a equipos eléctricos y electrónicos que han llegado al final de su vida útil, tales como computadores, impresoras, monitores, teclados, cables, cargadores, electrodomésticos y otros dispositivos similares. Estos residuos deberán almacenarse en un área diferenciada, señalizada y entregarse a programas posconsumo o gestores autorizados, conservando los respectivos soportes de entrega.</p>
 
+<?php
+$canecasPath = FCPATH . 'uploads/canecas_colores.png';
+if (file_exists($canecasPath)) {
+    $canecasBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($canecasPath));
+} else {
+    $canecasBase64 = '';
+}
+?>
+<?php if ($canecasBase64): ?>
+<div style="text-align:center; margin:10px 0 14px;">
+    <img src="<?= $canecasBase64 ?>" alt="Código de colores canecas" style="max-width:100%; max-height:200px;">
+    <p class="nota" style="text-align:center; margin-top:4px;">Código de colores para separación en la fuente — Resolución 2184 de 2019</p>
+</div>
+<?php endif; ?>
+
 <!-- 1.11 PROCEDIMIENTO -->
 <div class="section-title">1.11 PROCEDIMIENTO DE RECOLECCIÓN, ALMACENAMIENTO Y DISPOSICIÓN FINAL</div>
 <p>El presente procedimiento establece los lineamientos para la correcta recolección, transporte interno, almacenamiento temporal y disposición final de los residuos sólidos y peligrosos generados en <?= esc($nombreCliente) ?>, de conformidad con la Ley 142 de 1994, el Decreto 1077 de 2015, la Resolución 2184 de 2019, la Resolución 1362 de 2007 y demás normas concordantes.</p>
 
-<div class="subsection-title">1.11.1 Recolección de residuos generados en la fuente (áreas comunes y zonas de uso colectivo)</div>
+<div class="subsection-title">1.11.1 Recolección — Flujo del residente para disposición de residuos</div>
+<?php if (!empty($inspeccion['flujo_residente'])): ?>
+<table style="width:100%; border:1.5px solid #1c2437; border-collapse:collapse; margin:6px 0 14px;">
+    <tr>
+        <td style="background:#1c2437; color:white; padding:5px 8px; font-weight:bold; font-size:9px; width:30%;">
+            FLUJO DEL RESIDENTE
+        </td>
+        <td style="padding:7px 10px; font-size:9.5px; vertical-align:top;">
+            <?= nl2br(esc($inspeccion['flujo_residente'])) ?>
+        </td>
+    </tr>
+</table>
+<?php else: ?>
+<p class="nota">Flujo del residente no diligenciado.</p>
+<?php endif; ?>
+
+<div class="subsection-title">1.11.2 Recolección de residuos generados en la fuente (áreas comunes y zonas de uso colectivo)</div>
 <ol class="lista-items" type="a">
-    <li>El operario(a) de servicios generales deberá colocarse previamente los elementos de protección personal (EPP) establecidos para la actividad.</li>
+    <li>El recuperador o responsable designado para la recolección y clasificación de residuos deberá colocarse previamente los elementos de protección personal (EPP) establecidos para la actividad.</li>
     <li>Preparar los implementos requeridos para la recolección: carro de recolección interna (buggie, practiwagon o similar), escoba, recogedor y bolsas según el tipo de residuo.</li>
     <li>Verificar que el carro de recolección se encuentre en adecuadas condiciones físicas, de limpieza y desinfección.</li>
     <li>Identificar condiciones inseguras que puedan generar riesgo durante la actividad.</li>
@@ -390,7 +421,7 @@
     <li>Realizar higiene de manos al finalizar la actividad.</li>
 </ol>
 
-<div class="subsection-title">1.11.2 Recolección de residuos generados en puntos administrativos</div>
+<div class="subsection-title">1.11.3 Recolección de residuos generados en puntos administrativos</div>
 <ol class="lista-items" type="a">
     <li>Colocarse los EPP antes de iniciar la labor.</li>
     <li>Preparar los implementos: carro de recolección, bolsas, escoba y recogedor.</li>
@@ -401,7 +432,7 @@
     <li>Lavarse las manos al finalizar la actividad.</li>
 </ol>
 
-<div class="subsection-title">1.11.3 Recolección y manejo de residuos peligrosos (RESPEL y RAEE)</div>
+<div class="subsection-title">1.11.4 Recolección y manejo de residuos peligrosos (RESPEL y RAEE)</div>
 <p>El manejo de residuos peligrosos generados en <?= esc($nombreCliente) ?> se realizará conforme a la Resolución 1362 de 2007, los programas posconsumo vigentes y los lineamientos de la autoridad ambiental competente.</p>
 <ol class="lista-items" type="a">
     <li>Colocarse los EPP antes de iniciar la labor.</li>
@@ -415,7 +446,7 @@
     <li>Conservar manifiestos, actas de recolección y certificados de disposición final.</li>
 </ol>
 
-<div class="subsection-title">1.11.4 Recolección de residuos orgánicos</div>
+<div class="subsection-title">1.11.5 Recolección de residuos orgánicos</div>
 <ol class="lista-items" type="a">
     <li>Colocarse los EPP antes de iniciar la labor.</li>
     <li>Preparar los implementos necesarios.</li>
@@ -428,7 +459,7 @@
 </ol>
 
 <!-- 1.11.5 ALTERNATIVAS -->
-<div class="subsection-title">1.11.5 Alternativas para la optimización del manejo de residuos</div>
+<div class="subsection-title">1.11.6 Alternativas para la optimización del manejo de residuos</div>
 <ol class="lista-items" type="a">
     <li>Separación en la fuente: Implementación estricta del código de colores conforme a la Resolución 2184 de 2019.</li>
     <li>Aprovechamiento de residuos orgánicos: Entrega a gestores autorizados para compostaje o aprovechamiento.</li>

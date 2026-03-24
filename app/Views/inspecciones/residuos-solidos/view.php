@@ -35,6 +35,12 @@
                 <td class="fw-bold bg-light">Consultor</td>
                 <td><?= esc($consultor['nombre_consultor'] ?? '—') ?></td>
             </tr>
+            <?php if (!empty($inspeccion['flujo_residente'])): ?>
+            <tr>
+                <td class="fw-bold bg-light">Flujo del residente</td>
+                <td style="white-space: pre-wrap;"><?= esc($inspeccion['flujo_residente']) ?></td>
+            </tr>
+            <?php endif; ?>
             <tr>
                 <td class="fw-bold bg-light">Documento</td>
                 <td><strong>FT-SST-226</strong> — Programa de Manejo Integral de Residuos Sólidos (Versión 001)</td>
