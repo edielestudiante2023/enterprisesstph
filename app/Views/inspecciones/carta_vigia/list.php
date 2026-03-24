@@ -204,6 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
             url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             delay: 250,
+            data: function(params) { return { term: params.term || '' }; },
             processResults: function(data) {
                 return { results: data.map(function(c) { return { id: c.id_cliente, text: c.nombre_cliente }; }) };
             },

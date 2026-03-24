@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
             url: '<?= base_url('/inspecciones/api/clientes') ?>',
             dataType: 'json',
             delay: 250,
+            data: function(params) { return { term: params.term || '' }; },
             processResults: function(data) {
                 return {
                     results: data.map(function(c) {
@@ -108,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
             url: '<?= base_url('/inspecciones/api/mantenimientos-catalog') ?>',
             dataType: 'json',
             delay: 250,
+            data: function(params) { return { term: params.term || '' }; },
             processResults: function(data) {
                 return {
                     results: data.map(function(m) {

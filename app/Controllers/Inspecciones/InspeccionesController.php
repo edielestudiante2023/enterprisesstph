@@ -276,10 +276,13 @@ class InspeccionesController extends BaseController
         $role = session()->get('role');
         $userId = session()->get('user_id');
 
-        $clientes = $clientModel->select('tbl_clientes.id_cliente, tbl_clientes.nombre_cliente, tbl_clientes.nit_cliente')
-            ->where('tbl_clientes.estado', 'activo')
-            ->orderBy('tbl_clientes.nombre_cliente', 'ASC')
-            ->findAll();
+        $term = $this->request->getGet('term');
+        $q = $clientModel->select('tbl_clientes.id_cliente, tbl_clientes.nombre_cliente, tbl_clientes.nit_cliente')
+            ->where('tbl_clientes.estado', 'activo');
+        if ($term) {
+            $q->like('tbl_clientes.nombre_cliente', $term);
+        }
+        $clientes = $q->orderBy('tbl_clientes.nombre_cliente', 'ASC')->findAll();
 
         return $this->response->setJSON($clientes);
     }
