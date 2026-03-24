@@ -281,8 +281,8 @@
                 <div class="firma-label">ADMINISTRADOR</div>
             </td>
             <?php elseif (!empty($acta['motivo_sin_firma'])): ?>
-            <td style="text-align:center; padding:8px; vertical-align:middle;">
-                <div style="border:1px dashed #aaa; border-radius:4px; padding:8px; font-size:10px; color:#666; min-height:50px; display:table-cell; vertical-align:middle;">
+            <td style="text-align:center; padding:8px; vertical-align:top;">
+                <div style="border:1px dashed #aaa; border-radius:4px; padding:10px; font-size:10px; color:#666; margin-bottom:4px;">
                     <strong>Sin firma del cliente</strong><br>
                     <?= esc($acta['motivo_sin_firma']) ?>
                 </div>
