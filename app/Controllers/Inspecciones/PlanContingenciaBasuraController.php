@@ -259,8 +259,8 @@ class PlanContingenciaBasuraController extends BaseController
             'inspeccion' => [
                 'fecha_programa'             => date('Y-m-d'),
                 'nombre_responsable'         => 'Administrador(a) del Conjunto',
-                'empresa_aseo'               => '',
-                'horario_recoleccion_actual' => '',
+                'empresa_aseo'               => '[Prestador del servicio público de aseo del municipio donde se ubica la copropiedad]',
+                'horario_recoleccion_actual' => '[Días y horario habitual de recolección de residuos en la zona del conjunto]',
             ],
             'cliente'    => ['nombre_cliente' => 'CONJUNTO RESIDENCIAL — EJEMPLO'],
             'consultor'  => ['nombre_consultor' => 'Consultor SST'],

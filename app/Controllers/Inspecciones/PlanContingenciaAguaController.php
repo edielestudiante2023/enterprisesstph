@@ -259,8 +259,8 @@ class PlanContingenciaAguaController extends BaseController
             'inspeccion' => [
                 'fecha_programa'      => date('Y-m-d'),
                 'nombre_responsable'  => 'Administrador(a) del Conjunto',
-                'empresa_carrotanque' => '',
-                'capacidad_reserva'   => '',
+                'empresa_carrotanque' => '[Proveedor de agua por carrotanque disponible en el municipio — nombre, teléfono y persona de contacto]',
+                'capacidad_reserva'   => '[Capacidad total de almacenamiento de agua en los tanques del conjunto — expresada en litros]',
             ],
             'cliente'    => ['nombre_cliente' => 'CONJUNTO RESIDENCIAL — EJEMPLO'],
             'consultor'  => ['nombre_consultor' => 'Consultor SST'],
