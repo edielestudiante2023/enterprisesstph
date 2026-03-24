@@ -257,7 +257,7 @@ class PlanContingenciaPlagasController extends BaseController
             'inspeccion' => [
                 'fecha_programa'     => date('Y-m-d'),
                 'nombre_responsable' => 'Administrador(a) del Conjunto',
-                'empresa_fumigadora' => 'Empresa de Control de Plagas S.A.S. — Tel: 300 000 0000',
+                'empresa_fumigadora' => '',
             ],
             'cliente'    => ['nombre_cliente' => 'CONJUNTO RESIDENCIAL — EJEMPLO'],
             'consultor'  => ['nombre_consultor' => 'Consultor SST'],

@@ -257,10 +257,10 @@ class PlanContingenciaBasuraController extends BaseController
     {
         $data = [
             'inspeccion' => [
-                'fecha_programa'            => date('Y-m-d'),
-                'nombre_responsable'        => 'Administrador(a) del Conjunto',
-                'empresa_aseo'              => 'Empresa de Aseo Municipal',
-                'horario_recoleccion_actual' => 'Lunes, Miércoles y Viernes — 6:00 a.m. a 10:00 a.m.',
+                'fecha_programa'             => date('Y-m-d'),
+                'nombre_responsable'         => 'Administrador(a) del Conjunto',
+                'empresa_aseo'               => '',
+                'horario_recoleccion_actual' => '',
             ],
             'cliente'    => ['nombre_cliente' => 'CONJUNTO RESIDENCIAL — EJEMPLO'],
             'consultor'  => ['nombre_consultor' => 'Consultor SST'],
