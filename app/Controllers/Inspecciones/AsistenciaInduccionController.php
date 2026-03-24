@@ -94,6 +94,11 @@ class AsistenciaInduccionController extends BaseController
             return $this->autosaveJsonSuccess($idInspeccion);
         }
 
+        if ($this->request->getPost('accion') === 'borrador') {
+            return redirect()->to('/inspecciones/asistencia-induccion')
+                ->with('msg', 'Borrador guardado.');
+        }
+
         return redirect()->to('/inspecciones/asistencia-induccion/registrar/' . $idInspeccion)
             ->with('msg', 'Asistencia creada. Registra los asistentes uno a uno.');
     }
@@ -150,6 +155,11 @@ class AsistenciaInduccionController extends BaseController
 
         if ($this->isAutosaveRequest()) {
             return $this->autosaveJsonSuccess((int)$id);
+        }
+
+        if ($this->request->getPost('accion') === 'borrador') {
+            return redirect()->to('/inspecciones/asistencia-induccion')
+                ->with('msg', 'Borrador guardado.');
         }
 
         return redirect()->to('/inspecciones/asistencia-induccion/registrar/' . $id)

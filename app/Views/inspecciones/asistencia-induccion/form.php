@@ -111,8 +111,11 @@ $action = $isEdit ? base_url('/inspecciones/asistencia-induccion/update/') . $in
 
         <!-- BOTONES -->
         <div class="d-grid gap-3 mt-3 mb-5 pb-3">
-            <button type="submit" class="btn btn-pwa btn-pwa-outline py-3" style="font-size:17px;">
-                <i class="fas fa-save"></i> <?= $isEdit ? 'Guardar y registrar asistentes' : 'Crear y registrar asistentes' ?>
+            <button type="submit" name="accion" value="registrar" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;">
+                <i class="fas fa-users"></i> <?= $isEdit ? 'Guardar y registrar asistentes' : 'Crear y registrar asistentes' ?>
+            </button>
+            <button type="submit" name="accion" value="borrador" class="btn btn-pwa btn-pwa-outline py-3" style="font-size:17px;">
+                <i class="fas fa-save"></i> Guardar borrador
             </button>
             <?php if ($isEdit): ?>
             <a href="<?= base_url('/inspecciones/asistencia-induccion/registrar/') ?><?= $inspeccion['id'] ?>"
