@@ -436,22 +436,22 @@ TXT;
             ],
 
             [
-                'table'       => 'tbl_evaluacion_induccion',
-                'view'        => 'v_tbl_evaluacion_induccion',
+                'table'       => 'tbl_evaluaciones',
+                'view'        => 'v_tbl_evaluaciones',
                 'description' => 'Datos generales de las evaluaciones de inducción realizadas a personas de un cliente.',
                 'use_for'     => ['evaluaciones de inducción', '¿se evaluó a X persona?', 'resultados de inducción'],
                 'key_columns' => ['id', 'id_asistencia_induccion', 'id_cliente', 'titulo', 'token', 'estado (ENUM: activo/cerrado)'],
-                'relations'   => ['id_cliente → tbl_clientes.id_cliente', 'tbl_evaluacion_induccion_respuesta.id_evaluacion → id'],
+                'relations'   => ['id_cliente → tbl_clientes.id_cliente', 'tbl_evaluacion_respuestas.id_evaluacion → id'],
                 'notes'       => '',
             ],
 
             [
-                'table'       => 'tbl_evaluacion_induccion_respuesta',
-                'view'        => 'v_tbl_evaluacion_induccion_respuesta',
+                'table'       => 'tbl_evaluacion_respuestas',
+                'view'        => 'v_tbl_evaluacion_respuestas',
                 'description' => 'Respuestas registradas por los usuarios en las evaluaciones de inducción.',
                 'use_for'     => ['detalle de respuestas de evaluación de inducción', '¿qué respondió X en la evaluación?'],
                 'key_columns' => ['id', 'id_evaluacion', 'nombre', 'cedula', 'cargo', 'empresa_contratante', 'respuestas (json)', 'calificacion'],
-                'relations'   => ['id_evaluacion → tbl_evaluacion_induccion.id'],
+                'relations'   => ['id_evaluacion → tbl_evaluaciones.id'],
                 'notes'       => '',
             ],
 

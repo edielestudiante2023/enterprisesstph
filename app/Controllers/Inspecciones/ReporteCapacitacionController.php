@@ -538,7 +538,7 @@ El objetivo debe:
         $db         = \Config\Database::connect();
         $fechaDesde = date('Y-m-d', strtotime($fecha . ' -7 days'));
         $fechaHasta = date('Y-m-d', strtotime($fecha . ' +7 days'));
-        return $db->table('tbl_evaluacion_induccion_respuesta')
+        return $db->table('tbl_evaluacion_respuestas')
             ->where('id_cliente_conjunto', $idCliente)
             ->where('DATE(created_at) >=', $fechaDesde)
             ->where('DATE(created_at) <=', $fechaHasta)

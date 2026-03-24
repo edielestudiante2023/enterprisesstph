@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class EvaluacionInduccionModel extends Model
 {
-    protected $table      = 'tbl_evaluacion_induccion';
+    protected $table      = 'tbl_evaluaciones';
     protected $primaryKey = 'id';
     protected $allowedFields = [
         'id_asistencia_induccion', 'id_cliente', 'id_tema', 'titulo', 'token', 'estado',

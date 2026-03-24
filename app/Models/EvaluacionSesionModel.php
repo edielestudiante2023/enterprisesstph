@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class EvaluacionSesionModel extends Model
 {
-    protected $table         = 'tbl_evaluacion_sesion';
+    protected $table         = 'tbl_evaluacion_sesiones';
     protected $primaryKey    = 'id';
     protected $allowedFields = ['id_evaluacion', 'id_cliente', 'fecha_sesion', 'codigo'];
     protected $useTimestamps = true;
@@ -52,8 +52,8 @@ class EvaluacionSesionModel extends Model
      */
     public function getSesionesByEvaluacion(int $idEvaluacion): array
     {
-        return $this->select('tbl_evaluacion_sesion.*, tbl_clientes.nombre_cliente')
-            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_sesion.id_cliente', 'left')
+        return $this->select('tbl_evaluacion_sesiones.*, tbl_clientes.nombre_cliente')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_sesiones.id_cliente', 'left')
             ->where('id_evaluacion', $idEvaluacion)
             ->orderBy('fecha_sesion', 'DESC')
             ->findAll();

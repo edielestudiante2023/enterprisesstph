@@ -36,10 +36,10 @@ class EvaluacionInduccionController extends BaseController
     public function list()
     {
         $evaluaciones = $this->evalModel
-            ->select('tbl_evaluacion_induccion.*, tbl_clientes.nombre_cliente, tbl_evaluacion_tema.nombre AS nombre_tema')
-            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluacion_induccion.id_cliente', 'left')
-            ->join('tbl_evaluacion_tema', 'tbl_evaluacion_tema.id = tbl_evaluacion_induccion.id_tema', 'left')
-            ->orderBy('tbl_evaluacion_induccion.created_at', 'DESC')
+            ->select('tbl_evaluaciones.*, tbl_clientes.nombre_cliente, tbl_evaluacion_tema.nombre AS nombre_tema')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_evaluaciones.id_cliente', 'left')
+            ->join('tbl_evaluacion_tema', 'tbl_evaluacion_tema.id = tbl_evaluaciones.id_tema', 'left')
+            ->orderBy('tbl_evaluaciones.created_at', 'DESC')
             ->findAll();
 
         // Solo mostrar las que tienen respuestas, con estadísticas
@@ -144,7 +144,7 @@ class EvaluacionInduccionController extends BaseController
         $sesiones = $sesionModel->getSesionesByEvaluacion($id);
         foreach ($sesiones as &$s) {
             $db   = \Config\Database::connect();
-            $resp = $db->table('tbl_evaluacion_induccion_respuesta')
+            $resp = $db->table('tbl_evaluacion_respuestas')
                 ->where('id_evaluacion', $id)
                 ->where('id_cliente_conjunto', $s['id_cliente'])
                 ->where('DATE(created_at)', $s['fecha_sesion'])
