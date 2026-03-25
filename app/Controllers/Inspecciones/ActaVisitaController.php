@@ -277,25 +277,18 @@ class ActaVisitaController extends BaseController
 
         $integrantes = $this->integranteModel->getByActa($id);
 
-        // Determinar qué firmas se necesitan
+        // Determinar qué firmas se necesitan — exclusivamente desde integrantes del acta
         $firmantes = [];
         foreach ($integrantes as $integrante) {
-            if (strtoupper($integrante['rol']) === 'ADMINISTRADOR') {
+            $rol = strtoupper($integrante['rol']);
+            if ($rol === 'ADMINISTRADOR') {
                 $firmantes[] = ['tipo' => 'administrador', 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_administrador'])];
-            }
-            if (stripos($integrante['rol'], 'VIG') !== false) {
+            } elseif (stripos($rol, 'VIG') !== false) {
                 $firmantes[] = ['tipo' => 'vigia', 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_vigia'])];
+            } elseif (stripos($rol, 'CONSULTOR') !== false) {
+                $firmantes[] = ['tipo' => 'consultor', 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_consultor'])];
             }
         }
-
-        // Consultor siempre firma — usar id_consultor del acta (no el usuario logueado)
-        $consultantModel = new ConsultantModel();
-        $consultor = $consultantModel->find($acta['id_consultor']);
-        $firmantes[] = [
-            'tipo'    => 'consultor',
-            'nombre'  => $consultor['nombre_consultor'] ?? session()->get('nombre_usuario'),
-            'firmado' => !empty($acta['firma_consultor']),
-        ];
 
         $data = [
             'title'    => 'Firmas del Acta',
@@ -972,8 +965,8 @@ class ActaVisitaController extends BaseController
         $consultantModel = new ConsultantModel();
         $consultor = $consultantModel->find($acta['id_consultor']);
 
-        // Nombre real del firmante consultor: puede ser externo (integrante con rol CONSULTOR)
-        $nombreConsultorFirma = $consultor['nombre_consultor'] ?? '';
+        // Nombre del firmante consultor: siempre desde integrantes
+        $nombreConsultorFirma = '';
         foreach ($integrantes as $integrante) {
             if (stripos($integrante['rol'], 'CONSULTOR') !== false) {
                 $nombreConsultorFirma = $integrante['nombre'];
