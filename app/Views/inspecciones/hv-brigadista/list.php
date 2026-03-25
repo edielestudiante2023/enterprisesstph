@@ -42,7 +42,7 @@
 </div>
 <?php $deleteBase = base_url('/inspecciones/'.$SLUG.'/delete/'); ?>
 <script>
-$(function(){
+document.addEventListener('DOMContentLoaded',function(){
     $('#tablaInsp').DataTable({responsive:true,language:{url:'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json'},pageLength:25,order:[[3,'desc']],columnDefs:[{orderable:false,targets:[0,6]}]});
     $('#tablaInsp').on('click','.btn-del',function(){
         var id=this.dataset.id,n=this.dataset.nombre;
