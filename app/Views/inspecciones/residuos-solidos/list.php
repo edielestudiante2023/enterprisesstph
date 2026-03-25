@@ -1,137 +1,50 @@
-<?php if (session()->getFlashdata('msg')): ?>
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    <?= session()->getFlashdata('msg') ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-<?php endif; ?>
-<?php if (session()->getFlashdata('error')): ?>
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <?= session()->getFlashdata('error') ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-<?php endif; ?>
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0"><i class="fas fa-recycle me-2"></i>Programa Residuos Sólidos</h5>
-</div>
-
-<!-- Filtro por cliente -->
-<div class="mb-3">
-    <select id="filtroCliente" class="form-select">
-        <option value="">Todos los clientes</option>
-    </select>
-</div>
-
-<div class="d-flex gap-2 mb-3">
-    <a href="<?= base_url('/inspecciones/residuos-solidos/create') ?>" class="btn btn-pwa btn-pwa-primary flex-fill">
-        <i class="fas fa-plus me-2"></i>Nuevo Programa
-    </a>
-    <a href="<?= base_url('/inspecciones/residuos-solidos/documento') ?>" class="btn btn-pwa btn-pwa-outline" target="_blank" title="Texto completo del documento">
-        <i class="fas fa-file-alt me-1"></i> Documento
-    </a>
-    <a href="<?= base_url('/inspecciones/residuos-solidos/presentacion') ?>" class="btn btn-pwa btn-pwa-outline" target="_blank" title="Estructura con candidatos IA">
-        <i class="fas fa-tv me-1"></i> Estructura
-    </a>
-</div>
-
-<!-- Cards de inspecciones -->
-<div id="listaInspecciones">
-<?php if (empty($inspecciones)): ?>
-    <div class="text-center text-muted py-4">
-        <i class="fas fa-inbox fa-3x mb-2"></i>
-        <p>No hay programas registrados.</p>
-    </div>
-<?php else: ?>
-    <?php foreach ($inspecciones as $insp): ?>
-    <div class="card card-inspeccion mb-2 card-filtrable" data-cliente="<?= esc($insp['nombre_cliente'] ?? '') ?>">
-        <div class="card-body py-3 px-3">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <strong>
-                        <?php if ($insp['estado'] === 'completo'): ?>
-                            <i class="fas fa-check-circle text-success"></i>
-                        <?php else: ?>
-                            <i class="fas fa-edit text-warning"></i>
-                        <?php endif; ?>
-                        <?= esc($insp['nombre_cliente'] ?? 'Sin cliente') ?>
-                    </strong>
-                    <div class="text-muted" style="font-size: 13px;">
-                        <?= date('d/m/Y', strtotime($insp['fecha_programa'])) ?>
-                        <?php if (!empty($insp['nombre_responsable'])): ?>
-                            &middot; <?= esc($insp['nombre_responsable']) ?>
-                        <?php endif; ?>
-                        &middot;
-                        <span class="badge bg-<?= $insp['estado'] === 'completo' ? 'success' : 'warning text-dark' ?>" style="font-size: 11px;">
-                            <?= $insp['estado'] === 'completo' ? 'Completo' : 'Borrador' ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-2 d-flex gap-2">
-                    <a href="<?= base_url('/inspecciones/residuos-solidos/edit/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
-                        <i class="fas fa-edit"></i> Editar
-                    </a>
-                    <a href="#" class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $insp['id'] ?>">
-                        <i class="fas fa-trash"></i>
-                    </a>
-                <?php if ($insp['estado'] === 'completo'): ?>
-                    <a href="<?= base_url('/inspecciones/residuos-solidos/view/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-dark">
-                        <i class="fas fa-eye"></i> Ver
-                    </a>
-                    <a href="<?= base_url('/inspecciones/residuos-solidos/pdf/') ?><?= $insp['id'] ?>" class="btn btn-sm btn-outline-primary" target="_blank">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </a>
-                <?php endif; ?>
-            </div>
+<?php $SLUG = 'residuos-solidos'; $TITULO = 'Residuos Sólidos'; $ICONO = 'fa-recycle'; ?>
+<div class="container-fluid px-3 mt-2">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0"><i class="fas <?= $ICONO ?>"></i> <?= $TITULO ?></h6>
+        <div class="d-flex gap-1">
+            <a href="<?= base_url('/inspecciones/'.$SLUG.'/documento') ?>" class="btn btn-sm btn-outline-secondary" target="_blank" style="padding:4px 8px;font-size:12px;" title="Documento"><i class="fas fa-file-alt"></i></a>
+            <a href="<?= base_url('/inspecciones/'.$SLUG.'/presentacion') ?>" class="btn btn-sm btn-outline-secondary" target="_blank" style="padding:4px 8px;font-size:12px;" title="Estructura"><i class="fas fa-tv"></i></a>
+            <a href="<?= base_url('/inspecciones/'.$SLUG.'/create') ?>" class="btn btn-sm btn-pwa-primary" style="width:auto;padding:8px 16px;"><i class="fas fa-plus"></i> Nuevo</a>
         </div>
     </div>
-    <?php endforeach; ?>
-<?php endif; ?>
+    <div class="table-responsive">
+    <table id="tablaInsp" class="table table-sm table-hover" style="width:100%">
+        <thead><tr><th>#</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+        <?php foreach ($inspecciones as $i => $r):
+            $f = $r['fecha_programa'];
+            $e = $r['estado'];
+            $estados = ['borrador'=>['Borrador','badge-borrador'],'completo'=>['Completo','badge-completo'],'pendiente_firma'=>['Pend. Firma','badge-pendiente_firma']];
+            [$lbl,$cls] = $estados[$e] ?? [esc($e),'bg-secondary'];
+        ?>
+        <tr>
+            <td><?= $i+1 ?></td>
+            <td><?= esc($r['nombre_cliente']??'') ?></td>
+            <td data-order="<?= esc($f) ?>"><?= date('d/m/Y',strtotime($f)) ?></td>
+            <td><span class="badge <?= $cls ?>"><?= $lbl ?></span></td>
+            <td>
+                <a href="<?= base_url('/inspecciones/'.$SLUG.'/edit/'.$r['id']) ?>" class="btn btn-xs btn-outline-dark" style="padding:2px 7px;font-size:12px;" title="Editar"><i class="fas fa-edit"></i></a>
+                <?php if($e==='completo'):?>
+                <a href="<?= base_url('/inspecciones/'.$SLUG.'/view/'.$r['id']) ?>" class="btn btn-xs btn-outline-secondary" style="padding:2px 7px;font-size:12px;" title="Ver"><i class="fas fa-eye"></i></a>
+                <a href="<?= base_url('/inspecciones/'.$SLUG.'/pdf/'.$r['id']) ?>" class="btn btn-xs btn-outline-success" style="padding:2px 7px;font-size:12px;" target="_blank" title="PDF"><i class="fas fa-file-pdf"></i></a>
+                <?php endif;?>
+                <button class="btn btn-xs btn-outline-danger btn-del" data-id="<?= $r['id'] ?>" data-nombre="<?= esc($r['nombre_cliente']??'') ?>" style="padding:2px 7px;font-size:12px;"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+        <?php endforeach;?>
+        </tbody>
+    </table>
+    </div>
 </div>
-
+<?php $deleteBase = base_url('/inspecciones/'.$SLUG.'/delete/'); ?>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    $.ajax({
-        url: '<?= base_url('/inspecciones/api/clientes') ?>',
-        dataType: 'json',
-        success: function(data) {
-            var sel = document.getElementById('filtroCliente');
-            data.forEach(function(c) {
-                var opt = document.createElement('option');
-                opt.value = c.nombre_cliente;
-                opt.textContent = c.nombre_cliente;
-                sel.appendChild(opt);
-            });
-            $('#filtroCliente').select2({ placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
-        }
-    });
-
-    $('#filtroCliente').on('change', function() {
-        var val = this.value.toLowerCase();
-        document.querySelectorAll('.card-filtrable').forEach(function(card) {
-            var cliente = card.dataset.cliente.toLowerCase();
-            card.style.display = (!val || cliente.includes(val)) ? '' : 'none';
-        });
-    });
-
-    document.addEventListener('click', function(e) {
-        var btn = e.target.closest('.btn-delete');
-        if (!btn) return;
-        e.preventDefault();
-        var id = btn.dataset.id;
-        Swal.fire({
-            title: 'Eliminar programa?',
-            text: 'Esta acción no se puede deshacer.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        }).then(result => {
-            if (result.isConfirmed) {
-                window.location.href = '<?= base_url('/inspecciones/residuos-solidos/delete/') ?>' + id;
-            }
-        });
+$(function(){
+    $('#tablaInsp').DataTable({responsive:true,language:{url:'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json'},pageLength:25,order:[[2,'desc']],columnDefs:[{orderable:false,targets:[0,4]}]});
+    $('#tablaInsp').on('click','.btn-del',function(){
+        var id=this.dataset.id,n=this.dataset.nombre;
+        Swal.fire({title:'¿Eliminar registro?',html:'Se eliminará el registro de <strong>'+n+'</strong>',icon:'warning',showCancelButton:true,confirmButtonColor:'#dc3545',confirmButtonText:'Sí, eliminar',cancelButtonText:'Cancelar'})
+        .then(function(r){if(r.isConfirmed)window.location.href='<?= $deleteBase ?>'+id;});
     });
 });
 </script>

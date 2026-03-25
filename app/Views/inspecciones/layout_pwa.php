@@ -19,6 +19,9 @@
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <!-- Select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <!-- DataTables Bootstrap5 + Responsive -->
+    <link href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.min.css" rel="stylesheet">
 
     <style>
         :root {
@@ -206,6 +209,22 @@
             color: white;
         }
 
+        /* DataTables PWA overrides */
+        .dataTables_wrapper .dataTables_filter input {
+            min-height: 40px; font-size: 15px; border-radius: 8px;
+            border: 1px solid #ced4da; padding: 6px 12px;
+        }
+        .dataTables_wrapper .dataTables_length select { min-height: 36px; font-size: 14px; }
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate { font-size: 13px; }
+        table.dataTable td, table.dataTable th { font-size: 13px; vertical-align: middle; }
+        table.dataTable thead th { background: #1c2437 !important; color: #bd9751 !important; border-color: #2c3e50 !important; }
+        table.dataTable thead th.sorting:after,
+        table.dataTable thead th.sorting_asc:after,
+        table.dataTable thead th.sorting_desc:after { color: #bd9751; }
+        .dataTables_wrapper .page-item.active .page-link { background-color: #bd9751; border-color: #bd9751; }
+        .dataTables_wrapper .page-link { color: #1c2437; }
+
         /* Badge estados */
         .badge-borrador {
             background: #ffc107;
@@ -322,6 +341,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.min.js"></script>
 
     <!-- Flash messages -->
     <script>

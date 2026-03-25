@@ -1,129 +1,49 @@
-<div class="container-fluid px-3">
-    <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
-        <h6 class="mb-0">Actas de Visita</h6>
-        <a href="<?= base_url('/inspecciones/acta-visita/create') ?>" class="btn btn-sm btn-pwa-primary" style="width:auto; padding: 8px 16px;">
-            <i class="fas fa-plus"></i> Nueva
-        </a>
+<?php $SLUG = 'acta-visita'; $TITULO = 'Actas de Visita'; $ICONO = 'fa-clipboard'; ?>
+<div class="container-fluid px-3 mt-2">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0"><i class="fas <?= $ICONO ?>"></i> <?= $TITULO ?></h6>
+        <a href="<?= base_url('/inspecciones/'.$SLUG.'/create') ?>" class="btn btn-sm btn-pwa-primary" style="width:auto;padding:8px 16px;"><i class="fas fa-plus"></i> Nuevo</a>
     </div>
-
-    <!-- Filtro por cliente -->
-    <div class="mb-3">
-        <select id="filterCliente" class="form-select" style="width:100%;">
-            <option value="">Todos los clientes</option>
-        </select>
+    <div class="table-responsive">
+    <table id="tablaInsp" class="table table-sm table-hover" style="width:100%">
+        <thead><tr><th>#</th><th>Cliente</th><th>Fecha</th><th>Motivo</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+        <?php foreach ($actas as $i => $r):
+            $f = $r['fecha_visita'];
+            $e = $r['estado'];
+            $estados = ['borrador'=>['Borrador','badge-borrador'],'completo'=>['Completo','badge-completo'],'pendiente_firma'=>['Pend. Firma','badge-pendiente_firma']];
+            [$lbl,$cls] = $estados[$e] ?? [esc($e),'bg-secondary'];
+        ?>
+        <tr>
+            <td><?= $i+1 ?></td>
+            <td><?= esc($r['nombre_cliente']??'') ?></td>
+            <td data-order="<?= esc($f) ?>"><?= date('d/m/Y',strtotime($f)) ?></td>
+            <td><?= esc(mb_strimwidth($r['motivo']??'',0,35,'...')) ?></td>
+            <td><span class="badge <?= $cls ?>"><?= $lbl ?></span></td>
+            <td>
+                <a href="<?= base_url('/inspecciones/'.$SLUG.'/edit/'.$r['id']) ?>" class="btn btn-xs btn-outline-dark" style="padding:2px 7px;font-size:12px;" title="Editar"><i class="fas fa-edit"></i></a>
+                <?php if($e==='pendiente_firma'):?>
+                <a href="<?= base_url('/inspecciones/'.$SLUG.'/firma/'.$r['id']) ?>" class="btn btn-xs btn-outline-warning" style="padding:2px 7px;font-size:12px;" title="Firmar"><i class="fas fa-signature"></i></a>
+                <?php elseif($e==='completo'):?>
+                <a href="<?= base_url('/inspecciones/'.$SLUG.'/view/'.$r['id']) ?>" class="btn btn-xs btn-outline-secondary" style="padding:2px 7px;font-size:12px;" title="Ver"><i class="fas fa-eye"></i></a>
+                <a href="<?= base_url('/inspecciones/'.$SLUG.'/pdf/'.$r['id']) ?>" class="btn btn-xs btn-outline-success" style="padding:2px 7px;font-size:12px;" target="_blank" title="PDF"><i class="fas fa-file-pdf"></i></a>
+                <?php endif;?>
+                <button class="btn btn-xs btn-outline-danger btn-del" data-id="<?= $r['id'] ?>" data-nombre="<?= esc($r['nombre_cliente']??'') ?>" style="padding:2px 7px;font-size:12px;"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+        <?php endforeach;?>
+        </tbody>
+    </table>
     </div>
-
-    <!-- Lista de actas -->
-    <?php if (empty($actas)): ?>
-        <div class="text-center text-muted py-5">
-            <i class="fas fa-clipboard fa-3x mb-3" style="opacity:0.3;"></i>
-            <p>No hay actas de visita aun</p>
-            <a href="<?= base_url('/inspecciones/acta-visita/create') ?>" class="btn btn-pwa-primary" style="width:auto; padding: 8px 24px;">
-                Crear primera acta
-            </a>
-        </div>
-    <?php else: ?>
-        <div id="actasList">
-        <?php foreach ($actas as $acta): ?>
-            <div class="card card-inspeccion <?= esc($acta['estado']) ?> acta-item" data-cliente="<?= strtolower(esc($acta['nombre_cliente'] ?? '')) ?>">
-                <div class="card-body py-3 px-3">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div style="flex:1;">
-                            <strong><?= esc($acta['nombre_cliente'] ?? 'Sin cliente') ?></strong>
-                            <div class="text-muted" style="font-size: 13px;">
-                                <?= date('d/m/Y', strtotime($acta['fecha_visita'])) ?>
-                                - <?= date('g:i A', strtotime($acta['hora_visita'])) ?>
-                            </div>
-                            <div style="font-size: 13px; color: #666; margin-top: 2px;">
-                                <?= esc($acta['motivo']) ?>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge badge-<?= esc($acta['estado']) ?>">
-                                <?php
-                                switch ($acta['estado']) {
-                                    case 'borrador': echo 'Borrador'; break;
-                                    case 'pendiente_firma': echo 'Pend. Firma'; break;
-                                    case 'completo': echo 'Completo'; break;
-                                }
-                                ?>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="mt-2 d-flex gap-2">
-                            <a href="<?= base_url('/inspecciones/acta-visita/edit/') ?><?= $acta['id'] ?>" class="btn btn-sm btn-outline-dark">
-                                <i class="fas fa-edit"></i> Editar
-                            </a>
-                            <a href="<?= base_url('/inspecciones/acta-visita/delete/') ?><?= $acta['id'] ?>" class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $acta['id'] ?>">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                        <?php if ($acta['estado'] === 'pendiente_firma'): ?>
-                            <a href="<?= base_url('/inspecciones/acta-visita/firma/') ?><?= $acta['id'] ?>" class="btn btn-sm btn-outline-warning">
-                                <i class="fas fa-signature"></i> Firmar
-                            </a>
-                        <?php elseif ($acta['estado'] === 'completo'): ?>
-                            <a href="<?= base_url('/inspecciones/acta-visita/pdf/') ?><?= $acta['id'] ?>" class="btn btn-sm btn-outline-success" target="_blank">
-                                <i class="fas fa-file-pdf"></i> PDF
-                            </a>
-                            <a href="<?= base_url('/inspecciones/acta-visita/view/') ?><?= $acta['id'] ?>" class="btn btn-sm btn-outline-dark">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
 </div>
-
+<?php $deleteBase = base_url('/inspecciones/'.$SLUG.'/delete/'); ?>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Cargar clientes en Select2
-    $.ajax({
-        url: '<?= base_url('/inspecciones/api/clientes') ?>',
-        dataType: 'json',
-        success: function(data) {
-            var select = $('#filterCliente');
-            data.forEach(function(c) {
-                select.append('<option value="' + c.nombre_cliente.toLowerCase() + '">' + c.nombre_cliente + '</option>');
-            });
-            select.select2({ placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
-        },
-        error: function() {
-            $('#filterCliente').select2({ placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
-        }
-    });
-
-    // Filtrar actas por cliente seleccionado
-    $('#filterCliente').on('change', function() {
-        var selected = (this.value || '').toLowerCase();
-        $('.acta-item').each(function() {
-            if (!selected) {
-                $(this).show();
-            } else {
-                $(this).toggle($(this).data('cliente') === selected);
-            }
-        });
-    });
-
-    // Confirmar eliminación
-    document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const url = this.href;
-            Swal.fire({
-                title: 'Eliminar acta?',
-                text: 'Esta accion no se puede deshacer',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                confirmButtonText: 'Si, eliminar',
-                cancelButtonText: 'Cancelar',
-            }).then(result => {
-                if (result.isConfirmed) window.location.href = url;
-            });
-        });
+$(function(){
+    $('#tablaInsp').DataTable({responsive:true,language:{url:'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json'},pageLength:25,order:[[2,'desc']],columnDefs:[{orderable:false,targets:[0,5]}]});
+    $('#tablaInsp').on('click','.btn-del',function(){
+        var id=this.dataset.id,n=this.dataset.nombre;
+        Swal.fire({title:'¿Eliminar acta?',html:'Se eliminará el acta de <strong>'+n+'</strong>',icon:'warning',showCancelButton:true,confirmButtonColor:'#dc3545',confirmButtonText:'Sí, eliminar',cancelButtonText:'Cancelar'})
+        .then(function(r){if(r.isConfirmed)window.location.href='<?= $deleteBase ?>'+id;});
     });
 });
 </script>
