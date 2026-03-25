@@ -137,23 +137,8 @@ class AsistenciaInduccionController extends BaseController
 
         $data = $this->getInspeccionPostData();
         $this->inspeccionModel->update($id, $data);
-
-        // Solo re-procesar asistentes si la sesión NO está completa
-        if ($inspeccion['estado'] !== 'completo') {
-            $asistenteModel = new AsistenciaInduccionAsistenteModel();
-            $existentes = $asistenteModel->getByAsistencia($id);
-
-            // Preserve firma paths before deleting
-            $firmasPrevias = [];
-            foreach ($existentes as $ex) {
-                if (!empty($ex['cedula'])) {
-                    $firmasPrevias[$ex['cedula']] = $ex['firma'] ?? '';
-                }
-            }
-
-            $asistenteModel->where('id_asistencia', $id)->delete();
-            $this->saveAsistentes($id, $firmasPrevias);
-        }
+        // Asistentes se gestionan exclusivamente vía AJAX (storeAsistente/deleteAsistente).
+        // update() solo actualiza metadatos de la sesión.
 
         if ($this->isAutosaveRequest()) {
             return $this->autosaveJsonSuccess((int)$id);
