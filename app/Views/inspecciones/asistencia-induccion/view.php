@@ -76,7 +76,7 @@ $tipoLabel = $tiposCharla[$inspeccion['tipo_charla'] ?? ''] ?? $inspeccion['tipo
                             <td><?= esc($a['cargo']) ?></td>
                             <td class="text-center">
                                 <?php if (!empty($a['firma'])): ?>
-                                <img src="/<?= esc($a['firma']) ?>" style="max-width:60px; max-height:30px; border:1px solid #ddd;">
+                                <img src="<?= base_url($a['firma']) ?>" style="max-width:120px; max-height:60px; border:1px solid #ddd; border-radius:4px;">
                                 <?php else: ?>
                                 <span class="text-muted" style="font-size:10px;">Sin firma</span>
                                 <?php endif; ?>

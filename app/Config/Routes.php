@@ -1484,6 +1484,15 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     // API: vencimiento pendiente para cliente+tipo
     $routes->get('certificado-servicio/vencimiento/(:num)', 'CertificadoServicioController::apiVencimientoPendiente/$1');
 
+    // Proveedores de Servicio
+    $routes->get('proveedor-servicio',                'ProveedorServicioController::list');
+    $routes->get('proveedor-servicio/create',         'ProveedorServicioController::create');
+    $routes->post('proveedor-servicio/store',         'ProveedorServicioController::store');
+    $routes->get('proveedor-servicio/edit/(:num)',    'ProveedorServicioController::edit/$1');
+    $routes->post('proveedor-servicio/update/(:num)', 'ProveedorServicioController::update/$1');
+    $routes->post('proveedor-servicio/toggle/(:num)', 'ProveedorServicioController::toggleEstado/$1');
+    $routes->post('proveedor-servicio/delete/(:num)', 'ProveedorServicioController::delete/$1');
+
     // Planilla Seguridad Social
     $routes->get('planilla-seg-social',              'PlanillaSSController::list');
     $routes->get('planilla-seg-social/create',       'PlanillaSSController::create');

@@ -1225,6 +1225,11 @@
             <div><strong>Planilla SS</strong></div>
             <div class="count">(<?= $totalPlanillaSS ?>)</div>
         </a>
+        <a href="<?= base_url('/inspecciones/proveedor-servicio') ?>" class="card-tipo">
+            <i class="fas fa-handshake"></i>
+            <div><strong>Proveedores</strong></div>
+            <div class="count">(<?= $totalProveedores ?>)</div>
+        </a>
         <a href="<?= base_url('/inspecciones/urls') ?>" class="card-tipo">
             <i class="fas fa-link"></i>
             <div><strong>Accesos Rápidos</strong></div>

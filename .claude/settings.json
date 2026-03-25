@@ -209,7 +209,12 @@
       "Bash(scp /c/xampp/htdocs/enterprisesstph/app/SQL/sync_estandares_from_contratos.php root@66.29.154.174:/tmp/sync_estandares.php)",
       "Skill(update-config)",
       "Skill(update-config:*)",
-      "Bash(scp c:/xampp/htdocs/enterprisesstph/public/uploads/canecas_colores.png root@66.29.154.174:/www/wwwroot/phorizontal/enterprisesstph/public/uploads/)"
+      "Bash(scp c:/xampp/htdocs/enterprisesstph/public/uploads/canecas_colores.png root@66.29.154.174:/www/wwwroot/phorizontal/enterprisesstph/public/uploads/)",
+      "Bash(DB_PROD_PASS=\"AVNS_MR2SLvzRh3i_7o9fEHN\" php app/SQL/create_planes_contingencia.php production)",
+      "Bash(DB_PROD_PASS=\"AVNS_MR2SLvzRh3i_7o9fEHN\" php app/SQL/add_detail_report_contingencias.php production)",
+      "Bash(DB_PROD_PASS=\"AVNS_MR2SLvzRh3i_7o9fEHN\" php app/SQL/add_motivo_sin_firma_acta.php production)",
+      "Bash(ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@66.29.154.174 \"echo connected\")",
+      "Bash(find /c/xampp/htdocs/enterprisesstph -type f \\\\\\(-name *cronogCapacitacion* -o -name *cronograma*capacitacion* \\\\\\))"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\enterprisesstph\\app\\Config",

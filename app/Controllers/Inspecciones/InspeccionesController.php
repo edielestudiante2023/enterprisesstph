@@ -215,6 +215,7 @@ class InspeccionesController extends BaseController
         $totalFumigacion     = $certModel->where('id_mantenimiento', 3)->countAllResults();
         $totalDesratizacion  = $certModel->where('id_mantenimiento', 4)->countAllResults();
         $totalPlanillaSS     = (new PlanillaSSModel())->countAllResults();
+        $totalProveedores    = (new \App\Models\ProveedorServicioModel())->countAllResults();
 
         $data = [
             'title'            => 'Inspecciones SST',
@@ -291,6 +292,7 @@ class InspeccionesController extends BaseController
             'totalFumigacion'     => $totalFumigacion,
             'totalDesratizacion'  => $totalDesratizacion,
             'totalPlanillaSS'     => $totalPlanillaSS,
+            'totalProveedores'    => $totalProveedores,
             'nombre'           => session()->get('nombre_usuario'),
         ];
 
