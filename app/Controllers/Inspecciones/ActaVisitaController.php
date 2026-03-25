@@ -275,9 +275,9 @@ class ActaVisitaController extends BaseController
             }
         }
 
-        // Consultor siempre firma
+        // Consultor siempre firma — usar id_consultor del acta (no el usuario logueado)
         $consultantModel = new ConsultantModel();
-        $consultor = $consultantModel->find(session()->get('user_id'));
+        $consultor = $consultantModel->find($acta['id_consultor']);
         $firmantes[] = [
             'tipo'    => 'consultor',
             'nombre'  => $consultor['nombre_consultor'] ?? session()->get('nombre_usuario'),
@@ -1213,7 +1213,7 @@ class ActaVisitaController extends BaseController
         $apiKey = env('SENDGRID_API_KEY');
         if (!$apiKey) return;
 
-        $cliente  = $this->clientModel->find($acta['id_cliente']);
+        $cliente  = (new ClientModel())->find($acta['id_cliente']);
         $token    = $this->generarTokenEvaluacion((int)$acta['id'], (int)$acta['id_cliente']);
         $url      = base_url("acta-visita/evaluaciones-visita/{$acta['id']}/{$token}");
         $fecha    = date('d/m/Y', strtotime($acta['fecha_visita']));
