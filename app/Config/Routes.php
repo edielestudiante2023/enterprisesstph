@@ -1464,18 +1464,21 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('lavado-tanques/create',            'CertificadoServicioController::create/2');
     $routes->get('lavado-tanques/create/(:num)',     'CertificadoServicioController::create/2/$1');
     $routes->post('lavado-tanques/store',            'CertificadoServicioController::store/2');
+    $routes->get('lavado-tanques/view/(:num)',       'CertificadoServicioController::view/$1');
     $routes->post('lavado-tanques/delete/(:num)',    'CertificadoServicioController::delete/$1');
 
     $routes->get('fumigacion',                       'CertificadoServicioController::list/3');
     $routes->get('fumigacion/create',                'CertificadoServicioController::create/3');
     $routes->get('fumigacion/create/(:num)',         'CertificadoServicioController::create/3/$1');
     $routes->post('fumigacion/store',                'CertificadoServicioController::store/3');
+    $routes->get('fumigacion/view/(:num)',           'CertificadoServicioController::view/$1');
     $routes->post('fumigacion/delete/(:num)',        'CertificadoServicioController::delete/$1');
 
     $routes->get('desratizacion',                    'CertificadoServicioController::list/4');
     $routes->get('desratizacion/create',             'CertificadoServicioController::create/4');
     $routes->get('desratizacion/create/(:num)',      'CertificadoServicioController::create/4/$1');
     $routes->post('desratizacion/store',             'CertificadoServicioController::store/4');
+    $routes->get('desratizacion/view/(:num)',        'CertificadoServicioController::view/$1');
     $routes->post('desratizacion/delete/(:num)',     'CertificadoServicioController::delete/$1');
 
     // API: vencimiento pendiente para cliente+tipo

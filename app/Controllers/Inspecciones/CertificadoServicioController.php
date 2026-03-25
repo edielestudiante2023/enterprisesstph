@@ -134,6 +134,27 @@ class CertificadoServicioController extends BaseController
         return redirect()->to('/inspecciones/' . $cfg['slug']);
     }
 
+    public function view(int $id)
+    {
+        $model = new CertificadoServicioModel();
+        $registro = $model->find($id);
+        if (!$registro) {
+            return redirect()->to('/inspecciones')->with('error', 'Registro no encontrado.');
+        }
+
+        $cfg = self::config($registro['id_mantenimiento']);
+        $cliente = (new ClientModel())->find($registro['id_cliente']);
+
+        return view('inspecciones/layout_pwa', [
+            'title'   => 'Ver ' . $cfg['nombre'],
+            'content' => view('inspecciones/certificado-servicio/view', [
+                'cfg'      => $cfg,
+                'registro' => $registro,
+                'cliente'  => $cliente,
+            ]),
+        ]);
+    }
+
     public function delete(int $id)
     {
         $model = new CertificadoServicioModel();
