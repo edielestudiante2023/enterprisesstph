@@ -111,11 +111,11 @@ $action = $isEdit ? base_url('/inspecciones/asistencia-induccion/update/') . $in
 
         <!-- BOTONES -->
         <div class="d-grid gap-3 mt-3 mb-5 pb-3">
-            <button type="submit" name="accion" value="registrar" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;">
-                <i class="fas fa-users"></i> <?= $isEdit ? 'Guardar y registrar asistentes' : 'Crear y registrar asistentes' ?>
-            </button>
             <button type="submit" name="accion" value="borrador" class="btn btn-pwa btn-pwa-outline py-3" style="font-size:17px;">
                 <i class="fas fa-save"></i> Guardar borrador
+            </button>
+            <button type="submit" name="accion" value="registrar" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;">
+                <i class="fas fa-users"></i> <?= $isEdit ? 'Guardar y registrar asistentes' : 'Crear y registrar asistentes' ?>
             </button>
             <?php if ($isEdit): ?>
             <a href="<?= base_url('/inspecciones/asistencia-induccion/registrar/') ?><?= $inspeccion['id'] ?>"
@@ -147,15 +147,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Load existing asistentes if editing
-    <?php if ($isEdit && !empty($asistentes)): ?>
-    <?php foreach ($asistentes as $a): ?>
-    addAsistenteRow('<?= esc(addslashes($a['nombre'])) ?>', '<?= esc(addslashes($a['cedula'])) ?>', '<?= esc(addslashes($a['cargo'])) ?>');
-    <?php endforeach; ?>
-    <?php else: ?>
-    // Add one empty row by default for new records
-    addAsistenteRow();
-    <?php endif; ?>
 
     // ============================================================
     // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
@@ -226,31 +217,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-let rowCount = 0;
-function addAsistenteRow(nombre, cedula, cargo) {
-    rowCount++;
-    const tbody = document.getElementById('asistentesBody');
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-        <td class="text-center align-middle">${rowCount}</td>
-        <td><input type="text" name="asistente_nombre[]" class="form-control form-control-sm" value="${nombre || ''}" required></td>
-        <td><input type="text" name="asistente_cedula[]" class="form-control form-control-sm" value="${cedula || ''}"></td>
-        <td><input type="text" name="asistente_cargo[]" class="form-control form-control-sm" value="${cargo || ''}"></td>
-        <td class="text-center align-middle"><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAsistenteRow(this)"><i class="fas fa-times"></i></button></td>
-    `;
-    tbody.appendChild(tr);
-}
-
-function removeAsistenteRow(btn) {
-    btn.closest('tr').remove();
-    // Re-number rows
-    const rows = document.getElementById('asistentesBody').querySelectorAll('tr');
-    rowCount = 0;
-    rows.forEach(tr => {
-        rowCount++;
-        tr.querySelector('td:first-child').textContent = rowCount;
-    });
-}
 
 <?php if (session()->getFlashdata('show_firmas_prompt') && $isEdit): ?>
 // ============================================================

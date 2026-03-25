@@ -23,6 +23,7 @@ class DotacionVigilanteController extends BaseController
         'chaqueta' => ['label' => 'Chaqueta', 'icon' => 'fa-vest-patches'],
         'radio'    => ['label' => 'Radio de Onda Corta', 'icon' => 'fa-walkie-talkie'],
         'baston'   => ['label' => 'Baston Tonfa', 'icon' => 'fa-gavel'],
+        'arma'     => ['label' => 'Arma de dotacion', 'icon' => 'fa-gun'],
         'calzado'  => ['label' => 'Calzado', 'icon' => 'fa-shoe-prints'],
         'gorra'    => ['label' => 'Gorra', 'icon' => 'fa-hat-cowboy'],
         'carne'    => ['label' => 'Carne', 'icon' => 'fa-id-card'],

@@ -210,9 +210,9 @@
       "Skill(update-config)",
       "Skill(update-config:*)",
       "Bash(scp c:/xampp/htdocs/enterprisesstph/public/uploads/canecas_colores.png root@66.29.154.174:/www/wwwroot/phorizontal/enterprisesstph/public/uploads/)",
-      "Bash(DB_PROD_PASS=$DB_PROD_PASS php app/SQL/create_planes_contingencia.php production)",
-      "Bash(DB_PROD_PASS=$DB_PROD_PASS php app/SQL/add_detail_report_contingencias.php production)",
-      "Bash(DB_PROD_PASS=$DB_PROD_PASS php app/SQL/add_motivo_sin_firma_acta.php production)",
+      "Bash(DB_PROD_PASS=*** php app/SQL/create_planes_contingencia.php production)",
+      "Bash(DB_PROD_PASS=*** php app/SQL/add_detail_report_contingencias.php production)",
+      "Bash(DB_PROD_PASS=*** php app/SQL/add_motivo_sin_firma_acta.php production)",
       "Bash(ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@66.29.154.174 \"echo connected\")",
       "Bash(find /c/xampp/htdocs/enterprisesstph -type f \\\\\\(-name *cronogCapacitacion* -o -name *cronograma*capacitacion* \\\\\\))"
     ],

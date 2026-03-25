@@ -185,6 +185,11 @@
                                     <?php if (!empty($contract['nombre_consultor'])): ?>
                                         <i class="fas fa-user-tie text-primary"></i>
                                         <?= htmlspecialchars($contract['nombre_consultor']) ?>
+                                        <?php if (!empty($contract['firma_consultor'])): ?>
+                                            <div class="mt-2">
+                                                <img src="<?= base_url('uploads/' . $contract['firma_consultor']) ?>" alt="Firma del consultor" class="img-thumbnail" style="max-width:200px;">
+                                            </div>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <span class="text-muted">No asignado</span>
                                     <?php endif; ?>
