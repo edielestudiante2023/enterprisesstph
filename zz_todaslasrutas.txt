@@ -1,7 +1,7 @@
-Aquí está el inventario completo de las 33 inspecciones/módulos con su ruta, ícono, carpeta de vistas y archivos:
+Aquí está el inventario completo de las 37 inspecciones/módulos con su ruta, ícono, carpeta de vistas y archivos:
 
 #	Módulo	Ruta URL	Ícono	Vistas	Archivos
-1	Actas de Visita	/inspecciones/acta-visita	fa-clipboard-list	acta_visita/	5: list, form, view, pdf, firma
+1	Actas de Visita	/inspecciones/acta-visita	fa-clipboard-list	acta_visita/	7: list, form, view, pdf, firma, evaluaciones_visita, evaluaciones_visita_error
 2	Señalización	/inspecciones/senalizacion	fa-search	senalizacion/	4: list, form, view, pdf
 3	Locativas	/inspecciones/inspeccion-locativa	fa-hard-hat	inspeccion_locativa/	4: list, form, view, pdf
 4	Extintores	/inspecciones/extintores	fa-fire-extinguisher	extintores/	5: list, form, view, pdf, _extintor_row
@@ -21,22 +21,39 @@ Aquí está el inventario completo de las 33 inspecciones/módulos con su ruta, 
 18	Capacitaciones	/inspecciones/reporte-capacitacion	fa-chalkboard-teacher	reporte-capacitacion/	4: list, form, view, pdf
 19	Prep. Simulacro	/inspecciones/preparacion-simulacro	fa-clipboard-check	preparacion-simulacro/	4: list, form, view, pdf
 20	Asistencia	/inspecciones/asistencia-induccion	fa-clipboard-list	asistencia-induccion/	4: list, form, view, pdf
-21	Limpieza y Des.	/inspecciones/limpieza-desinfeccion	fa-pump-soap	limpieza-desinfeccion/	4: list, form, view, pdf
-22	Residuos Sólidos	/inspecciones/residuos-solidos	fa-recycle	residuos-solidos/	4: list, form, view, pdf
-23	Control Plagas	/inspecciones/control-plagas	fa-bug	control-plagas/	4: list, form, view, pdf
-24	Agua Potable	/inspecciones/agua-potable	fa-tint	agua-potable/	4: list, form, view, pdf
-25	Plan Saneamiento	/inspecciones/plan-saneamiento	fa-shield-alt	plan-saneamiento/	4: list, form, view, pdf
-26	KPI Limpieza	/inspecciones/kpi-limpieza	fa-chart-line	kpi-limpieza/	4: list, form, view, pdf
-27	KPI Residuos	/inspecciones/kpi-residuos	fa-chart-bar	kpi-residuos/	4: list, form, view, pdf
-28	KPI Plagas	/inspecciones/kpi-plagas	fa-chart-pie	kpi-plagas/	4: list, form, view, pdf
-29	KPI Agua Potable	/inspecciones/kpi-agua-potable	fa-chart-area	kpi-agua-potable/	4: list, form, view, pdf
-30	Carta Vigía	/inspecciones/carta-vigia	fa-user-shield	carta_vigia/	7: list, form, pdf, firma, firma_error, firma_success, email_firma
-31	Mantenimientos	/inspecciones/mantenimientos	fa-wrench	mantenimientos/	2: list, form
-32	Pendientes	/inspecciones/pendientes	fa-tasks	pendientes/	2: list, form
-33	Accesos Rápidos	/inspecciones/urls	fa-link	urls/	2: list, form
-Totales: 33 módulos, ~131 archivos de vista, todas bajo app/Views/inspecciones/
+21	Evaluaciones	/inspecciones/evaluacion-induccion	fa-spell-check	evaluacion-induccion/	3: list, form, view
+22	Limpieza y Des.	/inspecciones/limpieza-desinfeccion	fa-pump-soap	limpieza-desinfeccion/	4: list, form, view, pdf
+23	Residuos Sólidos	/inspecciones/residuos-solidos	fa-recycle	residuos-solidos/	4: list, form, view, pdf
+24	Control Plagas	/inspecciones/control-plagas	fa-bug	control-plagas/	4: list, form, view, pdf
+25	Agua Potable	/inspecciones/agua-potable	fa-tint	agua-potable/	4: list, form, view, pdf
+26	Plan Saneamiento	/inspecciones/plan-saneamiento	fa-shield-alt	plan-saneamiento/	4: list, form, view, pdf
+27	Cont. Plagas	/inspecciones/contingencia-plagas	fa-bug	contingencia-plagas/	4: list, form, view, pdf
+28	Cont. Sin Agua	/inspecciones/contingencia-agua	fa-tint-slash	contingencia-agua/	4: list, form, view, pdf
+29	Cont. Basura	/inspecciones/contingencia-basura	fa-trash-alt	contingencia-basura/	4: list, form, view, pdf
+30	KPI Limpieza	/inspecciones/kpi-limpieza	fa-chart-line	kpi-limpieza/	4: list, form, view, pdf
+31	KPI Residuos	/inspecciones/kpi-residuos	fa-chart-bar	kpi-residuos/	4: list, form, view, pdf
+32	KPI Plagas	/inspecciones/kpi-plagas	fa-chart-pie	kpi-plagas/	4: list, form, view, pdf
+33	KPI Agua Potable	/inspecciones/kpi-agua-potable	fa-chart-area	kpi-agua-potable/	4: list, form, view, pdf
+34	Carta Vigía	/inspecciones/carta-vigia	fa-user-shield	carta_vigia/	7: list, form, pdf, firma, firma_error, firma_success, email_firma
+35	Mantenimientos	/inspecciones/mantenimientos	fa-wrench	mantenimientos/	2: list, form
+36	Pendientes	/inspecciones/pendientes	fa-tasks	pendientes/	2: list, form
+37	Lavado Tanques	/inspecciones/lavado-tanques	fa-water	certificado-servicio/	2: list, form  (id_mantenimiento=2, tabla: tbl_certificado_servicio)
+38	Fumigación	/inspecciones/fumigacion	fa-bug	certificado-servicio/	2: list, form  (id_mantenimiento=3, tabla: tbl_certificado_servicio)
+39	Desratización	/inspecciones/desratizacion	fa-mouse	certificado-servicio/	2: list, form  (id_mantenimiento=4, tabla: tbl_certificado_servicio)
+40	Planilla SS	/inspecciones/planilla-seg-social	fa-file-invoice	planilla-ss/	2: list, form  (tabla: tbl_planilla_ss_inspeccion)
+41	Accesos Rápidos	/inspecciones/urls	fa-link	urls/	2: list, form
+Totales: 41 módulos, ~155 archivos de vista, todas bajo app/Views/inspecciones/
+
+Módulos especiales (sin estado borrador/completo):
+- Módulos 37-40: solo upload + registro. No aparecen en el acordeón de pendientes del dashboard.
+- Módulos 37-39 (certificados): detectan vencimiento pendiente del cliente y ofrecen cerrarlo al guardar.
+- Módulo 40 (Planilla SS): campo período YYYY-MM, sin vínculo a vencimientos.
+- Los 4 sincronizan a tbl_reporte (id_detailreport: 40=LavadoTanques, 41=Fumigacion, 42=Desratizacion, 43=PlanillaSS).
+
+Dashboard Saneamiento (consolidado):
+/inspecciones/dashboard-saneamiento → DashboardSaneamientoController
 
 Formularios públicos adicionales (sin autenticación):
-
 Evaluación Simulacro: /simulacro → app/Views/simulacro/form_publico.php
 HV Brigadista: /hv-brigadista → app/Views/hv-brigadista/form_publico.php
+Evaluaciones rápidas post-visita: /acta-visita/evaluaciones-visita/{id}/{token} → evaluaciones_visita.php
