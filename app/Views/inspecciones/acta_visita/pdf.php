@@ -196,25 +196,61 @@
         <p class="empty-text">No se registraron temas.</p>
     <?php endif; ?>
 
-    <!-- 4. ACTIVIDADES PLAN DE TRABAJO ANUAL GESTIONADAS -->
-    <?php if (!empty($ptaCerradas)): ?>
-    <div class="section-title">4. ACTIVIDADES PLAN DE TRABAJO ANUAL GESTIONADAS</div>
+    <!-- 4. ACTIVIDADES PLAN DE TRABAJO ANUAL REVISADAS -->
+    <?php if (!empty($ptaActividades)): ?>
+    <div class="section-title">4. ACTIVIDADES PLAN DE TRABAJO ANUAL REVISADAS</div>
     <table class="data-table">
         <thead>
             <tr>
                 <th style="width:70px;">NUMERAL</th>
                 <th>ACTIVIDAD</th>
                 <th style="width:80px;">FECHA PROPUESTA</th>
-                <th style="width:60px;">ESTADO</th>
+                <th style="width:80px;">ESTADO</th>
+                <th>OBSERVACIÓN</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($ptaCerradas as $pta): ?>
+            <?php foreach ($ptaActividades as $pta): ?>
             <tr>
                 <td><?= esc($pta['numeral_plandetrabajo'] ?? '') ?></td>
                 <td><?= esc($pta['actividad_plandetrabajo'] ?? '') ?></td>
                 <td><?= !empty($pta['fecha_propuesta']) ? date('d/m/Y', strtotime($pta['fecha_propuesta'])) : '-' ?></td>
-                <td style="color:green; font-weight:bold;">CERRADA</td>
+                <td style="font-weight:bold; color:<?= $pta['cerrada'] ? 'green' : ($pta['justificacion_no_cierre'] ? '#b8860b' : '#888') ?>">
+                    <?= $pta['cerrada'] ? 'CERRADA' : ($pta['justificacion_no_cierre'] ? 'EN PROCESO' : 'PENDIENTE') ?>
+                </td>
+                <td style="font-size:11px; color:#555;"><?= esc($pta['justificacion_no_cierre'] ?? '') ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php endif; ?>
+
+    <!-- 4b. PENDIENTES CERRADOS EN VISITA -->
+    <?php if (!empty($pendientesCerradosEnVisita)): ?>
+    <div class="section-title">4b. PENDIENTES CERRADOS EN VISITA</div>
+    <table class="data-table">
+        <thead><tr><th>PENDIENTE</th><th style="width:100px;">RESPONSABLE</th></tr></thead>
+        <tbody>
+            <?php foreach ($pendientesCerradosEnVisita as $pend): ?>
+            <tr>
+                <td><?= esc($pend['tarea_actividad']) ?></td>
+                <td><?= esc($pend['responsable'] ?? '-') ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php endif; ?>
+
+    <!-- 4c. MANTENIMIENTOS EJECUTADOS EN VISITA -->
+    <?php if (!empty($mantenimientosEnVisita)): ?>
+    <div class="section-title">4c. MANTENIMIENTOS EJECUTADOS EN VISITA</div>
+    <table class="data-table">
+        <thead><tr><th>MANTENIMIENTO</th><th style="width:100px;">FECHA EJECUCIÓN</th></tr></thead>
+        <tbody>
+            <?php foreach ($mantenimientosEnVisita as $mmto): ?>
+            <tr>
+                <td><?= esc($mmto['detalle_mantenimiento'] ?? $mmto['observaciones'] ?? 'Mantenimiento') ?></td>
+                <td><?= !empty($mmto['fecha_realizacion']) ? date('d/m/Y', strtotime($mmto['fecha_realizacion'])) : '-' ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody>

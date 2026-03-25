@@ -55,17 +55,60 @@
     </div>
     <?php endif; ?>
 
-    <!-- Actividades PTA Gestionadas -->
-    <?php if (!empty($ptaCerradas)): ?>
+    <!-- Actividades PTA Revisadas en Visita -->
+    <?php if (!empty($ptaActividades)): ?>
     <div class="card mb-3">
         <div class="card-body">
-            <h6 class="card-title" style="font-size:14px; color:#999;">ACTIVIDADES PTA GESTIONADAS</h6>
-            <?php foreach ($ptaCerradas as $pta): ?>
+            <h6 class="card-title" style="font-size:14px; color:#999;">ACTIVIDADES PLAN DE TRABAJO REVISADAS</h6>
+            <?php foreach ($ptaActividades as $pta): ?>
             <div style="font-size:14px; padding:4px 0; border-bottom:1px solid #eee;">
                 <strong><?= esc($pta['numeral_plandetrabajo'] ?? '') ?></strong> - <?= esc($pta['actividad_plandetrabajo'] ?? '') ?>
-                <span class="badge bg-success" style="font-size:10px;">CERRADA</span>
+                <?php if ($pta['cerrada']): ?>
+                    <span class="badge bg-success" style="font-size:10px;">CERRADA</span>
+                <?php elseif (!empty($pta['justificacion_no_cierre'])): ?>
+                    <span class="badge bg-warning text-dark" style="font-size:10px;">EN PROCESO</span>
+                    <small class="text-muted d-block"><?= esc($pta['justificacion_no_cierre']) ?></small>
+                <?php else: ?>
+                    <span class="badge bg-secondary" style="font-size:10px;">PENDIENTE</span>
+                <?php endif; ?>
                 <?php if (!empty($pta['fecha_propuesta'])): ?>
                     <small class="text-muted d-block">Fecha propuesta: <?= date('d/m/Y', strtotime($pta['fecha_propuesta'])) ?></small>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Pendientes cerrados en esta visita -->
+    <?php if (!empty($pendientesCerradosEnVisita)): ?>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title" style="font-size:14px; color:#999;">PENDIENTES CERRADOS EN VISITA</h6>
+            <?php foreach ($pendientesCerradosEnVisita as $pend): ?>
+            <div style="font-size:14px; padding:4px 0; border-bottom:1px solid #eee;">
+                <?= esc($pend['tarea_actividad']) ?>
+                <span class="badge bg-success" style="font-size:10px;">CERRADO</span>
+                <?php if (!empty($pend['responsable'])): ?>
+                    <small class="text-muted d-block">Responsable: <?= esc($pend['responsable']) ?></small>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Mantenimientos ejecutados en esta visita -->
+    <?php if (!empty($mantenimientosEnVisita)): ?>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title" style="font-size:14px; color:#999;">MANTENIMIENTOS EJECUTADOS EN VISITA</h6>
+            <?php foreach ($mantenimientosEnVisita as $mmto): ?>
+            <div style="font-size:14px; padding:4px 0; border-bottom:1px solid #eee;">
+                <?= esc($mmto['detalle_mantenimiento'] ?? $mmto['observaciones'] ?? 'Mantenimiento') ?>
+                <span class="badge bg-success" style="font-size:10px;">EJECUTADO</span>
+                <?php if (!empty($mmto['fecha_realizacion'])): ?>
+                    <small class="text-muted d-block">Fecha: <?= date('d/m/Y', strtotime($mmto['fecha_realizacion'])) ?></small>
                 <?php endif; ?>
             </div>
             <?php endforeach; ?>

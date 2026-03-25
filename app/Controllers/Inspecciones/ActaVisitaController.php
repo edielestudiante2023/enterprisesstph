@@ -238,8 +238,21 @@ class ActaVisitaController extends BaseController
             'integrantes' => $this->integranteModel->getByActa($id),
             'temas'       => $this->temaModel->getByActa($id),
             'fotos'       => (new ActaVisitaFotoModel())->getByActa($id),
-            'compromisos' => (new PendientesModel())->where('id_acta_visita', $id)->findAll(),
-            'ptaCerradas' => (new ActaVisitaPtaModel())->getCerradasByActa($id),
+            'compromisos'                => (new PendientesModel())->where('id_acta_visita', $id)->findAll(),
+            'ptaActividades'             => (new ActaVisitaPtaModel())->getByActa($id),
+            'pendientesCerradosEnVisita' => (new PendientesModel())
+                ->where('id_cliente', $acta['id_cliente'])
+                ->where('estado', 'CERRADA')
+                ->where('fecha_cierre', $acta['fecha_visita'])
+                ->where('(id_acta_visita IS NULL OR id_acta_visita != ' . $id . ')', null, false)
+                ->findAll(),
+            'mantenimientosEnVisita'     => (new \App\Models\VencimientosMantenimientoModel())
+                ->select('tbl_vencimientos_mantenimientos.*, tbl_mantenimientos.detalle_mantenimiento')
+                ->join('tbl_mantenimientos', 'tbl_mantenimientos.id_mantenimiento = tbl_vencimientos_mantenimientos.id_mantenimiento', 'left')
+                ->where('tbl_vencimientos_mantenimientos.id_cliente', $acta['id_cliente'])
+                ->where('estado_actividad', 'ejecutado')
+                ->where('fecha_realizacion', $acta['fecha_visita'])
+                ->findAll(),
         ];
 
         return view('inspecciones/layout_pwa', [
@@ -983,23 +996,40 @@ class ActaVisitaController extends BaseController
             }
         }
 
-        // Actividades PTA cerradas en esta acta
-        $ptaCerradas = (new ActaVisitaPtaModel())->getCerradasByActa($id);
+        // Actividades PTA (todas las revisadas en esta acta)
+        $ptaActividades = (new ActaVisitaPtaModel())->getByActa($id);
+
+        // Pendientes cerrados durante la visita y mantenimientos ejecutados
+        $pendientesCerradosEnVisita = (new PendientesModel())
+            ->where('id_cliente', $acta['id_cliente'])
+            ->where('estado', 'CERRADA')
+            ->where('fecha_cierre', $acta['fecha_visita'])
+            ->where('(id_acta_visita IS NULL OR id_acta_visita != ' . $id . ')', null, false)
+            ->findAll();
+        $mantenimientosEnVisita = (new \App\Models\VencimientosMantenimientoModel())
+            ->select('tbl_vencimientos_mantenimientos.*, tbl_mantenimientos.detalle_mantenimiento')
+            ->join('tbl_mantenimientos', 'tbl_mantenimientos.id_mantenimiento = tbl_vencimientos_mantenimientos.id_mantenimiento', 'left')
+            ->where('tbl_vencimientos_mantenimientos.id_cliente', $acta['id_cliente'])
+            ->where('estado_actividad', 'ejecutado')
+            ->where('fecha_realizacion', $acta['fecha_visita'])
+            ->findAll();
 
         $data = [
-            'acta'                => $acta,
-            'cliente'             => $cliente,
-            'consultor'           => $consultor,
-            'nombreConsultorFirma' => $nombreConsultorFirma,
-            'integrantes'         => $integrantes,
-            'temas'               => $temas,
-            'compromisos'         => $compromisos,
-            'pendientesAbiertos'  => $pendientesAbiertos,
-            'mantenimientos'      => $mantenimientos,
-            'firmas'              => $firmas,
-            'logoBase64'          => $logoBase64,
-            'fotos'               => $fotosBase64,
-            'ptaCerradas'         => $ptaCerradas,
+            'acta'                       => $acta,
+            'cliente'                    => $cliente,
+            'consultor'                  => $consultor,
+            'nombreConsultorFirma'       => $nombreConsultorFirma,
+            'integrantes'                => $integrantes,
+            'temas'                      => $temas,
+            'compromisos'                => $compromisos,
+            'pendientesAbiertos'         => $pendientesAbiertos,
+            'mantenimientos'             => $mantenimientos,
+            'firmas'                     => $firmas,
+            'logoBase64'                 => $logoBase64,
+            'fotos'                      => $fotosBase64,
+            'ptaActividades'             => $ptaActividades,
+            'pendientesCerradosEnVisita' => $pendientesCerradosEnVisita,
+            'mantenimientosEnVisita'     => $mantenimientosEnVisita,
         ];
 
         $html = view('inspecciones/acta_visita/pdf', $data);
