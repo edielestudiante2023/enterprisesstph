@@ -12,7 +12,7 @@ class DotacionVigilanteModel extends Model
         'id_cliente', 'id_consultor', 'fecha_inspeccion', 'contratista', 'servicio',
         'nombre_cargo', 'actividades_frecuentes', 'foto_cuerpo_completo',
         'foto_cuarto_almacenamiento', 'estado_uniforme', 'estado_chaqueta',
-        'estado_radio', 'estado_baston', 'estado_calzado', 'estado_gorra',
+        'estado_radio', 'estado_baston', 'estado_arma', 'estado_calzado', 'estado_gorra',
         'estado_carne', 'concepto_final', 'observaciones', 'ruta_pdf', 'estado',
     ];
     protected $useTimestamps = true;

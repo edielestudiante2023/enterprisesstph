@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.concepto_final) document.querySelector('[name="concepto_final"]').value = data.concepto_final;
         if (data.observaciones) document.querySelector('[name="observaciones"]').value = data.observaciones;
 
-        const keys = ['uniforme','chaqueta','radio','baston','calzado','gorra','carne'];
+        const keys = ['uniforme','chaqueta','radio','baston','arma','calzado','gorra','carne'];
         keys.forEach(k => {
             if (data['estado_'+k] !== undefined) {
                 const el = document.querySelector('[name="estado_'+k+'"]');
