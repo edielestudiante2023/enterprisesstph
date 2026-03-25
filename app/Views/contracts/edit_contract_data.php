@@ -212,6 +212,7 @@
                                         data-cedula="<?= $consultor['cedula_consultor'] ?>"
                                         data-licencia="<?= htmlspecialchars($consultor['numero_licencia']) ?>"
                                         data-email="<?= htmlspecialchars($consultor['correo_consultor']) ?>"
+                                        data-firma="<?= htmlspecialchars($consultor['firma_consultor'] ?? '') ?>"
                                         <?= (isset($contract['id_consultor_responsable']) && $contract['id_consultor_responsable'] == $consultor['id_consultor']) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($consultor['nombre_consultor']) ?>
                                     - Lic: <?= htmlspecialchars($consultor['numero_licencia']) ?>
@@ -238,6 +239,10 @@
                             <strong><i class="fas fa-user-check"></i> Consultor Seleccionado:</strong><br>
                             <span id="preview_nombre"></span><br>
                             <small>CC: <span id="preview_cedula"></span> | Licencia: <span id="preview_licencia"></span> | Email: <span id="preview_email"></span></small>
+                            <div id="preview_firma_container" style="display:none; margin-top:10px;">
+                                <strong>Firma:</strong><br>
+                                <img id="preview_firma" src="" alt="Firma del consultor" class="img-thumbnail" style="max-width:200px;">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -262,6 +267,15 @@
                     document.getElementById('preview_email').textContent = selectedOption.dataset.email;
                     document.getElementById('consultor_preview').style.display = 'block';
 
+                    // Mostrar firma si existe
+                    const firma = selectedOption.dataset.firma;
+                    if (firma) {
+                        document.getElementById('preview_firma').src = '<?= base_url('uploads/') ?>' + firma;
+                        document.getElementById('preview_firma_container').style.display = 'block';
+                    } else {
+                        document.getElementById('preview_firma_container').style.display = 'none';
+                    }
+
                 } else {
                     // Limpiar campos
                     document.getElementById('nombre_responsable_sgsst').value = '';
@@ -269,6 +283,7 @@
                     document.getElementById('licencia_responsable_sgsst').value = '';
                     document.getElementById('email_responsable_sgsst').value = '';
                     document.getElementById('consultor_preview').style.display = 'none';
+                    document.getElementById('preview_firma_container').style.display = 'none';
                 }
             });
 
