@@ -40,9 +40,47 @@
 document.addEventListener('DOMContentLoaded',function(){
     $('#tablaInsp').DataTable({responsive:true,language:{url:'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json'},pageLength:25,order:[[2,'desc']],columnDefs:[{orderable:false,targets:[0,5]}]});
     $('#tablaInsp').on('click','.btn-del',function(){
-        var id=this.dataset.id,n=this.dataset.nombre;
-        Swal.fire({title:'¿Eliminar registro?',html:'Se eliminará el registro de <strong>'+n+'</strong>',icon:'warning',showCancelButton:true,confirmButtonColor:'#dc3545',confirmButtonText:'Sí, eliminar',cancelButtonText:'Cancelar'})
-        .then(function(r){if(r.isConfirmed)window.location.href='<?= $deleteBase ?>'+id;});
+        var id=this.dataset.id;
+        confirmarEliminarInsp('<?= $deleteBase ?>'+id);
     });
 });
+function confirmarEliminarInsp(url){
+    var ops=['+','-','x'];
+    var op=ops[Math.floor(Math.random()*ops.length)];
+    var a,b,respuesta;
+    if(op==='+'){a=Math.floor(Math.random()*20)+1;b=Math.floor(Math.random()*20)+1;respuesta=a+b;}
+    else if(op==='-'){a=Math.floor(Math.random()*20)+10;b=Math.floor(Math.random()*a);respuesta=a-b;}
+    else{a=Math.floor(Math.random()*9)+2;b=Math.floor(Math.random()*9)+2;respuesta=a*b;}
+    Swal.fire({
+        title:'Eliminar registro',
+        html:'<p style="color:#666;font-size:14px;">Esta accion no se puede deshacer.<br>Para confirmar, resuelve la operacion:</p>'+
+             '<div style="font-size:24px;font-weight:700;color:#1c2437;margin:10px 0;">'+a+' '+op+' '+b+' = ?</div>',
+        input:'number',inputPlaceholder:'Tu respuesta',icon:'warning',showCancelButton:true,
+        confirmButtonColor:'#dc3545',confirmButtonText:'Eliminar',cancelButtonText:'Cancelar',
+        inputValidator:function(value){
+            if(!value&&value!=='0')return'Debes ingresar un numero';
+            if(parseInt(value)!==respuesta)return'Respuesta incorrecta. Intenta de nuevo.';
+        }
+    }).then(function(result){
+        if(!result.isConfirmed)return;
+        var op2=ops[Math.floor(Math.random()*ops.length)];
+        var a2,b2,resp2;
+        if(op2==='+'){a2=Math.floor(Math.random()*20)+1;b2=Math.floor(Math.random()*20)+1;resp2=a2+b2;}
+        else if(op2==='-'){a2=Math.floor(Math.random()*20)+10;b2=Math.floor(Math.random()*a2);resp2=a2-b2;}
+        else{a2=Math.floor(Math.random()*9)+2;b2=Math.floor(Math.random()*9)+2;resp2=a2*b2;}
+        Swal.fire({
+            title:'Confirmar eliminacion',
+            html:'<p style="color:#dc3545;font-size:14px;font-weight:600;">Segunda verificacion</p>'+
+                 '<div style="font-size:24px;font-weight:700;color:#1c2437;margin:10px 0;">'+a2+' '+op2+' '+b2+' = ?</div>',
+            input:'number',inputPlaceholder:'Tu respuesta',icon:'error',showCancelButton:true,
+            confirmButtonColor:'#dc3545',confirmButtonText:'Confirmar eliminacion',cancelButtonText:'Cancelar',
+            inputValidator:function(value){
+                if(!value&&value!=='0')return'Debes ingresar un numero';
+                if(parseInt(value)!==resp2)return'Respuesta incorrecta. Intenta de nuevo.';
+            }
+        }).then(function(result2){
+            if(result2.isConfirmed){window.location.href=url;}
+        });
+    });
+}
 </script>
