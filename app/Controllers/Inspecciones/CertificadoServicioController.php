@@ -222,15 +222,15 @@ class CertificadoServicioController extends BaseController
         $tag = $cfg['slug'] . '_id:' . $registroId;
         $existente = $reporteModel
             ->where('id_cliente', $idCliente)
-            ->where('id_report_type', 6)
-            ->where('id_detailreport', $cfg['detailreport'])
+            ->where('id_report_type', 13)
+            ->where('id_detailreport', 20)
             ->like('observaciones', $tag)
             ->first();
 
         $data = [
             'titulo_reporte'  => strtoupper($cfg['nombre']) . ' - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $fecha,
-            'id_detailreport' => $cfg['detailreport'],
-            'id_report_type'  => 6,
+            'id_detailreport' => 20,
+            'id_report_type'  => 13,
             'id_cliente'      => $idCliente,
             'estado'          => 'CERRADO',
             'observaciones'   => 'Generado automaticamente. ' . $tag,
