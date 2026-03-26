@@ -1267,6 +1267,9 @@ class ActaVisitaController extends BaseController
             'personalizations' => [['to' => [['email' => $consultor['correo_consultor'], 'name' => $nomCons]], 'subject' => "Evaluaciones rápidas — {$nomCli} — {$fecha}"]],
             'from'    => ['email' => 'notificacion.cycloidtalent@cycloidtalent.com', 'name' => 'Cycloid Talent - SG-SST'],
             'content' => [['type' => 'text/html', 'value' => $html]],
+            'tracking_settings' => [
+                'click_tracking' => ['enable' => false, 'enable_text' => false],
+            ],
         ]);
 
         $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
