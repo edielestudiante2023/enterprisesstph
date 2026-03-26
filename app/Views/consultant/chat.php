@@ -172,6 +172,13 @@
             color: white;
             margin-left: 10px;
             order: 2;
+            overflow: hidden;
+        }
+
+        .message.user .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .message.assistant .message-avatar {
