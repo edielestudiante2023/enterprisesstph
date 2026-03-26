@@ -100,8 +100,7 @@ $action = $isEdit ? base_url('/inspecciones/inspeccion-locativa/update/') . $ins
                                                 <div class="photo-input-group">
                                                     <input type="file" name="hallazgo_imagen[]" class="file-preview" accept="image/*" style="display:none;">
                                                     <div class="d-flex gap-1">
-                                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera"><i class="fas fa-camera"></i> Camara</button>
-                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Galeria</button>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
                                                     </div>
                                                     <div class="preview-img mt-1"></div>
                                                 </div>
@@ -116,8 +115,7 @@ $action = $isEdit ? base_url('/inspecciones/inspeccion-locativa/update/') . $ins
                                                 <div class="photo-input-group">
                                                     <input type="file" name="hallazgo_correccion[]" class="file-preview" accept="image/*" style="display:none;">
                                                     <div class="d-flex gap-1">
-                                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera"><i class="fas fa-camera"></i> Camara</button>
-                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Galeria</button>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
                                                     </div>
                                                     <div class="preview-img mt-1"></div>
                                                 </div>
@@ -255,8 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="photo-input-group">
                                 <input type="file" name="hallazgo_imagen[]" class="file-preview" accept="image/*" style="display:none;">
                                 <div class="d-flex gap-1">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera"><i class="fas fa-camera"></i> Camara</button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Galeria</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
                                 </div>
                                 <div class="preview-img mt-1"></div>
                             </div>
@@ -266,8 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="photo-input-group">
                                 <input type="file" name="hallazgo_correccion[]" class="file-preview" accept="image/*" style="display:none;">
                                 <div class="d-flex gap-1">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera"><i class="fas fa-camera"></i> Camara</button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Galeria</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
                                 </div>
                                 <div class="preview-img mt-1"></div>
                             </div>
@@ -300,15 +296,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // --- Botones Camara / Galeria ---
+    // --- Boton Galeria ---
     document.addEventListener('click', function(e) {
-        const cameraBtn = e.target.closest('.btn-photo-camera');
         const galleryBtn = e.target.closest('.btn-photo-gallery');
-        if (!cameraBtn && !galleryBtn) return;
+        if (!galleryBtn) return;
 
-        const group = (cameraBtn || galleryBtn).closest('.photo-input-group');
+        const group = galleryBtn.closest('.photo-input-group');
         const input = group.querySelector('input[type="file"]');
-
         input.removeAttribute('capture');
         input.click();
     });
@@ -408,8 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="photo-input-group">
                                     <input type="file" name="hallazgo_imagen[]" class="file-preview" accept="image/*" style="display:none;">
                                     <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera"><i class="fas fa-camera"></i> Camara</button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Galeria</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
                                     </div>
                                     <div class="preview-img mt-1"></div>
                                 </div>
@@ -419,8 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="photo-input-group">
                                     <input type="file" name="hallazgo_correccion[]" class="file-preview" accept="image/*" style="display:none;">
                                     <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera"><i class="fas fa-camera"></i> Camara</button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Galeria</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
                                     </div>
                                     <div class="preview-img mt-1"></div>
                                 </div>

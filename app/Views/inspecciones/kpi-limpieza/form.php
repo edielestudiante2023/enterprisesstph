@@ -139,11 +139,8 @@ $storageKey = $isEdit ? 'kpi_limpieza_draft_' . $inspeccion['id'] : 'kpi_limpiez
                     <div class="photo-input-group">
                         <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" style="display:none;">
                         <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera" style="font-size:11px; padding:2px 6px;">
-                                <i class="fas fa-camera"></i>
-                            </button>
                             <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;">
-                                <i class="fas fa-images"></i>
+                                <i class="fas fa-images"></i> Foto
                             </button>
                         </div>
                         <div class="preview-img mt-1"></div>
@@ -261,13 +258,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Photo buttons
-    document.querySelectorAll('.btn-photo-camera').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var input = this.closest('.photo-input-group').querySelector('.file-preview');
-            input.removeAttribute('capture');
-            input.click();
-        });
-    });
     document.querySelectorAll('.btn-photo-gallery').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var input = this.closest('.photo-input-group').querySelector('.file-preview');

@@ -287,8 +287,7 @@
             <div class="photo-input-group">
                 <input type="file" id="inputFoto" class="file-preview" accept="image/*" style="display:none;">
                 <div class="d-flex gap-2 mb-2">
-                    <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera flex-fill"><i class="fas fa-camera"></i> Camara</button>
-                    <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery flex-fill"><i class="fas fa-images"></i> Galeria</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery flex-fill"><i class="fas fa-images"></i> Cargar foto</button>
                 </div>
                 <div class="preview-img text-center">
                     <img id="fotoPreview" class="photo-preview-img" style="display:none;">
@@ -450,16 +449,11 @@ const fotoPreview = document.getElementById('fotoPreview');
 const btnClearFoto = document.getElementById('btnClearFoto');
 
 document.addEventListener('click', function(e) {
-    const cameraBtn = e.target.closest('.btn-photo-camera');
     const galleryBtn = e.target.closest('.btn-photo-gallery');
-    if (!cameraBtn && !galleryBtn) return;
-    const group = (cameraBtn || galleryBtn).closest('.photo-input-group');
+    if (!galleryBtn) return;
+    const group = galleryBtn.closest('.photo-input-group');
     const input = group.querySelector('input[type="file"]');
-    if (cameraBtn) {
-        input.setAttribute('capture', 'environment');
-    } else {
-        input.removeAttribute('capture');
-    }
+    input.removeAttribute('capture');
     input.click();
 });
 

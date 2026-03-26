@@ -301,10 +301,8 @@
                 <div class="col-12 col-md-6">
                     <label class="form-label fw-bold">Foto 1 del Simulacro</label>
                     <input type="file" id="foto1-input" accept="image/*" hidden>
-                    <input type="file" id="foto1-camera" accept="image/*" capture="environment" hidden>
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-brand btn-sm btn-photo" data-target="foto1-camera"><i class="fas fa-camera"></i> Camara</button>
-                        <button type="button" class="btn btn-outline-brand btn-sm btn-photo" data-target="foto1-input"><i class="fas fa-image"></i> Galeria</button>
+                        <button type="button" class="btn btn-outline-brand btn-sm btn-photo" data-target="foto1-input"><i class="fas fa-image"></i> Cargar foto</button>
                     </div>
                     <img id="preview-foto1" class="photo-preview" alt="Vista previa foto 1">
                     <div id="upload-status-1" class="form-text"></div>
@@ -313,10 +311,8 @@
                 <div class="col-12 col-md-6">
                     <label class="form-label fw-bold">Foto 2 del Simulacro</label>
                     <input type="file" id="foto2-input" accept="image/*" hidden>
-                    <input type="file" id="foto2-camera" accept="image/*" capture="environment" hidden>
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-brand btn-sm btn-photo" data-target="foto2-camera"><i class="fas fa-camera"></i> Camara</button>
-                        <button type="button" class="btn btn-outline-brand btn-sm btn-photo" data-target="foto2-input"><i class="fas fa-image"></i> Galeria</button>
+                        <button type="button" class="btn btn-outline-brand btn-sm btn-photo" data-target="foto2-input"><i class="fas fa-image"></i> Cargar foto</button>
                     </div>
                     <img id="preview-foto2" class="photo-preview" alt="Vista previa foto 2">
                     <div id="upload-status-2" class="form-text"></div>

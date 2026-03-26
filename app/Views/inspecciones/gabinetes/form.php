@@ -91,8 +91,7 @@ $action = $isEdit ? base_url('/inspecciones/gabinetes/update/') . $inspeccion['i
                                 <div class="photo-input-group">
                                     <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" style="display:none;">
                                     <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera" style="font-size:11px; padding:2px 6px;"><i class="fas fa-camera"></i></button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
                                     </div>
                                     <div class="preview-img mt-1">
                                         <?php if (!empty($inspeccion[$campo])): ?>
@@ -175,8 +174,7 @@ $action = $isEdit ? base_url('/inspecciones/gabinetes/update/') . $inspeccion['i
                                                 <div class="photo-input-group">
                                                     <input type="file" name="gab_foto[]" class="file-preview" accept="image/*" style="display:none;">
                                                     <div class="d-flex gap-1">
-                                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera" style="font-size:11px; padding:2px 6px;"><i class="fas fa-camera"></i></button>
-                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i></button>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
                                                     </div>
                                                     <div class="preview-img mt-1">
                                                         <?php if (!empty($gab['foto'])): ?>
@@ -245,8 +243,7 @@ $action = $isEdit ? base_url('/inspecciones/gabinetes/update/') . $inspeccion['i
                                 <div class="photo-input-group">
                                     <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" style="display:none;">
                                     <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera" style="font-size:11px; padding:2px 6px;"><i class="fas fa-camera"></i></button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
                                     </div>
                                     <div class="preview-img mt-1">
                                         <?php if (!empty($inspeccion[$campo])): ?>
@@ -377,8 +374,7 @@ function buildGabineteRow(num, data) {
                     <div class="photo-input-group">
                         <input type="file" name="gab_foto[]" class="file-preview" accept="image/*" style="display:none;">
                         <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera" style="font-size:11px; padding:2px 6px;"><i class="fas fa-camera"></i></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i></button>
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
                         </div>
                         <div class="preview-img mt-1"></div>
                     </div>
@@ -446,15 +442,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // --- Botones Camara / Galeria ---
+    // --- Boton Galeria ---
     document.addEventListener('click', function(e) {
-        const cameraBtn = e.target.closest('.btn-photo-camera');
         const galleryBtn = e.target.closest('.btn-photo-gallery');
-        if (!cameraBtn && !galleryBtn) return;
+        if (!galleryBtn) return;
 
-        const group = (cameraBtn || galleryBtn).closest('.photo-input-group');
+        const group = galleryBtn.closest('.photo-input-group');
         const input = group.querySelector('input[type="file"]');
-
         input.removeAttribute('capture');
         input.click();
     });

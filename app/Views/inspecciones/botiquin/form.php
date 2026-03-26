@@ -70,8 +70,7 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                 <div class="photo-input-group">
                                     <input type="file" name="foto_1" class="file-preview" accept="image/*" style="display:none;">
                                     <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera" style="font-size:11px; padding:2px 6px;"><i class="fas fa-camera"></i></button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
                                     </div>
                                     <div class="preview-img mt-1">
                                         <?php if (!empty($inspeccion['foto_1'])): ?>
@@ -85,8 +84,7 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                 <div class="photo-input-group">
                                     <input type="file" name="foto_2" class="file-preview" accept="image/*" style="display:none;">
                                     <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera" style="font-size:11px; padding:2px 6px;"><i class="fas fa-camera"></i></button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
                                     </div>
                                     <div class="preview-img mt-1">
                                         <?php if (!empty($inspeccion['foto_2'])): ?>
@@ -195,8 +193,7 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                         <div class="photo-input-group">
                                             <input type="file" name="foto_tabla_espinal" class="file-preview" accept="image/*" style="display:none;">
                                             <div class="d-flex gap-1">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera" style="font-size:11px; padding:2px 6px;"><i class="fas fa-camera"></i></button>
-                                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i></button>
+                                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
                                             </div>
                                             <div class="preview-img mt-1">
                                                 <?php if (!empty($inspeccion['foto_tabla_espinal'])): ?>
@@ -244,8 +241,7 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                         <div class="photo-input-group">
                                             <input type="file" name="foto_collares" class="file-preview" accept="image/*" style="display:none;">
                                             <div class="d-flex gap-1">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera" style="font-size:11px; padding:2px 6px;"><i class="fas fa-camera"></i></button>
-                                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i></button>
+                                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
                                             </div>
                                             <div class="preview-img mt-1">
                                                 <?php if (!empty($inspeccion['foto_collares'])): ?>
@@ -289,8 +285,7 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                         <div class="photo-input-group">
                                             <input type="file" name="foto_inmovilizadores" class="file-preview" accept="image/*" style="display:none;">
                                             <div class="d-flex gap-1">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera" style="font-size:11px; padding:2px 6px;"><i class="fas fa-camera"></i></button>
-                                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i></button>
+                                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
                                             </div>
                                             <div class="preview-img mt-1">
                                                 <?php if (!empty($inspeccion['foto_inmovilizadores'])): ?>
@@ -413,15 +408,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // --- Botones Camara / Galeria ---
+    // --- Boton Galeria ---
     document.addEventListener('click', function(e) {
-        const cameraBtn = e.target.closest('.btn-photo-camera');
         const galleryBtn = e.target.closest('.btn-photo-gallery');
-        if (!cameraBtn && !galleryBtn) return;
+        if (!galleryBtn) return;
 
-        const group = (cameraBtn || galleryBtn).closest('.photo-input-group');
+        const group = galleryBtn.closest('.photo-input-group');
         const input = group.querySelector('input[type="file"]');
-
         input.removeAttribute('capture');
         input.click();
     });

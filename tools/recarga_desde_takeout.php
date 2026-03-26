@@ -318,7 +318,7 @@ function subirArchivo(string $baseUrl, string $token, string $filePath, string $
     }
 
     curl_setopt_array($ch, [
-        CURLOPT_URL            => $baseUrl . '/api/bulk-report-upload',
+        CURLOPT_URL            => $baseUrl . '/addReportPost',
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => $postFields,
         CURLOPT_RETURNTRANSFER => true,
@@ -336,12 +336,13 @@ function subirArchivo(string $baseUrl, string $token, string $filePath, string $
         return ['success' => false, 'error' => "cURL: $curlError"];
     }
 
-    $json = json_decode($response, true);
-    if ($httpCode !== 200 || !($json['success'] ?? false)) {
-        return ['success' => false, 'error' => $json['error'] ?? "HTTP $httpCode: $response"];
+    // addReportPost retorna 303 (redirect) cuando funciona
+    if ($httpCode === 303 || $httpCode === 302 || $httpCode === 200) {
+        return ['success' => true];
     }
 
-    return ['success' => true];
+    $json = json_decode($response, true);
+    return ['success' => false, 'error' => $json['error'] ?? "HTTP $httpCode: " . substr($response, 0, 200)];
 }
 
 function cargarClientes(): array

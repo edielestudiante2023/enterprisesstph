@@ -256,12 +256,11 @@ $action = $isEdit ? base_url('/inspecciones/acta-visita/update/') . $acta['id'] 
                         <div class="photo-input-group">
                             <input type="file" name="fotos[]" class="file-preview" accept="image/*" multiple style="display:none;">
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary btn-photo-camera"><i class="fas fa-camera"></i> Camara</button>
-                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Galeria</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Cargar foto</button>
                             </div>
                             <div class="preview-img mt-1"></div>
                         </div>
-                        <small class="text-muted">Usa Camara para tomar foto o Galeria para seleccionar existentes</small>
+                        <small class="text-muted">Selecciona fotos desde tu galeria o toma una nueva</small>
                     </div>
                 </div>
             </div>
@@ -825,15 +824,13 @@ document.addEventListener('DOMContentLoaded', function() {
         },
     });
 
-    // --- Botones Camara / Galeria ---
+    // --- Boton Galeria ---
     document.addEventListener('click', function(e) {
-        const cameraBtn = e.target.closest('.btn-photo-camera');
         const galleryBtn = e.target.closest('.btn-photo-gallery');
-        if (!cameraBtn && !galleryBtn) return;
+        if (!galleryBtn) return;
 
-        const group = (cameraBtn || galleryBtn).closest('.photo-input-group');
+        const group = galleryBtn.closest('.photo-input-group');
         const input = group.querySelector('input[type="file"]');
-
         input.removeAttribute('capture');
         input.click();
     });
