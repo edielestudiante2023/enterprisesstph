@@ -138,18 +138,12 @@ nul
 
 #-------------------------
 # Uploads dinámicos de producción
-# NUNCA usar git clean -fd en el servidor
-#-------------------------
-public/uploads/*/
-!public/uploads/.gitkeep
-writable/soportes-clientes/
-
-#-------------------------
-# Uploads dinámicos de producción
-#-------------------------
 # NUNCA borrar con git clean — estos archivos
 # son documentación de clientes generada en producción
+#-------------------------
+writable/soportes-clientes/
 public/uploads/*/
+!public/uploads/.gitkeep
 public/uploads/contratos/
 public/uploads/firmas/
 public/uploads/inspecciones/
