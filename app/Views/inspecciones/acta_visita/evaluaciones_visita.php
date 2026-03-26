@@ -171,30 +171,13 @@ document.querySelectorAll('input[type=checkbox]').forEach(function(cb) {
         fd.append('acta_id', actaId);
         fd.append('token', actaToken);
 
-        var fetchUrl = '/acta-visita/evaluaciones-visita/update';
-        console.log('[EvalRapida] POST', fetchUrl, {id: id, acta_id: actaId, token: actaToken});
-
-        fetch(fetchUrl, { method: 'POST', body: fd })
-        .then(function(r) {
-            console.log('[EvalRapida] HTTP status:', r.status, 'type:', r.type, 'url:', r.url);
-            console.log('[EvalRapida] redirected:', r.redirected);
-            var ct = r.headers.get('content-type') || '';
-            console.log('[EvalRapida] content-type:', ct);
-            return r.text();
-        })
-        .then(function(raw) {
-            console.log('[EvalRapida] RAW response:', raw.substring(0, 500));
-            var data;
-            try { data = JSON.parse(raw); } catch(e) {
-                console.error('[EvalRapida] JSON parse error:', e.message);
-                alert('Respuesta no JSON:\n' + raw.substring(0, 200));
-                self.checked = false; self.disabled = false;
-                return;
-            }
+        fetch('/acta-visita/evaluaciones-visita/update', { method: 'POST', body: fd })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
             if (data.success) {
                 var card   = document.getElementById('card-' + id);
                 var estado = document.getElementById('estado-' + id);
-                card.classList.remove('', 'vacio');
+                card.classList.remove('vacio');
                 card.classList.add('cumple');
                 estado.innerHTML = '<span class="badge-done">✔ CUMPLE TOTALMENTE</span>';
                 pendienteCount--;
@@ -205,14 +188,13 @@ document.querySelectorAll('input[type=checkbox]').forEach(function(cb) {
             } else {
                 self.checked  = false;
                 self.disabled = false;
-                alert('Error del servidor: ' + (data.message || JSON.stringify(data)));
+                alert('Error al guardar: ' + (data.message || 'Intenta de nuevo.'));
             }
         })
         .catch(function(err) {
-            console.error('[EvalRapida] CATCH error:', err);
             self.checked  = false;
             self.disabled = false;
-            alert('Error de conexión.\n\nDetalle: ' + err.message + '\n\nURL: ' + fetchUrl);
+            alert('Error de conexión.');
         });
     });
 });
