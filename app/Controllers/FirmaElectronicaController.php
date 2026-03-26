@@ -404,7 +404,7 @@ class FirmaElectronicaController extends Controller
                 $consultorModel = new \App\Models\ConsultantModel();
                 $consultor = $consultorModel->find($idConsultor);
                 if (!empty($consultor['firma_consultor'])) {
-                    $firmaPath = FCPATH . 'uploads/' . $consultor['firma_consultor'];
+                    $firmaPath = UPLOADS_PATH . 'firmas_consultores/' . $consultor['firma_consultor'];
                     if (file_exists($firmaPath)) {
                         $firmaData = file_get_contents($firmaPath);
                         $firmaMime = mime_content_type($firmaPath);

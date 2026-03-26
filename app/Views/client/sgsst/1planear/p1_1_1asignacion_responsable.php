@@ -217,7 +217,7 @@ setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain'); // Configura el idi
                 <div class="title">Representante Legal</div>
             </div>
             <div class="signature">
-                <img src="<?= base_url('uploads/' . $consultant['firma_consultor']) ?>" alt="Firma consultor">
+                <img src="<?= base_url('serve-file/firmas_consultores/' . $consultant['firma_consultor']) ?>" alt="Firma consultor">
                 <div class="name"><b><?= $consultant['nombre_consultor'] ?></b></div>
                 <div class="title">responsable del SG-SST</div>
             </div>

@@ -46,7 +46,7 @@
                     <div class="d-flex align-items-center">
                         <div class="me-3">
                             <?php if (!empty($c['foto_consultor'])): ?>
-                                <img src="<?= base_url('/uploads/' . $c['foto_consultor']) ?>" class="rounded-circle" width="45" height="45" style="object-fit:cover;">
+                                <img src="<?= base_url('/serve-file/firmas_consultores/' . $c['foto_consultor']) ?>" class="rounded-circle" width="45" height="45" style="object-fit:cover;">
                             <?php else: ?>
                                 <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:45px;height:45px;background:var(--primary-dark);">
                                     <i class="fas fa-user-tie" style="color:var(--gold-primary);font-size:18px;"></i>

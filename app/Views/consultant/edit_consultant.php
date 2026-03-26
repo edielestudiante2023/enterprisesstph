@@ -96,7 +96,7 @@
                         <input type="file" class="form-control" id="foto_consultor" name="foto_consultor" accept="image/*">
                         <?php if (!empty($consultant['foto_consultor'])): ?>
                             <div class="mt-2">
-                                <img src="<?= base_url('uploads/' . $consultant['foto_consultor']) ?>" alt="Foto del Consultor" class="img-thumbnail" width="100">
+                                <img src="<?= base_url('serve-file/firmas_consultores/' . $consultant['foto_consultor']) ?>" alt="Foto del Consultor" class="img-thumbnail" width="100">
                             </div>
                         <?php endif; ?>
                     </div>
@@ -106,7 +106,7 @@
                         <input type="file" class="form-control" id="firma_consultor" name="firma_consultor" accept="image/*">
                         <?php if (!empty($consultant['firma_consultor'])): ?>
                             <div class="mt-2">
-                                <img src="<?= base_url('uploads/' . $consultant['firma_consultor']) ?>" alt="Firma del Consultor" class="img-thumbnail" width="100">
+                                <img src="<?= base_url('serve-file/firmas_consultores/' . $consultant['firma_consultor']) ?>" alt="Firma del Consultor" class="img-thumbnail" width="100">
                             </div>
                         <?php endif; ?>
                     </div>

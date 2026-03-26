@@ -105,7 +105,7 @@
                     <div class="card-body text-center">
                         <div class="mb-2">
                             <?php if (!empty($r['foto_consultor'])): ?>
-                                <img src="/uploads/<?= esc($r['foto_consultor']) ?>" class="rounded-circle" width="50" height="50" style="object-fit:cover;">
+                                <img src="/serve-file/firmas_consultores/<?= esc($r['foto_consultor']) ?>" class="rounded-circle" width="50" height="50" style="object-fit:cover;">
                             <?php else: ?>
                                 <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width:50px;height:50px;">
                                     <i class="fas fa-user-tie" style="color:var(--gold-primary);font-size:20px;"></i>

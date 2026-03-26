@@ -549,7 +549,7 @@ class ContractPDFGenerator
                            ->getRowArray();
 
             if ($consultor && !empty($consultor['firma_consultor'])) {
-                $firmaConsultor = FCPATH . 'uploads/' . $consultor['firma_consultor'];
+                $firmaConsultor = UPLOADS_PATH . 'firmas_consultores/' . $consultor['firma_consultor'];
                 if (file_exists($firmaConsultor)) {
                     $currentY = $this->pdf->GetY();
                     // Centrar la firma - reducida a 40mm de ancho y mejor centrada
