@@ -358,7 +358,7 @@ function cargarClientes(): array
     @$mysqli->real_connect(
         'db-mysql-cycloid-do-user-18794030-0.h.db.ondigitalocean.com',
         'cycloid_userdb',
-        getenv('DB_PROD_PASS') ?: 'AVNS_MR2SLvzRh3i_7o9fEHN',
+        getenv('DB_PROD_PASS'),
         'propiedad_horizontal',
         25060,
         null,
