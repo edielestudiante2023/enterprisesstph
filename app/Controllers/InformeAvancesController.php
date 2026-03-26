@@ -231,6 +231,26 @@ class InformeAvancesController extends BaseController
             ->setBody(file_get_contents($fullPath));
     }
 
+    // ─── REGENERAR PDF ───
+    public function regenerarPdf($id)
+    {
+        $informe = $this->informeModel->find($id);
+        if (!$informe || ($informe['estado'] ?? '') !== 'completo') {
+            return redirect()->to('/informe-avances')->with('error', 'Solo se puede regenerar un informe finalizado.');
+        }
+
+        $pdfPath = $this->generarPdfInterno($id);
+        if (!$pdfPath) {
+            return redirect()->back()->with('error', 'Error al generar PDF');
+        }
+
+        $this->informeModel->update($id, ['ruta_pdf' => $pdfPath]);
+        $informe = $this->informeModel->find($id);
+        $this->uploadToReportes($informe, $pdfPath);
+
+        return redirect()->to('/informe-avances/view/' . $id)->with('msg', 'PDF regenerado exitosamente.');
+    }
+
     // ─── DELETE ───
     public function delete($id)
     {
@@ -630,7 +650,7 @@ class InformeAvancesController extends BaseController
             ->like('observaciones', 'inf_avance_id:' . $informe['id'])
             ->first();
 
-        $destDir = ROOTPATH . 'public/uploads/' . $nitCliente;
+        $destDir = UPLOADS_PATH . $nitCliente;
         if (!is_dir($destDir)) {
             mkdir($destDir, 0755, true);
         }
@@ -647,7 +667,7 @@ class InformeAvancesController extends BaseController
             'id_cliente'      => $informe['id_cliente'],
             'estado'          => 'Activo',
             'observaciones'   => 'Generado automaticamente. inf_avance_id:' . $informe['id'],
-            'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
+            'enlace'          => base_url(UPLOADS_URL_PREFIX . '/' . $nitCliente . '/' . $fileName),
             'updated_at'      => date('Y-m-d H:i:s'),
         ];
 

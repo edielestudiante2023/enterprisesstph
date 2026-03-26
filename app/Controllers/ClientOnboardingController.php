@@ -128,7 +128,7 @@ class ClientOnboardingController extends Controller
         $clientId = $clientModel->getInsertID();
 
         // ── Carpeta NIT ───────────────────────────────────────────────────
-        $nitPath = ROOTPATH . 'public/uploads/' . $nitCliente;
+        $nitPath = UPLOADS_PATH . $nitCliente;
         if (!is_dir($nitPath)) {
             mkdir($nitPath, 0777, true);
         }

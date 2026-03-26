@@ -255,6 +255,7 @@
     $capPct = floatval($informe['indicador_capacitacion'] ?? 0);
 
     // Helper: stacked bar fallback for DOMPDF
+    if (!function_exists('renderStackedBar')) {
     function renderStackedBar(array $items, array $colors, string $valueKey = 'cantidad'): string {
         $total = 0;
         foreach ($items as $item) { $total += floatval($item[$valueKey] ?? 0); }
@@ -284,6 +285,7 @@
         $html .= '</div>';
         return $html;
     }
+    } // end function_exists
 
     $colorsPHVA = ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
     $colorsEstado = ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6c757d', '#6f42c1'];

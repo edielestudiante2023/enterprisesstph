@@ -60,7 +60,7 @@ class MatricesGeneratorLibrary
         $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', $cliente['nombre_cliente']);
 
         // Crear directorio de destino
-        $destDir = FCPATH . 'uploads/matrices/' . $idCliente;
+        $destDir = UPLOADS_PATH . 'matrices/' . $idCliente;
         if (!is_dir($destDir)) {
             mkdir($destDir, 0775, true);
         }
@@ -91,7 +91,7 @@ class MatricesGeneratorLibrary
     {
         $count = $this->db->table('tbl_matrices')
             ->where('id_cliente', $idCliente)
-            ->like('enlace', 'uploads/matrices/')
+            ->like('enlace', UPLOADS_URL_PREFIX . '/matrices/')
             ->countAllResults();
 
         return $count >= 2;
@@ -105,11 +105,11 @@ class MatricesGeneratorLibrary
         // Eliminar registros locales anteriores
         $registros = $this->db->table('tbl_matrices')
             ->where('id_cliente', $idCliente)
-            ->like('enlace', 'uploads/matrices/')
+            ->like('enlace', UPLOADS_URL_PREFIX . '/matrices/')
             ->get()->getResultArray();
 
         foreach ($registros as $reg) {
-            $filePath = FCPATH . $reg['enlace'];
+            $filePath = UPLOADS_PATH . str_replace(UPLOADS_URL_PREFIX . '/', '', $reg['enlace']);
             if (file_exists($filePath)) {
                 unlink($filePath);
             }
@@ -160,7 +160,7 @@ class MatricesGeneratorLibrary
             $writer = new Xlsx($spreadsheet);
             $writer->save($savePath);
 
-            $relativePath = 'uploads/matrices/' . $cliente['id_cliente'] . '/' . $fileName;
+            $relativePath = UPLOADS_URL_PREFIX . '/matrices/' . $cliente['id_cliente'] . '/' . $fileName;
 
             log_message('info', "MatricesGenerator: Generada {$tipo} para cliente {$cliente['id_cliente']}: {$relativePath}");
 

@@ -82,6 +82,66 @@ class ReportController extends Controller
         return view('consultant/add_report', $data);
     }
 
+    /**
+     * Endpoint para recarga masiva de reportes desde Takeout.
+     * Autenticado por token en header X-Bulk-Token.
+     * Acepta fecha_original para preservar fecha del email.
+     */
+    public function bulkUpload()
+    {
+        $token = $this->request->getHeaderLine('X-Bulk-Token');
+        $expectedToken = env('BULK_UPLOAD_TOKEN');
+
+        if (!$expectedToken || $token !== $expectedToken) {
+            return $this->response->setStatusCode(403)->setJSON(['success' => false, 'error' => 'Token inválido']);
+        }
+
+        $reporteModel = new ReporteModel();
+        $clientModel = new ClientModel();
+
+        $idCliente = $this->request->getVar('id_cliente');
+        $client = $clientModel->find($idCliente);
+        if (!$client) {
+            return $this->response->setJSON(['success' => false, 'error' => 'Cliente no encontrado: ' . $idCliente]);
+        }
+
+        $file = $this->request->getFile('archivo');
+        $nitCliente = $client['nit_cliente'];
+        $uploadPath = UPLOADS_PATH . $nitCliente;
+
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $fileName = $file->getRandomName();
+            $file->move($uploadPath, $fileName);
+        } else {
+            return $this->response->setJSON(['success' => false, 'error' => 'Archivo inválido']);
+        }
+
+        $fechaOriginal = $this->request->getVar('fecha_original');
+        $createdAt = $fechaOriginal ? date('Y-m-d H:i:s', strtotime($fechaOriginal)) : date('Y-m-d H:i:s');
+
+        $data = [
+            'titulo_reporte'  => $this->request->getVar('titulo_reporte'),
+            'id_detailreport' => $this->request->getVar('id_detailreport'),
+            'id_report_type'  => $this->request->getVar('id_report_type'),
+            'id_cliente'      => $idCliente,
+            'estado'          => $this->request->getVar('estado') ?? 'CERRADO',
+            'observaciones'   => $this->request->getVar('observaciones') ?? 'Recargado desde Takeout ' . date('Y-m-d'),
+            'enlace'          => base_url(UPLOADS_URL_PREFIX . '/' . $nitCliente . '/' . $fileName),
+            'created_at'      => $createdAt,
+            'updated_at'      => $createdAt,
+        ];
+
+        if ($reporteModel->save($data)) {
+            return $this->response->setJSON(['success' => true, 'file' => $fileName, 'enlace' => $data['enlace']]);
+        }
+
+        return $this->response->setJSON(['success' => false, 'error' => 'Error al guardar en BD']);
+    }
+
     public function addReportPost()
     {
         $reporteModel = new ReporteModel();
@@ -112,7 +172,7 @@ class ReportController extends Controller
         // Procesar archivo
         $file = $this->request->getFile('archivo');
         $nitCliente = $client['nit_cliente'];
-        $uploadPath = ROOTPATH . 'public/uploads/' . $nitCliente;
+        $uploadPath = UPLOADS_PATH . $nitCliente;
 
         // Crear directorio si no existe
         if (!is_dir($uploadPath)) {
@@ -134,7 +194,7 @@ class ReportController extends Controller
             'id_cliente' => $idCliente,
             'estado' => $this->request->getVar('estado'),
             'observaciones' => $this->request->getVar('observaciones'),
-            'enlace' => base_url('uploads/' . $nitCliente . '/' . $fileName),
+            'enlace' => base_url(UPLOADS_URL_PREFIX . '/' . $nitCliente . '/' . $fileName),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ];
@@ -152,6 +212,11 @@ class ReportController extends Controller
 
     private function sendEmailToClient($idCliente, $tituloReporte, $enlace)
     {
+        if (env('DISABLE_REPORT_EMAILS', false)) {
+            log_message('info', 'Email desactivado (DISABLE_REPORT_EMAILS). No se envió email para cliente ' . $idCliente);
+            return;
+        }
+
         // Validar el enlace antes de proceder
         if (!filter_var($enlace, FILTER_VALIDATE_URL)) {
             log_message('error', 'El enlace generado no es válido: ' . $enlace);
@@ -619,7 +684,7 @@ class ReportController extends Controller
         $file = $this->request->getFile('archivo');
         if ($file && $file->isValid() && !$file->hasMoved()) {
             $newFileName = $file->getRandomName();
-            $clientFolder = ROOTPATH . 'public/uploads/' . $nitCliente;
+            $clientFolder = UPLOADS_PATH . $nitCliente;
 
             // Crear carpeta si no existe
             if (!is_dir($clientFolder)) {
@@ -630,7 +695,7 @@ class ReportController extends Controller
             $file->move($clientFolder, $newFileName);
 
             // Actualizar enlace en los datos
-            $data['enlace'] = base_url('uploads/' . $nitCliente . '/' . $newFileName);
+            $data['enlace'] = base_url(UPLOADS_URL_PREFIX . '/' . $nitCliente . '/' . $newFileName);
         } else {
             // Mantener el enlace original si no se subió un archivo nuevo
             $data['enlace'] = $reporte['enlace'];

@@ -441,6 +441,25 @@ class CartaVigiaPwaController extends BaseController
         ]);
     }
 
+    public function regenerarPdf($id)
+    {
+        $carta = $this->cartaModel->find($id);
+        if (!$carta || empty($carta['ruta_pdf'])) {
+            return redirect()->to('/inspecciones/carta-vigia')->with('error', 'Solo se puede regenerar una carta con PDF previo.');
+        }
+
+        $pdfPath = $this->generarPdf($id);
+        if (!$pdfPath) {
+            return redirect()->back()->with('error', 'Error al generar PDF');
+        }
+
+        $this->cartaModel->update($id, ['ruta_pdf' => $pdfPath]);
+        $carta = $this->cartaModel->find($id);
+        $this->uploadToReportes($carta, $pdfPath);
+
+        return redirect()->to('/inspecciones/carta-vigia/cliente/' . $carta['id_cliente'])->with('msg', 'PDF regenerado exitosamente.');
+    }
+
     // ===========================
     // MÉTODOS PRIVADOS
     // ===========================
@@ -591,7 +610,7 @@ class CartaVigiaPwaController extends BaseController
             ->like('observaciones', 'carta_vigia_id:' . $carta['id'])
             ->first();
 
-        $destDir = ROOTPATH . 'public/uploads/' . $nitCliente;
+        $destDir = UPLOADS_PATH . $nitCliente;
         if (!is_dir($destDir)) {
             mkdir($destDir, 0755, true);
         }
@@ -607,7 +626,7 @@ class CartaVigiaPwaController extends BaseController
             'id_cliente'      => $carta['id_cliente'],
             'estado'          => 'CERRADO',
             'observaciones'   => 'Generado automaticamente desde modulo de inspecciones. carta_vigia_id:' . $carta['id'],
-            'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
+            'enlace'          => base_url(UPLOADS_URL_PREFIX . '/' . $nitCliente . '/' . $fileName),
             'updated_at'      => date('Y-m-d H:i:s'),
         ];
 

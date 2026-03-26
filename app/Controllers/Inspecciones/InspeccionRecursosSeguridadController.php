@@ -463,7 +463,7 @@ class InspeccionRecursosSeguridadController extends BaseController
             ->like('observaciones', 'insp_rec_id:' . $inspeccion['id'])
             ->first();
 
-        $destDir = ROOTPATH . 'public/uploads/' . $nitCliente;
+        $destDir = UPLOADS_PATH . $nitCliente;
         if (!is_dir($destDir)) {
             mkdir($destDir, 0755, true);
         }
@@ -479,7 +479,7 @@ class InspeccionRecursosSeguridadController extends BaseController
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',
             'observaciones'   => 'Generado automaticamente desde modulo de inspecciones. insp_rec_id:' . $inspeccion['id'],
-            'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
+            'enlace'          => base_url(UPLOADS_URL_PREFIX . '/' . $nitCliente . '/' . $fileName),
             'updated_at'      => date('Y-m-d H:i:s'),
         ];
 
