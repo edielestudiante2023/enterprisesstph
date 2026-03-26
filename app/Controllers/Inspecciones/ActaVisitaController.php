@@ -1231,9 +1231,17 @@ class ActaVisitaController extends BaseController
      */
     public function updateEvaluacionPublica()
     {
+        log_message('info', '[EvalRapida] === REQUEST RECIBIDO ===');
+        log_message('info', '[EvalRapida] Method: ' . $this->request->getMethod());
+        log_message('info', '[EvalRapida] POST raw: ' . json_encode($this->request->getPost()));
+        log_message('info', '[EvalRapida] Content-Type: ' . ($this->request->header('Content-Type') ?? 'NULL'));
+        log_message('info', '[EvalRapida] User-Agent: ' . ($this->request->getUserAgent()->getAgentString() ?? 'NULL'));
+
         $actaId = (int) $this->request->getPost('acta_id');
         $token  = $this->request->getPost('token');
         $id     = $this->request->getPost('id');
+
+        log_message('info', "[EvalRapida] actaId={$actaId}, token={$token}, id={$id}");
 
         $acta = $this->actaModel->find($actaId);
         if (!$acta || $acta['estado'] !== 'completo') {
