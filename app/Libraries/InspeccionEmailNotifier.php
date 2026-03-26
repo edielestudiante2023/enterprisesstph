@@ -30,6 +30,11 @@ class InspeccionEmailNotifier
         string $responsable = '',
         array $extraAttachments = []
     ): array {
+        if (env('DISABLE_REPORT_EMAILS', false)) {
+            log_message('info', "Email desactivado (DISABLE_REPORT_EMAILS). {$logPrefix} ID {$idRegistro}");
+            return ['success' => true, 'message' => 'Email desactivado por DISABLE_REPORT_EMAILS'];
+        }
+
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 

@@ -103,7 +103,7 @@ define('EVENT_PRIORITY_HIGH', 10);
  |
  | NUNCA debe estar dentro del repo git.
  */
-defined('UPLOADS_PATH') || define('UPLOADS_PATH', getenv('UPLOADS_PATH') ?: ROOTPATH . '../soportes-clientes/');
+defined('UPLOADS_PATH') || define('UPLOADS_PATH', WRITEPATH . 'soportes-clientes/');
 
 /*
  | Prefijo de URL para servir archivos via FileServerController

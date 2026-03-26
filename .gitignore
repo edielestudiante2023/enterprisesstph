@@ -142,6 +142,7 @@ nul
 #-------------------------
 public/uploads/*/
 !public/uploads/.gitkeep
+writable/soportes-clientes/
 
 #-------------------------
 # Uploads dinámicos de producción

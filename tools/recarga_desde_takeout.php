@@ -318,7 +318,7 @@ function subirArchivo(string $baseUrl, string $token, string $filePath, string $
     }
 
     curl_setopt_array($ch, [
-        CURLOPT_URL            => $baseUrl . '/bulk-report-upload',
+        CURLOPT_URL            => $baseUrl . '/api/bulk-report-upload',
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => $postFields,
         CURLOPT_RETURNTRANSFER => true,

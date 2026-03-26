@@ -651,6 +651,11 @@ class ContractController extends Controller
      */
     private function sendContractEmail($contract, $filePath, $fileName)
     {
+        if (env('DISABLE_REPORT_EMAILS', false)) {
+            log_message('info', 'Email desactivado (DISABLE_REPORT_EMAILS). Contrato ' . ($contract['numero_contrato'] ?? ''));
+            return true;
+        }
+
         try {
             $email = new Mail();
             $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent");
