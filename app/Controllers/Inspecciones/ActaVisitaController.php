@@ -1203,7 +1203,7 @@ class ActaVisitaController extends BaseController
             ]);
         }
 
-        $cliente = $this->clientModel->find($acta['id_cliente']);
+        $cliente = (new ClientModel())->find($acta['id_cliente']);
 
         $evaluacionModel = new \App\Models\EvaluationModel();
         $evaluaciones = $evaluacionModel
