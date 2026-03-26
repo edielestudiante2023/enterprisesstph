@@ -1287,6 +1287,13 @@ Genera únicamente el texto de la cláusula, listo para insertar en el contrato.
                     }
                 }
 
+                // 8. Enviar protocolo de trabajo en alturas para firma
+                try {
+                    \App\Controllers\FirmaAlturasController::enviarProtocolo($clientId);
+                } catch (\Throwable $e) {
+                    log_message('error', 'Error enviando protocolo alturas a cliente ' . $clientId . ': ' . $e->getMessage());
+                }
+
                 log_message('info', "Prospecto {$clientId} activado al firmar contrato {$contrato['id_contrato']}");
             }
         } catch (\Exception $e) {

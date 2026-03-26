@@ -1519,6 +1519,10 @@ $routes->get('carta-vigia/firmar/(:any)', 'Inspecciones\CartaVigiaPwaController:
 $routes->post('carta-vigia/procesar-firma', 'Inspecciones\CartaVigiaPwaController::procesarFirma');
 $routes->get('carta-vigia/verificar/(:any)', 'Inspecciones\CartaVigiaPwaController::verificar/$1');
 
+// Protocolo Trabajo en Alturas (público, sin autenticación)
+$routes->get('protocolo-alturas/firmar/(:any)', 'FirmaAlturasController::firmar/$1');
+$routes->post('protocolo-alturas/procesar-firma', 'FirmaAlturasController::procesarFirma');
+
 // Evaluación Simulacro de Evacuación (público, sin autenticación)
 $routes->get('simulacro', 'SimulacroPublicoController::form');
 $routes->get('simulacro/api/clientes', 'SimulacroPublicoController::getClientesActivos');
