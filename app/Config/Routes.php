@@ -14,7 +14,7 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('serve-file/(.+)', 'FileServerController::serve/$1');
 
 // Endpoint temporal para recarga masiva desde Takeout (autenticado por token)
-$routes->post('api/bulk-report-upload', 'ReportController::bulkUpload');
+$routes->post('bulk-report-upload', 'ReportController::bulkUpload');
 
 $routes->get('/', 'AuthController::login');
 $routes->get('/login', 'AuthController::login');
