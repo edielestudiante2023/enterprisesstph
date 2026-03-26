@@ -1513,6 +1513,7 @@ $routes->post('acta-visita/procesar-firma-remota', 'Inspecciones\ActaVisitaContr
 
 // Evaluaciones rápidas post-visita (acceso por token, sin auth)
 $routes->get('acta-visita/evaluaciones-visita/(:num)/(:any)', 'Inspecciones\ActaVisitaController::evaluacionesVisita/$1/$2');
+$routes->post('acta-visita/evaluaciones-visita/update', 'Inspecciones\ActaVisitaController::updateEvaluacionPublica');
 
 // Rutas públicas Carta Vigía (sin autenticación, patrón de firma contratos)
 $routes->get('carta-vigia/firmar/(:any)', 'Inspecciones\CartaVigiaPwaController::firmar/$1');

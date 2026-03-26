@@ -1222,7 +1222,46 @@ class ActaVisitaController extends BaseController
             'acta'        => $acta,
             'cliente'     => $cliente,
             'evaluaciones' => $evaluaciones,
+            'token'       => $token,
         ]);
+    }
+
+    /**
+     * API pública: actualizar evaluación desde página de evaluaciones rápidas (token)
+     */
+    public function updateEvaluacionPublica()
+    {
+        $actaId = (int) $this->request->getPost('acta_id');
+        $token  = $this->request->getPost('token');
+        $id     = $this->request->getPost('id');
+
+        $acta = $this->actaModel->find($actaId);
+        if (!$acta || $acta['estado'] !== 'completo') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Acta inválida']);
+        }
+
+        if (!$token || !hash_equals($this->generarTokenEvaluacion($actaId, (int)$acta['id_cliente']), $token)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Token inválido']);
+        }
+
+        $model = new \App\Models\EvaluationModel();
+        $evaluation = $model->find($id);
+
+        if (!$evaluation || (int)$evaluation['id_cliente'] !== (int)$acta['id_cliente']) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Evaluación no corresponde al cliente']);
+        }
+
+        $valor = isset($evaluation['valor']) ? $evaluation['valor'] : 0;
+        $updateData = [
+            'evaluacion_inicial'    => 'CUMPLE TOTALMENTE',
+            'puntaje_cuantitativo'  => $valor,
+        ];
+
+        if ($model->update($id, $updateData)) {
+            return $this->response->setJSON(['success' => true]);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'Error al actualizar']);
     }
 
     /**

@@ -144,6 +144,8 @@ foreach ($evaluaciones as $ev) {
 <script>
 var pendienteCount = <?= count($evaluaciones) ?>;
 var cerradoCount   = 0;
+var actaId = <?= (int) $acta['id'] ?>;
+var actaToken = '<?= esc($token ?? '') ?>';
 
 function showToast(msg) {
     var t = document.getElementById('toast');
@@ -164,10 +166,10 @@ document.querySelectorAll('input[type=checkbox]').forEach(function(cb) {
         // Actualizar evaluacion_inicial = CUMPLE TOTALMENTE
         var fd = new FormData();
         fd.append('id', id);
-        fd.append('field', 'evaluacion_inicial');
-        fd.append('value', 'CUMPLE TOTALMENTE');
+        fd.append('acta_id', actaId);
+        fd.append('token', actaToken);
 
-        fetch('/api/updateEvaluacion', { method: 'POST', body: fd })
+        fetch('/acta-visita/evaluaciones-visita/update', { method: 'POST', body: fd })
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.success) {
