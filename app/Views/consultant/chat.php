@@ -710,6 +710,7 @@
         const conversationHistory = [];
         let isProcessing = false;
         const BASE_URL = '<?= base_url() ?>';
+        const USER_PHOTO = '<?= !empty($usuario['foto']) ? base_url('serve-file/firmas_consultores/' . $usuario['foto']) : '' ?>';
 
         // =====================================================================
         // Envío de mensajes
@@ -777,7 +778,9 @@
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
             if (role === 'user') {
-                avatar.innerHTML = '<i class="fas fa-user"></i>';
+                avatar.innerHTML = USER_PHOTO
+                    ? '<img src="' + USER_PHOTO + '" alt="Consultor" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">'
+                    : '<i class="fas fa-user"></i>';
             } else {
                 avatar.innerHTML = '<img src="' + BASE_URL + 'otto/otto.png" alt="Otto">';
             }

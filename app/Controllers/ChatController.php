@@ -61,10 +61,18 @@ class ChatController extends Controller
             return redirect()->to('/login');
         }
 
+        $foto = '';
+        if (in_array($session->get('role'), ['consultant', 'admin'])) {
+            $consultantModel = new \App\Models\ConsultantModel();
+            $consultant = $consultantModel->find((int) $session->get('user_id'));
+            $foto = $consultant['foto_consultor'] ?? '';
+        }
+
         return view('consultant/chat', [
             'usuario' => [
                 'nombre' => $session->get('nombre_usuario'),
                 'role'   => $session->get('role'),
+                'foto'   => $foto,
             ],
         ]);
     }
