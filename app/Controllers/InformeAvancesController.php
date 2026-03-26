@@ -687,6 +687,11 @@ class InformeAvancesController extends BaseController
     // ─── PRIVATE: Enviar email de notificación de reporte ───
     private function sendReportEmail(array $cliente, string $tituloReporte, string $enlace): void
     {
+        if (env('DISABLE_REPORT_EMAILS', false)) {
+            log_message('info', 'Email desactivado (DISABLE_REPORT_EMAILS). Informe: ' . $tituloReporte);
+            return;
+        }
+
         if (!filter_var($enlace, FILTER_VALIDATE_URL)) {
             log_message('error', 'Enlace inválido para email informe: ' . $enlace);
             return;
