@@ -122,8 +122,14 @@ Los documentos originales estaban en carpetas de Gmail organizadas por conjunto 
 - Firmas electrónicas PNG de contratos (no estaban en Gmail)
 - PDFs generados por el módulo de inspecciones nativo del sistema (pendiente regeneración via `php spark regenerar:pdfs`)
 
-### Regeneración de PDFs nativos (pendiente)
-Los PDFs generados por el módulo `/inspecciones` (DOMPDF) se pueden regenerar desde la BD. El comando `php spark regenerar:pdfs` está creado en `app/Commands/RegenerarPdfs.php` para esto.
+### Regeneración de PDFs nativos (COMPLETADA)
+Los PDFs generados por el módulo `/inspecciones` (DOMPDF) se regeneraron desde la BD con `php spark regenerar:pdfs`.
+
+Resultado de regeneración (inventario en `c:\tmp\inventario_final_v2.csv`):
+- 139 PDFs regenerados desde BD
+- 55 PDFs originales que ya existían del Takeout
+- 195 registros totales cubriendo 22 módulos
+- 194 de 195 en report list
 
 ## Medidas preventivas implementadas
 
@@ -131,7 +137,6 @@ Los PDFs generados por el módulo `/inspecciones` (DOMPDF) se pueden regenerar d
 Los uploads dinámicos ahora van a `WRITEPATH . 'soportes-clientes/'` en vez de `public/uploads/`.
 - Está dentro del proyecto (accesible por PHP, sin restricción open_basedir)
 - Protegido por `.gitignore` (`writable/soportes-clientes/`)
-- `writable/` ya estaba ignorado por convención CI4
 - Servido via `FileServerController` en ruta `serve-file/`
 
 ### 2. `.gitignore` actualizado
@@ -144,7 +149,28 @@ writable/soportes-clientes/
 ### 3. Script de deploy seguro: `deploy.sh`
 Reemplaza el deploy manual. Solo hace `git stash` + `git pull` + `git stash pop`. **NUNCA ejecuta `git clean`.**
 
-### 4. `UPLOADS_PATH` como constante centralizada
+### 4. Hook PreToolUse que bloquea comandos destructivos
+Configurado en `.claude/settings.json`. Intercepta TODOS los comandos Bash y bloquea cualquier SSH que contenga:
+- `git clean` (cualquier variante: -fd, -fdx, -fdX)
+- `git reset --hard`
+- `git checkout -- .`
+- `rm -rf` / `rm -r`
+- `DROP TABLE` / `DROP DATABASE` / `truncate`
+
+Funciona contra **cualquier** servidor remoto, no solo 66.29.154.174.
+
+### 5. Verificación de protección (auditada 2026-03-26)
+
+| Comando | ¿Borra writable/soportes-clientes? | Protección |
+|---------|-----|-----|
+| `git clean -fd` | **NO** | `.gitignore` lo protege |
+| `git clean -fdX` | Intentaría, pero... | Hook lo bloquea antes |
+| `git clean -fdx` | Intentaría, pero... | Hook lo bloquea antes |
+| `git pull origin main` | **NO** | No toca archivos ignorados |
+| `deploy.sh` | **NO** | Solo hace stash+pull+pop |
+| `rm -rf` via SSH | Intentaría, pero... | Hook lo bloquea antes |
+
+### 6. `UPLOADS_PATH` como constante centralizada
 Definida en `app/Config/Constants.php`:
 ```php
 define('UPLOADS_PATH', WRITEPATH . 'soportes-clientes/');
@@ -152,10 +178,10 @@ define('UPLOADS_URL_PREFIX', 'serve-file');
 ```
 44 controladores migrados para usar `UPLOADS_PATH` en vez de rutas hardcodeadas.
 
-### 5. FileServerController
+### 7. FileServerController
 Controlador que sirve archivos desde `writable/soportes-clientes/` via ruta `serve-file/`. Requiere sesión activa.
 
-### 6. Endpoint `addReportPost` acepta `fecha_original`
+### 8. Endpoint `addReportPost` acepta `fecha_original`
 Para preservar fechas originales en recargas masivas, sin hardcodear `date('Y-m-d H:i:s')`.
 
 ## Archivos creados/modificados

@@ -162,6 +162,14 @@ class FirmaAlturasController extends BaseController
 
         $email->addContent("text/html", $html);
 
+        // Desactivar click tracking para evitar reescritura de links por SendGrid
+        $trackingSettings = new \SendGrid\Mail\TrackingSettings();
+        $clickTracking = new \SendGrid\Mail\ClickTracking();
+        $clickTracking->setEnable(false);
+        $clickTracking->setEnableText(false);
+        $trackingSettings->setClickTracking($clickTracking);
+        $email->setTrackingSettings($trackingSettings);
+
         try {
             $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
             $response = $sendgrid->send($email);
