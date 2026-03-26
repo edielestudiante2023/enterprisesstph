@@ -221,5 +221,20 @@
       "\\tmp",
       "c:\\tmp"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "php -r \"$d=json_decode(file_get_contents('php://stdin'),true); $cmd=$d['tool_input']['command']??''; if(preg_match('/\\bssh\\b/', $cmd) && preg_match('/git clean|git reset --hard|git checkout -- \\\\.|rm -rf|rm -r |DROP TABLE|DROP DATABASE|truncate/i', $cmd)) { echo json_encode(['decision'=>'block','reason'=>'BLOQUEADO: Comando destructivo detectado en SSH. git clean, git reset --hard, git checkout -- ., rm -rf, DROP TABLE estan prohibidos en servidores remotos. Usa deploy.sh.']); }\"",
+            "timeout": 5,
+            "statusMessage": "Verificando seguridad del comando SSH..."
+          }
+        ]
+      }
+    ]
   }
 }
