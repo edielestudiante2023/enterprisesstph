@@ -157,16 +157,20 @@ class FirmaAlturasController extends BaseController
         $email->setSubject("Actualización SG-SST: Protocolo obligatorio de notificación de trabajos en alturas");
         $email->addTo($cliente['correo_cliente'], $nombreCliente);
 
-        // BCC al head consultant para seguimiento
-        $email->addBcc('edison.cuervo@cycloidtalent.com', 'Edison Cuervo');
-
-        // CC al consultor
+        // CC al consultor asignado
+        $correoConsultor = '';
         if (!empty($cliente['id_consultor'])) {
             $consultorModel = new ConsultantModel();
             $consultor = $consultorModel->find($cliente['id_consultor']);
             if ($consultor && !empty($consultor['correo_consultor'])) {
-                $email->addCc($consultor['correo_consultor'], $consultor['nombre_consultor']);
+                $correoConsultor = $consultor['correo_consultor'];
+                $email->addCc($correoConsultor, $consultor['nombre_consultor']);
             }
+        }
+
+        // BCC a Edison solo si no es el consultor asignado (evitar duplicado)
+        if (strcasecmp($correoConsultor, 'edison.cuervo@cycloidtalent.com') !== 0) {
+            $email->addBcc('edison.cuervo@cycloidtalent.com', 'Edison Cuervo');
         }
 
         $email->addContent("text/html", $html);
