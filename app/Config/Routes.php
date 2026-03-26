@@ -10,6 +10,12 @@ use CodeIgniter\Router\RouteCollection;
     print_r($routes->getRoutes());
 });
 
+// Servir archivos desde UPLOADS_PATH (fuera de public/)
+$routes->get('serve-file/(.+)', 'FileServerController::serve/$1');
+
+// Endpoint temporal para recarga masiva desde Takeout (autenticado por token)
+$routes->post('api/bulk-report-upload', 'ReportController::bulkUpload');
+
 $routes->get('/', 'AuthController::login');
 $routes->get('/login', 'AuthController::login');
 $routes->post('/loginPost', 'AuthController::loginPost');

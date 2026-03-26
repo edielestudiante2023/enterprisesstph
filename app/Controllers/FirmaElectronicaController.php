@@ -457,7 +457,7 @@ class FirmaElectronicaController extends Controller
 
             // Guardar archivo en uploads/{nit}/
             $nit = $cliente['nit_cliente'] ?? $doc['id_cliente'];
-            $uploadDir = FCPATH . 'uploads/' . $nit;
+            $uploadDir = UPLOADS_PATH . $nit;
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -466,7 +466,7 @@ class FirmaElectronicaController extends Controller
             $filePath = $uploadDir . '/' . $fileName;
             file_put_contents($filePath, $pdfOutput);
 
-            $enlace = base_url('uploads/' . $nit . '/' . $fileName);
+            $enlace = base_url(UPLOADS_URL_PREFIX . '/' . $nit . '/' . $fileName);
 
             // Obtener ID del detail_report "Documento SG-SST"
             $detailReport = $this->db->table('detail_report')

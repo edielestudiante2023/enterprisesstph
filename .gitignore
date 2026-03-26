@@ -135,3 +135,25 @@ sendgrid.envsendgrid.env
 composer.lock
 composer.json
 nul
+
+#-------------------------
+# Uploads dinámicos de producción
+# NUNCA usar git clean -fd en el servidor
+#-------------------------
+public/uploads/*/
+!public/uploads/.gitkeep
+
+#-------------------------
+# Uploads dinámicos de producción
+#-------------------------
+# NUNCA borrar con git clean — estos archivos
+# son documentación de clientes generada en producción
+public/uploads/*/
+public/uploads/contratos/
+public/uploads/firmas/
+public/uploads/inspecciones/
+public/uploads/informe-avances/
+public/uploads/matrices/
+public/uploads/planillas-seguridad-social/
+public/uploads/reportes/
+public/uploads/imagenesplanemergencias/

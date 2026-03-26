@@ -865,7 +865,7 @@ class SocializacionEmailController extends BaseController
             $pdfContent = $dompdf->output();
 
             // Guardar archivo
-            $dir = FCPATH . 'uploads/reportes/socializacion/';
+            $dir = UPLOADS_PATH . 'reportes/socializacion/';
             if (!is_dir($dir)) {
                 mkdir($dir, 0755, true);
             }
@@ -873,7 +873,7 @@ class SocializacionEmailController extends BaseController
             $nombreArchivo = 'socializacion_' . $cliente['id_cliente'] . '_' . date('Ymd_His') . '.pdf';
             file_put_contents($dir . $nombreArchivo, $pdfContent);
 
-            $enlace = base_url('uploads/reportes/socializacion/' . $nombreArchivo);
+            $enlace = base_url(UPLOADS_URL_PREFIX . '/reportes/socializacion/' . $nombreArchivo);
 
             // Insertar en tbl_reporte
             $reporteModel = new ReporteModel();

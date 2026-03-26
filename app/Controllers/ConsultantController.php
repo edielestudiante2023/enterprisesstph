@@ -149,8 +149,8 @@ class ConsultantController extends Controller
             // Recuperar el NIT del cliente recién guardado
             $nitCliente = $this->request->getVar('nit_cliente');
 
-            // Crear la carpeta para el cliente en public/uploads/{nit_cliente}
-            $uploadPath = ROOTPATH . 'public/uploads/' . $nitCliente;
+            // Crear la carpeta para el cliente en UPLOADS_PATH/{nit_cliente}
+            $uploadPath = UPLOADS_PATH . $nitCliente;
 
             if (!is_dir($uploadPath)) { // Verificar si la carpeta ya existe
                 mkdir($uploadPath, 0777, true); // Crear la carpeta con permisos 0777
