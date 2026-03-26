@@ -325,6 +325,169 @@
             animation: fadeInUp 0.6s ease-out;
         }
 
+        /* Otto Chat Widget */
+        .otto-bubble {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #bd9751 0%, #8B6914 100%);
+            box-shadow: 0 6px 24px rgba(139, 105, 20, 0.45);
+            cursor: pointer;
+            z-index: 1050;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .otto-bubble:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(139, 105, 20, 0.6);
+        }
+        .otto-bubble img {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .otto-bubble.hidden { display: none; }
+
+        .otto-widget {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 370px;
+            max-width: calc(100vw - 32px);
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+            z-index: 1050;
+            overflow: hidden;
+            transform: translateY(120%);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+        }
+        .otto-widget.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .otto-widget.hidden {
+            transform: translateY(120%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .otto-widget-header {
+            background: linear-gradient(135deg, #1c2437 0%, #2c3e50 100%);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+        .otto-widget-header img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #bd9751;
+        }
+        .otto-widget-header .otto-info {
+            flex: 1;
+        }
+        .otto-widget-header .otto-name {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        .otto-widget-header .otto-role {
+            color: #bd9751;
+            font-size: 0.82rem;
+            margin: 0;
+        }
+        .otto-widget-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .otto-widget-close:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+
+        .otto-widget-body {
+            padding: 20px;
+        }
+        .otto-greeting {
+            background: #f0f2f5;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            color: #1c2437;
+            line-height: 1.5;
+        }
+        .otto-input-row {
+            display: flex;
+            gap: 8px;
+        }
+        .otto-input-row input {
+            flex: 1;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .otto-input-row input:focus {
+            border-color: #bd9751;
+        }
+        .otto-input-row button {
+            background: linear-gradient(135deg, #bd9751 0%, #8B6914 100%);
+            border: none;
+            color: #fff;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .otto-input-row button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(139, 105, 20, 0.4);
+        }
+
+        .otto-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .otto-suggestion {
+            background: #f0f2f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            color: #1c2437;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .otto-suggestion:hover {
+            background: #bd9751;
+            color: #fff;
+            border-color: #bd9751;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .welcome-header h1 {
@@ -403,11 +566,6 @@
                     <div class="col-lg-3 col-md-6 mb-3">
                         <a href="<?= base_url('client/inspecciones/' . $client['id_cliente']) ?>" class="btn w-100" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none;">
                             <i class="fas fa-clipboard-check me-2"></i> Inspecciones
-                        </a>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <a href="<?= base_url('client-chat') ?>" class="btn w-100 d-flex align-items-center justify-content-center gap-2" style="background: linear-gradient(135deg, #bd9751 0%, #8B6914 100%); color: white; border: none;">
-                            <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:28px;height:28px;border-radius:50%;object-fit:cover;"> Otto — Asistente IA
                         </a>
                     </div>
                 </div>
@@ -548,6 +706,39 @@
         <p>&copy; 2024 Cycloid Talent SAS. Todos los derechos reservados.</p>
     </footer>
 
+    <!-- Otto Chat Widget -->
+    <div class="otto-bubble hidden" id="ottoBubble" title="Hablar con Otto">
+        <img src="<?= base_url('otto/otto.png') ?>" alt="Otto">
+    </div>
+
+    <div class="otto-widget" id="ottoWidget">
+        <div class="otto-widget-header">
+            <img src="<?= base_url('otto/otto.png') ?>" alt="Otto">
+            <div class="otto-info">
+                <p class="otto-name">Otto</p>
+                <p class="otto-role">Asistente IA de SST</p>
+            </div>
+            <button class="otto-widget-close" id="ottoClose" title="Minimizar">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div class="otto-widget-body">
+            <div class="otto-greeting">
+                ¡Hola! Soy <strong>Otto</strong>, tu asistente de Seguridad y Salud en el Trabajo. ¿En qué te puedo ayudar hoy?
+            </div>
+            <form class="otto-input-row" id="ottoForm">
+                <input type="text" id="ottoInput" placeholder="Escribe tu pregunta..." autocomplete="off">
+                <button type="submit"><i class="fas fa-paper-plane"></i></button>
+            </form>
+            <div class="otto-suggestions">
+                <span class="otto-suggestion" data-q="¿Cuáles son mis pendientes?">Pendientes</span>
+                <span class="otto-suggestion" data-q="¿Cómo van mis capacitaciones?">Capacitaciones</span>
+                <span class="otto-suggestion" data-q="¿Qué inspecciones tengo?">Inspecciones</span>
+                <span class="otto-suggestion" data-q="¿Cuál es mi plan de trabajo?">Plan de trabajo</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -564,6 +755,56 @@
                     el.style.opacity = '1';
                     el.style.transform = 'translateY(0)';
                 }, index * 200);
+            });
+
+            // Otto widget — slide up after page loads
+            const widget = document.getElementById('ottoWidget');
+            const bubble = document.getElementById('ottoBubble');
+            const closeBtn = document.getElementById('ottoClose');
+            const form = document.getElementById('ottoForm');
+            const input = document.getElementById('ottoInput');
+            const chatUrl = '<?= base_url("client-chat") ?>';
+
+            setTimeout(function() {
+                widget.classList.add('visible');
+            }, 800);
+
+            // Minimize to bubble
+            closeBtn.addEventListener('click', function() {
+                widget.classList.remove('visible');
+                widget.classList.add('hidden');
+                setTimeout(function() {
+                    bubble.classList.remove('hidden');
+                }, 400);
+            });
+
+            // Expand from bubble
+            bubble.addEventListener('click', function() {
+                bubble.classList.add('hidden');
+                widget.classList.remove('hidden');
+                // Force reflow
+                void widget.offsetHeight;
+                widget.classList.add('visible');
+                input.focus();
+            });
+
+            // Submit → navigate to chat
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var msg = input.value.trim();
+                if (msg) {
+                    window.location.href = chatUrl + '?q=' + encodeURIComponent(msg);
+                } else {
+                    window.location.href = chatUrl;
+                }
+            });
+
+            // Suggestion chips
+            document.querySelectorAll('.otto-suggestion').forEach(function(chip) {
+                chip.addEventListener('click', function() {
+                    var q = this.getAttribute('data-q');
+                    window.location.href = chatUrl + '?q=' + encodeURIComponent(q);
+                });
             });
         });
     </script>

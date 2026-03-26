@@ -684,6 +684,20 @@
             sendSessionEmail();
             window.location.href = BASE_URL + 'client/panel';
         }
+
+        // =====================================================================
+        // Auto-enviar pregunta desde query param ?q=...
+        // =====================================================================
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const q = params.get('q');
+            if (q && q.trim()) {
+                document.getElementById('messageInput').value = q.trim();
+                setTimeout(sendMessage, 300);
+                // Clean URL without reload
+                history.replaceState(null, '', window.location.pathname);
+            }
+        })();
     </script>
 </body>
 
