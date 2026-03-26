@@ -497,6 +497,7 @@
         const conversationHistory = [];
         let isProcessing = false;
         const BASE_URL = '<?= base_url() ?>';
+        const CLIENT_LOGO = '<?= !empty($usuario['logo']) ? base_url('uploads/' . $usuario['logo']) : '' ?>';
 
         // =====================================================================
         // Envío de mensajes
@@ -557,7 +558,9 @@
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
             if (role === 'user') {
-                avatar.innerHTML = '<i class="fas fa-user"></i>';
+                avatar.innerHTML = CLIENT_LOGO
+                    ? '<img src="' + CLIENT_LOGO + '" alt="Cliente" style="width:100%;height:100%;border-radius:50%;object-fit:contain;">'
+                    : '<i class="fas fa-user"></i>';
             } else {
                 avatar.innerHTML = '<img src="' + BASE_URL + 'otto/otto.png" alt="Otto">';
             }

@@ -62,6 +62,7 @@ class ClientChatController extends ChatController
                     'role'               => 'client',
                     'id_cliente'         => (int) $idClienteParam,
                     'nombre_copropiedad' => $client['nombre_cliente'] ?? '',
+                    'logo'               => $client['logo'] ?? '',
                 ],
             ]);
         }
@@ -75,12 +76,16 @@ class ClientChatController extends ChatController
         $session->remove('chatting_client_id');
         $session->remove('chatting_client_nombre');
 
+        $clientModel = new \App\Models\ClientModel();
+        $client = $clientModel->find((int) $session->get('id_entidad'));
+
         return view('client/chat', [
             'usuario' => [
                 'nombre'             => $session->get('nombre_usuario'),
                 'role'               => 'client',
                 'id_cliente'         => $session->get('id_entidad'),
                 'nombre_copropiedad' => $session->get('nombre_copropiedad') ?? '',
+                'logo'               => $client['logo'] ?? '',
             ],
         ]);
     }
