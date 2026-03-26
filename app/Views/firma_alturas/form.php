@@ -63,14 +63,29 @@
                 <p style="font-size: 12px; color: #6c757d;">Al firmar este documento, usted declara haber sido informado sobre las obligaciones legales relacionadas con trabajo en alturas y acepta el protocolo de notificación establecido. Tratamiento de datos conforme a la Ley 1581 de 2012.</p>
             </div>
 
-            <!-- Canvas de firma -->
+            <!-- Tabs: Dibujar o Subir -->
             <div class="mb-3">
                 <label class="form-label fw-bold"><i class="fas fa-signature"></i> Firma del Representante Legal</label>
-                <canvas id="firmaCanvas" class="firma-canvas" height="200"></canvas>
-                <div class="d-flex justify-content-end mt-1">
-                    <button type="button" id="btnLimpiar" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-eraser"></i> Limpiar
-                    </button>
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabDibujar" role="tab"><i class="fas fa-pen"></i> Dibujar</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabSubir" role="tab"><i class="fas fa-upload"></i> Subir imagen</a></li>
+                </ul>
+                <div class="tab-content border border-top-0 rounded-bottom p-2">
+                    <div class="tab-pane fade show active" id="tabDibujar" role="tabpanel">
+                        <canvas id="firmaCanvas" class="firma-canvas" height="200"></canvas>
+                        <div class="d-flex justify-content-end mt-1">
+                            <button type="button" id="btnLimpiar" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="tabSubir" role="tabpanel">
+                        <div class="text-center py-3">
+                            <input type="file" id="inputFirmaFile" accept="image/*" class="form-control mb-2" style="max-width: 400px; margin: 0 auto;">
+                            <img id="previewFirma" src="" alt="" style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 6px; display: none; margin-top: 8px;">
+                            <p style="font-size: 12px; color: #6c757d; margin-top: 5px;">Formatos: JPG, PNG. Fondo blanco preferido.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -149,19 +164,43 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
     });
 
+    // Preview de imagen subida
+    var uploadedImage = null;
+    document.getElementById('inputFirmaFile').addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            uploadedImage = ev.target.result;
+            var preview = document.getElementById('previewFirma');
+            preview.src = uploadedImage;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
+
     document.getElementById('btnFirmar').addEventListener('click', function() {
-        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        var pixelesOscuros = 0;
-        for (var i = 3; i < imageData.data.length; i += 4) {
-            if (imageData.data[i] > 128) pixelesOscuros++;
-        }
+        var tabSubirActivo = document.querySelector('#tabSubir.show.active') !== null;
+        var firmaImagen = null;
 
-        if (pixelesOscuros < 100) {
-            Swal.fire('Firma requerida', 'Por favor dibuje su firma en el recuadro.', 'warning');
-            return;
+        if (tabSubirActivo) {
+            if (!uploadedImage) {
+                Swal.fire('Firma requerida', 'Por favor seleccione una imagen de firma.', 'warning');
+                return;
+            }
+            firmaImagen = uploadedImage;
+        } else {
+            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var pixelesOscuros = 0;
+            for (var i = 3; i < imageData.data.length; i += 4) {
+                if (imageData.data[i] > 128) pixelesOscuros++;
+            }
+            if (pixelesOscuros < 100) {
+                Swal.fire('Firma requerida', 'Por favor dibuje su firma en el recuadro.', 'warning');
+                return;
+            }
+            firmaImagen = canvas.toDataURL('image/png');
         }
-
-        var firmaImagen = canvas.toDataURL('image/png');
 
         Swal.fire({
             title: '¿Confirmar firma?',
