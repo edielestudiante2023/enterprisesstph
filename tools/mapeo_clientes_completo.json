@@ -1,0 +1,302 @@
+[
+    {
+        "id_cliente": 11,
+        "nit_cliente": "901653912",
+        "nombre_cliente": "CYCLOID TALENT SAS"
+    },
+    {
+        "id_cliente": 17,
+        "nit_cliente": "901483876",
+        "nombre_cliente": "LA ALEGRIA IV CONJUNTO RESIDENCIAL PH"
+    },
+    {
+        "id_cliente": 18,
+        "nit_cliente": "830043840",
+        "nombre_cliente": "EDIFICIO MULTIFAMILIAR TORRES DE CANTABARA - PH"
+    },
+    {
+        "id_cliente": 19,
+        "nit_cliente": "830085070",
+        "nombre_cliente": "CONJUNTO VILLA VERONICA CLUB RESIDENCIAL ETAPA I - PH"
+    },
+    {
+        "id_cliente": 20,
+        "nit_cliente": "900226810",
+        "nombre_cliente": "AGRUPACION DE VIVIENDA JACARANDA - PH"
+    },
+    {
+        "id_cliente": 21,
+        "nit_cliente": "901139929",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL ALTAVISTA DEL PORTAL - PH"
+    },
+    {
+        "id_cliente": 22,
+        "nit_cliente": "900026513",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL ALTOS DE HATO CHICO"
+    },
+    {
+        "id_cliente": 23,
+        "nit_cliente": "901115793",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL LA ARBOLEDA DE SANTA ANA - PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 24,
+        "nit_cliente": "901193775",
+        "nombre_cliente": "CAOBO CONJUNTO RESIDENCIAL CAOBO P.H"
+    },
+    {
+        "id_cliente": 25,
+        "nit_cliente": "901136238",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL CASTAÑO - PH"
+    },
+    {
+        "id_cliente": 26,
+        "nit_cliente": "901024467",
+        "nombre_cliente": "EDIFICIO CHALET LA CABAÑA"
+    },
+    {
+        "id_cliente": 27,
+        "nit_cliente": "900983988",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL EL TRIUNFO 1"
+    },
+    {
+        "id_cliente": 28,
+        "nit_cliente": "830035783",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL EDEN LUZ - PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 29,
+        "nit_cliente": "901620555",
+        "nombre_cliente": "EL ENCANTO IV CONJUNTO RESIDENCIAL"
+    },
+    {
+        "id_cliente": 30,
+        "nit_cliente": "900971887",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL LA ESPERANZA III PH"
+    },
+    {
+        "id_cliente": 31,
+        "nit_cliente": "900873512",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL HELICONIA - PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 32,
+        "nit_cliente": "901207194",
+        "nombre_cliente": "CONJUNTO HUERTAS DE SOACHA II"
+    },
+    {
+        "id_cliente": 33,
+        "nit_cliente": "901435598",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL EL HUERTO"
+    },
+    {
+        "id_cliente": 34,
+        "nit_cliente": "900624804",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL LUCERNA FASE A ETAPA 1 P.H"
+    },
+    {
+        "id_cliente": 35,
+        "nit_cliente": "900154573",
+        "nombre_cliente": "AGRUPACIÓN DE VIVIENDA LAURELES DE NUEVA CASTILLA - PH"
+    },
+    {
+        "id_cliente": 36,
+        "nit_cliente": "900072254",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL PINAR DE LA COLINA 1"
+    },
+    {
+        "id_cliente": 37,
+        "nit_cliente": "830123878",
+        "nombre_cliente": "CONJUNTO PLAZUELAS DE SAN MARTIN III"
+    },
+    {
+        "id_cliente": 38,
+        "nit_cliente": "800130269",
+        "nombre_cliente": "UNIDAD RESIDENCIAL ROMA III - PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 39,
+        "nit_cliente": "900786797",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL SAN SEBASTIAN PRIMERA ETAPA"
+    },
+    {
+        "id_cliente": 40,
+        "nit_cliente": "900901619",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL TORRES DE SANTA BARBARA PH"
+    },
+    {
+        "id_cliente": 41,
+        "nit_cliente": "900779337",
+        "nombre_cliente": "SAUCO CONJUNTO RESIDENCIAL"
+    },
+    {
+        "id_cliente": 42,
+        "nit_cliente": "901129855",
+        "nombre_cliente": "EDIFICIO SENDEROS DEL LAUREL"
+    },
+    {
+        "id_cliente": 43,
+        "nit_cliente": "830044108",
+        "nombre_cliente": "EDIFICIO TORRES DE LAS AMERICAS"
+    },
+    {
+        "id_cliente": 44,
+        "nit_cliente": "901105283",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL LOS TUCANES"
+    },
+    {
+        "id_cliente": 45,
+        "nit_cliente": "901528412",
+        "nombre_cliente": "VERBENA CONJUNTO RESIDENCIAL"
+    },
+    {
+        "id_cliente": 46,
+        "nit_cliente": "901544569",
+        "nombre_cliente": "EDIFICIO COMERCIO VECINAL Y VIVIENDA MULTIFAMILIAR VERONA"
+    },
+    {
+        "id_cliente": 47,
+        "nit_cliente": "900245131",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL BOSQUES DEL ZAPAN 1"
+    },
+    {
+        "id_cliente": 48,
+        "nit_cliente": "900294471",
+        "nombre_cliente": "BOSQUES DEL ZAPAN II MANZANA VII"
+    },
+    {
+        "id_cliente": 49,
+        "nit_cliente": "901103223",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL EL ZORZAL - PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 50,
+        "nit_cliente": "901554013",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL ALCAPARRO"
+    },
+    {
+        "id_cliente": 51,
+        "nit_cliente": "900687420",
+        "nombre_cliente": "AGRUPACION DE VIVIENDA ACACIA - PH"
+    },
+    {
+        "id_cliente": 52,
+        "nit_cliente": "900988537",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL PARQUE MALPELO 1 - PH"
+    },
+    {
+        "id_cliente": 53,
+        "nit_cliente": "900620655",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL ALHELI"
+    },
+    {
+        "id_cliente": 54,
+        "nit_cliente": "830122409",
+        "nombre_cliente": "AGRUPACION DE VIVIENDA CEDRO SUBA III"
+    },
+    {
+        "id_cliente": 55,
+        "nit_cliente": "900144587",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL VILLA DE HATO CHICO PH"
+    },
+    {
+        "id_cliente": 56,
+        "nit_cliente": "900967200",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL ABEDUL - PH"
+    },
+    {
+        "id_cliente": 57,
+        "nit_cliente": "901415602",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL MIRTO II"
+    },
+    {
+        "id_cliente": 58,
+        "nit_cliente": "901627406",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL CEIBA"
+    },
+    {
+        "id_cliente": 59,
+        "nit_cliente": "901258703",
+        "nombre_cliente": "PRATUM CONJUNTO RESIDENCIAL PH"
+    },
+    {
+        "id_cliente": 60,
+        "nit_cliente": "900096867",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL JARDINES DE LA COLINA PRIMERA ETAPA - PH"
+    },
+    {
+        "id_cliente": 61,
+        "nit_cliente": "830126249",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL PLAZA BAVIERA II - PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 62,
+        "nit_cliente": "901100737",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL SANDALO – PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 63,
+        "nit_cliente": "901281111",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL GRANADO"
+    },
+    {
+        "id_cliente": 64,
+        "nit_cliente": "901117418",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL ALAMO – PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 65,
+        "nit_cliente": "800120571",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL EL MOLINO DE LA ABADIA II – PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 66,
+        "nit_cliente": "900040783",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL OASIS DE SAN MATEO MODULO C PH"
+    },
+    {
+        "id_cliente": 67,
+        "nit_cliente": "900554174",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL VIOLETA PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 68,
+        "nit_cliente": "830012013",
+        "nombre_cliente": "EDIFICIO RESIDENCIAL CONNOR I  - PH"
+    },
+    {
+        "id_cliente": 69,
+        "nit_cliente": "800251560",
+        "nombre_cliente": "AGRUPACION DE VIVIENDA CARIMAGUA I Y II - PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 70,
+        "nit_cliente": "830132259",
+        "nombre_cliente": "EDIFICIO FINLANDIA - PH"
+    },
+    {
+        "id_cliente": 71,
+        "nit_cliente": "830007142",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL SALITRAL - PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 72,
+        "nit_cliente": "900417539",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL PICASSO – PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 73,
+        "nit_cliente": "830055929",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL ALBACETE - PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 75,
+        "nit_cliente": "800157672",
+        "nombre_cliente": "EDIFICIO LOS PINOS - PROPIEDAD HORIZONTAL"
+    },
+    {
+        "id_cliente": 76,
+        "nit_cliente": "901215112",
+        "nombre_cliente": "CONJUNTO RESIDENCIAL FEIJOA - PROPIEDAD HORIZONTAL"
+    }
+]

@@ -106,6 +106,15 @@ $totalAsistentes = count($asistentes);
         </div>
     </div>
 
+    <!-- Banner pendientes offline -->
+    <div id="offlineBanner" class="alert alert-warning d-none mb-3" style="font-size:13px;">
+        <i class="fas fa-wifi-slash me-1"></i>
+        <span id="offlineBannerText">0 firma(s) pendientes de sincronizar</span>
+        <button type="button" class="btn btn-sm btn-warning ms-2" id="btnSyncManual" onclick="syncManualFirmas()">
+            <i class="fas fa-sync"></i> Sincronizar
+        </button>
+    </div>
+
     <!-- Boton volver -->
     <div class="mb-4">
         <a href="<?= base_url('/inspecciones/asistencia-induccion/view/') ?><?= $inspeccion['id'] ?>" class="btn btn-sm btn-outline-dark">
@@ -116,6 +125,7 @@ $totalAsistentes = count($asistentes);
     <?php endif; ?>
 </div>
 
+<script src="/js/offline_queue.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const totalAsistentes = <?= $totalAsistentes ?>;
@@ -260,8 +270,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 btnThis.disabled = false;
                 btnThis.innerHTML = '<i class="fas fa-save"></i> Guardar Firma';
             })
-            .catch(err => {
-                Swal.fire('Error', 'Error de conexion', 'error');
+            .catch(async (err) => {
+                // ── Offline: guardar firma en IndexedDB ──
+                try {
+                    await OfflineQueue.add({
+                        type: 'firma',
+                        url: '/inspecciones/asistencia-induccion/guardar-firma/' + idAsistente,
+                        id_asistencia: <?= $inspeccion['id'] ?>,
+                        payload: {
+                            firma: firmaData,
+                            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+                        },
+                        meta: { idAsistente, idx }
+                    });
+                    await OfflineQueue.requestSync();
+
+                    // Mostrar como guardado offline en la UI
+                    const existente = document.querySelector('.firma-existente[data-index="' + idx + '"]');
+                    if (!existente) {
+                        const card = document.createElement('div');
+                        card.className = 'card mb-3 firma-existente firma-offline';
+                        card.dataset.index = idx;
+                        card.innerHTML = '<div class="card-body text-center"><p style="font-size:12px; color:#f0ad4e; margin-bottom:5px;"><i class="fas fa-clock"></i> Firma guardada offline - pendiente sync</p><img src="' + firmaData + '" style="max-width:200px; max-height:80px; border:1px dashed #f0ad4e;"></div>';
+                        const firmanteCard = document.querySelector('.firmante-card[data-index="' + idx + '"]');
+                        const canvasCard = firmanteCard.querySelectorAll('.card')[1];
+                        firmanteCard.insertBefore(card, canvasCard);
+                    } else {
+                        existente.classList.add('firma-offline');
+                        existente.querySelector('p').innerHTML = '<i class="fas fa-clock"></i> Firma guardada offline - pendiente sync';
+                        existente.querySelector('p').style.color = '#f0ad4e';
+                        existente.querySelector('img').src = firmaData;
+                        existente.querySelector('img').style.border = '1px dashed #f0ad4e';
+                    }
+
+                    updateOfflineBannerFirmas();
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Guardado offline',
+                        html: 'Sin conexion. La firma se enviar\u00e1 automaticamente cuando vuelva el internet.',
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                } catch (dbErr) {
+                    Swal.fire('Error', 'No se pudo guardar la firma offline.', 'error');
+                }
                 btnThis.disabled = false;
                 btnThis.innerHTML = '<i class="fas fa-save"></i> Guardar Firma';
             });
@@ -301,4 +353,77 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial progress
     updateProgress();
 });
+
+// ── Offline sync helpers para firmas ──
+async function updateOfflineBannerFirmas() {
+    try {
+        const items = await OfflineQueue.getByAsistencia(<?= $inspeccion['id'] ?>);
+        const banner = document.getElementById('offlineBanner');
+        const text = document.getElementById('offlineBannerText');
+        if (items.length > 0) {
+            banner.classList.remove('d-none');
+            text.textContent = items.length + ' firma(s) pendientes de sincronizar';
+        } else {
+            banner.classList.add('d-none');
+        }
+    } catch(e) {}
+}
+
+async function syncManualFirmas() {
+    const btn = document.getElementById('btnSyncManual');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    try {
+        const result = await OfflineQueue.syncAll();
+        if (result.synced > 0) {
+            Swal.fire({
+                icon: 'success',
+                title: result.synced + ' firma(s) sincronizada(s)',
+                text: 'Recargando pagina...',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            setTimeout(() => window.location.reload(), 2000);
+        } else if (result.failed > 0) {
+            Swal.fire('Sin conexion', 'Aun no hay internet. Se reintentara automaticamente.', 'warning');
+        }
+    } catch (e) {
+        Swal.fire('Error', 'No se pudo sincronizar.', 'error');
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-sync"></i> Sincronizar';
+}
+
+// Al cargar: verificar pendientes
+updateOfflineBannerFirmas();
+
+// Listener: reconexion automatica
+OfflineQueue.startOnlineListener(function(result) {
+    if (result.synced > 0) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Conexion restaurada',
+            html: result.synced + ' firma(s) sincronizada(s).<br>Recargando...',
+            timer: 2500,
+            showConfirmButton: false
+        });
+        setTimeout(() => window.location.reload(), 2500);
+    }
+});
+
+// Listener: Background Sync del Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'sync-firmas-complete') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Sincronizado',
+                html: event.data.synced + ' firma(s) enviada(s) en segundo plano.<br>Recargando...',
+                timer: 2500,
+                showConfirmButton: false
+            });
+            setTimeout(() => window.location.reload(), 2500);
+        }
+    });
+}
 </script>

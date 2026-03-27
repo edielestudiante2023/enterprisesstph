@@ -1269,58 +1269,76 @@ class ActaVisitaController extends BaseController
      */
     private function enviarEmailEvaluacionesRapidas(array $acta): void
     {
-        $consultor = (new ConsultantModel())->find($acta['id_consultor']);
-        if (!$consultor || empty($consultor['correo_consultor'])) return;
-
         $apiKey = env('SENDGRID_API_KEY');
         if (!$apiKey) return;
 
-        $cliente  = (new ClientModel())->find($acta['id_cliente']);
-        $token    = $this->generarTokenEvaluacion((int)$acta['id'], (int)$acta['id_cliente']);
-        $url      = base_url("acta-visita/evaluaciones-visita/{$acta['id']}/{$token}");
-        $fecha    = date('d/m/Y', strtotime($acta['fecha_visita']));
-        $nomCli   = htmlspecialchars($cliente['nombre_cliente'] ?? '');
-        $nomCons  = htmlspecialchars($consultor['nombre_consultor'] ?? 'Consultor');
-        $urlEsc   = htmlspecialchars($url);
+        $consultorActa   = (new ConsultantModel())->find($acta['id_consultor']);
+        $cliente         = (new ClientModel())->find($acta['id_cliente']);
+        $consultorCliente = null;
 
-        $html = "
-        <div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:0 auto;'>
-            <div style='background:#1c2437;padding:20px;text-align:center;border-radius:10px 10px 0 0;'>
-                <h1 style='color:#bd9751;margin:0;font-size:20px;'>Evaluación Rápida Post-Visita</h1>
-            </div>
-            <div style='padding:25px;background:#f8f9fa;border-radius:0 0 10px 10px;'>
-                <p>Hola <strong>{$nomCons}</strong>,</p>
-                <p>El acta de visita del <strong>{$fecha}</strong> para <strong>{$nomCli}</strong> ha sido finalizada.</p>
-                <p>Usa este enlace para marcar los ítems de cumplimiento que se cerraron en esta visita:</p>
-                <div style='text-align:center;margin:24px 0;'>
-                    <a href='{$urlEsc}' style='background:#bd9751;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;'>
-                        ✔ Actualizar Evaluaciones
-                    </a>
+        if (!empty($cliente['id_consultor']) && (int)$cliente['id_consultor'] !== (int)$acta['id_consultor']) {
+            $consultorCliente = (new ConsultantModel())->find($cliente['id_consultor']);
+        }
+
+        $destinatarios = [];
+        if ($consultorActa && !empty($consultorActa['correo_consultor'])) {
+            $destinatarios[$consultorActa['correo_consultor']] = $consultorActa['nombre_consultor'] ?? 'Consultor';
+        }
+        if ($consultorCliente && !empty($consultorCliente['correo_consultor'])) {
+            $destinatarios[$consultorCliente['correo_consultor']] = $consultorCliente['nombre_consultor'] ?? 'Consultor';
+        }
+
+        if (empty($destinatarios)) return;
+
+        $token   = $this->generarTokenEvaluacion((int)$acta['id'], (int)$acta['id_cliente']);
+        $url     = base_url("acta-visita/evaluaciones-visita/{$acta['id']}/{$token}");
+        $fecha   = date('d/m/Y', strtotime($acta['fecha_visita']));
+        $nomCli  = htmlspecialchars($cliente['nombre_cliente'] ?? '');
+        $urlEsc  = htmlspecialchars($url);
+        $subject = "Evaluaciones rápidas — {$nomCli} — {$fecha}";
+
+        foreach ($destinatarios as $correo => $nombre) {
+            $nomCons = htmlspecialchars($nombre);
+
+            $html = "
+            <div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:0 auto;'>
+                <div style='background:#1c2437;padding:20px;text-align:center;border-radius:10px 10px 0 0;'>
+                    <h1 style='color:#bd9751;margin:0;font-size:20px;'>Evaluación Rápida Post-Visita</h1>
                 </div>
-                <p style='font-size:12px;color:#999;word-break:break-all;'>Enlace directo: {$urlEsc}</p>
-                <p style='color:#999;font-size:11px;margin-top:20px;'>Generado por SG-SST Cycloid Talent.</p>
-            </div>
-        </div>";
+                <div style='padding:25px;background:#f8f9fa;border-radius:0 0 10px 10px;'>
+                    <p>Hola <strong>{$nomCons}</strong>,</p>
+                    <p>El acta de visita del <strong>{$fecha}</strong> para <strong>{$nomCli}</strong> ha sido finalizada.</p>
+                    <p>Usa este enlace para marcar los ítems de cumplimiento que se cerraron en esta visita:</p>
+                    <div style='text-align:center;margin:24px 0;'>
+                        <a href='{$urlEsc}' style='background:#bd9751;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;'>
+                            ✔ Actualizar Evaluaciones
+                        </a>
+                    </div>
+                    <p style='font-size:12px;color:#999;word-break:break-all;'>Enlace directo: {$urlEsc}</p>
+                    <p style='color:#999;font-size:11px;margin-top:20px;'>Generado por SG-SST Cycloid Talent.</p>
+                </div>
+            </div>";
 
-        $payload = json_encode([
-            'personalizations' => [['to' => [['email' => $consultor['correo_consultor'], 'name' => $nomCons]], 'subject' => "Evaluaciones rápidas — {$nomCli} — {$fecha}"]],
-            'from'    => ['email' => 'notificacion.cycloidtalent@cycloidtalent.com', 'name' => 'Cycloid Talent - SG-SST'],
-            'content' => [['type' => 'text/html', 'value' => $html]],
-            'tracking_settings' => [
-                'click_tracking' => ['enable' => false, 'enable_text' => false],
-            ],
-        ]);
+            $payload = json_encode([
+                'personalizations' => [['to' => [['email' => $correo, 'name' => $nomCons]], 'subject' => $subject]],
+                'from'    => ['email' => 'notificacion.cycloidtalent@cycloidtalent.com', 'name' => 'Cycloid Talent - SG-SST'],
+                'content' => [['type' => 'text/html', 'value' => $html]],
+                'tracking_settings' => [
+                    'click_tracking' => ['enable' => false, 'enable_text' => false],
+                ],
+            ]);
 
-        $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
-        curl_setopt_array($ch, [
-            CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . $apiKey, 'Content-Type: application/json'],
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => $payload,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_TIMEOUT        => 30,
-        ]);
-        curl_exec($ch);
-        curl_close($ch);
+            $ch = curl_init('https://api.sendgrid.com/v3/mail/send');
+            curl_setopt_array($ch, [
+                CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . $apiKey, 'Content-Type: application/json'],
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => $payload,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_TIMEOUT        => 30,
+            ]);
+            curl_exec($ch);
+            curl_close($ch);
+        }
     }
 }

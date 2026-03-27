@@ -110,6 +110,27 @@ $mboxFiles = array_filter($mboxFiles, function($f) {
         && stripos($name, 'BIOTOSCANA') === false;
 });
 
+// Soporte para --skip-file: excluir mbox ya procesados
+$skipPatterns = [];
+foreach ($argv as $arg) {
+    if (strpos($arg, '--skip-file=') === 0) {
+        $skipFile = substr($arg, strlen('--skip-file='));
+        if (file_exists($skipFile)) {
+            $skipPatterns = array_filter(array_map('trim', file($skipFile)));
+            echo "Saltando " . count($skipPatterns) . " clientes ya procesados\n";
+        }
+    }
+}
+if (!empty($skipPatterns)) {
+    $mboxFiles = array_filter($mboxFiles, function($f) use ($skipPatterns) {
+        $base = basename($f, '.mbox');
+        foreach ($skipPatterns as $pattern) {
+            if (stripos($base, trim($pattern)) !== false) return false;
+        }
+        return true;
+    });
+}
+
 echo "=== RECARGA MASIVA DESDE TAKEOUT ===\n";
 echo "Servidor: $baseUrl\n";
 echo "Archivos mbox: " . count($mboxFiles) . "\n\n";
@@ -419,21 +440,19 @@ function buscarCliente(string $nombreLabel, array $clientes): ?int
         }
     }
 
-    // Match parcial — el mbox puede estar truncado (Gmail corta a ~50 chars)
-    // Usamos las primeras 20 chars del label para buscar en los nombres completos
-    $labelPrefix = substr($labelNorm, 0, 20);
+    // Match: el label truncado es prefijo del nombre completo en BD
+    // Ejemplo: "CONJUNTO RESIDENCIAL VIOLETA PROPIEDAD H" matchea "CONJUNTO RESIDENCIAL VIOLETA PROPIEDAD HORIZONTAL"
     foreach ($clientes as $nombre => $id) {
         $nombreNorm = $normalizar($nombre);
-        if (str_starts_with($nombreNorm, $labelPrefix)) {
+        if (str_starts_with($nombreNorm, $labelNorm)) {
             return $id;
         }
     }
 
-    // Match inverso — el nombre de BD puede empezar con el label
+    // Match inverso: el nombre completo de BD es prefijo del label
     foreach ($clientes as $nombre => $id) {
         $nombreNorm = $normalizar($nombre);
-        $nombrePrefix = substr($nombreNorm, 0, 20);
-        if (str_starts_with($labelNorm, $nombrePrefix)) {
+        if (str_starts_with($labelNorm, $nombreNorm)) {
             return $id;
         }
     }
