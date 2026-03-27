@@ -278,10 +278,11 @@ class ActaVisitaController extends BaseController
         $integrantes = $this->integranteModel->getByActa($id);
 
         // Determinar qué firmas se necesitan — exclusivamente desde integrantes del acta
+        // Roles del desplegable: ADMINISTRADOR, ASISTENTE DE ADMINISTRACIÓN, VIGÍA SST, CONSULTOR CYCLOID, OTRO
         $firmantes = [];
         foreach ($integrantes as $integrante) {
             $rol = strtoupper($integrante['rol']);
-            if ($rol === 'ADMINISTRADOR') {
+            if (stripos($rol, 'ADMINISTRA') !== false) {
                 $firmantes[] = ['tipo' => 'administrador', 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_administrador'])];
             } elseif (stripos($rol, 'VIG') !== false) {
                 $firmantes[] = ['tipo' => 'vigia', 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_vigia'])];
@@ -356,10 +357,10 @@ class ActaVisitaController extends BaseController
             return $this->response->setJSON(['success' => false, 'error' => 'Falta la firma del consultor']);
         }
 
-        // Verificar firma del administrador si hay integrante con rol ADMINISTRADOR
+        // Verificar firma del administrador si hay integrante con rol admin
         $integrantes = $this->integranteModel->getByActa($id);
         foreach ($integrantes as $integrante) {
-            if (strtoupper($integrante['rol']) === 'ADMINISTRADOR' && empty($acta['firma_administrador'])) {
+            if (stripos($integrante['rol'], 'ADMINISTRA') !== false && empty($acta['firma_administrador'])) {
                 return $this->response->setJSON(['success' => false, 'error' => 'Falta la firma del administrador']);
             }
         }
