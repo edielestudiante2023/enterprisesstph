@@ -282,12 +282,13 @@ class ActaVisitaController extends BaseController
         $firmantes = [];
         foreach ($integrantes as $integrante) {
             $rol = strtoupper($integrante['rol']);
+            $rolLabel = $integrante['rol']; // Rol original tal como se seleccionó
             if (stripos($rol, 'ADMINISTRA') !== false) {
-                $firmantes[] = ['tipo' => 'administrador', 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_administrador'])];
+                $firmantes[] = ['tipo' => 'administrador', 'rol_label' => $rolLabel, 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_administrador'])];
             } elseif (stripos($rol, 'VIG') !== false) {
-                $firmantes[] = ['tipo' => 'vigia', 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_vigia'])];
+                $firmantes[] = ['tipo' => 'vigia', 'rol_label' => $rolLabel, 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_vigia'])];
             } elseif (stripos($rol, 'CONSULTOR') !== false) {
-                $firmantes[] = ['tipo' => 'consultor', 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_consultor'])];
+                $firmantes[] = ['tipo' => 'consultor', 'rol_label' => $rolLabel, 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_consultor'])];
             }
         }
 

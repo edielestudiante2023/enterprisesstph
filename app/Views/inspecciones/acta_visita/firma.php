@@ -10,7 +10,7 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div>
                     <span class="badge bg-dark">Paso <?= $i + 1 ?> de <?= count($firmantes) ?></span>
-                    <h6 class="mt-1 mb-0">Firma del <?= ucfirst(esc($firmante['tipo'])) ?></h6>
+                    <h6 class="mt-1 mb-0">Firma — <?= esc($firmante['rol_label']) ?></h6>
                     <small class="text-muted"><?= esc($firmante['nombre']) ?></small>
                 </div>
                 <?php if ($firmante['firmado']): ?>
@@ -83,6 +83,11 @@ const actaId = <?= $acta['id'] ?>;
 const totalPasos = <?= count($firmantes) ?>;
 let pasoActual = 0;
 const canvases = {};
+const rolLabels = {
+    <?php foreach ($firmantes as $f): ?>
+    '<?= esc($f['tipo']) ?>': '<?= esc($f['rol_label']) ?>',
+    <?php endforeach; ?>
+};
 
 // --- SignatureCanvas class ---
 class SignatureCanvas {
@@ -275,7 +280,7 @@ function guardarFirma(tipo, paso) {
                 step.querySelector('.card-body').innerHTML = `
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <div>
-                            <h6 class="mb-0">Firma del ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</h6>
+                            <h6 class="mb-0">Firma — ${rolLabels[tipo] || tipo}</h6>
                         </div>
                         <span class="badge bg-success"><i class="fas fa-check"></i> Firmado</span>
                     </div>
@@ -311,7 +316,7 @@ function guardarFirma(tipo, paso) {
                 step.querySelector('.card-body').innerHTML = `
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <div>
-                            <h6 class="mb-0">Firma del ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</h6>
+                            <h6 class="mb-0">Firma — ${rolLabels[tipo] || tipo}</h6>
                         </div>
                         <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Pendiente sync</span>
                     </div>
