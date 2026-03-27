@@ -138,13 +138,13 @@ class ActaVisitaController extends BaseController
 
         // Guardar PTA solo en borrador normal (NO cuando va a vista PTA intermedia)
         $irAFirmas = $this->request->getPost('ir_a_firmas');
-        log_message('debug', "[ACTA-PTA-DEBUG] store() idActa={$idActa} ir_a_firmas=" . var_export($irAFirmas, true));
+        file_put_contents(WRITEPATH . 'logs/pta_debug.log', date('H:i:s') . " store() id={$idActa} ir_a_firmas=" . var_export($irAFirmas, true) . " POST=" . json_encode(array_keys($this->request->getPost() ?? [])) . "\n", FILE_APPEND);
         if (!$irAFirmas) {
             $this->savePtaActividades($idActa);
         }
 
         $redirect = $irAFirmas ? '/inspecciones/acta-visita/pta/' . $idActa : '/inspecciones/acta-visita/edit/' . $idActa;
-        log_message('debug', "[ACTA-PTA-DEBUG] store() redirecting to: {$redirect}");
+        file_put_contents(WRITEPATH . 'logs/pta_debug.log', date('H:i:s') . " store() redirect={$redirect}\n", FILE_APPEND);
         return redirect()->to($redirect)->with('msg', 'Acta guardada');
     }
 
@@ -214,13 +214,13 @@ class ActaVisitaController extends BaseController
 
         // Guardar PTA solo en borrador normal (NO cuando va a vista PTA intermedia)
         $irAFirmas = $this->request->getPost('ir_a_firmas');
-        log_message('debug', "[ACTA-PTA-DEBUG] update() id={$id} ir_a_firmas=" . var_export($irAFirmas, true) . " POST_keys=" . implode(',', array_keys($this->request->getPost() ?? [])));
+        file_put_contents(WRITEPATH . 'logs/pta_debug.log', date('H:i:s') . " update() id={$id} ir_a_firmas=" . var_export($irAFirmas, true) . " POST=" . json_encode(array_keys($this->request->getPost() ?? [])) . "\n", FILE_APPEND);
         if (!$irAFirmas) {
             $this->savePtaActividades($id);
         }
 
         $redirect = $irAFirmas ? '/inspecciones/acta-visita/pta/' . $id : '/inspecciones/acta-visita/edit/' . $id;
-        log_message('debug', "[ACTA-PTA-DEBUG] update() redirecting to: {$redirect}");
+        file_put_contents(WRITEPATH . 'logs/pta_debug.log', date('H:i:s') . " update() redirect={$redirect}\n", FILE_APPEND);
 
         return redirect()->to($redirect)->with('msg', 'Acta actualizada');
     }
@@ -273,19 +273,18 @@ class ActaVisitaController extends BaseController
      */
     public function pta($id)
     {
-        log_message('debug', "[ACTA-PTA-DEBUG] pta() ENTER id={$id}");
+        file_put_contents(WRITEPATH . 'logs/pta_debug.log', date('H:i:s') . " pta() ENTER id={$id}\n", FILE_APPEND);
         $acta = $this->actaModel->find($id);
         if (!$acta) {
-            log_message('debug', "[ACTA-PTA-DEBUG] pta() acta NOT FOUND id={$id}");
+            file_put_contents(WRITEPATH . 'logs/pta_debug.log', date('H:i:s') . " pta() acta NOT FOUND\n", FILE_APPEND);
             return redirect()->to('/inspecciones/acta-visita')->with('error', 'Acta no encontrada');
         }
 
         // Si ya se guardaron las PTA para esta acta, redirigir a firmas (una sola oportunidad)
         $linkModel = new ActaVisitaPtaModel();
         $yaGuardado = $linkModel->where('id_acta_visita', $id)->countAllResults(false) > 0;
-        log_message('debug', "[ACTA-PTA-DEBUG] pta() yaGuardado={$yaGuardado} id={$id}");
+        file_put_contents(WRITEPATH . 'logs/pta_debug.log', date('H:i:s') . " pta() yaGuardado={$yaGuardado} id={$id}\n", FILE_APPEND);
         if ($yaGuardado) {
-            log_message('debug', "[ACTA-PTA-DEBUG] pta() SKIP to firma because yaGuardado id={$id}");
             return redirect()->to('/inspecciones/acta-visita/firma/' . $id);
         }
 
