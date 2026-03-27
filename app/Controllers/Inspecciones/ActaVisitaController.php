@@ -283,6 +283,7 @@ class ActaVisitaController extends BaseController
         $actividades = $ptaModel->getAbiertosByClienteYMes((int) $acta['id_cliente'], $acta['fecha_visita']);
 
         // Cargar estado previo (no deberia existir si llegamos aqui, pero por seguridad)
+        $linkModel = new ActaVisitaPtaModel();
         $prevLinks = [];
         $links = $linkModel->where('id_acta_visita', $id)->findAll();
         foreach ($links as $link) {
