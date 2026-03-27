@@ -132,17 +132,18 @@ class ActaVisitaController extends BaseController
         // Guardar fotos
         $this->saveFotos($idActa);
 
-        // Guardar actividades PTA (solo en submit real, no autosave)
-        if (!$isAutosave) {
-            $this->savePtaActividades($idActa);
-        }
-
         if ($isAutosave) {
             return $this->autosaveJsonSuccess($idActa);
         }
 
-        return redirect()->to('/inspecciones/acta-visita/edit/' . $idActa)
-            ->with('msg', 'Acta guardada como borrador');
+        // Guardar PTA solo en borrador normal (NO cuando va a vista PTA intermedia)
+        $irAFirmas = $this->request->getPost('ir_a_firmas');
+        if (!$irAFirmas) {
+            $this->savePtaActividades($idActa);
+        }
+
+        $redirect = $irAFirmas ? '/inspecciones/acta-visita/pta/' . $idActa : '/inspecciones/acta-visita/edit/' . $idActa;
+        return redirect()->to($redirect)->with('msg', 'Acta guardada');
     }
 
     /**
@@ -205,16 +206,17 @@ class ActaVisitaController extends BaseController
         $this->saveCompromisos($id);
         $this->saveFotos($id);
 
-        // Guardar actividades PTA (solo en submit real, no autosave)
-        if (!$this->isAutosaveRequest()) {
-            $this->savePtaActividades($id);
-        }
-
         if ($this->isAutosaveRequest()) {
             return $this->autosaveJsonSuccess((int)$id);
         }
 
-        $redirect = $this->request->getPost('ir_a_firmas') ? '/inspecciones/acta-visita/pta/' . $id : '/inspecciones/acta-visita/edit/' . $id;
+        // Guardar PTA solo en borrador normal (NO cuando va a vista PTA intermedia)
+        $irAFirmas = $this->request->getPost('ir_a_firmas');
+        if (!$irAFirmas) {
+            $this->savePtaActividades($id);
+        }
+
+        $redirect = $irAFirmas ? '/inspecciones/acta-visita/pta/' . $id : '/inspecciones/acta-visita/edit/' . $id;
 
         return redirect()->to($redirect)->with('msg', 'Acta actualizada');
     }
