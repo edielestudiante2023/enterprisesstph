@@ -272,11 +272,17 @@ class ActaVisitaController extends BaseController
             return redirect()->to('/inspecciones/acta-visita')->with('error', 'Acta no encontrada');
         }
 
+        // Si ya se guardaron las PTA para esta acta, redirigir a firmas (una sola oportunidad)
+        $linkModel = new ActaVisitaPtaModel();
+        $yaGuardado = $linkModel->where('id_acta_visita', $id)->countAllResults(false) > 0;
+        if ($yaGuardado) {
+            return redirect()->to('/inspecciones/acta-visita/firma/' . $id);
+        }
+
         $ptaModel = new PtaClienteNuevaModel();
         $actividades = $ptaModel->getAbiertosByClienteYMes((int) $acta['id_cliente'], $acta['fecha_visita']);
 
-        // Cargar estado previo si existe
-        $linkModel = new ActaVisitaPtaModel();
+        // Cargar estado previo (no deberia existir si llegamos aqui, pero por seguridad)
         $prevLinks = [];
         $links = $linkModel->where('id_acta_visita', $id)->findAll();
         foreach ($links as $link) {

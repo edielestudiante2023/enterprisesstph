@@ -104,7 +104,7 @@ $totalActividades = count($actividades);
 
         <!-- Boton guardar -->
         <div class="mt-3">
-            <button type="submit" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:16px; font-weight:600;">
+            <button type="button" id="btnGuardarPta" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:16px; font-weight:600;">
                 <i class="fas fa-save me-1"></i> Guardar todo y continuar a firmas
             </button>
         </div>
@@ -164,6 +164,35 @@ document.addEventListener('DOMContentLoaded', function() {
         var count = document.querySelectorAll('.bulk-select:checked').length;
         selectedCount.textContent = count + ' seleccionada' + (count !== 1 ? 's' : '');
     }
+
+    // Guardar con validacion aritmetica
+    document.getElementById('btnGuardarPta').addEventListener('click', function() {
+        var a = Math.floor(Math.random() * 15) + 2;
+        var b = Math.floor(Math.random() * 15) + 2;
+
+        Swal.fire({
+            title: 'Esta accion no se puede deshacer',
+            html: '<p style="font-size:14px; color:#666;">Los comentarios y cierres de actividades PTA se guardarandefinitvamente. No podra volver a esta pantalla para esta acta.</p>'
+                + '<p style="font-size:20px; font-weight:bold; margin:12px 0;">Cuanto es ' + a + ' + ' + b + '?</p>',
+            input: 'number',
+            inputPlaceholder: 'Resultado',
+            showCancelButton: true,
+            confirmButtonText: 'Guardar y continuar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#bd9751',
+            inputValidator: function(val) {
+                if (!val) return 'Ingrese un numero';
+                if (parseInt(val) !== (a + b)) return 'Respuesta incorrecta';
+            }
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                var btn = document.getElementById('btnGuardarPta');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Guardando...';
+                document.getElementById('ptaForm').submit();
+            }
+        });
+    });
 
     // Aplicar comentario masivo
     if (btnApplyBulk) {
