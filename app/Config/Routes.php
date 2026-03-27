@@ -913,6 +913,8 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('acta-visita/edit/(:num)', 'ActaVisitaController::edit/$1');
     $routes->post('acta-visita/update/(:num)', 'ActaVisitaController::update/$1');
     $routes->get('acta-visita/view/(:num)', 'ActaVisitaController::view/$1');
+    $routes->get('acta-visita/pta/(:num)', 'ActaVisitaController::pta/$1');
+    $routes->post('acta-visita/save-pta/(:num)', 'ActaVisitaController::savePta/$1');
     $routes->get('acta-visita/firma/(:num)', 'ActaVisitaController::firma/$1');
     $routes->post('acta-visita/save-firma/(:num)', 'ActaVisitaController::saveFirma/$1');
     $routes->get('acta-visita/pdf/(:num)', 'ActaVisitaController::generatePdf/$1');

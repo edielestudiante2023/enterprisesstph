@@ -702,26 +702,16 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const hasPtaItems = document.querySelectorAll('.pta-item').length > 0;
-
-        function doSubmitFirmas() {
-            var hidden = document.createElement('input');
-            hidden.type = 'hidden';
-            hidden.name = 'ir_a_firmas';
-            hidden.value = '1';
-            form.appendChild(hidden);
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-            form._lastClickedSubmit = btn;
-            form._ptaProcessed = true;
-            form.requestSubmit();
-        }
-
-        if (hasPtaItems) {
-            askPtaJustifications(doSubmitFirmas);
-        } else {
-            doSubmitFirmas();
-        }
+        // Guardar y redirigir a vista PTA intermedia (ya no usa popup)
+        var hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'ir_a_firmas';
+        hidden.value = '1';
+        form.appendChild(hidden);
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        form._lastClickedSubmit = btn;
+        form.requestSubmit();
     });
 
     // ============================================================
