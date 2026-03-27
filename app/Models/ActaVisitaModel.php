@@ -17,7 +17,7 @@ class ActaVisitaModel extends Model
         'motivo_sin_firma',
         'token_firma_remota', 'token_firma_tipo', 'token_firma_expiracion',
         'soporte_lavado_tanques', 'soporte_plagas',
-        'ruta_pdf', 'estado', 'agenda_id',
+        'ruta_pdf', 'estado', 'agenda_id', 'pta_confirmado',
         'created_at', 'updated_at',
     ];
     protected $useTimestamps = true;
