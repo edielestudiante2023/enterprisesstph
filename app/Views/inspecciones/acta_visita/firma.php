@@ -77,6 +77,7 @@
     </a>
 </div>
 
+<script src="/js/offline_queue.js"></script>
 <script>
 const actaId = <?= $acta['id'] ?>;
 const totalPasos = <?= count($firmantes) ?>;
@@ -292,6 +293,44 @@ function guardarFirma(tipo, paso) {
             } else {
                 Swal.fire({ icon: 'error', title: 'Error', text: data.error });
             }
+        })
+        .catch(async () => {
+            // ── Offline: guardar en IndexedDB ──
+            try {
+                await OfflineQueue.add({
+                    type: 'firma_acta_visita',
+                    url: '/inspecciones/acta-visita/save-firma/' + actaId,
+                    id_asistencia: actaId,
+                    payload: { tipo, firma_imagen: preview },
+                    meta: { tipo, actaId }
+                });
+                await OfflineQueue.requestSync();
+
+                // Marcar como pendiente visualmente
+                const step = document.getElementById('step-' + paso);
+                step.querySelector('.card-body').innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <h6 class="mb-0">Firma del ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</h6>
+                        </div>
+                        <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Pendiente sync</span>
+                    </div>
+                    <div class="text-center py-3">
+                        <i class="fas fa-clock text-warning fa-3x"></i>
+                        <p class="mt-2 mb-0">Firma guardada offline</p>
+                        <small class="text-muted">Se enviara al volver la conexion</small>
+                    </div>`;
+
+                Swal.fire({ icon: 'info', title: 'Guardado offline', html: 'Sin conexion. La firma se enviara automaticamente cuando vuelva el internet.', confirmButtonColor: '#bd9751' });
+
+                if (paso < totalPasos - 1) {
+                    setTimeout(() => cambiarPaso(1), 1000);
+                } else {
+                    updateNav();
+                }
+            } catch (dbErr) {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo guardar la firma.' });
+            }
         });
     });
 }
@@ -408,6 +447,23 @@ function finalizarSinFirma() {
                 Swal.fire({ icon: 'error', title: 'Error', text: data.error });
             }
         });
+    });
+}
+
+// ── Offline sync helpers ──
+OfflineQueue.startOnlineListener(function(result) {
+    if (result.synced > 0) {
+        Swal.fire({ icon: 'success', title: 'Conexion restaurada', html: result.synced + ' firma(s) sincronizada(s).<br>Recargando...', timer: 2500, showConfirmButton: false });
+        setTimeout(() => window.location.reload(), 2500);
+    }
+});
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'sync-firmas-complete') {
+            Swal.fire({ icon: 'success', title: 'Sincronizado', html: event.data.synced + ' firma(s) enviada(s).<br>Recargando...', timer: 2500, showConfirmButton: false });
+            setTimeout(() => window.location.reload(), 2500);
+        }
     });
 }
 

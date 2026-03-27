@@ -119,6 +119,14 @@ const OfflineQueue = (function() {
                 const formData = new FormData();
                 // Reconstruir el payload
                 for (const [key, value] of Object.entries(item.payload)) {
+                    // Caso especial: foto almacenada como base64 → convertir a File
+                    if (key === 'foto_brigadista_base64' && value) {
+                        const res = await fetch(value);
+                        const blob = await res.blob();
+                        formData.append('foto_brigadista', blob, 'foto_brigadista.jpg');
+                        continue;
+                    }
+                    if (key === 'foto_brigadista_base64') continue;
                     formData.append(key, value);
                 }
 

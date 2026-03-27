@@ -76,6 +76,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/offline_queue.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var canvas = document.getElementById('firmaCanvas');
@@ -206,11 +207,53 @@ document.addEventListener('DOMContentLoaded', function() {
                         Swal.fire('Error', data.error || 'No se pudo procesar la firma', 'error');
                     }
                 })
-                .catch(function() {
-                    Swal.fire('Error', 'Error de conexion. Intente nuevamente.', 'error');
+                .catch(async function() {
+                    // ── Offline: guardar en IndexedDB ──
+                    try {
+                        await OfflineQueue.add({
+                            type: 'firma_carta_vigia',
+                            url: '/carta-vigia/procesar-firma',
+                            id_asistencia: 0,
+                            payload: { token: '<?= esc($token) ?>', firma_imagen: firmaImagen },
+                            meta: { documento: '<?= esc($carta['documento_vigia']) ?>' }
+                        });
+                        await OfflineQueue.requestSync();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Guardado offline',
+                            html: 'Sin conexion. La firma se guardo localmente y se enviara automaticamente cuando vuelva el internet.<br><br><button class="btn btn-warning btn-sm" onclick="syncManualCartaVigia()"><i class="fas fa-sync"></i> Reintentar ahora</button>',
+                            confirmButtonColor: '#28a745',
+                        });
+                    } catch (dbErr) {
+                        Swal.fire('Error', 'No se pudo guardar la firma. Intente nuevamente.', 'error');
+                    }
                 });
             }
         });
+    });
+
+    // Sync manual
+    window.syncManualCartaVigia = async function() {
+        Swal.fire({ title: 'Sincronizando...', allowOutsideClick: false, didOpen: function() { Swal.showLoading(); } });
+        try {
+            var result = await OfflineQueue.syncAll();
+            if (result.synced > 0) {
+                Swal.fire({ icon: 'success', title: 'Firma enviada', text: 'Redirigiendo...', timer: 2000, showConfirmButton: false });
+                setTimeout(function() { window.location.reload(); }, 2000);
+            } else {
+                Swal.fire('Sin conexion', 'Aun no hay internet. Se reintentara automaticamente.', 'warning');
+            }
+        } catch (e) {
+            Swal.fire('Error', 'No se pudo sincronizar.', 'error');
+        }
+    };
+
+    // Auto-sync cuando vuelve internet
+    OfflineQueue.startOnlineListener(function(result) {
+        if (result.synced > 0) {
+            Swal.fire({ icon: 'success', title: 'Conexion restaurada', html: 'Firma enviada automaticamente.<br>Recargando...', timer: 2500, showConfirmButton: false });
+            setTimeout(function() { window.location.reload(); }, 2500);
+        }
     });
 });
 </script>

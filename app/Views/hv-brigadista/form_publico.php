@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/offline_queue.js"></script>
     <style>
         :root {
             --brand-orange: #ff7a00;
@@ -695,14 +696,79 @@ document.getElementById('btnEnviar').addEventListener('click', function() {
                     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Hoja de Vida';
                 }
             },
-            error: function(xhr) {
-                const err = xhr.responseJSON ? xhr.responseJSON.error : 'Error de conexion';
-                Swal.fire('Error', err, 'error');
+            error: async function(xhr) {
+                // ── Offline: guardar todo en IndexedDB ──
+                if (xhr.status === 0 || !navigator.onLine) {
+                    try {
+                        // Convertir foto a base64 para poder persistirla en IndexedDB
+                        let fotoBase64 = '';
+                        if (inputFoto.files && inputFoto.files[0]) {
+                            fotoBase64 = await new Promise(function(resolve) {
+                                const reader = new FileReader();
+                                reader.onload = function(ev) { resolve(ev.target.result); };
+                                reader.readAsDataURL(inputFoto.files[0]);
+                            });
+                        }
+
+                        // Construir payload serializable (sin File objects)
+                        const payload = {};
+                        fd.forEach(function(value, key) {
+                            if (key !== 'foto_brigadista') {
+                                payload[key] = value;
+                            }
+                        });
+                        payload['foto_brigadista_base64'] = fotoBase64;
+
+                        await OfflineQueue.add({
+                            type: 'hv_brigadista',
+                            url: BASE + 'hv-brigadista/store',
+                            id_asistencia: 0,
+                            payload: payload,
+                            meta: { nombre: payload.nombre_completo, documento: payload.documento_identidad }
+                        });
+                        await OfflineQueue.requestSync();
+
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Guardado offline',
+                            html: 'Sin conexion. Su hoja de vida se guardo localmente y se enviara automaticamente cuando vuelva el internet.<br><br><button class="btn btn-warning btn-sm mt-2" onclick="syncManualHvBrigadista()"><i class="fas fa-sync"></i> Reintentar ahora</button>',
+                            confirmButtonColor: '#ff7a00',
+                        });
+                    } catch (dbErr) {
+                        Swal.fire('Error', 'No se pudo guardar offline. Intente de nuevo.', 'error');
+                    }
+                } else {
+                    const err = xhr.responseJSON ? xhr.responseJSON.error : 'Error de conexion';
+                    Swal.fire('Error', err, 'error');
+                }
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Hoja de Vida';
             }
         });
     });
+});
+
+// ── Offline sync helpers ──
+window.syncManualHvBrigadista = async function() {
+    Swal.fire({ title: 'Sincronizando...', allowOutsideClick: false, didOpen: function() { Swal.showLoading(); } });
+    try {
+        var result = await OfflineQueue.syncAll();
+        if (result.synced > 0) {
+            Swal.fire({ icon: 'success', title: 'Enviado', text: 'Hoja de vida sincronizada. Recargando...', timer: 2000, showConfirmButton: false });
+            setTimeout(function() { window.location.reload(); }, 2000);
+        } else {
+            Swal.fire('Sin conexion', 'Aun no hay internet. Se reintentara automaticamente.', 'warning');
+        }
+    } catch (e) {
+        Swal.fire('Error', 'No se pudo sincronizar.', 'error');
+    }
+};
+
+OfflineQueue.startOnlineListener(function(result) {
+    if (result.synced > 0) {
+        Swal.fire({ icon: 'success', title: 'Conexion restaurada', html: 'Hoja de vida enviada automaticamente.<br>Recargando...', timer: 2500, showConfirmButton: false });
+        setTimeout(function() { window.location.reload(); }, 2500);
+    }
 });
 </script>
 </body>
