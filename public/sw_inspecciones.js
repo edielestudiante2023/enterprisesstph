@@ -1,7 +1,8 @@
-const CACHE_NAME = 'inspecciones-v4';
+const CACHE_NAME = 'inspecciones-v5';
 const ASSETS_TO_CACHE = [
     '/inspecciones',
     '/js/offline_queue.js',
+    '/js/prevent_double_tap.js',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
     'https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css',

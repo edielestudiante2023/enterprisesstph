@@ -436,6 +436,9 @@
     })();
     </script>
 
+    <!-- Anti doble-tap en links (crear, editar, continuar) -->
+    <script src="/js/prevent_double_tap.js"></script>
+
     <!-- Autosave Server Engine -->
     <script src="/js/autosave_server.js"></script>
 
