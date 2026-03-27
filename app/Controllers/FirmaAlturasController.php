@@ -4,6 +4,9 @@ namespace App\Controllers;
 
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
+use App\Models\ReporteModel;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class FirmaAlturasController extends BaseController
 {
@@ -87,6 +90,18 @@ class FirmaAlturasController extends BaseController
             'token_firma_alturas'        => null, // Invalidar token
         ]);
 
+        // Generar PDF y subir a reportes
+        $fechaFirma = date('Y-m-d H:i:s');
+        $ipFirma = $this->request->getIPAddress();
+        $firmaPath = $firmaDir . $firmaFileName;
+
+        try {
+            $pdfPath = $this->generarPdf($cliente, $firmaPath, $fechaFirma, $ipFirma);
+            $this->uploadToReportes($cliente, $pdfPath, $fechaFirma);
+        } catch (\Exception $e) {
+            log_message('error', 'Error generando PDF protocolo alturas: ' . $e->getMessage());
+        }
+
         // Notificar al consultor asignado
         $this->notificarConsultor($cliente);
 
@@ -94,6 +109,106 @@ class FirmaAlturasController extends BaseController
             'success' => true,
             'message' => 'Protocolo firmado exitosamente',
         ]);
+    }
+
+    /**
+     * Generar PDF del protocolo firmado usando DOMPDF
+     */
+    private function generarPdf(array $cliente, string $firmaAbsPath, string $fechaFirma, string $ipFirma): string
+    {
+        // Logo del cliente en base64
+        $logoBase64 = '';
+        if (!empty($cliente['logo'])) {
+            $logoPath = FCPATH . 'uploads/' . $cliente['logo'];
+            if (file_exists($logoPath)) {
+                $mime = mime_content_type($logoPath);
+                $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
+            }
+        }
+
+        // Firma en base64
+        $firmaBase64 = '';
+        if (file_exists($firmaAbsPath)) {
+            $mime = mime_content_type($firmaAbsPath);
+            $firmaBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($firmaAbsPath));
+        }
+
+        $html = view('firma_alturas/pdf', [
+            'cliente'     => $cliente,
+            'logoBase64'  => $logoBase64,
+            'firmaBase64' => $firmaBase64,
+            'fechaFirma'  => $fechaFirma,
+            'ipFirma'     => $ipFirma,
+        ]);
+
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('letter', 'portrait');
+        $dompdf->render();
+
+        // Guardar PDF
+        $pdfDir = FCPATH . 'uploads/inspecciones/pdfs/';
+        if (!is_dir($pdfDir)) {
+            mkdir($pdfDir, 0755, true);
+        }
+
+        $pdfFileName = 'protocolo_alturas_' . $cliente['id_cliente'] . '_' . date('Ymd_His') . '.pdf';
+        file_put_contents($pdfDir . $pdfFileName, $dompdf->output());
+
+        return 'uploads/inspecciones/pdfs/' . $pdfFileName;
+    }
+
+    /**
+     * Copiar PDF a carpeta del cliente y registrar en tbl_reporte
+     */
+    private function uploadToReportes(array $cliente, string $pdfPath, string $fechaFirma): bool
+    {
+        $reporteModel = new ReporteModel();
+        $nitCliente = $cliente['nit_cliente'] ?? '';
+
+        if (empty($nitCliente)) {
+            return false;
+        }
+
+        // Verificar si ya existe reporte para este cliente
+        $existente = $reporteModel
+            ->where('id_cliente', $cliente['id_cliente'])
+            ->where('id_report_type', 6)
+            ->where('id_detailreport', 44)
+            ->like('observaciones', 'protocolo_alturas_cliente:' . $cliente['id_cliente'])
+            ->first();
+
+        // Copiar a UPLOADS_PATH/{nit_cliente}/
+        $destDir = UPLOADS_PATH . $nitCliente;
+        if (!is_dir($destDir)) {
+            mkdir($destDir, 0755, true);
+        }
+
+        $fileName = 'protocolo_alturas_' . $cliente['id_cliente'] . '_' . date('Ymd_His') . '.pdf';
+        $destPath = $destDir . '/' . $fileName;
+        copy(FCPATH . $pdfPath, $destPath);
+
+        $data = [
+            'titulo_reporte'  => 'PROTOCOLO ALTURAS - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . date('Y-m-d', strtotime($fechaFirma)),
+            'id_detailreport' => 44,
+            'id_report_type'  => 6,
+            'id_cliente'      => $cliente['id_cliente'],
+            'estado'          => 'CERRADO',
+            'observaciones'   => 'Generado automaticamente al firmar protocolo de trabajo en alturas. protocolo_alturas_cliente:' . $cliente['id_cliente'],
+            'enlace'          => base_url(UPLOADS_URL_PREFIX . '/' . $nitCliente . '/' . $fileName),
+            'updated_at'      => date('Y-m-d H:i:s'),
+        ];
+
+        if ($existente) {
+            return $reporteModel->update($existente['id_reporte'], $data);
+        }
+
+        $data['created_at'] = $fechaFirma;
+        return $reporteModel->save($data);
     }
 
     /**
