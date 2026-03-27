@@ -708,6 +708,8 @@ document.addEventListener('DOMContentLoaded', function() {
         hidden.name = 'ir_a_firmas';
         hidden.value = '1';
         form.appendChild(hidden);
+        console.log('[PTA-DEBUG] ir_a_firmas hidden added. form.action=' + form.action + ' form.method=' + form.method);
+        console.log('[PTA-DEBUG] all hidden ir_a_firmas:', form.querySelectorAll('[name="ir_a_firmas"]').length);
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
         form._lastClickedSubmit = btn;
