@@ -17,6 +17,7 @@ class AsistenciaInduccionController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected AsistenciaInduccionModel $inspeccionModel;
 
     public const TIPOS_CHARLA = [
@@ -71,6 +72,9 @@ class AsistenciaInduccionController extends BaseController
 
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_sesion', '/inspecciones/asistencia-induccion/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 

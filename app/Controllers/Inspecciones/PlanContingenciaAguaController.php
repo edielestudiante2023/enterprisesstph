@@ -16,6 +16,7 @@ class PlanContingenciaAguaController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected PlanContingenciaAguaModel $inspeccionModel;
 
     public function __construct()
@@ -53,6 +54,9 @@ class PlanContingenciaAguaController extends BaseController
 
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_programa', '/inspecciones/contingencia-agua/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 

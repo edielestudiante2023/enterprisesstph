@@ -16,6 +16,7 @@ class MatrizVulnerabilidadController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected MatrizVulnerabilidadModel $matrizModel;
 
     /**
@@ -316,6 +317,9 @@ class MatrizVulnerabilidadController extends BaseController
 
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->matrizModel, 'fecha_inspeccion', '/inspecciones/matriz-vulnerabilidad/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 

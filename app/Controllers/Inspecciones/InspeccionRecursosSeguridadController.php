@@ -16,6 +16,7 @@ class InspeccionRecursosSeguridadController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected InspeccionRecursosSeguridadModel $inspeccionModel;
 
     /**
@@ -103,6 +104,9 @@ class InspeccionRecursosSeguridadController extends BaseController
 
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/recursos-seguridad/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 

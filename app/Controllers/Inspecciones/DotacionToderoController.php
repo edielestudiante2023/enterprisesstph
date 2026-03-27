@@ -16,6 +16,7 @@ class DotacionToderoController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected DotacionToderoModel $inspeccionModel;
 
     public const ITEMS_EPP = [
@@ -88,6 +89,9 @@ class DotacionToderoController extends BaseController
 
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/dotacion-todero/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 

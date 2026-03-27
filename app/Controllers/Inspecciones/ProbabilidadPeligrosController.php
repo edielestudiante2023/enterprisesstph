@@ -16,6 +16,7 @@ class ProbabilidadPeligrosController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected ProbabilidadPeligrosModel $inspeccionModel;
 
     /**
@@ -103,6 +104,9 @@ class ProbabilidadPeligrosController extends BaseController
 
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/probabilidad-peligros/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 

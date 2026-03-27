@@ -16,6 +16,7 @@ class DotacionAseadoraController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected DotacionAseadoraModel $inspeccionModel;
 
     public const ITEMS_EPP = [
@@ -80,6 +81,9 @@ class DotacionAseadoraController extends BaseController
 
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/dotacion-aseadora/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 

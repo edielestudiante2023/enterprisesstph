@@ -17,6 +17,7 @@ class InspeccionSenalizacionController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected InspeccionSenalizacionModel $inspeccionModel;
     protected ItemSenalizacionModel $itemModel;
 
@@ -130,6 +131,9 @@ class InspeccionSenalizacionController extends BaseController
 
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/senalizacion/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 

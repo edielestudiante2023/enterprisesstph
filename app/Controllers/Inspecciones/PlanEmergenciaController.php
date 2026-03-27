@@ -24,6 +24,7 @@ class PlanEmergenciaController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected PlanEmergenciaModel $model;
 
     public const TELEFONOS = [
@@ -109,6 +110,9 @@ class PlanEmergenciaController extends BaseController
 
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->model, 'fecha_visita', '/inspecciones/plan-emergencia/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 

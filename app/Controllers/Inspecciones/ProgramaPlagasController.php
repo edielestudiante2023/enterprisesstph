@@ -16,6 +16,7 @@ class ProgramaPlagasController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected ProgramaPlagasModel $inspeccionModel;
 
     public function __construct()
@@ -56,6 +57,9 @@ class ProgramaPlagasController extends BaseController
 
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_programa', '/inspecciones/control-plagas/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 

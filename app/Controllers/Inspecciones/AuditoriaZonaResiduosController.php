@@ -16,6 +16,7 @@ class AuditoriaZonaResiduosController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected AuditoriaZonaResiduosModel $inspeccionModel;
 
     public const ITEMS_ZONA = [
@@ -85,6 +86,9 @@ class AuditoriaZonaResiduosController extends BaseController
 
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/auditoria-zona-residuos/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 

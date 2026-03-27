@@ -26,6 +26,7 @@ class ActaVisitaController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use \App\Traits\PreventDuplicateBorradorTrait;
     protected ActaVisitaModel $actaModel;
     protected ActaVisitaIntegranteModel $integranteModel;
     protected ActaVisitaTemaModel $temaModel;
@@ -84,6 +85,9 @@ class ActaVisitaController extends BaseController
      */
     public function store()
     {
+        $existing = $this->reuseExistingBorrador($this->actaModel, 'fecha_visita', '/inspecciones/acta-visita/edit/');
+        if ($existing) return $existing;
+
         $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 
