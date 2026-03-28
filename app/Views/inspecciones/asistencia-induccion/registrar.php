@@ -47,11 +47,11 @@ $idInspeccion = $inspeccion['id'];
                 <input type="text" id="asisNombre" class="form-control" placeholder="Nombre completo" autocomplete="off" autocorrect="off">
             </div>
             <div class="mb-3">
-                <label class="form-label">Cédula</label>
+                <label class="form-label">Cédula *</label>
                 <input type="number" id="asisCedula" class="form-control" placeholder="Número de cédula" inputmode="numeric">
             </div>
             <div class="mb-3">
-                <label class="form-label">Cargo</label>
+                <label class="form-label">Cargo *</label>
                 <input type="text" id="asisCargo" class="form-control" placeholder="Cargo o función" autocomplete="off">
             </div>
 
@@ -152,18 +152,19 @@ function limpiarFirma() {
 // ── Guardar asistente ──
 function guardarAsistente() {
     const nombre = document.getElementById('asisNombre').value.trim();
-    if (!nombre) {
-        Swal.fire({ icon: 'warning', title: 'Nombre requerido', text: 'Por favor ingrese el nombre del asistente.', confirmButtonColor: '#bd9751' });
-        return;
-    }
-    if (firmaVacia) {
-        Swal.fire({ icon: 'warning', title: 'Firma requerida', text: 'La persona debe firmar antes de continuar.', confirmButtonColor: '#bd9751' });
+    const cedula = document.getElementById('asisCedula').value.trim();
+    const cargo = document.getElementById('asisCargo').value.trim();
+    const faltantes = [];
+    if (!nombre) faltantes.push('Nombre completo');
+    if (!cedula) faltantes.push('Cédula');
+    if (!cargo) faltantes.push('Cargo');
+    if (firmaVacia) faltantes.push('Firma');
+    if (faltantes.length > 0) {
+        Swal.fire({ icon: 'warning', title: 'Campos obligatorios', html: 'Faltan: <strong>' + faltantes.join(', ') + '</strong>', confirmButtonColor: '#bd9751' });
         return;
     }
 
     const firmaBase64 = canvas.toDataURL('image/png');
-    const cedula = document.getElementById('asisCedula').value.trim();
-    const cargo = document.getElementById('asisCargo').value.trim();
 
     const btn = document.getElementById('btnGuardar');
     btn.disabled = true;
