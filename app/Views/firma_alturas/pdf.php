@@ -94,13 +94,13 @@
 
     <!-- FUNDAMENTO LEGAL -->
     <div class="section-box section-box-yellow">
-        <div class="section-box-title">⚖ Fundamento Legal</div>
+        <div class="section-box-title">Fundamento Legal</div>
         Resolución 4272 de 2021, Ministerio de Trabajo. Todo trabajo realizado a 1.50 metros o más sobre el nivel del piso requiere: personal con curso vigente de alturas, afiliación a EPS, ARL y pensión, permiso de trabajo documentado y equipos certificados.
     </div>
 
     <!-- RESPONSABILIDAD -->
     <div class="section-box section-box-red">
-        <div class="section-box-title">⚠ Responsabilidad</div>
+        <div class="section-box-title">Responsabilidad</div>
         Si la copropiedad autoriza o permite trabajos en alturas con personal sin curso de alturas, sin EPS, sin ARL o sin seguridad social, y ocurre un accidente grave o mortal:
         <ul>
             <li>El administrador como representante legal responde civil y penalmente</li>
@@ -111,7 +111,7 @@
 
     <!-- PROTOCOLO -->
     <div class="section-box section-box-green">
-        <div class="section-box-title">✅ Protocolo</div>
+        <div class="section-box-title">Protocolo</div>
         Antes de autorizar cualquier trabajo en alturas en las instalaciones de la copropiedad, el administrador DEBE notificar formalmente al consultor SST asignado por Cycloid Talent para verificar el cumplimiento de requisitos legales del contratista.
     </div>
 
