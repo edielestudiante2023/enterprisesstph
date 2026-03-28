@@ -117,12 +117,22 @@ class CertificadoServicioController extends BaseController
         ]);
 
         // Cerrar vencimiento si aplica
+        $vencModel = new VencimientosMantenimientoModel();
         if ($cerrarVenc && $idVenc) {
-            (new VencimientosMantenimientoModel())->update($idVenc, [
+            $vencModel->update($idVenc, [
                 'estado_actividad'  => 'ejecutado',
                 'fecha_realizacion' => $fechaServicio,
             ]);
             $model->update($id, ['id_vencimiento' => $idVenc]);
+
+            // Crear siguiente vencimiento a +6 meses
+            $vencModel->insert([
+                'id_mantenimiento'  => $tipo,
+                'id_cliente'        => $idCliente,
+                'id_consultor'      => session()->get('user_id'),
+                'fecha_vencimiento' => date('Y-m-d', strtotime($fechaServicio . ' +6 months')),
+                'estado_actividad'  => 'sin ejecutar',
+            ]);
         }
 
         // Subir a tbl_reporte
