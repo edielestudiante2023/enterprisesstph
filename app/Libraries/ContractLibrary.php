@@ -24,6 +24,7 @@ class ContractLibrary
     public function createContract($data, array $options = [])
     {
         $skipInit = $options['skip_init'] ?? false;
+        $skipPta  = $options['skip_pta']  ?? false;
         // Validar que el cliente existe
         $client = $this->clientModel->find($data['id_cliente']);
         if (!$client) {
@@ -66,7 +67,9 @@ class ContractLibrary
                 if ($data['estado'] === 'activo') {
                     $this->clientModel->update($data['id_cliente'], ['estado' => 'activo']);
                 }
+            }
 
+            if (!$skipInit && !$skipPta) {
                 // Auto-generar plan de trabajo para el cliente
                 $this->autoGenerateWorkPlan($data['id_cliente'], $data['frecuencia_visitas'] ?? null);
             }
@@ -143,7 +146,20 @@ class ContractLibrary
             'clausula_primera_objeto'       => $oldContract['clausula_primera_objeto'] ?? null,
         ];
 
-        return $this->createContract($newContractData);
+        // Si la brecha entre el vencimiento del contrato viejo y hoy es <= 60 días,
+        // la renovación es "continua" y no se debe regenerar el plan de trabajo.
+        $fechaFinAnterior = new \DateTime($oldContract['fecha_fin']);
+        $hoy = new \DateTime();
+        $diffDays = (int) $hoy->diff($fechaFinAnterior)->format('%r%a');
+        // diffDays positivo = aún no vence, negativo = ya venció hace X días
+        // abs() porque aplica tanto si venció hace poco como si aún no vence
+        $skipPta = abs($diffDays) <= 60;
+
+        if ($skipPta) {
+            log_message('info', "RenewContract: Cliente {$oldContract['id_cliente']}, brecha {$diffDays} días — PTA no se regenera (renovación continua)");
+        }
+
+        return $this->createContract($newContractData, ['skip_pta' => $skipPta]);
     }
 
     /**
