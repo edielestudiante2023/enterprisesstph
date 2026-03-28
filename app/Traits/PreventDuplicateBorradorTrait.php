@@ -38,7 +38,7 @@ trait PreventDuplicateBorradorTrait
         $existing = $model->where('id_cliente', $idCliente)
             ->where($dateField, $fecha)
             ->where('id_consultor', $idConsultor)
-            ->where('estado', 'borrador')
+            ->whereIn('estado', ['borrador', 'pendiente_firma'])
             ->first();
 
         if (!$existing) {
@@ -66,7 +66,16 @@ trait PreventDuplicateBorradorTrait
             ]);
         }
 
-        // Submit normal: redirigir al borrador existente
+        // Jerarquía: si está en pendiente_firma, ir a firmas (no retroceder a edit)
+        $estado = $existing['estado'] ?? 'borrador';
+        if ($estado === 'pendiente_firma') {
+            // Derivar URL de firmas desde el editUrlBase (ej: /edit/ → /firma/)
+            $firmaUrl = str_replace('/edit/', '/firma/', $editUrlBase);
+            return redirect()->to($firmaUrl . $existingId)
+                ->with('msg', 'Ya existe un acta en proceso de firma para este cliente y fecha.');
+        }
+
+        // Borrador: redirigir al edit
         return redirect()->to($editUrlBase . $existingId)
             ->with('msg', 'Ya existe un borrador para este cliente y fecha. Continuando edición.');
     }
