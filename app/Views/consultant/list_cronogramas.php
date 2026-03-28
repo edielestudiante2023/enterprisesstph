@@ -1507,13 +1507,6 @@
         }
       });
 
-      // Actualizar contadores cuando la tabla se redibuja
-      table.on('draw', function() {
-        updateStatusCounts();
-        updateMonthlyCounts();
-        generateYearCards();
-      });
-
       // Inicializar contadores y tarjetas de año
       updateStatusCounts();
       updateMonthlyCounts();

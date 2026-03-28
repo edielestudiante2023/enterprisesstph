@@ -35,27 +35,26 @@ class CronogcapacitacionController extends Controller
     public function getCronogramasAjax()
     {
         $clienteID = $this->request->getGet('cliente');
-        $cronogModel = new CronogcapacitacionModel();
-        $clientModel = new ClientModel();
-        $capacitacionModel = new CapacitacionModel();
 
         if (empty($clienteID)) {
             return $this->response->setJSON([]);
         }
 
-        $cronogramas = $cronogModel->where('id_cliente', $clienteID)->findAll();
+        $db = \Config\Database::connect();
+        $cronogramas = $db->table('tbl_cronog_capacitacion AS cc')
+            ->select('cc.*, c.nombre_cliente, cap.capacitacion AS cap_nombre, cap.objetivo_capacitacion AS cap_objetivo')
+            ->join('tbl_clientes AS c', 'c.id_cliente = cc.id_cliente', 'left')
+            ->join('capacitaciones_sst AS cap', 'cap.id_capacitacion = cc.id_capacitacion', 'left')
+            ->where('cc.id_cliente', $clienteID)
+            ->get()
+            ->getResultArray();
 
-        // Enriquecer cada registro con datos del cliente y capacitación
         foreach ($cronogramas as &$cronograma) {
-            $cliente = $clientModel->find($cronograma['id_cliente']);
-            $cronograma['nombre_cliente'] = $cliente['nombre_cliente'] ?? 'Cliente no encontrado';
+            $cronograma['nombre_cliente'] = $cronograma['nombre_cliente'] ?? 'Cliente no encontrado';
 
-            // Si el cronograma ya tiene nombre_capacitacion en la BD, usarlo
-            // De lo contrario, buscar en la tabla antigua tbl_capacitaciones_sst
-            if (empty($cronograma['nombre_capacitacion']) && !empty($cronograma['id_capacitacion'])) {
-                $capacitacion = $capacitacionModel->find($cronograma['id_capacitacion']);
-                $cronograma['nombre_capacitacion'] = $capacitacion['capacitacion'] ?? 'Capacitación no encontrada';
-                $cronograma['objetivo_capacitacion'] = $capacitacion['objetivo_capacitacion'] ?? 'Objetivo no disponible';
+            if (empty($cronograma['nombre_capacitacion']) && !empty($cronograma['cap_nombre'])) {
+                $cronograma['nombre_capacitacion'] = $cronograma['cap_nombre'];
+                $cronograma['objetivo_capacitacion'] = $cronograma['cap_objetivo'] ?? 'Objetivo no disponible';
             }
 
             // Generar botones de acciones
@@ -63,7 +62,6 @@ class CronogcapacitacionController extends Controller
                 . '<a href="' . base_url('/editcronogCapacitacion/' . $cronograma['id_cronograma_capacitacion']) . '" class="btn-action btn-action-edit" title="Editar"><i class="fas fa-pen"></i></a>'
                 . '<button type="button" class="btn-action btn-action-delete btn-delete-single" data-id="' . $cronograma['id_cronograma_capacitacion'] . '" title="Eliminar"><i class="fas fa-trash"></i></button>';
 
-            // Link al reporte de capacitación si existe
             if (!empty($cronograma['id_reporte_capacitacion'])) {
                 $accionesHtml .= '<a href="' . base_url('/inspecciones/reporte-capacitacion/view/' . $cronograma['id_reporte_capacitacion']) . '" class="btn-action" style="background:#17a2b8;color:#fff;" title="Ver Reporte" target="_blank"><i class="fas fa-file-pdf"></i></a>';
             }
@@ -148,28 +146,8 @@ class CronogcapacitacionController extends Controller
     // Listar todos los cronogramas de capacitación
     public function listcronogCapacitacion()
     {
-        $cronogModel = new CronogcapacitacionModel();
-        $clientModel = new ClientModel();
-        $capacitacionModel = new CapacitacionModel();
-
-        // Obtenemos todos los cronogramas
-        $cronogramas = $cronogModel->findAll();
-
-        // Iteramos los cronogramas para obtener los datos relacionados (nombre del cliente y capacitación)
-        foreach ($cronogramas as &$cronograma) {
-            // Obtenemos el nombre del cliente
-            $cliente = $clientModel->find($cronograma['id_cliente']);
-            $cronograma['nombre_cliente'] = $cliente['nombre_cliente'] ?? 'Cliente no encontrado';
-
-            // Obtenemos el nombre de la capacitación y el objetivo
-            $capacitacion = $capacitacionModel->find($cronograma['id_capacitacion']);
-            $cronograma['nombre_capacitacion'] = $capacitacion['capacitacion'] ?? 'Capacitación no encontrada';
-            $cronograma['objetivo_capacitacion'] = $capacitacion['objetivo_capacitacion'] ?? 'Objetivo no disponible';
-        }
-
-        // Pasamos los datos a la vista
-        $data['cronogramas'] = $cronogramas;
-        return view('consultant/list_cronogramas', $data);
+        // La vista carga datos vía AJAX (getCronogramasAjax), no necesita datos precargados
+        return view('consultant/list_cronogramas');
     }
 
     // Mostrar formulario para agregar nuevo cronograma de capacitación
