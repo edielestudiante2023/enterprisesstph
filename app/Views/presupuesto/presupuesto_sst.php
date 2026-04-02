@@ -675,7 +675,8 @@
             '4': ['Pausas activas y gimnasia laboral','Campanas de salud (cardiovascular, visual)','Semana de la salud ocupacional','Programa de estilos de vida saludable','Material educativo SST'],
             '5': ['EPP proteccion respiratoria','EPP proteccion visual','EPP proteccion auditiva','EPP proteccion manos (guantes)','EPP proteccion pies (calzado)','EPP proteccion corporal','EPP trabajo en alturas','Dotacion de trabajo','Reposicion de EPP','Senalizacion de seguridad','Mediciones ambientales (ruido, iluminacion)','Estudios de puestos de trabajo','Inspecciones de seguridad','Investigacion de accidentes e incidentes'],
             '6': ['Extintores y recarga','Botiquines y reposicion','Camillas y equipos de rescate','Senalizacion de emergencias','Simulacros de evacuacion','Plan de emergencias','Kit de derrames','Alarmas y sistemas de alerta'],
-            '7': ['Software y licencias SG-SST','Papeleria y materiales SST','Mantenimiento de equipos de seguridad','Imprevistos SST']
+            '7': ['Software y licencias SG-SST','Papeleria y materiales SST','Mantenimiento de equipos de seguridad','Imprevistos SST'],
+            '8': ['Fumigaciones de plagas','Cebos y desratizacion','Lavado de tanques','Impermeabilizacion de tanques de agua potable','Mejoras locativas solicitadas por la Secretaria de Salud']
         };
 
         const itemsPorCategoriaCount = {};
