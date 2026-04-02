@@ -8,11 +8,49 @@ class CustomDashboardController extends BaseController
 {
     public function index()
     {
-        // Instanciar el modelo y obtener los datos
         $model = new DashboardItemModel();
-        $data['items'] = $model->findAll();
+        $items = $model->where('activo', 1)
+            ->orderBy('categoria', 'ASC')
+            ->orderBy('orden', 'ASC')
+            ->findAll();
 
-        // Cargar la vista principal del dashboard y pasarle los datos
+        // Agrupar por categoría
+        $grouped = [];
+        foreach ($items as $item) {
+            $cat = $item['categoria'] ?? 'Sin categoría';
+            $grouped[$cat][] = $item;
+        }
+
+        // Orden de las categorías en el dashboard admin
+        $ordenCategorias = [
+            'IA y Asistencia',
+            'Operación Diaria',
+            'Gestión Clientes',
+            'Inspecciones y Auditoría',
+            'Cumplimiento y Control',
+            'Planeación SST',
+            'Dashboards Analíticos',
+            'Gestión Documental',
+            'Carga Masiva CSV',
+            'Usuarios y Accesos',
+            'Configuración',
+            'Administración',
+        ];
+
+        $sortedGroups = [];
+        foreach ($ordenCategorias as $cat) {
+            if (isset($grouped[$cat])) {
+                $sortedGroups[$cat] = $grouped[$cat];
+            }
+        }
+        foreach ($grouped as $cat => $catItems) {
+            if (!isset($sortedGroups[$cat])) {
+                $sortedGroups[$cat] = $catItems;
+            }
+        }
+
+        $data['grouped'] = $sortedGroups;
+
         return view('consultant/admindashboard', $data);
     }
 }

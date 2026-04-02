@@ -7,13 +7,53 @@ use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Libraries\ClientDocumentInitializerLibrary;
 use App\Models\CicloVisitaModel;
+use App\Models\DashboardItemModel;
 use CodeIgniter\Controller;
 
 class AdminDashboardController extends Controller
 {
     public function index()
     {
-        return view('consultant/admindashboard');
+        $model = new DashboardItemModel();
+        $items = $model->where('activo', 1)
+            ->orderBy('categoria', 'ASC')
+            ->orderBy('orden', 'ASC')
+            ->findAll();
+
+        $grouped = [];
+        foreach ($items as $item) {
+            $cat = $item['categoria'] ?? 'Sin categoría';
+            $grouped[$cat][] = $item;
+        }
+
+        $ordenCategorias = [
+            'IA y Asistencia',
+            'Operación Diaria',
+            'Gestión Clientes',
+            'Inspecciones y Auditoría',
+            'Cumplimiento y Control',
+            'Planeación SST',
+            'Dashboards Analíticos',
+            'Gestión Documental',
+            'Carga Masiva CSV',
+            'Usuarios y Accesos',
+            'Configuración',
+            'Administración',
+        ];
+
+        $sortedGroups = [];
+        foreach ($ordenCategorias as $cat) {
+            if (isset($grouped[$cat])) {
+                $sortedGroups[$cat] = $grouped[$cat];
+            }
+        }
+        foreach ($grouped as $cat => $catItems) {
+            if (!isset($sortedGroups[$cat])) {
+                $sortedGroups[$cat] = $catItems;
+            }
+        }
+
+        return view('consultant/admindashboard', ['grouped' => $sortedGroups]);
     }
 
     public function addClient()
