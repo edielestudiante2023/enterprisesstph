@@ -4,15 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard Consultor 2025</title>
+    <title>Dashboard Consultor</title>
     <link rel="icon" href="<?= base_url('favicon.ico') ?>" type="image/x-icon">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- DataTables CSS -->
-    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -23,8 +18,6 @@
             --white-primary: #ffffff;
             --white-secondary: #f8f9fa;
             --gradient-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            --logout-red: #ff4d4d;
-            --logout-red-hover: #e63939;
             --shadow-deep: 0 10px 30px rgba(0, 0, 0, 0.3);
             --shadow-medium: 0 5px 20px rgba(0, 0, 0, 0.15);
             --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -33,11 +26,7 @@
             --transition: all 0.3s ease;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background: var(--gradient-bg);
@@ -47,42 +36,22 @@
             overflow-x: hidden;
         }
 
-        /* Animaciones */
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes shimmer {
-            0% {
-                background-position: -200% center;
-            }
-
-            100% {
-                background-position: 200% center;
-            }
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
         }
 
         @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
-        /* Navbar moderna */
+        /* Navbar */
         .navbar-custom {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
             box-shadow: var(--shadow-deep);
@@ -113,14 +82,14 @@
             filter: brightness(1.3);
         }
 
-        /* Content wrapper */
+        /* Content */
         .content-wrapper-custom {
             margin-top: 120px;
             padding: 0 15px;
             animation: fadeInUp 0.8s ease;
         }
 
-        /* Banner de bienvenida moderno */
+        /* Banner de bienvenida */
         .welcome-banner-custom {
             position: relative;
             overflow: hidden;
@@ -137,14 +106,9 @@
         .welcome-banner-custom::before {
             content: "";
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: repeating-conic-gradient(from 0deg at 50% 50%,
-                    transparent 0deg,
-                    rgba(255, 255, 255, 0.1) 10deg,
-                    transparent 20deg);
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(255,255,255,0.1) 10deg, transparent 20deg);
             animation: float 6s ease-in-out infinite;
             z-index: 1;
         }
@@ -152,19 +116,13 @@
         .welcome-banner-custom::after {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(189, 151, 81, 0.1) 50%, transparent 70%);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(189,151,81,0.1) 50%, transparent 70%);
             animation: shimmer 3s ease-in-out infinite;
             z-index: 1;
         }
 
-        .welcome-banner-custom .content-custom {
-            position: relative;
-            z-index: 2;
-        }
+        .welcome-banner-custom .content-custom { position: relative; z-index: 2; }
 
         .welcome-banner-custom h3 {
             font-size: 2.5rem;
@@ -174,7 +132,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .welcome-banner-custom h4 {
@@ -190,329 +147,224 @@
             color: var(--white-primary);
         }
 
-        /* Contenedor de tabla moderno */
-        .table-container-custom {
+        /* Buscador */
+        .search-container {
+            max-width: 500px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border-radius: 50px;
+            border: 2px solid #e0e0e0;
+            font-size: 1rem;
+            transition: var(--transition);
+            box-shadow: var(--shadow-light);
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(189, 151, 81, 0.2);
+        }
+
+        .search-container .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        /* Sección de categoría */
+        .category-section {
+            margin-bottom: 28px;
+            animation: fadeInUp 0.5s ease both;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(189, 151, 81, 0.3);
+        }
+
+        .category-header h5 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 0;
+        }
+
+        .category-badge {
+            background: var(--primary-dark);
+            color: var(--gold-secondary);
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        /* Grid de tarjetas */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        /* Tarjeta individual */
+        .access-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
             background: var(--white-primary);
             border-radius: var(--border-radius);
-            box-shadow: var(--shadow-medium);
-            padding: 30px;
-            margin-bottom: 30px;
-            animation: fadeInUp 0.8s ease 0.4s both;
-            backdrop-filter: blur(10px);
-        }
-
-        .table-responsive {
-            border-radius: var(--border-radius);
-            overflow: hidden;
-        }
-
-        .table-custom {
-            width: 100% !important;
-            margin: 0;
-            border-radius: var(--border-radius);
-            overflow: hidden;
             box-shadow: var(--shadow-light);
-        }
-
-        .table-custom thead {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
-            color: var(--white-primary);
-        }
-
-        .table-custom thead th {
-            padding: 20px 15px;
-            font-weight: 600;
-            border: none;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9rem;
-        }
-
-        .table-custom tbody td {
-            padding: 15px;
-            border-color: #e9ecef;
+            text-decoration: none;
+            color: var(--primary-dark);
             transition: var(--transition);
+            border-left: 4px solid transparent;
+            cursor: pointer;
         }
 
-        .table-custom tbody tr:hover {
-            background-color: rgba(189, 151, 81, 0.1);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-light);
-        }
-
-        /* Botón de acción mejorado */
-        .btn-action-custom {
-            background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary));
-            border: none;
-            color: var(--white-primary);
-            border-radius: 50px;
-            padding: 8px 15px;
-            font-weight: 500;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-action-custom::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: var(--transition);
-        }
-
-        .btn-action-custom:hover {
+        .access-card:hover {
             transform: translateY(-3px);
             box-shadow: var(--shadow-medium);
-            color: var(--white-primary);
+            color: var(--primary-dark);
+            text-decoration: none;
         }
 
-        .btn-action-custom:hover::before {
-            left: 100%;
+        .access-card .card-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: white;
+            font-size: 1.1rem;
         }
 
-        /* Botón de Cerrar Sesión mejorado */
-        .logout-container-custom {
-            text-align: center;
-            animation: fadeInUp 0.8s ease 0.6s both;
+        .access-card .card-text { min-width: 0; }
+
+        .access-card .card-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 2px;
         }
+
+        .access-card .card-desc {
+            font-size: 0.72rem;
+            color: #6c757d;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Banner móvil */
+        .mobile-banner {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 9999;
+            background: linear-gradient(135deg, #1c2437 0%, #2c3e50 100%);
+            color: white;
+            padding: 16px 20px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+            border-top: 3px solid #bd9751;
+        }
+
+        /* Botón logout */
+        .logout-container-custom { text-align: center; margin: 30px 0; }
 
         .btn-logout-custom {
-            background: linear-gradient(135deg, var(--logout-red), var(--logout-red-hover));
+            background: linear-gradient(135deg, #ff4d4d, #e63939);
             border: none;
-            color: var(--white-primary);
-            border-radius: var(--border-radius-large);
-            padding: 15px 40px;
+            color: white;
+            padding: 14px 40px;
+            border-radius: 50px;
             font-weight: 600;
             font-size: 1.1rem;
             transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-logout-custom::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: var(--transition);
+            box-shadow: var(--shadow-light);
         }
 
         .btn-logout-custom:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-deep);
-            color: var(--white-primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
+            color: white;
         }
 
-        .btn-logout-custom:hover::before {
-            left: 100%;
-        }
-
-        /* Footer moderno */
+        /* Footer */
         .footer-custom {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
-            color: var(--white-primary);
-            padding: 40px 0;
-            margin-top: 50px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
+            color: var(--white-secondary);
+            padding: 40px 0 20px;
+            margin-top: 40px;
             text-align: center;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
         }
 
-        .footer-custom a {
-            color: var(--gold-primary);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .footer-custom a:hover {
-            color: var(--gold-secondary);
-            text-decoration: underline;
-        }
+        .footer-custom a { color: var(--gold-secondary); text-decoration: none; }
+        .footer-custom a:hover { color: var(--gold-primary); }
 
         .social-icons-custom {
             display: flex;
             justify-content: center;
             gap: 20px;
-            margin-top: 20px;
-        }
-
-        .social-icons-custom a {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-
-        .social-icons-custom a:hover {
-            transform: translateY(-5px) scale(1.1);
-            box-shadow: var(--shadow-medium);
+            margin-top: 15px;
         }
 
         .social-icons-custom img {
-            width: 24px;
-            height: 24px;
-            filter: brightness(1.2);
-        }
-
-        /* DataTables personalizados */
-        .dataTables_wrapper .dataTables_length select,
-        .dataTables_wrapper .dataTables_filter input {
-            border: 2px solid var(--gold-primary);
-            border-radius: var(--border-radius);
-            padding: 8px 12px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
             transition: var(--transition);
         }
 
-        .dataTables_wrapper .dataTables_length select:focus,
-        .dataTables_wrapper .dataTables_filter input:focus {
-            outline: none;
-            border-color: var(--gold-secondary);
-            box-shadow: 0 0 0 3px rgba(189, 151, 81, 0.2);
+        .social-icons-custom img:hover { transform: scale(1.2); }
+
+        /* No results */
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            display: none;
         }
 
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary)) !important;
-            border: none !important;
-            color: var(--white-primary) !important;
-            border-radius: var(--border-radius) !important;
-        }
-
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark)) !important;
-            border: none !important;
-            color: var(--white-primary) !important;
-        }
-
-        /* Quick access buttons - desktop layout */
-        .quick-access-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .quick-access-buttons a {
-            text-decoration: none;
-        }
-
-        .quick-access-buttons .btn-logout-custom {
-            margin-right: 0 !important;
-        }
-
-        /* Responsive design */
+        /* Responsive */
         @media (max-width: 768px) {
-            .navbar-custom {
-                padding: 8px 0;
-            }
-
-            .header-logos-custom {
-                flex-direction: row;
-                gap: 8px;
-                justify-content: center;
-            }
-
-            .header-logos-custom img {
-                max-height: 35px;
-                margin-right: 5px;
-            }
-
-            .content-wrapper-custom {
-                margin-top: 70px;
-            }
-
-            .welcome-banner-custom {
-                padding: 20px 15px;
-                margin-bottom: 20px;
-            }
-
-            .welcome-banner-custom h3 {
-                font-size: 1.4rem;
-            }
-
-            .welcome-banner-custom h4 {
-                font-size: 1.1rem;
-            }
-
-            .welcome-banner-custom p {
-                font-size: 0.95rem;
-            }
-
-            .quick-access-buttons {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-                text-align: center;
-            }
-
-            .quick-access-buttons a {
-                display: block;
-            }
-
-            .quick-access-buttons .btn-logout-custom {
-                width: 100%;
-                padding: 10px 6px;
-                font-size: 0.78rem;
-                letter-spacing: 0;
-                text-transform: none;
-            }
-
-            .table-container-custom {
-                padding: 15px;
-            }
-
-            .social-icons-custom {
-                flex-wrap: wrap;
-                gap: 15px;
-            }
+            .welcome-banner-custom { padding: 25px 15px; }
+            .welcome-banner-custom h3 { font-size: 1.6rem; }
+            .welcome-banner-custom h4 { font-size: 1.2rem; }
+            .welcome-banner-custom p { font-size: 1rem; }
+            .cards-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+            .access-card { padding: 10px 12px; gap: 10px; }
+            .access-card .card-icon { width: 36px; height: 36px; font-size: 0.95rem; }
+            .access-card .card-title { font-size: 0.8rem; }
+            .access-card .card-desc { display: none; }
+            .header-logos-custom img { max-height: 45px; }
+            .content-wrapper-custom { margin-top: 90px; }
         }
 
         @media (max-width: 480px) {
-            .welcome-banner-custom {
-                padding: 15px 12px;
-            }
-
-            .welcome-banner-custom h3 {
-                font-size: 1.2rem;
-            }
-
-            .welcome-banner-custom h4 {
-                font-size: 1rem;
-            }
-
-            .table-container-custom {
-                padding: 10px;
-            }
-
-            .btn-logout-custom {
-                padding: 12px 30px;
-                font-size: 1rem;
-            }
-
-            .quick-access-buttons .btn-logout-custom {
-                padding: 8px 4px;
-                font-size: 0.72rem;
-            }
+            .cards-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .access-card .card-icon { width: 32px; height: 32px; font-size: 0.85rem; }
         }
     </style>
 </head>
 
 <body>
-    <!-- Banner móvil para PWA Inspecciones -->
-    <div id="mobileBanner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:linear-gradient(135deg, #1c2437 0%, #2c3e50 100%); color:white; padding:16px 20px; box-shadow:0 -4px 20px rgba(0,0,0,0.3); border-top:3px solid #bd9751;">
+    <!-- Banner móvil PWA Inspecciones -->
+    <div id="mobileBanner" class="mobile-banner">
         <div style="display:flex; align-items:center; justify-content:space-between; max-width:600px; margin:0 auto;">
             <div style="flex:1;">
                 <div style="font-weight:700; font-size:15px; margin-bottom:2px;">
@@ -539,19 +391,16 @@
         <nav class="navbar navbar-expand-lg navbar-custom">
             <div class="container">
                 <div class="header-logos-custom">
-                    <!-- Logo izquierdo -->
                     <div>
                         <a href="https://dashboard.cycloidtalent.com/login" target="_blank" rel="noopener noreferrer">
                             <img src="<?= base_url('uploads/logoenterprisesstblancoslogan.png') ?>" alt="Enterprisesst Logo">
                         </a>
                     </div>
-                    <!-- Logo centro -->
                     <div>
                         <a href="https://cycloidtalent.com/index.php/consultoria-sst" target="_blank" rel="noopener noreferrer">
                             <img src="<?= base_url('uploads/logosst.png') ?>" alt="SST Logo">
                         </a>
                     </div>
-                    <!-- Logo derecho -->
                     <div>
                         <a href="https://cycloidtalent.com/" target="_blank" rel="noopener noreferrer">
                             <img src="<?= base_url('uploads/logocycloidsinfondo.png') ?>" alt="Cycloids Logo">
@@ -573,192 +422,77 @@
             </div>
         </div>
 
-        <!-- Botones de Acceso Rápido -->
-        <div class="text-center mb-4 quick-access-buttons">
-            <a href="<?= base_url('/consultant/chat') ?>">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #4facfe, #00f2fe); border: none;">
-                    <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:20px;height:20px;border-radius:50%;object-fit:cover;margin-right:6px;">Otto
-                </button>
-            </a>
-            <a href="<?= base_url('/otto-logs') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #1c2437, #2d3a52); border: none;">
-                    <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:20px;height:20px;border-radius:50%;object-fit:cover;margin-right:6px;">Monitor Otto
-                </button>
-            </a>
-            <a href="<?= base_url('/clients/nuevo') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #2d6a4f, #40916c); border: none;">
-                    <i class="fas fa-file-contract me-2"></i>Nuevo Cliente
-                </button>
-            </a>
-            <a href="<?= base_url('/inspecciones') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;">
-                    <i class="fas fa-clipboard-check me-2"></i>Inspecciones SST
-                </button>
-            </a>
-            <a href="<?= base_url('/quick-access') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary)); border: none;">
-                    <i class="fas fa-bolt me-2"></i>Acceso Rápido
-                </button>
-            </a>
-            <a href="<?= base_url('/vista-cliente') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none;">
-                    <i class="fas fa-eye me-2"></i>Ver Vista de Cliente
-                </button>
-            </a>
-            <a href="<?= base_url('/admin/usage') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #11998e, #38ef7d); border: none;">
-                    <i class="fas fa-chart-line me-2"></i>Consumo de Plataforma
-                </button>
-            </a>
-            <a href="<?= base_url('/audit-pta') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none;">
-                    <i class="fas fa-history me-2"></i>Auditoría PTA
-                </button>
-            </a>
-            <a href="<?= base_url('/pta-transiciones') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7); border: none;">
-                    <i class="fas fa-exchange-alt me-2"></i>Transiciones PTA
-                </button>
-            </a>
-            <a href="<?= base_url('/admin/agendamientos') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #20c997, #13b397); border: none;">
-                    <i class="fas fa-calendar-check me-2"></i>Panel de Agendamientos
-                </button>
-            </a>
-            <a href="<?= base_url('consultant/auditoria-visitas') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #f39c12, #e67e22); border: none;">
-                    <i class="fas fa-clipboard-check me-2"></i>Auditoria de Visitas
-                </button>
-            </a>
-            <a href="<?= base_url('planillas-seguridad-social') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #6f42c1, #9b59b6); border: none;">
-                    <i class="fas fa-file-invoice-dollar me-2"></i>Planillas Seg. Social
-                </button>
-            </a>
-            <a href="<?= base_url('presupuesto') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #11998e, #38ef7d); border: none;">
-                    <i class="fas fa-calculator me-2"></i>Presupuesto SST
-                </button>
-            </a>
-            <a href="<?= base_url('listado-maestro') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #e67e22, #f39c12); border: none;">
-                    <i class="fas fa-list-alt me-2"></i>Listado Maestro
-                </button>
-            </a>
-            <a href="<?= base_url('seguimiento-agenda') ?>" target="_blank" rel="noopener noreferrer">
-                <button type="button" class="btn btn-logout-custom" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none;">
-                    <i class="fas fa-calendar-check me-2"></i>Seguimiento Agenda
-                </button>
-            </a>
+        <!-- Buscador -->
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" placeholder="Buscar acceso..." autocomplete="off">
         </div>
 
-        <!-- Dashboards Analíticos -->
-        <div class="mb-5">
-            <h4 class="text-center mb-4" style="color: var(--primary-dark); font-weight: 700;">
-                <i class="fas fa-chart-bar me-2"></i>Dashboards Analíticos
-            </h4>
-            <div class="row justify-content-center">
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <a href="<?= base_url('consultant/dashboard-estandares') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-                        <i class="fas fa-chart-pie fa-lg mb-2 d-block"></i>
-                        Estándares Mínimos
-                    </a>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <a href="<?= base_url('consultant/dashboard-capacitaciones') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);">
-                        <i class="fas fa-graduation-cap fa-lg mb-2 d-block"></i>
-                        Capacitaciones
-                    </a>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <a href="<?= base_url('consultant/dashboard-plan-trabajo') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);">
-                        <i class="fas fa-tasks fa-lg mb-2 d-block"></i>
-                        Plan de Trabajo
-                    </a>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <a href="<?= base_url('consultant/dashboard-pendientes') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);">
-                        <i class="fas fa-clipboard-list fa-lg mb-2 d-block"></i>
-                        Pendientes
-                    </a>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <a href="<?= base_url('informe-avances') ?>" target="_blank" class="btn w-100 py-3" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);">
-                        <i class="fas fa-chart-line fa-lg mb-2 d-block"></i>
-                        Informe de Avances
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Herramientas de Gestión del Ciclo PHVA -->
-        <div class="mb-5">
-            <h4 class="text-center mb-4" style="color: var(--primary-dark); font-weight: 700;">
-                <i class="fas fa-sync-alt me-2"></i>Gestión del Ciclo PHVA
-            </h4>
-            <div class="row justify-content-center">
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <button type="button" class="btn w-100 py-3" data-bs-toggle="modal" data-bs-target="#resetPHVAModal" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);">
-                        <i class="fas fa-redo-alt fa-lg mb-2 d-block"></i>
-                        Resetear Ciclo PHVA - Evaluaciones
-                    </button>
-                </div>
-            </div>
-            <p class="text-center text-muted small mt-2">
-                <i class="fas fa-info-circle me-1"></i>
-                Resetea las evaluaciones de estándares mínimos que se renuevan anualmente según el Decreto 1072
-            </p>
-        </div>
-
-        <!-- Tabla a pantalla completa -->
-        <div class="table-container-custom">
-            <div class="table-responsive">
-                <table id="itemTable" class="table table-striped table-bordered table-custom">
-                    <thead>
-                        <tr>
-                            <th><i class="fas fa-hashtag me-2"></i>ID</th>
-                            <th><i class="fas fa-cogs me-2"></i>Tipo de Proceso</th>
-                            <th><i class="fas fa-info-circle me-2"></i>Detalle</th>
-                            <th><i class="fas fa-file-alt me-2"></i>Descripción</th>
-                            <th><i class="fas fa-external-link-alt me-2"></i>Acción URL</th>
-                            <th><i class="fas fa-sort-numeric-up me-2"></i>Orden</th>
-                        </tr>
-                    </thead>
-                    <tfoot>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tipo de Proceso</th>
-                            <th>Detalle</th>
-                            <th>Descripción</th>
-                            <th>Acción URL</th>
-                            <th>Orden</th>
-                        </tr>
-                    </tfoot>
-                    <tbody>
-                        <?php foreach ($items as $item): ?>
-                            <tr>
-                                <td><?= esc($item['id']) ?></td>
-                                <td><i class="fas fa-tag me-2 text-primary"></i><?= esc($item['tipo_proceso']) ?></td>
-                                <td><i class="fas fa-bookmark me-2 text-warning"></i><?= esc($item['detalle']) ?></td>
-                                <td><?= esc($item['descripcion']) ?></td>
-                                <td>
-                                    <a href="<?= base_url($item['accion_url']) ?>" target="_blank" class="btn btn-action-custom" title="Ir a <?= esc($item['detalle']) ?>">
-                                        <i class="fas fa-external-link-alt me-1"></i>Acceder
-                                    </a>
-                                </td>
-                                <td><?= esc($item['orden']) ?></td>
-                            </tr>
+        <!-- Categorías con tarjetas -->
+        <div id="categoriesContainer">
+            <?php
+            $catIcons = [
+                'IA y Asistencia' => 'fas fa-robot',
+                'Operación Diaria' => 'fas fa-calendar-alt',
+                'Gestión Clientes' => 'fas fa-building',
+                'Inspecciones y Auditoría' => 'fas fa-clipboard-check',
+                'Cumplimiento y Control' => 'fas fa-gavel',
+                'Planeación SST' => 'fas fa-project-diagram',
+                'Dashboards Analíticos' => 'fas fa-chart-bar',
+                'Gestión Documental' => 'fas fa-folder-open',
+                'Carga Masiva CSV' => 'fas fa-file-csv',
+                'Usuarios y Accesos' => 'fas fa-users-cog',
+                'Configuración' => 'fas fa-cog',
+                'Administración' => 'fas fa-tools',
+            ];
+            ?>
+            <?php foreach ($grouped as $categoria => $items): ?>
+                <div class="category-section" data-category="<?= esc($categoria) ?>">
+                    <div class="category-header">
+                        <i class="<?= $catIcons[$categoria] ?? 'fas fa-folder' ?>" style="color: var(--gold-primary); font-size: 1.2rem;"></i>
+                        <h5><?= esc($categoria) ?></h5>
+                        <span class="category-badge"><?= count($items) ?></span>
+                    </div>
+                    <div class="cards-grid">
+                        <?php foreach ($items as $item):
+                            $colors = explode(',', $item['color_gradiente'] ?? '#6c757d,#495057');
+                            $color1 = trim($colors[0]);
+                            $color2 = trim($colors[1] ?? $colors[0]);
+                            $isModal = str_starts_with($item['accion_url'], '#');
+                            $target = (!$isModal && $item['target_blank']) ? 'target="_blank"' : '';
+                            $href = $isModal ? 'javascript:void(0)' : base_url($item['accion_url']);
+                            $modalAttr = $isModal ? 'data-bs-toggle="modal" data-bs-target="' . esc($item['accion_url']) . '"' : '';
+                        ?>
+                            <a href="<?= $href ?>" <?= $target ?> <?= $modalAttr ?>
+                               class="access-card"
+                               style="border-left-color: <?= $color1 ?>;"
+                               data-search="<?= esc(strtolower($item['detalle'] . ' ' . $item['descripcion'] . ' ' . $categoria)) ?>">
+                                <div class="card-icon" style="background: linear-gradient(135deg, <?= $color1 ?>, <?= $color2 ?>);">
+                                    <i class="<?= esc($item['icono'] ?? 'fas fa-link') ?>"></i>
+                                </div>
+                                <div class="card-text">
+                                    <div class="card-title"><?= esc($item['detalle']) ?></div>
+                                    <div class="card-desc"><?= esc($item['descripcion']) ?></div>
+                                </div>
+                            </a>
                         <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         </div>
 
-        <!-- Botón de Cerrar Sesión -->
+        <!-- Sin resultados -->
+        <div class="no-results" id="noResults">
+            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 15px; display: block;"></i>
+            <h5>No se encontraron accesos</h5>
+            <p>Intenta con otro termino de busqueda</p>
+        </div>
+
+        <!-- Cerrar Sesión -->
         <div class="logout-container-custom">
             <a href="<?= base_url('/logout') ?>" rel="noopener noreferrer">
                 <button type="button" class="btn btn-logout-custom">
-                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesion
                 </button>
             </a>
         </div>
@@ -770,13 +504,12 @@
             <div class="row">
                 <div class="col-12">
                     <h5 class="fw-bold mb-3"><i class="fas fa-building me-2"></i>Cycloid Talent SAS</h5>
-                    <p class="mb-2">Todos los derechos reservados © <span id="currentYear"></span></p>
+                    <p class="mb-2">Todos los derechos reservados &copy; <span id="currentYear"></span></p>
                     <p class="mb-2"><i class="fas fa-id-card me-2"></i>NIT: 901.653.912</p>
                     <p class="mb-3">
                         <i class="fas fa-globe me-2"></i>Sitio oficial:
                         <a href="https://cycloidtalent.com/" target="_blank" rel="noopener noreferrer">https://cycloidtalent.com/</a>
                     </p>
-
                     <div class="mt-4">
                         <strong><i class="fas fa-share-alt me-2"></i>Nuestras Redes Sociales:</strong>
                         <div class="social-icons-custom">
@@ -799,52 +532,45 @@
         </div>
     </footer>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
     <script>
-        $(document).ready(function() {
-            $('#itemTable').DataTable({
-                dom: 'lfrtip', // length + filter + table + info + pagination
-                order: [
-                    [5, 'asc']
-                ], // orden inicial por la sexta columna
-                columnDefs: [{
-                        targets: [0, 5],
-                        visible: false
-                    } // oculta ID y Orden
-                ],
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
-                },
-                initComplete: function() {
-                    this.api().columns().every(function() {
-                        var column = this;
-                        if (!column.visible()) return;
-                        var footerCell = $(column.footer()).empty();
+        // Año actual
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-                        // Aquí añadimos "Todos" como texto de la opción vacía
-                        var select = $(
-                                '<select class="form-select form-select-sm">' +
-                                '<option value="">Todos</option>' +
-                                '</select>'
-                            ).appendTo(footerCell)
-                            .on('change', function() {
-                                var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                                column.search(val ? '^' + val + '$' : '', true, false).draw();
-                            });
+        // Buscador en tiempo real
+        var searchInput = document.getElementById('searchInput');
+        var categories = document.querySelectorAll('.category-section');
+        var noResults = document.getElementById('noResults');
 
-                        column.data().unique().sort().each(function(d) {
-                            if (d) select.append('<option>' + d + '</option>');
-                        });
-                    });
+        searchInput.addEventListener('input', function() {
+            var term = this.value.toLowerCase().trim();
+            var anyVisible = false;
+
+            categories.forEach(function(section) {
+                var cards = section.querySelectorAll('.access-card');
+                var visibleCards = 0;
+
+                cards.forEach(function(card) {
+                    var text = card.getAttribute('data-search');
+                    if (!term || text.indexOf(term) !== -1) {
+                        card.style.display = '';
+                        visibleCards++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                if (visibleCards > 0) {
+                    section.style.display = '';
+                    anyVisible = true;
+                } else {
+                    section.style.display = 'none';
                 }
-
             });
+
+            noResults.style.display = anyVisible ? 'none' : 'block';
         });
     </script>
 
@@ -861,53 +587,50 @@
                 <div class="modal-body">
                     <div class="alert alert-warning" role="alert">
                         <i class="fas fa-exclamation-circle me-2"></i>
-                        <strong>Advertencia:</strong> Esta acción reseteará las evaluaciones de estándares mínimos que se renuevan cada año en el ciclo PHVA.
+                        <strong>Advertencia:</strong> Esta accion reseteara las evaluaciones de estandares minimos que se renuevan cada ano en el ciclo PHVA.
                     </div>
-
-                    <p class="mb-3">Se pondrá en <strong>vacío</strong> la columna "Evaluación Inicial" y el puntaje cuantitativo en <strong>0</strong> para los siguientes items:</p>
-
+                    <p class="mb-3">Se pondra en <strong>vacio</strong> la columna "Evaluacion Inicial" y el puntaje cuantitativo en <strong>0</strong> para los siguientes items:</p>
                     <div class="border rounded p-2 mb-3" style="max-height: 200px; overflow-y: auto; font-size: 0.85rem;">
                         <ul class="mb-0 ps-3">
                             <li>1.1.2 Responsabilidades en el SG-SST</li>
-                            <li>1.1.3 Asignación de recursos</li>
-                            <li>1.1.4 Afiliación al Sistema de Riesgos Laborales</li>
-                            <li>1.1.5 Identificación trabajadores alto riesgo</li>
-                            <li>1.1.6 Conformación COPASST</li>
-                            <li>1.1.7 Capacitación COPASST</li>
-                            <li>1.1.8 Conformación Comité de Convivencia</li>
-                            <li>1.2.1 Programa Capacitación PYP</li>
-                            <li>1.2.2 Inducción y Reinducción</li>
+                            <li>1.1.3 Asignacion de recursos</li>
+                            <li>1.1.4 Afiliacion al Sistema de Riesgos Laborales</li>
+                            <li>1.1.5 Identificacion trabajadores alto riesgo</li>
+                            <li>1.1.6 Conformacion COPASST</li>
+                            <li>1.1.7 Capacitacion COPASST</li>
+                            <li>1.1.8 Conformacion Comite de Convivencia</li>
+                            <li>1.2.1 Programa Capacitacion PYP</li>
+                            <li>1.2.2 Induccion y Reinduccion</li>
                             <li>1.2.3 Responsables con curso 50 horas</li>
-                            <li>2.1.1 Política del SG-SST</li>
+                            <li>2.1.1 Politica del SG-SST</li>
                             <li>2.2.1 Objetivos del SG-SST</li>
                             <li>2.4.1 Plan de trabajo anual</li>
                             <li>2.5.1 Archivo documental</li>
-                            <li>2.9.1 Adquisición de productos</li>
-                            <li>2.10.1 Evaluación de proveedores</li>
-                            <li>3.1.1 Diagnóstico de Condiciones de Salud</li>
-                            <li>3.1.2 Actividades de Promoción y Prevención</li>
-                            <li>3.1.4 Evaluaciones médicas ocupacionales</li>
-                            <li>3.1.5 Custodia de Historias Clínicas</li>
-                            <li>3.1.6 Restricciones médico laborales</li>
+                            <li>2.9.1 Adquisicion de productos</li>
+                            <li>2.10.1 Evaluacion de proveedores</li>
+                            <li>3.1.1 Diagnostico de Condiciones de Salud</li>
+                            <li>3.1.2 Actividades de Promocion y Prevencion</li>
+                            <li>3.1.4 Evaluaciones medicas ocupacionales</li>
+                            <li>3.1.5 Custodia de Historias Clinicas</li>
+                            <li>3.1.6 Restricciones medico laborales</li>
                             <li>3.1.7 Estilos de vida saludables</li>
                             <li>3.1.8 Agua potable y servicios sanitarios</li>
-                            <li>3.1.9 Eliminación de residuos</li>
+                            <li>3.1.9 Eliminacion de residuos</li>
                             <li>3.2.1 Reporte de AT y EL</li>
-                            <li>3.2.2 Investigación de Incidentes</li>
-                            <li>3.2.3 Registro estadístico</li>
-                            <li>3.3.6 Medición del ausentismo</li>
-                            <li>4.1.2 Identificación de peligros</li>
-                            <li>4.2.1 Medidas de prevención y control</li>
+                            <li>3.2.2 Investigacion de Incidentes</li>
+                            <li>3.2.3 Registro estadistico</li>
+                            <li>3.3.6 Medicion del ausentismo</li>
+                            <li>4.1.2 Identificacion de peligros</li>
+                            <li>4.2.1 Medidas de prevencion y control</li>
                             <li>4.2.4 Inspecciones</li>
-                            <li>4.2.5 Mantenimiento periódico</li>
+                            <li>4.2.5 Mantenimiento periodico</li>
                             <li>4.2.6 Entrega de EPP</li>
                             <li>5.1.1 Plan de emergencias</li>
-                            <li>5.1.2 Brigada de prevención</li>
-                            <li>6.1.3 Revisión anual de la alta dirección</li>
+                            <li>5.1.2 Brigada de prevencion</li>
+                            <li>6.1.3 Revision anual de la alta direccion</li>
                             <li>7.1.1 Acciones preventivas y correctivas</li>
                         </ul>
                     </div>
-
                     <div class="mb-3">
                         <label for="clienteResetSelect" class="form-label"><strong>Seleccione el Cliente:</strong></label>
                         <select class="form-select" id="clienteResetSelect" required>
@@ -927,7 +650,7 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmación Final -->
+    <!-- Modal de Confirmacion Final -->
     <div class="modal fade" id="confirmResetModal" tabindex="-1" aria-labelledby="confirmResetModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-danger">
@@ -939,9 +662,9 @@
                 </div>
                 <div class="modal-body text-center">
                     <i class="fas fa-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
-                    <h4 class="mt-3 text-danger">¿Está completamente seguro?</h4>
-                    <p class="mb-0">Esta acción <strong>NO SE PUEDE DESHACER</strong>.</p>
-                    <p class="mb-3">Se resetearán las evaluaciones del cliente:</p>
+                    <h4 class="mt-3 text-danger">Esta completamente seguro?</h4>
+                    <p class="mb-0">Esta accion <strong>NO SE PUEDE DESHACER</strong>.</p>
+                    <p class="mb-3">Se resetearan las evaluaciones del cliente:</p>
                     <h5 id="clienteNombreConfirm" class="text-primary"></h5>
                 </div>
                 <div class="modal-footer justify-content-center">
@@ -949,7 +672,7 @@
                         <i class="fas fa-times me-1"></i>No, Cancelar
                     </button>
                     <button type="button" class="btn btn-danger btn-lg" id="btnEjecutarReset">
-                        <i class="fas fa-check me-1"></i>Sí, Resetear
+                        <i class="fas fa-check me-1"></i>Si, Resetear
                     </button>
                 </div>
             </div>
@@ -979,7 +702,7 @@
                 });
         });
 
-        // Primera confirmación
+        // Primera confirmacion
         document.getElementById('btnConfirmarReset').addEventListener('click', function() {
             var select = document.getElementById('clienteResetSelect');
             var clienteId = select.value;
@@ -990,7 +713,6 @@
                 return;
             }
 
-            // Cerrar primer modal y abrir segundo
             var resetModal = bootstrap.Modal.getInstance(document.getElementById('resetPHVAModal'));
             resetModal.hide();
 
@@ -1034,7 +756,7 @@
             })
             .finally(function() {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-check me-1"></i>Sí, Resetear';
+                btn.innerHTML = '<i class="fas fa-check me-1"></i>Si, Resetear';
             });
         });
     </script>
