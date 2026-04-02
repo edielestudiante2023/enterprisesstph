@@ -785,17 +785,26 @@
         dom: 'Blfrtip',
         buttons: [
           {
-            text: '<i class="bi bi-file-earmark-excel"></i> Exportar a CSV',
+            text: '<i class="bi bi-file-earmark-excel"></i> Exportar a Excel',
             className: 'btn btn-success btn-sm',
-            titleAttr: 'Exportar todos los registros filtrados a CSV',
+            titleAttr: 'Exportar todos los registros filtrados a Excel',
             action: function() {
               var params = getFilterParams();
+              var search = table.search() || '';
               var url = '<?= base_url('/api/reportList/export') ?>?'
                 + 'year=' + encodeURIComponent(params.year)
                 + '&client=' + encodeURIComponent(params.client)
                 + '&dateFrom=' + encodeURIComponent(params.dateFrom)
                 + '&dateTo=' + encodeURIComponent(params.dateTo)
-                + '&month=' + encodeURIComponent(params.month);
+                + '&month=' + encodeURIComponent(params.month)
+                + '&search=' + encodeURIComponent(search);
+              // Agregar filtros por columna activos
+              table.columns().every(function(idx) {
+                var colSearch = this.search();
+                if (colSearch) {
+                  url += '&columns[' + idx + ']=' + encodeURIComponent(colSearch);
+                }
+              });
               window.location.href = url;
             }
           },

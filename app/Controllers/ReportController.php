@@ -4,6 +4,11 @@ namespace App\Controllers;
 
 use App\Models\{ReporteModel, ClientModel, ReportTypeModel, DetailReportModel};
 use CodeIgniter\Controller;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
@@ -576,38 +581,105 @@ class ReportController extends Controller
             $builder->where('MONTH(r.created_at)', (int) $month);
         }
 
+        // Global search (same logic as apiReportList)
+        $search = $this->request->getGet('search') ?? '';
+        if ($search !== '') {
+            $builder->groupStart();
+            $builder->like('r.titulo_reporte', $search);
+            $builder->orLike('r.estado', $search);
+            $builder->orLike('r.observaciones', $search);
+            $builder->orLike('c.nombre_cliente', $search);
+            $builder->orLike('d.detail_report', $search);
+            $builder->orLike('rt.report_type', $search);
+            $builder->orLike('r.created_at', $search);
+            $builder->groupEnd();
+        }
+
+        // Column-specific filters (same logic as apiReportList)
+        $columnFilters = $this->request->getGet('columns') ?? [];
+        $columnMap = [
+            4  => 'r.titulo_reporte',
+            5  => 'd.detail_report',
+            6  => 'rt.report_type',
+            7  => 'r.estado',
+            8  => 'r.observaciones',
+            10 => 'c.nombre_cliente',
+        ];
+        foreach ($columnFilters as $idx => $val) {
+            if ($val !== '' && isset($columnMap[(int) $idx])) {
+                $dbCol = $columnMap[(int) $idx];
+                if (preg_match('/^\^(.+)\$$/', $val, $m)) {
+                    $builder->where($dbCol, $m[1]);
+                } else {
+                    $builder->like($dbCol, $val);
+                }
+            }
+        }
+
         $builder->orderBy('r.created_at', 'DESC');
         $results = $builder->get()->getResultArray();
 
-        // Generate CSV with BOM for Excel compatibility
-        $filename = 'Lista_de_Reportes_' . date('Y-m-d') . '.csv';
+        // Generate Excel (.xlsx) with PhpSpreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Reportes');
 
-        $this->response->setHeader('Content-Type', 'text/csv; charset=utf-8');
-        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
-
-        $output = fopen('php://output', 'w');
-        // UTF-8 BOM
-        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1a5f7a']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+        ];
+        $dataStyle = [
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+            'alignment' => ['vertical' => Alignment::VERTICAL_CENTER, 'wrapText' => true],
+        ];
 
         // Header row
-        fputcsv($output, ['ID', 'Fecha de Creación', 'Título del Reporte', 'Tipo de Documento', 'Tipo de Reporte', 'Estado', 'Observaciones', 'ID Cliente', 'Nombre del Cliente']);
+        $headers = ['ID', 'Fecha de Creación', 'Título del Reporte', 'Tipo de Documento', 'Tipo de Reporte', 'Estado', 'Observaciones', 'ID Cliente', 'Nombre del Cliente'];
+        foreach ($headers as $col => $header) {
+            $colLetter = chr(65 + $col);
+            $sheet->setCellValue($colLetter . '1', $header);
+        }
+        $sheet->getStyle('A1:I1')->applyFromArray($headerStyle);
+        $sheet->getRowDimension(1)->setRowHeight(25);
 
+        // Data rows
+        $rowNum = 2;
         foreach ($results as $row) {
-            fputcsv($output, [
-                $row['id_reporte'],
-                $row['created_at'],
-                $row['titulo_reporte'],
-                $row['detail_report'] ?? 'N/A',
-                $row['report_type'] ?? '',
-                $row['estado'],
-                $row['observaciones'],
-                $row['id_cliente'],
-                $row['nombre_cliente'] ?? '',
-            ]);
+            $sheet->setCellValue('A' . $rowNum, $row['id_reporte']);
+            $sheet->setCellValue('B' . $rowNum, $row['created_at']);
+            $sheet->setCellValue('C' . $rowNum, $row['titulo_reporte']);
+            $sheet->setCellValue('D' . $rowNum, $row['detail_report'] ?? 'N/A');
+            $sheet->setCellValue('E' . $rowNum, $row['report_type'] ?? '');
+            $sheet->setCellValue('F' . $rowNum, $row['estado']);
+            $sheet->setCellValue('G' . $rowNum, $row['observaciones']);
+            $sheet->setCellValue('H' . $rowNum, $row['id_cliente']);
+            $sheet->setCellValue('I' . $rowNum, $row['nombre_cliente'] ?? '');
+            $sheet->getStyle("A{$rowNum}:I{$rowNum}")->applyFromArray($dataStyle);
+            $rowNum++;
         }
 
-        fclose($output);
-        return $this->response;
+        // Column widths
+        $sheet->getColumnDimension('A')->setWidth(10);
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(60);
+        $sheet->getColumnDimension('D')->setWidth(22);
+        $sheet->getColumnDimension('E')->setWidth(18);
+        $sheet->getColumnDimension('F')->setWidth(14);
+        $sheet->getColumnDimension('G')->setWidth(30);
+        $sheet->getColumnDimension('H')->setWidth(12);
+        $sheet->getColumnDimension('I')->setWidth(30);
+
+        $filename = 'Lista_de_Reportes_' . date('Y-m-d') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
     }
 
     public function editReport($id)
