@@ -1,0 +1,100 @@
+name: Cutover a Produccion
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validacion final antes de produccion
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Verificar sintaxis PHP
+        run: |
+          ERRORS=$(find app -name "*.php" -print0 | xargs -0 -n1 php -l 2>&1 | grep -c "Parse error" || true)
+          if [ "$ERRORS" -gt 0 ]; then
+            find app -name "*.php" -print0 | xargs -0 -n1 php -l 2>&1 | grep "Parse error"
+            exit 1
+          fi
+          echo "Sintaxis OK"
+
+      - name: Buscar credenciales expuestas
+        run: |
+          FOUND=0
+          grep -rn "SG\.[A-Za-z0-9_-]\{20,\}" app/ public/ tools/ --include="*.php" 2>/dev/null | grep -v "SG.xxxxxx" | grep -v "SG.xxx" && FOUND=1 || true
+          grep -rn "sk-proj-[A-Za-z0-9]\{20,\}" app/ public/ tools/ --include="*.php" 2>/dev/null && FOUND=1 || true
+          grep -rn "sk-ant-[A-Za-z0-9]\{20,\}" app/ public/ tools/ --include="*.php" 2>/dev/null && FOUND=1 || true
+          grep -rn "AVNS_[A-Za-z0-9_]\{10,\}" app/ public/ tools/ --include="*.php" 2>/dev/null && FOUND=1 || true
+          if [ "$FOUND" -eq 1 ]; then
+            echo "BLOQUEADO: Credenciales expuestas en el codigo"
+            exit 1
+          fi
+          echo "Sin credenciales hardcodeadas"
+
+  trivy:
+    name: Trivy — escaneo vulnerabilidades
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Escanear con Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+          ignore-unfixed: true
+
+  semgrep:
+    name: Semgrep — analisis de seguridad
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Escanear con Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/php
+            p/security-audit
+            p/secrets
+
+  deploy-production:
+    name: Deploy a Produccion (Hetzner LXC)
+    runs-on: ubuntu-latest
+    needs: [trivy, semgrep]
+    steps:
+      - name: Deploy a LXC Produccion
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            cd ${{ secrets.PROD_PATH }}
+            bash deploy.sh
+            echo "=== CUTOVER A PRODUCCION COMPLETADO ==="
+            echo "Fecha: $(date)"
+            echo "Commit: ${{ github.sha }}"
+
+      - name: Verificar estado post-deploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            echo "=== Verificacion post-deploy ==="
+            cd ${{ secrets.PROD_PATH }}
+            php spark --version 2>/dev/null && echo "PHP Spark: OK" || echo "PHP Spark: FALLO"
+            curl -s -o /dev/null -w "%{http_code}" http://localhost/ | grep -q "200\|302" && echo "HTTP: OK" || echo "HTTP: FALLO"

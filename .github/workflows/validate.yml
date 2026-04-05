@@ -1,0 +1,76 @@
+name: Validar codigo
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  php-syntax:
+    name: Verificar sintaxis PHP
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Verificar sintaxis PHP
+        run: |
+          echo "Verificando sintaxis PHP en app/..."
+          find app -name "*.php" -print0 | xargs -0 -n1 php -l 2>&1 | grep -v "No syntax errors" | head -50
+          RESULT=$(find app -name "*.php" -print0 | xargs -0 -n1 php -l 2>&1 | grep -c "Parse error" || true)
+          if [ "$RESULT" -gt 0 ]; then
+            echo "Se encontraron $RESULT errores de sintaxis"
+            exit 1
+          fi
+          echo "Sin errores de sintaxis"
+
+  secrets-scan:
+    name: Buscar credenciales expuestas
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Buscar API keys hardcodeadas
+        run: |
+          echo "Buscando patrones de credenciales en el codigo..."
+          FOUND=0
+
+          # Buscar API keys de SendGrid hardcodeadas (SG. seguido de caracteres)
+          if grep -rn "SG\.[A-Za-z0-9_-]\{20,\}" app/ public/ tools/ --include="*.php" 2>/dev/null | grep -v "SG.xxxxxx" | grep -v "SG.xxx"; then
+            echo "ALERTA: Posible SendGrid API key hardcodeada"
+            FOUND=1
+          fi
+
+          # Buscar API keys de OpenAI hardcodeadas
+          if grep -rn "sk-proj-[A-Za-z0-9]\{20,\}" app/ public/ tools/ --include="*.php" 2>/dev/null; then
+            echo "ALERTA: Posible OpenAI API key hardcodeada"
+            FOUND=1
+          fi
+
+          # Buscar API keys de Anthropic hardcodeadas
+          if grep -rn "sk-ant-[A-Za-z0-9]\{20,\}" app/ public/ tools/ --include="*.php" 2>/dev/null; then
+            echo "ALERTA: Posible Anthropic API key hardcodeada"
+            FOUND=1
+          fi
+
+          # Buscar passwords de BD hardcodeados (patron AVNS_)
+          if grep -rn "AVNS_[A-Za-z0-9_]\{10,\}" app/ public/ tools/ --include="*.php" 2>/dev/null; then
+            echo "ALERTA: Posible password de BD hardcodeado"
+            FOUND=1
+          fi
+
+          if [ "$FOUND" -eq 1 ]; then
+            echo ""
+            echo "Se encontraron credenciales potencialmente expuestas."
+            echo "Usa variables de entorno (getenv/env) en lugar de hardcodear."
+            exit 1
+          fi
+
+          echo "No se encontraron credenciales hardcodeadas"

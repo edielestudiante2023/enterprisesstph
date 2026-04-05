@@ -152,3 +152,30 @@ public/uploads/matrices/
 public/uploads/planillas-seguridad-social/
 public/uploads/reportes/
 public/uploads/imagenesplanemergencias/
+
+#-------------------------
+# Archivos temporales del proyecto
+# Scripts de un solo uso, notas, dumps
+#-------------------------
+tmp_*.php
+*.stackdump
+nohup.out
+
+#-------------------------
+# Archivos de notas/bocetos (z_*, y_*, ZZ_*)
+# Se usaron para diseñar modulos, no son parte del sistema
+#-------------------------
+z_*.txt
+Z_*.TXT
+ZZ_*.txt
+y_*.txt
+
+#-------------------------
+# Archivos que no deben estar en raiz
+#-------------------------
+composer-setup.php
+
+#-------------------------
+# Claude Code
+#-------------------------
+.claude/
