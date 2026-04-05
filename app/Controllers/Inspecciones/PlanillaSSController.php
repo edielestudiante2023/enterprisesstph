@@ -26,7 +26,7 @@ class PlanillaSSController extends BaseController
         ]);
     }
 
-    public function create(int $idCliente = null)
+    public function create(?int $idCliente = null)
     {
         $cliente = $idCliente ? (new ClientModel())->find($idCliente) : null;
 

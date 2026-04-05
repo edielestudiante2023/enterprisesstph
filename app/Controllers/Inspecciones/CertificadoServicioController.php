@@ -44,7 +44,7 @@ class CertificadoServicioController extends BaseController
         ]);
     }
 
-    public function create(int $tipo, int $idCliente = null)
+    public function create(int $tipo, ?int $idCliente = null)
     {
         $cfg = self::config($tipo);
         if (!$cfg) return redirect()->to('/inspecciones');
