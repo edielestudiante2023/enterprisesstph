@@ -471,7 +471,13 @@ class ContractPDFGenerator
 
         // Firma derecha (Cliente - EL CONTRATANTE) - Firma digital si existe
         if (!empty($data['firma_cliente_imagen'])) {
-            $firmaClientePath = FCPATH . $data['firma_cliente_imagen'];
+            $firmaImg = $data['firma_cliente_imagen'];
+            // La BD guarda ruta URL "serve-file/..." — convertir a ruta física en UPLOADS_PATH
+            if (strpos($firmaImg, 'serve-file/') === 0) {
+                $firmaClientePath = UPLOADS_PATH . substr($firmaImg, strlen('serve-file/'));
+            } else {
+                $firmaClientePath = FCPATH . $firmaImg;
+            }
             if (file_exists($firmaClientePath)) {
                 $this->pdf->Image($firmaClientePath, $rightX + 15, $signatureY, 60, 0, '', '', '', false, 300);
             }
