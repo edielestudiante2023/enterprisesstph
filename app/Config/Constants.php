@@ -98,14 +98,11 @@ define('EVENT_PRIORITY_HIGH', 10);
  | Uploads dinámicos (fuera de git)
  |--------------------------------------------------------------------------
  | Ruta donde se almacenan los uploads de clientes.
- | Producción: /www/soportes-clientes/
- | Local XAMPP: c:/xampp/soportes-clientes/
- |
- | NUNCA debe estar dentro del repo git.
+ | Está en public/uploads/ protegido por .gitignore (public/uploads/*/)
  */
-defined('UPLOADS_PATH') || define('UPLOADS_PATH', WRITEPATH . 'soportes-clientes/');
+defined('UPLOADS_PATH') || define('UPLOADS_PATH', FCPATH . 'uploads/');
 
 /*
- | Prefijo de URL para servir archivos via FileServerController
+ | Prefijo de URL para acceder a los archivos desde el navegador
  */
-defined('UPLOADS_URL_PREFIX') || define('UPLOADS_URL_PREFIX', 'serve-file');
+defined('UPLOADS_URL_PREFIX') || define('UPLOADS_URL_PREFIX', 'uploads');
