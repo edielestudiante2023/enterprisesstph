@@ -154,9 +154,7 @@ class DocumentacionContratoController extends Controller
 
         foreach ($reportes as $reporte) {
             $enlace = $reporte['enlace'];
-            $rutaRelativa = str_replace(base_url(), '', $enlace);
-            $rutaRelativa = ltrim($rutaRelativa, '/');
-            $rutaArchivo = FCPATH . $rutaRelativa;
+            $rutaArchivo = $this->resolverRutaArchivo($enlace);
 
             if (file_exists($rutaArchivo)) {
                 $tamano = filesize($rutaArchivo);
@@ -262,9 +260,7 @@ class DocumentacionContratoController extends Controller
         $archivosParaZip = [];
         foreach ($reportes as $reporte) {
             $enlace = $reporte['enlace'];
-            $rutaRelativa = str_replace(base_url(), '', $enlace);
-            $rutaRelativa = ltrim($rutaRelativa, '/');
-            $rutaArchivo = FCPATH . $rutaRelativa;
+            $rutaArchivo = $this->resolverRutaArchivo($enlace);
 
             if (file_exists($rutaArchivo)) {
                 // Limpiar el título: remover caracteres que crean carpetas o son inválidos
@@ -368,9 +364,7 @@ class DocumentacionContratoController extends Controller
         foreach ($reportes as $reporte) {
             $enlace = $reporte['enlace'];
             // Convertir URL a ruta de archivo
-            $rutaRelativa = str_replace(base_url(), '', $enlace);
-            $rutaRelativa = ltrim($rutaRelativa, '/');
-            $rutaArchivo = FCPATH . $rutaRelativa;
+            $rutaArchivo = $this->resolverRutaArchivo($enlace);
 
             if (file_exists($rutaArchivo)) {
                 $tamano = filesize($rutaArchivo);
@@ -452,9 +446,7 @@ class DocumentacionContratoController extends Controller
 
         foreach ($reportes as $reporte) {
             $enlace = $reporte['enlace'];
-            $rutaRelativa = str_replace(base_url(), '', $enlace);
-            $rutaRelativa = ltrim($rutaRelativa, '/');
-            $rutaArchivo = FCPATH . $rutaRelativa;
+            $rutaArchivo = $this->resolverRutaArchivo($enlace);
 
             if (file_exists($rutaArchivo)) {
                 $tamano = filesize($rutaArchivo);
@@ -531,9 +523,7 @@ class DocumentacionContratoController extends Controller
         $archivosParaZip = [];
         foreach ($reportes as $reporte) {
             $enlace = $reporte['enlace'];
-            $rutaRelativa = str_replace(base_url(), '', $enlace);
-            $rutaRelativa = ltrim($rutaRelativa, '/');
-            $rutaArchivo = FCPATH . $rutaRelativa;
+            $rutaArchivo = $this->resolverRutaArchivo($enlace);
 
             if (file_exists($rutaArchivo)) {
                 // Limpiar el título: remover caracteres que crean carpetas o son inválidos
@@ -635,9 +625,7 @@ class DocumentacionContratoController extends Controller
         $archivosParaZip = [];
         foreach ($reportes as $reporte) {
             $enlace = $reporte['enlace'];
-            $rutaRelativa = str_replace(base_url(), '', $enlace);
-            $rutaRelativa = ltrim($rutaRelativa, '/');
-            $rutaArchivo = FCPATH . $rutaRelativa;
+            $rutaArchivo = $this->resolverRutaArchivo($enlace);
 
             if (file_exists($rutaArchivo)) {
                 // Limpiar el título: remover caracteres que crean carpetas o son inválidos
@@ -700,5 +688,31 @@ class DocumentacionContratoController extends Controller
         });
 
         return $this->response->download($rutaZip, null)->setFileName($nombreZip);
+    }
+
+    /**
+     * Resuelve la ruta física de un archivo a partir de su enlace en BD.
+     * Soporta enlaces con serve-file/ (writable/soportes-clientes/) y uploads/ (public/uploads/).
+     */
+    private function resolverRutaArchivo(string $enlace): string
+    {
+        $rutaRelativa = str_replace(base_url(), '', $enlace);
+        $rutaRelativa = ltrim($rutaRelativa, '/');
+
+        // serve-file/NIT/archivo.pdf → writable/soportes-clientes/NIT/archivo.pdf
+        if (strpos($rutaRelativa, 'serve-file/') === 0) {
+            $subPath = substr($rutaRelativa, strlen('serve-file/'));
+            return UPLOADS_PATH . $subPath;
+        }
+
+        // uploads/NIT/archivo.pdf → buscar primero en writable, luego en public
+        if (strpos($rutaRelativa, 'uploads/') === 0) {
+            $subPath = substr($rutaRelativa, strlen('uploads/'));
+            $writablePath = UPLOADS_PATH . $subPath;
+            if (file_exists($writablePath)) return $writablePath;
+        }
+
+        // Fallback: ruta directa en public/
+        return FCPATH . $rutaRelativa;
     }
 }
