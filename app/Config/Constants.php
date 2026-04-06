@@ -98,7 +98,7 @@ define('EVENT_PRIORITY_HIGH', 10);
  | Uploads dinámicos (fuera de git)
  |--------------------------------------------------------------------------
  | Ruta donde se almacenan los uploads de clientes.
- | Está en public/uploads/ protegido por .gitignore (public/uploads/*/)
+ | Protegido por .gitignore
  */
 defined('UPLOADS_PATH') || define('UPLOADS_PATH', FCPATH . 'uploads/');
 
