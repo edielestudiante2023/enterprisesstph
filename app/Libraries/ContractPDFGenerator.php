@@ -4,6 +4,8 @@ namespace App\Libraries;
 
 use TCPDF;
 
+helper('uploads');
+
 class ContractPDFGenerator
 {
     protected $pdf;
@@ -471,13 +473,7 @@ class ContractPDFGenerator
 
         // Firma derecha (Cliente - EL CONTRATANTE) - Firma digital si existe
         if (!empty($data['firma_cliente_imagen'])) {
-            $firmaImg = $data['firma_cliente_imagen'];
-            // La BD guarda ruta URL "serve-file/..." — convertir a ruta física en UPLOADS_PATH
-            if (strpos($firmaImg, 'serve-file/') === 0) {
-                $firmaClientePath = UPLOADS_PATH . substr($firmaImg, strlen('serve-file/'));
-            } else {
-                $firmaClientePath = FCPATH . $firmaImg;
-            }
+            $firmaClientePath = resolve_upload_path($data['firma_cliente_imagen']);
             if (file_exists($firmaClientePath)) {
                 $this->pdf->Image($firmaClientePath, $rightX + 15, $signatureY, 60, 0, '', '', '', false, 300);
             }

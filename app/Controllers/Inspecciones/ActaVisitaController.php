@@ -33,6 +33,7 @@ class ActaVisitaController extends BaseController
 
     public function __construct()
     {
+        helper('uploads');
         $this->actaModel = new ActaVisitaModel();
         $this->integranteModel = new ActaVisitaIntegranteModel();
         $this->temaModel = new ActaVisitaTemaModel();
@@ -588,7 +589,7 @@ class ActaVisitaController extends BaseController
         // Eliminar fotos del disco
         $fotos = (new ActaVisitaFotoModel())->getByActa($id);
         foreach ($fotos as $foto) {
-            $path = FCPATH . $foto['ruta_archivo'];
+            $path = resolve_upload_path($foto['ruta_archivo']);
             if (file_exists($path)) {
                 unlink($path);
             }
@@ -1073,7 +1074,7 @@ class ActaVisitaController extends BaseController
         $fotosModel = new ActaVisitaFotoModel();
         $fotos = $fotosModel->getByActa($id);
         foreach ($fotos as $foto) {
-            $fotoPath = FCPATH . $foto['ruta_archivo'];
+            $fotoPath = resolve_upload_path($foto['ruta_archivo']);
             if (file_exists($fotoPath)) {
                 $fotosBase64[] = [
                     'data'        => $this->fotoABase64ParaPdf($fotoPath),
@@ -1139,8 +1140,8 @@ class ActaVisitaController extends BaseController
         $pdfPath = $pdfDir . $pdfFileName;
 
         // Eliminar PDF anterior si existe
-        if (!empty($acta['ruta_pdf']) && file_exists(FCPATH . $acta['ruta_pdf'])) {
-            unlink(FCPATH . $acta['ruta_pdf']);
+        if (!empty($acta['ruta_pdf']) && file_exists(resolve_upload_path($acta['ruta_pdf']))) {
+            unlink(resolve_upload_path($acta['ruta_pdf']));
         }
 
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());

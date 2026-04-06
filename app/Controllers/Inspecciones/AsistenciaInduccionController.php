@@ -30,6 +30,7 @@ class AsistenciaInduccionController extends BaseController
 
     public function __construct()
     {
+        helper('uploads');
         $this->inspeccionModel = new AsistenciaInduccionModel();
     }
 
@@ -263,8 +264,8 @@ class AsistenciaInduccionController extends BaseController
         if (!$asistente) {
             return $this->response->setJSON(['success' => false]);
         }
-        if (!empty($asistente['firma']) && file_exists(FCPATH . $asistente['firma'])) {
-            unlink(FCPATH . $asistente['firma']);
+        if (!empty($asistente['firma']) && file_exists(resolve_upload_path($asistente['firma']))) {
+            unlink(resolve_upload_path($asistente['firma']));
         }
         $idAsistencia = $asistente['id_asistencia'];
         $asistenteModel->delete($idAsistente);
@@ -322,8 +323,8 @@ class AsistenciaInduccionController extends BaseController
         }
 
         // Delete old firma if exists
-        if (!empty($asistente['firma']) && file_exists(FCPATH . $asistente['firma'])) {
-            unlink(FCPATH . $asistente['firma']);
+        if (!empty($asistente['firma']) && file_exists(resolve_upload_path($asistente['firma']))) {
+            unlink(resolve_upload_path($asistente['firma']));
         }
 
         $fileName = 'firma_' . $idAsistente . '_' . time() . '.png';
@@ -415,8 +416,8 @@ class AsistenciaInduccionController extends BaseController
         }
 
         // Serve cached PDF if it already exists
-        if (!empty($inspeccion['ruta_pdf_asistencia']) && file_exists(FCPATH . $inspeccion['ruta_pdf_asistencia'])) {
-            $fullPath = FCPATH . $inspeccion['ruta_pdf_asistencia'];
+        if (!empty($inspeccion['ruta_pdf_asistencia']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf_asistencia']))) {
+            $fullPath = resolve_upload_path($inspeccion['ruta_pdf_asistencia']);
         } else {
             // Generate only if no cached PDF
             $result = $this->generarPdfInterno($id);
@@ -441,8 +442,8 @@ class AsistenciaInduccionController extends BaseController
             return redirect()->to('/inspecciones/asistencia-induccion/view/' . $id)->with('error', 'Este registro no tiene PDF de responsabilidades.');
         }
 
-        if (!empty($inspeccion['ruta_pdf_responsabilidades']) && file_exists(FCPATH . $inspeccion['ruta_pdf_responsabilidades'])) {
-            $fullPath = FCPATH . $inspeccion['ruta_pdf_responsabilidades'];
+        if (!empty($inspeccion['ruta_pdf_responsabilidades']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf_responsabilidades']))) {
+            $fullPath = resolve_upload_path($inspeccion['ruta_pdf_responsabilidades']);
         } else {
             $result = $this->generarPdfInterno($id);
             $this->inspeccionModel->update($id, [
@@ -469,8 +470,8 @@ class AsistenciaInduccionController extends BaseController
         $asistenteModel = new AsistenciaInduccionAsistenteModel();
         $asistentes = $asistenteModel->getByAsistencia($id);
         foreach ($asistentes as $a) {
-            if (!empty($a['firma']) && file_exists(FCPATH . $a['firma'])) {
-                unlink(FCPATH . $a['firma']);
+            if (!empty($a['firma']) && file_exists(resolve_upload_path($a['firma']))) {
+                unlink(resolve_upload_path($a['firma']));
             }
         }
 
@@ -479,8 +480,8 @@ class AsistenciaInduccionController extends BaseController
 
         // Delete PDFs
         foreach (['ruta_pdf_asistencia', 'ruta_pdf_responsabilidades'] as $campo) {
-            if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
-                unlink(FCPATH . $inspeccion[$campo]);
+            if (!empty($inspeccion[$campo]) && file_exists(resolve_upload_path($inspeccion[$campo]))) {
+                unlink(resolve_upload_path($inspeccion[$campo]));
             }
         }
 
@@ -585,7 +586,7 @@ class AsistenciaInduccionController extends BaseController
         foreach ($asistentes as &$a) {
             $a['firma_base64'] = '';
             if (!empty($a['firma'])) {
-                $firmaPath = FCPATH . $a['firma'];
+                $firmaPath = resolve_upload_path($a['firma']);
                 if (file_exists($firmaPath)) {
                     $mime = mime_content_type($firmaPath);
                     $a['firma_base64'] = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($firmaPath));
@@ -624,8 +625,8 @@ class AsistenciaInduccionController extends BaseController
         $pdfPath1 = $pdfDir . $pdfFileName1;
 
         // Delete old PDF if exists
-        if (!empty($inspeccion['ruta_pdf_asistencia']) && file_exists(FCPATH . $inspeccion['ruta_pdf_asistencia'])) {
-            unlink(FCPATH . $inspeccion['ruta_pdf_asistencia']);
+        if (!empty($inspeccion['ruta_pdf_asistencia']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf_asistencia']))) {
+            unlink(resolve_upload_path($inspeccion['ruta_pdf_asistencia']));
         }
 
         file_put_contents(FCPATH . $pdfPath1, $dompdf1->output());
@@ -648,8 +649,8 @@ class AsistenciaInduccionController extends BaseController
             $pdfPath2 = $pdfDir . $pdfFileName2;
 
             // Delete old PDF if exists
-            if (!empty($inspeccion['ruta_pdf_responsabilidades']) && file_exists(FCPATH . $inspeccion['ruta_pdf_responsabilidades'])) {
-                unlink(FCPATH . $inspeccion['ruta_pdf_responsabilidades']);
+            if (!empty($inspeccion['ruta_pdf_responsabilidades']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf_responsabilidades']))) {
+                unlink(resolve_upload_path($inspeccion['ruta_pdf_responsabilidades']));
             }
 
             file_put_contents(FCPATH . $pdfPath2, $dompdf2->output());

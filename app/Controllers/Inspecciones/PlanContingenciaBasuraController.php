@@ -21,6 +21,7 @@ class PlanContingenciaBasuraController extends BaseController
 
     public function __construct()
     {
+        helper('uploads');
         $this->inspeccionModel = new PlanContingenciaBasuraModel();
     }
 
@@ -226,8 +227,8 @@ class PlanContingenciaBasuraController extends BaseController
     public function delete($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
-        if ($inspeccion && !empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
-            unlink(FCPATH . $inspeccion['ruta_pdf']);
+        if ($inspeccion && !empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
+            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
         }
         $this->inspeccionModel->delete($id);
         return redirect()->to('/inspecciones/contingencia-basura')->with('msg', 'Plan eliminado.');
@@ -314,8 +315,8 @@ class PlanContingenciaBasuraController extends BaseController
             mkdir(FCPATH . $pdfDir, 0755, true);
         }
 
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
-            unlink(FCPATH . $inspeccion['ruta_pdf']);
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
+            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
         }
 
         $pdfFileName = 'contingencia_basura_' . $id . '_' . date('Ymd_His') . '.pdf';

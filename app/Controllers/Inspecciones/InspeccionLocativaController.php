@@ -23,6 +23,7 @@ class InspeccionLocativaController extends BaseController
 
     public function __construct()
     {
+        helper('uploads');
         $this->inspeccionModel = new InspeccionLocativaModel();
         $this->hallazgoModel = new HallazgoLocativoModel();
     }
@@ -285,17 +286,17 @@ class InspeccionLocativaController extends BaseController
         // Eliminar fotos de hallazgos del disco
         $hallazgos = $this->hallazgoModel->getByInspeccion($id);
         foreach ($hallazgos as $h) {
-            if (!empty($h['imagen']) && file_exists(FCPATH . $h['imagen'])) {
-                unlink(FCPATH . $h['imagen']);
+            if (!empty($h['imagen']) && file_exists(resolve_upload_path($h['imagen']))) {
+                unlink(resolve_upload_path($h['imagen']));
             }
-            if (!empty($h['imagen_correccion']) && file_exists(FCPATH . $h['imagen_correccion'])) {
-                unlink(FCPATH . $h['imagen_correccion']);
+            if (!empty($h['imagen_correccion']) && file_exists(resolve_upload_path($h['imagen_correccion']))) {
+                unlink(resolve_upload_path($h['imagen_correccion']));
             }
         }
 
         // Eliminar PDF del disco
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
-            unlink(FCPATH . $inspeccion['ruta_pdf']);
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
+            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
         }
 
         // Eliminar (hallazgos se borran por CASCADE)
@@ -428,14 +429,14 @@ class InspeccionLocativaController extends BaseController
         foreach ($hallazgos as &$h) {
             $h['imagen_base64'] = '';
             if (!empty($h['imagen'])) {
-                $fotoPath = FCPATH . $h['imagen'];
+                $fotoPath = resolve_upload_path($h['imagen']);
                 if (file_exists($fotoPath)) {
                     $h['imagen_base64'] = $this->fotoABase64ParaPdf($fotoPath);
                 }
             }
             $h['correccion_base64'] = '';
             if (!empty($h['imagen_correccion'])) {
-                $fotoPath = FCPATH . $h['imagen_correccion'];
+                $fotoPath = resolve_upload_path($h['imagen_correccion']);
                 if (file_exists($fotoPath)) {
                     $h['correccion_base64'] = $this->fotoABase64ParaPdf($fotoPath);
                 }
@@ -470,8 +471,8 @@ class InspeccionLocativaController extends BaseController
         $pdfPath = $pdfDir . $pdfFileName;
 
         // Eliminar PDF anterior
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
-            unlink(FCPATH . $inspeccion['ruta_pdf']);
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
+            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
         }
 
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());

@@ -277,6 +277,7 @@ class MatrizVulnerabilidadController extends BaseController
 
     public function __construct()
     {
+        helper('uploads');
         $this->matrizModel = new MatrizVulnerabilidadModel();
     }
 
@@ -482,8 +483,8 @@ class MatrizVulnerabilidadController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/matriz-vulnerabilidad')->with('error', 'No encontrada');
         }
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
-            unlink(FCPATH . $inspeccion['ruta_pdf']);
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
+            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
         }
 
         $this->matrizModel->delete($id);
@@ -611,8 +612,8 @@ class MatrizVulnerabilidadController extends BaseController
         $pdfFileName = 'matriz_vulnerabilidad_' . $id . '_' . date('Ymd_His') . '.pdf';
         $pdfPath = $pdfDir . $pdfFileName;
 
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
-            unlink(FCPATH . $inspeccion['ruta_pdf']);
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
+            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
         }
 
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());

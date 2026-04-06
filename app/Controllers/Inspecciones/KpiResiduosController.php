@@ -48,6 +48,7 @@ class KpiResiduosController extends BaseController
 
     public function __construct()
     {
+        helper('uploads');
         $this->model = new KpiResiduosModel();
     }
 
@@ -333,8 +334,8 @@ class KpiResiduosController extends BaseController
                 unlink(FCPATH . $inspeccion[$campo]);
             }
         }
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
-            unlink(FCPATH . $inspeccion['ruta_pdf']);
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
+            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
         }
         $this->model->delete($id);
         return redirect()->to('/inspecciones/' . static::ROUTE_SLUG)->with('msg', 'KPI eliminado');

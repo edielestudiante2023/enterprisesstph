@@ -35,6 +35,7 @@ class InspeccionComunicacionController extends BaseController
 
     public function __construct()
     {
+        helper('uploads');
         $this->inspeccionModel = new InspeccionComunicacionModel();
     }
 
@@ -142,8 +143,8 @@ class InspeccionComunicacionController extends BaseController
         foreach (['foto_1', 'foto_2'] as $campo) {
             $nueva = $this->uploadFoto($campo, 'uploads/inspecciones/comunicaciones/fotos/');
             if ($nueva) {
-                if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
-                    unlink(FCPATH . $inspeccion[$campo]);
+                if (!empty($inspeccion[$campo]) && file_exists(resolve_upload_path($inspeccion[$campo]))) {
+                    unlink(resolve_upload_path($inspeccion[$campo]));
                 }
                 $data[$campo] = $nueva;
             }
@@ -254,13 +255,13 @@ class InspeccionComunicacionController extends BaseController
         }
         // Eliminar fotos
         foreach (['foto_1', 'foto_2'] as $campo) {
-            if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
-                unlink(FCPATH . $inspeccion[$campo]);
+            if (!empty($inspeccion[$campo]) && file_exists(resolve_upload_path($inspeccion[$campo]))) {
+                unlink(resolve_upload_path($inspeccion[$campo]));
             }
         }
 
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
-            unlink(FCPATH . $inspeccion['ruta_pdf']);
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
+            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
         }
 
         $this->inspeccionModel->delete($id);
@@ -344,7 +345,7 @@ class InspeccionComunicacionController extends BaseController
         foreach (['foto_1', 'foto_2'] as $campo) {
             $fotosBase64[$campo] = '';
             if (!empty($inspeccion[$campo])) {
-                $fotoPath = FCPATH . $inspeccion[$campo];
+                $fotoPath = resolve_upload_path($inspeccion[$campo]);
                 if (file_exists($fotoPath)) {
                     $fotosBase64[$campo] = $this->fotoABase64ParaPdf($fotoPath);
                 }
@@ -378,8 +379,8 @@ class InspeccionComunicacionController extends BaseController
         $pdfFileName = 'comunicaciones_' . $id . '_' . date('Ymd_His') . '.pdf';
         $pdfPath = $pdfDir . $pdfFileName;
 
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
-            unlink(FCPATH . $inspeccion['ruta_pdf']);
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
+            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
         }
 
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());
