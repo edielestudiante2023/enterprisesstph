@@ -102,6 +102,31 @@
             padding: 15px 0;
             margin-top: 2rem;
         }
+        /* Floating home button */
+        .fab-home {
+            position: fixed;
+            bottom: 24px;
+            left: 16px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #bd9751;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            text-decoration: none;
+            z-index: 1031;
+            transition: transform 0.3s, background 0.3s;
+        }
+        .fab-home:hover {
+            background: #a8843f;
+            color: white;
+            transform: scale(1.1);
+        }
+
         @media (max-width: 768px) {
             .navbar-content img { max-height: 50px; }
             .content-wrapper { margin-top: 100px; }
@@ -130,6 +155,11 @@
             <?= $content ?>
         </div>
     </div>
+
+    <!-- Floating Home Button -->
+    <a href="<?= site_url('index.php/consultor/dashboard') ?>" class="fab-home" title="Ir al Dashboard">
+        <i class="fas fa-house"></i>
+    </a>
 
     <footer class="text-center">
         <p class="mb-0">&copy; <?= date('Y') ?> Cycloid Talent SAS. Todos los derechos reservados.</p>

@@ -290,6 +290,31 @@
             margin: 20px 16px 8px;
         }
 
+        /* Floating home button */
+        .fab-home {
+            position: fixed;
+            bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+            left: 16px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gold-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            text-decoration: none;
+            z-index: 1001;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .fab-home:hover, .fab-home:active {
+            background: var(--gold-hover);
+            color: white;
+            transform: scale(1.1);
+        }
+
         /* Responsive adjustments */
         @media (max-width: 380px) {
             .grid-inspecciones {
@@ -312,6 +337,11 @@
     <div class="pwa-main">
         <?= $content ?>
     </div>
+
+    <!-- Floating Home Button -->
+    <a href="<?= site_url('index.php/consultor/dashboard') ?>" class="fab-home" title="Ir al Dashboard">
+        <i class="fas fa-house"></i>
+    </a>
 
     <!-- Bottom Navigation -->
     <div class="pwa-bottomnav">
