@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>HARDENING DE REPOSITORIO &mdash; enterprisesstph</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="hardening-de-repositorio--enterprisesstph">HARDENING DE REPOSITORIO — enterprisesstph</h1>
+<p><strong>Fecha:</strong> 2026-04-05
+<strong>Aplicativo:</strong> enterprisesstph — Plataforma SST para Propiedad Horizontal
+<strong>Empresa:</strong> Cycloid Talent
+<strong>Preparado para:</strong> Edwin Lopez  (consultor de infraestructura)</p>
+<hr>
+<h2 id="tabla-de-contenido">TABLA DE CONTENIDO</h2>
+<ol>
+<li>Descripcion del aplicativo</li>
+<li>Mapa de base de datos</li>
+<li>Inventario de API Keys y servicios externos</li>
+<li>Documentacion del proyecto (README, CONTRIBUTING, .env.example)</li>
+<li>Ramas de trabajo</li>
+<li>Pipelines CI/CD (Gitea)</li>
+<li>Organizacion del repositorio</li>
+<li>Hallazgos criticos y acciones pendientes</li>
+</ol>
+<hr>
+<h2 id="1-descripcion-del-aplicativo">1. DESCRIPCION DEL APLICATIVO</h2>
+<h3 id="stack-tecnologico">Stack tecnologico</h3>
+<table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Tecnologia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Backend</td>
+<td>PHP 8.2 + CodeIgniter 4</td>
+</tr>
+<tr>
+<td>Base de datos</td>
+<td>MySQL 8 (DigitalOcean Managed, SSL required)</td>
+</tr>
+<tr>
+<td>Servidor web</td>
+<td>Nginx 1.24 (Ubuntu 24.04)</td>
+</tr>
+<tr>
+<td>Email</td>
+<td>SendGrid API v3 — por migrar a SMTP2Go</td>
+</tr>
+<tr>
+<td>PDF</td>
+<td>TCPDF (contratos) + DOMPDF 3.0.0 (certificados, actas, inspecciones)</td>
+</tr>
+<tr>
+<td>Excel</td>
+<td>PhpSpreadsheet</td>
+</tr>
+<tr>
+<td>IA</td>
+<td>OpenAI GPT-4o-mini (Chat Otto, generacion de textos)</td>
+</tr>
+<tr>
+<td>IA (tools)</td>
+<td>Anthropic Claude Haiku (clasificacion de PDFs)</td>
+</tr>
+<tr>
+<td>PWA</td>
+<td>Modulo inspecciones (manifest + service worker)</td>
+</tr>
+<tr>
+<td>Analytics</td>
+<td>Looker Studio (embeds)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="modulos-principales-16">Modulos principales (16)</h3>
+<table>
+<thead>
+<tr>
+<th>Modulo</th>
+<th>Descripcion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Contratos</td>
+<td>Ciclo completo: creacion, firma digital, PDF, renovacion, cancelacion</td>
+</tr>
+<tr>
+<td>Plan de Trabajo Anual (PTA)</td>
+<td>Actividades PHVA por cliente, edicion inline, exportacion Excel, auditoria</td>
+</tr>
+<tr>
+<td>Evaluacion Estandares Minimos</td>
+<td>Decreto 1072, evaluacion por ciclo, historial de puntajes</td>
+</tr>
+<tr>
+<td>Actas de Visita</td>
+<td>Registro con fotos, firma digital, PDF, notificaciones</td>
+</tr>
+<tr>
+<td>Inspecciones (PWA)</td>
+<td>Locativa, extintores, botiquin, gabinetes, senalizacion, comunicaciones, recursos</td>
+</tr>
+<tr>
+<td>Capacitaciones</td>
+<td>Cronograma, asistencia induccion, evaluacion, reportes</td>
+</tr>
+<tr>
+<td>KPIs</td>
+<td>20+ indicadores SST (frecuencia, severidad, mortalidad, ausentismo, etc.)</td>
+</tr>
+<tr>
+<td>Pendientes</td>
+<td>Compromisos con conteo de dias, recordatorios automaticos</td>
+</tr>
+<tr>
+<td>Plan de Saneamiento</td>
+<td>Limpieza, residuos, plagas, agua potable, contingencias, KPIs</td>
+</tr>
+<tr>
+<td>Documentos SGSST</td>
+<td>40+ documentos normativos (politicas, programas, formatos)</td>
+</tr>
+<tr>
+<td>Matrices</td>
+<td>Riesgos, vulnerabilidad, EPP (generacion automatica desde plantillas Excel)</td>
+</tr>
+<tr>
+<td>Chat Otto (IA)</td>
+<td>Asistente IA con function calling, consultas SQL readonly, 3 capas de seguridad</td>
+</tr>
+<tr>
+<td>Presupuesto SST</td>
+<td>Categorias, items, detalle de ejecucion</td>
+</tr>
+<tr>
+<td>Informes de Avances</td>
+<td>Reportes mensuales con metricas e imagenes</td>
+</tr>
+<tr>
+<td>Firmas Digitales</td>
+<td>Firma electronica via token por email (contratos + protocolo alturas)</td>
+</tr>
+<tr>
+<td>Portal Cliente</td>
+<td>Dashboard readonly, chat Otto, inspecciones, reportes, pendientes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="roles-de-usuario">Roles de usuario</h3>
+<table>
+<thead>
+<tr>
+<th>Rol</th>
+<th>Acceso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>admin</td>
+<td>Todo el sistema + gestion de usuarios + configuracion</td>
+</tr>
+<tr>
+<td>consultant</td>
+<td>Gestion de clientes asignados + inspecciones + chat IA completo</td>
+</tr>
+<tr>
+<td>client</td>
+<td>Portal readonly + chat Otto (solo SELECT)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="estructura-del-proyecto">Estructura del proyecto</h3>
+<pre><code>enterprisesstph/
+├── app/
+│   ├── Commands/          # 10 comandos spark (cron jobs)
+│   ├── Config/            # Routes.php, Database.php, Filters.php
+│   ├── Controllers/       # ~160 controladores
+│   │   └── Inspecciones/  # ~40 controladores de inspecciones (PWA)
+│   ├── Filters/           # AuthFilter, ApiKeyFilter, AuthOrApiKeyFilter
+│   ├── Libraries/         # 17 librerias de logica de negocio
+│   ├── Models/            # ~100 modelos
+│   ├── Services/          # IADocumentacionService
+│   ├── SQL/               # Scripts de migracion
+│   ├── Templates/         # Plantillas Excel para matrices
+│   └── Views/             # Vistas PHP
+├── docs/                  # Documentacion tecnica
+├── public/                # Punto de entrada web (index.php)
+├── tools/                 # Scripts utilitarios
+├── tests/                 # Tests PHPUnit
+├── writable/              # Logs, cache, sesiones
+├── .env                   # Variables de entorno (NO commitear)
+├── .env.example           # Template de variables (SI commitear)
+├── deploy.sh              # Script de deploy seguro
+├── CONTRIBUTING.md        # Guia de contribucion
+├── README.md              # Documentacion principal
+├── composer.json          # Dependencias PHP
+└── spark                  # CLI de CodeIgniter
+</code></pre>
+<h3 id="cron-jobs-10-tareas-programadas">Cron jobs (10 tareas programadas)</h3>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Frecuencia</th>
+<th>Descripcion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>php spark auditoria:revisar-visitas-diario</code></td>
+<td>Diario 7 AM</td>
+<td>Verificar visitas del dia anterior</td>
+</tr>
+<tr>
+<td><code>php spark actas:notificaciones</code></td>
+<td>Diario 7 AM</td>
+<td>Notificaciones de actas</td>
+</tr>
+<tr>
+<td><code>php spark inspecciones:resumen-pendientes</code></td>
+<td>Diario 5 PM</td>
+<td>Inspecciones pendientes</td>
+</tr>
+<tr>
+<td><code>php spark visitas:recordatorio</code></td>
+<td>Diario 3 PM</td>
+<td>Recordatorio de visitas</td>
+</tr>
+<tr>
+<td><code>php spark seguimiento:agenda-diario</code></td>
+<td>Diario 3 PM</td>
+<td>Seguimiento agenda</td>
+</tr>
+<tr>
+<td><code>php spark firmas:protocolo-alturas --reporte</code></td>
+<td>Diario 7 AM</td>
+<td>Reporte firmas alturas</td>
+</tr>
+<tr>
+<td><code>php spark contratos:resumen-semanal</code></td>
+<td>Lunes 7 AM</td>
+<td>Resumen contratos</td>
+</tr>
+<tr>
+<td><code>php spark auditoria:recordatorio-sin-agendar</code></td>
+<td>L-V 7 AM</td>
+<td>Clientes sin agendar</td>
+</tr>
+<tr>
+<td><code>php spark pendientes:recordatorio</code></td>
+<td>Dia 1 y 16</td>
+<td>Recordatorio pendientes</td>
+</tr>
+<tr>
+<td><code>curl .../cron/send-emails</code></td>
+<td>Lunes 8 AM</td>
+<td>Emails programados</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="2-mapa-de-base-de-datos">2. MAPA DE BASE DE DATOS</h2>
+<p><strong>Motor:</strong> MySQL 8 (DigitalOcean Managed)
+<strong>Base de datos:</strong> propiedad_horizontal
+<strong>Tamano total:</strong> 18.31 MB
+<strong>SSL:</strong> Required</p>
+<h3 id="usuarios-de-base-de-datos">Usuarios de base de datos</h3>
+<table>
+<thead>
+<tr>
+<th>Usuario</th>
+<th>Permisos</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cycloid_userdb</td>
+<td>Full access</td>
+<td>Aplicacion principal (CRUD)</td>
+</tr>
+<tr>
+<td>cycloid_readonly</td>
+<td>SELECT only (vistas v_* + tablas maestras)</td>
+<td>Portal cliente (Chat Otto)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="resumen">Resumen</h3>
+<ul>
+<li><strong>107 tablas</strong> (BASE TABLE)</li>
+<li><strong>79 vistas</strong> (VIEW) — 60 con prefijo <code>v_</code> para portal cliente + 19 de negocio</li>
+<li><strong>72 foreign keys</strong> definidas</li>
+<li><strong>28 tablas vacias</strong> (26%) — modulos pendientes o posiblemente obsoletos</li>
+</ul>
+<h3 id="tablas-principales-por-modulo">Tablas principales por modulo</h3>
+<p><strong>Nucleo (7 tablas):</strong> tbl_clientes (60 reg), tbl_usuarios (61), tbl_usuario_roles (61), tbl_roles (3), tbl_consultor (4), tbl_sesiones_usuario (220), tbl_chat_log (302)</p>
+<p><strong>Plan de trabajo (5 tablas):</strong> tbl_pta_cliente (5,189 reg — la mas grande), tbl_pta_cliente_audit (4,108), tbl_pta_cliente_old (1,483), tbl_pta_transiciones (200), tbl_inventario_actividades (146)</p>
+<p><strong>Evaluacion estandares (5 tablas):</strong> evaluacion_inicial_sst (2,044 reg — 2.52 MB), estandares (4), estandares_accesos (88), historial_resumen_estandares (765), historial_resumen_plan_trabajo (333)</p>
+<p><strong>Reportes (5 tablas):</strong> tbl_reporte (3,282 reg — 1.08 MB), report_type_table (18), detail_report (34), document_versions (1,428), tbl_listado_maestro_documentos (28)</p>
+<p><strong>Actas de visita (5 tablas):</strong> tbl_acta_visita (28), tbl_acta_visita_fotos (2), tbl_acta_visita_integrantes (58), tbl_acta_visita_pta (402), tbl_acta_visita_temas (68)</p>
+<p><strong>Inspecciones (12 tablas):</strong> 6 master + 5 detalle + 1 recursos seguridad</p>
+<p><strong>Capacitaciones (6 tablas):</strong> capacitaciones_sst (31), tbl_cronog_capacitacion (434), tbl_reporte_capacitacion (13), tbl_asistencia_induccion (13) + asistentes (87)</p>
+<p><strong>KPIs (10 tablas):</strong> tbl_kpis (17), tbl_kpi_definition (17), tbl_client_kpi (34), + variables, periodos, objetivos</p>
+<p><strong>Plan saneamiento (13 tablas):</strong> programas (agua, limpieza, plagas, residuos) + KPIs + contingencias</p>
+<p><strong>Otros:</strong> contratos (70 reg), pendientes (487), informe_avances (29 — 1.52 MB), presupuesto (4 tablas), matrices (43), mantenimientos (18), vigias (15), dotaciones (3 tablas)</p>
+<h3 id="tabla-central-tbl_clientes">Tabla central: tbl_clientes</h3>
+<p>40+ tablas dependen de <code>tbl_clientes.id_cliente</code> via foreign key. Es la entidad central del sistema.</p>
+<h3 id="tablas-mas-grandes-por-peso">Tablas mas grandes por peso</h3>
+<table>
+<thead>
+<tr>
+<th>Tabla</th>
+<th>Registros</th>
+<th>Tamano</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>evaluacion_inicial_sst</td>
+<td>2,044</td>
+<td>2.52 MB</td>
+</tr>
+<tr>
+<td>tbl_pta_cliente_audit</td>
+<td>4,108</td>
+<td>2.52 MB</td>
+</tr>
+<tr>
+<td>tbl_informe_avances</td>
+<td>29</td>
+<td>1.52 MB</td>
+</tr>
+<tr>
+<td>tbl_pta_cliente</td>
+<td>5,189</td>
+<td>1.48 MB</td>
+</tr>
+<tr>
+<td>tbl_reporte</td>
+<td>3,282</td>
+<td>1.08 MB</td>
+</tr>
+</tbody>
+</table>
+<h3 id="vistas-de-negocio-19">Vistas de negocio (19)</h3>
+<p>cronograma_capacitaciones_cliente, evaluacion_inicial_cliente, evaluacion_inicial_cliente_consultor, mantenimientos_por_vencer, pendientes_abiertos_vencidos, pendientes_del_cliente, plan_de_trabajo_del_cliente, resumen_estandares_cliente, resumen_mensual_plan_trabajo, view_clientes_consultores, vista_cronograma_capacitaciones, vw_consumo_usuarios, vw_reporte_completo, + 6 adicionales</p>
+<hr>
+<h2 id="3-inventario-de-api-keys-y-servicios-externos">3. INVENTARIO DE API KEYS Y SERVICIOS EXTERNOS</h2>
+<h3 id="resumen-1">Resumen</h3>
+<table>
+<thead>
+<tr>
+<th>Servicio</th>
+<th>Variable</th>
+<th>Archivos</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SendGrid</td>
+<td><code>SENDGRID_API_KEY</code></td>
+<td>15+</td>
+<td>Activa — por migrar a SMTP2Go</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td><code>OPENAI_API_KEY</code></td>
+<td>7</td>
+<td>Activa</td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td>1</td>
+<td>Activa (solo tools/)</td>
+</tr>
+<tr>
+<td>Token API</td>
+<td><code>APP_API_KEY</code></td>
+<td>2</td>
+<td>Activa — token interno</td>
+</tr>
+<tr>
+<td>Token Cron</td>
+<td><code>CRON_TOKEN</code></td>
+<td>1</td>
+<td>Activa</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sendgrid-por-migrar-a-smtp2go">SendGrid (por migrar a SMTP2Go)</h3>
+<p>Usado en 15+ archivos para todo el email transaccional: recuperacion de password, notificaciones de firma, recordatorios de pendientes, auditorias, inspecciones, contratos.</p>
+<p><strong>Patron:</strong> <code>new \SendGrid(getenv('SENDGRID_API_KEY'))</code></p>
+<p><strong>Archivos principales:</strong></p>
+<ul>
+<li>7 controladores (Auth, Chat, AdminDashboard, Email, FirmaElectronica, FirmaAlturas, User)</li>
+<li>3 libraries (ResumenPendientesNotificador, NotificadorVisita, InspeccionEmailNotifier)</li>
+<li>6 commands/cron (Seguimiento, Contratos, Pendientes, ProtocoloAlturas, Auditoria, SinAgendar)</li>
+</ul>
+<p><strong>Recomendacion:</strong> Crear una clase <code>EmailService</code> centralizada antes de migrar a SMTP2Go.</p>
+<h3 id="openai">OpenAI</h3>
+<p>Usado en 7 archivos para IA generativa: Chat Otto, generacion de clausulas de contratos, sugerencias PTA, analisis de pendientes, evaluaciones de capacitacion.</p>
+<p><strong>Patron:</strong> cURL directo a <code>https://api.openai.com/v1/chat/completions</code>
+<strong>Modelo:</strong> gpt-4o-mini (configurable via <code>OPENAI_MODEL</code>)</p>
+<h3 id="anthropic-claude">Anthropic (Claude)</h3>
+<p>Solo 1 archivo: <code>tools/clasificar_pdfs.php</code> — clasificacion automatica de PDFs con Claude Haiku.</p>
+<h3 id="hallazgos-criticos-de-seguridad">HALLAZGOS CRITICOS DE SEGURIDAD</h3>
+<p><strong>CRITICO — Credencial hardcodeada en codigo:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Archivo</th>
+<th>Problema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/SQL/query_pta_indicadores.php:5</code></td>
+<td>Password de BD hardcodeado directamente</td>
+</tr>
+<tr>
+<td><code>app/Controllers/UserController.php:288</code></td>
+<td>Fallback <code>SG.xxxxxx</code> hardcodeado</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CRITICO — Repositorio publico:</strong></p>
+<p>El repositorio <code>github.com/edielestudiante2023/enterprisesstph</code> es <strong>PUBLICO</strong>. El <code>.env</code> de produccion contiene todas las credenciales. Las siguientes claves deben rotarse:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Accion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SENDGRID_API_KEY</code></td>
+<td>Rotar (se reemplaza por SMTP2Go)</td>
+</tr>
+<tr>
+<td><code>OPENAI_API_KEY</code></td>
+<td>ROTAR INMEDIATAMENTE</td>
+</tr>
+<tr>
+<td><code>database.default.password</code></td>
+<td>Rotar en DigitalOcean</td>
+</tr>
+<tr>
+<td><code>readonly.password</code></td>
+<td>Rotar en DigitalOcean</td>
+</tr>
+<tr>
+<td><code>APP_API_KEY</code></td>
+<td>Regenerar</td>
+</tr>
+<tr>
+<td><code>CRON_TOKEN</code></td>
+<td>Cambiar</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="4-documentacion-del-proyecto">4. DOCUMENTACION DEL PROYECTO</h2>
+<h3 id="archivos-creados-en-el-repositorio">Archivos creados en el repositorio</h3>
+<table>
+<thead>
+<tr>
+<th>Archivo</th>
+<th>Descripcion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>README.md</code></td>
+<td>Documentacion principal: stack, modulos, roles, estructura, instalacion, cron jobs, deploy</td>
+</tr>
+<tr>
+<td><code>CONTRIBUTING.md</code></td>
+<td>Guia de contribucion: flujo de ramas, convencion de commits, reglas, proceso de revision</td>
+</tr>
+<tr>
+<td><code>.env.example</code></td>
+<td>Template con todas las variables de entorno necesarias (sin valores reales)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="readmemd-incluye"><a href="http://README.html">README.md</a> incluye</h3>
+<ul>
+<li>Stack tecnologico completo</li>
+<li>16 modulos con descripcion</li>
+<li>3 roles de usuario con accesos</li>
+<li>Estructura de carpetas</li>
+<li>Requisitos previos e instrucciones de instalacion</li>
+<li>10 variables de entorno documentadas</li>
+<li>10 cron jobs con frecuencia y descripcion</li>
+<li>Instrucciones de deploy</li>
+<li>Links a documentacion adicional</li>
+</ul>
+<h3 id="contributingmd-incluye"><a href="http://CONTRIBUTING.html">CONTRIBUTING.md</a> incluye</h3>
+<ul>
+<li>Flujo de ramas (main → develop → feature/ → hotfix/)</li>
+<li>Convencion de commits (feat:, fix:, docs:, refactor:, chore:)</li>
+<li>Convencion de nombres de ramas</li>
+<li>5 reglas (no push directo, no credenciales, no temporales, no destructivos)</li>
+<li>Proceso de revision con pipeline CI/CD</li>
+</ul>
+<h3 id="envexample-incluye">.env.example incluye</h3>
+<ul>
+<li>Variables de entorno para BD principal y readonly</li>
+<li>API Keys de email (SendGrid/SMTP2Go), OpenAI, Anthropic</li>
+<li>Tokens internos (APP_API_KEY, CRON_TOKEN)</li>
+<li>Ruta de uploads y cache</li>
+</ul>
+<hr>
+<h2 id="5-ramas-de-trabajo">5. RAMAS DE TRABAJO</h2>
+<h3 id="estructura-creada">Estructura creada</h3>
+<pre><code>main          ← Produccion. Solo codigo validado y estable.
+develop       ← Integracion. Aqui se unen los cambios antes de ir a main.
+feature/xxx   ← Nuevas funcionalidades. Se crean desde develop.
+hotfix/xxx    ← Correcciones urgentes. Se crean desde main.
+</code></pre>
+<h3 id="estado-actual">Estado actual</h3>
+<table>
+<thead>
+<tr>
+<th>Rama</th>
+<th>Estado</th>
+<th>Commit actual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>main</td>
+<td>Existente, en remoto</td>
+<td>5b5bd0e (dashboard superadmin)</td>
+</tr>
+<tr>
+<td>develop</td>
+<td>Creada, pendiente push a remoto</td>
+<td>Mismo commit que main</td>
+</tr>
+<tr>
+<td>cycloid</td>
+<td>Legacy — sera reemplazada por develop</td>
+<td>Mismo commit que main</td>
+</tr>
+</tbody>
+</table>
+<h3 id="proteccion-de-ramas-pendiente-en-gitea">Proteccion de ramas (pendiente en Gitea)</h3>
+<ul>
+<li><strong>main:</strong> protegida, requiere PR, no push directo</li>
+<li><strong>develop:</strong> protegida, requiere PR desde feature/</li>
+</ul>
+<h3 id="flujo-de-trabajo">Flujo de trabajo</h3>
+<ul>
+<li>Nueva funcionalidad: <code>develop</code> → <code>feature/nombre</code> → PR a <code>develop</code> → PR a <code>main</code></li>
+<li>Hotfix urgente: <code>main</code> → <code>hotfix/nombre</code> → PR a <code>main</code> + PR a <code>develop</code></li>
+</ul>
+<hr>
+<h2 id="6-pipelines-cicd">6. PIPELINES CI/CD</h2>
+<h3 id="plataforma-gitea-con-gitea-runner-act_runner">Plataforma: Gitea con Gitea Runner (act_runner)</h3>
+<h3 id="pipeline-1-validar-y-deploy-a-devqa">Pipeline 1: Validar y Deploy a Dev/QA</h3>
+<p><strong>Archivo:</strong> <code>.gitea/workflows/validate-and-deploy-qa.yml</code>
+<strong>Trigger:</strong> Push/PR a develop o feature/*</p>
+<pre><code>git push → Gitea → Runner → Tests + Trivy + Semgrep → Deploy SSH → LXC (Dev/QA)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Que hace</th>
+<th>Bloquea si falla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>test</td>
+<td><code>php -l</code> en todos los .php de app/</td>
+<td>Si</td>
+</tr>
+<tr>
+<td>trivy</td>
+<td>Escaneo de vulnerabilidades en dependencias (HIGH/CRITICAL)</td>
+<td>Si</td>
+</tr>
+<tr>
+<td>semgrep</td>
+<td>Analisis estatico de seguridad (reglas PHP + secrets + security-audit)</td>
+<td>Si</td>
+</tr>
+<tr>
+<td>secrets-scan</td>
+<td>Busca API keys hardcodeadas (SendGrid, OpenAI, Anthropic, DB)</td>
+<td>Si</td>
+</tr>
+<tr>
+<td>deploy-qa</td>
+<td>SSH al LXC Dev/QA y ejecuta <a href="http://deploy.sh">deploy.sh</a></td>
+<td>Solo en push a develop</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pipeline-2-cutover-a-produccion">Pipeline 2: Cutover a Produccion</h3>
+<p><strong>Archivo:</strong> <code>.gitea/workflows/cutover-production.yml</code>
+<strong>Trigger:</strong> Push a main (despues de merge de PR desde develop)</p>
+<pre><code>PR develop → main → Validacion → Trivy → Semgrep → Deploy SSH → LXC Produccion (Hetzner)
+                                                                → Verificacion post-deploy
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Que hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>validate</td>
+<td>Sintaxis PHP + busqueda de credenciales</td>
+</tr>
+<tr>
+<td>trivy</td>
+<td>Escaneo vulnerabilidades (paralelo con semgrep)</td>
+</tr>
+<tr>
+<td>semgrep</td>
+<td>Analisis estatico seguridad (paralelo con trivy)</td>
+</tr>
+<tr>
+<td>deploy-production</td>
+<td>SSH al Hetzner + <a href="http://deploy.sh">deploy.sh</a> + verificacion HTTP post-deploy</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Todo por pipeline, nada manual.</strong></p>
+<h3 id="secrets-necesarios-en-gitea">Secrets necesarios en Gitea</h3>
+<p><strong>Para Dev/QA:</strong> QA_HOST, QA_USER, QA_SSH_KEY, QA_PATH
+<strong>Para Produccion:</strong> PROD_HOST, PROD_USER, PROD_SSH_KEY, PROD_PATH</p>
+<h3 id="flujo-completo">Flujo completo</h3>
+<pre><code>feature/xxx → push → Validacion → PR a develop → Validacion → merge
+                                                                 ↓
+                                          Deploy automatico a LXC Dev/QA
+                                                                 ↓
+                                              Pruebas en QA (manuales o auto)
+                                                                 ↓
+                                          PR develop → main → Validacion → merge
+                                                                             ↓
+                                                     Cutover automatico a Hetzner LXC
+                                                                             ↓
+                                                          Verificacion post-deploy
+                                                                             ↓
+                                                              EN PRODUCCION
+</code></pre>
+<hr>
+<h2 id="7-organizacion-del-repositorio">7. ORGANIZACION DEL REPOSITORIO</h2>
+<h3 id="estado-del-repositorio">Estado del repositorio</h3>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Estado actual</th>
+<th>Accion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Visibilidad</td>
+<td>PUBLICO en GitHub</td>
+<td>Migrar a Gitea privado</td>
+</tr>
+<tr>
+<td>.gitignore</td>
+<td>Actualizado (excluye tmp, basura, .claude)</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>.env.example</td>
+<td>Creado con todas las variables</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>Archivos basura</td>
+<td>15+ .txt, tmp_*.php, stackdump trackeados</td>
+<td>Pendiente limpieza</td>
+</tr>
+</tbody>
+</table>
+<h3 id="archivos-basura-trackeados-en-git-pendiente-limpieza">Archivos basura trackeados en git (pendiente limpieza)</h3>
+<p><strong>Archivos de notas/bocetos (no son parte del sistema):</strong></p>
+<ul>
+<li>z_botiquin.txt, z_gabinetes.txt, z_comunicaciones.txt, z_limpieza.txt, z_ocurrencia.txt, z_plagas.txt, z_plandeemergencia.txt, z_recursosseguridad.txt, z_residuos.txt, z_responsabilidadessst.txt, z_aguapotable.txt, z_asistentes.txt, z_dotacion_vigilante.txt, z_hvbrigadista.txt, z_kpis.txt, y_appscriptbrigadista.txt, Z_PLANSANEAMIENTO.TXT, ZZ_PASCRIPTEVSIMULACTRO.txt</li>
+</ul>
+<p><strong>Scripts temporales:</strong></p>
+<ul>
+<li>tmp_actas.php, tmp_describe.php, tmp_insert_compromisos.php, tmp_query.php</li>
+</ul>
+<p><strong>Otros:</strong></p>
+<ul>
+<li>bash.exe.stackdump</li>
+<li>composer-setup.php (3 MB)</li>
+</ul>
+<p><strong>15 archivos .md sueltos en raiz</strong> que deberian moverse a <code>docs/</code></p>
+<h3 id="archivos-csv-que-si-deben-quedarse-usados-por-libraries">Archivos CSV que SI deben quedarse (usados por Libraries)</h3>
+<ul>
+<li>PTA2026.csv (WorkPlanLibrary)</li>
+<li>capacitaciones ph.csv (TrainingLibrary)</li>
+<li>csvevaluacionestandaresminimosph.csv (StandardsLibrary)</li>
+</ul>
+<hr>
+<h2 id="8-hallazgos-criticos-y-acciones-pendientes">8. HALLAZGOS CRITICOS Y ACCIONES PENDIENTES</h2>
+<h3 id="prioridad-critica">Prioridad CRITICA</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Accion</th>
+<th>Responsable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Hacer repo privado o migrar a Gitea</td>
+<td>Consultor/Cliente</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Rotar TODAS las API Keys y passwords de BD</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Eliminar <code>app/SQL/query_pta_indicadores.php</code> (password hardcodeado)</td>
+<td>Cliente</td>
+</tr>
+</tbody>
+</table>
+<h3 id="prioridad-alta">Prioridad ALTA</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Accion</th>
+<th>Responsable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4</td>
+<td>Push de rama develop al remoto</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Configurar proteccion de ramas en Gitea</td>
+<td>Consultor</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Configurar secrets en Gitea para pipelines</td>
+<td>Consultor</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Migrar SendGrid → SMTP2Go (15+ archivos)</td>
+<td>Cliente</td>
+</tr>
+</tbody>
+</table>
+<h3 id="prioridad-media">Prioridad MEDIA</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Accion</th>
+<th>Responsable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td>Limpiar archivos basura del repo (commit de limpieza)</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Mover 15 .md sueltos de raiz a docs/</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Centralizar email en clase EmailService</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Centralizar OpenAI en un servicio unico</td>
+<td>Cliente</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><em>Documento generado el 2026-04-05. Preparado como entregable del proceso de hardening del repositorio enterprisesstph.</em></p>
+
+            
+            
+        </body>
+        </html>

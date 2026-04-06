@@ -11,11 +11,6 @@ class PlanillaSSController extends BaseController
 {
     const DETAIL_REPORT = 43;
 
-    public function __construct()
-    {
-        helper('uploads');
-    }
-
     public function list()
     {
         $model    = new PlanillaSSModel();
@@ -95,8 +90,8 @@ class PlanillaSSController extends BaseController
             return redirect()->to('/inspecciones/planilla-seg-social');
         }
 
-        if (!empty($reg['archivo']) && file_exists(resolve_upload_path($reg['archivo']))) {
-            unlink(resolve_upload_path($reg['archivo']));
+        if (!empty($reg['archivo']) && file_exists(FCPATH . $reg['archivo'])) {
+            unlink(FCPATH . $reg['archivo']);
         }
 
         $model->delete($id);
@@ -123,8 +118,8 @@ class PlanillaSSController extends BaseController
         $fileName = 'planilla_ss_' . $registroId . '_' . date('Ymd_His') . '.' . $ext;
         $destPath = $destDir . '/' . $fileName;
 
-        if (file_exists(resolve_upload_path($archivoPath))) {
-            copy(resolve_upload_path($archivoPath), $destPath);
+        if (file_exists(FCPATH . $archivoPath)) {
+            copy(FCPATH . $archivoPath, $destPath);
         }
 
         $tag = 'planilla_ss_id:' . $registroId;

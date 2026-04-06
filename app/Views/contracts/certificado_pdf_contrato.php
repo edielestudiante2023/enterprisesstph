@@ -55,8 +55,7 @@
             <td>Firma</td>
             <td>
                 <?php if (!empty($contrato['firma_cliente_imagen'])): ?>
-                    <?php helper('uploads'); ?>
-                    <img src="<?= resolve_upload_path($contrato['firma_cliente_imagen']) ?>" class="firma-img">
+                    <img src="<?= FCPATH . $contrato['firma_cliente_imagen'] ?>" class="firma-img">
                 <?php else: ?>
                     Firma registrada digitalmente
                 <?php endif; ?>

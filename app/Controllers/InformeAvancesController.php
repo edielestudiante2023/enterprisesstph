@@ -17,7 +17,6 @@ class InformeAvancesController extends BaseController
 
     public function __construct()
     {
-        helper('uploads');
         $this->informeModel = new InformeAvancesModel();
     }
 
@@ -111,8 +110,8 @@ class InformeAvancesController extends BaseController
             $uploaded = $this->uploadFoto("soporte_{$i}_imagen", 'uploads/informe-avances/soportes/');
             if ($uploaded) {
                 // Eliminar anterior
-                if (!empty($informe["soporte_{$i}_imagen"]) && file_exists(resolve_upload_path($informe["soporte_{$i}_imagen"]))) {
-                    unlink(resolve_upload_path($informe["soporte_{$i}_imagen"]));
+                if (!empty($informe["soporte_{$i}_imagen"]) && file_exists(FCPATH . $informe["soporte_{$i}_imagen"])) {
+                    unlink(FCPATH . $informe["soporte_{$i}_imagen"]);
                 }
                 $data["soporte_{$i}_imagen"] = $uploaded;
             }
@@ -121,8 +120,8 @@ class InformeAvancesController extends BaseController
         foreach (['img_cumplimiento_estandares', 'img_indicador_plan_trabajo', 'img_indicador_capacitacion'] as $campo) {
             $uploaded = $this->uploadFoto($campo, 'uploads/informe-avances/screenshots/');
             if ($uploaded) {
-                if (!empty($informe[$campo]) && file_exists(resolve_upload_path($informe[$campo]))) {
-                    unlink(resolve_upload_path($informe[$campo]));
+                if (!empty($informe[$campo]) && file_exists(FCPATH . $informe[$campo])) {
+                    unlink(FCPATH . $informe[$campo]);
                 }
                 $data[$campo] = $uploaded;
             }
@@ -262,17 +261,17 @@ class InformeAvancesController extends BaseController
 
         // Eliminar archivos
         for ($i = 1; $i <= 4; $i++) {
-            if (!empty($informe["soporte_{$i}_imagen"]) && file_exists(resolve_upload_path($informe["soporte_{$i}_imagen"]))) {
-                unlink(resolve_upload_path($informe["soporte_{$i}_imagen"]));
+            if (!empty($informe["soporte_{$i}_imagen"]) && file_exists(FCPATH . $informe["soporte_{$i}_imagen"])) {
+                unlink(FCPATH . $informe["soporte_{$i}_imagen"]);
             }
         }
         foreach (['img_cumplimiento_estandares', 'img_indicador_plan_trabajo', 'img_indicador_capacitacion'] as $campo) {
-            if (!empty($informe[$campo]) && file_exists(resolve_upload_path($informe[$campo]))) {
-                unlink(resolve_upload_path($informe[$campo]));
+            if (!empty($informe[$campo]) && file_exists(FCPATH . $informe[$campo])) {
+                unlink(FCPATH . $informe[$campo]);
             }
         }
-        if (!empty($informe['ruta_pdf']) && file_exists(resolve_upload_path($informe['ruta_pdf']))) {
-            unlink(resolve_upload_path($informe['ruta_pdf']));
+        if (!empty($informe['ruta_pdf']) && file_exists(FCPATH . $informe['ruta_pdf'])) {
+            unlink(FCPATH . $informe['ruta_pdf']);
         }
 
         $this->informeModel->delete($id);
@@ -625,8 +624,8 @@ class InformeAvancesController extends BaseController
         $pdfPath = $pdfDir . $pdfFileName;
 
         // Eliminar PDF anterior
-        if (!empty($informe['ruta_pdf']) && file_exists(resolve_upload_path($informe['ruta_pdf']))) {
-            unlink(resolve_upload_path($informe['ruta_pdf']));
+        if (!empty($informe['ruta_pdf']) && file_exists(FCPATH . $informe['ruta_pdf'])) {
+            unlink(FCPATH . $informe['ruta_pdf']);
         }
 
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());
@@ -952,7 +951,7 @@ PROMPT;
             return $this->response->setJSON(['success' => false, 'error' => 'Cliente sin correo electronico configurado']);
         }
 
-        $pdfPath = resolve_upload_path($informe['ruta_pdf']);
+        $pdfPath = FCPATH . $informe['ruta_pdf'];
         if (!file_exists($pdfPath)) {
             return $this->response->setJSON(['success' => false, 'error' => 'Archivo PDF no encontrado en disco']);
         }

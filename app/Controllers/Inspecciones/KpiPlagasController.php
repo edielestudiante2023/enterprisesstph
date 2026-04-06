@@ -48,7 +48,6 @@ class KpiPlagasController extends BaseController
 
     public function __construct()
     {
-        helper('uploads');
         $this->model = new KpiPlagasModel();
     }
 
@@ -325,7 +324,7 @@ class KpiPlagasController extends BaseController
             $campo = "registro_formato_$i";
             if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) unlink(FCPATH . $inspeccion[$campo]);
         }
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) unlink(resolve_upload_path($inspeccion['ruta_pdf']));
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) unlink(FCPATH . $inspeccion['ruta_pdf']);
         $this->model->delete($id);
         return redirect()->to('/inspecciones/' . static::ROUTE_SLUG)->with('msg', 'KPI eliminado');
     }

@@ -179,3 +179,9 @@ composer-setup.php
 # Claude Code
 #-------------------------
 .claude/
+
+#-------------------------
+# Prompts internos (no publicar)
+#-------------------------
+docs/PROMPT-*.md
+docs/PROMPT-*.html

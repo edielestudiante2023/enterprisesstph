@@ -20,7 +20,6 @@ class CartaVigiaPwaController extends BaseController
 
     public function __construct()
     {
-        helper('uploads');
         $this->cartaModel = new CartaVigiaModel();
         $this->clientModel = new ClientModel();
     }
@@ -220,8 +219,8 @@ class CartaVigiaPwaController extends BaseController
         }
 
         // Eliminar PDF del disco
-        if (!empty($carta['ruta_pdf']) && file_exists(resolve_upload_path($carta['ruta_pdf']))) {
-            unlink(resolve_upload_path($carta['ruta_pdf']));
+        if (!empty($carta['ruta_pdf']) && file_exists(FCPATH . $carta['ruta_pdf'])) {
+            unlink(FCPATH . $carta['ruta_pdf']);
         }
 
         $idCliente = $carta['id_cliente'];
@@ -306,7 +305,7 @@ class CartaVigiaPwaController extends BaseController
             return redirect()->back();
         }
 
-        $fullPath = resolve_upload_path($carta['ruta_pdf']);
+        $fullPath = FCPATH . $carta['ruta_pdf'];
         if (!file_exists($fullPath)) {
             session()->setFlashdata('error', 'Archivo PDF no encontrado');
             return redirect()->back();
@@ -487,7 +486,7 @@ class CartaVigiaPwaController extends BaseController
         // Firma en base64 (si ya firmó)
         $firmaBase64 = '';
         if (!empty($carta['firma_imagen'])) {
-            $firmaPath = resolve_upload_path($carta['firma_imagen']);
+            $firmaPath = FCPATH . $carta['firma_imagen'];
             if (file_exists($firmaPath)) {
                 $firmaMime = mime_content_type($firmaPath);
                 $firmaBase64 = 'data:' . $firmaMime . ';base64,' . base64_encode(file_get_contents($firmaPath));
@@ -523,8 +522,8 @@ class CartaVigiaPwaController extends BaseController
 
         // Eliminar PDF anterior
         $cartaActual = $this->cartaModel->find($id);
-        if (!empty($cartaActual['ruta_pdf']) && file_exists(resolve_upload_path($cartaActual['ruta_pdf']))) {
-            unlink(resolve_upload_path($cartaActual['ruta_pdf']));
+        if (!empty($cartaActual['ruta_pdf']) && file_exists(FCPATH . $cartaActual['ruta_pdf'])) {
+            unlink(FCPATH . $cartaActual['ruta_pdf']);
         }
 
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());

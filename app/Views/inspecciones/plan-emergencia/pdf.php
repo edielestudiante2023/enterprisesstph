@@ -1,4 +1,3 @@
-<?php helper('uploads'); ?>
 <?php
 $nombreCliente = esc($cliente['nombre_cliente'] ?? '');
 $direccion = esc($cliente['direccion_cliente'] ?? '');
@@ -491,7 +490,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
             <td style="text-align:center;"><?= !empty($h['fecha_registro']) ? date('d/m/Y', strtotime($h['fecha_registro'])) : '-' ?></td>
             <td style="text-align:center;">
             <?php if (!empty($h['imagen'])):
-                $hFoto = resolve_upload_path($h['imagen']);
+                $hFoto = FCPATH . $h['imagen'];
                 if (file_exists($hFoto)):
                     $hMime = mime_content_type($hFoto);
                     $hB64 = 'data:' . $hMime . ';base64,' . base64_encode(file_get_contents($hFoto));

@@ -37,7 +37,6 @@ class InspeccionGabineteController extends BaseController
 
     public function __construct()
     {
-        helper('uploads');
         $this->inspeccionModel = new InspeccionGabineteModel();
         $this->detalleModel = new GabineteDetalleModel();
     }
@@ -154,8 +153,8 @@ class InspeccionGabineteController extends BaseController
         foreach (['foto_gab_1', 'foto_gab_2', 'foto_det_1', 'foto_det_2'] as $campo) {
             $nueva = $this->uploadFoto($campo, 'uploads/inspecciones/gabinetes/fotos/');
             if ($nueva) {
-                if (!empty($inspeccion[$campo]) && file_exists(resolve_upload_path($inspeccion[$campo]))) {
-                    unlink(resolve_upload_path($inspeccion[$campo]));
+                if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
+                    unlink(FCPATH . $inspeccion[$campo]);
                 }
                 $data[$campo] = $nueva;
             }
@@ -269,20 +268,20 @@ class InspeccionGabineteController extends BaseController
         // Eliminar fotos de gabinetes individuales
         $gabinetes = $this->detalleModel->getByInspeccion($id);
         foreach ($gabinetes as $gab) {
-            if (!empty($gab['foto']) && file_exists(resolve_upload_path($gab['foto']))) {
-                unlink(resolve_upload_path($gab['foto']));
+            if (!empty($gab['foto']) && file_exists(FCPATH . $gab['foto'])) {
+                unlink(FCPATH . $gab['foto']);
             }
         }
 
         // Eliminar fotos generales
         foreach (['foto_gab_1', 'foto_gab_2', 'foto_det_1', 'foto_det_2'] as $campo) {
-            if (!empty($inspeccion[$campo]) && file_exists(resolve_upload_path($inspeccion[$campo]))) {
-                unlink(resolve_upload_path($inspeccion[$campo]));
+            if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
+                unlink(FCPATH . $inspeccion[$campo]);
             }
         }
 
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
-            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
+            unlink(FCPATH . $inspeccion['ruta_pdf']);
         }
 
         $this->inspeccionModel->delete($id);
@@ -433,7 +432,7 @@ class InspeccionGabineteController extends BaseController
         foreach (['foto_gab_1', 'foto_gab_2', 'foto_det_1', 'foto_det_2'] as $campo) {
             $fotosBase64[$campo] = '';
             if (!empty($inspeccion[$campo])) {
-                $fotoPath = resolve_upload_path($inspeccion[$campo]);
+                $fotoPath = FCPATH . $inspeccion[$campo];
                 if (file_exists($fotoPath)) {
                     $fotosBase64[$campo] = $this->fotoABase64ParaPdf($fotoPath);
                 }
@@ -444,7 +443,7 @@ class InspeccionGabineteController extends BaseController
         foreach ($gabinetes as &$gab) {
             $gab['foto_base64'] = '';
             if (!empty($gab['foto'])) {
-                $fotoPath = resolve_upload_path($gab['foto']);
+                $fotoPath = FCPATH . $gab['foto'];
                 if (file_exists($fotoPath)) {
                     $gab['foto_base64'] = $this->fotoABase64ParaPdf($fotoPath);
                 }
@@ -479,8 +478,8 @@ class InspeccionGabineteController extends BaseController
         $pdfFileName = 'gabinetes_' . $id . '_' . date('Ymd_His') . '.pdf';
         $pdfPath = $pdfDir . $pdfFileName;
 
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
-            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
+            unlink(FCPATH . $inspeccion['ruta_pdf']);
         }
 
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());

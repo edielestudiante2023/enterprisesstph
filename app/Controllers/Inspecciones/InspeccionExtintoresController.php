@@ -44,7 +44,6 @@ class InspeccionExtintoresController extends BaseController
 
     public function __construct()
     {
-        helper('uploads');
         $this->inspeccionModel = new InspeccionExtintoresModel();
         $this->detalleModel = new ExtintorDetalleModel();
     }
@@ -297,13 +296,13 @@ class InspeccionExtintoresController extends BaseController
         // Eliminar fotos de extintores
         $extintores = $this->detalleModel->getByInspeccion($id);
         foreach ($extintores as $ext) {
-            if (!empty($ext['foto']) && file_exists(resolve_upload_path($ext['foto']))) {
-                unlink(resolve_upload_path($ext['foto']));
+            if (!empty($ext['foto']) && file_exists(FCPATH . $ext['foto'])) {
+                unlink(FCPATH . $ext['foto']);
             }
         }
 
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
-            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
+            unlink(FCPATH . $inspeccion['ruta_pdf']);
         }
 
         $this->inspeccionModel->delete($id);
@@ -420,7 +419,7 @@ class InspeccionExtintoresController extends BaseController
         foreach ($extintores as &$ext) {
             $ext['foto_base64'] = '';
             if (!empty($ext['foto'])) {
-                $fotoPath = resolve_upload_path($ext['foto']);
+                $fotoPath = FCPATH . $ext['foto'];
                 if (file_exists($fotoPath)) {
                     $ext['foto_base64'] = $this->fotoABase64ParaPdf($fotoPath);
                 }
@@ -454,8 +453,8 @@ class InspeccionExtintoresController extends BaseController
         $pdfFileName = 'extintores_' . $id . '_' . date('Ymd_His') . '.pdf';
         $pdfPath = $pdfDir . $pdfFileName;
 
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
-            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
+            unlink(FCPATH . $inspeccion['ruta_pdf']);
         }
 
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());

@@ -48,7 +48,6 @@ class DotacionToderoController extends BaseController
 
     public function __construct()
     {
-        helper('uploads');
         $this->inspeccionModel = new DotacionToderoModel();
     }
 
@@ -272,8 +271,8 @@ class DotacionToderoController extends BaseController
             }
         }
 
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
-            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
+            unlink(FCPATH . $inspeccion['ruta_pdf']);
         }
 
         $this->inspeccionModel->delete($id);
@@ -394,8 +393,8 @@ class DotacionToderoController extends BaseController
         $pdfFileName = 'dotacion_todero_' . $id . '_' . date('Ymd_His') . '.pdf';
         $pdfPath = $pdfDir . $pdfFileName;
 
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
-            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
+            unlink(FCPATH . $inspeccion['ruta_pdf']);
         }
 
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());

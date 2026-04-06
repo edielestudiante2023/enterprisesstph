@@ -20,7 +20,6 @@ class EvaluacionSimulacroController extends BaseController
 
     public function __construct()
     {
-        helper('uploads');
         $this->evalModel = new EvaluacionSimulacroModel();
     }
 
@@ -151,8 +150,8 @@ class EvaluacionSimulacroController extends BaseController
         }
 
         // Borrar PDF
-        if (!empty($eval['ruta_pdf']) && file_exists(resolve_upload_path($eval['ruta_pdf']))) {
-            unlink(resolve_upload_path($eval['ruta_pdf']));
+        if (!empty($eval['ruta_pdf']) && file_exists(FCPATH . $eval['ruta_pdf'])) {
+            unlink(FCPATH . $eval['ruta_pdf']);
         }
 
         $this->evalModel->delete($id);
@@ -373,8 +372,8 @@ class EvaluacionSimulacroController extends BaseController
         $pdfPath = $pdfDir . $pdfFileName;
 
         // Borrar PDF anterior
-        if (!empty($eval['ruta_pdf']) && file_exists(resolve_upload_path($eval['ruta_pdf']))) {
-            unlink(resolve_upload_path($eval['ruta_pdf']));
+        if (!empty($eval['ruta_pdf']) && file_exists(FCPATH . $eval['ruta_pdf'])) {
+            unlink(FCPATH . $eval['ruta_pdf']);
         }
 
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());

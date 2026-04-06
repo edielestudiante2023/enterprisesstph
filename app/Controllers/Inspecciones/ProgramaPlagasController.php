@@ -21,7 +21,6 @@ class ProgramaPlagasController extends BaseController
 
     public function __construct()
     {
-        helper('uploads');
         $this->inspeccionModel = new ProgramaPlagasModel();
     }
 
@@ -224,8 +223,8 @@ class ProgramaPlagasController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/control-plagas')->with('error', 'Registro no encontrado.');
         }
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
-            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
+            unlink(FCPATH . $inspeccion['ruta_pdf']);
         }
 
         $this->inspeccionModel->delete($id);
@@ -311,8 +310,8 @@ class ProgramaPlagasController extends BaseController
             mkdir(FCPATH . $pdfDir, 0755, true);
         }
 
-        if (!empty($inspeccion['ruta_pdf']) && file_exists(resolve_upload_path($inspeccion['ruta_pdf']))) {
-            unlink(resolve_upload_path($inspeccion['ruta_pdf']));
+        if (!empty($inspeccion['ruta_pdf']) && file_exists(FCPATH . $inspeccion['ruta_pdf'])) {
+            unlink(FCPATH . $inspeccion['ruta_pdf']);
         }
 
         $pdfFileName = 'programa_plagas_' . $id . '_' . date('Ymd_His') . '.pdf';

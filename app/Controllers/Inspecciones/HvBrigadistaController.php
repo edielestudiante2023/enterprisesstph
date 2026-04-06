@@ -20,7 +20,6 @@ class HvBrigadistaController extends BaseController
 
     public function __construct()
     {
-        helper('uploads');
         $this->hvModel = new HvBrigadistaModel();
     }
 
@@ -144,18 +143,18 @@ class HvBrigadistaController extends BaseController
             return redirect()->to('/inspecciones/hv-brigadista')->with('error', 'No encontrada');
         }
         // Borrar foto
-        if (!empty($hv['foto_brigadista']) && file_exists(resolve_upload_path($hv['foto_brigadista']))) {
-            unlink(resolve_upload_path($hv['foto_brigadista']));
+        if (!empty($hv['foto_brigadista']) && file_exists(FCPATH . $hv['foto_brigadista'])) {
+            unlink(FCPATH . $hv['foto_brigadista']);
         }
 
         // Borrar firma
-        if (!empty($hv['firma']) && file_exists(resolve_upload_path($hv['firma']))) {
-            unlink(resolve_upload_path($hv['firma']));
+        if (!empty($hv['firma']) && file_exists(FCPATH . $hv['firma'])) {
+            unlink(FCPATH . $hv['firma']);
         }
 
         // Borrar PDF
-        if (!empty($hv['ruta_pdf']) && file_exists(resolve_upload_path($hv['ruta_pdf']))) {
-            unlink(resolve_upload_path($hv['ruta_pdf']));
+        if (!empty($hv['ruta_pdf']) && file_exists(FCPATH . $hv['ruta_pdf'])) {
+            unlink(FCPATH . $hv['ruta_pdf']);
         }
 
         $this->hvModel->delete($id);
@@ -205,8 +204,8 @@ class HvBrigadistaController extends BaseController
         // Foto replacement
         $nuevaFoto = $this->uploadFoto('foto_brigadista', 'uploads/inspecciones/hv-brigadista/fotos/');
         if ($nuevaFoto) {
-            if (!empty($hv['foto_brigadista']) && file_exists(resolve_upload_path($hv['foto_brigadista']))) {
-                unlink(resolve_upload_path($hv['foto_brigadista']));
+            if (!empty($hv['foto_brigadista']) && file_exists(FCPATH . $hv['foto_brigadista'])) {
+                unlink(FCPATH . $hv['foto_brigadista']);
             }
             $data['foto_brigadista'] = $nuevaFoto;
         }
@@ -214,8 +213,8 @@ class HvBrigadistaController extends BaseController
         // Firma replacement (base64 canvas)
         $nuevaFirma = $this->guardarFirma();
         if ($nuevaFirma) {
-            if (!empty($hv['firma']) && file_exists(resolve_upload_path($hv['firma']))) {
-                unlink(resolve_upload_path($hv['firma']));
+            if (!empty($hv['firma']) && file_exists(FCPATH . $hv['firma'])) {
+                unlink(FCPATH . $hv['firma']);
             }
             $data['firma'] = $nuevaFirma;
         }
@@ -361,7 +360,7 @@ class HvBrigadistaController extends BaseController
         // Foto brigadista a base64
         $fotoBase64 = '';
         if (!empty($hv['foto_brigadista'])) {
-            $fotoPath = resolve_upload_path($hv['foto_brigadista']);
+            $fotoPath = FCPATH . $hv['foto_brigadista'];
             if (file_exists($fotoPath)) {
                 $fotoBase64 = $this->fotoABase64ParaPdf($fotoPath);
             }
@@ -370,7 +369,7 @@ class HvBrigadistaController extends BaseController
         // Firma a base64
         $firmaBase64 = '';
         if (!empty($hv['firma'])) {
-            $firmaPath = resolve_upload_path($hv['firma']);
+            $firmaPath = FCPATH . $hv['firma'];
             if (file_exists($firmaPath)) {
                 $mime = mime_content_type($firmaPath);
                 $firmaBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($firmaPath));
@@ -413,8 +412,8 @@ class HvBrigadistaController extends BaseController
         $pdfPath = $pdfDir . $pdfFileName;
 
         // Borrar PDF anterior
-        if (!empty($hv['ruta_pdf']) && file_exists(resolve_upload_path($hv['ruta_pdf']))) {
-            unlink(resolve_upload_path($hv['ruta_pdf']));
+        if (!empty($hv['ruta_pdf']) && file_exists(FCPATH . $hv['ruta_pdf'])) {
+            unlink(FCPATH . $hv['ruta_pdf']);
         }
 
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());

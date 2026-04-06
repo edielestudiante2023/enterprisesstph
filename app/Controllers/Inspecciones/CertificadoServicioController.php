@@ -10,11 +10,6 @@ use App\Models\ReporteModel;
 
 class CertificadoServicioController extends BaseController
 {
-    public function __construct()
-    {
-        helper('uploads');
-    }
-
     /** Configuración por id_mantenimiento */
     private static function config(int $tipo): array
     {
@@ -182,8 +177,8 @@ class CertificadoServicioController extends BaseController
         $cfg = self::config($reg['id_mantenimiento']);
 
         // Eliminar archivo físico
-        if (!empty($reg['archivo']) && file_exists(resolve_upload_path($reg['archivo']))) {
-            unlink(resolve_upload_path($reg['archivo']));
+        if (!empty($reg['archivo']) && file_exists(FCPATH . $reg['archivo'])) {
+            unlink(FCPATH . $reg['archivo']);
         }
 
         $model->delete($id);
@@ -230,8 +225,8 @@ class CertificadoServicioController extends BaseController
         $fileName = $cfg['slug'] . '_' . $registroId . '_' . date('Ymd_His') . '.' . $ext;
         $destPath = $destDir . '/' . $fileName;
 
-        if (file_exists(resolve_upload_path($archivoPath))) {
-            copy(resolve_upload_path($archivoPath), $destPath);
+        if (file_exists(FCPATH . $archivoPath)) {
+            copy(FCPATH . $archivoPath, $destPath);
         }
 
         $tag = $cfg['slug'] . '_id:' . $registroId;
