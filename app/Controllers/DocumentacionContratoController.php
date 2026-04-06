@@ -692,27 +692,17 @@ class DocumentacionContratoController extends Controller
 
     /**
      * Resuelve la ruta física de un archivo a partir de su enlace en BD.
-     * Soporta enlaces con serve-file/ (writable/soportes-clientes/) y uploads/ (public/uploads/).
      */
     private function resolverRutaArchivo(string $enlace): string
     {
         $rutaRelativa = str_replace(base_url(), '', $enlace);
         $rutaRelativa = ltrim($rutaRelativa, '/');
 
-        // serve-file/NIT/archivo.pdf → writable/soportes-clientes/NIT/archivo.pdf
-        if (strpos($rutaRelativa, 'serve-file/') === 0) {
-            $subPath = substr($rutaRelativa, strlen('serve-file/'));
+        if (strpos($rutaRelativa, 'uploads/') === 0) {
+            $subPath = substr($rutaRelativa, strlen('uploads/'));
             return UPLOADS_PATH . $subPath;
         }
 
-        // uploads/NIT/archivo.pdf → buscar primero en writable, luego en public
-        if (strpos($rutaRelativa, 'uploads/') === 0) {
-            $subPath = substr($rutaRelativa, strlen('uploads/'));
-            $writablePath = UPLOADS_PATH . $subPath;
-            if (file_exists($writablePath)) return $writablePath;
-        }
-
-        // Fallback: ruta directa en public/
         return FCPATH . $rutaRelativa;
     }
 }

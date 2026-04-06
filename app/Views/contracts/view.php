@@ -187,7 +187,7 @@
                                         <?= htmlspecialchars($contract['nombre_consultor']) ?>
                                         <?php if (!empty($contract['firma_consultor'])): ?>
                                             <div class="mt-2">
-                                                <img src="<?= base_url('serve-file/firmas_consultores/' . $contract['firma_consultor']) ?>" alt="Firma del consultor" class="img-thumbnail" style="max-width:200px;">
+                                                <img src="<?= base_url('uploads/firmas_consultores/' . $contract['firma_consultor']) ?>" alt="Firma del consultor" class="img-thumbnail" style="max-width:200px;">
                                             </div>
                                         <?php endif; ?>
                                     <?php else: ?>

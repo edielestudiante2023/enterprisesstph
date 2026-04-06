@@ -65,7 +65,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
                     <?php if (!empty($consultor['foto_consultor'])): ?>
-                        <img src="/serve-file/firmas_consultores/<?= esc($consultor['foto_consultor']) ?>" class="rounded-circle" width="60" height="60" style="object-fit:cover; border: 2px solid var(--gold-primary);">
+                        <img src="/uploads/firmas_consultores/<?= esc($consultor['foto_consultor']) ?>" class="rounded-circle" width="60" height="60" style="object-fit:cover; border: 2px solid var(--gold-primary);">
                     <?php else: ?>
                         <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:60px;height:60px;background:rgba(189,151,81,0.2);">
                             <i class="fas fa-user-tie" style="color:var(--gold-primary);font-size:24px;"></i>
