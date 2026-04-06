@@ -55,7 +55,13 @@
             <td>Firma</td>
             <td>
                 <?php if (!empty($contrato['firma_cliente_imagen'])): ?>
-                    <img src="<?= FCPATH . $contrato['firma_cliente_imagen'] ?>" class="firma-img">
+                    <?php
+                        $firmaImg = $contrato['firma_cliente_imagen'];
+                        $firmaPath = (strpos($firmaImg, 'serve-file/') === 0)
+                            ? UPLOADS_PATH . substr($firmaImg, strlen('serve-file/'))
+                            : FCPATH . $firmaImg;
+                    ?>
+                    <img src="<?= $firmaPath ?>" class="firma-img">
                 <?php else: ?>
                     Firma registrada digitalmente
                 <?php endif; ?>
