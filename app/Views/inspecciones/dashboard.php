@@ -1281,21 +1281,16 @@
                 <div><strong style="font-size:11px; color:#fff;">KPI Plagas</strong></div>
                 <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalKpiPlag ?>)</div>
             </a>
-            <!-- FILA 6: KPI Agua + Dashboard + Consolidado -->
+            <!-- FILA 6: KPI Agua + Dashboard Consolidado -->
             <a href="<?= base_url('/inspecciones/kpi-agua-potable') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
                 <i class="fas fa-chart-area" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
                 <div><strong style="font-size:11px; color:#fff;">KPI Agua Potable</strong></div>
                 <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalKpiAgua ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/dashboard-saneamiento') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.18); text-align:center; text-decoration:none; border:2px solid #a8e6cf; transition:transform .2s;">
+            <a href="<?= base_url('/inspecciones/dashboard-saneamiento') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.18); text-align:center; text-decoration:none; border:2px solid #a8e6cf; transition:transform .2s; grid-column: span 2;">
                 <i class="fas fa-clipboard-check" style="font-size:22px; color:#a8e6cf; display:block; margin-bottom:2px;"></i>
-                <div><strong style="font-size:11px; color:#a8e6cf;">Dashboard San.</strong></div>
-                <div style="font-size:11px; color:rgba(255,255,255,0.6);">KPIs</div>
-            </a>
-            <a href="<?= base_url('/inspecciones/dashboard-saneamiento') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.18); text-align:center; text-decoration:none; border:2px solid #a8e6cf; transition:transform .2s;">
-                <i class="fas fa-table" style="font-size:22px; color:#a8e6cf; display:block; margin-bottom:2px;"></i>
-                <div><strong style="font-size:11px; color:#a8e6cf;">Consolidado KPIs</strong></div>
-                <div style="font-size:11px; color:rgba(255,255,255,0.6);">Resumen</div>
+                <div><strong style="font-size:11px; color:#a8e6cf;">Dashboard Saneamiento</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">Consolidado KPIs</div>
             </a>
         </div>
     </div>
