@@ -348,7 +348,7 @@ document.querySelectorAll('.btn-whatsapp-firma').forEach(function(btn) {
 
         Swal.fire({
             title: 'Enviar enlace de firma',
-            html: `<p style="font-size:14px;">Se generará un enlace para que <strong>${tipoLabel}</strong> firme desde su celular.<br><small class="text-muted">El enlace expira en 24 horas.</small></p>`,
+            html: `<p style="font-size:14px;">Se generará un enlace para que <strong>${tipoLabel}</strong> firme desde su celular.<br><small class="text-muted">El enlace expira en 7 días.</small></p>`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: '<i class="fab fa-whatsapp"></i> Generar enlace',
@@ -369,7 +369,7 @@ document.querySelectorAll('.btn-whatsapp-firma').forEach(function(btn) {
                 if (!data.success) { Swal.fire('Error', data.error, 'error'); return; }
 
                 const url = data.url;
-                const texto = encodeURIComponent(`Hola, por favor firma el acta de visita SST haciendo clic en este enlace (válido 24 horas):\n${url}`);
+                const texto = encodeURIComponent(`Hola, por favor firma el acta de visita SST haciendo clic en este enlace (válido 7 días):\n${url}`);
                 const waUrl = `https://wa.me/?text=${texto}`;
 
                 Swal.fire({

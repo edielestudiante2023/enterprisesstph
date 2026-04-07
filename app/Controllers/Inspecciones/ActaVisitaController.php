@@ -683,7 +683,7 @@ class ActaVisitaController extends BaseController
         }
 
         $token     = bin2hex(random_bytes(32));
-        $expiracion = date('Y-m-d H:i:s', strtotime('+24 hours'));
+        $expiracion = date('Y-m-d H:i:s', strtotime('+7 days'));
 
         $this->actaModel->update($id, [
             'token_firma_remota'     => $token,
