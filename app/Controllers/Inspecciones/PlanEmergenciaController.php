@@ -316,9 +316,41 @@ class PlanEmergenciaController extends BaseController
 
     public function checkInspeccionesCompletas($idCliente)
     {
-        $faltantes = $this->verificarInspeccionesCompletas((int)$idCliente);
+        $idCliente = (int) $idCliente;
+
+        $checks = [
+            'locativa'        => ['label' => 'Locativa',        'model' => new InspeccionLocativaModel()],
+            'extintores'      => ['label' => 'Extintores',      'model' => new InspeccionExtintoresModel()],
+            'botiquin'        => ['label' => 'Botiquín',        'model' => new InspeccionBotiquinModel()],
+            'gabinetes'       => ['label' => 'Gabinetes',       'model' => new InspeccionGabineteModel()],
+            'comunicaciones'  => ['label' => 'Comunicaciones',  'model' => new InspeccionComunicacionModel()],
+            'recursos'        => ['label' => 'Rec. Seguridad',  'model' => new InspeccionRecursosSeguridadModel()],
+            'probabilidad'    => ['label' => 'Prob. Peligros',  'model' => new ProbabilidadPeligrosModel()],
+            'matriz'          => ['label' => 'Matriz Vuln.',    'model' => new MatrizVulnerabilidadModel()],
+        ];
+
+        $modulos  = [];
+        $faltantes = [];
+
+        foreach ($checks as $key => $info) {
+            $existe = $info['model']->where('id_cliente', $idCliente)
+                ->where('estado', 'completo')
+                ->first();
+            $modulos[$key] = !empty($existe);
+            if (empty($existe)) {
+                $faltantes[] = $info['label'];
+            }
+        }
+
+        // Plan Emergencia propio
+        $planExiste = $this->model->where('id_cliente', $idCliente)
+            ->where('estado', 'completo')
+            ->first();
+        $modulos['plan_emergencia'] = !empty($planExiste);
+
         return $this->response->setJSON([
             'completas' => empty($faltantes),
+            'modulos'   => $modulos,
             'faltantes' => $faltantes,
         ]);
     }

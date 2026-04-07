@@ -1017,6 +1017,63 @@
         </div>
     </a>
 
+    <!-- Mini-universo Plan de Emergencia -->
+    <div class="section-title">Plan de Emergencia</div>
+    <div class="card mb-3 border-0" style="background: linear-gradient(135deg, #1c2437 0%, #2c3e50 100%); border-radius: 12px; padding: 14px 10px 10px;">
+        <div style="text-align:center; margin-bottom:8px;">
+            <span style="color:#bd9751; font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
+                <i class="fas fa-project-diagram me-1"></i>Estos modulos alimentan el Plan de Emergencia
+            </span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+            <a href="<?= base_url('/inspecciones/inspeccion-locativa') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
+                <i class="fas fa-hard-hat" style="font-size:22px;"></i>
+                <div><strong style="font-size:11px;">Locativa</strong></div>
+                <div class="count" style="font-size:11px;">(<?= $totalLocativas ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/extintores') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
+                <i class="fas fa-fire-extinguisher" style="font-size:22px;"></i>
+                <div><strong style="font-size:11px;">Extintores</strong></div>
+                <div class="count" style="font-size:11px;">(<?= $totalExtintores ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/botiquin') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
+                <i class="fas fa-first-aid" style="font-size:22px;"></i>
+                <div><strong style="font-size:11px;">Botiquín</strong></div>
+                <div class="count" style="font-size:11px;">(<?= $totalBotiquin ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/gabinetes') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
+                <i class="fas fa-shower" style="font-size:22px;"></i>
+                <div><strong style="font-size:11px;">Gabinetes</strong></div>
+                <div class="count" style="font-size:11px;">(<?= $totalGabinetes ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/comunicaciones') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
+                <i class="fas fa-walkie-talkie" style="font-size:22px;"></i>
+                <div><strong style="font-size:11px;">Comunic.</strong></div>
+                <div class="count" style="font-size:11px;">(<?= $totalComunicaciones ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/recursos-seguridad') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
+                <i class="fas fa-shield-alt" style="font-size:22px;"></i>
+                <div><strong style="font-size:11px;">Rec. Seguridad</strong></div>
+                <div class="count" style="font-size:11px;">(<?= $totalRecursosSeg ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/probabilidad-peligros') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
+                <i class="fas fa-exclamation-triangle" style="font-size:22px;"></i>
+                <div><strong style="font-size:11px;">Prob. Peligros</strong></div>
+                <div class="count" style="font-size:11px;">(<?= $totalProbPeligros ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/matriz-vulnerabilidad') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
+                <i class="fas fa-th-list" style="font-size:22px;"></i>
+                <div><strong style="font-size:11px;">Matriz Vuln.</strong></div>
+                <div class="count" style="font-size:11px;">(<?= $totalMatrizVul ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/plan-emergencia') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; border:2px solid #bd9751;">
+                <i class="fas fa-file-medical" style="font-size:22px; color:#bd9751;"></i>
+                <div><strong style="font-size:11px; color:#bd9751;">Plan Emerg.</strong></div>
+                <div class="count" style="font-size:11px;">(<?= $totalPlanEmergencia ?>)</div>
+            </a>
+        </div>
+    </div>
+
     <!-- Grid de inspecciones -->
     <div class="section-title">Inspecciones</div>
     <div class="grid-inspecciones mb-4">
@@ -1029,51 +1086,6 @@
             <i class="fas fa-search"></i>
             <div><strong>Senalizacion</strong></div>
             <div class="count">(<?= $totalSenalizacion ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/inspeccion-locativa') ?>" class="card-tipo">
-            <i class="fas fa-hard-hat"></i>
-            <div><strong>Locativas</strong></div>
-            <div class="count">(<?= $totalLocativas ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/extintores') ?>" class="card-tipo">
-            <i class="fas fa-fire-extinguisher"></i>
-            <div><strong>Extintores</strong></div>
-            <div class="count">(<?= $totalExtintores ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/botiquin') ?>" class="card-tipo">
-            <i class="fas fa-first-aid"></i>
-            <div><strong>Botiquin</strong></div>
-            <div class="count">(<?= $totalBotiquin ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/gabinetes') ?>" class="card-tipo">
-            <i class="fas fa-shower"></i>
-            <div><strong>Gabinetes</strong></div>
-            <div class="count">(<?= $totalGabinetes ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/comunicaciones') ?>" class="card-tipo">
-            <i class="fas fa-walkie-talkie"></i>
-            <div><strong>Comunicaciones</strong></div>
-            <div class="count">(<?= $totalComunicaciones ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/recursos-seguridad') ?>" class="card-tipo">
-            <i class="fas fa-shield-alt"></i>
-            <div><strong>Rec. Seguridad</strong></div>
-            <div class="count">(<?= $totalRecursosSeg ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/probabilidad-peligros') ?>" class="card-tipo">
-            <i class="fas fa-exclamation-triangle"></i>
-            <div><strong>Prob. Peligros</strong></div>
-            <div class="count">(<?= $totalProbPeligros ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/matriz-vulnerabilidad') ?>" class="card-tipo">
-            <i class="fas fa-th-list"></i>
-            <div><strong>Matriz Vuln.</strong></div>
-            <div class="count">(<?= $totalMatrizVul ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/plan-emergencia') ?>" class="card-tipo">
-            <i class="fas fa-file-medical"></i>
-            <div><strong>Plan Emergencia</strong></div>
-            <div class="count">(<?= $totalPlanEmergencia ?>)</div>
         </a>
         <a href="<?= base_url('/inspecciones/simulacro') ?>" class="card-tipo">
             <i class="fas fa-running"></i>

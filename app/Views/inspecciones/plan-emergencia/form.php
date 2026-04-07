@@ -26,6 +26,32 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
 
         <div id="autoSaveStatus" class="text-end" style="font-size:11px; color:#999; min-height:16px;"></div>
 
+        <!-- STRIP DE ESTADO INSPECCIONES -->
+        <div id="stripInspecciones" style="position:sticky; top:56px; z-index:9; background:#f5f5f5; padding:8px 0 6px; margin:0 -12px; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+            <div style="display:flex; gap:6px; padding:0 12px; min-width:max-content;">
+                <?php
+                $chips = [
+                    ['key' => 'locativa',       'icon' => 'fa-hard-hat',              'label' => 'Locativa'],
+                    ['key' => 'extintores',     'icon' => 'fa-fire-extinguisher',     'label' => 'Extintores'],
+                    ['key' => 'botiquin',       'icon' => 'fa-first-aid',             'label' => 'Botiquín'],
+                    ['key' => 'gabinetes',      'icon' => 'fa-shower',                'label' => 'Gabinetes'],
+                    ['key' => 'comunicaciones', 'icon' => 'fa-walkie-talkie',         'label' => 'Comunic.'],
+                    ['key' => 'recursos',       'icon' => 'fa-shield-alt',            'label' => 'Recursos'],
+                    ['key' => 'probabilidad',   'icon' => 'fa-exclamation-triangle',  'label' => 'Prob. Pel.'],
+                    ['key' => 'matriz',         'icon' => 'fa-th-list',               'label' => 'Matriz V.'],
+                    ['key' => 'plan_emergencia','icon' => 'fa-file-medical',          'label' => 'Plan Emerg.'],
+                ];
+                foreach ($chips as $chip): ?>
+                <div class="chip-insp" data-modulo="<?= $chip['key'] ?>"
+                     style="min-width:62px; max-width:72px; text-align:center; padding:6px 4px; border-radius:8px; background:#e9ecef; color:#aaa; font-size:10px; line-height:1.2; flex-shrink:0; transition:all .3s;">
+                    <i class="fas <?= $chip['icon'] ?>" style="font-size:16px; display:block; margin-bottom:2px;"></i>
+                    <span style="display:block; font-weight:600;"><?= $chip['label'] ?></span>
+                    <i class="fas fa-minus" style="font-size:8px; margin-top:2px; display:block;"></i>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
         <!-- 1. DATOS GENERALES -->
         <div class="card mt-2 mb-3">
             <div class="card-body">
@@ -524,10 +550,13 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
             <button type="submit" class="btn btn-pwa btn-pwa-outline py-3" style="font-size:17px;">
                 <i class="fas fa-save"></i> Guardar borrador
             </button>
-            <button type="submit" name="finalizar" value="1" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;"
+            <button type="submit" name="finalizar" value="1" id="btnFinalizar" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px; opacity:0.5;" disabled
                 onclick="return confirm('Finalizar Plan de Emergencia? Se generara el PDF y no podra editarse.')">
                 <i class="fas fa-check-circle"></i> Finalizar
             </button>
+            <div id="msgFaltantes" class="text-center" style="font-size:12px; color:#dc3545; display:none;">
+                <i class="fas fa-info-circle"></i> Completa las inspecciones faltantes para finalizar
+            </div>
         </div>
     </form>
 </div>
@@ -561,8 +590,61 @@ document.addEventListener('DOMContentLoaded', function() {
                 select.appendChild(opt);
             });
             $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
+
+            // Si ya hay cliente seleccionado, verificar inspecciones
+            if (selectedCliente) checkInspecciones(selectedCliente);
         }
     });
+
+    // Verificar inspecciones al cambiar cliente
+    $('#selectCliente').on('change', function() {
+        var id = $(this).val();
+        if (id) checkInspecciones(id);
+        else resetChips();
+    });
+
+    function checkInspecciones(idCliente) {
+        $.getJSON('<?= base_url('/inspecciones/plan-emergencia/check-inspecciones/') ?>' + idCliente, function(res) {
+            var modulos = res.modulos || {};
+            document.querySelectorAll('.chip-insp').forEach(function(chip) {
+                var key = chip.dataset.modulo;
+                var ok = modulos[key] === true;
+                chip.style.background = ok ? '#d4edda' : '#f8d7da';
+                chip.style.color = ok ? '#155724' : '#721c24';
+                var statusIcon = chip.querySelector('i:last-child');
+                statusIcon.className = ok ? 'fas fa-check' : 'fas fa-times';
+                statusIcon.style.fontSize = '8px';
+                statusIcon.style.marginTop = '2px';
+                statusIcon.style.display = 'block';
+            });
+
+            var btn = document.getElementById('btnFinalizar');
+            var msg = document.getElementById('msgFaltantes');
+            if (res.completas) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                msg.style.display = 'none';
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                msg.style.display = '';
+                msg.innerHTML = '<i class="fas fa-info-circle"></i> Faltantes: ' + res.faltantes.join(', ');
+            }
+        });
+    }
+
+    function resetChips() {
+        document.querySelectorAll('.chip-insp').forEach(function(chip) {
+            chip.style.background = '#e9ecef';
+            chip.style.color = '#aaa';
+            var statusIcon = chip.querySelector('i:last-child');
+            statusIcon.className = 'fas fa-minus';
+        });
+        var btn = document.getElementById('btnFinalizar');
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        document.getElementById('msgFaltantes').style.display = 'none';
+    }
 
     // Telefonos de emergencia
     const telefonos = <?= json_encode($telefonos) ?>;
