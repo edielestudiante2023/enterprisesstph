@@ -105,13 +105,14 @@
                             </td>
                             <td>
                                 <?php
-                                    $estadoAvance = $inf['estado_avance'] ?? 'ESTABLE';
+                                    $estadoAvance = $inf['estado_avance'] ?? 'Estable';
                                     $badgeClass = match(true) {
-                                        str_contains($estadoAvance, 'LÍNEA BASE')    => 'badge-avance-moderado',
-                                        str_contains($estadoAvance, 'SIGNIFICATIVO') => 'badge-avance-significativo',
-                                        str_contains($estadoAvance, 'MODERADO')      => 'badge-avance-moderado',
-                                        str_contains($estadoAvance, 'ESTABLE')       => 'badge-estable',
-                                        default                                      => 'badge-reinicio',
+                                        str_contains($estadoAvance, 'significativo') => 'badge-avance-significativo',
+                                        str_contains($estadoAvance, 'moderado')      => 'badge-avance-moderado',
+                                        str_contains($estadoAvance, 'leve')          => 'badge-avance-moderado',
+                                        str_contains($estadoAvance, 'Estable')        => 'badge-estable',
+                                        str_contains($estadoAvance, 'atención')      => 'badge-reinicio',
+                                        default                                      => 'badge-estable',
                                     };
                                 ?>
                                 <span class="badge <?= $badgeClass ?>"><?= esc($estadoAvance) ?></span>

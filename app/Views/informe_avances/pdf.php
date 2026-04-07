@@ -244,12 +244,14 @@
     $puntajeActual = floatval($informe['puntaje_actual'] ?? 0);
     $puntajeAnterior = floatval($informe['puntaje_anterior'] ?? 39.75);
     $dif = floatval($informe['diferencia_neta'] ?? 0);
-    $ea = $informe['estado_avance'] ?? 'ESTABLE';
+    $ea = $informe['estado_avance'] ?? 'Estable';
     $eaClass = match(true) {
-        str_contains($ea, 'SIGNIFICATIVO') => 'estado-significativo',
-        str_contains($ea, 'MODERADO')      => 'estado-moderado',
-        str_contains($ea, 'ESTABLE')       => 'estado-estable',
-        default                            => 'estado-reinicio',
+        str_contains($ea, 'significativo') => 'estado-significativo',
+        str_contains($ea, 'moderado')      => 'estado-moderado',
+        str_contains($ea, 'leve')          => 'estado-moderado',
+        str_contains($ea, 'Estable')        => 'estado-estable',
+        str_contains($ea, 'atención')      => 'estado-reinicio',
+        default                            => 'estado-estable',
     };
     $planPct = floatval($informe['indicador_plan_trabajo'] ?? 0);
     $capPct = floatval($informe['indicador_capacitacion'] ?? 0);
