@@ -1019,57 +1019,57 @@
 
     <!-- Mini-universo Plan de Emergencia -->
     <div class="section-title">Plan de Emergencia</div>
-    <div class="card mb-3 border-0" style="background: linear-gradient(135deg, #1c2437 0%, #2c3e50 100%); border-radius: 12px; padding: 14px 10px 10px;">
+    <div class="card mb-3 border-0" style="background: linear-gradient(135deg, #7B2D3B 0%, #5C1A28 100%); border-radius: 12px; padding: 14px 10px 10px;">
         <div style="text-align:center; margin-bottom:8px;">
-            <span style="color:#bd9751; font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
+            <span style="color:#f0d6a2; font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
                 <i class="fas fa-project-diagram me-1"></i>Estos modulos alimentan el Plan de Emergencia
             </span>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-            <a href="<?= base_url('/inspecciones/inspeccion-locativa') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
-                <i class="fas fa-hard-hat" style="font-size:22px;"></i>
-                <div><strong style="font-size:11px;">Locativa</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalLocativas ?>)</div>
+            <a href="<?= base_url('/inspecciones/inspeccion-locativa') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-hard-hat" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Locativa</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalLocativas ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/extintores') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
-                <i class="fas fa-fire-extinguisher" style="font-size:22px;"></i>
-                <div><strong style="font-size:11px;">Extintores</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalExtintores ?>)</div>
+            <a href="<?= base_url('/inspecciones/extintores') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-fire-extinguisher" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Extintores</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalExtintores ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/botiquin') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
-                <i class="fas fa-first-aid" style="font-size:22px;"></i>
-                <div><strong style="font-size:11px;">Botiquín</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalBotiquin ?>)</div>
+            <a href="<?= base_url('/inspecciones/botiquin') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-first-aid" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Botiquín</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalBotiquin ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/gabinetes') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
-                <i class="fas fa-shower" style="font-size:22px;"></i>
-                <div><strong style="font-size:11px;">Gabinetes</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalGabinetes ?>)</div>
+            <a href="<?= base_url('/inspecciones/gabinetes') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-shower" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Gabinetes</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalGabinetes ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/comunicaciones') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
-                <i class="fas fa-walkie-talkie" style="font-size:22px;"></i>
-                <div><strong style="font-size:11px;">Comunic.</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalComunicaciones ?>)</div>
+            <a href="<?= base_url('/inspecciones/comunicaciones') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-walkie-talkie" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Comunic.</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalComunicaciones ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/recursos-seguridad') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
-                <i class="fas fa-shield-alt" style="font-size:22px;"></i>
-                <div><strong style="font-size:11px;">Rec. Seguridad</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalRecursosSeg ?>)</div>
+            <a href="<?= base_url('/inspecciones/recursos-seguridad') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-shield-alt" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Rec. Seguridad</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalRecursosSeg ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/probabilidad-peligros') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
-                <i class="fas fa-exclamation-triangle" style="font-size:22px;"></i>
-                <div><strong style="font-size:11px;">Prob. Peligros</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalProbPeligros ?>)</div>
+            <a href="<?= base_url('/inspecciones/probabilidad-peligros') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-exclamation-triangle" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Prob. Peligros</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalProbPeligros ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/matriz-vulnerabilidad') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px;">
-                <i class="fas fa-th-list" style="font-size:22px;"></i>
-                <div><strong style="font-size:11px;">Matriz Vuln.</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalMatrizVul ?>)</div>
+            <a href="<?= base_url('/inspecciones/matriz-vulnerabilidad') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-th-list" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Matriz Vuln.</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalMatrizVul ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/plan-emergencia') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; border:2px solid #bd9751;">
-                <i class="fas fa-file-medical" style="font-size:22px; color:#bd9751;"></i>
+            <a href="<?= base_url('/inspecciones/plan-emergencia') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.18); text-align:center; text-decoration:none; border:2px solid #bd9751; transition:transform .2s;">
+                <i class="fas fa-file-medical" style="font-size:22px; color:#bd9751; display:block; margin-bottom:2px;"></i>
                 <div><strong style="font-size:11px; color:#bd9751;">Plan Emerg.</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalPlanEmergencia ?>)</div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalPlanEmergencia ?>)</div>
             </a>
         </div>
     </div>
