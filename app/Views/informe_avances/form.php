@@ -269,6 +269,15 @@
                 </div>
             </div>
 
+            <!-- SECCION 5B: Actividades PTA No Cerradas en el Periodo -->
+            <div class="card card-section">
+                <div class="card-header py-3" style="background:#e74c3c;"><i class="fas fa-times-circle me-2"></i>5B. Actividades PTA No Cerradas en el Periodo (con motivo)</div>
+                <div class="card-body">
+                    <textarea name="actividades_no_cerradas_pta" id="actividadesNoCerradasPta" class="form-control" rows="6" placeholder="Se auto-pobla al seleccionar cliente..."><?= esc($informe['actividades_no_cerradas_pta'] ?? '') ?></textarea>
+                    <small class="text-muted">Actividades del Plan de Trabajo que no fueron cerradas, con sus observaciones como motivo.</small>
+                </div>
+            </div>
+
             <!-- SECCION 6: Documentos Cargados en el Periodo -->
             <div class="card card-section">
                 <div class="card-header py-3"><i class="fas fa-file-upload me-2"></i>6. Documentos Cargados en el Periodo</div>
@@ -809,6 +818,9 @@
                 }
                 if (!$('#actividadesCerradas').val()) {
                     $('#actividadesCerradas').val(d.actividades_cerradas_periodo);
+                }
+                if (!$('#actividadesNoCerradasPta').val()) {
+                    $('#actividadesNoCerradasPta').val(d.actividades_no_cerradas_pta || '');
                 }
 
                 // Tabla cerradas

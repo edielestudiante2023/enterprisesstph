@@ -482,6 +482,7 @@ class InformeAvancesController extends BaseController
             'observaciones'                => $this->request->getPost('observaciones'),
             'actividades_abiertas'         => $this->request->getPost('actividades_abiertas'),
             'actividades_cerradas_periodo' => $this->request->getPost('actividades_cerradas_periodo'),
+            'actividades_no_cerradas_pta'  => $this->request->getPost('actividades_no_cerradas_pta'),
             'enlace_dashboard'             => $this->request->getPost('enlace_dashboard'),
             'acta_visita_url'              => $this->request->getPost('acta_visita_url'),
             'metricas_desglose_json'       => $this->request->getPost('metricas_desglose_json'),
@@ -1101,6 +1102,7 @@ PROMPT;
             'resumen_avance'               => $resumen,
             'actividades_abiertas'         => $metricas['actividades_abiertas'],
             'actividades_cerradas_periodo' => $metricas['actividades_cerradas_periodo'],
+            'actividades_no_cerradas_pta'  => $metricas['actividades_no_cerradas_pta'] ?? '',
             'enlace_dashboard'             => $metricas['enlace_dashboard'],
             'metricas_desglose_json'       => json_encode([
                 'desglose_estandares'   => $metricas['desglose_estandares'] ?? [],

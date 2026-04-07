@@ -209,6 +209,16 @@
         </div>
         <?php endif; ?>
 
+        <!-- Actividades PTA no cerradas -->
+        <?php if (!empty($informe['actividades_no_cerradas_pta'])): ?>
+        <div class="card card-section">
+            <div class="card-header py-3" style="background:#e74c3c;"><i class="fas fa-times-circle me-2"></i>Actividades PTA No Cerradas en el Periodo</div>
+            <div class="card-body">
+                <div class="resumen-text"><?= nl2br(esc($informe['actividades_no_cerradas_pta'])) ?></div>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Actividades abiertas -->
         <?php if (!empty($informe['actividades_abiertas'])): ?>
         <div class="card card-section">

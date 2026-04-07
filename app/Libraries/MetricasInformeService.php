@@ -386,6 +386,40 @@ class MetricasInformeService
     }
 
     /**
+     * Actividades PTA no cerradas en el periodo, con observación como motivo.
+     */
+    public function getActividadesNoCerradasPta(int $idCliente, string $desde, string $hasta): string
+    {
+        $rows = $this->db->table('tbl_pta_cliente')
+            ->select('actividad_plandetrabajo, estado_actividad, porcentaje_avance, observaciones, fecha_propuesta')
+            ->where('id_cliente', $idCliente)
+            ->where('fecha_propuesta >=', $desde)
+            ->where('fecha_propuesta <=', $hasta)
+            ->whereNotIn('estado_actividad', ['CERRADA'])
+            ->orderBy('fecha_propuesta', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        if (empty($rows)) {
+            return 'Todas las actividades PTA del periodo fueron cerradas.';
+        }
+
+        $lines = [];
+        foreach ($rows as $row) {
+            $actividad = $row['actividad_plandetrabajo'] ?? '';
+            $estado    = $row['estado_actividad'] ?? '';
+            $pct       = $row['porcentaje_avance'] ?? '0';
+            $obs       = trim($row['observaciones'] ?? '');
+            $fecha     = $row['fecha_propuesta'] ? date('d/m/Y', strtotime($row['fecha_propuesta'])) : 'S/F';
+
+            $obsTexto = $obs !== '' ? $obs : 'Sin observación registrada';
+            $lines[] = "- {$actividad} (Fecha: {$fecha} | Estado: {$estado} | Avance: {$pct}% | Obs: {$obsTexto})";
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /**
      * Capacitaciones ejecutadas en el periodo con detalle
      */
     public function getCapacitacionesEjecutadas(int $idCliente, string $desde, string $hasta): array
@@ -436,6 +470,8 @@ class MetricasInformeService
             'desglose_pendientes'      => $this->getDesglosePendientes($idCliente, $anio),
             // Documentos cargados en el periodo
             'documentos_cargados_raw'  => $this->getDocumentosCargados($idCliente, $fechaDesde, $fechaHasta),
+            // Actividades PTA no cerradas con observaciones
+            'actividades_no_cerradas_pta' => $this->getActividadesNoCerradasPta($idCliente, $fechaDesde, $fechaHasta),
         ];
     }
 
