@@ -186,7 +186,7 @@
         <!-- Actividades cerradas -->
         <?php if (!empty($informe['actividades_cerradas_periodo'])): ?>
         <div class="card card-section">
-            <div class="card-header py-3"><i class="fas fa-check-circle me-2"></i>Actividades PTA Cerradas en el Periodo</div>
+            <div class="card-header py-3"><i class="fas fa-check-circle me-2"></i>Actividades del Plan de Trabajo Anual Cerradas en el Periodo</div>
             <div class="card-body">
                 <?php
                 $cerradasText = $informe['actividades_cerradas_periodo'];
@@ -209,10 +209,10 @@
         </div>
         <?php endif; ?>
 
-        <!-- Actividades PTA no cerradas -->
+        <!-- Actividades del Plan de Trabajo Anual no cerradas -->
         <?php if (!empty($informe['actividades_no_cerradas_pta'])): ?>
         <div class="card card-section">
-            <div class="card-header py-3" style="background:#e74c3c;"><i class="fas fa-times-circle me-2"></i>Actividades PTA No Cerradas en el Periodo</div>
+            <div class="card-header py-3" style="background:#e74c3c;"><i class="fas fa-times-circle me-2"></i>Actividades del Plan de Trabajo Anual No Cerradas en el Periodo</div>
             <div class="card-body">
                 <div class="resumen-text"><?= nl2br(esc($informe['actividades_no_cerradas_pta'])) ?></div>
             </div>
