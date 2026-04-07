@@ -14,6 +14,8 @@ class CertificadoServicioModel extends Model
         'id_cliente',
         'id_mantenimiento',
         'fecha_servicio',
+        'fecha_inspeccion',
+        'nueva_fecha_vencimiento',
         'archivo',
         'observaciones',
         'id_consultor',

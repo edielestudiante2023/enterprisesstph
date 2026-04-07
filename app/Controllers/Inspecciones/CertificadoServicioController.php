@@ -80,14 +80,15 @@ class CertificadoServicioController extends BaseController
         $cfg = self::config($tipo);
         if (!$cfg) return redirect()->to('/inspecciones');
 
-        $idCliente    = $this->request->getPost('id_cliente');
-        $fechaServicio = $this->request->getPost('fecha_servicio');
-        $observaciones = $this->request->getPost('observaciones');
-        $cerrarVenc   = $this->request->getPost('cerrar_vencimiento');
-        $idVenc       = $this->request->getPost('id_vencimiento') ?: null;
+        $idCliente             = $this->request->getPost('id_cliente');
+        $fechaInspeccion       = $this->request->getPost('fecha_inspeccion');
+        $fechaServicio         = $this->request->getPost('fecha_servicio');
+        $nuevaFechaVencimiento = $this->request->getPost('nueva_fecha_vencimiento');
+        $observaciones         = $this->request->getPost('observaciones');
+        $idVenc                = $this->request->getPost('id_vencimiento') ?: null;
 
-        if (!$idCliente || !$fechaServicio) {
-            session()->setFlashdata('error', 'Cliente y fecha son obligatorios.');
+        if (!$idCliente || !$fechaInspeccion || !$fechaServicio || !$nuevaFechaVencimiento) {
+            session()->setFlashdata('error', 'Cliente y las tres fechas son obligatorios.');
             return redirect()->back();
         }
 
@@ -106,34 +107,36 @@ class CertificadoServicioController extends BaseController
 
         $model = new CertificadoServicioModel();
         $id = $model->insert([
-            'id_cliente'       => $idCliente,
-            'id_mantenimiento' => $tipo,
-            'fecha_servicio'   => $fechaServicio,
-            'archivo'          => $archivoPath,
-            'observaciones'    => $observaciones,
-            'id_consultor'     => session()->get('user_id'),
-            'id_vencimiento'   => null,
-            'created_at'       => date('Y-m-d H:i:s'),
+            'id_cliente'              => $idCliente,
+            'id_mantenimiento'        => $tipo,
+            'fecha_inspeccion'        => $fechaInspeccion,
+            'fecha_servicio'          => $fechaServicio,
+            'nueva_fecha_vencimiento' => $nuevaFechaVencimiento,
+            'archivo'                 => $archivoPath,
+            'observaciones'           => $observaciones,
+            'id_consultor'            => session()->get('user_id'),
+            'id_vencimiento'          => null,
+            'created_at'              => date('Y-m-d H:i:s'),
         ]);
 
-        // Cerrar vencimiento si aplica
+        // Cerrar vencimiento pendiente si existe y crear el nuevo
         $vencModel = new VencimientosMantenimientoModel();
-        if ($cerrarVenc && $idVenc) {
+        if ($idVenc) {
             $vencModel->update($idVenc, [
                 'estado_actividad'  => 'ejecutado',
                 'fecha_realizacion' => $fechaServicio,
             ]);
             $model->update($id, ['id_vencimiento' => $idVenc]);
-
-            // Crear siguiente vencimiento a +6 meses
-            $vencModel->insert([
-                'id_mantenimiento'  => $tipo,
-                'id_cliente'        => $idCliente,
-                'id_consultor'      => session()->get('user_id'),
-                'fecha_vencimiento' => date('Y-m-d', strtotime($fechaServicio . ' +6 months')),
-                'estado_actividad'  => 'sin ejecutar',
-            ]);
         }
+
+        // Siempre crear el siguiente vencimiento con la fecha que indicó el usuario
+        $vencModel->insert([
+            'id_mantenimiento'  => $tipo,
+            'id_cliente'        => $idCliente,
+            'id_consultor'      => session()->get('user_id'),
+            'fecha_vencimiento' => $nuevaFechaVencimiento,
+            'estado_actividad'  => 'sin ejecutar',
+        ]);
 
         // Subir a tbl_reporte
         if ($archivoPath) {
