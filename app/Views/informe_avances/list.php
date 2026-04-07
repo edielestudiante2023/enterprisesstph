@@ -29,6 +29,37 @@
         .badge-completo { background: #28a745; color: #fff; }
         .btn-gold { background: var(--gold-primary); color: #fff; border: none; }
         .btn-gold:hover { background: var(--gold-secondary); color: #fff; }
+        .card-consultor {
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .card-consultor:hover {
+            border-color: var(--gold-primary);
+            box-shadow: 0 4px 16px rgba(189,151,81,0.25);
+            transform: translateY(-2px);
+        }
+        .card-consultor.active {
+            border-color: var(--gold-primary);
+            background: linear-gradient(135deg, #fffbe6 0%, #fff 100%);
+            box-shadow: 0 4px 16px rgba(189,151,81,0.3);
+        }
+        .card-consultor .count-badge {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+        .card-consultor .consultor-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
@@ -51,6 +82,28 @@
             <div class="alert alert-danger alert-dismissible fade show"><?= session()->getFlashdata('error') ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
         <?php endif; ?>
 
+        <!-- ─── CARDS CONSULTORES ─── -->
+        <div class="mb-4">
+            <h5 class="mb-3"><i class="fas fa-user-tie me-2" style="color: var(--gold-primary);"></i>Informes por Consultor</h5>
+            <div class="row g-3" id="cardsConsultores">
+                <!-- Card "Todos" -->
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="card card-consultor active text-center p-3" data-consultor-id="">
+                        <div class="count-badge" id="countTodos">0</div>
+                        <div class="consultor-name">Todos</div>
+                    </div>
+                </div>
+                <?php foreach ($consultores as $cons): ?>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="card card-consultor text-center p-3" data-consultor-id="<?= esc($cons['id_consultor']) ?>">
+                        <div class="count-badge" id="count-<?= esc($cons['id_consultor']) ?>">0</div>
+                        <div class="consultor-name" title="<?= esc($cons['nombre_consultor']) ?>"><?= esc($cons['nombre_consultor']) ?></div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
         <div class="card card-custom mb-4">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -60,21 +113,50 @@
                     </a>
                 </div>
 
-                <div class="row mb-3">
-                    <div class="col-md-4">
+                <div class="row mb-3 align-items-end">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Filtrar por cliente:</label>
                         <select id="filtroCliente" class="form-select">
                             <option value="">Todos los clientes</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label fw-bold">Anio:</label>
+                        <label class="form-label fw-bold">Año:</label>
                         <select id="filtroAnio" class="form-select">
                             <option value="">Todos</option>
                             <?php for ($y = date('Y'); $y >= date('Y') - 3; $y--): ?>
                                 <option value="<?= $y ?>"><?= $y ?></option>
                             <?php endfor; ?>
                         </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Mes:</label>
+                        <select id="filtroMes" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Desde:</label>
+                        <input type="date" id="filtroDesde" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Hasta:</label>
+                        <input type="date" id="filtroHasta" class="form-control">
+                    </div>
+                    <div class="col-md-1 text-end">
+                        <button id="btnLimpiar" class="btn btn-outline-secondary btn-sm" title="Limpiar filtros"><i class="fas fa-eraser"></i></button>
                     </div>
                 </div>
 
@@ -92,7 +174,7 @@
                     </thead>
                     <tbody>
                         <?php foreach ($informes as $inf): ?>
-                        <tr data-cliente="<?= esc($inf['nombre_cliente'] ?? '') ?>" data-anio="<?= esc($inf['anio'] ?? '') ?>">
+                        <tr data-cliente="<?= esc($inf['nombre_cliente'] ?? '') ?>" data-anio="<?= esc($inf['anio'] ?? '') ?>" data-consultor-id="<?= esc($inf['id_consultor'] ?? '') ?>" data-created="<?= esc($inf['created_at'] ?? '') ?>">
                             <td><?= esc($inf['nombre_cliente'] ?? 'N/A') ?></td>
                             <td><?= date('d/m/Y', strtotime($inf['fecha_desde'])) ?> - <?= date('d/m/Y', strtotime($inf['fecha_hasta'])) ?></td>
                             <td>
@@ -152,6 +234,8 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
     $(document).ready(function() {
+        var selectedConsultor = '';
+
         var table = $('#tablaInformes').DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' },
             order: [[1, 'desc']],
@@ -166,7 +250,18 @@
                     text: '<i class="fas fa-file-excel me-1"></i>Exportar Excel',
                     className: 'btn btn-success btn-sm mb-2',
                     title: 'Informes de Avances',
-                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5],
+                        format: {
+                            body: function(data, row, column, node) {
+                                if (column === 5) {
+                                    var iso = $(node).attr('data-order');
+                                    return iso ? iso.substring(0, 10) : '';
+                                }
+                                return data;
+                            }
+                        }
+                    }
                 }
             ],
             columnDefs: [
@@ -186,20 +281,130 @@
 
         $('#filtroCliente').select2({ theme: 'bootstrap-5', allowClear: true, placeholder: 'Todos los clientes' });
 
-        // Custom filtering
+        // ─── MONTH DROPDOWN → auto-fill dates ───
+        $('#filtroMes').on('change', function() {
+            var mes = $(this).val();
+            if (!mes) {
+                $('#filtroDesde').val('');
+                $('#filtroHasta').val('');
+            } else {
+                var anio = $('#filtroAnio').val() || new Date().getFullYear();
+                var m = String(mes).padStart(2, '0');
+                var lastDay = new Date(anio, mes, 0).getDate();
+                $('#filtroDesde').val(anio + '-' + m + '-01');
+                $('#filtroHasta').val(anio + '-' + m + '-' + String(lastDay).padStart(2, '0'));
+            }
+            applyFilters();
+        });
+
+        // ─── DATE INPUTS → clear month dropdown if manually changed ───
+        $('#filtroDesde, #filtroHasta').on('change', function() {
+            applyFilters();
+        });
+
+        // ─── CONSULTANT CARDS ───
+        $('#cardsConsultores').on('click', '.card-consultor', function() {
+            $('.card-consultor').removeClass('active');
+            $(this).addClass('active');
+            selectedConsultor = String($(this).data('consultor-id'));
+            applyFilters();
+        });
+
+        // ─── CUSTOM FILTER ───
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             var row = table.row(dataIndex).node();
-            var clienteFilter = $('#filtroCliente').val();
-            var anioFilter = $('#filtroAnio').val();
-            var rowCliente = $(row).data('cliente');
-            var rowAnio = String($(row).data('anio'));
+            var $row = $(row);
 
-            if (clienteFilter && rowCliente !== clienteFilter) return false;
-            if (anioFilter && rowAnio !== anioFilter) return false;
+            // Client filter
+            var clienteFilter = $('#filtroCliente').val();
+            if (clienteFilter && $row.data('cliente') !== clienteFilter) return false;
+
+            // Year filter
+            var anioFilter = $('#filtroAnio').val();
+            if (anioFilter && String($row.data('anio')) !== anioFilter) return false;
+
+            // Consultant filter (from cards)
+            if (selectedConsultor && String($row.data('consultor-id')) !== selectedConsultor) return false;
+
+            // Date range filter on created_at
+            var desde = $('#filtroDesde').val();
+            var hasta = $('#filtroHasta').val();
+            var created = $row.data('created');
+            if (created && (desde || hasta)) {
+                var createdDate = created.substring(0, 10); // YYYY-MM-DD
+                if (desde && createdDate < desde) return false;
+                if (hasta && createdDate > hasta) return false;
+            } else if ((desde || hasta) && !created) {
+                return false;
+            }
+
             return true;
         });
 
-        $('#filtroCliente, #filtroAnio').on('change', function() { table.draw(); });
+        // ─── APPLY FILTERS & UPDATE CARDS ───
+        function applyFilters() {
+            table.draw();
+            updateCardCounts();
+        }
+
+        function updateCardCounts() {
+            var counts = {};
+            var total = 0;
+
+            table.rows().every(function() {
+                var row = this.node();
+                var $row = $(row);
+                var consultorId = String($row.data('consultor-id'));
+
+                // Check all filters EXCEPT consultant
+                var clienteFilter = $('#filtroCliente').val();
+                if (clienteFilter && $row.data('cliente') !== clienteFilter) return;
+
+                var anioFilter = $('#filtroAnio').val();
+                if (anioFilter && String($row.data('anio')) !== anioFilter) return;
+
+                var desde = $('#filtroDesde').val();
+                var hasta = $('#filtroHasta').val();
+                var created = $row.data('created');
+                if (created && (desde || hasta)) {
+                    var createdDate = created.substring(0, 10);
+                    if (desde && createdDate < desde) return;
+                    if (hasta && createdDate > hasta) return;
+                } else if ((desde || hasta) && !created) {
+                    return;
+                }
+
+                counts[consultorId] = (counts[consultorId] || 0) + 1;
+                total++;
+            });
+
+            // Update "Todos" card
+            $('#countTodos').text(total);
+
+            // Update each consultant card
+            $('.card-consultor[data-consultor-id!=""]').each(function() {
+                var id = String($(this).data('consultor-id'));
+                $(this).find('.count-badge').text(counts[id] || 0);
+            });
+        }
+
+        $('#filtroCliente, #filtroAnio').on('change', function() { applyFilters(); });
+
+        // ─── CLEAR ALL FILTERS ───
+        $('#btnLimpiar').on('click', function() {
+            $('#filtroCliente').val('').trigger('change.select2');
+            $('#filtroAnio').val('');
+            $('#filtroMes').val('');
+            $('#filtroDesde').val('');
+            $('#filtroHasta').val('');
+            selectedConsultor = '';
+            $('.card-consultor').removeClass('active');
+            $('.card-consultor[data-consultor-id=""]').addClass('active');
+            applyFilters();
+        });
+
+        // Initial card counts
+        updateCardCounts();
     });
     </script>
 </body>

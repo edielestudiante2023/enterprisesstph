@@ -29,10 +29,14 @@ class InformeAvancesController extends BaseController
         $informes = $this->informeModel->getAll();
         $pendientes = $this->informeModel->getAllPendientes();
 
+        $consultorModel = new \App\Models\ConsultorModel();
+        $consultores = $consultorModel->getActiveConsultores();
+
         return view('informe_avances/list', [
-            'informes'   => $informes,
-            'pendientes' => $pendientes,
-            'role'       => $role,
+            'informes'    => $informes,
+            'pendientes'  => $pendientes,
+            'role'        => $role,
+            'consultores' => $consultores,
         ]);
     }
 
