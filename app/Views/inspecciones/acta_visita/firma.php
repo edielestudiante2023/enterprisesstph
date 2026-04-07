@@ -374,15 +374,33 @@ document.querySelectorAll('.btn-whatsapp-firma').forEach(function(btn) {
 
                 Swal.fire({
                     title: 'Enlace generado',
-                    html: `<p style="font-size:13px;">Comparte este enlace por WhatsApp con el <strong>${tipoLabel}</strong>:</p>
-                           <div style="background:#f8f9fa;border-radius:8px;padding:10px;font-size:11px;word-break:break-all;margin-bottom:12px;">${url}</div>`,
+                    html: `<p style="font-size:13px;">Comparte este enlace con el <strong>${tipoLabel}</strong>:</p>
+                           <div id="swal-url-box" style="background:#f8f9fa;border-radius:8px;padding:10px;font-size:11px;word-break:break-all;margin-bottom:12px;cursor:pointer;position:relative;" title="Click para copiar">${url}</div>
+                           <div class="d-flex gap-2 justify-content-center">
+                               <button type="button" id="btnCopiarEnlace" class="btn btn-sm btn-outline-dark"><i class="fas fa-copy me-1"></i>Copiar enlace</button>
+                               <button type="button" id="btnAbrirWa" class="btn btn-sm" style="background:#25D366;color:white;"><i class="fab fa-whatsapp me-1"></i>Abrir WhatsApp</button>
+                           </div>`,
+                    showConfirmButton: false,
                     showCancelButton: true,
-                    confirmButtonText: '<i class="fab fa-whatsapp"></i> Abrir WhatsApp',
                     cancelButtonText: 'Cerrar',
-                    confirmButtonColor: '#25D366',
-                }).then(r => {
-                    if (r.isConfirmed) window.open(waUrl, '_blank');
-                    // Avanzar al siguiente paso automáticamente
+                    didOpen: () => {
+                        document.getElementById('btnCopiarEnlace').addEventListener('click', function() {
+                            navigator.clipboard.writeText(url).then(() => {
+                                this.innerHTML = '<i class="fas fa-check me-1"></i>Copiado!';
+                                this.classList.replace('btn-outline-dark', 'btn-success');
+                                setTimeout(() => { this.innerHTML = '<i class="fas fa-copy me-1"></i>Copiar enlace'; this.classList.replace('btn-success', 'btn-outline-dark'); }, 2000);
+                            });
+                        });
+                        document.getElementById('btnAbrirWa').addEventListener('click', function() {
+                            window.open(waUrl, '_blank');
+                        });
+                        document.getElementById('swal-url-box').addEventListener('click', function() {
+                            navigator.clipboard.writeText(url).then(() => {
+                                document.getElementById('btnCopiarEnlace').click();
+                            });
+                        });
+                    },
+                }).then(() => {
                     if (pasoActual < totalPasos - 1) cambiarPaso(1);
                     else updateNav();
                 });
