@@ -1112,11 +1112,6 @@
             <div><strong>Dot. Todero</strong></div>
             <div class="count">(<?= $totalDotTod ?>)</div>
         </a>
-        <a href="<?= base_url('/inspecciones/auditoria-zona-residuos') ?>" class="card-tipo">
-            <i class="fas fa-dumpster"></i>
-            <div><strong>Zona Residuos</strong></div>
-            <div class="count">(<?= $totalAudRes ?>)</div>
-        </a>
         <a href="<?= base_url('/inspecciones/reporte-capacitacion') ?>" class="card-tipo">
             <i class="fas fa-chalkboard-teacher"></i>
             <div><strong>Capacitaciones</strong></div>
@@ -1137,71 +1132,6 @@
             <div><strong>Evaluaciones</strong></div>
             <div class="count">(<?= $totalEvalInd ?>)</div>
         </a>
-        <a href="<?= base_url('/inspecciones/limpieza-desinfeccion') ?>" class="card-tipo">
-            <i class="fas fa-pump-soap"></i>
-            <div><strong>Limpieza y Des.</strong></div>
-            <div class="count">(<?= $totalProgLimp ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/residuos-solidos') ?>" class="card-tipo">
-            <i class="fas fa-recycle"></i>
-            <div><strong>Residuos Sólidos</strong></div>
-            <div class="count">(<?= $totalProgRes ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/control-plagas') ?>" class="card-tipo">
-            <i class="fas fa-bug"></i>
-            <div><strong>Control Plagas</strong></div>
-            <div class="count">(<?= $totalProgPlag ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/agua-potable') ?>" class="card-tipo">
-            <i class="fas fa-tint"></i>
-            <div><strong>Agua Potable</strong></div>
-            <div class="count">(<?= $totalProgAgua ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/plan-saneamiento') ?>" class="card-tipo">
-            <i class="fas fa-shield-alt"></i>
-            <div><strong>Plan Saneamiento</strong></div>
-            <div class="count">(<?= $totalPlanSan ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/contingencia-plagas') ?>" class="card-tipo">
-            <i class="fas fa-bug"></i>
-            <div><strong>Cont. Plagas</strong></div>
-            <div class="count">(<?= $totalContPlagas ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/contingencia-agua') ?>" class="card-tipo">
-            <i class="fas fa-tint-slash"></i>
-            <div><strong>Cont. Sin Agua</strong></div>
-            <div class="count">(<?= $totalContAgua ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/contingencia-basura') ?>" class="card-tipo">
-            <i class="fas fa-trash-alt"></i>
-            <div><strong>Cont. Basura</strong></div>
-            <div class="count">(<?= $totalContBasura ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/kpi-limpieza') ?>" class="card-tipo">
-            <i class="fas fa-chart-line"></i>
-            <div><strong>KPI Limpieza</strong></div>
-            <div class="count">(<?= $totalKpiLimp ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/kpi-residuos') ?>" class="card-tipo">
-            <i class="fas fa-chart-bar"></i>
-            <div><strong>KPI Residuos</strong></div>
-            <div class="count">(<?= $totalKpiRes ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/kpi-plagas') ?>" class="card-tipo">
-            <i class="fas fa-chart-pie"></i>
-            <div><strong>KPI Plagas</strong></div>
-            <div class="count">(<?= $totalKpiPlag ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/kpi-agua-potable') ?>" class="card-tipo">
-            <i class="fas fa-chart-area"></i>
-            <div><strong>KPI Agua Potable</strong></div>
-            <div class="count">(<?= $totalKpiAgua ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/dashboard-saneamiento') ?>" class="card-tipo" style="border-color:#6a1b9a;">
-            <i class="fas fa-clipboard-check" style="color:#6a1b9a;"></i>
-            <div><strong>Dashboard Saneamiento</strong></div>
-            <div class="count">Consolidado KPIs</div>
-        </a>
         <a href="<?= base_url('/inspecciones/carta-vigia') ?>" class="card-tipo">
             <i class="fas fa-user-shield"></i>
             <div><strong>Carta Vigia</strong></div>
@@ -1216,21 +1146,6 @@
             <i class="fas fa-tasks"></i>
             <div><strong>Pendientes</strong></div>
             <div class="count">(<?= $totalPendientesAbiertos ?> abiertas)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/lavado-tanques') ?>" class="card-tipo">
-            <i class="fas fa-water"></i>
-            <div><strong>Lavado Tanques</strong></div>
-            <div class="count">(<?= $totalLavadoTanques ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/fumigacion') ?>" class="card-tipo">
-            <i class="fas fa-bug"></i>
-            <div><strong>Fumigación</strong></div>
-            <div class="count">(<?= $totalFumigacion ?>)</div>
-        </a>
-        <a href="<?= base_url('/inspecciones/desratizacion') ?>" class="card-tipo">
-            <i class="fas fa-mouse"></i>
-            <div><strong>Desratización</strong></div>
-            <div class="count">(<?= $totalDesratizacion ?>)</div>
         </a>
         <a href="<?= base_url('/inspecciones/planilla-seg-social') ?>" class="card-tipo">
             <i class="fas fa-file-invoice"></i>
@@ -1247,6 +1162,109 @@
             <div><strong>Accesos Rápidos</strong></div>
             <div class="count">URLs</div>
         </a>
+    </div>
+
+    <!-- Mini-universo Saneamiento Básico -->
+    <div class="section-title">Saneamiento Básico</div>
+    <div class="card mb-3 border-0" style="background: linear-gradient(135deg, #2E7D4F 0%, #1B5E3A 100%); border-radius: 12px; padding: 14px 10px 10px;">
+        <div style="text-align:center; margin-bottom:8px;">
+            <span style="color:#a8e6cf; font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
+                <i class="fas fa-leaf me-1"></i>Programas de Saneamiento Básico
+            </span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+            <!-- FILA 1: Limpieza y Residuos -->
+            <a href="<?= base_url('/inspecciones/limpieza-desinfeccion') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-pump-soap" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Limpieza y Des.</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalProgLimp ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/residuos-solidos') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-recycle" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Residuos Sólidos</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalProgRes ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/auditoria-zona-residuos') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-dumpster" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Zona Residuos</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalAudRes ?>)</div>
+            </a>
+            <!-- FILA 2: Agua -->
+            <a href="<?= base_url('/inspecciones/agua-potable') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-tint" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Agua Potable</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalProgAgua ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/lavado-tanques') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-water" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Lavado Tanques</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalLavadoTanques ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/contingencia-agua') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-tint-slash" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Cont. Sin Agua</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalContAgua ?>)</div>
+            </a>
+            <!-- FILA 3: Plagas -->
+            <a href="<?= base_url('/inspecciones/control-plagas') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-bug" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Control Plagas</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalProgPlag ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/fumigacion') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-bug" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Fumigación</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalFumigacion ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/desratizacion') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-mouse" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Desratización</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalDesratizacion ?>)</div>
+            </a>
+            <!-- FILA 4: Contingencias -->
+            <a href="<?= base_url('/inspecciones/contingencia-plagas') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-bug" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Cont. Plagas</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalContPlagas ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/contingencia-basura') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-trash-alt" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Cont. Basura</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalContBasura ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/plan-saneamiento') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-shield-alt" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">Plan Saneamiento</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalPlanSan ?>)</div>
+            </a>
+            <!-- FILA 5: KPIs -->
+            <a href="<?= base_url('/inspecciones/kpi-limpieza') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-chart-line" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">KPI Limpieza</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalKpiLimp ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/kpi-residuos') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-chart-bar" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">KPI Residuos</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalKpiRes ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/kpi-plagas') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-chart-pie" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">KPI Plagas</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalKpiPlag ?>)</div>
+            </a>
+            <!-- FILA 6: KPI Agua + Dashboard consolidado -->
+            <a href="<?= base_url('/inspecciones/kpi-agua-potable') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.12); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-chart-area" style="font-size:22px; color:#fff; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#fff;">KPI Agua Potable</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalKpiAgua ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/dashboard-saneamiento') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.18); text-align:center; text-decoration:none; border:2px solid #a8e6cf; transition:transform .2s; grid-column: span 2;">
+                <i class="fas fa-clipboard-check" style="font-size:22px; color:#a8e6cf; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#a8e6cf;">Dashboard Saneamiento</strong></div>
+                <div style="font-size:11px; color:rgba(255,255,255,0.6);">Consolidado KPIs</div>
+            </a>
+        </div>
     </div>
 </div>
 
