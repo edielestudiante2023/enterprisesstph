@@ -1106,88 +1106,88 @@
 
     <!-- Simulacros -->
     <div class="section-title">Simulacros</div>
-    <div class="card mb-3 border-0" style="background:#eef4fc; border-radius:12px; padding:10px 10px 6px;">
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-            <a href="<?= base_url('/inspecciones/simulacro') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-running" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">Ev. Simulacro</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalSimulacro ?>)</div>
+    <div class="card mb-3 border-0" style="background:#eef4fc; border-radius:12px; padding:10px 8px 6px;">
+        <div class="grid-inspecciones">
+            <a href="<?= base_url('/inspecciones/simulacro') ?>" class="card-tipo">
+                <i class="fas fa-running"></i>
+                <div><strong>Ev. Simulacro</strong></div>
+                <div class="count">(<?= $totalSimulacro ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/hv-brigadista') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-id-card-alt" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">HV Brigadista</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalHvBrigadista ?>)</div>
+            <a href="<?= base_url('/inspecciones/hv-brigadista') ?>" class="card-tipo">
+                <i class="fas fa-id-card-alt"></i>
+                <div><strong>HV Brigadista</strong></div>
+                <div class="count">(<?= $totalHvBrigadista ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/preparacion-simulacro') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-clipboard-check" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">Prep. Simulacro</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalPrepSim ?>)</div>
+            <a href="<?= base_url('/inspecciones/preparacion-simulacro') ?>" class="card-tipo">
+                <i class="fas fa-clipboard-check"></i>
+                <div><strong>Prep. Simulacro</strong></div>
+                <div class="count">(<?= $totalPrepSim ?>)</div>
             </a>
         </div>
     </div>
 
     <!-- Capacitaciones -->
     <div class="section-title">Capacitaciones</div>
-    <div class="card mb-3 border-0" style="background:#eefcf0; border-radius:12px; padding:10px 10px 6px;">
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-            <a href="<?= base_url('/inspecciones/asistencia-induccion') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-clipboard-list" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">Asistencia</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalAsistInd ?>)</div>
+    <div class="card mb-3 border-0" style="background:#eefcf0; border-radius:12px; padding:10px 8px 6px;">
+        <div class="grid-inspecciones">
+            <a href="<?= base_url('/inspecciones/asistencia-induccion') ?>" class="card-tipo">
+                <i class="fas fa-clipboard-list"></i>
+                <div><strong>Asistencia</strong></div>
+                <div class="count">(<?= $totalAsistInd ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/reporte-capacitacion') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-chalkboard-teacher" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">Capacitaciones</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalRepCap ?>)</div>
+            <a href="<?= base_url('/inspecciones/reporte-capacitacion') ?>" class="card-tipo">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <div><strong>Capacitaciones</strong></div>
+                <div class="count">(<?= $totalRepCap ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/evaluacion-induccion') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-spell-check" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">Evaluaciones</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalEvalInd ?>)</div>
+            <a href="<?= base_url('/inspecciones/evaluacion-induccion') ?>" class="card-tipo">
+                <i class="fas fa-spell-check"></i>
+                <div><strong>Evaluaciones</strong></div>
+                <div class="count">(<?= $totalEvalInd ?>)</div>
             </a>
         </div>
     </div>
 
     <!-- Dotaciones -->
     <div class="section-title">Dotaciones</div>
-    <div class="card mb-3 border-0" style="background:#fefce8; border-radius:12px; padding:10px 10px 6px;">
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-            <a href="<?= base_url('/inspecciones/dotacion-aseadora') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-spray-can-sparkles" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">Dot. Aseadora</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalDotAse ?>)</div>
+    <div class="card mb-3 border-0" style="background:#fefce8; border-radius:12px; padding:10px 8px 6px;">
+        <div class="grid-inspecciones">
+            <a href="<?= base_url('/inspecciones/dotacion-aseadora') ?>" class="card-tipo">
+                <i class="fas fa-spray-can-sparkles"></i>
+                <div><strong>Dot. Aseadora</strong></div>
+                <div class="count">(<?= $totalDotAse ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/dotacion-todero') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-broom" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">Dot. Todero</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalDotTod ?>)</div>
+            <a href="<?= base_url('/inspecciones/dotacion-todero') ?>" class="card-tipo">
+                <i class="fas fa-broom"></i>
+                <div><strong>Dot. Todero</strong></div>
+                <div class="count">(<?= $totalDotTod ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/dotacion-vigilante') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-user-shield" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">Dot. Vigilante</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalDotVig ?>)</div>
+            <a href="<?= base_url('/inspecciones/dotacion-vigilante') ?>" class="card-tipo">
+                <i class="fas fa-user-shield"></i>
+                <div><strong>Dot. Vigilante</strong></div>
+                <div class="count">(<?= $totalDotVig ?>)</div>
             </a>
         </div>
     </div>
 
     <!-- Datos de enterprisesst -->
     <div class="section-title">Datos de enterprisesst</div>
-    <div class="card mb-3 border-0" style="background:#fef0e8; border-radius:12px; padding:10px 10px 6px;">
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-            <a href="<?= base_url('/inspecciones/mantenimientos') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-wrench" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">Mantenimientos</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalVencimientos ?> pend.)</div>
+    <div class="card mb-3 border-0" style="background:#fef0e8; border-radius:12px; padding:10px 8px 6px;">
+        <div class="grid-inspecciones">
+            <a href="<?= base_url('/inspecciones/mantenimientos') ?>" class="card-tipo">
+                <i class="fas fa-wrench"></i>
+                <div><strong>Mantenimientos</strong></div>
+                <div class="count">(<?= $totalVencimientos ?> pend.)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/pendientes') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-tasks" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">Pendientes</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalPendientesAbiertos ?> abiertas)</div>
+            <a href="<?= base_url('/inspecciones/pendientes') ?>" class="card-tipo">
+                <i class="fas fa-tasks"></i>
+                <div><strong>Pendientes</strong></div>
+                <div class="count">(<?= $totalPendientesAbiertos ?> abiertas)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/proveedor-servicio') ?>" class="card-tipo" style="padding:12px 6px; margin:0; border-radius:10px; background:#fff;">
-                <i class="fas fa-handshake" style="font-size:22px; color:#bd9751;"></i>
-                <div><strong style="font-size:11px;">Proveedores</strong></div>
-                <div class="count" style="font-size:11px;">(<?= $totalProveedores ?>)</div>
+            <a href="<?= base_url('/inspecciones/proveedor-servicio') ?>" class="card-tipo">
+                <i class="fas fa-handshake"></i>
+                <div><strong>Proveedores</strong></div>
+                <div class="count">(<?= $totalProveedores ?>)</div>
             </a>
         </div>
     </div>
