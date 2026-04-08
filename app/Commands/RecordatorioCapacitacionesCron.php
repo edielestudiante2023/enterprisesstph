@@ -36,16 +36,16 @@ class RecordatorioCapacitacionesCron extends BaseCommand
         $mesSiguiente = $mesActual === 12 ? 1 : $mesActual + 1;
         $anioSiguiente = $mesActual === 12 ? $anioActual + 1 : $anioActual;
 
+        $hoy                = date('Y-m-d');
         $primerDiaMesActual = date('Y-m-01');
         $ultimoDiaMesSig    = date('Y-m-t', strtotime("{$anioSiguiente}-{$mesSiguiente}-01"));
 
-        // Consultar capacitaciones PROGRAMADAS del mes actual y siguiente
+        // Consultar capacitaciones PROGRAMADAS: vencidas (fecha <= hoy) + mes actual + mes siguiente
         $capacitaciones = $db->table('tbl_cronog_capacitacion cap')
             ->select('cap.*, c.nombre_cliente, c.id_consultor, con.nombre_consultor, con.correo_consultor')
             ->join('tbl_clientes c', 'c.id_cliente = cap.id_cliente')
             ->join('tbl_consultor con', 'con.id_consultor = c.id_consultor', 'left')
             ->where('cap.estado', 'PROGRAMADA')
-            ->where('cap.fecha_programada >=', $primerDiaMesActual)
             ->where('cap.fecha_programada <=', $ultimoDiaMesSig)
             ->orderBy('cap.fecha_programada', 'ASC')
             ->get()
@@ -83,7 +83,10 @@ class RecordatorioCapacitacionesCron extends BaseCommand
 
             $caps = $data['capacitaciones'];
 
-            // Separar por mes
+            // Separar: vencidas (fecha < primer día mes actual), mes actual, mes siguiente
+            $capsVencidas = array_filter($caps, function ($c) use ($primerDiaMesActual) {
+                return $c['fecha_programada'] < $primerDiaMesActual;
+            });
             $capsMesActual = array_filter($caps, function ($c) use ($mesActual, $anioActual) {
                 return (int) date('n', strtotime($c['fecha_programada'])) === $mesActual
                     && (int) date('Y', strtotime($c['fecha_programada'])) === $anioActual;
@@ -95,11 +98,14 @@ class RecordatorioCapacitacionesCron extends BaseCommand
 
             $html = $this->buildHtml(
                 $data['nombre'],
+                $capsVencidas,
                 $capsMesActual, $nombreMesActual, $anioActual,
                 $capsMesSig, $nombreMesSig, $anioSiguiente
             );
 
-            $subject = "🎓 Capacitaciones programadas — {$nombreMesActual} y {$nombreMesSig} {$anioActual}";
+            $totalVenc = count($capsVencidas);
+            $subject = "🎓 Capacitaciones programadas — {$nombreMesActual} y {$nombreMesSig} {$anioActual}"
+                     . ($totalVenc > 0 ? " ({$totalVenc} vencidas)" : '');
 
             $ok = $this->enviarEmail($correo, $data['nombre'], $subject, $html);
 
@@ -121,12 +127,14 @@ class RecordatorioCapacitacionesCron extends BaseCommand
 
     private function buildHtml(
         string $nombreConsultor,
+        array $capsVencidas,
         array $capsMesActual, string $nombreMesActual, int $anioActual,
         array $capsMesSig, string $nombreMesSig, int $anioSiguiente
     ): string {
-        $totalActual = count($capsMesActual);
-        $totalSig    = count($capsMesSig);
-        $totalGlobal = $totalActual + $totalSig;
+        $totalVencidas = count($capsVencidas);
+        $totalActual   = count($capsMesActual);
+        $totalSig      = count($capsMesSig);
+        $totalGlobal   = $totalVencidas + $totalActual + $totalSig;
 
         $html = "
 <!DOCTYPE html>
@@ -153,19 +161,25 @@ class RecordatorioCapacitacionesCron extends BaseCommand
     </div>
     <table width='100%' cellpadding='0' cellspacing='0'>
       <tr>
-        <td width='33%' style='text-align:center;padding:0 4px 16px;'>
+        <td width='25%' style='text-align:center;padding:0 4px 16px;'>
           <div style='background:#f0fdf4;border:1px solid #10b98133;border-radius:8px;padding:12px 8px;'>
             <div style='font-size:28px;font-weight:700;color:#10b981;line-height:1;'>{$totalGlobal}</div>
             <div style='font-size:11px;color:#10b981;font-weight:600;margin-top:4px;'>Total</div>
           </div>
         </td>
-        <td width='33%' style='text-align:center;padding:0 4px 16px;'>
+        <td width='25%' style='text-align:center;padding:0 4px 16px;'>
+          <div style='background:#fef2f2;border:1px solid #ef444433;border-radius:8px;padding:12px 8px;'>
+            <div style='font-size:28px;font-weight:700;color:#ef4444;line-height:1;'>{$totalVencidas}</div>
+            <div style='font-size:11px;color:#ef4444;font-weight:600;margin-top:4px;'>Vencidas</div>
+          </div>
+        </td>
+        <td width='25%' style='text-align:center;padding:0 4px 16px;'>
           <div style='background:#eff6ff;border:1px solid #3b82f633;border-radius:8px;padding:12px 8px;'>
             <div style='font-size:28px;font-weight:700;color:#3b82f6;line-height:1;'>{$totalActual}</div>
             <div style='font-size:11px;color:#3b82f6;font-weight:600;margin-top:4px;'>{$nombreMesActual}</div>
           </div>
         </td>
-        <td width='33%' style='text-align:center;padding:0 4px 16px;'>
+        <td width='25%' style='text-align:center;padding:0 4px 16px;'>
           <div style='background:#fefce8;border:1px solid #f59e0b33;border-radius:8px;padding:12px 8px;'>
             <div style='font-size:28px;font-weight:700;color:#f59e0b;line-height:1;'>{$totalSig}</div>
             <div style='font-size:11px;color:#f59e0b;font-weight:600;margin-top:4px;'>{$nombreMesSig}</div>
@@ -177,6 +191,11 @@ class RecordatorioCapacitacionesCron extends BaseCommand
 
   <!-- DETALLE -->
   <tr><td style='background:#ffffff;padding:8px 36px 32px;'>";
+
+        // Vencidas
+        if (!empty($capsVencidas)) {
+            $html .= $this->sectionBlock($capsVencidas, '⚠️ Vencidas (sin ejecutar)', '#ef4444', '#fef2f2');
+        }
 
         // Mes actual
         if (!empty($capsMesActual)) {
