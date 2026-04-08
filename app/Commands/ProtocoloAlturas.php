@@ -24,6 +24,29 @@ class ProtocoloAlturas extends BaseCommand
         $clientModel = new ClientModel();
 
         if ($reporte) {
+            // Primero: enviar protocolo a clientes activos que nunca recibieron el email
+            $sinEnviar = $clientModel
+                ->where('estado', 'Activo')
+                ->where('protocolo_alturas_firmado', 0)
+                ->where('token_firma_alturas IS NULL')
+                ->findAll();
+
+            if (!empty($sinEnviar)) {
+                CLI::write("Enviando protocolo a " . count($sinEnviar) . " cliente(s) sin enviar...", 'yellow');
+                foreach ($sinEnviar as $c) {
+                    $nombre = $c['nombre_cliente'] ?? '?';
+                    $result = FirmaAlturasController::enviarProtocolo((int) $c['id_cliente']);
+                    if ($result['success']) {
+                        CLI::write("  ✓ {$nombre} => Enviado", 'green');
+                    } else {
+                        CLI::write("  ✗ {$nombre} => ERROR: " . $result['error'], 'red');
+                    }
+                }
+            } else {
+                CLI::write("No hay clientes sin enviar.", 'green');
+            }
+
+            // Luego: generar y enviar el reporte de estado
             $this->enviarReporteEstado($clientModel);
             return;
         }
