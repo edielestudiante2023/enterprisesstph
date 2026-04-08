@@ -307,7 +307,10 @@ class FirmaAlturasController extends BaseController
     {
         $contractModel = new \App\Models\ContractModel();
         $contratos = $contractModel->where('id_cliente', $idCliente)
-            ->where('firma_cliente_imagen IS NULL OR firma_cliente_imagen = ""')
+            ->groupStart()
+                ->where('firma_cliente_imagen IS NULL')
+                ->orWhere('firma_cliente_imagen', '')
+            ->groupEnd()
             ->findAll();
 
         foreach ($contratos as $contrato) {
@@ -337,7 +340,10 @@ class FirmaAlturasController extends BaseController
         $resultados = [];
         foreach ($firmados as $cliente) {
             $contratos = $contractModel->where('id_cliente', $cliente['id_cliente'])
-                ->where('firma_cliente_imagen IS NULL OR firma_cliente_imagen = ""')
+                ->groupStart()
+                    ->where('firma_cliente_imagen IS NULL')
+                    ->orWhere('firma_cliente_imagen', '')
+                ->groupEnd()
                 ->findAll();
 
             foreach ($contratos as $contrato) {

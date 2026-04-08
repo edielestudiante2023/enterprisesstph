@@ -40,7 +40,10 @@ class ReporteFirmasDiario extends BaseCommand
             if (empty($cliente['firma_representante_legal'])) continue;
 
             $contratos = $contractModel->where('id_cliente', $cliente['id_cliente'])
-                ->where('firma_cliente_imagen IS NULL OR firma_cliente_imagen = ""')
+                ->groupStart()
+                    ->where('firma_cliente_imagen IS NULL')
+                    ->orWhere('firma_cliente_imagen', '')
+                ->groupEnd()
                 ->findAll();
 
             foreach ($contratos as $contrato) {
