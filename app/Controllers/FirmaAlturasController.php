@@ -90,6 +90,9 @@ class FirmaAlturasController extends BaseController
             'token_firma_alturas'        => null, // Invalidar token
         ]);
 
+        // Propagar firma a contratos del cliente que no tengan firma
+        $this->propagarFirmaAContratos($cliente['id_cliente'], 'firmas-representantes/' . $firmaFileName);
+
         // Generar PDF y subir a reportes
         $fechaFirma = date('Y-m-d H:i:s');
         $ipFirma = $this->request->getIPAddress();
@@ -295,6 +298,62 @@ class FirmaAlturasController extends BaseController
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
+    }
+
+    /**
+     * Copia la firma del protocolo alturas a los contratos del cliente que no tengan firma
+     */
+    private function propagarFirmaAContratos(int $idCliente, string $firmaPath): void
+    {
+        $contractModel = new \App\Models\ContractModel();
+        $contratos = $contractModel->where('id_cliente', $idCliente)
+            ->where('firma_cliente_imagen IS NULL OR firma_cliente_imagen = ""')
+            ->findAll();
+
+        foreach ($contratos as $contrato) {
+            $contractModel->update($contrato['id_contrato'], [
+                'firma_cliente_imagen' => $firmaPath,
+                'firma_cliente_fecha'  => date('Y-m-d H:i:s'),
+            ]);
+            log_message('info', "Firma propagada a contrato #{$contrato['id_contrato']} del cliente #{$idCliente}");
+        }
+    }
+
+    /**
+     * Propaga firmas existentes (protocolo alturas ya firmado) a contratos sin firma.
+     * Uso: FirmaAlturasController::propagarFirmasExistentes()
+     */
+    public static function propagarFirmasExistentes(): array
+    {
+        $clientModel = new ClientModel();
+        $contractModel = new \App\Models\ContractModel();
+
+        $firmados = $clientModel
+            ->where('protocolo_alturas_firmado', 1)
+            ->where('firma_representante_legal IS NOT NULL')
+            ->where('firma_representante_legal !=', '')
+            ->findAll();
+
+        $resultados = [];
+        foreach ($firmados as $cliente) {
+            $contratos = $contractModel->where('id_cliente', $cliente['id_cliente'])
+                ->where('firma_cliente_imagen IS NULL OR firma_cliente_imagen = ""')
+                ->findAll();
+
+            foreach ($contratos as $contrato) {
+                $contractModel->update($contrato['id_contrato'], [
+                    'firma_cliente_imagen' => $cliente['firma_representante_legal'],
+                    'firma_cliente_fecha'  => $cliente['firma_alturas_fecha'],
+                ]);
+                $resultados[] = [
+                    'cliente'  => $cliente['nombre_cliente'],
+                    'contrato' => $contrato['numero_contrato'] ?? $contrato['id_contrato'],
+                    'firma'    => $cliente['firma_representante_legal'],
+                ];
+            }
+        }
+
+        return $resultados;
     }
 
     private static function buildEmailHtml(string $nombreCliente, string $nombreRepLegal, string $urlFirma): string
