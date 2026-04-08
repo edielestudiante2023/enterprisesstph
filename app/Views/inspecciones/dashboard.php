@@ -1045,7 +1045,7 @@
     <!-- Simulacros -->
     <div class="section-title">Simulacros</div>
     <div class="card mb-3 border-0" style="background:#eef4fc; border-radius:12px; padding:10px 8px 6px;">
-        <div class="grid-inspecciones" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="grid-inspecciones" style="grid-template-columns:repeat(3, minmax(0,1fr));">
             <a href="<?= base_url('/inspecciones/simulacro') ?>" class="card-tipo">
                 <i class="fas fa-running"></i>
                 <div><strong>Ev. Simulacro</strong></div>
@@ -1067,7 +1067,7 @@
     <!-- Capacitaciones -->
     <div class="section-title">Capacitaciones</div>
     <div class="card mb-3 border-0" style="background:#eefcf0; border-radius:12px; padding:10px 8px 6px;">
-        <div class="grid-inspecciones" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="grid-inspecciones" style="grid-template-columns:repeat(3, minmax(0,1fr));">
             <a href="<?= base_url('/inspecciones/asistencia-induccion') ?>" class="card-tipo">
                 <i class="fas fa-clipboard-list"></i>
                 <div><strong>Asistencia</strong></div>
@@ -1089,7 +1089,7 @@
     <!-- Dotaciones -->
     <div class="section-title">Dotaciones</div>
     <div class="card mb-3 border-0" style="background:#fefce8; border-radius:12px; padding:10px 8px 6px;">
-        <div class="grid-inspecciones" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="grid-inspecciones" style="grid-template-columns:repeat(3, minmax(0,1fr));">
             <a href="<?= base_url('/inspecciones/dotacion-aseadora') ?>" class="card-tipo">
                 <i class="fas fa-spray-can-sparkles"></i>
                 <div><strong>Dot. Aseadora</strong></div>
@@ -1111,7 +1111,7 @@
     <!-- Datos de enterprisesst -->
     <div class="section-title">Datos de enterprisesst</div>
     <div class="card mb-3 border-0" style="background:#fef0e8; border-radius:12px; padding:10px 8px 6px;">
-        <div class="grid-inspecciones" style="grid-template-columns:1fr 1fr;">
+        <div class="grid-inspecciones" style="grid-template-columns:repeat(2, minmax(0,1fr));">
             <a href="<?= base_url('/inspecciones/mantenimientos') ?>" class="card-tipo">
                 <i class="fas fa-wrench"></i>
                 <div><strong>Mantenimientos</strong></div>
