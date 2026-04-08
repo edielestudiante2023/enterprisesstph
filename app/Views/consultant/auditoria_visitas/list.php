@@ -291,7 +291,13 @@
             </thead>
             <tbody>
                 <?php foreach ($ciclos as $c): ?>
-                    <tr>
+                    <tr data-id-cliente="<?= esc($c['id_cliente'] ?? '') ?>"
+                        data-fecha-agendada="<?= esc($c['fecha_agendada'] ?? '') ?>"
+                        data-correo-consultor="<?= esc($c['correo_consultor'] ?? '') ?>"
+                        data-nombre-consultor="<?= esc($c['nombre_consultor'] ?? '') ?>"
+                        data-email-externo="<?= esc($c['email_consultor_externo'] ?? '') ?>"
+                        data-nombre-externo="<?= esc($c['consultor_externo'] ?? '') ?>"
+                        data-nombre-cliente="<?= esc($c['nombre_cliente'] ?? '') ?>">
                         <td><?= esc($c['nombre_cliente'] ?? '—') ?></td>
                         <td><?= esc($c['nombre_consultor'] ?? '—') ?></td>
                         <td><?= esc($c['consultor_externo'] ?? '—') ?></td>
@@ -313,6 +319,9 @@
                             <a href="/consultant/auditoria-visitas/edit/<?= $c['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            <button class="btn btn-sm btn-outline-warning btn-enviar-recordatorio" title="Enviar recordatorio">
+                                <i class="fas fa-envelope"></i>
+                            </button>
                             <button class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $c['id'] ?>" title="Eliminar">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -469,6 +478,103 @@
             applyFilter('estatus_mes', val);
             $('[data-filter="estatus_mes"]').removeClass('active');
             $('[data-filter="estatus_mes"][data-value="' + val + '"]').addClass('active');
+        });
+
+        // Enviar recordatorio manual
+        $(document).on('click', '.btn-enviar-recordatorio', function() {
+            var $row = $(this).closest('tr');
+            var idCliente       = $row.data('id-cliente');
+            var fechaAgendada   = $row.data('fecha-agendada') || '';
+            var correoConsultor = $row.data('correo-consultor') || '';
+            var nombreConsultor = $row.data('nombre-consultor') || '';
+            var emailExterno    = $row.data('email-externo') || '';
+            var nombreExterno   = $row.data('nombre-externo') || '';
+            var nombreCliente   = $row.data('nombre-cliente') || '';
+
+            var checkboxes = '';
+            if (correoConsultor) {
+                checkboxes += '<div class="form-check text-left mb-2">' +
+                    '<input class="form-check-input dest-check" type="checkbox" id="chkInterno" value="' + correoConsultor + '" data-nombre="' + nombreConsultor + '" checked>' +
+                    '<label class="form-check-label" for="chkInterno"><strong>Consultor Interno:</strong> ' + nombreConsultor + ' <small class="text-muted">(' + correoConsultor + ')</small></label>' +
+                    '</div>';
+            }
+            if (emailExterno) {
+                checkboxes += '<div class="form-check text-left mb-2">' +
+                    '<input class="form-check-input dest-check" type="checkbox" id="chkExterno" value="' + emailExterno + '" data-nombre="' + nombreExterno + '">' +
+                    '<label class="form-check-label" for="chkExterno"><strong>Consultor Externo:</strong> ' + nombreExterno + ' <small class="text-muted">(' + emailExterno + ')</small></label>' +
+                    '</div>';
+            }
+            checkboxes += '<div class="form-check text-left mb-2">' +
+                '<input class="form-check-input" type="checkbox" id="chkOtro">' +
+                '<label class="form-check-label" for="chkOtro"><strong>Otro:</strong></label>' +
+                '<input type="email" id="inputOtroEmail" class="form-control form-control-sm mt-1" placeholder="correo@ejemplo.com" style="display:none;">' +
+                '<input type="text" id="inputOtroNombre" class="form-control form-control-sm mt-1" placeholder="Nombre (opcional)" style="display:none;">' +
+                '</div>';
+
+            Swal.fire({
+                title: 'Enviar recordatorio',
+                html: '<p class="mb-3">Cliente: <strong>' + nombreCliente + '</strong></p>' +
+                      '<p class="text-muted" style="font-size:13px;">Seleccione los destinatarios:</p>' +
+                      checkboxes,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-paper-plane"></i> Enviar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#bd9751',
+                didOpen: function() {
+                    $('#chkOtro').on('change', function() {
+                        if (this.checked) {
+                            $('#inputOtroEmail, #inputOtroNombre').show();
+                        } else {
+                            $('#inputOtroEmail, #inputOtroNombre').hide().val('');
+                        }
+                    });
+                },
+                preConfirm: function() {
+                    var dest = [];
+                    $('.dest-check:checked').each(function() {
+                        dest.push({ email: $(this).val(), nombre: $(this).data('nombre') || '' });
+                    });
+                    if ($('#chkOtro').is(':checked')) {
+                        var otroEmail = $('#inputOtroEmail').val().trim();
+                        if (!otroEmail) {
+                            Swal.showValidationMessage('Ingrese el correo del destinatario "Otro"');
+                            return false;
+                        }
+                        dest.push({ email: otroEmail, nombre: $('#inputOtroNombre').val().trim() || 'Destinatario' });
+                    }
+                    if (dest.length === 0) {
+                        Swal.showValidationMessage('Seleccione al menos un destinatario');
+                        return false;
+                    }
+                    return dest;
+                }
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Enviando...', allowOutsideClick: false, didOpen: function() { Swal.showLoading(); } });
+
+                    fetch('/consultant/auditoria-visitas/enviar-recordatorio', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        body: JSON.stringify({
+                            id_cliente: idCliente,
+                            fecha: fechaAgendada || new Date().toISOString().slice(0,10),
+                            destinatarios: result.value
+                        })
+                    })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data.ok) {
+                            Swal.fire('Enviado', data.mensaje, 'success');
+                        } else {
+                            Swal.fire('Error', data.mensaje, 'error');
+                        }
+                    })
+                    .catch(function() {
+                        Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+                    });
+                }
+            });
         });
 
         // Eliminar

@@ -53,6 +53,7 @@ $routes->get('consultant/auditoria-visitas', 'AuditoriaVisitasController::index'
 $routes->get('consultant/auditoria-visitas/edit/(:num)', 'AuditoriaVisitasController::edit/$1');
 $routes->post('consultant/auditoria-visitas/update/(:num)', 'AuditoriaVisitasController::update/$1');
 $routes->post('consultant/auditoria-visitas/delete/(:num)', 'AuditoriaVisitasController::delete/$1');
+$routes->post('consultant/auditoria-visitas/enviar-recordatorio', 'AuditoriaVisitasController::enviarRecordatorio');
 
 $routes->get('/dashboardconsultant', 'ConsultantController::index');
 

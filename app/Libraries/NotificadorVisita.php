@@ -63,6 +63,96 @@ class NotificadorVisita
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // ENVÍO MANUAL — llamado desde el controlador (sin depender del cron)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Envía el recordatorio de visita de forma manual a destinatarios elegidos.
+     *
+     * @param int    $idCliente       ID del cliente
+     * @param string $fechaReferencia Fecha de visita o referencia (para calcular corte)
+     * @param array  $destinatarios   ['to' => [['email'=>..,'nombre'=>..], ...], 'cc' => [['email'=>..,'nombre'=>..], ...]]
+     * @return array ['ok' => bool, 'mensaje' => string]
+     */
+    public function enviarManual(int $idCliente, string $fechaReferencia, array $destinatarios): array
+    {
+        $ultimoDiaMes   = date('Y-m-t', strtotime($fechaReferencia));
+        $ultimoDiaMes30 = date('Y-m-d', strtotime($ultimoDiaMes . ' +30 days'));
+
+        $planTrabajo    = $this->getPlanTrabajo($idCliente, $ultimoDiaMes);
+        $pendientes     = $this->getPendientes($idCliente, $ultimoDiaMes);
+        $vencimientos   = $this->getVencimientos($idCliente, $ultimoDiaMes30);
+        $capacitaciones = $this->getCapacitaciones($idCliente, $ultimoDiaMes);
+
+        $totalItems = count($planTrabajo) + count($pendientes) + count($vencimientos) + count($capacitaciones);
+
+        if ($totalItems === 0) {
+            return ['ok' => false, 'mensaje' => 'No hay pendientes para este cliente en el período indicado.'];
+        }
+
+        // Obtener datos del cliente para el HTML
+        $cliente = $this->db->table('tbl_clientes c')
+            ->select('c.nombre_cliente, c.correo_cliente, c.id_consultor, c.consultor_externo,
+                      c.email_consultor_externo, con.nombre_consultor, con.correo_consultor')
+            ->join('tbl_consultor con', 'con.id_consultor = c.id_consultor', 'left')
+            ->where('c.id_cliente', $idCliente)
+            ->get()->getRowArray();
+
+        if (!$cliente) {
+            return ['ok' => false, 'mensaje' => 'Cliente no encontrado.'];
+        }
+
+        $visita = array_merge($cliente, [
+            'id_cliente'   => $idCliente,
+            'fecha_visita' => $fechaReferencia,
+        ]);
+
+        $html    = $this->buildHtml($visita, $planTrabajo, $pendientes, $vencimientos, $capacitaciones, $ultimoDiaMes);
+        $subject = "📋 Recordatorio visita SST — {$cliente['nombre_cliente']} — " . date('d/m/Y', strtotime($fechaReferencia));
+
+        // Construir destinatarios para SendGrid
+        $apiKey = getenv('SENDGRID_API_KEY');
+        if (!$apiKey) {
+            return ['ok' => false, 'mensaje' => 'SENDGRID_API_KEY no configurada.'];
+        }
+
+        require_once ROOTPATH . 'vendor/autoload.php';
+
+        $email = new \SendGrid\Mail\Mail();
+        $email->setFrom('notificacion.cycloidtalent@cycloidtalent.com', 'Cycloid Talent - SG-SST');
+        $email->setSubject($subject);
+
+        foreach ($destinatarios['to'] ?? [] as $dest) {
+            if (!empty($dest['email'])) {
+                $email->addTo(trim($dest['email']), $dest['nombre'] ?? '');
+            }
+        }
+        foreach ($destinatarios['cc'] ?? [] as $dest) {
+            if (!empty($dest['email'])) {
+                $email->addCc(trim($dest['email']), $dest['nombre'] ?? '');
+            }
+        }
+
+        $email->addContent('text/html', $html);
+
+        try {
+            $sg       = new \SendGrid($apiKey);
+            $response = $sg->send($email);
+
+            if ($response->statusCode() >= 200 && $response->statusCode() < 300) {
+                log_message('info', "NotificadorVisita::enviarManual: Email enviado para cliente #{$idCliente} ({$cliente['nombre_cliente']}).");
+                return ['ok' => true, 'mensaje' => "Email enviado correctamente ({$totalItems} pendientes)."];
+            }
+
+            log_message('error', 'NotificadorVisita::enviarManual: SendGrid status ' . $response->statusCode() . ' — ' . $response->body());
+            return ['ok' => false, 'mensaje' => 'Error de SendGrid: código ' . $response->statusCode()];
+        } catch (\Exception $e) {
+            log_message('error', 'NotificadorVisita::enviarManual: Exception — ' . $e->getMessage());
+            return ['ok' => false, 'mensaje' => 'Error: ' . $e->getMessage()];
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // PROCESAMIENTO DE UNA VISITA
     // ─────────────────────────────────────────────────────────────────────────
 

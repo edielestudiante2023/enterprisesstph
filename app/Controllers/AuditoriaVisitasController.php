@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\CicloVisitaModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
+use App\Libraries\NotificadorVisita;
 
 class AuditoriaVisitasController extends BaseController
 {
@@ -108,5 +109,45 @@ class AuditoriaVisitasController extends BaseController
         $this->model->delete($id);
 
         return $this->response->setJSON(['success' => true, 'message' => 'Registro eliminado']);
+    }
+
+    /**
+     * Enviar recordatorio de visita manualmente (AJAX)
+     */
+    public function enviarRecordatorio()
+    {
+        $json = $this->request->getJSON(true);
+
+        $idCliente = (int) ($json['id_cliente'] ?? 0);
+        $fecha     = $json['fecha'] ?? date('Y-m-d');
+        $destinos  = $json['destinatarios'] ?? [];
+
+        if (!$idCliente) {
+            return $this->response->setJSON(['ok' => false, 'mensaje' => 'Cliente no especificado.']);
+        }
+        if (empty($destinos)) {
+            return $this->response->setJSON(['ok' => false, 'mensaje' => 'Seleccione al menos un destinatario.']);
+        }
+
+        // Armar array de destinatarios TO
+        $to = [];
+        foreach ($destinos as $d) {
+            $email = trim($d['email'] ?? '');
+            if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $to[] = ['email' => $email, 'nombre' => $d['nombre'] ?? ''];
+            }
+        }
+
+        if (empty($to)) {
+            return $this->response->setJSON(['ok' => false, 'mensaje' => 'Ningún email válido para enviar.']);
+        }
+
+        $notificador = new NotificadorVisita();
+        $resultado = $notificador->enviarManual($idCliente, $fecha, [
+            'to' => $to,
+            'cc' => [['email' => 'diana.cuestas@cycloidtalent.com', 'nombre' => 'Diana Cuestas']],
+        ]);
+
+        return $this->response->setJSON($resultado);
     }
 }
