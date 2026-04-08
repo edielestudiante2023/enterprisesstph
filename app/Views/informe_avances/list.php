@@ -258,7 +258,7 @@
                                     var iso = $(node).attr('data-order');
                                     return iso ? iso.substring(0, 10) : '';
                                 }
-                                return data;
+                                return $(node).text().trim();
                             }
                         }
                     }
