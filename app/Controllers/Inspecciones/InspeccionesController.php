@@ -7,6 +7,9 @@ use App\Models\ActaVisitaModel;
 use App\Models\InspeccionLocativaModel;
 use App\Models\InspeccionSenalizacionModel;
 use App\Models\InspeccionExtintoresModel;
+use App\Models\InspeccionAscensoresModel;
+use App\Models\InspeccionPiscinasModel;
+use App\Models\InspeccionPiscineroModel;
 use App\Models\InspeccionBotiquinModel;
 use App\Models\InspeccionGabineteModel;
 use App\Models\InspeccionComunicacionModel;
@@ -76,6 +79,18 @@ class InspeccionesController extends BaseController
             ->where('tbl_inspeccion_extintores.estado', 'borrador')
             ->orderBy('tbl_inspeccion_extintores.updated_at', 'DESC')
             ->findAll();
+
+        $ascensoresModel = new InspeccionAscensoresModel();
+        $totalAscensores = $ascensoresModel->where('estado', 'completo')->countAllResults();
+        $pendientesAscensores = $ascensoresModel->getAllPendientes();
+
+        $piscinasModel = new InspeccionPiscinasModel();
+        $totalPiscinas = $piscinasModel->where('estado', 'completo')->countAllResults();
+        $pendientesPiscinas = $piscinasModel->getAllPendientes();
+
+        $piscineroModel = new InspeccionPiscineroModel();
+        $totalPiscinero = $piscineroModel->where('estado', 'completo')->countAllResults();
+        $pendientesPiscinero = $piscineroModel->getAllPendientes();
 
         $botiquinModel = new InspeccionBotiquinModel();
         $totalBotiquin = $botiquinModel->where('estado', 'completo')->countAllResults();
@@ -223,6 +238,9 @@ class InspeccionesController extends BaseController
             'pendientesLocativas' => $pendientesLocativas,
             'pendientesSenalizacion' => $pendientesSenalizacion,
             'pendientesExtintores' => $pendientesExtintores,
+            'pendientesAscensores' => $pendientesAscensores,
+            'pendientesPiscinas' => $pendientesPiscinas,
+            'pendientesPiscinero' => $pendientesPiscinero,
             'pendientesBotiquin' => $pendientesBotiquin,
             'pendientesGabinetes' => $pendientesGabinetes,
             'pendientesComunicaciones' => $pendientesComunicaciones,
@@ -255,6 +273,9 @@ class InspeccionesController extends BaseController
             'totalLocativas'   => $totalLocativas,
             'totalSenalizacion' => $totalSenalizacion,
             'totalExtintores'  => $totalExtintores,
+            'totalAscensores'  => $totalAscensores,
+            'totalPiscinas'    => $totalPiscinas,
+            'totalPiscinero'   => $totalPiscinero,
             'totalBotiquin'    => $totalBotiquin,
             'totalGabinetes'   => $totalGabinetes,
             'totalComunicaciones' => $totalComunicaciones,

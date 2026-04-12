@@ -35,7 +35,9 @@
         + count($pendientesKpiLimp ?? [])
         + count($pendientesKpiRes ?? [])
         + count($pendientesKpiPlag ?? [])
-        + count($pendientesKpiAgua ?? []);
+        + count($pendientesKpiAgua ?? [])
+        + count($pendientesPiscinas ?? [])
+        + count($pendientesPiscinero ?? []);
     ?>
     <?php if ($totalPend > 0): ?>
     <div class="accordion mb-3" id="accordionPendientes">
@@ -181,6 +183,99 @@
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/extintores/delete/') ?><?= $ext['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes ascensores -->
+    <?php if (!empty($pendientesAscensores)): ?>
+    <?php foreach ($pendientesAscensores as $asc): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Ascensores - <?= esc($asc['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($asc['fecha_inspeccion'])) ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-1">
+                <a href="<?= base_url('/inspecciones/ascensores/edit/') ?><?= $asc['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/ascensores/delete/') ?><?= $asc['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes piscinas -->
+    <?php if (!empty($pendientesPiscinas)): ?>
+    <?php foreach ($pendientesPiscinas as $pis): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Piscinas - <?= esc($pis['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($pis['fecha_inspeccion'])) ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-1">
+                <a href="<?= base_url('/inspecciones/piscinas/edit/') ?><?= $pis['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/piscinas/delete/') ?><?= $pis['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes piscinero -->
+    <?php if (!empty($pendientesPiscinero)): ?>
+    <?php foreach ($pendientesPiscinero as $psn): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Piscinero - <?= esc($psn['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($psn['fecha_inspeccion'])) ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-1">
+                <a href="<?= base_url('/inspecciones/piscinero/edit/') ?><?= $psn['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/piscinero/delete/') ?><?= $psn['id'] ?>')">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -1188,6 +1283,33 @@
                 <i class="fas fa-file-medical" style="font-size:22px; color:#bd9751; display:block; margin-bottom:2px;"></i>
                 <div><strong style="font-size:11px; color:#bd9751;">Plan Emerg.</strong></div>
                 <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalPlanEmergencia ?>)</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Infraestructura con Riesgo Especializado -->
+    <div class="section-title">Infraestructura con Riesgo Especializado</div>
+    <div class="card mb-3 border-0" style="background: linear-gradient(135deg, #B5D6E8 0%, #8FB8D4 100%); border-radius: 12px; padding: 14px 10px 10px;">
+        <div style="text-align:center; margin-bottom:8px;">
+            <span style="color:#1e3a5f; font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
+                <i class="fas fa-shield-heart me-1"></i>Riesgos especializados — Ascensores y Piscinas
+            </span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+            <a href="<?= base_url('/inspecciones/ascensores') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.55); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-elevator" style="font-size:22px; color:#1e3a5f; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#1e3a5f;">Ascensores</strong></div>
+                <div style="font-size:11px; color:rgba(30,58,95,0.7);">(<?= $totalAscensores ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/piscinas') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.55); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-water-ladder" style="font-size:22px; color:#1e3a5f; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#1e3a5f;">Piscinas</strong></div>
+                <div style="font-size:11px; color:rgba(30,58,95,0.7);">(<?= $totalPiscinas ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/piscinero') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.55); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-person-swimming" style="font-size:22px; color:#1e3a5f; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#1e3a5f;">Piscinero</strong></div>
+                <div style="font-size:11px; color:rgba(30,58,95,0.7);">(<?= $totalPiscinero ?>)</div>
             </a>
         </div>
     </div>

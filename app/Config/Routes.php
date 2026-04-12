@@ -969,6 +969,48 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('extintores/delete/(:num)', 'InspeccionExtintoresController::delete/$1');
     $routes->get('extintores/enviar-email/(:num)', 'InspeccionExtintoresController::enviarEmail/$1');
 
+    // Inspección Ascensores
+    $routes->get('ascensores', 'InspeccionAscensoresController::list');
+    $routes->get('ascensores/create', 'InspeccionAscensoresController::create');
+    $routes->get('ascensores/create/(:num)', 'InspeccionAscensoresController::create/$1');
+    $routes->post('ascensores/store', 'InspeccionAscensoresController::store');
+    $routes->get('ascensores/edit/(:num)', 'InspeccionAscensoresController::edit/$1');
+    $routes->post('ascensores/update/(:num)', 'InspeccionAscensoresController::update/$1');
+    $routes->get('ascensores/view/(:num)', 'InspeccionAscensoresController::view/$1');
+    $routes->get('ascensores/pdf/(:num)', 'InspeccionAscensoresController::generatePdf/$1');
+    $routes->get('ascensores/regenerar/(:num)', 'InspeccionAscensoresController::regenerarPdf/$1');
+    $routes->post('ascensores/finalizar/(:num)', 'InspeccionAscensoresController::finalizar/$1');
+    $routes->get('ascensores/delete/(:num)', 'InspeccionAscensoresController::delete/$1');
+    $routes->get('ascensores/enviar-email/(:num)', 'InspeccionAscensoresController::enviarEmail/$1');
+
+    // Inspección Piscinas
+    $routes->get('piscinas', 'InspeccionPiscinasController::list');
+    $routes->get('piscinas/create', 'InspeccionPiscinasController::create');
+    $routes->get('piscinas/create/(:num)', 'InspeccionPiscinasController::create/$1');
+    $routes->post('piscinas/store', 'InspeccionPiscinasController::store');
+    $routes->get('piscinas/edit/(:num)', 'InspeccionPiscinasController::edit/$1');
+    $routes->post('piscinas/update/(:num)', 'InspeccionPiscinasController::update/$1');
+    $routes->get('piscinas/view/(:num)', 'InspeccionPiscinasController::view/$1');
+    $routes->get('piscinas/pdf/(:num)', 'InspeccionPiscinasController::generatePdf/$1');
+    $routes->get('piscinas/regenerar/(:num)', 'InspeccionPiscinasController::regenerarPdf/$1');
+    $routes->post('piscinas/finalizar/(:num)', 'InspeccionPiscinasController::finalizar/$1');
+    $routes->get('piscinas/delete/(:num)', 'InspeccionPiscinasController::delete/$1');
+    $routes->get('piscinas/enviar-email/(:num)', 'InspeccionPiscinasController::enviarEmail/$1');
+
+    // Inspección Piscinero / Salvavidas
+    $routes->get('piscinero', 'InspeccionPiscineroController::list');
+    $routes->get('piscinero/create', 'InspeccionPiscineroController::create');
+    $routes->get('piscinero/create/(:num)', 'InspeccionPiscineroController::create/$1');
+    $routes->post('piscinero/store', 'InspeccionPiscineroController::store');
+    $routes->get('piscinero/edit/(:num)', 'InspeccionPiscineroController::edit/$1');
+    $routes->post('piscinero/update/(:num)', 'InspeccionPiscineroController::update/$1');
+    $routes->get('piscinero/view/(:num)', 'InspeccionPiscineroController::view/$1');
+    $routes->get('piscinero/pdf/(:num)', 'InspeccionPiscineroController::generatePdf/$1');
+    $routes->get('piscinero/regenerar/(:num)', 'InspeccionPiscineroController::regenerarPdf/$1');
+    $routes->post('piscinero/finalizar/(:num)', 'InspeccionPiscineroController::finalizar/$1');
+    $routes->get('piscinero/delete/(:num)', 'InspeccionPiscineroController::delete/$1');
+    $routes->get('piscinero/enviar-email/(:num)', 'InspeccionPiscineroController::enviarEmail/$1');
+
     // Inspección Botiquín
     $routes->get('botiquin', 'InspeccionBotiquinController::list');
     $routes->get('botiquin/create', 'InspeccionBotiquinController::create');
@@ -1067,6 +1109,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('plan-emergencia/delete/(:num)', 'PlanEmergenciaController::delete/$1');
     $routes->get('plan-emergencia/check-inspecciones/(:num)', 'PlanEmergenciaController::checkInspeccionesCompletas/$1');
     $routes->get('plan-emergencia/enviar-email/(:num)', 'PlanEmergenciaController::enviarEmail/$1');
+    $routes->get('plan-emergencia/debug-pdf', 'PlanEmergenciaController::debugPdf');
 
     // Dotación Vigilante
     $routes->get('dotacion-vigilante', 'DotacionVigilanteController::list');

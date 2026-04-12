@@ -293,6 +293,171 @@ class PlanEmergenciaController extends BaseController
         return;
     }
 
+    public function debugPdf()
+    {
+        $logoPath = FCPATH . 'uploads/logoenterprisesstdorado.jpg';
+        $logoBase64 = null;
+        if (file_exists($logoPath)) {
+            $mime = mime_content_type($logoPath);
+            $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        $cliente = [
+            'nombre_cliente'    => 'CONJUNTO RESIDENCIAL DEMO DEBUG',
+            'direccion_cliente' => 'Calle 123 #45-67, Bogota (DATOS DE PRUEBA)',
+            'logo'              => 'logoenterprisesstdorado.jpg',
+        ];
+
+        $consultor = [
+            'nombre_consultor' => 'Consultor Demo',
+            'email_consultor'  => 'demo@test.com',
+        ];
+
+        $inspeccion = [
+            'id'                             => 0,
+            'id_cliente'                     => 0,
+            'ciudad'                         => 'bogota',
+            'cuadrante'                      => 'CAI DEMO - Cuadrante 99',
+            'tiene_gabinetes_hidraulico'     => 'si',
+            'casas_o_apartamentos'           => 'apartamentos',
+            'numero_torres'                  => 4,
+            'casas_pisos'                    => '-',
+            'sismo_resistente'               => 'SI',
+            'anio_construccion'              => 2010,
+            'numero_unidades_habitacionales' => 120,
+            'parqueaderos_carros_residentes' => 80,
+            'parqueaderos_carros_visitantes' => 10,
+            'parqueaderos_motos_residentes'  => 30,
+            'parqueaderos_motos_visitantes'  => 5,
+            'hay_parqueadero_privado'        => 'si',
+            'cantidad_salones_comunales'     => 2,
+            'cantidad_locales_comerciales'   => 3,
+            'tiene_oficina_admin'            => 'si',
+            'tanque_agua'                    => 'Subterraneo y elevado',
+            'planta_electrica'               => 'SI - diesel 100kVA',
+            'concepto_entradas_salidas'      => 'Dos entradas vehiculares y una peatonal.',
+            'hidrantes'                      => 'Hidrante publico a 50m.',
+            'cai_cercano'                    => 'CAI Demo',
+            'bomberos_cercanos'              => 'Estacion B-5',
+            'proveedor_vigilancia'           => 'Vigilancia Demo SAS',
+            'proveedor_aseo'                 => 'Aseo Demo SAS',
+            'otros_proveedores'              => 'Mantenimiento ascensores',
+            'registro_visitantes_forma'      => 'Sistema digital',
+            'registro_visitantes_emergencia' => 'si',
+            'cuenta_megafono'                => 'si',
+            'ruta_evacuacion'                => 'Por escaleras de emergencia hacia el parqueadero.',
+            'mapa_evacuacion'                => 'Publicado en cada piso.',
+            'puntos_encuentro'               => 'Parqueadero de visitantes.',
+            'sistema_alarma'                 => 'Sirena electronica',
+            'codigos_alerta'                 => 'Codigo rojo / verde / amarillo',
+            'energia_emergencia'             => 'UPS 2h + planta',
+            'deteccion_fuego'                => 'Detectores de humo',
+            'vias_transito'                  => 'Calle 123 y Cra 45',
+            'nombre_administrador'           => 'Admin Demo',
+            'horarios_administracion'        => 'L-V 8am-5pm',
+            'personal_aseo'                  => '3 personas',
+            'personal_vigilancia'            => '4 personas',
+            'ruta_residuos_solidos'          => 'Cuarto de basuras',
+            'empresa_aseo'                   => 'bogota_limpia',
+            'servicios_sanitarios'           => 'Baños en cada piso',
+            'frecuencia_basura'              => '3 veces por semana',
+            'detalle_mascotas'               => 'Permitidas con registro',
+            'detalle_dependencias'           => 'Salones, gym, piscina',
+            'observaciones'                  => 'Observaciones demo del plan de emergencia (DATO INVENTADO).',
+            'fecha_visita'                   => date('Y-m-d'),
+            'fecha_inspeccion'               => date('Y-m-d'),
+        ];
+
+        $fotosBase64 = [
+            'foto_fachada'  => $logoBase64,
+            'foto_panorama' => $logoBase64,
+        ];
+
+        $dummyLocativa = [
+            'id' => 1, 'estado' => 'completo',
+            'fecha_inspeccion' => date('Y-m-d'),
+        ];
+        $dummyHallazgos = [
+            ['descripcion_imagen' => 'Hallazgo demo 1 (DATO INVENTADO)', 'fecha_registro' => date('Y-m-d'), 'imagen' => null],
+            ['descripcion_imagen' => 'Hallazgo demo 2 (DATO INVENTADO)', 'fecha_registro' => date('Y-m-d'), 'imagen' => null],
+        ];
+
+        $dummyMatriz = [
+            'fecha_inspeccion' => date('Y-m-d'),
+            'observaciones' => 'Observaciones demo de la matriz de vulnerabilidad (DATO INVENTADO).',
+        ];
+        foreach (['c1_plan_evacuacion','c2_alarma_evacuacion','c3_ruta_evacuacion','c4_visitantes_rutas','c5_puntos_reunion','c6_puntos_reunion_2','c7_senalizacion_evacuacion','c8_rutas_evacuacion','c9_ruta_principal','c10_senal_alarma','c11_sistema_deteccion','c12_iluminacion','c13_iluminacion_emergencia','c14_sistema_contra_incendio','c15_extintores','c16_divulgacion_plan','c17_coordinador_plan','c18_brigada_emergencia','c19_simulacros','c20_entidades_socorro','c21_ocupantes','c22_plano_evacuacion','c23_rutas_circulacion','c24_puertas_salida','c25_estructura_construccion'] as $i => $k) {
+            $dummyMatriz[$k] = ['a','b','c'][$i % 3];
+        }
+
+        $dummyProb = [
+            'fecha_inspeccion' => date('Y-m-d'),
+            'p_sismos' => 'probable', 'p_inundaciones' => 'poco_probable', 'p_vendavales' => 'poco_probable',
+            'p_atentados' => 'poco_probable', 'p_asalto_hurto' => 'probable', 'p_vandalismo' => 'probable',
+            'p_incendios' => 'muy_probable', 'p_explosiones' => 'poco_probable', 'p_inhalacion_gases' => 'poco_probable',
+            'p_falla_estructural' => 'poco_probable', 'p_intoxicacion_alimentos' => 'poco_probable', 'p_densidad_poblacional' => 'probable',
+        ];
+
+        $dummyExt = [
+            'fecha_inspeccion' => date('Y-m-d'),
+            'fecha_vencimiento_global' => date('Y-m-d', strtotime('+1 year')),
+            'numero_extintores_totales' => 5,
+            'cantidad_abc' => 3, 'cantidad_co2' => 1, 'cantidad_solkaflam' => 1, 'cantidad_agua' => 0,
+            'capacidad_libras' => '10',
+            'recomendaciones_generales' => 'Recomendacion demo extintores (DATO INVENTADO).',
+        ];
+
+        $dummyBot = [
+            'fecha_inspeccion' => date('Y-m-d'),
+            'ubicacion_botiquin' => 'Porteria principal',
+            'instalado_pared' => 'si', 'libre_obstaculos' => 'si', 'lugar_visible' => 'si',
+            'con_senalizacion' => 'si', 'estado_botiquin' => 'bueno',
+            'recomendaciones_inspeccion' => 'Recomendacion demo botiquin (DATO INVENTADO).',
+        ];
+
+        $dummyRec = [
+            'fecha_inspeccion' => date('Y-m-d'),
+            'obs_lamparas_emergencia' => 'Instaladas en todos los pisos',
+            'obs_antideslizantes' => 'En escaleras principales',
+            'obs_pasamanos' => 'En buen estado',
+            'obs_planes_respuesta' => 'Documentados y divulgados',
+            'observaciones' => 'Observaciones demo recursos (DATO INVENTADO).',
+        ];
+
+        $dummyCom = [
+            'fecha_inspeccion' => date('Y-m-d'),
+            'observaciones' => 'Observaciones demo comunicaciones (DATO INVENTADO).',
+        ];
+
+        $dummyGab = [
+            'fecha_inspeccion' => date('Y-m-d'),
+            'observaciones' => 'Observaciones demo gabinetes (DATO INVENTADO).',
+        ];
+
+        $data = [
+            'inspeccion'         => $inspeccion,
+            'cliente'            => $cliente,
+            'consultor'          => $consultor,
+            'logoBase64'         => $logoBase64,
+            'fotosBase64'        => $fotosBase64,
+            'telefonos'          => self::TELEFONOS,
+            'empresasAseo'       => self::EMPRESAS_ASEO,
+            'diagramaBase64'     => $logoBase64,
+            'ultimaLocativa'     => $dummyLocativa,
+            'hallazgosLocativa'  => $dummyHallazgos,
+            'ultimaMatriz'       => $dummyMatriz,
+            'ultimaProb'         => $dummyProb,
+            'ultimaExt'          => $dummyExt,
+            'ultimaBot'          => $dummyBot,
+            'ultimaRec'          => $dummyRec,
+            'ultimaCom'          => $dummyCom,
+            'ultimaGab'          => $dummyGab,
+            'debugMode'          => true,
+        ];
+
+        return view('inspecciones/plan-emergencia/pdf', $data);
+    }
+
     public function delete($id)
     {
         $inspeccion = $this->model->find($id);

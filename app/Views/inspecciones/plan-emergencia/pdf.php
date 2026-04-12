@@ -5,6 +5,7 @@ $ciudad = $inspeccion['ciudad'] ?? null;
 $telefonosCiudad = ($ciudad && isset($telefonos[$ciudad])) ? $telefonos[$ciudad] : [];
 $enumSiNo = ['si' => 'SI', 'no' => 'NO'];
 $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
+$debugMode = $debugMode ?? false;
 ?>
 <!DOCTYPE html>
 <html>
@@ -68,16 +69,68 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
         .freq-poco { background: #d4edda; color: #155724; font-weight: bold; text-align: center; }
         .freq-probable { background: #fff3cd; color: #856404; font-weight: bold; text-align: center; }
         .freq-muy { background: #f8d7da; color: #721c24; font-weight: bold; text-align: center; }
+
+        <?php if ($debugMode): ?>
+        /* ===== DEBUG MODE — colores por módulo ===== */
+        .dbg { border: 2px dashed; padding: 8px; margin: 10px 0; border-radius: 4px; }
+        .dbg-label { display:inline-block; font-weight:bold; font-size:10px; padding:2px 8px; color:#fff; border-radius:3px; margin-bottom:6px; letter-spacing:1px; }
+        .dbg-plan      { border-color:#8e44ad; background:#f5eef8; }
+        .dbg-plan      .dbg-label { background:#8e44ad; }
+        .dbg-plan, .dbg-plan * { color:#5b2c6f !important; }
+        .dbg-prob      { border-color:#27ae60; background:#eafaf1; }
+        .dbg-prob      .dbg-label { background:#27ae60; }
+        .dbg-prob, .dbg-prob * { color:#145a32 !important; }
+        .dbg-locativa  { border-color:#e67e22; background:#fdf2e9; }
+        .dbg-locativa  .dbg-label { background:#e67e22; }
+        .dbg-locativa, .dbg-locativa * { color:#6e2c00 !important; }
+        .dbg-matriz    { border-color:#2980b9; background:#ebf5fb; }
+        .dbg-matriz    .dbg-label { background:#2980b9; }
+        .dbg-matriz, .dbg-matriz * { color:#154360 !important; }
+        .dbg-ext       { border-color:#c0392b; background:#fdedec; }
+        .dbg-ext       .dbg-label { background:#c0392b; }
+        .dbg-ext, .dbg-ext * { color:#641e16 !important; }
+        .dbg-bot       { border-color:#d35400; background:#fef5e7; }
+        .dbg-bot       .dbg-label { background:#d35400; }
+        .dbg-bot, .dbg-bot * { color:#7e3a0c !important; }
+        .dbg-rec       { border-color:#16a085; background:#e8f8f5; }
+        .dbg-rec       .dbg-label { background:#16a085; }
+        .dbg-rec, .dbg-rec * { color:#0e6251 !important; }
+        .dbg-com       { border-color:#884ea0; background:#f4ecf7; }
+        .dbg-com       .dbg-label { background:#884ea0; }
+        .dbg-com, .dbg-com * { color:#4a235a !important; }
+        .dbg-gab       { border-color:#b03a2e; background:#fadbd8; }
+        .dbg-gab       .dbg-label { background:#b03a2e; }
+        .dbg-gab, .dbg-gab * { color:#5d1a14 !important; }
+        .dbg-missing   { border:2px solid #e74c3c; background:#fdedec; padding:8px; margin:10px 0; color:#c0392b !important; font-weight:bold; }
+        .dbg-legend    { background:#2c3e50; color:#fff; padding:10px; margin-bottom:15px; border-radius:4px; font-size:10px; }
+        .dbg-legend span { display:inline-block; margin:3px 6px; padding:2px 8px; border-radius:3px; }
+        <?php endif; ?>
     </style>
 </head>
 <body>
+
+    <?php if ($debugMode): ?>
+    <div class="dbg-legend">
+        <strong>🔍 MODO DEBUG — Plan de Emergencia</strong><br>
+        Cada bloque de color corresponde a un módulo que alimenta el plan. Los bloques <span style="background:#e74c3c; color:#fff;">⚠ rojos</span> indican módulos sin datos.<br>
+        <span style="background:#8e44ad;">PLAN EMERG.</span>
+        <span style="background:#27ae60;">PROB. PELIGROS</span>
+        <span style="background:#e67e22;">LOCATIVA</span>
+        <span style="background:#2980b9;">MATRIZ VULN.</span>
+        <span style="background:#c0392b;">EXTINTORES</span>
+        <span style="background:#d35400;">BOTIQUIN</span>
+        <span style="background:#16a085;">REC. SEGURIDAD</span>
+        <span style="background:#884ea0;">COMUNIC.</span>
+        <span style="background:#b03a2e;">GABINETES</span>
+    </div>
+    <?php endif; ?>
 
     <!-- ============ PORTADA ============ -->
     <div class="cover-page">
         <?php if (!empty($logoBase64)): ?>
         <div style="margin-bottom:20px;"><img src="<?= $logoBase64 ?>" style="max-width:180px; max-height:100px;"></div>
         <?php endif; ?>
-        <div class="cover-title">PLAN DE EMERGENCIA</div>
+        <div class="cover-title">PLAN DE EMERGENCIA Y CONTINGENCIA</div>
         <div class="cover-subtitle"><?= $nombreCliente ?></div>
         <?php if (!empty($fotosBase64['foto_fachada'])): ?>
         <div style="margin-top:30px;"><img src="<?= $fotosBase64['foto_fachada'] ?>" class="cover-img"></div>
@@ -130,48 +183,47 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
 
     <!-- ============ ALCANCE ============ -->
     <div class="section-title">ALCANCE</div>
-    <p class="content-text">Este documento, denominado Plan de Preparacion y Respuesta ante Situaciones de Emergencia (PPRSE), tiene como enfoque principal todas las areas pertenecientes a la copropiedad. Ademas, abarca a todo el personal que forma parte de esta comunidad, incluyendo servidores publicos, contratistas, pasantes, judiciales, visitantes y otras partes interesadas.</p>
+    <p class="content-text">Este documento, denominado Plan de Emergencia y Contingencia, tiene como enfoque principal todas las areas pertenecientes a la copropiedad. Ademas, abarca a todo el personal que forma parte de esta comunidad, incluyendo residentes, administracion, personal de vigilancia, aseo, mantenimiento, contratistas, visitantes y demas partes interesadas que se encuentren dentro de las instalaciones de <?= $nombreCliente ?>. El alcance territorial del Plan cubre la totalidad de las areas privadas, comunes, circulaciones, accesos, parqueaderos, zonas tecnicas y demas espacios que hacen parte de la propiedad horizontal.</p>
+    <p class="content-text">El presente Plan aplica durante las veinticuatro (24) horas del dia, los siete (7) dias de la semana, y considera escenarios de emergencia de origen natural, tecnologico y social que puedan afectar a las personas, los bienes y la continuidad de los servicios de la copropiedad. Los procedimientos aqui definidos deben ser conocidos, divulgados, capacitados y ejecutados por todos los integrantes de la comunidad, con especial responsabilidad del administrador, el consejo de administracion y la brigada de emergencia.</p>
 
-    <!-- ============ CONCEPTOS ============ -->
-<div class="section-title">CONCEPTOS</div>
-    <p class="content-text">De acuerdo con el articulo 4 de la Ley 675 de 2001 por medio de la cual se expide el Regimen de Propiedad Horizontal, cada edificio o conjunto de uso residencial debe constituirse en persona juridica, por tanto, la legislacion colombiana alrededor del tema de Seguridad y Salud en el Trabajo es perfectamente aplicable a las administraciones y consejos de administracion.</p>
-    <p class="content-text">Para mayor comprension de la diferente terminologia que se va a tratar en el documento, se describe a continuacion algunos de los conceptos:</p>
-    <?php
-    $conceptos = [
-        'ALARMA O PITO' => 'Sistema sonoro que permite avisar inmediatamente se accione a la comunidad la presencia de un riesgo que pone en grave peligro sus vidas.',
-        'ALERTA' => 'Acciones de respuesta especificas frente a una emergencia.',
-        'AMENAZA' => 'Factor externo de origen natural, tecnologico o social que puede afectar a la comunidad y a la copropiedad, provocando lesiones y/o muerte a las personas o danos a la infraestructura fisica y economica.',
-        'ANALISIS DE VULNERABILIDAD' => 'Es la medida o grado de ser afectado por amenazas o riesgos segun la frecuencia y la severidad de estos. La vulnerabilidad depende de varios factores entre otros: la posibilidad de ocurrencia del evento, la frecuencia de la ocurrencia de este, los planes y programas preventivos existentes y la posibilidad de programacion anual entre otros.',
-        'AYUDA INSTITUCIONAL' => 'Es aquella prestada por entidades publicas y/o privadas de caracter comunitario, organizados con el fin especifico de responder de oficio a los desastres.',
-        'COMBUSTION' => 'Reaccion mediante la cual una sustancia denominada combustible interactua quimicamente con otra llamada oxidante o comburente y da como resultado gases toxicos irritantes y asfixiantes, humo que obstaculiza la visibilidad y afecta la respiracion, llamas y calor que generan lesiones de diversa intensidad en las personas.',
-        'CONTINGENCIA' => 'Evento que puede suceder o no suceder para el cual debemos estar preparados.',
-        'CONTROL' => 'Accion de eliminar o limitar el desarrollo de un siniestro, para evitar o minimizar sus consecuencias.',
-        'DESASTRE' => 'Es el dano o alteracion grave de las condiciones normales de la vida, causado por fenomenos naturales o accion del hombre en forma accidental.',
-        'EMERGENCIA' => 'Estado de alteracion parcial o total de las actividades de una propiedad horizontal, ocasionado por la ocurrencia de un evento que genera peligro inminente y cuyo control supera la capacidad de respuesta de las personas y de las organizaciones.',
-        'ESCENARIO' => 'Representacion o descripcion detallada de una situacion o conjunto de circunstancias hipoteticas, ya sea en el presente o en el futuro. Los escenarios se utilizan comunmente en la planificacion estrategica, la toma de decisiones, la gestion de riesgos y la narrativa, para explorar posibles resultados o eventos. En el contexto de un plan de emergencias, un escenario podria ser una representacion detallada de una situacion de emergencia hipotetica que se utiliza como base para la planificacion y preparacion de respuestas.',
-        'EVENTO' => 'Descripcion de un fenomeno natural, tecnologico o provocado por el hombre en terminos de sus caracteristicas, su severidad, ubicacion y area de influencia.',
-        'EVACUACION' => 'Es el conjunto de acciones tendientes a desplazar las personas de una zona de mayor amenaza a otra de menor peligro.',
-        'IMPACTO' => 'Accion directa de una amenaza o un riesgo en un grupo de personas.',
-        'MITIGACION' => 'Acciones desarrolladas antes, durante y despues de un siniestro, tendientes a contrarrestar sus efectos criticos, y asegurar la supervivencia del sistema hasta tanto se efectue la recuperacion.',
-        'PLAN DE ACCION' => 'Es un trabajo colectivo que establece en un documento las medidas preventivas para evitar los posibles desastres especificos de cada comunidad y que indica las operaciones, tareas, y responsabilidades de toda la comunidad para situaciones de inminente peligro.',
-        'PLAN DE CONTINGENCIAS' => 'Componente del plan de emergencias y desastres que contiene los procedimientos para la pronta respuesta en caso de presentarse un evento especifico.',
-        'PLAN DE EMERGENCIAS' => 'Definicion de politicas, organizaciones y metodos que indican la manera de enfrentar una situacion de emergencia o desastre, en lo general y en lo particular, en sus distintas fases.',
-        'PREPARACION' => 'Se lleva a cabo mediante la organizacion institucional, prediccion de eventos y planificacion de acciones de alerta, busqueda, rescate, traslado, evacuacion y asistencia de personas, salvamento de bienes y de rehabilitacion y reconstruccion de la copropiedad o comunidad.',
-        'PREVENCION' => 'Accion para evitar la ocurrencia de desastres.',
-        'RECUPERACION' => 'Actividad final en el proceso de respuesta a una emergencia. Consiste en restablecer la operatividad de un sistema interferido.',
-        'RIESGO' => 'Una amenaza evaluada en cuanto su probabilidad de ocurrencia y su gravedad potencial esperada.',
-        'SALVAMENTO' => 'Acciones o actividades desarrolladas individualmente o por grupos, tendientes a proteger los bienes materiales y/o activos de una compania, que pueden verse afectados en caso de una emergencia en sus instalaciones.',
-        'SIMULACRO' => 'Ejercicio de juego de roles que se lleva a cabo en un escenario real o construccion en la forma posible para asemejarlo.',
-        'SINIESTRO' => 'Es un evento no deseado, no esperado, que puede producir efectos negativos en las personas y en los bienes materiales. El siniestro genera la emergencia si la capacidad de respuesta es insuficiente para controlarlo.',
-        'VIA DE EVACUACION' => 'Se usa normalmente como via de ingreso y de salida en los edificios. Su tramo seguro puede estar estructurado como zona vertical de seguridad.',
-        'VULNERABILIDAD' => 'Condiciones en las que se encuentran las personas y los bienes expuestos a una amenaza. Se relaciona con la incapacidad de una comunidad para afrontar con sus propios recursos una situacion de emergencia.',
-        'VULNERABILIDAD FISICA O ESTRUCTURAL' => 'Se refiere a la construccion misma de la edificacion y a las caracteristicas de seguridad o inseguridad que ofrece a los trabajadores que permanecen en ella durante la jornada laboral.',
-        'VULNERABILIDAD FUNCIONAL' => 'Se refiere a la existencia o no de los recursos para enfrentar situaciones de emergencia como extintores, sistemas de control de fuentes de agua, combustible, herramientas para usar en situaciones de emergencia.',
-        'VULNERABILIDAD SOCIAL' => 'Se refiere al conocimiento y entrenamiento del personal para afrontar situaciones de emergencia.',
-    ];
-    foreach ($conceptos as $term => $def): ?>
-    <p class="content-text"><strong><?= $term ?>:</strong> <?= $def ?></p>
-    <?php endforeach; ?>
+    <!-- ============ RESPONSABLE Y SEGUIMIENTO DEL PLAN (PGRDEPP) ============ -->
+    <div class="section-title">RESPONSABLE Y SEGUIMIENTO DEL PLAN (PGRDEPP)</div>
+    <p class="content-text">En los terminos del Decreto 2157 de 2017, reglamentario del articulo 42 de la Ley 1523 de 2012, la formulacion, implementacion, socializacion, actualizacion y seguimiento del presente Plan de Gestion del Riesgo de Desastres de Entidad Privada (PGRDEPP) es responsabilidad del representante legal de la copropiedad, rol que en <?= $nombreCliente ?> es ejercido por el Administrador debidamente designado por la Asamblea General de Propietarios o el Consejo de Administracion.</p>
+    <p class="content-text">El Plan sera revisado y actualizado como minimo una (1) vez al ano o cuando se produzcan cambios significativos en la infraestructura, la ocupacion, las amenazas identificadas o el marco normativo aplicable. El resultado de cada revision quedara documentado y sera socializado con la brigada, el personal operativo, el consejo de administracion y los residentes.</p>
+
+    <div class="section-subtitle">MATRIZ DE RESPONSABLES DEL PLAN</div>
+    <!-- TODO Fase 2: esta matriz sera generada dinamicamente por IA (Claude) segun los datos del cliente (tamano del conjunto, numero de torres, existencia de brigada, administrador designado, comite de convivencia, etc.). Devolvera un JSON con filas {rol, nombre, responsabilidad, frecuencia_revision} que PHP renderizara como tabla. -->
+    <p class="content-text"><em>[Pendiente de generacion personalizada — el presente Plan sera complementado con la matriz especifica de responsables, roles y frecuencias de revision aplicable a la copropiedad <?= $nombreCliente ?>.]</em></p>
+
+    <!-- ============ MARCO NORMATIVO NACIONAL ============ -->
+    <div class="section-title">MARCO NORMATIVO NACIONAL</div>
+    <p class="content-text">El presente Plan de Emergencia y Contingencia se formula en cumplimiento del marco normativo vigente en la Republica de Colombia aplicable a la propiedad horizontal y a la gestion del riesgo de desastres. Este marco constituye el sustento legal del Plan y es transversal a todo el territorio nacional.</p>
+    <p class="content-text"><strong>DECRETO 1072 DE 2015 — Articulo 2.2.4.6.25.</strong> Decreto Unico Reglamentario del Sector Trabajo. Establece la obligacion del empleador de implementar y mantener un Plan de Prevencion, Preparacion y Respuesta ante Emergencias con: (i) analisis de amenazas y vulnerabilidad con alcance sobre todos los trabajadores, contratistas, visitantes y demas personas que se encuentren en la copropiedad; (ii) recursos humanos, tecnicos y financieros para su implementacion; (iii) procedimientos escritos para prevenir y controlar las amenazas identificadas; (iv) informar, capacitar y entrenar a todos los trabajadores sobre el plan; (v) conformar, capacitar, entrenar y dotar la brigada de prevencion, preparacion y respuesta ante emergencias; (vi) realizar simulacros como minimo una (1) vez al ano con la participacion de todos los trabajadores; (vii) inspeccionar con la periodicidad definida los equipos de deteccion, alarma, control y atencion de emergencias, asi como los sistemas de senalizacion y las rutas de evacuacion.</p>
+    <p class="content-text"><strong>RESOLUCION 0312 DE 2019 — Ministerio del Trabajo.</strong> "Por la cual se definen los Estandares Minimos del Sistema de Gestion de la Seguridad y Salud en el Trabajo SG-SST". Exige a los empleadores, en funcion del numero de trabajadores y la clase de riesgo, realizar el analisis de vulnerabilidad ante amenazas, formular y ejecutar el plan de prevencion, preparacion y respuesta ante emergencias con las intervenciones que se deriven de dicho analisis, y conformar, capacitar y dotar la brigada de prevencion, preparacion y respuesta ante emergencias. El cumplimiento de estos estandares es verificable por el Ministerio del Trabajo.</p>
+    <p class="content-text"><strong>LEY 1523 DE 2012 — Articulo 42.</strong> Por la cual se adopta la Politica Nacional de Gestion del Riesgo de Desastres y se establece el Sistema Nacional de Gestion del Riesgo de Desastres. El articulo 42 obliga a todas las entidades publicas y privadas a realizar un analisis especifico de riesgo que considere los posibles efectos de eventos naturales sobre la infraestructura expuesta y aquellos que se deriven de los danos de la misma en su area de influencia, asi como los que se deriven de su operacion. Con base en este analisis, disenaran e implementaran las medidas de reduccion del riesgo y el plan de emergencia y contingencia.</p>
+    <p class="content-text"><strong>DECRETO 2157 DE 2017.</strong> "Por medio del cual se adoptan directrices generales para la elaboracion del Plan de Gestion del Riesgo de Desastres de las Entidades Publicas y Privadas (PGRDEPP) en el marco del articulo 42 de la Ley 1523 de 2012". Establece que el representante legal de la entidad — en el caso de la propiedad horizontal, el administrador designado por la asamblea — es el responsable de la formulacion, implementacion, socializacion, actualizacion y seguimiento del PGRDEPP. Contenido obligatorio: (i) proceso de conocimiento del riesgo con analisis especifico; (ii) proceso de reduccion del riesgo con medidas de intervencion correctiva y prospectiva; (iii) proceso de manejo del desastre con los planes de emergencia y contingencia.</p>
+    <p class="content-text"><strong>LEY 675 DE 2001.</strong> Regimen de Propiedad Horizontal. Establece la personeria juridica de los edificios y conjuntos sometidos a propiedad horizontal, por lo cual les resulta aplicable la legislacion colombiana en materia de Seguridad y Salud en el Trabajo y de Gestion del Riesgo de Desastres. La administracion actua como representante legal de la persona juridica y asume las obligaciones correlativas en materia de emergencias.</p>
+    <p class="content-text"><strong>NSR-10 — DECRETO 926 DE 2010.</strong> Reglamento Colombiano de Construccion Sismo Resistente. Adoptado mediante el Decreto 926 de 2010 y sus actos modificatorios, constituye la norma tecnica vigente en Colombia para el diseno y construccion sismo resistente de edificaciones. Es referente obligatorio para la evaluacion de la vulnerabilidad estructural de la copropiedad.</p>
+    <p class="content-text"><strong>NTC 1700 (ICONTEC).</strong> Higiene y Seguridad. Medidas de Seguridad en Edificaciones. Medios de Evacuacion, en correlato con el Codigo NFPA 101 (Life Safety Code). Establece los requerimientos que deben cumplir las edificaciones en cuanto a salidas de evacuacion, escaleras de emergencia, iluminacion de evacuacion y sistemas de proteccion especiales. Requisitos minimos aplicables a propiedad horizontal: (i) ancho libre minimo de las puertas de salida de setenta centimetros (70 cm); (ii) minimo dos (2) salidas independientes por piso; (iii) instalacion de barra antipanico en aquellas puertas que sirvan a areas con carga ocupacional superior a cien (100) personas; (iv) demarcacion y senalizacion permanente de la ruta de evacuacion; (v) iluminacion de emergencia con autonomia suficiente para garantizar la evacuacion segura.</p>
+    <p class="content-text"><strong>RESOLUCION 0256 DE 2014 — Direccion Nacional de Bomberos de Colombia.</strong> "Por medio de la cual se reglamenta la conformacion, capacitacion y entrenamiento para las brigadas contraincendios de los sectores energetico, industrial, petrolero, minero, portuario, comercial y similar en Colombia". Establece los lineamientos tecnicos para la conformacion de brigadas, contenidos minimos de capacitacion, niveles de formacion (basico, intermedio, avanzado), dotacion y entrenamiento periodico aplicables como referente a las brigadas de copropiedades en regimen de propiedad horizontal.</p>
+    <p class="content-text"><strong>NORMAS TECNICAS COMPLEMENTARIAS.</strong> NTC-ISO 31000 (Gestion del Riesgo — Principios y Directrices, que reemplaza a la antigua NTC 5254); NTC-2885 (Extintores Portatiles — inspeccion y mantenimiento); NTC-1867 (Sistemas de senales contra incendio); NTC-4144 y NTC-4145 (Edificios — senalizacion y escaleras); Ley 322 de 1996 (Sistema Nacional de Bomberos); NFPA 101 (Life Safety Code) y NFPA 1600 (Disaster/Emergency Management and Business Continuity).</p>
+
+    <!-- ============ MARCO CONCEPTUAL / DEFINICIONES ============ -->
+    <div class="section-title">MARCO CONCEPTUAL Y DEFINICIONES</div>
+    <p class="content-text">Para la adecuada comprension e interpretacion del presente Plan, a continuacion se presentan las definiciones tecnicas fundamentales, alineadas con la Ley 1523 de 2012, el Decreto 1072 de 2015 y la terminologia adoptada por la UNGRD:</p>
+    <p class="content-text"><strong>AMENAZA:</strong> peligro latente de que un evento fisico de origen natural, socio-natural, tecnologico o antropico no intencional se presente con una severidad suficiente para causar perdida de vidas, lesiones u otros impactos en la salud, danos y perdidas en los bienes, la infraestructura, los medios de sustento, la prestacion de servicios y los recursos ambientales.</p>
+    <p class="content-text"><strong>VULNERABILIDAD:</strong> susceptibilidad o fragilidad fisica, economica, social, ambiental o institucional que tiene una comunidad de ser afectada o de sufrir efectos adversos en caso de que un evento fisico peligroso se presente.</p>
+    <p class="content-text"><strong>RIESGO DE DESASTRES:</strong> danos o perdidas potenciales que pueden presentarse debido a los eventos fisicos peligrosos de origen natural, socio-natural, tecnologico, biosanitario o humano no intencional, en un periodo de tiempo especifico y que son determinados por la vulnerabilidad de los elementos expuestos.</p>
+    <p class="content-text"><strong>EMERGENCIA:</strong> situacion caracterizada por la alteracion o interrupcion intensa y grave de las condiciones normales de funcionamiento u operacion de una comunidad, causada por un evento adverso o por la inminencia del mismo, que obliga a una reaccion inmediata y que requiere la respuesta de las instituciones del Estado, los medios de comunicacion y de la comunidad en general.</p>
+    <p class="content-text"><strong>DESASTRE:</strong> resultado que se desencadena de la manifestacion de uno o varios eventos naturales o antropogenicos no intencionales que al encontrar condiciones propicias de vulnerabilidad en las personas, los bienes, la infraestructura, los medios de subsistencia, la prestacion de servicios o los recursos ambientales, causa danos o perdidas que superan la capacidad de la comunidad para responder con sus propios recursos.</p>
+    <p class="content-text"><strong>BRIGADA DE EMERGENCIA:</strong> grupo organizado, entrenado, capacitado y dotado para prevenir, controlar y atender situaciones de emergencia dentro de una instalacion, en el marco del Plan de Prevencion, Preparacion y Respuesta ante Emergencias.</p>
+    <p class="content-text"><strong>PROCEDIMIENTO OPERATIVO NORMALIZADO (PON):</strong> documento que describe de manera estructurada y secuencial las acciones especificas que debe ejecutar la brigada y el personal asignado ante un escenario de emergencia determinado, con el objetivo de estandarizar la respuesta y reducir la improvisacion.</p>
+    <p class="content-text"><strong>SIMULACRO:</strong> ejercicio practico en terreno que permite evaluar, entrenar y ajustar los procedimientos del Plan de Emergencia mediante la representacion de un escenario de emergencia, con participacion real de las personas y activacion de los recursos previstos.</p>
+    <p class="content-text"><strong>PLAN DE EMERGENCIA:</strong> instrumento que define las politicas, los sistemas de organizacion y los procedimientos generales aplicables para enfrentar de manera oportuna, eficiente y eficaz las situaciones de calamidad, desastre o emergencia en sus distintas fases.</p>
+    <p class="content-text"><strong>PLAN DE CONTINGENCIA:</strong> componente del Plan de Emergencia que contiene los procedimientos especificos de respuesta para un escenario o amenaza determinada.</p>
+    <p class="content-text"><strong>MEDEVAC (Medical Evacuation):</strong> protocolo de evacuacion medica de personas lesionadas o enfermas hacia los centros asistenciales, mediante la coordinacion con organismos de socorro y servicios de ambulancia.</p>
+
+    <!-- CONCEPTOS ADICIONALES eliminado: era duplicado del MARCO CONCEPTUAL Y DEFINICIONES. El parrafo introductorio sobre Ley 675 quedo cubierto en MARCO NORMATIVO NACIONAL. -->
 
     <!-- ============ INFORMACION GENERAL DEL CONJUNTO ============ -->
 <div class="section-title">INFORMACION GENERAL DEL CONJUNTO RESIDENCIAL</div>
@@ -218,6 +270,36 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
         if (!empty($fotosBase64[$campo])): ?>
     <div class="foto-block"><img src="<?= $fotosBase64[$campo] ?>"><div class="foto-caption"><?= $caption ?></div></div>
     <?php endif; endforeach; ?>
+
+    <!-- ============ ADMINISTRACION Y PERSONAL ============ -->
+    <div class="section-title">ADMINISTRACION Y PERSONAL</div>
+    <table class="info-table">
+        <tr><td class="info-label">NOMBRE DEL ADMINISTRADOR</td><td><?= esc($inspeccion['nombre_administrador'] ?? '-') ?></td></tr>
+        <tr><td class="info-label">HORARIOS DE ADMINISTRACION</td><td><?= esc($inspeccion['horarios_administracion'] ?? '-') ?></td></tr>
+        <tr><td class="info-label">PERSONAL DE ASEO</td><td><?= esc($inspeccion['personal_aseo'] ?? '-') ?></td></tr>
+        <tr><td class="info-label">PERSONAL DE VIGILANCIA</td><td><?= esc($inspeccion['personal_vigilancia'] ?? '-') ?></td></tr>
+    </table>
+
+    <!-- ============ SERVICIOS GENERALES ============ -->
+    <div class="section-title">SERVICIOS GENERALES</div>
+    <table class="info-table">
+        <?php if (!empty($inspeccion['ruta_residuos_solidos'])): ?>
+        <tr><td class="info-label">RUTA DE RESIDUOS SOLIDOS</td><td><?= esc($inspeccion['ruta_residuos_solidos']) ?></td></tr>
+        <?php endif; ?>
+        <tr><td class="info-label">EMPRESA DE ASEO</td><td><?= $empresasAseo[$inspeccion['empresa_aseo'] ?? ''] ?? esc($inspeccion['empresa_aseo'] ?? '-') ?></td></tr>
+        <?php if (!empty($inspeccion['servicios_sanitarios'])): ?>
+        <tr><td class="info-label">SERVICIOS SANITARIOS</td><td><?= esc($inspeccion['servicios_sanitarios']) ?></td></tr>
+        <?php endif; ?>
+        <?php if (!empty($inspeccion['frecuencia_basura'])): ?>
+        <tr><td class="info-label">FRECUENCIA RECOLECCION BASURA</td><td><?= esc($inspeccion['frecuencia_basura']) ?></td></tr>
+        <?php endif; ?>
+        <?php if (!empty($inspeccion['detalle_mascotas'])): ?>
+        <tr><td class="info-label">DETALLE MASCOTAS</td><td><?= esc($inspeccion['detalle_mascotas']) ?></td></tr>
+        <?php endif; ?>
+        <?php if (!empty($inspeccion['detalle_dependencias'])): ?>
+        <tr><td class="info-label">DETALLE DEPENDENCIAS</td><td><?= esc($inspeccion['detalle_dependencias']) ?></td></tr>
+        <?php endif; ?>
+    </table>
 
     <!-- ============ CIRCULACIONES Y ACCESOS ============ -->
 <div class="section-title">CIRCULACIONES Y ACCESOS</div>
@@ -305,39 +387,6 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
         <?php if (!empty($inspeccion['vias_transito'])): ?><tr><td class="info-label">VIAS DE TRANSITO CERCANAS</td><td><?= esc($inspeccion['vias_transito']) ?></td></tr><?php endif; ?>
     </table>
 
-    <!-- ============ LEGISLACION ============ -->
-<div class="section-title">LEGISLACION</div>
-    <div class="section-subtitle">LEGISLACION NACIONAL</div>
-    <p class="content-text"><strong>LEY 9 DE 1979</strong> Codigo Sanitario Titulo III: Relativo a la salud ocupacional. Art.93 - Areas de Circulacion: Claramente demarcadas, tener amplitud suficiente para el transito seguro de las personas y provistas de senalizacion adecuada. Art.93 - Puertas de Salida: En numero suficiente y de caracteristicas apropiadas para facilitar la evacuacion del personal en caso de emergencia, las cuales no podran mantenerse obstruidas o con seguro durante la jornada de trabajo. Art.114 - Prevencion y Extincion de Incendios: Disponer de personal capacitado, metodos, equipos y materiales adecuados y suficientes. Art. 116 - Equipos y dispositivos para la Extincion de Incendios: Con diseno, construccion y mantenimiento que permita su uso inmediato con la maxima eficiencia. Art. 117 - Equipos, herramientas, instalaciones y redes electricas: Disenados, construidos, instalados, mantenidos, accionados y senalizados de manera que prevenga los riesgos de incendio o contacto con elementos sometidos a tension. Art. 127 - Todo lugar de trabajo tendra las facilidades y los recursos necesarios para la prestacion de los primeros auxilios a los trabajadores.</p>
-    <p class="content-text"><strong>LEY 9 DE 1979</strong> Codigo Sanitario Titulo VIII - Desastres. Art 501 - Cada Comite de Emergencias debera elaborar un plan de contingencia para su respectiva jurisdiccion con los resultados obtenidos en los analisis de vulnerabilidad. Art 502 - El Ministerio de Salud coordinara los programas de entrenamiento y capacitacion para planes de contingencia en los aspectos sanitarios vinculados a urgencias o desastres.</p>
-    <p class="content-text"><strong>RESOLUCION 2400 DE 1979</strong> "Por el cual se establecen disposiciones sobre vivienda, higiene y seguridad industrial en los establecimientos de trabajo". Art. 2 - Todos los empleadores estan obligados a Organizar y desarrollar programas permanentes de Medicina Preventiva, Higiene y Seguridad Industrial. Art. 4 - Edificios y Locales: Construccion segura y firme. Art. 14 - Escaleras de Comunicacion entre plantas del edificio: Espaciosas, con condiciones de solidez, estabilidad y seguridad. Art. 205 - Peligro de Incendio o explosion en centros de trabajo: Provistos de tomas de agua con sus correspondientes mangueras, tanques de reserva y extintores. Art. 206 - Construcciones bajo riesgo de Incendio o Explosion: Dotadas de muros corta-fuegos. Art. 207 - Salidas de Emergencia: Suficientes, libres de obstaculos y convenientemente construidas. Art. 220 - Extintores: Adecuados segun combustible utilizado y clase de incendio. Art. 223 - Brigada contra Incendio: Debidamente entrenada y preparada.</p>
-    <p class="content-text"><strong>CONPES 3146 de 2001</strong> Estrategia para consolidar la ejecucion del Plan Nacional para la Prevencion y Atencion de Desastres - PNPAD, en el corto y mediano plazo.</p>
-    <p class="content-text"><strong>LEY 46/88</strong> "Por la cual se crea y organiza el Sistema Nacional para la Prevencion y Atencion de Desastres". Art. 3 - Plan Nacional para la Prevencion y Atencion de Desastres. El Plan incluira y determinara todas las orientaciones, acciones, programas y proyectos referidos a: las fases de prevencion, atencion inmediata, reconstruccion y desarrollo; los temas de orden tecnico, cientifico, economico; la educacion, capacitacion y participacion comunitaria; los sistemas integrados de informacion y comunicacion; la coordinacion interinstitucional e intersectorial; y los sistemas y procedimientos de control y evaluacion. Art. 14 - Plan de Accion Especifico para la Atencion de Desastre.</p>
-    <p class="content-text"><strong>DECRETO LEY 919/89</strong> "Por el cual se organiza el Sistema Nacional para la Prevencion y Atencion de Desastres". Art. 3 - Plan Nacional para la Prevencion y Atencion de Desastres. Art. 13 - Planes de contingencia: Los Comites elaboraran, con base en los analisis de vulnerabilidad, planes de contingencia para facilitar la prevencion o para atender adecuada y oportunamente los desastres probables. Art. 14 - Aspectos sanitarios de los planes de contingencia.</p>
-    <p class="content-text"><strong>DECRETO 1295/94</strong> "Por el cual se determina la organizacion y administracion del Sistema General de Riesgos Profesionales". Art. 2 - Establecer las actividades de promocion y prevencion tendientes a mejorar las condiciones de trabajo y salud de la poblacion trabajadora.</p>
-    <p class="content-text"><strong>LEY 322 DE 1996</strong> SISTEMA NACIONAL DE BOMBEROS. Art. 1 - La prevencion de incendios es responsabilidad de todas las autoridades y los habitantes del territorio colombiano. En cumplimiento de esta responsabilidad los organismos publicos y privados deberan contemplar la contingencia de este riesgo en los bienes inmuebles.</p>
-    <p class="content-text"><strong>LEY 769 DE 2002</strong> CODIGO NACIONAL DE TRANSITO. Art. 1 - Las normas regulan la circulacion de los peatones, usuarios, pasajeros, conductores, motociclistas, ciclistas, agentes de transito y vehiculos por las vias publicas o privadas que esten abiertas al publico.</p>
-    <p class="content-text"><strong>DECRETO No. 3888/07</strong> Plan Nacional de Emergencias y Contingencia para Eventos de Afluencia Masiva de Publico. Art. 2 - Servir como instrumento rector para el diseno y realizacion de actividades dirigidas a prevenir, mitigar y dotar al Sistema Nacional de una herramienta que permita coordinar y planear el control y atencion de riesgos. Art. 20 - Planes institucionales: Los organismos operativos elaboraran sus propios planes institucionales para la atencion de eventos de afluencia masiva de publico.</p>
-    <p class="content-text"><strong>DECRETO 1347 DE 2021</strong> Programa de Prevencion de Accidentes Mayores - PPAM.</p>
-    <p class="content-text"><strong>DECRETO 4272 DE 2021</strong> Requisitos minimos de seguridad para trabajo en alturas.</p>
-    <p class="content-text"><strong>RESOLUCION 20223040040595 DE 2022</strong> Metodologia para el diseno, implementacion y verificacion de los Planes Estrategicos de Seguridad Vial.</p>
-    <p class="content-text"><strong>DECRETO 1478 DE 2022</strong> Actualizacion del Plan Nacional de Gestion del Riesgo de Desastres.</p>
-
-    <div class="section-subtitle">LEGISLACION DISTRITAL</div>
-    <p class="content-text"><strong>RESOLUCION 1428 DE 2002</strong> "Por la cual se adoptan los Planes Tipo de Emergencias en seis escenarios Distritales, se modifica y adiciona la Resolucion 0151 del 06 de febrero de 2002".</p>
-    <p class="content-text"><strong>DECRETO 332/04</strong> "Por el cual se organiza el regimen y el Sistema para la Prevencion y Atencion de Emergencias". Art. 7 - Planes de Emergencias: Se adoptaran para cada una de las entidades y comites sectoriales. Art. 8 - Planes de Contingencia.</p>
-    <p class="content-text"><strong>DECRETO 423/06</strong> "Por el cual se adopta el Plan Distrital para la prevencion y Atencion de Emergencias". Art. 18 - Planes de Emergencias: Instrumentos para la coordinacion general y actuacion frente a situaciones de calamidad, desastre o emergencia. Art. 19 - Planes de Contingencia.</p>
-    <p class="content-text"><strong>RESOLUCION No. 375/06</strong> Condiciones basicas para la copropiedad que prestan el servicio de logistica en las aglomeraciones de publico.</p>
-    <p class="content-text"><strong>RESOLUCION No. 137/07</strong> Parametros e instrucciones para la administracion de emergencias en Bogota - Plan de Emergencias de Bogota.</p>
-    <p class="content-text"><strong>DECRETO 633/07</strong> Disposiciones en materia de prevencion de riesgos en los lugares donde se presenten aglomeraciones de publico. Art. 5 - Planes de Contingencia.</p>
-
-    <div class="section-subtitle">NORMAS TECNICAS COLOMBIANAS</div>
-    <p class="content-text"><strong>NTC-5254:</strong> Gestion de Riesgo. Guia Tecnica Colombiana 202/06: Sistema de Gestion de Continuidad del Negocio.</p>
-    <p class="content-text"><strong>NTC-1700:</strong> Higiene y Seguridad. Medidas de Seguridad en Edificaciones. Medios de Evacuacion y Codigo NFPA 101. Establece los requerimientos que debe cumplir las edificaciones en cuanto a salidas de evacuacion, escaleras de emergencia, iluminacion de evacuacion, sistema de proteccion especiales, numero de personas maximo por unidad de area.</p>
-    <p class="content-text"><strong>NTC-2885:</strong> Higiene y Seguridad. Extintores Portatiles. Establece los requisitos para la inspeccion y mantenimiento de portatiles.</p>
-    <p class="content-text"><strong>NTC-4764:</strong> Cruces peatonales a nivel y elevados o puentes peatonales. <strong>NTC-4140:</strong> Edificios - Pasillos y corredores. <strong>NTC-4143:</strong> Edificios - Rampas fijas. <strong>NTC-4144:</strong> Edificios - Senalizacion. <strong>NTC-4145:</strong> Edificios - Escaleras. <strong>NTC-4201:</strong> Edificios - Equipamientos, bordillos, pasamanos y agarraderas. <strong>NTC-4279:</strong> Vias de circulacion peatonal planas. <strong>NTC-4695:</strong> Senalizacion para transito peatonal. <strong>NTC-2388:</strong> Simbolos para la informacion del publico. <strong>NTC-1867:</strong> Sistemas de senales contra incendio.</p>
-    <p class="content-text"><strong>NFPA 101/06:</strong> Life Safety Code (Codigo de Seguridad Humana). <strong>NFPA 1600/07:</strong> Standard on Disaster/Emergency Management and Business Continuity Programs (Norma sobre manejo de Desastres, Emergencias y Programas para la Continuidad del Negocio).</p>
-
     <!-- ============ ANALISIS DE RIESGOS ============ -->
 <div class="section-title">REALIZACION DEL ANALISIS DE RIESGOS</div>
     <p class="content-text">Objetivo: Identificar y evaluar cuales son aquellos eventos o condiciones que pueden llegar a ocasionar una emergencia en <?= $nombreCliente ?>, de tal manera que este analisis se convierta en una herramienta para establecer las medidas de prevencion y control de los riesgos asociados.</p>
@@ -360,6 +409,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     </table>
 
     <!-- Probabilidad de ocurrencia (datos de la inspeccion previa) -->
+    <?php if ($debugMode): ?><div class="dbg dbg-prob"><span class="dbg-label">PROB. PELIGROS — $ultimaProb</span><?php endif; ?>
     <?php if ($ultimaProb): ?>
     <div class="section-subtitle">PROBABILIDAD DE OCURRENCIA DE LOS PELIGROS</div>
     <?php
@@ -407,7 +457,10 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
         <?php endforeach; endforeach; ?>
         </tbody>
     </table>
+    <?php else: ?>
+    <?php if ($debugMode): ?><div class="dbg-missing">⚠ $ultimaProb está vacío — no hay inspección de Probabilidad de Peligros cargada</div><?php endif; ?>
     <?php endif; ?>
+    <?php if ($debugMode): ?></div><?php endif; ?>
 
     <!-- Descripciones de riesgos (texto estatico) -->
 <div class="section-subtitle">RIESGOS NATURALES</div>
@@ -418,7 +471,7 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <div class="section-subtitle">RIESGOS TECNOLOGICOS</div>
     <p class="content-text"><strong>INCENDIO:</strong> Entre las amenazas mas importantes se hace referencia a las de incendio, la cual es caracteristica de toda edificacion cuya destinacion sea de caracter industrial, comercial, de servicios o residencia. Esta amenaza no solamente se presenta por una eventual vecindad a fuentes de ignicion o detonacion, fuentes de calor, fuentes electricas, presencia de cargas estaticas y tambien por diferentes cargas combustibles de materiales solidos presentes en las instalaciones del conjunto residencial y a los trabajos que en el se realicen. Debido a que en el conjunto se almacenan diferentes combustibles como vestuario, telones, madera, alfombras, carton, plasticos, equipos de oficina; presencia de gas natural y demas combustibles que pueden ocasionar un incendio de grandes proporciones.<br>CLASIFICACION DEL RIESGO: MUY PROBABLE</p>
     <p class="content-text"><strong>EXPLOSION:</strong> Es un riesgo que viene relacionado con el manejo de cargas combustibles del tipo B como el almacenamiento y manipulacion de liquidos y gases inflamables, la reactividad por escape de gases comprimidos como el caso de gas natural, y en el manejo de solventes, lacas, pinturas, Varsol que normalmente emanan gases con propiedades inflamables detonantes lo mismo que eventualmente lo podria hacer pero con menos posibilidad el ACPM.<br>CLASIFICACION DEL RIESGO: MUY PROBABLE</p>
-    <p class="content-text"><strong>FALLA ESTRUCTURAL:</strong> La vulnerabilidad estructural se encuentra determinada por la capacidad de soporte vertical y resistencia a cargas horizontales de la edificacion, la cual en terminos generales presenta buen aspecto. Un gran porcentaje de las instalaciones esta construido en muros de ladrillo y cemento, pisos en cemento, techos en placa de concreto. Con el objeto de determinar la capacidad sismo resistente de las edificaciones se recomienda realizar un estudio tecnico de las mismas y conforme a su valoracion reforzar las estructuras o realizar las modificaciones arquitectonicas necesarias, en consonancia con las exigencias del codigo colombiano de construcciones sismo resistentes, adoptado por el Decreto 400 con vigencia desde el ano de 1984 y actualizado por la Ley 400 de 1997 y el Decreto 33 de 1998.<br>CLASIFICACION DEL RIESGO: POCO PROBABLE</p>
+    <p class="content-text"><strong>FALLA ESTRUCTURAL:</strong> La vulnerabilidad estructural se encuentra determinada por la capacidad de soporte vertical y resistencia a cargas horizontales de la edificacion, la cual en terminos generales presenta buen aspecto. Un gran porcentaje de las instalaciones esta construido en muros de ladrillo y cemento, pisos en cemento, techos en placa de concreto. Con el objeto de determinar la capacidad sismo resistente de las edificaciones se recomienda realizar un estudio tecnico de las mismas y conforme a su valoracion reforzar las estructuras o realizar las modificaciones arquitectonicas necesarias, en consonancia con las exigencias del Reglamento Colombiano de Construccion Sismo Resistente NSR-10, adoptado mediante el Decreto 926 de 2010 y sus actos modificatorios, el cual constituye la norma tecnica vigente en Colombia para el diseno y construccion sismo resistente de edificaciones.<br>CLASIFICACION DEL RIESGO: POCO PROBABLE</p>
     <p class="content-text"><strong>INTOXICACIONES POR INHALACION DE VAPORES:</strong> Estas afectaciones en la salud se pueden causar debido a la acumulacion de gases nocivos para las personas, esto se puede agravar en el caso del parqueadero de vehiculos del conjunto residencial si no se cuenta con la cultura de la revision periodica de los vehiculos automotores y si las personas se quedan bajo periodos largos en este sitio, para lo cual se hace necesario implementar la cultura de esperar que los propietarios de los vehiculos realicen el calentamiento del motor en un area ventilada.<br>CLASIFICACION DEL RIESGO: POCO PROBABLE</p>
 
     <div class="section-subtitle">RIESGOS SOCIALES</div>
@@ -442,42 +495,138 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <p class="content-text"><strong>PARA RIESGOS CLASE B:</strong><br>Disponer de un lugar ventilado y en buenas condiciones de orden y aseo para almacenar todos los elementos que se requieren en el conjunto residencial para labores de mantenimiento.<br>Guardar todos los materiales inflamables en recipientes hermeticos y dentro de gabinetes metalicos con puerta.<br>Todo recipiente que contenga algun liquido inflamable debe encontrarse rotulado especificando su nombre comercial y en lo posible las fichas de seguridad de los productos.<br>Mantener materiales inflamables en lugares aireados y alejados de fuentes de calor o de tomas o instalaciones electricas de riesgo.<br>Evitar el uso de gas propano en areas cerradas.<br>Se debe tener un kit anti derrames en el conjunto en caso de presentarse un derrame especialmente en el area del parqueadero.</p>
     <p class="content-text"><strong>PARA RIESGOS CLASE C:</strong><br>Evitar el uso de elementos para produccion de calor en areas donde pueda acumularse material combustible como papel, plasticos, telas y madera principalmente, y dejarlos desconectados en horas de la noche, los equipos electricos.<br>Identificar cajas de tacos de corriente en todos los lugares donde se ubiquen.<br>Restringir la entrada a las areas de cuartos electricos de mediana o alta tension.<br>Realizar revisiones periodicas de posibles humedades que se encuentren en cercania a algun elemento electrico esto se puede presentar en las areas comunes como al interior de los apartamentos o casas.</p>
 
-    <!-- ============ PON CODIGO 7 ============ -->
-<div class="section-title">PROCEDIMIENTO OPERATIVO NORMALIZADO (PON) - CODIGO 7</div>
-    <div class="section-subtitle">Falla de ascensor con personas en su interior</div>
-    <p class="content-text"><strong>Codigo de Emergencia:</strong> CODIGO 7 - Persona(s) atrapada(s) en ascensor</p>
-    <p class="content-text"><strong>Introduccion:</strong> En edificaciones residenciales y comerciales que cuentan con ascensores, es posible que se presenten fallas tecnicas, cortes electricos u otros incidentes que provoquen la detencion del equipo con ocupantes en su interior. Este procedimiento operativo establece las acciones especificas para responder de manera rapida, segura y coordinada, minimizando riesgos y evitando danos fisicos o psicologicos a las personas involucradas.</p>
-    <p class="content-text"><strong>Objetivo:</strong> Establecer el procedimiento seguro y estandarizado para la atencion de emergencias por fallas de ascensor con personas atrapadas, asegurando la proteccion de la vida, la salud y la integridad de los ocupantes, asi como la coordinacion con organismos de socorro y personal tecnico especializado.</p>
-    <p class="content-text"><strong>Alcance:</strong> Aplica para todo el personal de vigilancia, administracion, brigadas de emergencia, personal de mantenimiento y demas personas que participen en la atencion de emergencias dentro del conjunto residencial o edificio.</p>
-    <p class="content-text"><strong>Definiciones clave:</strong><br>Falla de ascensor: Cese repentino o irregular del funcionamiento del ascensor por razones mecanicas, electricas o electronicas.<br>Rescate tecnico: Intervencion de personal calificado para liberar de forma segura a las personas atrapadas.<br>Emergencia critica: Situacion en la que la vida o la salud de los ocupantes esta en riesgo inmediato.</p>
-    <p class="content-text"><strong>Responsables de la ejecucion:</strong> Personal de vigilancia. Administrador del conjunto. Brigada de emergencias (si aplica). Empresa mantenedora del ascensor. Organismos de socorro (Bomberos, Defensa Civil, etc., si es necesario).</p>
-    <p class="content-text"><strong>Procedimiento:</strong></p>
-    <p class="content-text"><strong>1. Activacion del Codigo 7:</strong> Ante el aviso de personas atrapadas, el personal que reciba la alerta debe anunciar por el canal de comunicacion interna: "Codigo 7 activo en el piso y lugar donde se presento la novedad". Registrar la hora y ubicacion exacta en la minuta de seguridad.</p>
-    <p class="content-text"><strong>2. Evaluacion inicial:</strong> Confirmar cuantas personas estan atrapadas. Identificar si hay menores de edad, personas con discapacidad, adultos mayores o embarazadas. Determinar si existe riesgo inminente (falta de aire, humo, fuego, agua, lesiones graves).</p>
-    <p class="content-text"><strong>3. Comunicacion con los ocupantes:</strong> Mantener contacto verbal desde el exterior o por intercomunicador. Indicar que el rescate esta en proceso. Recomendar mantener la calma, no forzar puertas ni intentar salir por sus medios.</p>
-    <p class="content-text"><strong>4. Corte de energia:</strong> Desconectar el ascensor desde el tablero electrico, unicamente si se tiene claridad y autorizacion para hacerlo. Esto evita movimientos involuntarios durante el rescate.</p>
-    <p class="content-text"><strong>5. Notificacion inmediata a:</strong> Empresa de mantenimiento (numero visible en porteria). Administracion del conjunto. Bomberos, si hay riesgo vital o el tiempo de espera excede 20 minutos.</p>
-    <p class="content-text"><strong>6. Esperar personal capacitado:</strong> No realizar maniobras improvisadas de apertura. Asegurar que los ocupantes cuenten con ventilacion adecuada hasta que llegue el personal tecnico.</p>
-    <p class="content-text"><strong>7. Rescate asistido (solo con personal autorizado):</strong> Coordinado por empresa mantenedora o bomberos. Verificar alineacion del ascensor con el piso antes de abrir puertas. Garantizar que las personas salgan de forma controlada.</p>
-    <p class="content-text"><strong>8. Atencion posterior al rescate:</strong> Verificar condicion fisica y emocional de los ocupantes. Ofrecer primeros auxilios y asistencia psicologica si es necesario.</p>
-    <p class="content-text"><strong>9. Cierre del evento:</strong> Levantar informe detallado con hora de inicio, tiempo de respuesta, personal interviniente, causa probable y medidas correctivas. Prohibir el uso del ascensor hasta que la empresa mantenedora emita certificacion de funcionamiento seguro.</p>
-    <p class="content-text"><strong>Medidas preventivas:</strong><br>Mantener al dia el mantenimiento preventivo y correctivo del ascensor.<br>Contar con senalizacion visible de contacto de emergencia.<br>Capacitar al personal sobre este PON al menos una vez al ano.<br>Incluir simulacros de procedimiento en el plan de emergencias.</p>
-    <p class="content-text"><strong>Recomendaciones:</strong><br>No permitir que personal no capacitado intente rescates.<br>Garantizar que el tablero de codigos de emergencia incluya: "Codigo 7 - Falla de ascensor con personas en su interior".<br>Verificar periodicamente la operatividad del sistema de comunicacion interna del ascensor.</p>
+    <!-- ============ PROCEDIMIENTOS OPERATIVOS NORMALIZADOS (PON) ============ -->
+<div class="section-title">PROCEDIMIENTOS OPERATIVOS NORMALIZADOS (PON)</div>
+<p class="content-text">Los siguientes Procedimientos Operativos Normalizados (PON) establecen las acciones estandarizadas que deben ejecutarse ante cada tipo de emergencia identificada. Cada PON esta estructurado con objetivo, alcance, definiciones, responsables, procedimiento paso a paso, medidas preventivas y recomendaciones, conforme al Decreto 1072 de 2015 art. 2.2.4.6.25 y las directrices de la UNGRD.</p>
+<!-- TODO Fase 2: IA (Claude) enriquecera cada PON con aspectos especificos del cliente segun $ultimaProb (probabilidad de cada amenaza) y $ultimaMatriz (vulnerabilidades), agregando un adendo personalizado por PON. -->
+
+<div class="section-subtitle">NOTA ACLARATORIA SOBRE LA BRIGADA DE EMERGENCIA EN PROPIEDAD HORIZONTAL</div>
+<p class="content-text">Conforme al Decreto 1072 de 2015 art. 2.2.4.6.25 y la Resolucion 0256 de 2014, toda copropiedad debe conformar una Brigada de Prevencion, Preparacion y Respuesta ante Emergencias. En el contexto real de la propiedad horizontal residencial, esta Brigada esta integrada por <strong>residentes y personal contratista voluntario</strong> (vigilancia, aseo, mantenimiento) que reciben <strong>capacitacion teorico-practica basica</strong> en: primeros auxilios, tipos y manejo de extintores, control de conatos de incendio, protocolos de evacuacion e instruccion para el Simulacro Nacional de Evacuacion anual.</p>
+<p class="content-text">La Brigada de la copropiedad <strong>no sustituye a los organismos oficiales de socorro</strong>. Su funcion es contener el evento en su fase inicial, proteger vidas y facilitar la llegada y actuacion de Bomberos, Policia, Cruz Roja y Defensa Civil. Las acciones de rescate tecnico, busqueda en estructuras colapsadas, manejo de materiales peligrosos, desactivacion de artefactos explosivos y cualquier intervencion que requiera equipamiento especializado corresponden exclusivamente a las entidades oficiales.</p>
+<p class="content-text">El presente Plan reconoce que <?= $nombreCliente ?> cuenta con <strong>una sola Brigada de Emergencia</strong> para toda la copropiedad, y que todas las referencias a brigadistas, coordinadores de evacuacion o grupos funcionales se entienden aplicadas al personal efectivamente capacitado y disponible al momento del evento. Donde no haya brigada constituida, las funciones operativas iniciales seran asumidas por el <strong>personal de vigilancia en turno</strong>, con el respaldo del Administrador y de los residentes voluntarios capacitados.</p>
+
+<?php
+$ponesCanonicos = require APPPATH . 'Config/PonesCanonicos.php';
+foreach ($ponesCanonicos as $pon):
+?>
+    <div class="section-subtitle">PON CODIGO <?= esc($pon['codigo']) ?> — <?= esc($pon['titulo']) ?></div>
+
+    <p class="content-text"><strong>Objetivo:</strong> <?= esc($pon['objetivo']) ?></p>
+    <p class="content-text"><strong>Alcance:</strong> <?= esc($pon['alcance']) ?></p>
+
+    <?php if (!empty($pon['definiciones'])): ?>
+    <p class="content-bold">Definiciones clave:</p>
+    <?php foreach ($pon['definiciones'] as $termino => $definicion): ?>
+    <p class="content-text"><strong><?= esc($termino) ?>:</strong> <?= esc($definicion) ?></p>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <?php if (!empty($pon['responsables'])): ?>
+    <p class="content-bold">Responsables de la ejecucion:</p>
+        <?php if (!empty($pon['responsables']['internos'])): ?>
+        <p class="content-text"><strong>Actores internos del conjunto:</strong> <?= esc(implode(' | ', $pon['responsables']['internos'])) ?></p>
+        <?php endif; ?>
+        <?php if (!empty($pon['responsables']['contratistas_externos'])): ?>
+        <p class="content-text"><strong>Contratistas externos:</strong> <?= esc(implode(' | ', $pon['responsables']['contratistas_externos'])) ?></p>
+        <?php endif; ?>
+        <?php if (!empty($pon['responsables']['organismos_socorro'])): ?>
+        <p class="content-text"><strong>Organismos de socorro:</strong> <?= esc(implode(' | ', $pon['responsables']['organismos_socorro'])) ?></p>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <p class="content-bold">Procedimiento:</p>
+    <?php foreach ($pon['procedimiento'] as $paso): ?>
+    <p class="content-text"><?= esc($paso) ?></p>
+    <?php endforeach; ?>
+
+    <?php if (!empty($pon['medidas_preventivas'])): ?>
+    <p class="content-bold">Medidas preventivas:</p>
+    <?php foreach ($pon['medidas_preventivas'] as $medida): ?>
+    <p class="content-text">• <?= esc($medida) ?></p>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <?php if (!empty($pon['recomendaciones'])): ?>
+    <p class="content-bold">Recomendaciones:</p>
+    <?php foreach ($pon['recomendaciones'] as $rec): ?>
+    <p class="content-text">• <?= esc($rec) ?></p>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+<?php endforeach; ?>
 
     <!-- ============ DIAGRAMA DE ACTUACION EN EMERGENCIAS ============ -->
-    <?php if (!empty($diagramaBase64)): ?>
+    <!-- TODO Fase 2: este diagrama sera generado dinamicamente por IA (Claude).
+         Arquitectura:
+           1. PlanEmergenciaController leera $ultimaProb (amenazas probables) + $ultimaMatriz (vulnerabilidades) + $inspeccion (tipo inmueble, torres, aforo).
+           2. DiagramaEmergenciaIAService::generar($contexto) llamara a Claude API (cURL directo, patron SendGrid) con un prompt estructurado.
+           3. Claude devolvera un JSON con nodos del arbol de decision: {inicio, decisiones[], nodos[], ramas[]}.
+           4. El JSON se guardara en una columna nueva tbl_plan_emergencia.diagrama_ia_json.
+           5. pdf.php recibira $diagramaNodos y renderizara el arbol como tablas HTML anidadas con flechas unicode (▼ ├── → └──), 100% compatible DOMPDF, sin imagen.
+         NO se usa imagen estatica — la dependencia de $diagramaBase64 fue eliminada por decision del usuario. -->
 <div class="section-title">DIAGRAMA DE ACTUACION EN CASO DE EMERGENCIA</div>
-    <p class="content-text">El siguiente diagrama de flujo establece el protocolo general de actuacion ante diferentes tipos de emergencia que puedan presentarse en la propiedad horizontal. Permite identificar rapidamente las acciones a seguir segun el tipo de evento.</p>
-    <div style="text-align: center; margin: 15px 0;">
-        <img src="<?= $diagramaBase64 ?>" style="max-width: 100%; max-height: 700px;">
-    </div>
+    <p class="content-text">El siguiente diagrama de flujo establece el protocolo general de actuacion ante diferentes tipos de emergencia que puedan presentarse en la propiedad horizontal, personalizado segun las amenazas identificadas en el analisis de vulnerabilidad y probabilidad de peligros del conjunto <?= $nombreCliente ?>. Permite identificar rapidamente las acciones a seguir segun el tipo de evento.</p>
+    <?php if (!empty($diagramaNodos ?? null)): ?>
+        <!-- Render determinista del arbol generado por IA (Fase 2) — pendiente de implementacion -->
+        <p class="content-text"><em>[Diagrama personalizado renderizado dinamicamente]</em></p>
+    <?php else: ?>
+    <p class="content-text"><em>[Pendiente de generacion personalizada del diagrama de actuacion segun las amenazas especificas de la copropiedad — sera generado por IA en Fase 2.]</em></p>
     <?php endif; ?>
+
+    <!-- ============ CONFORMACION DE BRIGADA DE EMERGENCIA ============ -->
+    <div class="section-title">CONFORMACION DE LA BRIGADA DE EMERGENCIA</div>
+    <p class="content-text">En cumplimiento del numeral 5 del articulo 2.2.4.6.25 del Decreto 1072 de 2015, de la Resolucion 0312 de 2019 y de la Resolucion 0256 de 2014 de la Direccion Nacional de Bomberos de Colombia, <?= $nombreCliente ?> conformara una Brigada de Prevencion, Preparacion y Respuesta ante Emergencias, integrada por personal voluntario de la administracion, vigilancia, aseo, mantenimiento y residentes que manifiesten disposicion de servicio.</p>
+    <div class="section-subtitle">ESTRUCTURA DE LA BRIGADA</div>
+    <p class="content-text">La brigada se organizara bajo el modelo del Sistema Comando de Incidentes con las siguientes posiciones: <strong>Jefe de Brigada</strong> (administrador o delegado), <strong>Subjefe de Brigada</strong> y los siguientes grupos funcionales: <strong>(i) Grupo de Evacuacion y Rescate:</strong> responsable de guiar a residentes y visitantes por las rutas de evacuacion hasta los puntos de encuentro y de realizar la busqueda y rescate basico de personas que no hayan evacuado. <strong>(ii) Grupo de Primeros Auxilios:</strong> responsable de brindar atencion inicial a lesionados hasta la llegada de los organismos de socorro. <strong>(iii) Grupo de Control de Incendios:</strong> responsable del manejo de extintores portatiles y gabinetes contra incendio en conatos y del apoyo al Cuerpo de Bomberos. <strong>(iv) Grupo de Comunicaciones:</strong> responsable de activar las alarmas, efectuar las llamadas a organismos externos de socorro y llevar el registro del evento.</p>
+    <div class="section-subtitle">PERFIL Y REQUISITOS DEL BRIGADISTA</div>
+    <p class="content-text">Mayor de edad, en condiciones fisicas y mentales aptas para la actividad, con disponibilidad para recibir capacitacion y entrenamiento periodico, disposicion de servicio, liderazgo, capacidad de trabajo en equipo y compromiso con la gestion del riesgo de la copropiedad. Los brigadistas deberan acreditar examen medico ocupacional que certifique su aptitud para actividades de brigada.</p>
+    <div class="section-subtitle">FUNCIONES ANTES, DURANTE Y DESPUES</div>
+    <p class="content-text"><strong>Antes:</strong> participar en las capacitaciones, inspeccionar periodicamente los equipos de emergencia (extintores, gabinetes, botiquines, senalizacion, rutas), divulgar el Plan a residentes y visitantes, participar en simulacros y verificar la operatividad de los sistemas de alarma y comunicacion.<br><strong>Durante:</strong> activar el sistema de alarma, ejecutar las acciones propias de su grupo funcional segun los procedimientos operativos normalizados (PON), coordinar con organismos externos de socorro, mantener la calma y proteger la vida como prioridad absoluta por encima de los bienes materiales.<br><strong>Despues:</strong> verificar que todos los ocupantes hayan evacuado hacia los puntos de encuentro, rendir informe de la novedad, participar en la evaluacion del evento, apoyar las labores de recuperacion y contribuir a la actualizacion del Plan con las lecciones aprendidas.</p>
+    <div class="section-subtitle">DOTACION MINIMA</div>
+    <p class="content-text">La administracion del conjunto dotara a la brigada con los elementos minimos de proteccion personal e identificacion: casco tipo brigadista con barbiquejo, chaleco reflectivo con identificacion del rol, guantes de carnaza y de nitrilo, linterna de mano con baterias de repuesto, pito de emergencia, radio de comunicacion y botiquin portatil de brigadista. La dotacion sera verificada y repuesta periodicamente.</p>
+    <!-- TODO Fase 2: este contenido sera generado dinamicamente por IA segun datos de inspeccion de Brigada y Simulacros -->
+
+    <!-- ============ PROGRAMA DE CAPACITACION Y SIMULACROS ============ -->
+    <div class="section-title">PROGRAMA DE CAPACITACION Y SIMULACROS</div>
+    <p class="content-text">En cumplimiento del numeral 6 del articulo 2.2.4.6.25 del Decreto 1072 de 2015 y de los estandares minimos de la Resolucion 0312 de 2019, <?= $nombreCliente ?> realizara simulacros de emergencia como minimo una (1) vez al ano, con la participacion de todos los trabajadores, brigadistas, administracion y, en lo posible, los residentes del conjunto.</p>
+    <div class="section-subtitle">TEMAS OBLIGATORIOS DE CAPACITACION</div>
+    <p class="content-text">La brigada y el personal vinculado recibiran capacitacion minima anual en: (i) nociones basicas de gestion del riesgo de desastres y marco normativo; (ii) analisis de amenazas y vulnerabilidad aplicado a la copropiedad; (iii) evacuacion, rutas y puntos de encuentro; (iv) primeros auxilios basicos y RCP; (v) uso y manejo de extintores portatiles; (vi) uso de gabinetes contra incendio cuando aplique; (vii) busqueda y rescate basico; (viii) comunicaciones en emergencia y activacion de alarmas; (ix) funcionamiento del Sistema Comando de Incidentes; (x) protocolos de articulacion con organismos de socorro.</p>
+    <div class="section-subtitle">TIPOS DE SIMULACRO</div>
+    <p class="content-text"><strong>Simulacro de escritorio (tabletop):</strong> ejercicio teorico en el cual la brigada y la administracion analizan la respuesta a un escenario hipotetico sin desplazamiento fisico.<br><strong>Simulacro parcial:</strong> ejercicio en terreno que evalua uno o varios procedimientos especificos (evacuacion de una torre, uso de extintores, activacion de la alarma).<br><strong>Simulacro general:</strong> ejercicio en terreno que activa todos los procedimientos del Plan, incluida la evacuacion total hacia los puntos de encuentro.<br><strong>Simulacro avisado / no avisado:</strong> segun se informe previamente a los participantes o no, con el fin de evaluar el comportamiento espontaneo de la comunidad.</p>
+    <div class="section-subtitle">FRECUENCIA Y PROGRAMACION ANUAL</div>
+    <p class="content-text">La administracion programara al inicio de cada vigencia el cronograma de simulacros del ano, incluyendo como minimo un (1) simulacro general anual con participacion del mayor numero posible de residentes, un (1) simulacro parcial por semestre y ejercicios de tabletop para la brigada. Se recomienda alinear la programacion con el Simulacro Nacional de Respuesta a Emergencias convocado por la UNGRD.</p>
+    <div class="section-subtitle">CRITERIOS DE EVALUACION Y REGISTRO</div>
+    <p class="content-text">Cada simulacro sera evaluado por un observador externo o por un brigadista no participante, con base en los siguientes criterios: (i) tiempo de respuesta desde la activacion de la alarma hasta el inicio de la evacuacion; (ii) tiempo total de evacuacion; (iii) cumplimiento del procedimiento operativo normalizado; (iv) comportamiento de los ocupantes; (v) efectividad de las comunicaciones; (vi) estado de los equipos de emergencia. Se levantara acta del ejercicio con fecha, hora, escenario, numero de participantes, hallazgos, desviaciones respecto del procedimiento y plan de mejora. Los registros reposaran en el archivo del SG-SST de la copropiedad y estaran disponibles para verificacion por parte del Ministerio del Trabajo.</p>
+    <!-- TODO Fase 2: generacion por IA -->
+
+    <!-- ============ PLAN DE AYUDA MUTUA ============ -->
+    <div class="section-title">PLAN DE AYUDA MUTUA</div>
+    <p class="content-text">El Plan de Ayuda Mutua (PAM) es el conjunto de acuerdos, protocolos y canales de comunicacion mediante los cuales <?= $nombreCliente ?> se articula con los organismos de socorro, las autoridades competentes y las copropiedades vecinas para optimizar la respuesta ante situaciones de emergencia cuya magnitud supere la capacidad de la brigada interna.</p>
+    <div class="section-subtitle">ARTICULACION CON ORGANISMOS DE SOCORRO</div>
+    <p class="content-text">La administracion mantendra actualizado en porteria y en la oficina administrativa el directorio telefonico con los contactos de: <strong>Cuerpo Oficial de Bomberos</strong> (linea 119 y estacion mas cercana identificada en la seccion ENTORNO del presente Plan), <strong>Policia Nacional</strong> (linea 123 y CAI mas cercano), <strong>Defensa Civil Colombiana</strong>, <strong>Cruz Roja Colombiana</strong>, <strong>hospitales y centros de salud de primer y segundo nivel cercanos</strong>, <strong>empresa de servicios publicos de energia, gas y acueducto</strong> y <strong>empresa mantenedora de ascensores</strong>. Estos contactos seran verificados trimestralmente por el administrador.</p>
+    <div class="section-subtitle">COORDINACION CON COPROPIEDADES VECINAS</div>
+    <p class="content-text">Se promovera la suscripcion de acuerdos de ayuda mutua con copropiedades vecinas para compartir recursos (puntos de encuentro alternos, equipos de primeros auxilios, apoyo logistico) en caso de emergencia mayor. Estos acuerdos quedaran documentados y seran socializados con la brigada y con los administradores de las copropiedades firmantes.</p>
+    <div class="section-subtitle">PROTOCOLO DE ACTIVACION EXTERNA</div>
+    <p class="content-text">Cuando la magnitud del evento supere la capacidad de respuesta interna, el jefe de brigada o el administrador activara el protocolo de ayuda externa: (i) llamada inmediata al numero unico de emergencias 123; (ii) comunicacion directa con el Cuerpo de Bomberos; (iii) notificacion al Consejo Distrital/Municipal de Gestion del Riesgo de Desastres cuando corresponda; (iv) atencion y guia a los organismos de socorro al momento de su llegada, entregando informacion clave sobre ubicacion del evento, numero de afectados y recursos disponibles.</p>
+
+    <!-- ============ PLAN DE CONTINUIDAD Y RECUPERACION ============ -->
+    <div class="section-title">PLAN DE CONTINUIDAD Y RECUPERACION</div>
+    <p class="content-text">El Plan de Continuidad y Recuperacion reune las acciones que <?= $nombreCliente ?> ejecutara con posterioridad a una emergencia para restablecer la normalidad de los servicios, la infraestructura y la vida comunitaria de la copropiedad, en concordancia con el proceso de manejo del desastre establecido en el Decreto 2157 de 2017.</p>
+    <div class="section-subtitle">EVALUACION POST-EVENTO</div>
+    <p class="content-text">Inmediatamente despues de controlado el evento, el jefe de brigada, el administrador y un representante tecnico (cuando aplique, ingeniero o arquitecto) realizaran una inspeccion visual de la infraestructura para identificar danos en elementos estructurales, instalaciones electricas, instalaciones de gas, redes hidraulicas, ascensores y sistemas de seguridad. El resultado de esta inspeccion quedara consignado en un acta de novedad post-evento.</p>
+    <div class="section-subtitle">RESTABLECIMIENTO DE SERVICIOS</div>
+    <p class="content-text">Con base en la evaluacion anterior, se priorizara el restablecimiento de los servicios esenciales en el siguiente orden: (i) energia electrica y alumbrado de emergencia; (ii) suministro de agua potable; (iii) servicio de gas (previa verificacion de ausencia de fugas por la empresa prestadora); (iv) ascensores (previa certificacion de la empresa mantenedora); (v) sistemas de comunicacion interna y alarmas.</p>
+    <div class="section-subtitle">ATENCION PSICOSOCIAL</div>
+    <p class="content-text">Se coordinara con la EPS, ARL y organismos de salud el acompanamiento psicosocial a las personas afectadas por el evento, con especial atencion a menores, adultos mayores, personas con discapacidad y familias de victimas.</p>
+    <div class="section-subtitle">LECCIONES APRENDIDAS Y ACTUALIZACION DEL PLAN</div>
+    <p class="content-text">Dentro de los treinta (30) dias calendario siguientes al evento, el administrador convocara a una reunion de evaluacion con la brigada, el consejo de administracion y, cuando sea pertinente, con representantes de los organismos de socorro intervinientes. De esta reunion se derivaran las lecciones aprendidas y las acciones de mejora, que se incorporaran al presente Plan como parte del proceso de actualizacion anual.</p>
 
     <!-- ============ ANEXOS - EVALUACIONES DE SEGURIDAD ============ -->
 <div class="annex-title">ANEXOS - EVALUACIONES DE SEGURIDAD</div>
     <p class="content-text">La gestion eficiente de la seguridad en propiedades horizontales requiere un enfoque integral que permita identificar y mitigar los riesgos. Cycloid Talent SAS ha llevado a cabo una revision exhaustiva de los principales elementos de seguridad necesarios para la creacion de este Plan de Emergencias.</p>
 
     <!-- ANEXO: INSPECCION LOCATIVA -->
+    <?php if ($debugMode): ?><div class="dbg dbg-locativa"><span class="dbg-label">LOCATIVA — $ultimaLocativa + $hallazgosLocativa</span><?php endif; ?>
     <?php if ($ultimaLocativa && !empty($hallazgosLocativa)): ?>
     <div class="section-title">INSPECCION LOCATIVA GENERAL</div>
     <p class="content-text">La inspeccion general se refiere a la revision periodica de todas las areas comunes con el fin de identificar posibles riesgos para la seguridad de los residentes, visitantes y trabajadores.</p>
@@ -502,9 +651,13 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
         <?php endforeach; ?>
         </tbody>
     </table>
+    <?php else: ?>
+    <?php if ($debugMode): ?><div class="dbg-missing">⚠ $ultimaLocativa / $hallazgosLocativa vacíos — no hay inspección Locativa cargada</div><?php endif; ?>
     <?php endif; ?>
+    <?php if ($debugMode): ?></div><?php endif; ?>
 
     <!-- ANEXO: MATRIZ VULNERABILIDAD -->
+    <?php if ($debugMode): ?><div class="dbg dbg-matriz"><span class="dbg-label">MATRIZ VULNERABILIDAD — $ultimaMatriz</span><?php endif; ?>
     <?php if ($ultimaMatriz): ?>
 <div class="section-title">MATRIZ DE VULNERABILIDAD</div>
     <p class="content-text">La matriz de vulnerabilidad es una herramienta utilizada para evaluar los riesgos a los que esta expuesta una copropiedad, analizando aspectos de seguridad fisica, infraestructura y procesos de mantenimiento.</p>
@@ -566,9 +719,14 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     </table>
     <?php if (!empty($ultimaMatriz['observaciones'])): ?>
     <p class="content-text"><strong>Observaciones del consultor:</strong> <?= nl2br(esc($ultimaMatriz['observaciones'])) ?></p>
-    <?php endif; endif; ?>
+    <?php endif; ?>
+    <?php else: ?>
+    <?php if ($debugMode): ?><div class="dbg-missing">⚠ $ultimaMatriz vacío — no hay Matriz de Vulnerabilidad</div><?php endif; ?>
+    <?php endif; ?>
+    <?php if ($debugMode): ?></div><?php endif; ?>
 
     <!-- ANEXO: EXTINTORES -->
+    <?php if ($debugMode): ?><div class="dbg dbg-ext"><span class="dbg-label">EXTINTORES — $ultimaExt</span><?php endif; ?>
     <?php if ($ultimaExt): ?>
 <div class="section-title">REVISION DE EXTINTORES</div>
     <p class="content-text">Los extintores portatiles contra incendios son un equipo esencial para la seguridad. En caso de incendio, un extintor portatil puede ayudar a controlar o extinguir el fuego, lo que puede salvar vidas y proteger la propiedad.</p>
@@ -584,9 +742,14 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     </table>
     <?php if (!empty($ultimaExt['recomendaciones_generales'])): ?>
     <p class="content-text"><strong>Recomendaciones:</strong> <?= nl2br(esc($ultimaExt['recomendaciones_generales'])) ?></p>
-    <?php endif; endif; ?>
+    <?php endif; ?>
+    <?php else: ?>
+    <?php if ($debugMode): ?><div class="dbg-missing">⚠ $ultimaExt vacío — no hay Inspección de Extintores</div><?php endif; ?>
+    <?php endif; ?>
+    <?php if ($debugMode): ?></div><?php endif; ?>
 
     <!-- ANEXO: BOTIQUIN -->
+    <?php if ($debugMode): ?><div class="dbg dbg-bot"><span class="dbg-label">BOTIQUIN — $ultimaBot</span><?php endif; ?>
     <?php if ($ultimaBot): ?>
 <div class="section-title">REVISION DE BOTIQUIN</div>
     <p class="content-text">Los botiquines en propiedades horizontales deben estar equipados con los suministros de primeros auxilios necesarios para atender emergencias menores, garantizando una respuesta rapida ante accidentes hasta que llegue la asistencia medica profesional.</p>
@@ -601,9 +764,14 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     </table>
     <?php if (!empty($ultimaBot['recomendaciones_inspeccion'])): ?>
     <p class="content-text"><strong>Recomendaciones:</strong> <?= nl2br(esc($ultimaBot['recomendaciones_inspeccion'])) ?></p>
-    <?php endif; endif; ?>
+    <?php endif; ?>
+    <?php else: ?>
+    <?php if ($debugMode): ?><div class="dbg-missing">⚠ $ultimaBot vacío — no hay Inspección de Botiquín</div><?php endif; ?>
+    <?php endif; ?>
+    <?php if ($debugMode): ?></div><?php endif; ?>
 
     <!-- ANEXO: RECURSOS SEGURIDAD -->
+    <?php if ($debugMode): ?><div class="dbg dbg-rec"><span class="dbg-label">REC. SEGURIDAD — $ultimaRec</span><?php endif; ?>
     <?php if ($ultimaRec): ?>
 <div class="section-title">RECURSOS DE SEGURIDAD</div>
     <p class="content-text">Los recursos de seguridad incluyen equipo fisico (camaras, alarmas, cercas electricas, sistemas de control de acceso) y personal de seguridad capacitado, destinados a proteger a los residentes y garantizar el control de accesos y la vigilancia de areas comunes.</p>
@@ -625,9 +793,14 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     </table>
     <?php if (!empty($ultimaRec['observaciones'])): ?>
     <p class="content-text"><strong>Observaciones:</strong> <?= nl2br(esc($ultimaRec['observaciones'])) ?></p>
-    <?php endif; endif; ?>
+    <?php endif; ?>
+    <?php else: ?>
+    <?php if ($debugMode): ?><div class="dbg-missing">⚠ $ultimaRec vacío — no hay Inspección de Recursos de Seguridad</div><?php endif; ?>
+    <?php endif; ?>
+    <?php if ($debugMode): ?></div><?php endif; ?>
 
     <!-- ANEXO: COMUNICACIONES -->
+    <?php if ($debugMode): ?><div class="dbg dbg-com"><span class="dbg-label">COMUNICACIONES — $ultimaCom</span><?php endif; ?>
     <?php if ($ultimaCom): ?>
 <div class="section-title">EQUIPOS DE COMUNICACIONES</div>
     <p class="content-text">Los equipos de comunicaciones en una copropiedad son esenciales para coordinar las actividades del personal de seguridad, administracion y mantenimiento. Incluyen radios, intercomunicadores y telefonos para comunicacion rapida y efectiva.</p>
@@ -636,9 +809,14 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     </table>
     <?php if (!empty($ultimaCom['observaciones'])): ?>
     <p class="content-text"><strong>Observaciones:</strong> <?= nl2br(esc($ultimaCom['observaciones'])) ?></p>
-    <?php endif; endif; ?>
+    <?php endif; ?>
+    <?php else: ?>
+    <?php if ($debugMode): ?><div class="dbg-missing">⚠ $ultimaCom vacío — no hay Inspección de Comunicaciones</div><?php endif; ?>
+    <?php endif; ?>
+    <?php if ($debugMode): ?></div><?php endif; ?>
 
     <!-- ANEXO: GABINETES (condicional) -->
+    <?php if ($debugMode): ?><div class="dbg dbg-gab"><span class="dbg-label">GABINETES (condicional) — $ultimaGab</span><?php endif; ?>
     <?php if ($ultimaGab): ?>
     <div class="section-title">GABINETES CONTRA INCENDIO</div>
     <table class="info-table">
@@ -646,7 +824,11 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     </table>
     <?php if (!empty($ultimaGab['observaciones'])): ?>
     <p class="content-text"><strong>Observaciones:</strong> <?= nl2br(esc($ultimaGab['observaciones'])) ?></p>
-    <?php endif; endif; ?>
+    <?php endif; ?>
+    <?php else: ?>
+    <?php if ($debugMode): ?><div class="dbg-missing">⚠ $ultimaGab vacío — solo aplica si `tiene_gabinetes_hidraulico = si`</div><?php endif; ?>
+    <?php endif; ?>
+    <?php if ($debugMode): ?></div><?php endif; ?>
 
     <!-- ============ TELEFONOS DE EMERGENCIA ============ -->
 <div class="section-title">TELEFONOS DE EMERGENCIA</div>
@@ -669,36 +851,6 @@ $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
     <!-- GABINETES HIDRAULICOS -->
     <table class="info-table" style="margin-top:8px;">
         <tr><td class="info-label">TIENE GABINETES CON PUNTO HIDRAULICO</td><td><?= $enumSiNo[$inspeccion['tiene_gabinetes_hidraulico'] ?? ''] ?? '-' ?></td></tr>
-    </table>
-
-    <!-- ============ ADMINISTRACION Y PERSONAL ============ -->
-    <div class="section-title">ADMINISTRACION Y PERSONAL</div>
-    <table class="info-table">
-        <tr><td class="info-label">NOMBRE DEL ADMINISTRADOR</td><td><?= esc($inspeccion['nombre_administrador'] ?? '-') ?></td></tr>
-        <tr><td class="info-label">HORARIOS DE ADMINISTRACION</td><td><?= esc($inspeccion['horarios_administracion'] ?? '-') ?></td></tr>
-        <tr><td class="info-label">PERSONAL DE ASEO</td><td><?= esc($inspeccion['personal_aseo'] ?? '-') ?></td></tr>
-        <tr><td class="info-label">PERSONAL DE VIGILANCIA</td><td><?= esc($inspeccion['personal_vigilancia'] ?? '-') ?></td></tr>
-    </table>
-
-    <!-- ============ SERVICIOS GENERALES ============ -->
-    <div class="section-title">SERVICIOS GENERALES</div>
-    <table class="info-table">
-        <?php if (!empty($inspeccion['ruta_residuos_solidos'])): ?>
-        <tr><td class="info-label">RUTA DE RESIDUOS SOLIDOS</td><td><?= esc($inspeccion['ruta_residuos_solidos']) ?></td></tr>
-        <?php endif; ?>
-        <tr><td class="info-label">EMPRESA DE ASEO</td><td><?= $empresasAseo[$inspeccion['empresa_aseo'] ?? ''] ?? esc($inspeccion['empresa_aseo'] ?? '-') ?></td></tr>
-        <?php if (!empty($inspeccion['servicios_sanitarios'])): ?>
-        <tr><td class="info-label">SERVICIOS SANITARIOS</td><td><?= esc($inspeccion['servicios_sanitarios']) ?></td></tr>
-        <?php endif; ?>
-        <?php if (!empty($inspeccion['frecuencia_basura'])): ?>
-        <tr><td class="info-label">FRECUENCIA RECOLECCION BASURA</td><td><?= esc($inspeccion['frecuencia_basura']) ?></td></tr>
-        <?php endif; ?>
-        <?php if (!empty($inspeccion['detalle_mascotas'])): ?>
-        <tr><td class="info-label">DETALLE MASCOTAS</td><td><?= esc($inspeccion['detalle_mascotas']) ?></td></tr>
-        <?php endif; ?>
-        <?php if (!empty($inspeccion['detalle_dependencias'])): ?>
-        <tr><td class="info-label">DETALLE DEPENDENCIAS</td><td><?= esc($inspeccion['detalle_dependencias']) ?></td></tr>
-        <?php endif; ?>
     </table>
 
     <!-- ============ OBSERVACIONES Y RECOMENDACIONES ============ -->
