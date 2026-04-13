@@ -1110,6 +1110,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('plan-emergencia/check-inspecciones/(:num)', 'PlanEmergenciaController::checkInspeccionesCompletas/$1');
     $routes->get('plan-emergencia/enviar-email/(:num)', 'PlanEmergenciaController::enviarEmail/$1');
     $routes->get('plan-emergencia/debug-pdf', 'PlanEmergenciaController::debugPdf');
+    $routes->get('plan-emergencia/enriquecer-pons-ia/(:num)', 'PlanEmergenciaController::enriquecerPONsConIA/$1');
 
     // Dotación Vigilante
     $routes->get('dotacion-vigilante', 'DotacionVigilanteController::list');

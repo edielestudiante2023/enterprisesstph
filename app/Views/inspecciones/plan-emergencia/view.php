@@ -493,6 +493,15 @@ $telefonosCiudad = ($ciudad && isset($telefonos[$ciudad])) ? $telefonos[$ciudad]
     <a href="<?= base_url('/inspecciones/plan-emergencia/regenerar/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
         <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
     </a>
+    <a href="<?= base_url('/inspecciones/plan-emergencia/enriquecer-pons-ia/') ?><?= $inspeccion['id'] ?>"
+       class="btn btn-pwa btn-pwa-outline"
+       style="border-color:#8e44ad; color:#8e44ad;"
+       onclick="return confirm('¿Generar adendos personalizados de los 10 PONs con IA (Claude)? Tarda ~30 segundos. Tras generar, debes Regenerar PDF para que aparezcan en el documento.')">
+        <i class="fas fa-robot me-2"></i>Generar PONs con IA
+        <?php if (!empty($inspeccion['ia_generado_at'])): ?>
+        <small class="text-muted d-block" style="font-size:10px;">Ultima generacion: <?= date('d/m/Y H:i', strtotime($inspeccion['ia_generado_at'])) ?></small>
+        <?php endif; ?>
+    </a>
     <a href="<?= base_url('/inspecciones/plan-emergencia/enviar-email/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
         <i class="fas fa-envelope me-2"></i>Enviar por Email
     </a>

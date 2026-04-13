@@ -553,6 +553,16 @@ foreach ($ponesCanonicos as $pon):
     <?php endforeach; ?>
     <?php endif; ?>
 
+    <?php
+    // Adendo personalizado generado por IA (Fase 2)
+    $ponKey = array_search($pon, $ponesCanonicos, true);
+    $adendoIA = $ponsIaAdendo[$ponKey] ?? null;
+    if (!empty($adendoIA)):
+    ?>
+    <p class="content-bold" style="background:#f5eef8; color:#5b2c6f; padding:3px 6px; border-left:3px solid #8e44ad;">Adendo personalizado para <?= esc($nombreCliente) ?>:</p>
+    <p class="content-text" style="background:#fbf6fc; padding:6px; border-left:3px solid #8e44ad;"><?= nl2br(esc($adendoIA)) ?></p>
+    <?php endif; ?>
+
 <?php endforeach; ?>
 
     <!-- ============ DIAGRAMA DE ACTUACION EN EMERGENCIAS ============ -->

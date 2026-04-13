@@ -452,10 +452,67 @@ class PlanEmergenciaController extends BaseController
             'ultimaRec'          => $dummyRec,
             'ultimaCom'          => $dummyCom,
             'ultimaGab'          => $dummyGab,
+            'ponsIaAdendo'       => [],
+            'diagramaNodos'      => null,
+            'matrizResponsablesIA' => null,
             'debugMode'          => true,
         ];
 
         return view('inspecciones/plan-emergencia/pdf', $data);
+    }
+
+    /**
+     * Genera/regenera el adendo IA personalizado para los 10 PONs canonicos
+     * de un Plan de Emergencia especifico. Guarda el JSON en pons_ia_json.
+     *
+     * Fase 2 - Plan de Emergencia.
+     */
+    public function enriquecerPONsConIA($id)
+    {
+        $inspeccion = $this->model->find($id);
+        if (!$inspeccion) {
+            return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'Plan no encontrado');
+        }
+
+        $idCliente = (int) $inspeccion['id_cliente'];
+        $cliente   = (new ClientModel())->find($idCliente);
+        if (!$cliente) {
+            return redirect()->back()->with('error', 'Cliente no encontrado');
+        }
+
+        // Cargar las inspecciones del cliente que sirven de contexto a la IA
+        $contextoCliente = [
+            'cliente'        => $cliente,
+            'inspeccion'     => $inspeccion,
+            'ultimaLocativa' => (new InspeccionLocativaModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+            'ultimaMatriz'   => (new MatrizVulnerabilidadModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+            'ultimaProb'     => (new ProbabilidadPeligrosModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+            'ultimaExt'      => (new InspeccionExtintoresModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+            'ultimaBot'      => (new InspeccionBotiquinModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+            'ultimaRec'      => (new InspeccionRecursosSeguridadModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+            'ultimaCom'      => (new InspeccionComunicacionModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+            'ultimaGab'      => (new InspeccionGabineteModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+        ];
+
+        $ponesCanonicos = require APPPATH . 'Config/PonesCanonicos.php';
+
+        $svc  = new \App\Libraries\PlanEmergenciaIAService();
+        $resp = $svc->enriquecerPONs($contextoCliente, $ponesCanonicos);
+
+        if (!$resp['ok']) {
+            log_message('error', '[PlanEmergencia IA PONs] ' . ($resp['error'] ?? 'desconocido'));
+            return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
+        }
+
+        $this->model->update($id, [
+            'pons_ia_json'   => json_encode($resp['data'], JSON_UNESCAPED_UNICODE),
+            'ia_generado_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $tokensIn  = $resp['tokens']['in']  ?? 0;
+        $tokensOut = $resp['tokens']['out'] ?? 0;
+        $msg = sprintf('PONs enriquecidos con IA. Tokens: %d in / %d out.', $tokensIn, $tokensOut);
+        return redirect()->back()->with('msg', $msg);
     }
 
     public function delete($id)
@@ -766,24 +823,54 @@ class PlanEmergenciaController extends BaseController
             $diagramaBase64 = $this->fotoABase64ParaPdf($diagramaPath);
         }
 
+        // Adendo IA por PON (Fase 2). Se decodifica el JSON guardado en BD por enriquecerPONsConIA().
+        $ponsIaAdendo = [];
+        if (!empty($inspeccion['pons_ia_json'])) {
+            $decoded = json_decode($inspeccion['pons_ia_json'], true);
+            if (is_array($decoded)) {
+                $ponsIaAdendo = $decoded;
+            }
+        }
+
+        // Diagrama IA (Fase 2)
+        $diagramaNodos = null;
+        if (!empty($inspeccion['diagrama_ia_json'])) {
+            $decoded = json_decode($inspeccion['diagrama_ia_json'], true);
+            if (is_array($decoded)) {
+                $diagramaNodos = $decoded;
+            }
+        }
+
+        // Matriz de responsables IA (Fase 2)
+        $matrizResponsablesIA = null;
+        if (!empty($inspeccion['matriz_responsables_ia_json'])) {
+            $decoded = json_decode($inspeccion['matriz_responsables_ia_json'], true);
+            if (is_array($decoded)) {
+                $matrizResponsablesIA = $decoded;
+            }
+        }
+
         $data = [
-            'inspeccion'         => $inspeccion,
-            'cliente'            => $cliente,
-            'consultor'          => $consultor,
-            'logoBase64'         => $logoBase64,
-            'fotosBase64'        => $fotosBase64,
-            'telefonos'          => self::TELEFONOS,
-            'empresasAseo'       => self::EMPRESAS_ASEO,
-            'diagramaBase64'     => $diagramaBase64,
-            'ultimaLocativa'     => $ultimaLocativa,
-            'hallazgosLocativa'  => $hallazgosLocativa,
-            'ultimaMatriz'       => $ultimaMatriz,
-            'ultimaProb'         => $ultimaProb,
-            'ultimaExt'          => $ultimaExt,
-            'ultimaBot'          => $ultimaBot,
-            'ultimaRec'          => $ultimaRec,
-            'ultimaCom'          => $ultimaCom,
-            'ultimaGab'          => $ultimaGab,
+            'inspeccion'           => $inspeccion,
+            'cliente'              => $cliente,
+            'consultor'            => $consultor,
+            'logoBase64'           => $logoBase64,
+            'fotosBase64'          => $fotosBase64,
+            'telefonos'            => self::TELEFONOS,
+            'empresasAseo'         => self::EMPRESAS_ASEO,
+            'diagramaBase64'       => $diagramaBase64,
+            'ultimaLocativa'       => $ultimaLocativa,
+            'hallazgosLocativa'    => $hallazgosLocativa,
+            'ultimaMatriz'         => $ultimaMatriz,
+            'ultimaProb'           => $ultimaProb,
+            'ultimaExt'            => $ultimaExt,
+            'ultimaBot'            => $ultimaBot,
+            'ultimaRec'            => $ultimaRec,
+            'ultimaCom'            => $ultimaCom,
+            'ultimaGab'            => $ultimaGab,
+            'ponsIaAdendo'         => $ponsIaAdendo,
+            'diagramaNodos'        => $diagramaNodos,
+            'matrizResponsablesIA' => $matrizResponsablesIA,
         ];
 
         $html = view('inspecciones/plan-emergencia/pdf', $data);
