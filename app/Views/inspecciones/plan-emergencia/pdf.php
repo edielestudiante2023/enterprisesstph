@@ -192,8 +192,30 @@ $debugMode = $debugMode ?? false;
     <p class="content-text">El Plan sera revisado y actualizado como minimo una (1) vez al ano o cuando se produzcan cambios significativos en la infraestructura, la ocupacion, las amenazas identificadas o el marco normativo aplicable. El resultado de cada revision quedara documentado y sera socializado con la brigada, el personal operativo, el consejo de administracion y los residentes.</p>
 
     <div class="section-subtitle">MATRIZ DE RESPONSABLES DEL PLAN</div>
-    <!-- TODO Fase 2: esta matriz sera generada dinamicamente por IA (Claude) segun los datos del cliente (tamano del conjunto, numero de torres, existencia de brigada, administrador designado, comite de convivencia, etc.). Devolvera un JSON con filas {rol, nombre, responsabilidad, frecuencia_revision} que PHP renderizara como tabla. -->
-    <p class="content-text"><em>[Pendiente de generacion personalizada — el presente Plan sera complementado con la matriz especifica de responsables, roles y frecuencias de revision aplicable a la copropiedad <?= $nombreCliente ?>.]</em></p>
+    <?php if (!empty($matrizResponsablesIA ?? null)): ?>
+        <?php $filas = $matrizResponsablesIA['filas'] ?? []; ?>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width:25%;">ROL</th>
+                    <th style="width:55%;">RESPONSABILIDAD PRINCIPAL</th>
+                    <th style="width:20%;">FRECUENCIA</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($filas as $fila): ?>
+                <tr>
+                    <td style="font-weight:bold; vertical-align:top;"><?= esc($fila['rol'] ?? '-') ?></td>
+                    <td style="vertical-align:top;"><?= esc($fila['responsabilidad'] ?? '-') ?></td>
+                    <td style="vertical-align:top; text-align:center;"><?= esc($fila['frecuencia'] ?? '-') ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <p class="content-text" style="font-size:8px; color:#666; font-style:italic;">Matriz personalizada generada por IA para <?= esc($nombreCliente) ?>.</p>
+    <?php else: ?>
+    <p class="content-text"><em>[Pendiente de generacion personalizada — use el boton "Generar Matriz Responsables IA" en la vista del plan para completar esta seccion con la matriz especifica de <?= $nombreCliente ?>.]</em></p>
+    <?php endif; ?>
 
     <!-- ============ MARCO NORMATIVO NACIONAL ============ -->
     <div class="section-title">MARCO NORMATIVO NACIONAL</div>
@@ -577,10 +599,42 @@ foreach ($ponesCanonicos as $pon):
 <div class="section-title">DIAGRAMA DE ACTUACION EN CASO DE EMERGENCIA</div>
     <p class="content-text">El siguiente diagrama de flujo establece el protocolo general de actuacion ante diferentes tipos de emergencia que puedan presentarse en la propiedad horizontal, personalizado segun las amenazas identificadas en el analisis de vulnerabilidad y probabilidad de peligros del conjunto <?= $nombreCliente ?>. Permite identificar rapidamente las acciones a seguir segun el tipo de evento.</p>
     <?php if (!empty($diagramaNodos ?? null)): ?>
-        <!-- Render determinista del arbol generado por IA (Fase 2) — pendiente de implementacion -->
-        <p class="content-text"><em>[Diagrama personalizado renderizado dinamicamente]</em></p>
+        <?php
+        $inicio = $diagramaNodos['inicio'] ?? 'DETECCION DE EMERGENCIA';
+        $ramas  = $diagramaNodos['ramas'] ?? [];
+        ?>
+        <table style="width:100%; border-collapse:collapse; margin: 8px 0;">
+            <tr>
+                <td style="text-align:center; padding:8px; background:#1c2437; color:#fff; font-weight:bold; font-size:11px; border:2px solid #1c2437;">
+                    <?= esc($inicio) ?>
+                </td>
+            </tr>
+            <tr><td style="text-align:center; font-size:14px; padding:2px;">&#9660;</td></tr>
+            <tr>
+                <td style="text-align:center; padding:6px; background:#bd9751; color:#fff; font-weight:bold; font-size:10px; border:2px solid #bd9751;">
+                    TIPO DE EVENTO DETECTADO
+                </td>
+            </tr>
+            <tr><td style="text-align:center; font-size:14px; padding:2px;">&#9660;</td></tr>
+        </table>
+        <table style="width:100%; border-collapse:collapse; margin: 4px 0;">
+            <?php foreach ($ramas as $rama): ?>
+            <tr>
+                <td style="width:25%; padding:6px; background:#f5eef8; border:1px solid #8e44ad; vertical-align:top; text-align:center; font-weight:bold; color:#5b2c6f; font-size:9px;">
+                    <?= esc($rama['tipo'] ?? '-') ?>
+                </td>
+                <td style="width:75%; padding:6px; background:#fff; border:1px solid #ccc; vertical-align:top; font-size:8.5px;">
+                    <?php $pasos = $rama['pasos'] ?? []; ?>
+                    <?php foreach ($pasos as $i => $paso): ?>
+                    <?= ($i + 1) ?>. <?= esc($paso) ?><br>
+                    <?php endforeach; ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+        <p class="content-text" style="font-size:8px; color:#666; font-style:italic; margin-top:6px;">Diagrama de actuacion generado por IA personalizado para <?= esc($nombreCliente) ?> segun amenazas identificadas en la matriz de vulnerabilidad y probabilidad de peligros.</p>
     <?php else: ?>
-    <p class="content-text"><em>[Pendiente de generacion personalizada del diagrama de actuacion segun las amenazas especificas de la copropiedad — sera generado por IA en Fase 2.]</em></p>
+    <p class="content-text"><em>[Pendiente de generacion personalizada del diagrama de actuacion. Use el boton "Generar Diagrama IA" en la vista del plan.]</em></p>
     <?php endif; ?>
 
     <!-- ============ CONFORMACION DE BRIGADA DE EMERGENCIA ============ -->
@@ -594,7 +648,11 @@ foreach ($ponesCanonicos as $pon):
     <p class="content-text"><strong>Antes:</strong> participar en las capacitaciones, inspeccionar periodicamente los equipos de emergencia (extintores, gabinetes, botiquines, senalizacion, rutas), divulgar el Plan a residentes y visitantes, participar en simulacros y verificar la operatividad de los sistemas de alarma y comunicacion.<br><strong>Durante:</strong> activar el sistema de alarma, ejecutar las acciones propias de su grupo funcional segun los procedimientos operativos normalizados (PON), coordinar con organismos externos de socorro, mantener la calma y proteger la vida como prioridad absoluta por encima de los bienes materiales.<br><strong>Despues:</strong> verificar que todos los ocupantes hayan evacuado hacia los puntos de encuentro, rendir informe de la novedad, participar en la evaluacion del evento, apoyar las labores de recuperacion y contribuir a la actualizacion del Plan con las lecciones aprendidas.</p>
     <div class="section-subtitle">DOTACION MINIMA</div>
     <p class="content-text">La administracion del conjunto dotara a la brigada con los elementos minimos de proteccion personal e identificacion: casco tipo brigadista con barbiquejo, chaleco reflectivo con identificacion del rol, guantes de carnaza y de nitrilo, linterna de mano con baterias de repuesto, pito de emergencia, radio de comunicacion y botiquin portatil de brigadista. La dotacion sera verificada y repuesta periodicamente.</p>
-    <!-- TODO Fase 2: este contenido sera generado dinamicamente por IA segun datos de inspeccion de Brigada y Simulacros -->
+    <?php if (!empty($inspeccion['brigada_ia_texto'])): ?>
+    <div class="section-subtitle">SITUACION ACTUAL DE LA BRIGADA EN <?= esc(strtoupper($nombreCliente)) ?></div>
+    <p class="content-text" style="background:#fdf2e9; padding:8px; border-left:3px solid #d35400;"><?= nl2br(esc($inspeccion['brigada_ia_texto'])) ?></p>
+    <p class="content-text" style="font-size:8px; color:#666; font-style:italic;">Diagnostico personalizado generado por IA con base en la inspeccion de Brigada+Simulacros del cliente.</p>
+    <?php endif; ?>
 
     <!-- ============ PROGRAMA DE CAPACITACION Y SIMULACROS ============ -->
     <div class="section-title">PROGRAMA DE CAPACITACION Y SIMULACROS</div>
@@ -607,7 +665,11 @@ foreach ($ponesCanonicos as $pon):
     <p class="content-text">La administracion programara al inicio de cada vigencia el cronograma de simulacros del ano, incluyendo como minimo un (1) simulacro general anual con participacion del mayor numero posible de residentes, un (1) simulacro parcial por semestre y ejercicios de tabletop para la brigada. Se recomienda alinear la programacion con el Simulacro Nacional de Respuesta a Emergencias convocado por la UNGRD.</p>
     <div class="section-subtitle">CRITERIOS DE EVALUACION Y REGISTRO</div>
     <p class="content-text">Cada simulacro sera evaluado por un observador externo o por un brigadista no participante, con base en los siguientes criterios: (i) tiempo de respuesta desde la activacion de la alarma hasta el inicio de la evacuacion; (ii) tiempo total de evacuacion; (iii) cumplimiento del procedimiento operativo normalizado; (iv) comportamiento de los ocupantes; (v) efectividad de las comunicaciones; (vi) estado de los equipos de emergencia. Se levantara acta del ejercicio con fecha, hora, escenario, numero de participantes, hallazgos, desviaciones respecto del procedimiento y plan de mejora. Los registros reposaran en el archivo del SG-SST de la copropiedad y estaran disponibles para verificacion por parte del Ministerio del Trabajo.</p>
-    <!-- TODO Fase 2: generacion por IA -->
+    <?php if (!empty($inspeccion['simulacros_ia_texto'])): ?>
+    <div class="section-subtitle">CRONOGRAMA DE SIMULACROS Y CAPACITACIONES PERSONALIZADO PARA <?= esc(strtoupper($nombreCliente)) ?></div>
+    <p class="content-text" style="background:#fdf2e9; padding:8px; border-left:3px solid #d35400;"><?= nl2br(esc($inspeccion['simulacros_ia_texto'])) ?></p>
+    <p class="content-text" style="font-size:8px; color:#666; font-style:italic;">Programa personalizado generado por IA con base en la inspeccion de Brigada+Simulacros del cliente.</p>
+    <?php endif; ?>
 
     <!-- ============ PLAN DE AYUDA MUTUA ============ -->
     <div class="section-title">PLAN DE AYUDA MUTUA</div>

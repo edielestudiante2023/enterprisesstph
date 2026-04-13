@@ -125,6 +125,12 @@ class InspeccionesController extends BaseController
         $totalPlanEmergencia = $planEmgModel->where('estado', 'completo')->countAllResults();
         $pendientesPlanEmg = $planEmgModel->getAllPendientes();
 
+        $totalBrigadaSimulacros = 0;
+        if (class_exists('\\App\\Models\\InspeccionBrigadaSimulacrosModel')) {
+            $bsClass = '\\App\\Models\\InspeccionBrigadaSimulacrosModel';
+            $totalBrigadaSimulacros = (new $bsClass())->where('estado', 'completo')->countAllResults();
+        }
+
         $evalSimModel = new EvaluacionSimulacroModel();
         $totalSimulacro = $evalSimModel->where('estado', 'completo')->countAllResults();
         $pendientesSimulacro = $evalSimModel
@@ -283,6 +289,7 @@ class InspeccionesController extends BaseController
             'totalProbPeligros' => $totalProbPeligros,
             'totalMatrizVul'   => $totalMatrizVul,
             'totalPlanEmergencia' => $totalPlanEmergencia,
+            'totalBrigadaSimulacros' => $totalBrigadaSimulacros,
             'totalSimulacro'   => $totalSimulacro,
             'totalHvBrigadista' => $totalHvBrigadista,
             'totalDotVig'      => $totalDotVig,

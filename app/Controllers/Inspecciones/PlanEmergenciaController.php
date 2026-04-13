@@ -515,6 +515,139 @@ class PlanEmergenciaController extends BaseController
         return redirect()->back()->with('msg', $msg);
     }
 
+    /**
+     * Genera el Diagrama de Actuacion como arbol JSON personalizado por IA.
+     * Guarda en diagrama_ia_json.
+     */
+    public function generarDiagramaIA($id)
+    {
+        $inspeccion = $this->model->find($id);
+        if (!$inspeccion) {
+            return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'Plan no encontrado');
+        }
+
+        $idCliente = (int) $inspeccion['id_cliente'];
+        $cliente   = (new ClientModel())->find($idCliente);
+        if (!$cliente) {
+            return redirect()->back()->with('error', 'Cliente no encontrado');
+        }
+
+        $contextoCliente = [
+            'cliente'    => $cliente,
+            'inspeccion' => $inspeccion,
+            'ultimaProb' => (new ProbabilidadPeligrosModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+            'ultimaMatriz' => (new MatrizVulnerabilidadModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+        ];
+
+        $svc  = new \App\Libraries\PlanEmergenciaIAService();
+        $resp = $svc->generarDiagramaActuacion($contextoCliente);
+
+        if (!$resp['ok']) {
+            log_message('error', '[PlanEmergencia IA Diagrama] ' . ($resp['error'] ?? 'desconocido'));
+            return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
+        }
+
+        $this->model->update($id, [
+            'diagrama_ia_json' => json_encode($resp['data'], JSON_UNESCAPED_UNICODE),
+            'ia_generado_at'   => date('Y-m-d H:i:s'),
+        ]);
+
+        $tokensIn  = $resp['tokens']['in']  ?? 0;
+        $tokensOut = $resp['tokens']['out'] ?? 0;
+        return redirect()->back()->with('msg', sprintf('Diagrama de actuacion generado con IA. Tokens: %d in / %d out.', $tokensIn, $tokensOut));
+    }
+
+    /**
+     * Genera la Matriz de Responsables del Plan personalizada por IA.
+     * Guarda en matriz_responsables_ia_json.
+     */
+    public function generarMatrizResponsablesIA($id)
+    {
+        $inspeccion = $this->model->find($id);
+        if (!$inspeccion) {
+            return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'Plan no encontrado');
+        }
+
+        $idCliente = (int) $inspeccion['id_cliente'];
+        $cliente   = (new ClientModel())->find($idCliente);
+        if (!$cliente) {
+            return redirect()->back()->with('error', 'Cliente no encontrado');
+        }
+
+        $contextoCliente = [
+            'cliente'    => $cliente,
+            'inspeccion' => $inspeccion,
+        ];
+
+        $svc  = new \App\Libraries\PlanEmergenciaIAService();
+        $resp = $svc->generarMatrizResponsables($contextoCliente);
+
+        if (!$resp['ok']) {
+            log_message('error', '[PlanEmergencia IA Matriz] ' . ($resp['error'] ?? 'desconocido'));
+            return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
+        }
+
+        $this->model->update($id, [
+            'matriz_responsables_ia_json' => json_encode($resp['data'], JSON_UNESCAPED_UNICODE),
+            'ia_generado_at'              => date('Y-m-d H:i:s'),
+        ]);
+
+        $tokensIn  = $resp['tokens']['in']  ?? 0;
+        $tokensOut = $resp['tokens']['out'] ?? 0;
+        return redirect()->back()->with('msg', sprintf('Matriz de responsables generada con IA. Tokens: %d in / %d out.', $tokensIn, $tokensOut));
+    }
+
+    /**
+     * Genera el texto de Brigada y Simulacros personalizado por IA.
+     * Lee la inspeccion de Brigada+Simulacros del cliente y enriquece con Claude.
+     * Guarda en brigada_ia_texto y simulacros_ia_texto.
+     */
+    public function generarBrigadaSimulacrosIA($id)
+    {
+        $inspeccion = $this->model->find($id);
+        if (!$inspeccion) {
+            return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'Plan no encontrado');
+        }
+
+        $idCliente = (int) $inspeccion['id_cliente'];
+        $cliente   = (new ClientModel())->find($idCliente);
+        if (!$cliente) {
+            return redirect()->back()->with('error', 'Cliente no encontrado');
+        }
+
+        // Cargar la ultima inspeccion de Brigada+Simulacros del cliente (puede ser null)
+        $brigadaInspeccion = null;
+        if (class_exists('\\App\\Models\\InspeccionBrigadaSimulacrosModel')) {
+            $modelClass = '\\App\\Models\\InspeccionBrigadaSimulacrosModel';
+            $brigadaInspeccion = (new $modelClass())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first();
+        }
+
+        $contextoCliente = [
+            'cliente'           => $cliente,
+            'inspeccion'        => $inspeccion,
+            'brigadaSimulacros' => $brigadaInspeccion ?: [],
+        ];
+
+        $svc  = new \App\Libraries\PlanEmergenciaIAService();
+        $resp = $svc->generarBrigadaSimulacros($contextoCliente);
+
+        if (!$resp['ok']) {
+            log_message('error', '[PlanEmergencia IA Brigada] ' . ($resp['error'] ?? 'desconocido'));
+            return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
+        }
+
+        $data = $resp['data'];
+        $this->model->update($id, [
+            'brigada_ia_texto'    => $data['brigada_texto']    ?? null,
+            'simulacros_ia_texto' => $data['simulacros_texto'] ?? null,
+            'ia_generado_at'      => date('Y-m-d H:i:s'),
+        ]);
+
+        $tokensIn  = $resp['tokens']['in']  ?? 0;
+        $tokensOut = $resp['tokens']['out'] ?? 0;
+        return redirect()->back()->with('msg', sprintf('Brigada y Simulacros generados con IA. Tokens: %d in / %d out.', $tokensIn, $tokensOut));
+    }
+
     public function delete($id)
     {
         $inspeccion = $this->model->find($id);

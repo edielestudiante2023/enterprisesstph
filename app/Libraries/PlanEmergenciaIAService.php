@@ -286,6 +286,88 @@ PROMPT;
         ];
     }
 
+    /**
+     * Genera el texto personalizado de las secciones Brigada y Simulacros
+     * a partir de la inspeccion de Brigada+Simulacros del cliente.
+     *
+     * @param array $contextoCliente debe contener 'cliente', 'inspeccion', 'brigadaSimulacros'
+     * @return array ['ok'=>bool, 'data'=>['brigada_texto'=>..., 'simulacros_texto'=>...], 'error'=>...]
+     */
+    public function generarBrigadaSimulacros(array $contextoCliente): array
+    {
+        $cliente = $contextoCliente['cliente']['nombre_cliente'] ?? 'el conjunto';
+        $brigada = $contextoCliente['brigadaSimulacros'] ?? [];
+
+        $existeBrigada    = $brigada['existe_brigada']         ?? 'no';
+        $numBrigadistas   = $brigada['numero_brigadistas']     ?? 0;
+        $ultimoSimulacro  = $brigada['fecha_ultimo_simulacro'] ?? 'sin registro';
+        $tipoSimulacro    = $brigada['tipo_simulacro']         ?? 'sin registro';
+        $capacitaciones   = $brigada['capacitaciones_12m']     ?? 'sin registro';
+        $observaciones    = $brigada['observaciones']          ?? '';
+
+        $prompt = <<<PROMPT
+Eres un experto en SG-SST y planes de emergencia para propiedad horizontal residencial en Colombia (Decreto 1072/2015 art. 2.2.4.6.25, Resolucion 0312/2019, Resolucion 0256/2014).
+
+Tu tarea: generar dos secciones personalizadas para el Plan de Emergencia del cliente {$cliente}, basadas en la inspeccion real de su Brigada y Simulacros.
+
+DATOS REGISTRADOS POR EL CONSULTOR:
+- Existe brigada constituida: {$existeBrigada}
+- Numero de brigadistas: {$numBrigadistas}
+- Fecha del ultimo simulacro: {$ultimoSimulacro}
+- Tipo del ultimo simulacro: {$tipoSimulacro}
+- Capacitaciones realizadas en los ultimos 12 meses: {$capacitaciones}
+- Observaciones del consultor: {$observaciones}
+
+INSTRUCCIONES:
+1. Tono formal tecnico-legal, sin tildes (compatibilidad DOMPDF), sin emojis.
+2. Genera dos textos:
+   a) BRIGADA (200 a 300 palabras): conformacion y estado actual de la brigada en {$cliente}.
+      - Si NO existe brigada, explica el plan de conformacion en 90 dias.
+      - Si existe pero esta inactiva o con pocos brigadistas, plan de reactivacion.
+      - Cita Decreto 1072/2015 art. 2.2.4.6.25 y Resolucion 0256/2014.
+   b) SIMULACROS (200 a 300 palabras): programa de capacitacion y simulacros para los proximos 12 meses.
+      - Si el ultimo simulacro fue hace mucho o no hay registro, prioriza simulacro general en los proximos 90 dias.
+      - Incluye recomendacion de participar en el Simulacro Nacional de Evacuacion anual.
+      - Lista 4 a 6 temas de capacitacion priorizados.
+3. Personaliza con datos reales del cliente, no uses texto generico.
+
+FORMATO DE RESPUESTA:
+Devuelve EXCLUSIVAMENTE un objeto JSON valido, sin markdown ni texto adicional:
+{
+  "brigada_texto": "texto completo de la seccion Brigada...",
+  "simulacros_texto": "texto completo de la seccion Capacitacion y Simulacros..."
+}
+PROMPT;
+
+        $payload = [
+            'model'      => $this->model,
+            'max_tokens' => 3000,
+            'messages'   => [
+                ['role' => 'user', 'content' => $prompt],
+            ],
+        ];
+
+        $resp = $this->request($payload);
+        if (!$resp['ok']) {
+            return $resp;
+        }
+
+        $texto = $resp['data']['content'][0]['text'] ?? '';
+        $json  = $this->extraerJSON($texto);
+        if ($json === null) {
+            return ['ok' => false, 'error' => 'Respuesta IA no es JSON valido', 'raw' => $texto];
+        }
+
+        return [
+            'ok'     => true,
+            'data'   => $json,
+            'tokens' => [
+                'in'  => $resp['data']['usage']['input_tokens'] ?? 0,
+                'out' => $resp['data']['usage']['output_tokens'] ?? 0,
+            ],
+        ];
+    }
+
     // ============================================================
     // METODOS PRIVADOS
     // ============================================================

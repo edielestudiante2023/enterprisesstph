@@ -1111,6 +1111,21 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('plan-emergencia/enviar-email/(:num)', 'PlanEmergenciaController::enviarEmail/$1');
     $routes->get('plan-emergencia/debug-pdf', 'PlanEmergenciaController::debugPdf');
     $routes->get('plan-emergencia/enriquecer-pons-ia/(:num)', 'PlanEmergenciaController::enriquecerPONsConIA/$1');
+    $routes->get('plan-emergencia/generar-diagrama-ia/(:num)', 'PlanEmergenciaController::generarDiagramaIA/$1');
+    $routes->get('plan-emergencia/generar-matriz-ia/(:num)', 'PlanEmergenciaController::generarMatrizResponsablesIA/$1');
+    $routes->get('plan-emergencia/generar-brigada-ia/(:num)', 'PlanEmergenciaController::generarBrigadaSimulacrosIA/$1');
+
+    // Inspeccion Brigada y Simulacros (alimenta Plan de Emergencia - Fase 2)
+    $routes->get('brigada-simulacros', 'InspeccionBrigadaSimulacrosController::list');
+    $routes->get('brigada-simulacros/create', 'InspeccionBrigadaSimulacrosController::create');
+    $routes->get('brigada-simulacros/create/(:num)', 'InspeccionBrigadaSimulacrosController::create/$1');
+    $routes->post('brigada-simulacros/store', 'InspeccionBrigadaSimulacrosController::store');
+    $routes->get('brigada-simulacros/edit/(:num)', 'InspeccionBrigadaSimulacrosController::edit/$1');
+    $routes->post('brigada-simulacros/update/(:num)', 'InspeccionBrigadaSimulacrosController::update/$1');
+    $routes->get('brigada-simulacros/view/(:num)', 'InspeccionBrigadaSimulacrosController::view/$1');
+    $routes->get('brigada-simulacros/pdf/(:num)', 'InspeccionBrigadaSimulacrosController::generatePdf/$1');
+    $routes->post('brigada-simulacros/finalizar/(:num)', 'InspeccionBrigadaSimulacrosController::finalizar/$1');
+    $routes->get('brigada-simulacros/delete/(:num)', 'InspeccionBrigadaSimulacrosController::delete/$1');
 
     // Dotación Vigilante
     $routes->get('dotacion-vigilante', 'DotacionVigilanteController::list');
