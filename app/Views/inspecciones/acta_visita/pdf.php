@@ -128,9 +128,7 @@
                 <td style="text-align:center; padding: 2px;">
                     <?php
                     $rol = strtoupper($int['rol']);
-                    if ($rol === 'ADMINISTRADOR' && !empty($firmas['administrador'])) {
-                        echo '<img src="' . $firmas['administrador'] . '" class="firma-inline">';
-                    } elseif (stripos($rol, 'ASISTENTE') !== false && !empty($firmas['administrador'])) {
+                    if (($rol === 'CLIENTE' || $rol === 'ADMINISTRADOR') && !empty($firmas['administrador'])) {
                         echo '<img src="' . $firmas['administrador'] . '" class="firma-inline">';
                     } elseif (stripos($rol, 'VIG') !== false && !empty($firmas['vigia'])) {
                         echo '<img src="' . $firmas['vigia'] . '" class="firma-inline">';
@@ -314,7 +312,7 @@
             <?php if (!empty($firmas['administrador'])): ?>
             <td>
                 <img src="<?= $firmas['administrador'] ?>"><br>
-                <div class="firma-label">ADMINISTRADOR</div>
+                <div class="firma-label">CLIENTE</div>
             </td>
             <?php elseif (!empty($acta['motivo_sin_firma'])): ?>
             <td style="text-align:center; padding:8px; vertical-align:top;">
@@ -322,7 +320,7 @@
                     <strong>Sin firma del cliente</strong><br>
                     <?= esc($acta['motivo_sin_firma']) ?>
                 </div>
-                <div class="firma-label">ADMINISTRADOR</div>
+                <div class="firma-label">CLIENTE</div>
             </td>
             <?php endif; ?>
 

@@ -98,7 +98,7 @@ $action = $isEdit ? base_url('/inspecciones/acta-visita/update/') . $acta['id'] 
                                     <div class="col-5">
                                         <select name="integrante_rol[]" class="form-select">
                                             <option value="">Rol...</option>
-                                            <?php foreach (['ADMINISTRADOR', 'ASISTENTE DE ADMINISTRACIÓN', 'CONSULTOR CYCLOID', 'VIGÍA SST', 'OTRO'] as $rol): ?>
+                                            <?php foreach (['CLIENTE', 'CONSULTOR CYCLOID', 'VIGÍA SST', 'OTRO'] as $rol): ?>
                                             <option value="<?= $rol ?>" <?= $integrante['rol'] === $rol ? 'selected' : '' ?>><?= $rol ?></option>
                                             <?php endforeach; ?>
                                         </select>
@@ -210,7 +210,7 @@ $action = $isEdit ? base_url('/inspecciones/acta-visita/update/') . $acta['id'] 
                                             </div>
                                             <div class="col-5">
                                                 <select name="compromiso_responsable[]" class="form-select">
-                                                    <option value="ADMINISTRADOR" <?= ($comp['responsable'] ?? '') === 'ADMINISTRADOR' ? 'selected' : '' ?>>ADMINISTRADOR</option>
+                                                    <option value="CLIENTE" <?= ($comp['responsable'] ?? '') === 'CLIENTE' ? 'selected' : '' ?>>CLIENTE</option>
                                                     <option value="CONSULTOR CYCLOID TALENT" <?= ($comp['responsable'] ?? '') === 'CONSULTOR CYCLOID TALENT' ? 'selected' : '' ?>>CONSULTOR CYCLOID TALENT</option>
                                                 </select>
                                             </div>
@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add integrante
     document.getElementById('btnAddIntegrante').addEventListener('click', function() {
-        const roles = ['ADMINISTRADOR', 'ASISTENTE DE ADMINISTRACIÓN', 'CONSULTOR CYCLOID', 'VIGÍA SST', 'OTRO'];
+        const roles = ['CLIENTE', 'CONSULTOR CYCLOID', 'VIGÍA SST', 'OTRO'];
         const options = roles.map(r => '<option value="' + r + '">' + r + '</option>').join('');
         const html = `
             <div class="row g-2 mb-2 integrante-row">
@@ -599,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="col-5">
                             <select name="compromiso_responsable[]" class="form-select">
-                                <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                                <option value="CLIENTE">CLIENTE</option>
                                 <option value="CONSULTOR CYCLOID TALENT">CONSULTOR CYCLOID TALENT</option>
                             </select>
                         </div>
@@ -735,7 +735,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.ubicacion_gps) document.getElementById('ubicacionGps').value = data.ubicacion_gps;
 
         // Integrantes
-        const roles = ['ADMINISTRADOR', 'ASISTENTE DE ADMINISTRACIÓN', 'CONSULTOR CYCLOID', 'VIGÍA SST', 'OTRO'];
+        const roles = ['CLIENTE', 'CONSULTOR CYCLOID', 'VIGÍA SST', 'OTRO'];
         const roleOpts = roles.map(r => '<option value="' + r + '">' + r + '</option>').join('');
         (data.integrantes || []).forEach(int => {
             const html = '<div class="row g-2 mb-2 integrante-row"><div class="col-5"><input type="text" name="integrante_nombre[]" class="form-control" placeholder="Nombre" value="' + (int.nombre||'').replace(/"/g,'&quot;') + '"></div><div class="col-5"><select name="integrante_rol[]" class="form-select"><option value="">Rol...</option>' + roleOpts + '</select></div><div class="col-2 text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" style="min-height:44px;"><i class="fas fa-times"></i></button></div></div>';
@@ -755,7 +755,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Compromisos
         (data.compromisos || []).forEach(c => {
             const resp = (c.responsable||'');
-            const opt1 = '<option value="ADMINISTRADOR"' + (resp==='ADMINISTRADOR'?' selected':'') + '>ADMINISTRADOR</option>';
+            const opt1 = '<option value="CLIENTE"' + (resp==='CLIENTE'?' selected':'') + '>CLIENTE</option>';
             const opt2 = '<option value="CONSULTOR CYCLOID TALENT"' + (resp==='CONSULTOR CYCLOID TALENT'?' selected':'') + '>CONSULTOR CYCLOID TALENT</option>';
             const html = '<div class="card mb-2 compromiso-row"><div class="card-body p-2"><input type="text" name="compromiso_actividad[]" class="form-control mb-1" placeholder="Actividad" value="' + (c.actividad||'').replace(/"/g,'&quot;') + '"><div class="row g-2"><div class="col-6"><input type="date" name="compromiso_fecha[]" class="form-control" value="' + (c.fecha||'') + '"></div><div class="col-5"><select name="compromiso_responsable[]" class="form-select">' + opt1 + opt2 + '</select></div><div class="col-1 text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" style="min-height:44px;"><i class="fas fa-times"></i></button></div></div></div></div>';
             document.getElementById('compromisosContainer').insertAdjacentHTML('beforeend', html);

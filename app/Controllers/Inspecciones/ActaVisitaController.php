@@ -375,8 +375,8 @@ class ActaVisitaController extends BaseController
         foreach ($integrantes as $integrante) {
             $rol = strtoupper($integrante['rol']);
             $rolLabel = $integrante['rol']; // Rol original tal como se seleccionó
-            if (stripos($rol, 'ADMINISTRA') !== false) {
-                $firmantes[] = ['tipo' => 'administrador', 'rol_label' => $rolLabel, 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_administrador'])];
+            if (stripos($rol, 'CLIENTE') !== false || stripos($rol, 'ADMINISTRA') !== false) {
+                $firmantes[] = ['tipo' => 'administrador', 'rol_label' => 'CLIENTE', 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_administrador'])];
             } elseif (stripos($rol, 'VIG') !== false) {
                 $firmantes[] = ['tipo' => 'vigia', 'rol_label' => $rolLabel, 'nombre' => $integrante['nombre'], 'firmado' => !empty($acta['firma_vigia'])];
             } elseif (stripos($rol, 'CONSULTOR') !== false) {
@@ -450,11 +450,12 @@ class ActaVisitaController extends BaseController
             return $this->response->setJSON(['success' => false, 'error' => 'Falta la firma del consultor']);
         }
 
-        // Verificar firma del administrador si hay integrante con rol admin
+        // Verificar firma del cliente si hay integrante con rol cliente (o legacy administrador)
         $integrantes = $this->integranteModel->getByActa($id);
         foreach ($integrantes as $integrante) {
-            if (stripos($integrante['rol'], 'ADMINISTRA') !== false && empty($acta['firma_administrador'])) {
-                return $this->response->setJSON(['success' => false, 'error' => 'Falta la firma del administrador']);
+            $esCliente = stripos($integrante['rol'], 'CLIENTE') !== false || stripos($integrante['rol'], 'ADMINISTRA') !== false;
+            if ($esCliente && empty($acta['firma_administrador'])) {
+                return $this->response->setJSON(['success' => false, 'error' => 'Falta la firma del cliente']);
             }
         }
 

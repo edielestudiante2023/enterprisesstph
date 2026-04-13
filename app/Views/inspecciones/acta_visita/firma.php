@@ -344,7 +344,7 @@ function guardarFirma(tipo, paso) {
 document.querySelectorAll('.btn-whatsapp-firma').forEach(function(btn) {
     btn.addEventListener('click', function() {
         const tipo = this.dataset.tipo;
-        const tipoLabel = { administrador: 'Administrador', vigia: 'Vigía SST', consultor: 'Consultor' }[tipo] || tipo;
+        const tipoLabel = { administrador: 'Cliente', vigia: 'Vigía SST', consultor: 'Consultor' }[tipo] || tipo;
 
         Swal.fire({
             title: 'Enviar enlace de firma',
