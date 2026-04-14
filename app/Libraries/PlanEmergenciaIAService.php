@@ -81,9 +81,10 @@ class PlanEmergenciaIAService
      * @param array $ponesCanonicos  Array de PONs base (de PonesCanonicos.php).
      * @return array Array asociativo: clave del PON => texto adendo personalizado.
      */
-    public function enriquecerPONs(array $contextoCliente, array $ponesCanonicos): array
+    public function enriquecerPONs(array $contextoCliente, array $ponesCanonicos, string $contextoAdicional = ''): array
     {
         $contextoTxt = $this->serializarContextoCliente($contextoCliente);
+        $contextoExtraBlock = $this->bloqueContextoAdicional($contextoAdicional);
         $listaPons = [];
         foreach ($ponesCanonicos as $key => $pon) {
             $listaPons[] = sprintf(
@@ -102,7 +103,7 @@ Tu tarea: para cada uno de los siguientes Procedimientos Operativos Normalizados
 
 CONTEXTO DEL CLIENTE:
 {$contextoTxt}
-
+{$contextoExtraBlock}
 LISTA DE PONS A PERSONALIZAR:
 {$this->joinList($listaPons)}
 
@@ -158,16 +159,17 @@ PROMPT;
      *
      * @return array ['ok'=>bool, 'data'=>['inicio'=>..., 'nodos'=>[...]], 'error'=>...]
      */
-    public function generarDiagramaActuacion(array $contextoCliente): array
+    public function generarDiagramaActuacion(array $contextoCliente, string $contextoAdicional = ''): array
     {
         $contextoTxt = $this->serializarContextoCliente($contextoCliente);
+        $contextoExtraBlock = $this->bloqueContextoAdicional($contextoAdicional);
 
         $prompt = <<<PROMPT
 Eres un experto en planes de emergencia para propiedad horizontal en Colombia. Tu tarea: generar un arbol de decision del DIAGRAMA DE ACTUACION en caso de emergencia, personalizado para el siguiente cliente.
 
 CONTEXTO DEL CLIENTE:
 {$contextoTxt}
-
+{$contextoExtraBlock}
 INSTRUCCIONES:
 - Generar un arbol de decision con un nodo de inicio y entre 5 y 8 ramas principales correspondientes a las amenazas mas relevantes del cliente.
 - Cada rama debe tener entre 3 y 5 pasos de accion concretos.
@@ -226,9 +228,10 @@ PROMPT;
     /**
      * Genera la matriz de responsables del Plan personalizada.
      */
-    public function generarMatrizResponsables(array $contextoCliente): array
+    public function generarMatrizResponsables(array $contextoCliente, string $contextoAdicional = ''): array
     {
         $contextoTxt = $this->serializarContextoCliente($contextoCliente);
+        $contextoExtraBlock = $this->bloqueContextoAdicional($contextoAdicional);
 
         $prompt = <<<PROMPT
 Eres un experto en SG-SST y planes de emergencia para propiedad horizontal en Colombia (Decreto 1072/2015 art. 2.2.4.6.25, Decreto 2157/2017).
@@ -236,7 +239,7 @@ Eres un experto en SG-SST y planes de emergencia para propiedad horizontal en Co
 Genera la MATRIZ DE RESPONSABLES DEL PLAN DE EMERGENCIA para el siguiente cliente:
 
 {$contextoTxt}
-
+{$contextoExtraBlock}
 INSTRUCCIONES:
 - Tono formal, sin tildes, sin emojis.
 - 6 a 10 filas con roles realistas para propiedad horizontal residencial.
@@ -293,10 +296,11 @@ PROMPT;
      * @param array $contextoCliente debe contener 'cliente', 'inspeccion', 'brigadaSimulacros'
      * @return array ['ok'=>bool, 'data'=>['brigada_texto'=>..., 'simulacros_texto'=>...], 'error'=>...]
      */
-    public function generarBrigadaSimulacros(array $contextoCliente): array
+    public function generarBrigadaSimulacros(array $contextoCliente, string $contextoAdicional = ''): array
     {
         $cliente = $contextoCliente['cliente']['nombre_cliente'] ?? 'el conjunto';
         $brigada = $contextoCliente['brigadaSimulacros'] ?? [];
+        $contextoExtraBlock = $this->bloqueContextoAdicional($contextoAdicional);
 
         $existeBrigada    = $brigada['existe_brigada']         ?? 'no';
         $numBrigadistas   = $brigada['numero_brigadistas']     ?? 0;
@@ -317,7 +321,7 @@ DATOS REGISTRADOS POR EL CONSULTOR:
 - Tipo del ultimo simulacro: {$tipoSimulacro}
 - Capacitaciones realizadas en los ultimos 12 meses: {$capacitaciones}
 - Observaciones del consultor: {$observaciones}
-
+{$contextoExtraBlock}
 INSTRUCCIONES:
 1. Tono formal tecnico-legal, sin tildes (compatibilidad DOMPDF), sin emojis.
 2. Genera dos textos:
@@ -452,6 +456,20 @@ PROMPT;
     private function joinList(array $items): string
     {
         return implode("\n", $items);
+    }
+
+    /**
+     * Genera el bloque opcional "CONTEXTO ADICIONAL DEL CONSULTOR" que se inyecta
+     * en los prompts cuando el profesional escribe notas complementarias desde la
+     * vista de revision IA. Devuelve string vacio si no hay contexto.
+     */
+    private function bloqueContextoAdicional(string $contextoAdicional): string
+    {
+        $txt = trim($contextoAdicional);
+        if ($txt === '') {
+            return '';
+        }
+        return "\nCONTEXTO ADICIONAL DEL CONSULTOR (tomar en cuenta y enfatizar estos aspectos especificos):\n{$txt}\n";
     }
 
     /**

@@ -493,32 +493,13 @@ $telefonosCiudad = ($ciudad && isset($telefonos[$ciudad])) ? $telefonos[$ciudad]
     <a href="<?= base_url('/inspecciones/plan-emergencia/regenerar/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
         <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
     </a>
-    <a href="<?= base_url('/inspecciones/plan-emergencia/enriquecer-pons-ia/') ?><?= $inspeccion['id'] ?>"
+    <a href="<?= base_url('/inspecciones/plan-emergencia/ia-review/') ?><?= $inspeccion['id'] ?>"
        class="btn btn-pwa btn-pwa-outline"
-       style="border-color:#8e44ad; color:#8e44ad;"
-       onclick="return confirm('¿Generar adendos personalizados de los 10 PONs con IA (Claude)? Tarda ~30 segundos. Tras generar, debes Regenerar PDF para que aparezcan en el documento.')">
-        <i class="fas fa-robot me-2"></i>Generar PONs con IA
+       style="border-color:#8e44ad; color:#8e44ad;">
+        <i class="fas fa-robot me-2"></i>Revisar con IA
         <?php if (!empty($inspeccion['ia_generado_at'])): ?>
         <small class="text-muted d-block" style="font-size:10px;">Ultima generacion: <?= date('d/m/Y H:i', strtotime($inspeccion['ia_generado_at'])) ?></small>
         <?php endif; ?>
-    </a>
-    <a href="<?= base_url('/inspecciones/plan-emergencia/generar-diagrama-ia/') ?><?= $inspeccion['id'] ?>"
-       class="btn btn-pwa btn-pwa-outline"
-       style="border-color:#27ae60; color:#27ae60;"
-       onclick="return confirm('¿Generar el Diagrama de Actuacion personalizado con IA? Tarda ~15 segundos.')">
-        <i class="fas fa-project-diagram me-2"></i>Generar Diagrama IA
-    </a>
-    <a href="<?= base_url('/inspecciones/plan-emergencia/generar-matriz-ia/') ?><?= $inspeccion['id'] ?>"
-       class="btn btn-pwa btn-pwa-outline"
-       style="border-color:#2980b9; color:#2980b9;"
-       onclick="return confirm('¿Generar la Matriz de Responsables del Plan con IA? Tarda ~15 segundos.')">
-        <i class="fas fa-users-cog me-2"></i>Generar Matriz Responsables IA
-    </a>
-    <a href="<?= base_url('/inspecciones/plan-emergencia/generar-brigada-ia/') ?><?= $inspeccion['id'] ?>"
-       class="btn btn-pwa btn-pwa-outline"
-       style="border-color:#d35400; color:#d35400;"
-       onclick="return confirm('¿Generar la seccion de Brigada y Simulacros con IA? Toma datos de la inspeccion de Brigada+Simulacros del cliente. Tarda ~20 segundos.')">
-        <i class="fas fa-people-carry me-2"></i>Generar Brigada+Simulacros IA
     </a>
     <a href="<?= base_url('/inspecciones/plan-emergencia/enviar-email/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
         <i class="fas fa-envelope me-2"></i>Enviar por Email

@@ -229,8 +229,6 @@ class PlanEmergenciaController extends BaseController
 
     public function finalizar($id)
     {
-        @set_time_limit(600);
-
         $inspeccion = $this->model->find($id);
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'No encontrado');
@@ -243,99 +241,10 @@ class PlanEmergenciaController extends BaseController
             return redirect()->back()->with('error', 'Faltan inspecciones completas para este cliente: ' . $lista);
         }
 
-        // === AUTO-DISPARO IA (Fase 2) ===
-        // Genera los 4 bloques de contenido personalizado por IA antes de producir el PDF final.
-        // Cada bloque se guarda en su columna en tbl_plan_emergencia. Si uno falla, el flujo
-        // continua con un aviso y el PDF se genera con los bloques que si se completaron.
-        $iaMensajes = [];
-        $iaErrores  = [];
-        $tokensIn   = 0;
-        $tokensOut  = 0;
-
-        try {
-            $idCliente = (int) $inspeccion['id_cliente'];
-            $cliente   = (new ClientModel())->find($idCliente);
-
-            $contextoCliente = [
-                'cliente'        => $cliente,
-                'inspeccion'     => $inspeccion,
-                'ultimaLocativa' => (new InspeccionLocativaModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
-                'ultimaMatriz'   => (new MatrizVulnerabilidadModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
-                'ultimaProb'     => (new ProbabilidadPeligrosModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
-                'ultimaExt'      => (new InspeccionExtintoresModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
-                'ultimaBot'      => (new InspeccionBotiquinModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
-                'ultimaRec'      => (new InspeccionRecursosSeguridadModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
-                'ultimaCom'      => (new InspeccionComunicacionModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
-                'ultimaGab'      => (new InspeccionGabineteModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
-            ];
-
-            // Brigada+Simulacros (opcional, si existe el modulo y hay datos)
-            if (class_exists('\\App\\Models\\InspeccionBrigadaSimulacrosModel')) {
-                $bsClass = '\\App\\Models\\InspeccionBrigadaSimulacrosModel';
-                $contextoCliente['brigadaSimulacros'] = (new $bsClass())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first() ?: [];
-            }
-
-            $svc = new \App\Libraries\PlanEmergenciaIAService();
-            $updates = [];
-
-            // 1. PONs
-            $respPons = $svc->enriquecerPONs($contextoCliente, require APPPATH . 'Config/PonesCanonicos.php');
-            if (!empty($respPons['ok'])) {
-                $updates['pons_ia_json'] = json_encode($respPons['data'], JSON_UNESCAPED_UNICODE);
-                $tokensIn  += $respPons['tokens']['in']  ?? 0;
-                $tokensOut += $respPons['tokens']['out'] ?? 0;
-                $iaMensajes[] = 'PONs';
-            } else {
-                $iaErrores[] = 'PONs (' . ($respPons['error'] ?? 'desconocido') . ')';
-            }
-
-            // 2. Diagrama de actuacion
-            $respDiag = $svc->generarDiagramaActuacion($contextoCliente);
-            if (!empty($respDiag['ok'])) {
-                $updates['diagrama_ia_json'] = json_encode($respDiag['data'], JSON_UNESCAPED_UNICODE);
-                $tokensIn  += $respDiag['tokens']['in']  ?? 0;
-                $tokensOut += $respDiag['tokens']['out'] ?? 0;
-                $iaMensajes[] = 'Diagrama';
-            } else {
-                $iaErrores[] = 'Diagrama (' . ($respDiag['error'] ?? 'desconocido') . ')';
-            }
-
-            // 3. Matriz de responsables
-            $respMat = $svc->generarMatrizResponsables($contextoCliente);
-            if (!empty($respMat['ok'])) {
-                $updates['matriz_responsables_ia_json'] = json_encode($respMat['data'], JSON_UNESCAPED_UNICODE);
-                $tokensIn  += $respMat['tokens']['in']  ?? 0;
-                $tokensOut += $respMat['tokens']['out'] ?? 0;
-                $iaMensajes[] = 'Matriz Responsables';
-            } else {
-                $iaErrores[] = 'Matriz (' . ($respMat['error'] ?? 'desconocido') . ')';
-            }
-
-            // 4. Brigada y Simulacros (solo si el metodo existe en el servicio)
-            if (method_exists($svc, 'generarBrigadaSimulacros')) {
-                $respBrig = $svc->generarBrigadaSimulacros($contextoCliente);
-                if (!empty($respBrig['ok'])) {
-                    $updates['brigada_ia_texto']    = $respBrig['data']['brigada_texto']    ?? null;
-                    $updates['simulacros_ia_texto'] = $respBrig['data']['simulacros_texto'] ?? null;
-                    $tokensIn  += $respBrig['tokens']['in']  ?? 0;
-                    $tokensOut += $respBrig['tokens']['out'] ?? 0;
-                    $iaMensajes[] = 'Brigada+Simulacros';
-                } else {
-                    $iaErrores[] = 'Brigada (' . ($respBrig['error'] ?? 'desconocido') . ')';
-                }
-            }
-
-            if (!empty($updates)) {
-                $updates['ia_generado_at'] = date('Y-m-d H:i:s');
-                $this->model->update($id, $updates);
-            }
-        } catch (\Throwable $e) {
-            log_message('error', '[PlanEmergencia finalizar auto-IA] ' . $e->getMessage());
-            $iaErrores[] = 'Excepcion general: ' . $e->getMessage();
-        }
-
-        // Re-cargar inspeccion con los campos IA actualizados antes de generar el PDF
-        $inspeccion = $this->model->find($id);
+        // El contenido IA (PONs, Diagrama, Matriz, Brigada) debe haberse generado y aprobado
+        // previamente en la Vista de Revision IA (/ia-review/{id}). Aqui solo generamos el
+        // PDF con el contenido actualmente en BD (puede estar parcial — el pdf.php omite
+        // las secciones que no tienen contenido para evitar espacios muertos).
 
         $pdfPath = $this->generarPdfInterno($id);
         if (!$pdfPath) {
@@ -360,15 +269,7 @@ class PlanEmergenciaController extends BaseController
             (int) $inspeccion['id'],
             'PlanEmergencia'
         );
-
-        $msg = 'Plan de Emergencia finalizado con IA y PDF generado.';
-        if (!empty($iaMensajes)) {
-            $msg .= ' Bloques IA generados: ' . implode(', ', $iaMensajes) . '.';
-            $msg .= sprintf(' Tokens: %d in / %d out.', $tokensIn, $tokensOut);
-        }
-        if (!empty($iaErrores)) {
-            $msg .= ' Avisos IA: ' . implode(' | ', $iaErrores) . '.';
-        }
+        $msg = 'Plan de Emergencia finalizado y PDF generado.';
         if ($emailResult['success']) {
             $msg .= ' ' . $emailResult['message'];
         } else {
@@ -600,11 +501,16 @@ class PlanEmergenciaController extends BaseController
 
         $ponesCanonicos = require APPPATH . 'Config/PonesCanonicos.php';
 
+        $contextoExtra = $this->leerContextoIA($inspeccion, 'pons');
+
         $svc  = new \App\Libraries\PlanEmergenciaIAService();
-        $resp = $svc->enriquecerPONs($contextoCliente, $ponesCanonicos);
+        $resp = $svc->enriquecerPONs($contextoCliente, $ponesCanonicos, $contextoExtra);
 
         if (!$resp['ok']) {
             log_message('error', '[PlanEmergencia IA PONs] ' . ($resp['error'] ?? 'desconocido'));
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? 'desconocido']);
+            }
             return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
         }
 
@@ -615,6 +521,9 @@ class PlanEmergenciaController extends BaseController
 
         $tokensIn  = $resp['tokens']['in']  ?? 0;
         $tokensOut = $resp['tokens']['out'] ?? 0;
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['ok' => true, 'bloque' => 'pons', 'data' => $resp['data'], 'tokens' => ['in' => $tokensIn, 'out' => $tokensOut]]);
+        }
         $msg = sprintf('PONs enriquecidos con IA. Tokens: %d in / %d out.', $tokensIn, $tokensOut);
         return redirect()->back()->with('msg', $msg);
     }
@@ -643,11 +552,16 @@ class PlanEmergenciaController extends BaseController
             'ultimaMatriz' => (new MatrizVulnerabilidadModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
         ];
 
+        $contextoExtra = $this->leerContextoIA($inspeccion, 'diagrama');
+
         $svc  = new \App\Libraries\PlanEmergenciaIAService();
-        $resp = $svc->generarDiagramaActuacion($contextoCliente);
+        $resp = $svc->generarDiagramaActuacion($contextoCliente, $contextoExtra);
 
         if (!$resp['ok']) {
             log_message('error', '[PlanEmergencia IA Diagrama] ' . ($resp['error'] ?? 'desconocido'));
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? 'desconocido']);
+            }
             return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
         }
 
@@ -658,6 +572,9 @@ class PlanEmergenciaController extends BaseController
 
         $tokensIn  = $resp['tokens']['in']  ?? 0;
         $tokensOut = $resp['tokens']['out'] ?? 0;
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['ok' => true, 'bloque' => 'diagrama', 'data' => $resp['data'], 'tokens' => ['in' => $tokensIn, 'out' => $tokensOut]]);
+        }
         return redirect()->back()->with('msg', sprintf('Diagrama de actuacion generado con IA. Tokens: %d in / %d out.', $tokensIn, $tokensOut));
     }
 
@@ -683,11 +600,16 @@ class PlanEmergenciaController extends BaseController
             'inspeccion' => $inspeccion,
         ];
 
+        $contextoExtra = $this->leerContextoIA($inspeccion, 'matriz');
+
         $svc  = new \App\Libraries\PlanEmergenciaIAService();
-        $resp = $svc->generarMatrizResponsables($contextoCliente);
+        $resp = $svc->generarMatrizResponsables($contextoCliente, $contextoExtra);
 
         if (!$resp['ok']) {
             log_message('error', '[PlanEmergencia IA Matriz] ' . ($resp['error'] ?? 'desconocido'));
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? 'desconocido']);
+            }
             return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
         }
 
@@ -698,6 +620,9 @@ class PlanEmergenciaController extends BaseController
 
         $tokensIn  = $resp['tokens']['in']  ?? 0;
         $tokensOut = $resp['tokens']['out'] ?? 0;
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['ok' => true, 'bloque' => 'matriz', 'data' => $resp['data'], 'tokens' => ['in' => $tokensIn, 'out' => $tokensOut]]);
+        }
         return redirect()->back()->with('msg', sprintf('Matriz de responsables generada con IA. Tokens: %d in / %d out.', $tokensIn, $tokensOut));
     }
 
@@ -732,11 +657,16 @@ class PlanEmergenciaController extends BaseController
             'brigadaSimulacros' => $brigadaInspeccion ?: [],
         ];
 
+        $contextoExtra = $this->leerContextoIA($inspeccion, 'brigada');
+
         $svc  = new \App\Libraries\PlanEmergenciaIAService();
-        $resp = $svc->generarBrigadaSimulacros($contextoCliente);
+        $resp = $svc->generarBrigadaSimulacros($contextoCliente, $contextoExtra);
 
         if (!$resp['ok']) {
             log_message('error', '[PlanEmergencia IA Brigada] ' . ($resp['error'] ?? 'desconocido'));
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? 'desconocido']);
+            }
             return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
         }
 
@@ -749,7 +679,119 @@ class PlanEmergenciaController extends BaseController
 
         $tokensIn  = $resp['tokens']['in']  ?? 0;
         $tokensOut = $resp['tokens']['out'] ?? 0;
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON(['ok' => true, 'bloque' => 'brigada', 'data' => $data, 'tokens' => ['in' => $tokensIn, 'out' => $tokensOut]]);
+        }
         return redirect()->back()->with('msg', sprintf('Brigada y Simulacros generados con IA. Tokens: %d in / %d out.', $tokensIn, $tokensOut));
+    }
+
+    /**
+     * Helper: lee el contexto adicional escrito por el consultor desde la
+     * columna ia_contexto_json para un bloque especifico (pons|diagrama|matriz|brigada).
+     * Retorna string vacio si no hay contexto.
+     */
+    private function leerContextoIA(array $inspeccion, string $bloque): string
+    {
+        if (empty($inspeccion['ia_contexto_json'])) return '';
+        $decoded = json_decode($inspeccion['ia_contexto_json'], true);
+        if (!is_array($decoded)) return '';
+        return (string) ($decoded[$bloque] ?? '');
+    }
+
+    /**
+     * Vista de Revision IA — el consultor ve los 4 bloques, agrega contexto
+     * adicional, genera/regenera y aprueba cada uno antes de finalizar el plan.
+     */
+    public function iaReview($id)
+    {
+        $inspeccion = $this->model->find($id);
+        if (!$inspeccion) {
+            return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'Plan no encontrado');
+        }
+
+        $cliente = (new ClientModel())->find($inspeccion['id_cliente']);
+
+        // Decodificar estado actual
+        $ponsIaAdendo = !empty($inspeccion['pons_ia_json']) ? json_decode($inspeccion['pons_ia_json'], true) : [];
+        $diagramaNodos = !empty($inspeccion['diagrama_ia_json']) ? json_decode($inspeccion['diagrama_ia_json'], true) : null;
+        $matrizResponsablesIA = !empty($inspeccion['matriz_responsables_ia_json']) ? json_decode($inspeccion['matriz_responsables_ia_json'], true) : null;
+        $contextoIA = !empty($inspeccion['ia_contexto_json']) ? json_decode($inspeccion['ia_contexto_json'], true) : [];
+        $aprobadoIA = !empty($inspeccion['ia_aprobado_json']) ? json_decode($inspeccion['ia_aprobado_json'], true) : [];
+
+        $ponesCanonicos = require APPPATH . 'Config/PonesCanonicos.php';
+
+        return view('inspecciones/layout_pwa', [
+            'content' => view('inspecciones/plan-emergencia/ia-review', [
+                'inspeccion'          => $inspeccion,
+                'cliente'             => $cliente,
+                'ponsIaAdendo'        => is_array($ponsIaAdendo) ? $ponsIaAdendo : [],
+                'diagramaNodos'       => $diagramaNodos,
+                'matrizResponsablesIA'=> $matrizResponsablesIA,
+                'contextoIA'          => is_array($contextoIA) ? $contextoIA : [],
+                'aprobadoIA'          => is_array($aprobadoIA) ? $aprobadoIA : [],
+                'ponesCanonicos'      => $ponesCanonicos,
+                'title'               => 'Revision IA - Plan de Emergencia',
+            ]),
+            'title' => 'Revision IA',
+        ]);
+    }
+
+    /**
+     * Guarda el contexto adicional para un bloque especifico.
+     * POST con: bloque=pons|diagrama|matriz|brigada, contexto=texto
+     */
+    public function iaSaveContexto($id)
+    {
+        $inspeccion = $this->model->find($id);
+        if (!$inspeccion) {
+            return $this->response->setJSON(['ok' => false, 'error' => 'Plan no encontrado'])->setStatusCode(404);
+        }
+
+        $bloque   = (string) $this->request->getPost('bloque');
+        $contexto = (string) $this->request->getPost('contexto');
+        $bloquesValidos = ['pons', 'diagrama', 'matriz', 'brigada'];
+        if (!in_array($bloque, $bloquesValidos, true)) {
+            return $this->response->setJSON(['ok' => false, 'error' => 'Bloque invalido'])->setStatusCode(400);
+        }
+
+        $actual = !empty($inspeccion['ia_contexto_json']) ? json_decode($inspeccion['ia_contexto_json'], true) : [];
+        if (!is_array($actual)) $actual = [];
+        $actual[$bloque] = $contexto;
+
+        $this->model->update($id, [
+            'ia_contexto_json' => json_encode($actual, JSON_UNESCAPED_UNICODE),
+        ]);
+
+        return $this->response->setJSON(['ok' => true]);
+    }
+
+    /**
+     * Marca o desmarca un bloque como aprobado.
+     * POST con: bloque=pons|diagrama|matriz|brigada, aprobado=1|0
+     */
+    public function iaAprobar($id)
+    {
+        $inspeccion = $this->model->find($id);
+        if (!$inspeccion) {
+            return $this->response->setJSON(['ok' => false, 'error' => 'Plan no encontrado'])->setStatusCode(404);
+        }
+
+        $bloque   = (string) $this->request->getPost('bloque');
+        $aprobado = (bool) $this->request->getPost('aprobado');
+        $bloquesValidos = ['pons', 'diagrama', 'matriz', 'brigada'];
+        if (!in_array($bloque, $bloquesValidos, true)) {
+            return $this->response->setJSON(['ok' => false, 'error' => 'Bloque invalido'])->setStatusCode(400);
+        }
+
+        $actual = !empty($inspeccion['ia_aprobado_json']) ? json_decode($inspeccion['ia_aprobado_json'], true) : [];
+        if (!is_array($actual)) $actual = [];
+        $actual[$bloque] = $aprobado;
+
+        $this->model->update($id, [
+            'ia_aprobado_json' => json_encode($actual, JSON_UNESCAPED_UNICODE),
+        ]);
+
+        return $this->response->setJSON(['ok' => true, 'aprobados' => $actual]);
     }
 
     public function delete($id)

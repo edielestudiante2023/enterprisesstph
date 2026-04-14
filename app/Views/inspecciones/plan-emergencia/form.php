@@ -551,14 +551,14 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
                 <i class="fas fa-save"></i> Guardar borrador
             </button>
             <button type="submit" name="finalizar" value="1" id="btnFinalizar" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px; opacity:0.5;" disabled
-                onclick="if(!confirm('Finalizar Plan de Emergencia y generar contenido personalizado con IA (PONs, Diagrama, Matriz de Responsables, Brigada y Simulacros)?\n\nEl proceso tarda entre 60 y 90 segundos. Durante ese tiempo no cierres la pestana.')) return false; var b=this; b.disabled=true; b.innerHTML='<i class=\'fas fa-robot fa-spin\'></i> Generando con IA... (60-90 seg)'; return true;">
-                <i class="fas fa-robot"></i> Finalizar y generar con IA
+                onclick="return confirm('Finalizar Plan de Emergencia? Se generara el PDF con el contenido IA que haya sido aprobado en la Revision IA. Si no has pasado por la vista de Revision IA, el PDF saldra sin personalizaciones.')">
+                <i class="fas fa-check-circle"></i> Finalizar
             </button>
             <div id="msgFaltantes" class="text-center" style="font-size:12px; color:#dc3545; display:none;">
                 <i class="fas fa-info-circle"></i> Completa las inspecciones faltantes para finalizar
             </div>
             <div class="text-center" style="font-size:11px; color:#666;">
-                <i class="fas fa-info-circle"></i> Al finalizar, la IA generara automaticamente los adendos personalizados de los 10 PONs, el diagrama de actuacion, la matriz de responsables y la seccion de brigada y simulacros, todo basado en las inspecciones reales del cliente.
+                <i class="fas fa-info-circle"></i> Para personalizar el Plan con IA, guarda el borrador y desde la vista usa el boton "Revisar con IA".
             </div>
         </div>
     </form>

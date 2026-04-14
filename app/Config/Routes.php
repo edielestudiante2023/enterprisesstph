@@ -1114,6 +1114,9 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('plan-emergencia/generar-diagrama-ia/(:num)', 'PlanEmergenciaController::generarDiagramaIA/$1');
     $routes->get('plan-emergencia/generar-matriz-ia/(:num)', 'PlanEmergenciaController::generarMatrizResponsablesIA/$1');
     $routes->get('plan-emergencia/generar-brigada-ia/(:num)', 'PlanEmergenciaController::generarBrigadaSimulacrosIA/$1');
+    $routes->get('plan-emergencia/ia-review/(:num)', 'PlanEmergenciaController::iaReview/$1');
+    $routes->post('plan-emergencia/ia-save-contexto/(:num)', 'PlanEmergenciaController::iaSaveContexto/$1');
+    $routes->post('plan-emergencia/ia-aprobar/(:num)', 'PlanEmergenciaController::iaAprobar/$1');
 
     // Inspeccion Brigada y Simulacros (alimenta Plan de Emergencia - Fase 2)
     $routes->get('brigada-simulacros', 'InspeccionBrigadaSimulacrosController::list');

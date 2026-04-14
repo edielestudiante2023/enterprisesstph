@@ -191,8 +191,8 @@ $debugMode = $debugMode ?? false;
     <p class="content-text">En los terminos del Decreto 2157 de 2017, reglamentario del articulo 42 de la Ley 1523 de 2012, la formulacion, implementacion, socializacion, actualizacion y seguimiento del presente Plan de Gestion del Riesgo de Desastres de Entidad Privada (PGRDEPP) es responsabilidad del representante legal de la copropiedad, rol que en <?= $nombreCliente ?> es ejercido por el Administrador debidamente designado por la Asamblea General de Propietarios o el Consejo de Administracion.</p>
     <p class="content-text">El Plan sera revisado y actualizado como minimo una (1) vez al ano o cuando se produzcan cambios significativos en la infraestructura, la ocupacion, las amenazas identificadas o el marco normativo aplicable. El resultado de cada revision quedara documentado y sera socializado con la brigada, el personal operativo, el consejo de administracion y los residentes.</p>
 
-    <div class="section-subtitle">MATRIZ DE RESPONSABLES DEL PLAN</div>
     <?php if (!empty($matrizResponsablesIA ?? null)): ?>
+        <div class="section-subtitle">MATRIZ DE RESPONSABLES DEL PLAN</div>
         <?php $filas = $matrizResponsablesIA['filas'] ?? []; ?>
         <table class="data-table">
             <thead>
@@ -212,9 +212,6 @@ $debugMode = $debugMode ?? false;
             <?php endforeach; ?>
             </tbody>
         </table>
-        <p class="content-text" style="font-size:8px; color:#666; font-style:italic;">Matriz personalizada generada por IA para <?= esc($nombreCliente) ?>.</p>
-    <?php else: ?>
-    <p class="content-text"><em>[Pendiente de generacion personalizada — use el boton "Generar Matriz Responsables IA" en la vista del plan para completar esta seccion con la matriz especifica de <?= $nombreCliente ?>.]</em></p>
     <?php endif; ?>
 
     <!-- ============ MARCO NORMATIVO NACIONAL ============ -->
@@ -588,17 +585,10 @@ foreach ($ponesCanonicos as $pon):
 <?php endforeach; ?>
 
     <!-- ============ DIAGRAMA DE ACTUACION EN EMERGENCIAS ============ -->
-    <!-- TODO Fase 2: este diagrama sera generado dinamicamente por IA (Claude).
-         Arquitectura:
-           1. PlanEmergenciaController leera $ultimaProb (amenazas probables) + $ultimaMatriz (vulnerabilidades) + $inspeccion (tipo inmueble, torres, aforo).
-           2. DiagramaEmergenciaIAService::generar($contexto) llamara a Claude API (cURL directo, patron SendGrid) con un prompt estructurado.
-           3. Claude devolvera un JSON con nodos del arbol de decision: {inicio, decisiones[], nodos[], ramas[]}.
-           4. El JSON se guardara en una columna nueva tbl_plan_emergencia.diagrama_ia_json.
-           5. pdf.php recibira $diagramaNodos y renderizara el arbol como tablas HTML anidadas con flechas unicode (▼ ├── → └──), 100% compatible DOMPDF, sin imagen.
-         NO se usa imagen estatica — la dependencia de $diagramaBase64 fue eliminada por decision del usuario. -->
+    <?php if (!empty($diagramaNodos ?? null)): ?>
 <div class="section-title">DIAGRAMA DE ACTUACION EN CASO DE EMERGENCIA</div>
     <p class="content-text">El siguiente diagrama de flujo establece el protocolo general de actuacion ante diferentes tipos de emergencia que puedan presentarse en la propiedad horizontal, personalizado segun las amenazas identificadas en el analisis de vulnerabilidad y probabilidad de peligros del conjunto <?= $nombreCliente ?>. Permite identificar rapidamente las acciones a seguir segun el tipo de evento.</p>
-    <?php if (!empty($diagramaNodos ?? null)): ?>
+    <?php if (true): ?>
         <?php
         $inicio = $diagramaNodos['inicio'] ?? 'DETECCION DE EMERGENCIA';
         $ramas  = $diagramaNodos['ramas'] ?? [];
@@ -633,9 +623,8 @@ foreach ($ponesCanonicos as $pon):
             <?php endforeach; ?>
         </table>
         <p class="content-text" style="font-size:8px; color:#666; font-style:italic; margin-top:6px;">Diagrama de actuacion generado por IA personalizado para <?= esc($nombreCliente) ?> segun amenazas identificadas en la matriz de vulnerabilidad y probabilidad de peligros.</p>
-    <?php else: ?>
-    <p class="content-text"><em>[Pendiente de generacion personalizada del diagrama de actuacion. Use el boton "Generar Diagrama IA" en la vista del plan.]</em></p>
     <?php endif; ?>
+    <?php endif; // cierre del if $diagramaNodos externo ?>
 
     <!-- ============ CONFORMACION DE BRIGADA DE EMERGENCIA ============ -->
     <div class="section-title">CONFORMACION DE LA BRIGADA DE EMERGENCIA</div>
