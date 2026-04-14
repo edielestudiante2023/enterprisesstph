@@ -229,6 +229,8 @@ class PlanEmergenciaController extends BaseController
 
     public function finalizar($id)
     {
+        @set_time_limit(600);
+
         $inspeccion = $this->model->find($id);
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'No encontrado');
@@ -240,6 +242,100 @@ class PlanEmergenciaController extends BaseController
             $lista = implode(', ', $faltantes);
             return redirect()->back()->with('error', 'Faltan inspecciones completas para este cliente: ' . $lista);
         }
+
+        // === AUTO-DISPARO IA (Fase 2) ===
+        // Genera los 4 bloques de contenido personalizado por IA antes de producir el PDF final.
+        // Cada bloque se guarda en su columna en tbl_plan_emergencia. Si uno falla, el flujo
+        // continua con un aviso y el PDF se genera con los bloques que si se completaron.
+        $iaMensajes = [];
+        $iaErrores  = [];
+        $tokensIn   = 0;
+        $tokensOut  = 0;
+
+        try {
+            $idCliente = (int) $inspeccion['id_cliente'];
+            $cliente   = (new ClientModel())->find($idCliente);
+
+            $contextoCliente = [
+                'cliente'        => $cliente,
+                'inspeccion'     => $inspeccion,
+                'ultimaLocativa' => (new InspeccionLocativaModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'ultimaMatriz'   => (new MatrizVulnerabilidadModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'ultimaProb'     => (new ProbabilidadPeligrosModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'ultimaExt'      => (new InspeccionExtintoresModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'ultimaBot'      => (new InspeccionBotiquinModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'ultimaRec'      => (new InspeccionRecursosSeguridadModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'ultimaCom'      => (new InspeccionComunicacionModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'ultimaGab'      => (new InspeccionGabineteModel())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+            ];
+
+            // Brigada+Simulacros (opcional, si existe el modulo y hay datos)
+            if (class_exists('\\App\\Models\\InspeccionBrigadaSimulacrosModel')) {
+                $bsClass = '\\App\\Models\\InspeccionBrigadaSimulacrosModel';
+                $contextoCliente['brigadaSimulacros'] = (new $bsClass())->where('id_cliente', $idCliente)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first() ?: [];
+            }
+
+            $svc = new \App\Libraries\PlanEmergenciaIAService();
+            $updates = [];
+
+            // 1. PONs
+            $respPons = $svc->enriquecerPONs($contextoCliente, require APPPATH . 'Config/PonesCanonicos.php');
+            if (!empty($respPons['ok'])) {
+                $updates['pons_ia_json'] = json_encode($respPons['data'], JSON_UNESCAPED_UNICODE);
+                $tokensIn  += $respPons['tokens']['in']  ?? 0;
+                $tokensOut += $respPons['tokens']['out'] ?? 0;
+                $iaMensajes[] = 'PONs';
+            } else {
+                $iaErrores[] = 'PONs (' . ($respPons['error'] ?? 'desconocido') . ')';
+            }
+
+            // 2. Diagrama de actuacion
+            $respDiag = $svc->generarDiagramaActuacion($contextoCliente);
+            if (!empty($respDiag['ok'])) {
+                $updates['diagrama_ia_json'] = json_encode($respDiag['data'], JSON_UNESCAPED_UNICODE);
+                $tokensIn  += $respDiag['tokens']['in']  ?? 0;
+                $tokensOut += $respDiag['tokens']['out'] ?? 0;
+                $iaMensajes[] = 'Diagrama';
+            } else {
+                $iaErrores[] = 'Diagrama (' . ($respDiag['error'] ?? 'desconocido') . ')';
+            }
+
+            // 3. Matriz de responsables
+            $respMat = $svc->generarMatrizResponsables($contextoCliente);
+            if (!empty($respMat['ok'])) {
+                $updates['matriz_responsables_ia_json'] = json_encode($respMat['data'], JSON_UNESCAPED_UNICODE);
+                $tokensIn  += $respMat['tokens']['in']  ?? 0;
+                $tokensOut += $respMat['tokens']['out'] ?? 0;
+                $iaMensajes[] = 'Matriz Responsables';
+            } else {
+                $iaErrores[] = 'Matriz (' . ($respMat['error'] ?? 'desconocido') . ')';
+            }
+
+            // 4. Brigada y Simulacros (solo si el metodo existe en el servicio)
+            if (method_exists($svc, 'generarBrigadaSimulacros')) {
+                $respBrig = $svc->generarBrigadaSimulacros($contextoCliente);
+                if (!empty($respBrig['ok'])) {
+                    $updates['brigada_ia_texto']    = $respBrig['data']['brigada_texto']    ?? null;
+                    $updates['simulacros_ia_texto'] = $respBrig['data']['simulacros_texto'] ?? null;
+                    $tokensIn  += $respBrig['tokens']['in']  ?? 0;
+                    $tokensOut += $respBrig['tokens']['out'] ?? 0;
+                    $iaMensajes[] = 'Brigada+Simulacros';
+                } else {
+                    $iaErrores[] = 'Brigada (' . ($respBrig['error'] ?? 'desconocido') . ')';
+                }
+            }
+
+            if (!empty($updates)) {
+                $updates['ia_generado_at'] = date('Y-m-d H:i:s');
+                $this->model->update($id, $updates);
+            }
+        } catch (\Throwable $e) {
+            log_message('error', '[PlanEmergencia finalizar auto-IA] ' . $e->getMessage());
+            $iaErrores[] = 'Excepcion general: ' . $e->getMessage();
+        }
+
+        // Re-cargar inspeccion con los campos IA actualizados antes de generar el PDF
+        $inspeccion = $this->model->find($id);
 
         $pdfPath = $this->generarPdfInterno($id);
         if (!$pdfPath) {
@@ -264,7 +360,15 @@ class PlanEmergenciaController extends BaseController
             (int) $inspeccion['id'],
             'PlanEmergencia'
         );
-        $msg = 'Plan de Emergencia finalizado y PDF generado.';
+
+        $msg = 'Plan de Emergencia finalizado con IA y PDF generado.';
+        if (!empty($iaMensajes)) {
+            $msg .= ' Bloques IA generados: ' . implode(', ', $iaMensajes) . '.';
+            $msg .= sprintf(' Tokens: %d in / %d out.', $tokensIn, $tokensOut);
+        }
+        if (!empty($iaErrores)) {
+            $msg .= ' Avisos IA: ' . implode(' | ', $iaErrores) . '.';
+        }
         if ($emailResult['success']) {
             $msg .= ' ' . $emailResult['message'];
         } else {
@@ -939,15 +1043,11 @@ class PlanEmergenciaController extends BaseController
                 ->orderBy('fecha_inspeccion', 'DESC')->first();
         }
 
-        // Hallazgos de la locativa (si existe)
+        // Hallazgos de la locativa: la tabla tbl_hallazgos_locativa es legacy
+        // y no existe en la BD actual. Se mantiene la variable para compatibilidad
+        // con la vista pdf.php pero inicializada vacia. Si en el futuro se crea
+        // una tabla detalle de hallazgos, se puede re-habilitar aqui.
         $hallazgosLocativa = [];
-        if ($ultimaLocativa) {
-            $db = \Config\Database::connect();
-            $hallazgosLocativa = $db->table('tbl_hallazgos_locativa')
-                ->where('id_inspeccion', $ultimaLocativa['id'])
-                ->orderBy('orden', 'ASC')
-                ->get()->getResultArray();
-        }
 
         // Diagrama de emergencias (imagen estatica)
         $diagramaPath = FCPATH . 'uploads/imagenesplanemergencias/emergencias1.jpg';
