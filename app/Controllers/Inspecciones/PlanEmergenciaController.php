@@ -143,6 +143,12 @@ class PlanEmergenciaController extends BaseController
             return $this->autosaveJsonSuccess($idPlan);
         }
 
+        // Si el consultor presiono "Guardar y Revisar con IA" lo llevamos a la vista de revision
+        if ($this->request->getPost('ir_ia_review')) {
+            return redirect()->to('/inspecciones/plan-emergencia/ia-review/' . $idPlan)
+                ->with('msg', 'Plan guardado. Ahora puedes revisar y generar el contenido con IA.');
+        }
+
         return redirect()->to('/inspecciones/plan-emergencia/edit/' . $idPlan)
             ->with('msg', 'Plan guardado como borrador');
     }
@@ -198,6 +204,12 @@ class PlanEmergenciaController extends BaseController
 
         if ($this->isAutosaveRequest()) {
             return $this->autosaveJsonSuccess((int)$id);
+        }
+
+        // Si el consultor presiono "Guardar y Revisar con IA" lo llevamos a la vista de revision
+        if ($this->request->getPost('ir_ia_review')) {
+            return redirect()->to('/inspecciones/plan-emergencia/ia-review/' . $id)
+                ->with('msg', 'Cambios guardados. Revisa y genera el contenido con IA.');
         }
 
         return redirect()->to('/inspecciones/plan-emergencia/edit/' . $id)
