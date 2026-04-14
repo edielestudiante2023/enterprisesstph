@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\InspeccionBrigadaSimulacrosModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
+use App\Models\ReporteModel;
 use Dompdf\Dompdf;
 
 class InspeccionBrigadaSimulacrosController extends BaseController
@@ -181,8 +182,12 @@ class InspeccionBrigadaSimulacrosController extends BaseController
             'ruta_pdf' => $pdfPath,
         ]);
 
+        // Carga automatica al listado de reportes del cliente
+        $inspeccionActualizada = $this->inspeccionModel->find($id);
+        $this->uploadToReportes($inspeccionActualizada, $pdfPath);
+
         return redirect()->to('/inspecciones/brigada-simulacros/view/' . $id)
-            ->with('msg', 'Inspeccion finalizada y PDF generado.');
+            ->with('msg', 'Inspeccion finalizada, PDF generado y publicada en reportes del cliente.');
     }
 
     public function generatePdf($id)
@@ -195,6 +200,13 @@ class InspeccionBrigadaSimulacrosController extends BaseController
 
         $pdfPath = $this->generarPdfInterno($id);
         $this->inspeccionModel->update($id, ['ruta_pdf' => $pdfPath]);
+
+        // Si la inspeccion ya estaba finalizada, actualizar tambien el reporte del cliente
+        if (($inspeccion['estado'] ?? '') === 'completo') {
+            $inspeccionActualizada = $this->inspeccionModel->find($id);
+            $this->uploadToReportes($inspeccionActualizada, $pdfPath);
+        }
+
         $fullPath = FCPATH . $pdfPath;
         if (!file_exists($fullPath)) {
             return redirect()->back()->with('error', 'PDF no encontrado');
@@ -202,6 +214,60 @@ class InspeccionBrigadaSimulacrosController extends BaseController
 
         $this->servirPdf($fullPath, 'brigada_simulacros_' . $id . '.pdf');
         return;
+    }
+
+    /**
+     * Sube/actualiza el PDF de la inspeccion al listado central de reportes del cliente
+     * (tbl_reporte). Usa id_report_type=6, id_detailreport=48 (Brigada y Simulacros).
+     * Es idempotente: si existe un reporte previo para esta inspeccion, lo actualiza.
+     */
+    private function uploadToReportes(array $inspeccion, string $pdfPath): bool
+    {
+        $reporteModel = new ReporteModel();
+        $clientModel  = new ClientModel();
+        $cliente = $clientModel->find($inspeccion['id_cliente']);
+        if (!$cliente) return false;
+
+        $nitCliente = $cliente['nit_cliente'] ?? '';
+
+        $existente = $reporteModel
+            ->where('id_cliente', $inspeccion['id_cliente'])
+            ->where('id_report_type', 6)
+            ->where('id_detailreport', 48)
+            ->like('observaciones', 'insp_brig_id:' . $inspeccion['id'])
+            ->first();
+
+        // Copia del PDF al directorio publico de reportes del cliente (si aplica)
+        if (defined('UPLOADS_PATH') && !empty($nitCliente)) {
+            $destDir = UPLOADS_PATH . $nitCliente;
+            if (!is_dir($destDir)) {
+                @mkdir($destDir, 0755, true);
+            }
+            $fileName = 'brigada_simulacros_' . $inspeccion['id'] . '_' . date('Ymd_His') . '.pdf';
+            $destPath = $destDir . '/' . $fileName;
+            @copy(FCPATH . $pdfPath, $destPath);
+            $enlace = base_url((defined('UPLOADS_URL_PREFIX') ? UPLOADS_URL_PREFIX : 'uploads') . '/' . $nitCliente . '/' . $fileName);
+        } else {
+            $enlace = base_url($pdfPath);
+        }
+
+        $data = [
+            'titulo_reporte'  => 'INSPECCION BRIGADA Y SIMULACROS - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . ($inspeccion['fecha_inspeccion'] ?? date('Y-m-d')),
+            'id_detailreport' => 48,
+            'id_report_type'  => 6,
+            'id_cliente'      => $inspeccion['id_cliente'],
+            'estado'          => 'CERRADO',
+            'observaciones'   => 'Generado automaticamente desde modulo de inspecciones. insp_brig_id:' . $inspeccion['id'],
+            'enlace'          => $enlace,
+            'updated_at'      => date('Y-m-d H:i:s'),
+        ];
+
+        if ($existente) {
+            return (bool) $reporteModel->update($existente['id_reporte'], $data);
+        }
+
+        $data['created_at'] = date('Y-m-d H:i:s');
+        return (bool) $reporteModel->save($data);
     }
 
     public function delete($id)
