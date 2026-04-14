@@ -357,7 +357,7 @@ class InspeccionGabineteController extends BaseController
         $existentesPorOrden = [];
         foreach ($this->detalleModel->getByInspeccion($idInspeccion) as $gab) {
             $existentes[$gab['id']] = $gab;
-            $existentesPorOrden[(int)$gab['orden']] = $gab;
+            $existentesPorOrden[(int)$gab['numero']] = $gab;
         }
 
         $this->detalleModel->deleteByInspeccion($idInspeccion);
