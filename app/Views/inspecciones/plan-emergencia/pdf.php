@@ -6,6 +6,64 @@ $telefonosCiudad = ($ciudad && isset($telefonos[$ciudad])) ? $telefonos[$ciudad]
 $enumSiNo = ['si' => 'SI', 'no' => 'NO'];
 $tipoInmueble = ['casas' => 'CASAS', 'apartamentos' => 'APARTAMENTOS'];
 $debugMode = $debugMode ?? false;
+
+/**
+ * Renderiza una galeria fotografica en tabla de 2 columnas, con caption
+ * legible debajo de cada imagen y page-break-inside: avoid por fila.
+ *
+ * @param array  $fotosBase64  Array con las fotos base64 disponibles del plan.
+ * @param array  $fotos        Array asociativo ['clave_foto' => 'Caption legible'].
+ * @param string $titulo       Titulo opcional de la seccion (sera rendered como section-subtitle).
+ * @param string $intro        Parrafo introductorio opcional antes de las fotos.
+ * @return string HTML del bloque (vacio si no hay fotos que mostrar).
+ */
+if (!function_exists('renderGaleriaFotos')) {
+    function renderGaleriaFotos(array $fotosBase64, array $fotos, string $titulo = '', string $intro = ''): string
+    {
+        // Filtrar solo las fotos que realmente existen
+        $disponibles = [];
+        foreach ($fotos as $clave => $caption) {
+            if (!empty($fotosBase64[$clave])) {
+                $disponibles[] = ['src' => $fotosBase64[$clave], 'caption' => $caption];
+            }
+        }
+        if (empty($disponibles)) return '';
+
+        $html = '';
+        if ($titulo !== '') {
+            $html .= '<div class="section-subtitle">' . htmlspecialchars($titulo) . '</div>';
+        }
+        if ($intro !== '') {
+            $html .= '<p class="content-text">' . htmlspecialchars($intro) . '</p>';
+        }
+
+        $html .= '<table class="galeria-fotos">';
+        $total = count($disponibles);
+        for ($i = 0; $i < $total; $i += 2) {
+            $html .= '<tr>';
+            // Columna izquierda
+            $izq = $disponibles[$i];
+            $html .= '<td class="galeria-celda">';
+            $html .= '<img src="' . $izq['src'] . '">';
+            $html .= '<div class="galeria-caption">' . htmlspecialchars($izq['caption']) . '</div>';
+            $html .= '</td>';
+            // Columna derecha (puede ser vacia si el numero de fotos es impar)
+            if (isset($disponibles[$i + 1])) {
+                $der = $disponibles[$i + 1];
+                $html .= '<td class="galeria-celda">';
+                $html .= '<img src="' . $der['src'] . '">';
+                $html .= '<div class="galeria-caption">' . htmlspecialchars($der['caption']) . '</div>';
+                $html .= '</td>';
+            } else {
+                $html .= '<td class="galeria-celda">&nbsp;</td>';
+            }
+            $html .= '</tr>';
+        }
+        $html .= '</table>';
+
+        return $html;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -52,9 +110,12 @@ $debugMode = $debugMode ?? false;
         .content-text { font-size: 8.5px; line-height: 1.4; margin-bottom: 5px; text-align: justify; }
         .content-bold { font-size: 8.5px; font-weight: bold; margin: 5px 0 2px; color: #1c2437; }
 
-        .foto-block { text-align: center; margin: 6px 0; }
-        .foto-block img { max-width: 300px; max-height: 200px; border: 1px solid #ccc; }
-        .foto-caption { font-size: 7px; color: #666; margin-top: 2px; }
+        /* Galeria fotografica 2 columnas (DOMPDF compatible) */
+        .galeria-fotos { width: 100%; border-collapse: separate; border-spacing: 8px 10px; margin: 8px 0 14px; }
+        .galeria-fotos tr { page-break-inside: avoid; }
+        .galeria-fotos td.galeria-celda { width: 50%; text-align: center; vertical-align: top; padding: 6px; }
+        .galeria-fotos img { max-width: 240px; max-height: 180px; border: 1px solid #bbb; border-radius: 4px; }
+        .galeria-caption { font-size: 10px; color: #333; font-weight: 600; margin-top: 4px; padding-top: 2px; }
 
         .foto-row { width: 100%; margin: 6px 0; }
         .foto-row td { text-align: center; padding: 4px; vertical-align: top; }
@@ -250,10 +311,12 @@ $debugMode = $debugMode ?? false;
     <div class="section-subtitle">UBICACION</div>
     <p class="content-text"><?= $nombreCliente ?> se encuentra localizado en la Direccion: <?= $direccion ?></p>
 
-    <?php if (!empty($fotosBase64['foto_panorama'])): ?>
-    <div class="section-subtitle">VISTA DE PANORAMA</div>
-    <div class="foto-block"><img src="<?= $fotosBase64['foto_panorama'] ?>"></div>
-    <?php endif; ?>
+    <?= renderGaleriaFotos(
+        $fotosBase64,
+        ['foto_panorama' => 'Vista panoramica del conjunto'],
+        'VISTA DE PANORAMA',
+        'Imagen panoramica general del conjunto residencial, capturada durante la inspeccion tecnica. Permite contextualizar la ubicacion, entorno urbano inmediato y caracteristicas generales de la copropiedad.'
+    ) ?>
 
     <div class="section-subtitle">DESCRIPCION DETALLADA DE LAS INSTALACIONES</div>
     <table class="info-table">
@@ -278,17 +341,18 @@ $debugMode = $debugMode ?? false;
         <tr><td class="info-label">PLANTA ELECTRICA</td><td><?= esc($inspeccion['planta_electrica'] ?? '-') ?></td></tr>
     </table>
 
-    <!-- Fotos de torres/casas y parqueaderos -->
-    <?php
-    $fotosInst = [
-        'foto_torres_1' => 'Torres o Casas 1', 'foto_torres_2' => 'Torres o Casas 2',
-        'foto_parqueaderos_carros' => 'Parqueaderos Carros', 'foto_parqueaderos_motos' => 'Parqueaderos Motos',
-        'foto_oficina_admin' => 'Oficina Administracion',
-    ];
-    foreach ($fotosInst as $campo => $caption):
-        if (!empty($fotosBase64[$campo])): ?>
-    <div class="foto-block"><img src="<?= $fotosBase64[$campo] ?>"><div class="foto-caption"><?= $caption ?></div></div>
-    <?php endif; endforeach; ?>
+    <?= renderGaleriaFotos(
+        $fotosBase64,
+        [
+            'foto_torres_1'            => 'Torres / Casas - Vista 1',
+            'foto_torres_2'            => 'Torres / Casas - Vista 2',
+            'foto_parqueaderos_carros' => 'Parqueaderos de Carros',
+            'foto_parqueaderos_motos'  => 'Parqueaderos de Motos',
+            'foto_oficina_admin'       => 'Oficina de Administracion',
+        ],
+        'REGISTRO FOTOGRAFICO DE INSTALACIONES',
+        'A continuacion se presenta el registro fotografico del estado actual de las areas principales del conjunto residencial, capturado durante la inspeccion tecnica. Estas imagenes forman parte integral del analisis de vulnerabilidad y permiten contextualizar las condiciones estructurales y de uso de los espacios mas relevantes para el Plan de Emergencia.'
+    ) ?>
 
     <!-- ============ ADMINISTRACION Y PERSONAL ============ -->
     <div class="section-title">ADMINISTRACION Y PERSONAL</div>
@@ -322,24 +386,24 @@ $debugMode = $debugMode ?? false;
 
     <!-- ============ CIRCULACIONES Y ACCESOS ============ -->
 <div class="section-title">CIRCULACIONES Y ACCESOS</div>
+    <p class="content-text">En las siguientes subsecciones se describen y documentan visualmente las circulaciones, salidas, ingresos y accesos del conjunto residencial. Estos elementos son criticos en cualquier plan de emergencia, pues determinan las rutas de escape, los puntos de encuentro y la capacidad de respuesta de los organismos de socorro.</p>
 
     <?php
     $seccCirc = [
-        ['titulo' => 'CIRCULACION VEHICULAR', 'campo' => 'circulacion_vehicular', 'fotos' => ['foto_circulacion_vehicular' => 'Zona Vehicular']],
-        ['titulo' => 'CIRCULACION PEATONAL', 'campo' => 'circulacion_peatonal', 'fotos' => ['foto_circulacion_peatonal_1' => 'Peatonal 1', 'foto_circulacion_peatonal_2' => 'Peatonal 2']],
-        ['titulo' => 'SALIDAS DE EMERGENCIA', 'campo' => 'salidas_emergencia', 'fotos' => ['foto_salida_emergencia_1' => 'Salida Emergencia 1', 'foto_salida_emergencia_2' => 'Salida Emergencia 2']],
-        ['titulo' => 'INGRESOS PEATONALES', 'campo' => 'ingresos_peatonales', 'fotos' => ['foto_ingresos_peatonales' => 'Ingresos Peatonales']],
-        ['titulo' => 'ACCESOS VEHICULARES', 'campo' => 'accesos_vehiculares', 'fotos' => ['foto_acceso_vehicular_1' => 'Acceso Vehicular 1', 'foto_acceso_vehicular_2' => 'Acceso Vehicular 2']],
+        ['titulo' => 'CIRCULACION VEHICULAR', 'campo' => 'circulacion_vehicular', 'fotos' => ['foto_circulacion_vehicular' => 'Circulacion Vehicular'], 'intro' => 'Registro fotografico de las vias internas de circulacion vehicular del conjunto.'],
+        ['titulo' => 'CIRCULACION PEATONAL', 'campo' => 'circulacion_peatonal', 'fotos' => ['foto_circulacion_peatonal_1' => 'Circulacion Peatonal - Vista 1', 'foto_circulacion_peatonal_2' => 'Circulacion Peatonal - Vista 2'], 'intro' => 'Vias peatonales internas y andenes de transito de residentes y visitantes.'],
+        ['titulo' => 'SALIDAS DE EMERGENCIA', 'campo' => 'salidas_emergencia', 'fotos' => ['foto_salida_emergencia_1' => 'Salida de Emergencia 1', 'foto_salida_emergencia_2' => 'Salida de Emergencia 2'], 'intro' => 'Identificacion visual de las salidas de emergencia disponibles para evacuacion conforme a NTC 1700.'],
+        ['titulo' => 'INGRESOS PEATONALES', 'campo' => 'ingresos_peatonales', 'fotos' => ['foto_ingresos_peatonales' => 'Ingreso Peatonal Principal'], 'intro' => 'Puntos de acceso peatonal controlados por porteria y vigilancia.'],
+        ['titulo' => 'ACCESOS VEHICULARES', 'campo' => 'accesos_vehiculares', 'fotos' => ['foto_acceso_vehicular_1' => 'Acceso Vehicular 1', 'foto_acceso_vehicular_2' => 'Acceso Vehicular 2'], 'intro' => 'Puertas y controles de entrada vehicular al conjunto, criticos para la llegada de organismos de socorro.'],
     ];
     foreach ($seccCirc as $sec): ?>
-    <div class="section-subtitle"><?= $sec['titulo'] ?></div>
     <?php if (!empty($inspeccion[$sec['campo']])): ?>
+    <div class="section-subtitle"><?= $sec['titulo'] ?></div>
     <p class="content-text"><?= nl2br(esc($inspeccion[$sec['campo']])) ?></p>
+    <?= renderGaleriaFotos($fotosBase64, $sec['fotos'], '', $sec['intro']) ?>
+    <?php else: ?>
+    <?= renderGaleriaFotos($fotosBase64, $sec['fotos'], $sec['titulo'], $sec['intro']) ?>
     <?php endif; ?>
-    <?php foreach ($sec['fotos'] as $campo => $caption):
-        if (!empty($fotosBase64[$campo])): ?>
-    <div class="foto-block"><img src="<?= $fotosBase64[$campo] ?>"><div class="foto-caption"><?= $caption ?></div></div>
-    <?php endif; endforeach; ?>
     <?php endforeach; ?>
 
     <!-- Concepto del consultor -->
@@ -382,19 +446,25 @@ $debugMode = $debugMode ?? false;
     <?php if (!empty($inspeccion['mapa_evacuacion'])): ?>
     <p class="content-text"><strong>Mapa de evacuacion:</strong> <?= nl2br(esc($inspeccion['mapa_evacuacion'])) ?></p>
     <?php endif; ?>
-    <?php foreach (['foto_ruta_evacuacion_1' => 'Ruta Evacuacion 1', 'foto_ruta_evacuacion_2' => 'Ruta Evacuacion 2'] as $f => $c):
-        if (!empty($fotosBase64[$f])): ?>
-    <div class="foto-block"><img src="<?= $fotosBase64[$f] ?>"><div class="foto-caption"><?= $c ?></div></div>
-    <?php endif; endforeach; endif; ?>
+    <?= renderGaleriaFotos(
+        $fotosBase64,
+        ['foto_ruta_evacuacion_1' => 'Ruta de Evacuacion - Tramo 1', 'foto_ruta_evacuacion_2' => 'Ruta de Evacuacion - Tramo 2'],
+        '',
+        'Recorrido fotografico de la ruta principal de evacuacion desde las unidades habitacionales hasta los puntos de encuentro designados.'
+    ) ?>
+    <?php endif; ?>
 
     <!-- Puntos de encuentro -->
     <?php if (!empty($inspeccion['puntos_encuentro'])): ?>
     <div class="section-subtitle">PUNTOS DE ENCUENTRO</div>
     <p class="content-text"><?= nl2br(esc($inspeccion['puntos_encuentro'])) ?></p>
-    <?php foreach (['foto_punto_encuentro_1' => 'Punto Encuentro 1', 'foto_punto_encuentro_2' => 'Punto Encuentro 2'] as $f => $c):
-        if (!empty($fotosBase64[$f])): ?>
-    <div class="foto-block"><img src="<?= $fotosBase64[$f] ?>"><div class="foto-caption"><?= $c ?></div></div>
-    <?php endif; endforeach; endif; ?>
+    <?= renderGaleriaFotos(
+        $fotosBase64,
+        ['foto_punto_encuentro_1' => 'Punto de Encuentro 1', 'foto_punto_encuentro_2' => 'Punto de Encuentro 2'],
+        '',
+        'Ubicacion de los puntos de encuentro designados para el proceso de evacuacion. Deben estar alejados de fachadas, libres de obstaculos y ser visibles desde las salidas de emergencia.'
+    ) ?>
+    <?php endif; ?>
 
     <!-- Sistemas alarma y emergencia -->
     <div class="section-subtitle">SISTEMAS DE ALARMA Y EMERGENCIA</div>
