@@ -999,7 +999,81 @@ foreach ($ponesCanonicos as $ponKey => $pon):
     <div class="section-title">CONFORMACION DE LA BRIGADA DE EMERGENCIA</div>
     <p class="content-text">En cumplimiento del numeral 5 del articulo 2.2.4.6.25 del Decreto 1072 de 2015, de la Resolucion 0312 de 2019 y de la Resolucion 0256 de 2014 de la Direccion Nacional de Bomberos de Colombia, <?= $nombreCliente ?> conformara una Brigada de Prevencion, Preparacion y Respuesta ante Emergencias, integrada por personal voluntario de la administracion, vigilancia, aseo, mantenimiento y residentes que manifiesten disposicion de servicio.</p>
     <div class="section-subtitle">ESTRUCTURA DE LA BRIGADA</div>
-    <p class="content-text">La brigada se organizara bajo el modelo del Sistema Comando de Incidentes con las siguientes posiciones: <strong>Jefe de Brigada</strong> (administrador o delegado), <strong>Subjefe de Brigada</strong> y los siguientes grupos funcionales: <strong>(i) Grupo de Evacuacion y Rescate:</strong> responsable de guiar a residentes y visitantes por las rutas de evacuacion hasta los puntos de encuentro y de realizar la busqueda y rescate basico de personas que no hayan evacuado. <strong>(ii) Grupo de Primeros Auxilios:</strong> responsable de brindar atencion inicial a lesionados hasta la llegada de los organismos de socorro. <strong>(iii) Grupo de Control de Incendios:</strong> responsable del manejo de extintores portatiles y gabinetes contra incendio en conatos y del apoyo al Cuerpo de Bomberos. <strong>(iv) Grupo de Comunicaciones:</strong> responsable de activar las alarmas, efectuar las llamadas a organismos externos de socorro y llevar el registro del evento.</p>
+    <p class="content-text">La brigada se organiza en tres niveles jerarquicos conforme al Sistema Comando de Incidentes. El siguiente organigrama muestra la relacion entre el nivel directivo, el nivel estrategico y el nivel operativo de la brigada de emergencias de <?= $nombreCliente ?>:</p>
+    <?php
+    // ============ SVG: ORGANIGRAMA DE LA BRIGADA (3 niveles) ============
+    $orgW = 700;
+    $orgH = 280;
+    $boxW = 220;
+    $boxH = 70;
+    $levelDirY = 20;
+    $levelOpY  = 180;
+    $dirX  = ($orgW - $boxW) / 2;         // Directivo centrado arriba
+    $estX  = ($orgW / 4) - ($boxW / 2);    // Estrategico abajo-izq
+    $opX   = ($orgW * 3 / 4) - ($boxW / 2); // Operativo abajo-der
+
+    $orgParts = [];
+    $orgParts[] = '<?xml version="1.0" encoding="UTF-8"?>';
+    $orgParts[] = '<svg xmlns="http://www.w3.org/2000/svg" width="' . $orgW . '" height="' . $orgH . '" viewBox="0 0 ' . $orgW . ' ' . $orgH . '">';
+
+    // Nivel Directivo (top)
+    $orgParts[] = '<rect x="' . $dirX . '" y="' . $levelDirY . '" width="' . $boxW . '" height="' . $boxH . '" fill="#1c2437" stroke="#1c2437" stroke-width="2"/>';
+    $orgParts[] = '<text x="' . ($orgW / 2) . '" y="' . ($levelDirY + 22) . '" fill="#bd9751" text-anchor="middle" font-family="Helvetica" font-size="12" font-weight="bold">NIVEL DIRECTIVO</text>';
+    $orgParts[] = '<text x="' . ($orgW / 2) . '" y="' . ($levelDirY + 38) . '" fill="#ffffff" text-anchor="middle" font-family="Helvetica" font-size="9">Administrador y Consejo</text>';
+    $orgParts[] = '<text x="' . ($orgW / 2) . '" y="' . ($levelDirY + 50) . '" fill="#ffffff" text-anchor="middle" font-family="Helvetica" font-size="9">(suministro de recursos y</text>';
+    $orgParts[] = '<text x="' . ($orgW / 2) . '" y="' . ($levelDirY + 62) . '" fill="#ffffff" text-anchor="middle" font-family="Helvetica" font-size="9">administracion del plan)</text>';
+
+    // Lineas desde directivo hacia estrategico y operativo
+    $dirBottomY = $levelDirY + $boxH;
+    $dirCenterX = $orgW / 2;
+    $junctionY  = ($dirBottomY + $levelOpY) / 2;
+    $estCenterX = $estX + ($boxW / 2);
+    $opCenterX  = $opX + ($boxW / 2);
+
+    // Linea vertical desde directivo hacia junction
+    $orgParts[] = '<line x1="' . $dirCenterX . '" y1="' . $dirBottomY . '" x2="' . $dirCenterX . '" y2="' . $junctionY . '" stroke="#1c2437" stroke-width="2"/>';
+    // Linea horizontal conectando estrategico <-> operativo via junction
+    $orgParts[] = '<line x1="' . $estCenterX . '" y1="' . $junctionY . '" x2="' . $opCenterX . '" y2="' . $junctionY . '" stroke="#1c2437" stroke-width="2"/>';
+    // Lineas verticales desde junction hacia cada caja
+    $orgParts[] = '<line x1="' . $estCenterX . '" y1="' . $junctionY . '" x2="' . $estCenterX . '" y2="' . $levelOpY . '" stroke="#1c2437" stroke-width="2"/>';
+    $orgParts[] = '<line x1="' . $opCenterX . '" y1="' . $junctionY . '" x2="' . $opCenterX . '" y2="' . $levelOpY . '" stroke="#1c2437" stroke-width="2"/>';
+    // Flechitas hacia cada caja (punta hacia abajo)
+    $orgParts[] = '<polygon points="' . ($estCenterX - 4) . ',' . ($levelOpY - 6) . ' ' . ($estCenterX + 4) . ',' . ($levelOpY - 6) . ' ' . $estCenterX . ',' . $levelOpY . '" fill="#1c2437"/>';
+    $orgParts[] = '<polygon points="' . ($opCenterX - 4) . ',' . ($levelOpY - 6) . ' ' . ($opCenterX + 4) . ',' . ($levelOpY - 6) . ' ' . $opCenterX . ',' . $levelOpY . '" fill="#1c2437"/>';
+
+    // Nivel Estrategico (abajo izq)
+    $orgParts[] = '<rect x="' . $estX . '" y="' . $levelOpY . '" width="' . $boxW . '" height="' . $boxH . '" fill="#f5eef8" stroke="#8e44ad" stroke-width="2"/>';
+    $orgParts[] = '<text x="' . $estCenterX . '" y="' . ($levelOpY + 20) . '" fill="#5b2c6f" text-anchor="middle" font-family="Helvetica" font-size="11" font-weight="bold">NIVEL ESTRATEGICO</text>';
+    $orgParts[] = '<text x="' . $estCenterX . '" y="' . ($levelOpY + 34) . '" fill="#1c2437" text-anchor="middle" font-family="Helvetica" font-size="9" font-weight="bold">Jefe de Brigada</text>';
+    $orgParts[] = '<text x="' . $estCenterX . '" y="' . ($levelOpY + 48) . '" fill="#333333" text-anchor="middle" font-family="Helvetica" font-size="8">(aplicacion del plan,</text>';
+    $orgParts[] = '<text x="' . $estCenterX . '" y="' . ($levelOpY + 58) . '" fill="#333333" text-anchor="middle" font-family="Helvetica" font-size="8">coordinacion con socorro externo)</text>';
+
+    // Nivel Operativo (abajo der)
+    $orgParts[] = '<rect x="' . $opX . '" y="' . $levelOpY . '" width="' . $boxW . '" height="' . $boxH . '" fill="#fdf2e9" stroke="#d35400" stroke-width="2"/>';
+    $orgParts[] = '<text x="' . $opCenterX . '" y="' . ($levelOpY + 20) . '" fill="#7e3a0c" text-anchor="middle" font-family="Helvetica" font-size="11" font-weight="bold">NIVEL OPERATIVO</text>';
+    $orgParts[] = '<text x="' . $opCenterX . '" y="' . ($levelOpY + 34) . '" fill="#1c2437" text-anchor="middle" font-family="Helvetica" font-size="9" font-weight="bold">Brigadistas y Subjefe</text>';
+    $orgParts[] = '<text x="' . $opCenterX . '" y="' . ($levelOpY + 48) . '" fill="#333333" text-anchor="middle" font-family="Helvetica" font-size="8">(evacuacion, primeros auxilios,</text>';
+    $orgParts[] = '<text x="' . $opCenterX . '" y="' . ($levelOpY + 58) . '" fill="#333333" text-anchor="middle" font-family="Helvetica" font-size="8">control de incendios, comunicaciones)</text>';
+
+    // Flecha bidireccional horizontal entre estrategico y operativo (coordinacion lateral)
+    $lateralY = $levelOpY + ($boxH / 2);
+    $estRightX = $estX + $boxW;
+    $opLeftX   = $opX;
+    $orgParts[] = '<line x1="' . ($estRightX + 4) . '" y1="' . $lateralY . '" x2="' . ($opLeftX - 4) . '" y2="' . $lateralY . '" stroke="#8e44ad" stroke-width="1.5" stroke-dasharray="4,3"/>';
+    // Puntas de flecha en ambos extremos
+    $orgParts[] = '<polygon points="' . ($estRightX + 4) . ',' . ($lateralY - 4) . ' ' . ($estRightX + 4) . ',' . ($lateralY + 4) . ' ' . $estRightX . ',' . $lateralY . '" fill="#8e44ad"/>';
+    $orgParts[] = '<polygon points="' . ($opLeftX - 4) . ',' . ($lateralY - 4) . ' ' . ($opLeftX - 4) . ',' . ($lateralY + 4) . ' ' . $opLeftX . ',' . $lateralY . '" fill="#8e44ad"/>';
+
+    $orgParts[] = '</svg>';
+    $orgSvgString  = implode("\n", $orgParts);
+    $orgSvgDataUri = 'data:image/svg+xml;base64,' . base64_encode($orgSvgString);
+    ?>
+    <div style="text-align:center; margin: 10px 0; page-break-inside:avoid;">
+        <img src="<?= $orgSvgDataUri ?>" style="max-width:100%; width:<?= $orgW ?>px;" alt="Organigrama brigada de emergencias">
+    </div>
+    <p class="content-text"><strong>Nivel Directivo:</strong> el Administrador y el Consejo de Administracion garantizan el suministro de recursos humanos, tecnicos y financieros para la operacion de la brigada, aprueban el Plan de Emergencia y su actualizacion anual, y asumen la responsabilidad legal conforme al Decreto 2157 de 2017.</p>
+    <p class="content-text"><strong>Nivel Estrategico (Jefe de Brigada):</strong> lidera la aplicacion del Plan, toma decisiones tacticas durante la emergencia, coordina la ayuda externa con Bomberos, Policia, Cruz Roja y Defensa Civil, y dirige a los brigadistas durante el evento.</p>
+    <p class="content-text"><strong>Nivel Operativo (Brigadistas y Subjefe):</strong> ejecuta las acciones del Plan en terreno a traves de los siguientes grupos funcionales: <strong>(i) Evacuacion y Rescate:</strong> guia a residentes y visitantes por las rutas de evacuacion hasta los puntos de encuentro. <strong>(ii) Primeros Auxilios:</strong> brinda atencion inicial a lesionados hasta la llegada de organismos de socorro. <strong>(iii) Control de Incendios:</strong> maneja extintores portatiles y gabinetes contra incendio en conatos, apoya al Cuerpo de Bomberos. <strong>(iv) Comunicaciones:</strong> activa alarmas, efectua llamadas a organismos externos y lleva el registro del evento.</p>
     <div class="section-subtitle">PERFIL Y REQUISITOS DEL BRIGADISTA</div>
     <p class="content-text">Mayor de edad, en condiciones fisicas y mentales aptas para la actividad, con disponibilidad para recibir capacitacion y entrenamiento periodico, disposicion de servicio, liderazgo, capacidad de trabajo en equipo y compromiso con la gestion del riesgo de la copropiedad. Los brigadistas deberan acreditar examen medico ocupacional que certifique su aptitud para actividades de brigada.</p>
     <div class="section-subtitle">FUNCIONES ANTES, DURANTE Y DESPUES</div>
