@@ -460,9 +460,9 @@ if (!function_exists('renderGaleriaFotos')) {
     <p class="content-text"><?= nl2br(esc($inspeccion['puntos_encuentro'])) ?></p>
     <?= renderGaleriaFotos(
         $fotosBase64,
-        ['foto_punto_encuentro_1' => 'Punto de Encuentro 1', 'foto_punto_encuentro_2' => 'Punto de Encuentro 2'],
+        ['foto_punto_encuentro_1' => 'Punto de Encuentro - Vista panoramica', 'foto_punto_encuentro_2' => 'Punto de Encuentro - Vista de detalle'],
         '',
-        'Ubicacion de los puntos de encuentro designados para el proceso de evacuacion. Deben estar alejados de fachadas, libres de obstaculos y ser visibles desde las salidas de emergencia.'
+        'Ubicacion del punto de encuentro designado para el proceso de evacuacion, documentado mediante dos tomas complementarias: una vista panoramica que permite identificar su ubicacion y referencias del entorno, y una vista de detalle que muestra las condiciones especificas del sitio. El punto de encuentro debe estar alejado de fachadas, libre de obstaculos y ser visible desde las salidas de emergencia.'
     ) ?>
     <?php endif; ?>
 
