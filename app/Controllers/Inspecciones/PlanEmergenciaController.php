@@ -978,6 +978,7 @@ class PlanEmergenciaController extends BaseController
         $enumFields = [
             'casas_o_apartamentos'          => ['casas', 'apartamentos'],
             'tiene_gabinetes_hidraulico'    => ['si', 'no'],
+            'tiene_ascensor'                => ['si', 'no'],
             'hay_parqueadero_privado'       => ['si', 'no'],
             'tiene_oficina_admin'           => ['si', 'no'],
             'registro_visitantes_emergencia' => ['si', 'no'],
