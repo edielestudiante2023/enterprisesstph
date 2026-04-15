@@ -64,6 +64,189 @@ if (!function_exists('renderGaleriaFotos')) {
         return $html;
     }
 }
+
+/**
+ * Renderiza un flowchart detallado en SVG (embebido como data URI para DOMPDF).
+ * Cada paso del flowchart puede ser 'accion', 'decision' o 'fin'.
+ *
+ * Estructura esperada del flowchart:
+ *   [
+ *       'pasos' => [
+ *           ['tipo'=>'accion', 'texto'=>'...', 'responsable'=>'...'],
+ *           ['tipo'=>'decision', 'texto'=>'¿Esta controlado?', 'salida_si'=>'Cierre del evento'],
+ *           ['tipo'=>'accion', ...],
+ *           ['tipo'=>'fin', 'texto'=>'Fin de emergencia'],
+ *       ],
+ *   ]
+ */
+if (!function_exists('renderFlowchartSVG')) {
+    function renderFlowchartSVG(array $flowchart, string $tituloPon, string $codigoPon): string
+    {
+        $pasos = $flowchart['pasos'] ?? [];
+        if (empty($pasos)) return '';
+
+        $svgW = 720;
+        $boxW = 360;
+        $boxH = 52;
+        $diamondH = 68;
+        $gap  = 18;
+        $leftCol = 120;          // X inicio de la columna principal de pasos
+        $rightColX = $leftCol + $boxW + 40;  // X inicio de salidas SI de decisiones
+        $sideBoxW = 200;
+        $titleH = 50;
+
+        // Calcular altura total
+        $y = $titleH + 20;
+        $positions = [];
+        foreach ($pasos as $i => $paso) {
+            $h = ($paso['tipo'] ?? 'accion') === 'decision' ? $diamondH : $boxH;
+            $positions[$i] = ['y' => $y, 'h' => $h];
+            $y += $h + $gap;
+        }
+        $svgH = $y + 20;
+
+        $parts = [];
+        $parts[] = '<?xml version="1.0" encoding="UTF-8"?>';
+        $parts[] = '<svg xmlns="http://www.w3.org/2000/svg" width="' . $svgW . '" height="' . $svgH . '" viewBox="0 0 ' . $svgW . ' ' . $svgH . '">';
+
+        // Titulo del PON
+        $parts[] = '<rect x="10" y="10" width="' . ($svgW - 20) . '" height="' . $titleH . '" fill="#1c2437" stroke="#1c2437"/>';
+        $parts[] = '<text x="' . ($svgW / 2) . '" y="32" fill="#ffffff" text-anchor="middle" font-family="Helvetica" font-size="11" font-weight="bold">PROCEDIMIENTO OPERATIVO NORMALIZADO</text>';
+        $parts[] = '<text x="' . ($svgW / 2) . '" y="46" fill="#bd9751" text-anchor="middle" font-family="Helvetica" font-size="10" font-weight="bold">PON ' . htmlspecialchars($codigoPon, ENT_XML1) . ' — ' . htmlspecialchars(strtoupper($tituloPon), ENT_XML1) . '</text>';
+
+        // Helper para wrap de texto en varias lineas
+        $wrap = function ($txt, $maxChars) {
+            $words = explode(' ', $txt);
+            $lines = []; $current = '';
+            foreach ($words as $w) {
+                if ($current === '') { $current = $w; }
+                elseif (strlen($current . ' ' . $w) <= $maxChars) { $current .= ' ' . $w; }
+                else { $lines[] = $current; $current = $w; }
+            }
+            if ($current !== '') $lines[] = $current;
+            return $lines;
+        };
+
+        // Dibujar cada paso
+        foreach ($pasos as $i => $paso) {
+            $pos = $positions[$i];
+            $y = $pos['y'];
+            $h = $pos['h'];
+            $tipo = $paso['tipo'] ?? 'accion';
+            $txt = $paso['texto'] ?? '';
+            $bxC = $leftCol + ($boxW / 2); // centro X de la caja
+
+            // Conector desde paso anterior (si existe)
+            if ($i > 0) {
+                $prev = $positions[$i - 1];
+                $y1 = $prev['y'] + $prev['h'];
+                $y2 = $y;
+                $parts[] = '<line x1="' . $bxC . '" y1="' . $y1 . '" x2="' . $bxC . '" y2="' . $y2 . '" stroke="#1c2437" stroke-width="1.5"/>';
+                // Flecha
+                $arrY = $y2 - 1;
+                $parts[] = '<polygon points="' . ($bxC - 4) . ',' . ($arrY - 6) . ' ' . ($bxC + 4) . ',' . ($arrY - 6) . ' ' . $bxC . ',' . $arrY . '" fill="#1c2437"/>';
+            }
+
+            if ($tipo === 'decision') {
+                // Rombo (polygon)
+                $cy = $y + ($h / 2);
+                $top = $y;
+                $bot = $y + $h;
+                $lf = $leftCol;
+                $rt = $leftCol + $boxW;
+                $poly = $bxC . ',' . $top . ' ' . $rt . ',' . $cy . ' ' . $bxC . ',' . $bot . ' ' . $lf . ',' . $cy;
+                $parts[] = '<polygon points="' . $poly . '" fill="#fff3cd" stroke="#bd9751" stroke-width="2"/>';
+                // Texto del rombo
+                $lines = $wrap($txt, 32);
+                $lineCount = count($lines);
+                $firstY = $cy - (($lineCount - 1) * 6) + 3;
+                foreach ($lines as $li => $ln) {
+                    $parts[] = '<text x="' . $bxC . '" y="' . ($firstY + $li * 12) . '" fill="#1c2437" text-anchor="middle" font-family="Helvetica" font-size="10" font-weight="bold">' . htmlspecialchars($ln, ENT_XML1) . '</text>';
+                }
+                // Salida "SI" a la derecha si existe
+                if (!empty($paso['salida_si'])) {
+                    // Flecha horizontal
+                    $parts[] = '<line x1="' . $rt . '" y1="' . $cy . '" x2="' . $rightColX . '" y2="' . $cy . '" stroke="#27ae60" stroke-width="1.5"/>';
+                    $parts[] = '<polygon points="' . ($rightColX - 6) . ',' . ($cy - 4) . ' ' . ($rightColX - 6) . ',' . ($cy + 4) . ' ' . $rightColX . ',' . $cy . '" fill="#27ae60"/>';
+                    // Label "SI"
+                    $parts[] = '<text x="' . ($rt + 18) . '" y="' . ($cy - 4) . '" fill="#27ae60" font-family="Helvetica" font-size="9" font-weight="bold">SI</text>';
+                    // Caja de salida_si
+                    $sbY = $cy - 20;
+                    $parts[] = '<rect x="' . $rightColX . '" y="' . $sbY . '" width="' . $sideBoxW . '" height="40" fill="#d4edda" stroke="#27ae60" stroke-width="1.5"/>';
+                    $sLines = $wrap($paso['salida_si'], 26);
+                    $sCount = count($sLines);
+                    $sFirstY = $cy - (($sCount - 1) * 5) + 3;
+                    foreach (array_slice($sLines, 0, 3) as $li => $ln) {
+                        $parts[] = '<text x="' . ($rightColX + $sideBoxW / 2) . '" y="' . ($sFirstY + $li * 10) . '" fill="#155724" text-anchor="middle" font-family="Helvetica" font-size="8">' . htmlspecialchars($ln, ENT_XML1) . '</text>';
+                    }
+                }
+                // Label "NO" al costado de la flecha que sigue hacia abajo
+                $parts[] = '<text x="' . ($bxC + 6) . '" y="' . ($bot + 12) . '" fill="#c0392b" font-family="Helvetica" font-size="9" font-weight="bold">NO</text>';
+            } elseif ($tipo === 'fin') {
+                $parts[] = '<rect x="' . $leftCol . '" y="' . $y . '" width="' . $boxW . '" height="' . $h . '" fill="#d4edda" stroke="#27ae60" stroke-width="2"/>';
+                $lines = $wrap($txt, 44);
+                $lineCount = count($lines);
+                $firstY = $y + ($h / 2) - (($lineCount - 1) * 6) + 4;
+                foreach ($lines as $li => $ln) {
+                    $parts[] = '<text x="' . $bxC . '" y="' . ($firstY + $li * 12) . '" fill="#155724" text-anchor="middle" font-family="Helvetica" font-size="10" font-weight="bold">' . htmlspecialchars($ln, ENT_XML1) . '</text>';
+                }
+                if (!empty($paso['responsable'])) {
+                    $parts[] = '<text x="' . ($leftCol + $boxW + 8) . '" y="' . ($y + $h / 2 + 3) . '" fill="#1c2437" font-family="Helvetica" font-size="8" font-style="italic">' . htmlspecialchars($paso['responsable'], ENT_XML1) . '</text>';
+                }
+            } else {
+                // accion
+                $parts[] = '<rect x="' . $leftCol . '" y="' . $y . '" width="' . $boxW . '" height="' . $h . '" fill="#f5eef8" stroke="#8e44ad" stroke-width="2"/>';
+                $lines = $wrap($txt, 46);
+                $lineCount = count($lines);
+                $firstY = $y + ($h / 2) - (($lineCount - 1) * 6) + 4;
+                foreach (array_slice($lines, 0, 3) as $li => $ln) {
+                    $parts[] = '<text x="' . $bxC . '" y="' . ($firstY + $li * 12) . '" fill="#1c2437" text-anchor="middle" font-family="Helvetica" font-size="10">' . htmlspecialchars($ln, ENT_XML1) . '</text>';
+                }
+                // Responsable a la derecha
+                if (!empty($paso['responsable'])) {
+                    $parts[] = '<text x="' . ($leftCol + $boxW + 8) . '" y="' . ($y + $h / 2 + 3) . '" fill="#5b2c6f" font-family="Helvetica" font-size="8" font-style="italic">' . htmlspecialchars($paso['responsable'], ENT_XML1) . '</text>';
+                }
+            }
+        }
+
+        $parts[] = '</svg>';
+        $svgString = implode("\n", $parts);
+        $svgDataUri = 'data:image/svg+xml;base64,' . base64_encode($svgString);
+
+        return '<div style="text-align:center; margin:10px 0; page-break-inside:avoid;">'
+            . '<img src="' . $svgDataUri . '" style="max-width:100%; width:' . $svgW . 'px;" alt="Flowchart PON ' . htmlspecialchars($codigoPon) . '">'
+            . '</div>';
+    }
+}
+
+/**
+ * Renderiza un flowchart pseudo-visual con tablas HTML para los PONs que no
+ * tienen definicion de flowchart detallado. Muestra los pasos como cajas
+ * conectadas con flechas unicode, usando solo HTML+CSS compatible con DOMPDF.
+ */
+if (!function_exists('renderFlowchartTabla')) {
+    function renderFlowchartTabla(array $pasos): string
+    {
+        if (empty($pasos)) return '';
+        $html = '<div style="page-break-inside:avoid; margin: 8px 0;">';
+        $html .= '<table style="width:100%; border-collapse:collapse;">';
+        $total = count($pasos);
+        foreach ($pasos as $i => $paso) {
+            $html .= '<tr><td style="padding:5px 100px;">';
+            $html .= '<div style="background:#f5eef8; border:1.5px solid #8e44ad; padding:8px 12px; text-align:center; font-size:9px; color:#1c2437; line-height:1.4;">';
+            $html .= '<strong>' . ($i + 1) . '.</strong> ' . htmlspecialchars($paso);
+            $html .= '</div></td></tr>';
+            if ($i < $total - 1) {
+                $html .= '<tr><td style="text-align:center; padding:2px;">';
+                $html .= '<div style="display:inline-block; width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:9px solid #8e44ad;"></div>';
+                $html .= '</td></tr>';
+            }
+        }
+        $html .= '</table>';
+        $html .= '</div>';
+        return $html;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -629,9 +812,16 @@ foreach ($ponesCanonicos as $ponKey => $pon):
     <?php endif; ?>
 
     <p class="content-bold">Procedimiento:</p>
-    <?php foreach ($pon['procedimiento'] as $paso): ?>
-    <p class="content-text"><?= esc($paso) ?></p>
-    <?php endforeach; ?>
+    <?php if (!empty($pon['flowchart'])): ?>
+        <?= renderFlowchartSVG($pon['flowchart'], $pon['titulo'], $pon['codigo']) ?>
+        <?php // Listado detallado de pasos debajo del flowchart para consulta rapida ?>
+        <p class="content-text" style="font-size:8.5px; color:#444; font-style:italic; margin-top:4px;">Detalle narrativo de los pasos del procedimiento:</p>
+        <?php foreach ($pon['procedimiento'] as $paso): ?>
+        <p class="content-text"><?= esc($paso) ?></p>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <?= renderFlowchartTabla($pon['procedimiento']) ?>
+    <?php endif; ?>
 
     <?php if (!empty($pon['medidas_preventivas'])): ?>
     <p class="content-bold">Medidas preventivas:</p>

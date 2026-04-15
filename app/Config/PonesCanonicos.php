@@ -29,6 +29,18 @@ return [
         'codigo'      => '01',
         'titulo'      => 'Incendio en areas comunes o unidades privadas',
         'amenaza_ref' => 'incendios',
+        'flowchart' => [
+            'pasos' => [
+                ['tipo'=>'accion',   'texto'=>'Quien detecte el conato activa la alarma y avisa a porteria', 'responsable'=>'Primer respondiente'],
+                ['tipo'=>'accion',   'texto'=>'Porteria confirma ubicacion y llama a Bomberos linea 119',     'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Si el conato es menor, brigadista usa extintor metodo PASS',   'responsable'=>'Brigada'],
+                ['tipo'=>'decision', 'texto'=>'Conato controlado?',                                            'salida_si'=>'Cierre del evento, reporte y reposicion de extintores'],
+                ['tipo'=>'accion',   'texto'=>'Activar evacuacion ordenada por rutas senalizadas',              'responsable'=>'Brigada evacuacion'],
+                ['tipo'=>'accion',   'texto'=>'Acordonar el area y restringir accesos a personal no autorizado','responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Recibir a Bomberos y delegar el manejo del incidente',          'responsable'=>'Jefe de brigada'],
+                ['tipo'=>'fin',      'texto'=>'Fin de emergencia, verificacion y evaluacion post-evento',      'responsable'=>'Coordinador'],
+            ],
+        ],
         'objetivo'    => 'Establecer las acciones estandarizadas que la brigada de emergencia (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados), el personal de vigilancia en porteria y los residentes deben ejecutar ante la presencia de fuego incipiente o declarado en zonas comunes o unidades privadas del conjunto, con el fin de proteger la vida, controlar el evento en su fase inicial cuando sea posible y coordinar la intervencion del Cuerpo Oficial de Bomberos conforme a la Ley 1523 de 2012.',
         'alcance'     => 'Aplica a la totalidad del personal de vigilancia, administracion, brigada de la copropiedad, contratistas, residentes, propietarios y visitantes que se encuentren dentro de las areas comunes y privadas del conjunto residencial al momento de presentarse un conato o incendio declarado de cualquier clase (A, B, C o K).',
         'definiciones' => [
@@ -83,6 +95,18 @@ return [
         'codigo'      => '02',
         'titulo'      => 'Sismo / Terremoto',
         'amenaza_ref' => 'sismos',
+        'flowchart' => [
+            'pasos' => [
+                ['tipo'=>'accion',   'texto'=>'Durante el sismo: agacharse, cubrirse y sujetarse',            'responsable'=>'Todos los ocupantes'],
+                ['tipo'=>'accion',   'texto'=>'No correr, no usar ascensores, alejarse de ventanales',         'responsable'=>'Todos los ocupantes'],
+                ['tipo'=>'accion',   'texto'=>'Al cesar el movimiento, vigilancia activa alarma de evacuacion','responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Inspeccion visual rapida: grietas, fugas, personas atrapadas', 'responsable'=>'Brigada'],
+                ['tipo'=>'decision', 'texto'=>'Hay danos o atrapados?',                                       'salida_si'=>'Llamar Bomberos 119 y Defensa Civil 144'],
+                ['tipo'=>'accion',   'texto'=>'Evacuar ordenadamente por escaleras hacia punto de encuentro', 'responsable'=>'Brigada evacuacion'],
+                ['tipo'=>'accion',   'texto'=>'Conteo y censo de ocupantes en punto de encuentro',            'responsable'=>'Coordinador'],
+                ['tipo'=>'fin',      'texto'=>'Esperar autorizacion oficial para reingreso al conjunto',      'responsable'=>'Administrador'],
+            ],
+        ],
         'objetivo'    => 'Definir las acciones de autoproteccion y respuesta que deben adoptar los ocupantes del conjunto residencial antes, durante y despues de un movimiento telurico, garantizando la proteccion de la vida, la evaluacion estructural posterior y la activacion oportuna del plan de evacuacion conforme a la Ley 1523 de 2012 y las directrices de la UNGRD.',
         'alcance'     => 'Aplica a todos los residentes, propietarios, visitantes, contratistas, integrantes de la brigada (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados), personal de vigilancia y administracion presentes en cualquier area del conjunto al momento de un evento sismico, sin importar la magnitud percibida del mismo.',
         'definiciones' => [
@@ -522,6 +546,19 @@ return [
         'codigo'      => '10',
         'titulo'      => 'Emergencia medica en ocupantes del conjunto',
         'amenaza_ref' => null,
+        'flowchart' => [
+            'pasos' => [
+                ['tipo'=>'accion',   'texto'=>'Identificar persona en emergencia y avisar a porteria',       'responsable'=>'Primer respondiente'],
+                ['tipo'=>'accion',   'texto'=>'Vigilancia llama a linea 123 con ubicacion exacta',           'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Personal capacitado acude con botiquin y DEA si esta disponible','responsable'=>'Residente capacitado'],
+                ['tipo'=>'accion',   'texto'=>'Evaluar consciencia, respiracion y pulso (10 segundos)',      'responsable'=>'Residente capacitado'],
+                ['tipo'=>'decision', 'texto'=>'La persona respira?',                                          'salida_si'=>'Posicion lateral de seguridad. Esperar ambulancia.'],
+                ['tipo'=>'accion',   'texto'=>'Iniciar RCP 100-120 compresiones por minuto',                 'responsable'=>'Residente capacitado'],
+                ['tipo'=>'accion',   'texto'=>'Aplicar DEA siguiendo instrucciones de voz del equipo',       'responsable'=>'Residente capacitado'],
+                ['tipo'=>'accion',   'texto'=>'Despejar acceso para la ambulancia y guiar personal medico',  'responsable'=>'Vigilancia'],
+                ['tipo'=>'fin',      'texto'=>'Entregar paciente al personal medico, notificar a familia',    'responsable'=>'Administrador'],
+            ],
+        ],
         'objetivo'    => 'Definir las acciones de respuesta ante cualquier evento que comprometa la vida o la salud de un ocupante, residente, visitante, trabajador o contratista dentro del conjunto, sin importar su origen o naturaleza clinica. La respuesta inicial estara a cargo del personal de vigilancia en porteria y de residentes o vigilantes con capacitacion basica en primeros auxilios (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados), quienes deberan garantizar la atencion prehospitalaria oportuna mientras se activa la linea 123 para el envio de ambulancia y atencion medica especializada.',
         'alcance'     => 'Aplica a todo el personal de vigilancia, residentes con capacitacion en primeros auxilios, administracion, visitantes, contratistas y trabajadores presentes en el conjunto al momento de presentarse una urgencia que comprometa la vida o integridad fisica de una o mas personas, cubriendo la totalidad de escenarios clinicos posibles: cardiovasculares, traumatologicos, respiratorios, neurologicos, metabolicos, intoxicaciones, urgencias obstetricas y crisis psiquiatricas agudas.',
         'definiciones' => [
