@@ -109,11 +109,12 @@ LISTA DE PONS A PERSONALIZAR:
 
 REGLAS DE REDACCION DEL ADENDO:
 1. Tono formal tecnico-legal, sin tildes (compatibilidad DOMPDF), sin emojis.
-2. NO repitas el procedimiento general - solo los aspectos especificos del cliente.
-3. Menciona caracteristicas reales: numero de torres o bloques, casas vs apartamentos, parqueadero subterraneo si aplica, presencia de gabinetes hidraulicos, brigada conformada o no, etc.
-4. Si la amenaza tiene probabilidad ALTA o MEDIA en este cliente, enfatizalo. Si es BAJA, mencionalo brevemente. Si NULL, omite mencion de probabilidad.
-5. Refiere recursos especificos detectados en las inspecciones (cantidad de extintores, ubicacion del botiquin, sistema de alarma, etc) cuando aporte valor.
-6. Maximo 120 palabras por adendo. Minimo 60.
+2. ESPANOL COLOMBIANO 100%: prohibido usar extranjerismos, anglicismos o siglas en ingles. Ejemplos de lo que NO se debe escribir: 'drop-cover-hold', 'lockdown', 'emergency kit', 'safe zone', 'panic button', 'standby', 'briefing', 'workflow'. Usar siempre su equivalente en espanol: 'agacharse, cubrirse y sujetarse', 'confinamiento', 'kit de emergencia', 'zona segura', 'boton de panico', 'en espera', 'reunion informativa', 'flujo de trabajo'.
+3. NO repitas el procedimiento general - solo los aspectos especificos del cliente.
+4. Menciona caracteristicas reales: numero de torres o bloques, casas vs apartamentos, parqueadero subterraneo si aplica, presencia de gabinetes hidraulicos, brigada conformada o no, etc.
+5. Si la amenaza tiene probabilidad ALTA o MEDIA en este cliente, enfatizalo. Si es BAJA, mencionalo brevemente. Si NULL, omite mencion de probabilidad.
+6. Refiere recursos especificos detectados en las inspecciones (cantidad de extintores, ubicacion del botiquin, sistema de alarma, etc) cuando aporte valor.
+7. Maximo 120 palabras por adendo. Minimo 60.
 
 FORMATO DE RESPUESTA:
 Devuelve EXCLUSIVAMENTE un objeto JSON valido con esta estructura, sin texto adicional ni markdown:
@@ -174,6 +175,7 @@ INSTRUCCIONES:
 - Generar un arbol de decision con un nodo de inicio y entre 5 y 8 ramas principales correspondientes a las amenazas mas relevantes del cliente.
 - Cada rama debe tener entre 3 y 5 pasos de accion concretos.
 - Tono tecnico, sin tildes, sin emojis.
+- ESPANOL COLOMBIANO 100%: prohibido usar extranjerismos, anglicismos o siglas en ingles. Ejemplos de lo que NO se debe escribir: 'drop-cover-hold', 'lockdown', 'emergency kit', 'safe zone', 'panic button', 'briefing'. Usar siempre el equivalente en espanol: 'agacharse, cubrirse y sujetarse', 'confinamiento', 'kit de emergencia', 'zona segura', 'boton de panico', 'reunion informativa'.
 
 FORMATO DE RESPUESTA:
 Devuelve EXCLUSIVAMENTE un objeto JSON valido con esta estructura:
@@ -242,6 +244,7 @@ Genera la MATRIZ DE RESPONSABLES DEL PLAN DE EMERGENCIA para el siguiente client
 {$contextoExtraBlock}
 INSTRUCCIONES:
 - Tono formal, sin tildes, sin emojis.
+- ESPANOL COLOMBIANO 100%: prohibido extranjerismos o anglicismos. Usar siempre terminos en espanol.
 - 6 a 10 filas con roles realistas para propiedad horizontal residencial.
 - Cada fila: rol, responsabilidad principal y frecuencia de revision.
 - Considera: representante legal, administrador, consejo, jefe de brigada (si aplica), vigilancia, brigadistas, comite de convivencia (si aplica).
@@ -324,7 +327,8 @@ DATOS REGISTRADOS POR EL CONSULTOR:
 {$contextoExtraBlock}
 INSTRUCCIONES:
 1. Tono formal tecnico-legal, sin tildes (compatibilidad DOMPDF), sin emojis.
-2. Genera dos textos:
+2. ESPANOL COLOMBIANO 100%: prohibido extranjerismos, anglicismos o siglas en ingles. Usar siempre terminos en espanol.
+3. Genera dos textos:
    a) BRIGADA (200 a 300 palabras): conformacion y estado actual de la brigada en {$cliente}.
       - Si NO existe brigada, explica el plan de conformacion en 90 dias.
       - Si existe pero esta inactiva o con pocos brigadistas, plan de reactivacion.
@@ -333,7 +337,7 @@ INSTRUCCIONES:
       - Si el ultimo simulacro fue hace mucho o no hay registro, prioriza simulacro general en los proximos 90 dias.
       - Incluye recomendacion de participar en el Simulacro Nacional de Evacuacion anual.
       - Lista 4 a 6 temas de capacitacion priorizados.
-3. Personaliza con datos reales del cliente, no uses texto generico.
+4. Personaliza con datos reales del cliente, no uses texto generico.
 
 FORMATO DE RESPUESTA:
 Devuelve EXCLUSIVAMENTE un objeto JSON valido, sin markdown ni texto adicional:

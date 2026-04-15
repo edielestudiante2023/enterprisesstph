@@ -678,13 +678,13 @@ foreach ($ponesCanonicos as $ponKey => $pon):
                     <?= esc($inicio) ?>
                 </td>
             </tr>
-            <tr><td style="text-align:center; font-size:14px; padding:2px;">&#9660;</td></tr>
+            <tr><td style="text-align:center; padding:4px 0;"><div style="display:inline-block; width:0; height:0; border-left:8px solid transparent; border-right:8px solid transparent; border-top:12px solid #1c2437;"></div></td></tr>
             <tr>
                 <td style="text-align:center; padding:6px; background:#bd9751; color:#fff; font-weight:bold; font-size:10px; border:2px solid #bd9751;">
                     TIPO DE EVENTO DETECTADO
                 </td>
             </tr>
-            <tr><td style="text-align:center; font-size:14px; padding:2px;">&#9660;</td></tr>
+            <tr><td style="text-align:center; padding:4px 0;"><div style="display:inline-block; width:0; height:0; border-left:8px solid transparent; border-right:8px solid transparent; border-top:12px solid #1c2437;"></div></td></tr>
         </table>
         <table style="width:100%; border-collapse:collapse; margin: 4px 0;">
             <?php foreach ($ramas as $rama): ?>
