@@ -1,4 +1,4 @@
-const CACHE_NAME = 'inspecciones-v5';
+const CACHE_NAME = 'inspecciones-v6';
 const ASSETS_TO_CACHE = [
     '/inspecciones',
     '/js/offline_queue.js',
@@ -123,6 +123,18 @@ self.addEventListener('fetch', event => {
 
     // Skip non-GET requests (POST for signatures handled by offline_queue.js client-side)
     if (event.request.method !== 'GET') return;
+
+    // IA endpoints del Plan de Emergencia - passthrough (siempre network, sin cache).
+    // Estas llamadas al Claude API tardan 20-40s y el SW interfiere con el fetch.
+    if (url.pathname.includes('/plan-emergencia/enriquecer-pons-ia') ||
+        url.pathname.includes('/plan-emergencia/generar-diagrama-ia') ||
+        url.pathname.includes('/plan-emergencia/generar-matriz-ia') ||
+        url.pathname.includes('/plan-emergencia/generar-brigada-ia') ||
+        url.pathname.includes('/plan-emergencia/ia-save-contexto') ||
+        url.pathname.includes('/plan-emergencia/ia-aprobar') ||
+        url.pathname.includes('/plan-emergencia/ia-review')) {
+        return; // no respondWith → el browser hace fetch normal sin SW
+    }
 
     // For navigation requests (HTML pages) - always go to network
     if (event.request.mode === 'navigate') {

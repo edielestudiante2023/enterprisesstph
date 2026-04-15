@@ -486,14 +486,23 @@ class PlanEmergenciaController extends BaseController
      */
     public function enriquecerPONsConIA($id)
     {
+        @set_time_limit(300);
+        log_message('info', '[IA PONs] start id=' . $id . ' ajax=' . ($this->request->isAJAX() ? 'Y' : 'N'));
+
         $inspeccion = $this->model->find($id);
         if (!$inspeccion) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Plan no encontrado (id=' . $id . ')']);
+            }
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'Plan no encontrado');
         }
 
         $idCliente = (int) $inspeccion['id_cliente'];
         $cliente   = (new ClientModel())->find($idCliente);
         if (!$cliente) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Cliente no encontrado (id=' . $idCliente . ')']);
+            }
             return redirect()->back()->with('error', 'Cliente no encontrado');
         }
 
@@ -515,16 +524,26 @@ class PlanEmergenciaController extends BaseController
 
         $contextoExtra = $this->leerContextoIA($inspeccion, 'pons');
 
-        $svc  = new \App\Libraries\PlanEmergenciaIAService();
-        $resp = $svc->enriquecerPONs($contextoCliente, $ponesCanonicos, $contextoExtra);
+        try {
+            $svc  = new \App\Libraries\PlanEmergenciaIAService();
+            $resp = $svc->enriquecerPONs($contextoCliente, $ponesCanonicos, $contextoExtra);
+        } catch (\Throwable $e) {
+            log_message('error', '[IA PONs] EXCEPTION id=' . $id . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Excepcion PHP: ' . $e->getMessage()]);
+            }
+            return redirect()->back()->with('error', 'Excepcion PHP: ' . $e->getMessage());
+        }
 
         if (!$resp['ok']) {
-            log_message('error', '[PlanEmergencia IA PONs] ' . ($resp['error'] ?? 'desconocido'));
+            log_message('error', '[IA PONs] FAIL id=' . $id . ' resp=' . substr(json_encode($resp), 0, 500));
             if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? 'desconocido']);
+                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? ('Servicio retorno sin error: ' . substr(json_encode($resp), 0, 200))]);
             }
             return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
         }
+
+        log_message('info', '[IA PONs] OK id=' . $id . ' tokens_in=' . ($resp['tokens']['in'] ?? 0) . ' tokens_out=' . ($resp['tokens']['out'] ?? 0));
 
         $this->model->update($id, [
             'pons_ia_json'   => json_encode($resp['data'], JSON_UNESCAPED_UNICODE),
@@ -546,14 +565,23 @@ class PlanEmergenciaController extends BaseController
      */
     public function generarDiagramaIA($id)
     {
+        @set_time_limit(300);
+        log_message('info', '[IA Diagrama] start id=' . $id . ' ajax=' . ($this->request->isAJAX() ? 'Y' : 'N'));
+
         $inspeccion = $this->model->find($id);
         if (!$inspeccion) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Plan no encontrado (id=' . $id . ')']);
+            }
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'Plan no encontrado');
         }
 
         $idCliente = (int) $inspeccion['id_cliente'];
         $cliente   = (new ClientModel())->find($idCliente);
         if (!$cliente) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Cliente no encontrado']);
+            }
             return redirect()->back()->with('error', 'Cliente no encontrado');
         }
 
@@ -566,16 +594,26 @@ class PlanEmergenciaController extends BaseController
 
         $contextoExtra = $this->leerContextoIA($inspeccion, 'diagrama');
 
-        $svc  = new \App\Libraries\PlanEmergenciaIAService();
-        $resp = $svc->generarDiagramaActuacion($contextoCliente, $contextoExtra);
+        try {
+            $svc  = new \App\Libraries\PlanEmergenciaIAService();
+            $resp = $svc->generarDiagramaActuacion($contextoCliente, $contextoExtra);
+        } catch (\Throwable $e) {
+            log_message('error', '[IA Diagrama] EXCEPTION id=' . $id . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Excepcion PHP: ' . $e->getMessage()]);
+            }
+            return redirect()->back()->with('error', 'Excepcion PHP: ' . $e->getMessage());
+        }
 
         if (!$resp['ok']) {
-            log_message('error', '[PlanEmergencia IA Diagrama] ' . ($resp['error'] ?? 'desconocido'));
+            log_message('error', '[IA Diagrama] FAIL id=' . $id . ' resp=' . substr(json_encode($resp), 0, 500));
             if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? 'desconocido']);
+                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? ('Servicio retorno sin error: ' . substr(json_encode($resp), 0, 200))]);
             }
             return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
         }
+
+        log_message('info', '[IA Diagrama] OK id=' . $id . ' tokens_in=' . ($resp['tokens']['in'] ?? 0) . ' tokens_out=' . ($resp['tokens']['out'] ?? 0));
 
         $this->model->update($id, [
             'diagrama_ia_json' => json_encode($resp['data'], JSON_UNESCAPED_UNICODE),
@@ -596,14 +634,23 @@ class PlanEmergenciaController extends BaseController
      */
     public function generarMatrizResponsablesIA($id)
     {
+        @set_time_limit(300);
+        log_message('info', '[IA Matriz] start id=' . $id . ' ajax=' . ($this->request->isAJAX() ? 'Y' : 'N'));
+
         $inspeccion = $this->model->find($id);
         if (!$inspeccion) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Plan no encontrado (id=' . $id . ')']);
+            }
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'Plan no encontrado');
         }
 
         $idCliente = (int) $inspeccion['id_cliente'];
         $cliente   = (new ClientModel())->find($idCliente);
         if (!$cliente) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Cliente no encontrado']);
+            }
             return redirect()->back()->with('error', 'Cliente no encontrado');
         }
 
@@ -614,16 +661,26 @@ class PlanEmergenciaController extends BaseController
 
         $contextoExtra = $this->leerContextoIA($inspeccion, 'matriz');
 
-        $svc  = new \App\Libraries\PlanEmergenciaIAService();
-        $resp = $svc->generarMatrizResponsables($contextoCliente, $contextoExtra);
+        try {
+            $svc  = new \App\Libraries\PlanEmergenciaIAService();
+            $resp = $svc->generarMatrizResponsables($contextoCliente, $contextoExtra);
+        } catch (\Throwable $e) {
+            log_message('error', '[IA Matriz] EXCEPTION id=' . $id . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Excepcion PHP: ' . $e->getMessage()]);
+            }
+            return redirect()->back()->with('error', 'Excepcion PHP: ' . $e->getMessage());
+        }
 
         if (!$resp['ok']) {
-            log_message('error', '[PlanEmergencia IA Matriz] ' . ($resp['error'] ?? 'desconocido'));
+            log_message('error', '[IA Matriz] FAIL id=' . $id . ' resp=' . substr(json_encode($resp), 0, 500));
             if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? 'desconocido']);
+                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? ('Servicio retorno sin error: ' . substr(json_encode($resp), 0, 200))]);
             }
             return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
         }
+
+        log_message('info', '[IA Matriz] OK id=' . $id . ' tokens_in=' . ($resp['tokens']['in'] ?? 0) . ' tokens_out=' . ($resp['tokens']['out'] ?? 0));
 
         $this->model->update($id, [
             'matriz_responsables_ia_json' => json_encode($resp['data'], JSON_UNESCAPED_UNICODE),
@@ -645,14 +702,23 @@ class PlanEmergenciaController extends BaseController
      */
     public function generarBrigadaSimulacrosIA($id)
     {
+        @set_time_limit(300);
+        log_message('info', '[IA Brigada] start id=' . $id . ' ajax=' . ($this->request->isAJAX() ? 'Y' : 'N'));
+
         $inspeccion = $this->model->find($id);
         if (!$inspeccion) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Plan no encontrado (id=' . $id . ')']);
+            }
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'Plan no encontrado');
         }
 
         $idCliente = (int) $inspeccion['id_cliente'];
         $cliente   = (new ClientModel())->find($idCliente);
         if (!$cliente) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Cliente no encontrado']);
+            }
             return redirect()->back()->with('error', 'Cliente no encontrado');
         }
 
@@ -671,16 +737,26 @@ class PlanEmergenciaController extends BaseController
 
         $contextoExtra = $this->leerContextoIA($inspeccion, 'brigada');
 
-        $svc  = new \App\Libraries\PlanEmergenciaIAService();
-        $resp = $svc->generarBrigadaSimulacros($contextoCliente, $contextoExtra);
+        try {
+            $svc  = new \App\Libraries\PlanEmergenciaIAService();
+            $resp = $svc->generarBrigadaSimulacros($contextoCliente, $contextoExtra);
+        } catch (\Throwable $e) {
+            log_message('error', '[IA Brigada] EXCEPTION id=' . $id . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['ok' => false, 'error' => 'Excepcion PHP: ' . $e->getMessage()]);
+            }
+            return redirect()->back()->with('error', 'Excepcion PHP: ' . $e->getMessage());
+        }
 
         if (!$resp['ok']) {
-            log_message('error', '[PlanEmergencia IA Brigada] ' . ($resp['error'] ?? 'desconocido'));
+            log_message('error', '[IA Brigada] FAIL id=' . $id . ' resp=' . substr(json_encode($resp), 0, 500));
             if ($this->request->isAJAX()) {
-                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? 'desconocido']);
+                return $this->response->setJSON(['ok' => false, 'error' => $resp['error'] ?? ('Servicio retorno sin error: ' . substr(json_encode($resp), 0, 200))]);
             }
             return redirect()->back()->with('error', 'Error generando IA: ' . ($resp['error'] ?? 'desconocido'));
         }
+
+        log_message('info', '[IA Brigada] OK id=' . $id . ' tokens_in=' . ($resp['tokens']['in'] ?? 0) . ' tokens_out=' . ($resp['tokens']['out'] ?? 0));
 
         $data = $resp['data'];
         $this->model->update($id, [

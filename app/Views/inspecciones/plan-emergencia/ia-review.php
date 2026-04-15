@@ -296,25 +296,43 @@ $baseUrl = base_url('/inspecciones/plan-emergencia');
         return fetch(url, {
             method: 'GET',
             credentials: 'same-origin',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            cache: 'no-store',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
         })
-        .then(r => r.json())
-        .then(j => {
+        .then(async r => {
             spinner.classList.remove('active');
             btn.disabled = false;
+            if (!r.ok) {
+                const texto = await r.text();
+                alert('HTTP ' + r.status + ' en ' + bloque + ':\n' + texto.substring(0, 400));
+                return null;
+            }
+            const ct = r.headers.get('content-type') || '';
+            if (!ct.includes('application/json')) {
+                const texto = await r.text();
+                alert('Respuesta no-JSON en ' + bloque + ' (' + ct + '):\n' + texto.substring(0, 400));
+                return null;
+            }
+            return r.json();
+        })
+        .then(j => {
+            if (j === null) return;
             if (!j.ok) {
-                alert('Error generando ' + bloque + ': ' + (j.error || 'desconocido'));
+                alert('Fallo ' + bloque + ': ' + (j.error || JSON.stringify(j)));
                 return;
             }
             // Recargar la vista para ver el contenido nuevo
-            // (preservamos el scroll position via hash)
             window.location.hash = 'bloque-' + bloque;
             window.location.reload();
         })
         .catch(err => {
             spinner.classList.remove('active');
             btn.disabled = false;
-            alert('Error de red: ' + err.message);
+            alert('Error de red ' + bloque + ': ' + err.message + '\n(revisa F12 Network)');
         });
     }
 
@@ -353,16 +371,32 @@ $baseUrl = base_url('/inspecciones/plan-emergencia');
                 const r = await fetch(url, {
                     method: 'GET',
                     credentials: 'same-origin',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    cache: 'no-store',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
                 });
-                const j = await r.json();
                 spinner.classList.remove('active');
+                if (!r.ok) {
+                    const texto = await r.text();
+                    alert('HTTP ' + r.status + ' en ' + bloque + ':\n' + texto.substring(0, 400) + '\n\nContinuando con los demas.');
+                    continue;
+                }
+                const ct = r.headers.get('content-type') || '';
+                if (!ct.includes('application/json')) {
+                    const texto = await r.text();
+                    alert('Respuesta no-JSON en ' + bloque + ' (' + ct + '):\n' + texto.substring(0, 400) + '\n\nContinuando con los demas.');
+                    continue;
+                }
+                const j = await r.json();
                 if (!j.ok) {
-                    alert(`Fallo ${bloque}: ${j.error || 'desconocido'}. Continuando con los demas.`);
+                    alert('Fallo ' + bloque + ': ' + (j.error || JSON.stringify(j)) + '\n\nContinuando con los demas.');
                 }
             } catch (e) {
                 spinner.classList.remove('active');
-                alert(`Error red en ${bloque}: ${e.message}`);
+                alert('Error red en ' + bloque + ': ' + e.message + '\nContinuando con los demas.');
             }
         }
 
