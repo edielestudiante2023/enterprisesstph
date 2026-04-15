@@ -55,6 +55,10 @@ class PlanEmergenciaModel extends Model
         'frecuencia_basura', 'detalle_mascotas', 'detalle_dependencias',
         // General
         'observaciones', 'ruta_pdf', 'estado',
+        // Fase 2 IA (Claude) - contenido personalizado y flujo de revision
+        'pons_ia_json', 'diagrama_ia_json', 'matriz_responsables_ia_json',
+        'brigada_ia_texto', 'simulacros_ia_texto', 'ia_generado_at',
+        'ia_contexto_json', 'ia_aprobado_json',
         'created_at', 'updated_at',
     ];
     protected $useTimestamps = true;
