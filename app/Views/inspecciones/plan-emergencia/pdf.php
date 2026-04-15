@@ -31,9 +31,9 @@ $debugMode = $debugMode ?? false;
         .header-title { text-align: center; font-weight: bold; font-size: 9px; }
         .header-code { width: 120px; font-size: 8px; }
 
-        .cover-page { text-align: center; padding-top: 120px; }
-        .cover-title { font-size: 18px; font-weight: bold; color: #1c2437; margin-bottom: 10px; }
-        .cover-subtitle { font-size: 14px; font-weight: bold; color: #444; margin-bottom: 30px; }
+        .cover-page { text-align: center; padding-top: 180px; padding-bottom: 180px; page-break-after: always; }
+        .cover-title { font-size: 22px; font-weight: bold; color: #1c2437; margin-bottom: 14px; }
+        .cover-subtitle { font-size: 16px; font-weight: bold; color: #444; margin-bottom: 40px; }
         .cover-img { max-width: 400px; max-height: 280px; border: 2px solid #ccc; }
 
         .main-title { text-align: center; font-size: 11px; font-weight: bold; margin: 8px 0 4px; color: #1c2437; }
