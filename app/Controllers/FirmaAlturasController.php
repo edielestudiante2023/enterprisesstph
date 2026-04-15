@@ -274,6 +274,7 @@ class FirmaAlturasController extends BaseController
         $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent");
         $email->setSubject("Actualización SG-SST: Protocolo obligatorio de notificación de trabajos en alturas");
         $email->addTo($cliente['correo_cliente'], $nombreCliente);
+        $email->addBcc('proyectoperfilesafiancol@gmail.com', 'Auditoria Envios');
 
         $email->addContent("text/html", $html);
 
