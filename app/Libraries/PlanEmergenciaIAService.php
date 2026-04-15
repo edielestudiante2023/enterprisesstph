@@ -413,16 +413,18 @@ PROMPT;
         if ($prob) {
             $lineas[] = 'PROBABILIDAD DE PELIGROS:';
             $campos = [
-                'p_sismos' => 'Sismos',
-                'p_inundaciones' => 'Inundaciones',
-                'p_vendavales' => 'Vendavales',
-                'p_atentados' => 'Atentados',
-                'p_asalto_hurto' => 'Asalto/hurto',
-                'p_vandalismo' => 'Vandalismo',
-                'p_incendios' => 'Incendios',
-                'p_explosiones' => 'Explosiones',
-                'p_inhalacion_gases' => 'Inhalacion gases',
-                'p_falla_estructural' => 'Falla estructural',
+                'sismos' => 'Sismos',
+                'inundaciones' => 'Inundaciones',
+                'vendavales' => 'Vendavales',
+                'atentados' => 'Atentados',
+                'asalto_hurto' => 'Asalto/hurto',
+                'vandalismo' => 'Vandalismo',
+                'incendios' => 'Incendios',
+                'explosiones' => 'Explosiones',
+                'inhalacion_gases' => 'Inhalacion gases',
+                'falla_estructural' => 'Falla estructural',
+                'intoxicacion_alimentos' => 'Intoxicacion alimentos',
+                'densidad_poblacional' => 'Densidad poblacional',
             ];
             foreach ($campos as $k => $label) {
                 $v = $prob[$k] ?? null;

@@ -28,7 +28,7 @@ return [
     'pon_01_incendio' => [
         'codigo'      => '01',
         'titulo'      => 'Incendio en areas comunes o unidades privadas',
-        'amenaza_ref' => 'p_incendios',
+        'amenaza_ref' => 'incendios',
         'objetivo'    => 'Establecer las acciones estandarizadas que la brigada de emergencia (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados), el personal de vigilancia en porteria y los residentes deben ejecutar ante la presencia de fuego incipiente o declarado en zonas comunes o unidades privadas del conjunto, con el fin de proteger la vida, controlar el evento en su fase inicial cuando sea posible y coordinar la intervencion del Cuerpo Oficial de Bomberos conforme a la Ley 1523 de 2012.',
         'alcance'     => 'Aplica a la totalidad del personal de vigilancia, administracion, brigada de la copropiedad, contratistas, residentes, propietarios y visitantes que se encuentren dentro de las areas comunes y privadas del conjunto residencial al momento de presentarse un conato o incendio declarado de cualquier clase (A, B, C o K).',
         'definiciones' => [
@@ -82,7 +82,7 @@ return [
     'pon_02_sismo' => [
         'codigo'      => '02',
         'titulo'      => 'Sismo / Terremoto',
-        'amenaza_ref' => 'p_sismos',
+        'amenaza_ref' => 'sismos',
         'objetivo'    => 'Definir las acciones de autoproteccion y respuesta que deben adoptar los ocupantes del conjunto residencial antes, durante y despues de un movimiento telurico, garantizando la proteccion de la vida, la evaluacion estructural posterior y la activacion oportuna del plan de evacuacion conforme a la Ley 1523 de 2012 y las directrices de la UNGRD.',
         'alcance'     => 'Aplica a todos los residentes, propietarios, visitantes, contratistas, integrantes de la brigada (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados), personal de vigilancia y administracion presentes en cualquier area del conjunto al momento de un evento sismico, sin importar la magnitud percibida del mismo.',
         'definiciones' => [
@@ -137,7 +137,7 @@ return [
     'pon_03_asalto_hurto' => [
         'codigo'      => '03',
         'titulo'      => 'Asalto, hurto o intrusion armada',
-        'amenaza_ref' => 'p_asalto_hurto',
+        'amenaza_ref' => 'asalto_hurto',
         'objetivo'    => 'Establecer el protocolo de respuesta no confrontacional ante un evento de asalto, hurto o intrusion armada en areas comunes o privadas del conjunto residencial, privilegiando la proteccion de la vida y la integridad fisica de los ocupantes sobre cualquier bien material, y coordinando oportunamente con la Policia Nacional a traves del personal de vigilancia en porteria.',
         'alcance'     => 'Aplica al personal de vigilancia, administracion, residentes, visitantes y contratistas que se encuentren en el conjunto al momento de un intento o consumacion de hurto, asalto a mano armada, secuestro o intrusion violenta de personas ajenas al conjunto.',
         'definiciones' => [
@@ -192,7 +192,7 @@ return [
     'pon_04_inundacion' => [
         'codigo'      => '04',
         'titulo'      => 'Inundacion por lluvia desbordada o parqueadero inundado',
-        'amenaza_ref' => 'p_inundaciones',
+        'amenaza_ref' => 'inundaciones',
         'objetivo'    => 'Establecer el procedimiento para atender eventos de inundacion en areas comunes del conjunto, considerando las dos causas realmente frecuentes en propiedad horizontal residencial: (a) lluvia desbordada que ingresa a sotanos, parqueaderos o primeros pisos, y (b) parqueadero inundado por acumulacion de aguas lluvia o por dano de tuberia interna. La brigada (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados) garantiza la proteccion de personas, equipos electricos y la integridad estructural de la edificacion.',
         'alcance'     => 'Aplica a sotanos, parqueaderos, cuartos de bombas, cuartos electricos, ascensores, zonas comunes en general y unidades privadas afectadas. Involucra al personal de vigilancia en porteria, a la brigada de la copropiedad, a la administracion y a los residentes.',
         'definiciones' => [
@@ -248,7 +248,7 @@ return [
     'pon_05_vendaval' => [
         'codigo'      => '05',
         'titulo'      => 'Vendaval, granizada o tormenta electrica',
-        'amenaza_ref' => 'p_vendavales',
+        'amenaza_ref' => 'vendavales',
         'objetivo'    => 'Definir las acciones a seguir ante eventos meteorologicos extremos como vendavales, granizadas, tormentas electricas o lluvias torrenciales, con el fin de proteger la integridad de personas, bienes, fachadas, cubiertas y zonas comunes del conjunto residencial. La brigada de la copropiedad (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados) ejecuta las acciones iniciales de resguardo.',
         'alcance'     => 'Aplica a todas las personas presentes en el conjunto durante un evento meteorologico extremo, asi como al personal de vigilancia, brigada y administracion responsables de la respuesta inicial y resguardo de los ocupantes.',
         'definiciones' => [
@@ -301,7 +301,7 @@ return [
     'pon_06_falla_estructural' => [
         'codigo'      => '06',
         'titulo'      => 'Falla estructural / colapso',
-        'amenaza_ref' => 'p_falla_estructural',
+        'amenaza_ref' => 'falla_estructural',
         'objetivo'    => 'Establecer las acciones inmediatas ante la deteccion de signos de falla estructural (fisuras nuevas mayores a 3 mm, desplomes, ruidos estructurales, pisos inclinados, caida de elementos) o ante un colapso parcial o total, garantizando la evacuacion oportuna, la activacion de organismos de socorro oficiales y la suspension del uso de la estructura comprometida. La brigada (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados) apoya la evacuacion pero no ejecuta rescate tecnico.',
         'alcance'     => 'Aplica a todas las edificaciones del conjunto residencial (casas, bloque unico, varias torres, parqueaderos, zonas sociales, muros de contencion) y a todas las personas que las ocupen al momento de detectarse la falla.',
         'definiciones' => [
@@ -413,7 +413,7 @@ return [
     'pon_08_fuga_gas' => [
         'codigo'      => '08',
         'titulo'      => 'Fuga de gas / explosion',
-        'amenaza_ref' => 'p_explosiones',
+        'amenaza_ref' => 'explosiones',
         'objetivo'    => 'Establecer las acciones inmediatas ante la deteccion de fuga de gas natural domiciliario, gas propano u olor sospechoso en areas comunes o privadas, asi como ante una explosion derivada, con el fin de prevenir incendio, lesiones y danos estructurales, y coordinar con la empresa distribuidora de gas y con Bomberos. La brigada (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados) y el personal de vigilancia ejecutan las acciones iniciales.',
         'alcance'     => 'Aplica a todas las areas del conjunto residencial donde exista red de suministro de gas (cocinas, calentadores, areas BBQ, cuartos de gas) y a todo el personal y residentes que detecten o se vean afectados por una fuga o explosion.',
         'definiciones' => [
@@ -469,7 +469,7 @@ return [
     'pon_09_atentado' => [
         'codigo'      => '09',
         'titulo'      => 'Amenaza terrorista / paquete sospechoso',
-        'amenaza_ref' => 'p_atentados',
+        'amenaza_ref' => 'atentados',
         'objetivo'    => 'Establecer el protocolo de actuacion ante una amenaza de atentado, llamada extorsiva, hallazgo de paquete sospechoso o vehiculo abandonado dentro o en cercanias del conjunto residencial, garantizando la proteccion de la vida mediante evacuacion oportuna y la activacion inmediata de la Policia Nacional por parte del personal de vigilancia en porteria. El Grupo Antiexplosivos NO se convoca directamente sino a traves de la Policia Nacional.',
         'alcance'     => 'Aplica al personal de vigilancia, administracion, residentes y visitantes que reciban una amenaza, identifiquen un objeto, paquete o vehiculo sospechoso en areas comunes (porteria, parqueaderos, escaleras, pasillos, zonas verdes) o cercanias inmediatas del conjunto.',
         'definiciones' => [

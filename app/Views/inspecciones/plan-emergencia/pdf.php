@@ -506,22 +506,22 @@ if (!function_exists('renderGaleriaFotos')) {
     $freqClasses = ['poco_probable' => 'freq-poco', 'probable' => 'freq-probable', 'muy_probable' => 'freq-muy'];
     $probFields = [
         'NATURALES' => [
-            'p_sismos' => 'Sismos, caida de estructuras',
-            'p_inundaciones' => 'Inundaciones',
-            'p_vendavales' => 'Vendavales, granizada, tormentas electricas',
+            'sismos' => 'Sismos, caida de estructuras',
+            'inundaciones' => 'Inundaciones',
+            'vendavales' => 'Vendavales, granizada, tormentas electricas',
         ],
         'SOCIALES' => [
-            'p_atentados' => 'Atentados terroristas',
-            'p_asalto_hurto' => 'Asalto, hurto',
-            'p_vandalismo' => 'Vandalismo',
+            'atentados' => 'Atentados terroristas',
+            'asalto_hurto' => 'Asalto, hurto',
+            'vandalismo' => 'Vandalismo',
         ],
         'TECNOLOGICOS' => [
-            'p_incendios' => 'Incendios',
-            'p_explosiones' => 'Explosiones',
-            'p_inhalacion_gases' => 'Inhalacion de gases',
-            'p_falla_estructural' => 'Falla estructural',
-            'p_intoxicacion_alimentos' => 'Intoxicacion por alimentos',
-            'p_densidad_poblacional' => 'Densidad poblacional',
+            'incendios' => 'Incendios',
+            'explosiones' => 'Explosiones',
+            'inhalacion_gases' => 'Inhalacion de gases',
+            'falla_estructural' => 'Falla estructural',
+            'intoxicacion_alimentos' => 'Intoxicacion por alimentos',
+            'densidad_poblacional' => 'Densidad poblacional',
         ],
     ];
     ?>
