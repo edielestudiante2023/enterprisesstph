@@ -162,6 +162,18 @@ return [
         'codigo'      => '03',
         'titulo'      => 'Asalto, hurto o intrusion armada',
         'amenaza_ref' => 'asalto_hurto',
+        'flowchart' => [
+            'pasos' => [
+                ['tipo'=>'accion',   'texto'=>'Vigilancia detecta el evento o recibe alerta silenciosa',       'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'NO confrontar. Obedecer indicaciones del agresor',             'responsable'=>'Todos los presentes'],
+                ['tipo'=>'accion',   'texto'=>'Activar codigo silencioso, no alarma sonora',                   'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Llamar a Policia Nacional linea 123',                           'responsable'=>'Vigilancia'],
+                ['tipo'=>'decision', 'texto'=>'Agresores se retiraron?',                                        'salida_si'=>'Iniciar protocolo post-evento y atencion a afectados'],
+                ['tipo'=>'accion',   'texto'=>'Mantener el perimetro seguro y esperar Policia',                'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Asistir a Policia con grabacion CCTV y descripcion',            'responsable'=>'Administrador'],
+                ['tipo'=>'fin',      'texto'=>'Atencion psicologica a afectados y reporte a Fiscalia',         'responsable'=>'Administrador'],
+            ],
+        ],
         'objetivo'    => 'Establecer el protocolo de respuesta no confrontacional ante un evento de asalto, hurto o intrusion armada en areas comunes o privadas del conjunto residencial, privilegiando la proteccion de la vida y la integridad fisica de los ocupantes sobre cualquier bien material, y coordinando oportunamente con la Policia Nacional a traves del personal de vigilancia en porteria.',
         'alcance'     => 'Aplica al personal de vigilancia, administracion, residentes, visitantes y contratistas que se encuentren en el conjunto al momento de un intento o consumacion de hurto, asalto a mano armada, secuestro o intrusion violenta de personas ajenas al conjunto.',
         'definiciones' => [
@@ -217,6 +229,18 @@ return [
         'codigo'      => '04',
         'titulo'      => 'Inundacion por lluvia desbordada o parqueadero inundado',
         'amenaza_ref' => 'inundaciones',
+        'flowchart' => [
+            'pasos' => [
+                ['tipo'=>'accion',   'texto'=>'Detectar inundacion (lluvia desbordada o dano de tuberia)',   'responsable'=>'Primer respondiente'],
+                ['tipo'=>'accion',   'texto'=>'Avisar a porteria y administrador inmediatamente',             'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Cortar energia electrica del area afectada desde tablero',     'responsable'=>'Vigilancia'],
+                ['tipo'=>'decision', 'texto'=>'Hay riesgo electrico o estructural?',                           'salida_si'=>'Evacuar area y llamar Bomberos 119'],
+                ['tipo'=>'accion',   'texto'=>'Iniciar achique con recursos propios (motobombas, escobillas)', 'responsable'=>'Brigada'],
+                ['tipo'=>'accion',   'texto'=>'Contener punto de origen (cerrar valvula o llave principal)',   'responsable'=>'Brigada'],
+                ['tipo'=>'accion',   'texto'=>'Documentar danos con fotos para aseguradora',                   'responsable'=>'Administrador'],
+                ['tipo'=>'fin',      'texto'=>'Limpieza, secado y reporte a aseguradora de la copropiedad',    'responsable'=>'Administrador'],
+            ],
+        ],
         'objetivo'    => 'Establecer el procedimiento para atender eventos de inundacion en areas comunes del conjunto, considerando las dos causas realmente frecuentes en propiedad horizontal residencial: (a) lluvia desbordada que ingresa a sotanos, parqueaderos o primeros pisos, y (b) parqueadero inundado por acumulacion de aguas lluvia o por dano de tuberia interna. La brigada (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados) garantiza la proteccion de personas, equipos electricos y la integridad estructural de la edificacion.',
         'alcance'     => 'Aplica a sotanos, parqueaderos, cuartos de bombas, cuartos electricos, ascensores, zonas comunes en general y unidades privadas afectadas. Involucra al personal de vigilancia en porteria, a la brigada de la copropiedad, a la administracion y a los residentes.',
         'definiciones' => [
@@ -273,6 +297,18 @@ return [
         'codigo'      => '05',
         'titulo'      => 'Vendaval, granizada o tormenta electrica',
         'amenaza_ref' => 'vendavales',
+        'flowchart' => [
+            'pasos' => [
+                ['tipo'=>'accion',   'texto'=>'Alerta meteorologica o inicio de evento visible',               'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Informar a residentes por intercomunicador o alarma',           'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Resguardarse en zonas internas, lejos de ventanales',           'responsable'=>'Todos los ocupantes'],
+                ['tipo'=>'accion',   'texto'=>'NO evacuar durante el evento, permanecer en interiores',       'responsable'=>'Todos los ocupantes'],
+                ['tipo'=>'decision', 'texto'=>'Cayeron arboles, estructuras o hay heridos?',                    'salida_si'=>'Llamar Bomberos 119 y Defensa Civil 144'],
+                ['tipo'=>'accion',   'texto'=>'Al cesar el evento, inspeccion visual de danos y cubiertas',    'responsable'=>'Brigada'],
+                ['tipo'=>'accion',   'texto'=>'Retirar escombros y asegurar elementos sueltos',                'responsable'=>'Brigada'],
+                ['tipo'=>'fin',      'texto'=>'Reporte al administrador, valoracion de danos y aseguradora',   'responsable'=>'Administrador'],
+            ],
+        ],
         'objetivo'    => 'Definir las acciones a seguir ante eventos meteorologicos extremos como vendavales, granizadas, tormentas electricas o lluvias torrenciales, con el fin de proteger la integridad de personas, bienes, fachadas, cubiertas y zonas comunes del conjunto residencial. La brigada de la copropiedad (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados) ejecuta las acciones iniciales de resguardo.',
         'alcance'     => 'Aplica a todas las personas presentes en el conjunto durante un evento meteorologico extremo, asi como al personal de vigilancia, brigada y administracion responsables de la respuesta inicial y resguardo de los ocupantes.',
         'definiciones' => [
@@ -326,6 +362,18 @@ return [
         'codigo'      => '06',
         'titulo'      => 'Falla estructural / colapso',
         'amenaza_ref' => 'falla_estructural',
+        'flowchart' => [
+            'pasos' => [
+                ['tipo'=>'accion',   'texto'=>'Detectar senales: grietas mayores a 3mm, ruidos, inclinaciones','responsable'=>'Primer respondiente'],
+                ['tipo'=>'accion',   'texto'=>'Avisar a porteria y evacuar el area afectada de inmediato',    'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Acordonar el area y restringir acceso a personas',             'responsable'=>'Brigada'],
+                ['tipo'=>'accion',   'texto'=>'Llamar Bomberos 119 y Defensa Civil 144',                       'responsable'=>'Vigilancia'],
+                ['tipo'=>'decision', 'texto'=>'Hay personas atrapadas?',                                        'salida_si'=>'NO intentar rescate propio, esperar organismos oficiales'],
+                ['tipo'=>'accion',   'texto'=>'Consejo de Administracion convoca ingeniero estructural externo','responsable'=>'Administrador'],
+                ['tipo'=>'accion',   'texto'=>'Notificar autoridad municipal de gestion del riesgo',           'responsable'=>'Administrador'],
+                ['tipo'=>'fin',      'texto'=>'No reocupar area hasta concepto tecnico por escrito',            'responsable'=>'Consejo de Administracion'],
+            ],
+        ],
         'objetivo'    => 'Establecer las acciones inmediatas ante la deteccion de signos de falla estructural (fisuras nuevas mayores a 3 mm, desplomes, ruidos estructurales, pisos inclinados, caida de elementos) o ante un colapso parcial o total, garantizando la evacuacion oportuna, la activacion de organismos de socorro oficiales y la suspension del uso de la estructura comprometida. La brigada (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados) apoya la evacuacion pero no ejecuta rescate tecnico.',
         'alcance'     => 'Aplica a todas las edificaciones del conjunto residencial (casas, bloque unico, varias torres, parqueaderos, zonas sociales, muros de contencion) y a todas las personas que las ocupen al momento de detectarse la falla.',
         'definiciones' => [
@@ -384,6 +432,18 @@ return [
         'codigo'      => '07',
         'titulo'      => 'Persona(s) atrapada(s) en ascensor',
         'amenaza_ref' => null,
+        'flowchart' => [
+            'pasos' => [
+                ['tipo'=>'accion',   'texto'=>'Activar Codigo 7 al recibir aviso de personas atrapadas',     'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Mantener contacto verbal o por intercomunicador con ocupantes','responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Llamar a empresa mantenedora del ascensor',                    'responsable'=>'Administrador'],
+                ['tipo'=>'accion',   'texto'=>'Indicar a ocupantes mantener la calma, NO forzar las puertas','responsable'=>'Vigilancia'],
+                ['tipo'=>'decision', 'texto'=>'Empresa mantenedora llega en 20 minutos?',                      'salida_si'=>'Rescate tecnico por mantenedora, cierre del evento'],
+                ['tipo'=>'accion',   'texto'=>'Llamar a Bomberos 119 para rescate de emergencia',             'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Asistir a Bomberos en el acceso y ubicacion exacta',           'responsable'=>'Vigilancia'],
+                ['tipo'=>'fin',      'texto'=>'Verificar estado fisico de ocupantes, inhabilitar ascensor',   'responsable'=>'Administrador'],
+            ],
+        ],
         'objetivo'    => 'Establecer el procedimiento seguro y estandarizado para la atencion de emergencias por fallas de ascensor con personas atrapadas, asegurando la proteccion de la vida, la salud y la integridad de los ocupantes, asi como la coordinacion con la empresa mantenedora del equipo como responsable tecnico del rescate conforme al contrato de mantenimiento.',
         'alcance'     => 'Aplica para todo el personal de vigilancia, administracion, brigada de la copropiedad (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados), personal de mantenimiento, residentes, propietarios y visitantes que participen o se vean involucrados en una emergencia de atrapamiento en ascensor dentro del conjunto residencial.',
         'definiciones' => [
@@ -438,6 +498,18 @@ return [
         'codigo'      => '08',
         'titulo'      => 'Fuga de gas / explosion',
         'amenaza_ref' => 'explosiones',
+        'flowchart' => [
+            'pasos' => [
+                ['tipo'=>'accion',   'texto'=>'Detectar olor a gas, siseo o alerta de residente',             'responsable'=>'Primer respondiente'],
+                ['tipo'=>'accion',   'texto'=>'PROHIBIDO usar intercomunicador, timbres, celulares o luces',  'responsable'=>'Todos los presentes'],
+                ['tipo'=>'accion',   'texto'=>'Abrir ventanas para ventilar de inmediato',                    'responsable'=>'Residentes'],
+                ['tipo'=>'accion',   'texto'=>'Cerrar valvula principal de gas si es accesible y seguro',     'responsable'=>'Vigilancia'],
+                ['tipo'=>'decision', 'texto'=>'Concentracion alta o explosion inminente?',                     'salida_si'=>'Evacuar toda la torre inmediatamente, linea 119'],
+                ['tipo'=>'accion',   'texto'=>'Llamar empresa distribuidora de gas (linea de emergencia)',    'responsable'=>'Administrador'],
+                ['tipo'=>'accion',   'texto'=>'Acordonar area, esperar tecnicos autorizados',                 'responsable'=>'Brigada'],
+                ['tipo'=>'fin',      'texto'=>'Certificacion tecnica de la empresa de gas antes de reingreso','responsable'=>'Administrador'],
+            ],
+        ],
         'objetivo'    => 'Establecer las acciones inmediatas ante la deteccion de fuga de gas natural domiciliario, gas propano u olor sospechoso en areas comunes o privadas, asi como ante una explosion derivada, con el fin de prevenir incendio, lesiones y danos estructurales, y coordinar con la empresa distribuidora de gas y con Bomberos. La brigada (ver Nota Aclaratoria al inicio de los Procedimientos Operativos Normalizados) y el personal de vigilancia ejecutan las acciones iniciales.',
         'alcance'     => 'Aplica a todas las areas del conjunto residencial donde exista red de suministro de gas (cocinas, calentadores, areas BBQ, cuartos de gas) y a todo el personal y residentes que detecten o se vean afectados por una fuga o explosion.',
         'definiciones' => [
@@ -494,6 +566,18 @@ return [
         'codigo'      => '09',
         'titulo'      => 'Amenaza terrorista / paquete sospechoso',
         'amenaza_ref' => 'atentados',
+        'flowchart' => [
+            'pasos' => [
+                ['tipo'=>'accion',   'texto'=>'Detectar amenaza, llamada extorsiva o paquete sospechoso',    'responsable'=>'Primer respondiente'],
+                ['tipo'=>'accion',   'texto'=>'NO tocar, mover ni fotografiar el objeto sospechoso',         'responsable'=>'Todos los presentes'],
+                ['tipo'=>'accion',   'texto'=>'Vigilancia llama a Policia Nacional linea 123',               'responsable'=>'Vigilancia'],
+                ['tipo'=>'accion',   'texto'=>'Acordonar perimetro minimo de 100 metros',                    'responsable'=>'Vigilancia'],
+                ['tipo'=>'decision', 'texto'=>'Policia confirma amenaza real?',                                'salida_si'=>'Grupo Antiexplosivos activado via linea 123'],
+                ['tipo'=>'accion',   'texto'=>'Evacuar zona comprometida alejandose de fachadas y ventanas', 'responsable'=>'Brigada evacuacion'],
+                ['tipo'=>'accion',   'texto'=>'PROHIBIDO usar radios o celulares cerca del objeto',           'responsable'=>'Todos los presentes'],
+                ['tipo'=>'fin',      'texto'=>'Reingreso solo con autorizacion oficial de Policia',           'responsable'=>'Administrador'],
+            ],
+        ],
         'objetivo'    => 'Establecer el protocolo de actuacion ante una amenaza de atentado, llamada extorsiva, hallazgo de paquete sospechoso o vehiculo abandonado dentro o en cercanias del conjunto residencial, garantizando la proteccion de la vida mediante evacuacion oportuna y la activacion inmediata de la Policia Nacional por parte del personal de vigilancia en porteria. El Grupo Antiexplosivos NO se convoca directamente sino a traves de la Policia Nacional.',
         'alcance'     => 'Aplica al personal de vigilancia, administracion, residentes y visitantes que reciban una amenaza, identifiquen un objeto, paquete o vehiculo sospechoso en areas comunes (porteria, parqueaderos, escaleras, pasillos, zonas verdes) o cercanias inmediatas del conjunto.',
         'definiciones' => [
