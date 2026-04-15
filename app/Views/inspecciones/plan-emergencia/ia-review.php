@@ -52,7 +52,26 @@ $baseUrl = base_url('/inspecciones/plan-emergencia');
 .ia-final-bar .btn-finalizar { background: #bd9751; color: #fff; padding: 12px 30px; border: none; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; }
 .ia-final-bar .btn-finalizar:disabled { opacity: .5; cursor: not-allowed; }
 .ia-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px; }
+
+/* Toasts */
+.toast-stack { position: fixed; top: 80px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; max-width: 360px; }
+.toast-item { background: #fff; border-left: 4px solid #8e44ad; border-radius: 8px; padding: 14px 16px; box-shadow: 0 6px 20px rgba(0,0,0,.18); font-size: 13px; display: flex; align-items: flex-start; gap: 10px; animation: toastIn .3s ease-out; min-width: 280px; }
+.toast-item.toast-success { border-left-color: #27ae60; }
+.toast-item.toast-error { border-left-color: #c0392b; }
+.toast-item.toast-progress { border-left-color: #2980b9; }
+.toast-item .toast-icon { font-size: 20px; flex-shrink: 0; }
+.toast-item.toast-progress .toast-icon { color: #2980b9; }
+.toast-item.toast-success .toast-icon { color: #27ae60; }
+.toast-item.toast-error .toast-icon { color: #c0392b; }
+.toast-item .toast-body { flex: 1; }
+.toast-item .toast-title { font-weight: 700; color: #1c2437; margin-bottom: 2px; }
+.toast-item .toast-msg { color: #666; font-size: 11px; line-height: 1.4; }
+.toast-item.toast-out { animation: toastOut .25s ease-in forwards; }
+@keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes toastOut { to { transform: translateX(100%); opacity: 0; } }
 </style>
+
+<div class="toast-stack" id="toastStack"></div>
 
 <div style="max-width: 980px; margin: 0 auto; padding: 16px;">
 
@@ -261,8 +280,57 @@ $baseUrl = base_url('/inspecciones/plan-emergencia');
     const urlSaveContexto = '<?= $baseUrl ?>/ia-save-contexto/' + PLAN_ID;
     const urlAprobar      = '<?= $baseUrl ?>/ia-aprobar/' + PLAN_ID;
     const orden = ['pons', 'diagrama', 'matriz', 'brigada'];
+    const bloqueLabels = {
+        pons: 'PONs Canonicos (10 adendos)',
+        diagrama: 'Diagrama de Actuacion',
+        matriz: 'Matriz de Responsables',
+        brigada: 'Brigada y Simulacros'
+    };
 
     let csrfHash = CSRF_HASH;
+
+    // ========== TOASTS ==========
+    function toast(type, title, msg, opts = {}) {
+        const stack = document.getElementById('toastStack');
+        if (!stack) return null;
+        const el = document.createElement('div');
+        el.className = 'toast-item toast-' + type;
+        const icons = {
+            progress: 'fa-spinner fa-spin',
+            success:  'fa-check-circle',
+            error:    'fa-times-circle',
+            info:     'fa-info-circle'
+        };
+        el.innerHTML = '<i class="fas ' + (icons[type] || icons.info) + ' toast-icon"></i>' +
+                       '<div class="toast-body">' +
+                       '<div class="toast-title">' + title + '</div>' +
+                       (msg ? '<div class="toast-msg">' + msg + '</div>' : '') +
+                       '</div>';
+        stack.appendChild(el);
+        const autoHide = opts.autoHide !== false;
+        const duration = opts.duration || (type === 'error' ? 8000 : 4000);
+        if (autoHide) {
+            setTimeout(() => closeToast(el), duration);
+        }
+        return el;
+    }
+    function closeToast(el) {
+        if (!el || !el.parentNode) return;
+        el.classList.add('toast-out');
+        setTimeout(() => el.remove(), 250);
+    }
+    function updateToast(el, type, title, msg) {
+        if (!el) return;
+        el.classList.remove('toast-progress', 'toast-success', 'toast-error', 'toast-info');
+        el.classList.add('toast-' + type);
+        const icons = { progress: 'fa-spinner fa-spin', success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+        const iconEl = el.querySelector('.toast-icon');
+        if (iconEl) iconEl.className = 'fas ' + icons[type] + ' toast-icon';
+        const titleEl = el.querySelector('.toast-title');
+        if (titleEl) titleEl.textContent = title;
+        const msgEl = el.querySelector('.toast-msg');
+        if (msgEl) msgEl.textContent = msg || '';
+    }
 
     // Guardar contexto con debounce al escribir
     document.querySelectorAll('.ia-context-box').forEach(textarea => {
@@ -293,6 +361,9 @@ $baseUrl = base_url('/inspecciones/plan-emergencia');
         btn.disabled = true;
         spinner.classList.add('active');
 
+        const label = bloqueLabels[bloque] || bloque;
+        const progressToast = toast('progress', 'Generando: ' + label, 'Consultando a Claude IA... (~30 seg)', { autoHide: false });
+
         return fetch(url, {
             method: 'GET',
             credentials: 'same-origin',
@@ -308,13 +379,15 @@ $baseUrl = base_url('/inspecciones/plan-emergencia');
             btn.disabled = false;
             if (!r.ok) {
                 const texto = await r.text();
-                alert('HTTP ' + r.status + ' en ' + bloque + ':\n' + texto.substring(0, 400));
+                updateToast(progressToast, 'error', 'HTTP ' + r.status + ' en ' + label, texto.substring(0, 200));
+                setTimeout(() => closeToast(progressToast), 10000);
                 return null;
             }
             const ct = r.headers.get('content-type') || '';
             if (!ct.includes('application/json')) {
                 const texto = await r.text();
-                alert('Respuesta no-JSON en ' + bloque + ' (' + ct + '):\n' + texto.substring(0, 400));
+                updateToast(progressToast, 'error', 'Respuesta invalida en ' + label, 'content-type=' + ct);
+                setTimeout(() => closeToast(progressToast), 10000);
                 return null;
             }
             return r.json();
@@ -322,17 +395,23 @@ $baseUrl = base_url('/inspecciones/plan-emergencia');
         .then(j => {
             if (j === null) return;
             if (!j.ok) {
-                alert('Fallo ' + bloque + ': ' + (j.error || JSON.stringify(j)));
+                updateToast(progressToast, 'error', 'Fallo ' + label, j.error || JSON.stringify(j).substring(0, 200));
+                setTimeout(() => closeToast(progressToast), 10000);
                 return;
             }
+            const tokensIn  = (j.tokens && j.tokens.in)  || 0;
+            const tokensOut = (j.tokens && j.tokens.out) || 0;
+            updateToast(progressToast, 'success', 'Listo: ' + label, tokensIn + ' tokens in / ' + tokensOut + ' out. Recargando...');
+            setTimeout(() => closeToast(progressToast), 3000);
             // Recargar la vista para ver el contenido nuevo
             window.location.hash = 'bloque-' + bloque;
-            window.location.reload();
+            setTimeout(() => window.location.reload(), 1200);
         })
         .catch(err => {
             spinner.classList.remove('active');
             btn.disabled = false;
-            alert('Error de red ' + bloque + ': ' + err.message + '\n(revisa F12 Network)');
+            updateToast(progressToast, 'error', 'Error de red en ' + label, err.message);
+            setTimeout(() => closeToast(progressToast), 10000);
         });
     }
 
@@ -351,9 +430,11 @@ $baseUrl = base_url('/inspecciones/plan-emergencia');
     // Botón master "Generar todos"
     document.getElementById('btnGenerarTodos').addEventListener('click', async () => {
         const btnMaster = document.getElementById('btnGenerarTodos');
-        if (!confirm('Generar los 4 bloques con IA en secuencia? Tarda aproximadamente 90 segundos. Veras el progreso bloque por bloque.')) return;
+        if (!confirm('Generar los 4 bloques con IA en secuencia? Tarda aproximadamente 90 segundos. Veras el progreso por bloque en la esquina superior derecha.')) return;
         btnMaster.disabled = true;
         btnMaster.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+
+        toast('info', 'Iniciando generacion IA', 'Se ejecutaran los 4 bloques en secuencia. Tomara entre 80 y 120 segundos.', { duration: 5000 });
 
         // Guardar todos los contextos primero
         for (const bloque of orden) {
@@ -361,12 +442,19 @@ $baseUrl = base_url('/inspecciones/plan-emergencia');
             if (ta) await saveContexto(bloque, ta.value);
         }
 
+        let okCount = 0, failCount = 0;
+        const tokensTotales = { in: 0, out: 0 };
+
         // Generar uno por uno en secuencia
         for (const bloque of orden) {
+            const label = bloqueLabels[bloque] || bloque;
             const url = document.querySelector(`.btn-generar[data-bloque="${bloque}"]`).dataset.url;
             const spinner = document.querySelector(`[data-spinner="${bloque}"]`);
             spinner.classList.add('active');
-            btnMaster.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generando ${bloque}...`;
+            btnMaster.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${label}...`;
+
+            const progressToast = toast('progress', 'Generando: ' + label, 'Consultando a Claude IA...', { autoHide: false });
+
             try {
                 const r = await fetch(url, {
                     method: 'GET',
@@ -381,27 +469,42 @@ $baseUrl = base_url('/inspecciones/plan-emergencia');
                 spinner.classList.remove('active');
                 if (!r.ok) {
                     const texto = await r.text();
-                    alert('HTTP ' + r.status + ' en ' + bloque + ':\n' + texto.substring(0, 400) + '\n\nContinuando con los demas.');
+                    updateToast(progressToast, 'error', 'HTTP ' + r.status + ': ' + label, texto.substring(0, 200));
+                    failCount++;
                     continue;
                 }
                 const ct = r.headers.get('content-type') || '';
                 if (!ct.includes('application/json')) {
                     const texto = await r.text();
-                    alert('Respuesta no-JSON en ' + bloque + ' (' + ct + '):\n' + texto.substring(0, 400) + '\n\nContinuando con los demas.');
+                    updateToast(progressToast, 'error', 'Respuesta invalida: ' + label, 'content-type=' + ct);
+                    failCount++;
                     continue;
                 }
                 const j = await r.json();
                 if (!j.ok) {
-                    alert('Fallo ' + bloque + ': ' + (j.error || JSON.stringify(j)) + '\n\nContinuando con los demas.');
+                    updateToast(progressToast, 'error', 'Fallo: ' + label, (j.error || 'sin detalle').substring(0, 200));
+                    failCount++;
+                } else {
+                    const tIn  = (j.tokens && j.tokens.in)  || 0;
+                    const tOut = (j.tokens && j.tokens.out) || 0;
+                    tokensTotales.in  += tIn;
+                    tokensTotales.out += tOut;
+                    updateToast(progressToast, 'success', 'Listo: ' + label, tIn + ' in / ' + tOut + ' out');
+                    setTimeout(() => closeToast(progressToast), 4000);
+                    okCount++;
                 }
             } catch (e) {
                 spinner.classList.remove('active');
-                alert('Error red en ' + bloque + ': ' + e.message + '\nContinuando con los demas.');
+                updateToast(progressToast, 'error', 'Error de red: ' + label, e.message);
+                failCount++;
             }
         }
 
         btnMaster.innerHTML = '<i class="fas fa-check"></i> Completado. Recargando...';
-        setTimeout(() => window.location.reload(), 1000);
+        toast('success', 'Generacion IA completada',
+            'Exitosos: ' + okCount + ' / 4. Fallos: ' + failCount + '. Total tokens: ' + tokensTotales.in + ' in / ' + tokensTotales.out + ' out. Recargando pagina...',
+            { duration: 6000 });
+        setTimeout(() => window.location.reload(), 2500);
     });
 
     // Aprobar / desaprobar
