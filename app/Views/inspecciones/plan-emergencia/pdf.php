@@ -673,60 +673,54 @@ foreach ($ponesCanonicos as $ponKey => $pon):
     $numRamas = count($ramas);
 
     // ============ SVG: MAPA VISUAL DEL ARBOL (Opcion B) ============
-    // Generado manualmente en PHP. DOMPDF 3.0.0 soporta SVG inline basico.
+    // DOMPDF no soporta <svg> inline en el HTML, pero SI soporta <img src="data:image/svg+xml;base64,...">
+    // via la libreria php-svg-lib. Construimos el SVG como string y lo embebemos como data URI.
     if ($numRamas > 0):
         $svgWidth  = 780;
         $rootY     = 20;
-        $rootW     = 220;
+        $rootW     = 260;
         $rootX     = ($svgWidth - $rootW) / 2;
         $decisionY = 80;
         $forkY     = 150;
         $branchTop = 180;
-        $branchH   = 50;
-        $branchW   = 150;
-        // Layout de las 8 ramas en 2 filas de 4 columnas
+        $branchH   = 55;
+        $branchW   = 160;
         $cols = 4;
         $colSpacing = $svgWidth / $cols;
         $rows = (int) ceil($numRamas / $cols);
-        $rowSpacing = $branchH + 20;
+        $rowSpacing = $branchH + 25;
         $svgHeight = $branchTop + ($rows * $rowSpacing) + 20;
-    ?>
-    <div style="text-align:center; margin: 8px 0;">
-    <svg xmlns="http://www.w3.org/2000/svg" width="<?= $svgWidth ?>" height="<?= $svgHeight ?>" viewBox="0 0 <?= $svgWidth ?> <?= $svgHeight ?>">
-        <!-- Root node -->
-        <rect x="<?= $rootX ?>" y="<?= $rootY ?>" width="<?= $rootW ?>" height="40" rx="4" fill="#1c2437" stroke="#1c2437" stroke-width="2"/>
-        <text x="<?= $svgWidth / 2 ?>" y="<?= $rootY + 26 ?>" fill="#ffffff" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold"><?= htmlspecialchars($inicio) ?></text>
 
-        <!-- Line root -> decision -->
-        <line x1="<?= $svgWidth / 2 ?>" y1="<?= $rootY + 40 ?>" x2="<?= $svgWidth / 2 ?>" y2="<?= $decisionY ?>" stroke="#1c2437" stroke-width="2"/>
-
-        <!-- Decision node (gold) -->
-        <rect x="<?= $rootX ?>" y="<?= $decisionY ?>" width="<?= $rootW ?>" height="40" rx="4" fill="#bd9751" stroke="#bd9751" stroke-width="2"/>
-        <text x="<?= $svgWidth / 2 ?>" y="<?= $decisionY + 26 ?>" fill="#ffffff" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold">TIPO DE EVENTO DETECTADO</text>
-
-        <!-- Line decision -> fork -->
-        <line x1="<?= $svgWidth / 2 ?>" y1="<?= $decisionY + 40 ?>" x2="<?= $svgWidth / 2 ?>" y2="<?= $forkY ?>" stroke="#1c2437" stroke-width="2"/>
-
-        <?php
-        // Centros X de las columnas
+        $cxCenter = $svgWidth / 2;
         $colCenters = [];
         for ($c = 0; $c < $cols; $c++) {
             $colCenters[] = ($colSpacing * ($c + 0.5));
         }
-        ?>
 
-        <!-- Horizontal fork line desde primera columna hasta ultima -->
-        <line x1="<?= $colCenters[0] ?>" y1="<?= $forkY ?>" x2="<?= $colCenters[$cols - 1] ?>" y2="<?= $forkY ?>" stroke="#1c2437" stroke-width="2"/>
+        $svgParts = [];
+        $svgParts[] = '<?xml version="1.0" encoding="UTF-8"?>';
+        $svgParts[] = '<svg xmlns="http://www.w3.org/2000/svg" width="' . $svgWidth . '" height="' . $svgHeight . '" viewBox="0 0 ' . $svgWidth . ' ' . $svgHeight . '">';
 
-        <?php foreach ($ramas as $i => $rama):
+        // Root node
+        $svgParts[] = '<rect x="' . $rootX . '" y="' . $rootY . '" width="' . $rootW . '" height="40" fill="#1c2437" stroke="#1c2437" stroke-width="2"/>';
+        $svgParts[] = '<text x="' . $cxCenter . '" y="' . ($rootY + 26) . '" fill="#ffffff" text-anchor="middle" font-family="Helvetica" font-size="13" font-weight="bold">' . htmlspecialchars($inicio, ENT_XML1) . '</text>';
+        // Line root -> decision
+        $svgParts[] = '<line x1="' . $cxCenter . '" y1="' . ($rootY + 40) . '" x2="' . $cxCenter . '" y2="' . $decisionY . '" stroke="#1c2437" stroke-width="2"/>';
+        // Decision node
+        $svgParts[] = '<rect x="' . $rootX . '" y="' . $decisionY . '" width="' . $rootW . '" height="40" fill="#bd9751" stroke="#bd9751" stroke-width="2"/>';
+        $svgParts[] = '<text x="' . $cxCenter . '" y="' . ($decisionY + 26) . '" fill="#ffffff" text-anchor="middle" font-family="Helvetica" font-size="12" font-weight="bold">TIPO DE EVENTO DETECTADO</text>';
+        // Line decision -> fork
+        $svgParts[] = '<line x1="' . $cxCenter . '" y1="' . ($decisionY + 40) . '" x2="' . $cxCenter . '" y2="' . $forkY . '" stroke="#1c2437" stroke-width="2"/>';
+        // Horizontal fork line
+        $svgParts[] = '<line x1="' . $colCenters[0] . '" y1="' . $forkY . '" x2="' . $colCenters[$cols - 1] . '" y2="' . $forkY . '" stroke="#1c2437" stroke-width="2"/>';
+
+        foreach ($ramas as $i => $rama) {
             $col = $i % $cols;
             $row = (int) floor($i / $cols);
             $cx  = $colCenters[$col];
             $by  = $branchTop + ($row * $rowSpacing);
             $bx  = $cx - ($branchW / 2);
             $tipo = strtoupper($rama['tipo'] ?? '-');
-            // Cortar en dos lineas si es muy largo
-            $tipoLines = [];
             if (strlen($tipo) > 18) {
                 $words = explode(' ', $tipo);
                 $line1 = ''; $line2 = '';
@@ -741,23 +735,30 @@ foreach ($ponesCanonicos as $ponKey => $pon):
             } else {
                 $tipoLines = [$tipo];
             }
-        ?>
-        <!-- Linea vertical desde fork hacia rama <?= $i + 1 ?> (solo en fila 0) -->
-        <?php if ($row === 0): ?>
-        <line x1="<?= $cx ?>" y1="<?= $forkY ?>" x2="<?= $cx ?>" y2="<?= $by ?>" stroke="#1c2437" stroke-width="2"/>
-        <?php else: ?>
-        <line x1="<?= $cx ?>" y1="<?= $branchTop + (($row - 1) * $rowSpacing) + $branchH ?>" x2="<?= $cx ?>" y2="<?= $by ?>" stroke="#8e44ad" stroke-width="1.5" stroke-dasharray="3,2"/>
-        <?php endif; ?>
-        <!-- Caja rama -->
-        <rect x="<?= $bx ?>" y="<?= $by ?>" width="<?= $branchW ?>" height="<?= $branchH ?>" rx="4" fill="#f5eef8" stroke="#8e44ad" stroke-width="1.5"/>
-        <?php if (count($tipoLines) === 1): ?>
-        <text x="<?= $cx ?>" y="<?= $by + ($branchH / 2) + 4 ?>" fill="#5b2c6f" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="bold"><?= htmlspecialchars($tipoLines[0]) ?></text>
-        <?php else: ?>
-        <text x="<?= $cx ?>" y="<?= $by + ($branchH / 2) - 3 ?>" fill="#5b2c6f" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="bold"><?= htmlspecialchars($tipoLines[0]) ?></text>
-        <text x="<?= $cx ?>" y="<?= $by + ($branchH / 2) + 10 ?>" fill="#5b2c6f" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="bold"><?= htmlspecialchars($tipoLines[1]) ?></text>
-        <?php endif; ?>
-        <?php endforeach; ?>
-    </svg>
+
+            // Linea vertical desde fork (o rama anterior) hacia la caja
+            if ($row === 0) {
+                $svgParts[] = '<line x1="' . $cx . '" y1="' . $forkY . '" x2="' . $cx . '" y2="' . $by . '" stroke="#1c2437" stroke-width="2"/>';
+            } else {
+                $prevBottom = $branchTop + (($row - 1) * $rowSpacing) + $branchH;
+                $svgParts[] = '<line x1="' . $cx . '" y1="' . $prevBottom . '" x2="' . $cx . '" y2="' . $by . '" stroke="#8e44ad" stroke-width="1.5" stroke-dasharray="3,2"/>';
+            }
+            // Caja rama
+            $svgParts[] = '<rect x="' . $bx . '" y="' . $by . '" width="' . $branchW . '" height="' . $branchH . '" fill="#f5eef8" stroke="#8e44ad" stroke-width="1.5"/>';
+            if (count($tipoLines) === 1) {
+                $svgParts[] = '<text x="' . $cx . '" y="' . ($by + ($branchH / 2) + 4) . '" fill="#5b2c6f" text-anchor="middle" font-family="Helvetica" font-size="10" font-weight="bold">' . htmlspecialchars($tipoLines[0], ENT_XML1) . '</text>';
+            } else {
+                $svgParts[] = '<text x="' . $cx . '" y="' . ($by + ($branchH / 2) - 3) . '" fill="#5b2c6f" text-anchor="middle" font-family="Helvetica" font-size="9" font-weight="bold">' . htmlspecialchars($tipoLines[0], ENT_XML1) . '</text>';
+                $svgParts[] = '<text x="' . $cx . '" y="' . ($by + ($branchH / 2) + 10) . '" fill="#5b2c6f" text-anchor="middle" font-family="Helvetica" font-size="9" font-weight="bold">' . htmlspecialchars($tipoLines[1], ENT_XML1) . '</text>';
+            }
+        }
+
+        $svgParts[] = '</svg>';
+        $svgString = implode("\n", $svgParts);
+        $svgDataUri = 'data:image/svg+xml;base64,' . base64_encode($svgString);
+    ?>
+    <div style="text-align:center; margin: 10px 0;">
+        <img src="<?= $svgDataUri ?>" style="max-width:100%; width:<?= $svgWidth ?>px;" alt="Mapa visual del diagrama de actuacion">
     </div>
     <p class="content-text" style="font-size:8px; color:#666; font-style:italic; text-align:center; margin-top:4px;">Mapa visual del arbol de decision. El detalle de pasos por cada evento se presenta en la tabla siguiente.</p>
     <?php endif; ?>
