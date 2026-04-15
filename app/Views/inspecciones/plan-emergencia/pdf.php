@@ -686,21 +686,23 @@ foreach ($ponesCanonicos as $ponKey => $pon):
             </tr>
             <tr><td style="text-align:center; padding:4px 0;"><div style="display:inline-block; width:0; height:0; border-left:8px solid transparent; border-right:8px solid transparent; border-top:12px solid #1c2437;"></div></td></tr>
         </table>
-        <table style="width:100%; border-collapse:collapse; margin: 4px 0;">
-            <?php foreach ($ramas as $rama): ?>
+        <?php foreach ($ramas as $rama): ?>
+        <div style="page-break-inside: avoid; margin-bottom: 6px;">
+        <table style="width:100%; border-collapse:collapse;">
             <tr>
-                <td style="width:25%; padding:6px; background:#f5eef8; border:1px solid #8e44ad; vertical-align:top; text-align:center; font-weight:bold; color:#5b2c6f; font-size:9px;">
+                <td style="width:25%; padding:8px; background:#f5eef8; border:1px solid #8e44ad; vertical-align:middle; text-align:center; font-weight:bold; color:#5b2c6f; font-size:10px;">
                     <?= esc($rama['tipo'] ?? '-') ?>
                 </td>
-                <td style="width:75%; padding:6px; background:#fff; border:1px solid #ccc; vertical-align:top; font-size:8.5px;">
+                <td style="width:75%; padding:8px; background:#fff; border:1px solid #ccc; vertical-align:top; font-size:9px; line-height:1.4;">
                     <?php $pasos = $rama['pasos'] ?? []; ?>
                     <?php foreach ($pasos as $i => $paso): ?>
-                    <?= ($i + 1) ?>. <?= esc($paso) ?><br>
+                    <strong><?= ($i + 1) ?>.</strong> <?= esc($paso) ?><br>
                     <?php endforeach; ?>
                 </td>
             </tr>
-            <?php endforeach; ?>
         </table>
+        </div>
+        <?php endforeach; ?>
         <p class="content-text" style="font-size:8px; color:#666; font-style:italic; margin-top:6px;">Diagrama de actuacion generado por IA personalizado para <?= esc($nombreCliente) ?> segun amenazas identificadas en la matriz de vulnerabilidad y probabilidad de peligros.</p>
     <?php endif; ?>
     <?php endif; // cierre del if $diagramaNodos externo ?>
