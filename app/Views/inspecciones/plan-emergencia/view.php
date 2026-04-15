@@ -483,33 +483,47 @@ $telefonosCiudad = ($ciudad && isset($telefonos[$ciudad])) ? $telefonos[$ciudad]
     </script>
 
     <!-- Acciones -->
-    <div class="mb-4">
+    <div class="mb-4 d-flex flex-wrap gap-2">
         <?php if ($inspeccion['estado'] === 'completo' && !empty($inspeccion['ruta_pdf'])): ?>
         <a href="<?= base_url('/inspecciones/plan-emergencia/pdf/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
             <i class="fas fa-file-pdf"></i> Ver PDF
         </a>
         <?php endif; ?>
-    <?php if ($inspeccion['estado'] === 'completo'): ?>
-    <a href="<?= base_url('/inspecciones/plan-emergencia/regenerar/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
-        <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
-    </a>
-    <a href="<?= base_url('/inspecciones/plan-emergencia/ia-review/') ?><?= $inspeccion['id'] ?>"
-       class="btn btn-pwa btn-pwa-outline"
-       style="border-color:#8e44ad; color:#8e44ad;">
-        <i class="fas fa-robot me-2"></i>Revisar con IA
-        <?php if (!empty($inspeccion['ia_generado_at'])): ?>
-        <small class="text-muted d-block" style="font-size:10px;">Ultima generacion: <?= date('d/m/Y H:i', strtotime($inspeccion['ia_generado_at'])) ?></small>
-        <?php endif; ?>
-    </a>
-    <a href="<?= base_url('/inspecciones/plan-emergencia/enviar-email/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
-        <i class="fas fa-envelope me-2"></i>Enviar por Email
-    </a>
-    <?php endif; ?>
 
         <?php if ($inspeccion['estado'] !== 'completo'): ?>
         <a href="<?= base_url('/inspecciones/plan-emergencia/edit/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline">
             <i class="fas fa-edit"></i> Editar
         </a>
+        <?php endif; ?>
+
+        <!-- Revisar con IA: disponible en borrador Y completo -->
+        <a href="<?= base_url('/inspecciones/plan-emergencia/ia-review/') ?><?= $inspeccion['id'] ?>"
+           class="btn btn-pwa btn-pwa-outline"
+           style="border-color:#8e44ad; color:#8e44ad;">
+            <i class="fas fa-robot me-2"></i>Revisar con IA
+            <?php if (!empty($inspeccion['ia_generado_at'])): ?>
+            <small class="text-muted d-block" style="font-size:10px;">Ultima generacion: <?= date('d/m/Y H:i', strtotime($inspeccion['ia_generado_at'])) ?></small>
+            <?php endif; ?>
+        </a>
+
+        <?php if ($inspeccion['estado'] === 'completo'): ?>
+        <a href="<?= base_url('/inspecciones/plan-emergencia/regenerar/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Regenerar el PDF con la plantilla actual?')">
+            <i class="fas fa-sync-alt me-2"></i>Regenerar PDF
+        </a>
+        <a href="<?= base_url('/inspecciones/plan-emergencia/enviar-email/') ?><?= $inspeccion['id'] ?>" class="btn btn-pwa btn-pwa-outline" onclick="return confirm('¿Enviar el PDF por email al cliente, consultor y consultor externo?')">
+            <i class="fas fa-envelope me-2"></i>Enviar por Email
+        </a>
+        <?php endif; ?>
+
+        <?php if ($inspeccion['estado'] !== 'completo'): ?>
+        <!-- FINALIZAR: solo en borrador, POST al endpoint finalizar -->
+        <form method="post" action="<?= base_url('/inspecciones/plan-emergencia/finalizar/') ?><?= $inspeccion['id'] ?>" style="display:inline;"
+              onsubmit="return confirm('Finalizar Plan de Emergencia? Se generara el PDF con el contenido IA aprobado, se subira al listado de reportes del cliente y se enviara por email. No podras editar mas este plan.')">
+            <?= csrf_field() ?>
+            <button type="submit" class="btn btn-pwa btn-pwa-primary" style="background:#bd9751; border-color:#bd9751; color:#fff;">
+                <i class="fas fa-check-circle me-2"></i>Finalizar Plan de Emergencia
+            </button>
+        </form>
         <?php endif; ?>
     </div>
 </div>
