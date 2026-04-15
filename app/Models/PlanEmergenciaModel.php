@@ -49,7 +49,7 @@ class PlanEmergenciaModel extends Model
         'nombre_administrador', 'horarios_administracion',
         'personal_aseo', 'personal_vigilancia',
         // Telefonos emergencia
-        'ciudad', 'cuadrante', 'tiene_gabinetes_hidraulico',
+        'ciudad', 'cuadrante', 'tiene_gabinetes_hidraulico', 'tiene_ascensor',
         // Servicios generales
         'ruta_residuos_solidos', 'empresa_aseo', 'servicios_sanitarios',
         'frecuencia_basura', 'detalle_mascotas', 'detalle_dependencias',

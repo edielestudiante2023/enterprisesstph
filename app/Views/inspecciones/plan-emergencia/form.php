@@ -489,7 +489,7 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
         <!-- 24. GABINETES -->
         <div class="card mb-3">
             <div class="card-body">
-                <h6 class="card-title" style="font-size:14px; color:#999;">GABINETES CONTRA INCENDIO</h6>
+                <h6 class="card-title" style="font-size:14px; color:#999;">GABINETES CONTRA INCENDIO Y ASCENSORES</h6>
                 <div class="mb-3">
                     <label class="form-label">Tiene gabinetes con punto hidraulico?</label>
                     <select name="tiene_gabinetes_hidraulico" class="form-select">
@@ -497,6 +497,15 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
                         <option value="si" <?= ($inspeccion['tiene_gabinetes_hidraulico'] ?? '') === 'si' ? 'selected' : '' ?>>SI</option>
                         <option value="no" <?= ($inspeccion['tiene_gabinetes_hidraulico'] ?? '') === 'no' ? 'selected' : '' ?>>NO</option>
                     </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">La copropiedad tiene ascensor?</label>
+                    <select name="tiene_ascensor" class="form-select">
+                        <option value="">Seleccionar...</option>
+                        <option value="si" <?= ($inspeccion['tiene_ascensor'] ?? '') === 'si' ? 'selected' : '' ?>>SI</option>
+                        <option value="no" <?= ($inspeccion['tiene_ascensor'] ?? '') === 'no' ? 'selected' : '' ?>>NO</option>
+                    </select>
+                    <small class="text-muted" style="font-size:11px;">Si la copropiedad no tiene ascensor, el PDF oculta automaticamente el PON 07 (persona atrapada en ascensor).</small>
                 </div>
             </div>
         </div>

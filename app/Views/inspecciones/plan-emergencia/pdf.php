@@ -598,7 +598,10 @@ if (!function_exists('renderGaleriaFotos')) {
 
 <?php
 $ponesCanonicos = require APPPATH . 'Config/PonesCanonicos.php';
-foreach ($ponesCanonicos as $pon):
+$tieneAscensor = ($inspeccion['tiene_ascensor'] ?? null) === 'si';
+foreach ($ponesCanonicos as $ponKey => $pon):
+    // Ocultar PON 07 (ascensor) si la copropiedad no tiene ascensor
+    if ($ponKey === 'pon_07_ascensor' && !$tieneAscensor) continue;
 ?>
     <div class="section-subtitle">PON CODIGO <?= esc($pon['codigo']) ?> — <?= esc($pon['titulo']) ?></div>
 
