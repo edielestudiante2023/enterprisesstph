@@ -275,9 +275,6 @@ class FirmaAlturasController extends BaseController
         $email->setSubject("Actualización SG-SST: Protocolo obligatorio de notificación de trabajos en alturas");
         $email->addTo($cliente['correo_cliente'], $nombreCliente);
 
-        // BCC a Edison para seguimiento
-        $email->addBcc('edison.cuervo@cycloidtalent.com', 'Edison Cuervo');
-
         $email->addContent("text/html", $html);
 
         // Desactivar click tracking para evitar reescritura de links por SendGrid
