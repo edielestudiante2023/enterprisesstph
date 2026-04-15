@@ -88,14 +88,6 @@ class ProtocoloAlturas extends BaseCommand
             $pos = $i + 1;
             $nombre = $cliente['nombre_cliente'] ?? '?';
 
-            if ($recordatorio) {
-                // Para recordatorio: notificar al consultor, no al cliente
-                $this->notificarConsultorPendiente($cliente);
-                CLI::write("  [{$pos}/{$total}] {$nombre} => Consultor notificado", 'yellow');
-                $ok++;
-                continue;
-            }
-
             $result = FirmaAlturasController::enviarProtocolo((int)$cliente['id_cliente']);
 
             if ($result['success']) {
