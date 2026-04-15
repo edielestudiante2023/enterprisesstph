@@ -673,29 +673,57 @@ foreach ($ponesCanonicos as $ponKey => $pon):
     $numRamas = count($ramas);
 
     // ============ SVG: MAPA VISUAL DEL ARBOL (Opcion B) ============
-    // DOMPDF no soporta <svg> inline en el HTML, pero SI soporta <img src="data:image/svg+xml;base64,...">
-    // via la libreria php-svg-lib. Construimos el SVG como string y lo embebemos como data URI.
+    // Todas las ramas son HERMANAS (sin jerarquia entre ellas). Layout: una sola
+    // fila horizontal con todas las ramas conectadas directamente al fork.
     if ($numRamas > 0):
-        $svgWidth  = 780;
+        // Ancho dinamico segun numero de ramas (min 780, max 1200)
+        $branchW = 105;
+        $branchGap = 12;
+        $neededWidth = max(780, ($numRamas * ($branchW + $branchGap)) + 40);
+        $svgWidth  = min($neededWidth, 1200);
+        // Si no caben con el ancho max, reducimos el branchW
+        if (($numRamas * ($branchW + $branchGap)) > ($svgWidth - 40)) {
+            $branchW = (int) floor((($svgWidth - 40) / $numRamas) - $branchGap);
+        }
+
         $rootY     = 20;
         $rootW     = 260;
         $rootX     = ($svgWidth - $rootW) / 2;
         $decisionY = 80;
         $forkY     = 150;
         $branchTop = 180;
-        $branchH   = 55;
-        $branchW   = 160;
-        $cols = 4;
-        $colSpacing = $svgWidth / $cols;
-        $rows = (int) ceil($numRamas / $cols);
-        $rowSpacing = $branchH + 25;
-        $svgHeight = $branchTop + ($rows * $rowSpacing) + 20;
+        $branchH   = 80;
+        $svgHeight = $branchTop + $branchH + 20;
 
         $cxCenter = $svgWidth / 2;
-        $colCenters = [];
-        for ($c = 0; $c < $cols; $c++) {
-            $colCenters[] = ($colSpacing * ($c + 0.5));
+        // Centros X de las ramas distribuidas uniformemente
+        $totalBranchesWidth = $numRamas * ($branchW + $branchGap) - $branchGap;
+        $startX = ($svgWidth - $totalBranchesWidth) / 2;
+        $branchCenters = [];
+        for ($i = 0; $i < $numRamas; $i++) {
+            $branchCenters[] = $startX + ($branchW / 2) + ($i * ($branchW + $branchGap));
         }
+
+        // Helper: envolver texto en N lineas segun ancho max en caracteres
+        $wrapTexto = function ($texto, $maxChars) {
+            $words = explode(' ', $texto);
+            $lines = [];
+            $current = '';
+            foreach ($words as $w) {
+                if ($current === '') {
+                    $current = $w;
+                } elseif (strlen($current . ' ' . $w) <= $maxChars) {
+                    $current .= ' ' . $w;
+                } else {
+                    $lines[] = $current;
+                    $current = $w;
+                }
+            }
+            if ($current !== '') $lines[] = $current;
+            return $lines;
+        };
+
+        $maxCharsPerLine = (int) floor($branchW / 6.5);
 
         $svgParts = [];
         $svgParts[] = '<?xml version="1.0" encoding="UTF-8"?>';
@@ -711,45 +739,32 @@ foreach ($ponesCanonicos as $ponKey => $pon):
         $svgParts[] = '<text x="' . $cxCenter . '" y="' . ($decisionY + 26) . '" fill="#ffffff" text-anchor="middle" font-family="Helvetica" font-size="12" font-weight="bold">TIPO DE EVENTO DETECTADO</text>';
         // Line decision -> fork
         $svgParts[] = '<line x1="' . $cxCenter . '" y1="' . ($decisionY + 40) . '" x2="' . $cxCenter . '" y2="' . $forkY . '" stroke="#1c2437" stroke-width="2"/>';
-        // Horizontal fork line
-        $svgParts[] = '<line x1="' . $colCenters[0] . '" y1="' . $forkY . '" x2="' . $colCenters[$cols - 1] . '" y2="' . $forkY . '" stroke="#1c2437" stroke-width="2"/>';
+        // Horizontal fork line de primera a ultima rama
+        $svgParts[] = '<line x1="' . $branchCenters[0] . '" y1="' . $forkY . '" x2="' . $branchCenters[$numRamas - 1] . '" y2="' . $forkY . '" stroke="#1c2437" stroke-width="2"/>';
 
         foreach ($ramas as $i => $rama) {
-            $col = $i % $cols;
-            $row = (int) floor($i / $cols);
-            $cx  = $colCenters[$col];
-            $by  = $branchTop + ($row * $rowSpacing);
+            $cx  = $branchCenters[$i];
             $bx  = $cx - ($branchW / 2);
             $tipo = strtoupper($rama['tipo'] ?? '-');
-            if (strlen($tipo) > 18) {
-                $words = explode(' ', $tipo);
-                $line1 = ''; $line2 = '';
-                foreach ($words as $w) {
-                    if (strlen($line1 . ' ' . $w) <= 18) {
-                        $line1 = $line1 ? $line1 . ' ' . $w : $w;
-                    } else {
-                        $line2 = $line2 ? $line2 . ' ' . $w : $w;
-                    }
-                }
-                $tipoLines = [$line1, $line2];
-            } else {
-                $tipoLines = [$tipo];
+            $tipoLines = $wrapTexto($tipo, $maxCharsPerLine);
+            // Max 3 lineas
+            if (count($tipoLines) > 3) {
+                $tipoLines = array_slice($tipoLines, 0, 3);
             }
 
-            // Linea vertical desde fork (o rama anterior) hacia la caja
-            if ($row === 0) {
-                $svgParts[] = '<line x1="' . $cx . '" y1="' . $forkY . '" x2="' . $cx . '" y2="' . $by . '" stroke="#1c2437" stroke-width="2"/>';
-            } else {
-                $prevBottom = $branchTop + (($row - 1) * $rowSpacing) + $branchH;
-                $svgParts[] = '<line x1="' . $cx . '" y1="' . $prevBottom . '" x2="' . $cx . '" y2="' . $by . '" stroke="#8e44ad" stroke-width="1.5" stroke-dasharray="3,2"/>';
-            }
+            // Linea vertical desde fork hacia caja (todas iguales, todas hermanas)
+            $svgParts[] = '<line x1="' . $cx . '" y1="' . $forkY . '" x2="' . $cx . '" y2="' . $branchTop . '" stroke="#1c2437" stroke-width="2"/>';
             // Caja rama
-            $svgParts[] = '<rect x="' . $bx . '" y="' . $by . '" width="' . $branchW . '" height="' . $branchH . '" fill="#f5eef8" stroke="#8e44ad" stroke-width="1.5"/>';
-            if (count($tipoLines) === 1) {
-                $svgParts[] = '<text x="' . $cx . '" y="' . ($by + ($branchH / 2) + 4) . '" fill="#5b2c6f" text-anchor="middle" font-family="Helvetica" font-size="10" font-weight="bold">' . htmlspecialchars($tipoLines[0], ENT_XML1) . '</text>';
-            } else {
-                $svgParts[] = '<text x="' . $cx . '" y="' . ($by + ($branchH / 2) - 3) . '" fill="#5b2c6f" text-anchor="middle" font-family="Helvetica" font-size="9" font-weight="bold">' . htmlspecialchars($tipoLines[0], ENT_XML1) . '</text>';
-                $svgParts[] = '<text x="' . $cx . '" y="' . ($by + ($branchH / 2) + 10) . '" fill="#5b2c6f" text-anchor="middle" font-family="Helvetica" font-size="9" font-weight="bold">' . htmlspecialchars($tipoLines[1], ENT_XML1) . '</text>';
+            $svgParts[] = '<rect x="' . $bx . '" y="' . $branchTop . '" width="' . $branchW . '" height="' . $branchH . '" fill="#f5eef8" stroke="#8e44ad" stroke-width="1.5"/>';
+            // Texto centrado vertical y horizontalmente
+            $numLines = count($tipoLines);
+            $fontSize = $numLines >= 3 ? 8 : ($numLines === 2 ? 9 : 10);
+            $lineHeight = $fontSize + 3;
+            $totalTextH = $numLines * $lineHeight;
+            $firstLineY = $branchTop + (($branchH - $totalTextH) / 2) + $fontSize;
+            foreach ($tipoLines as $li => $ln) {
+                $ly = $firstLineY + ($li * $lineHeight);
+                $svgParts[] = '<text x="' . $cx . '" y="' . $ly . '" fill="#5b2c6f" text-anchor="middle" font-family="Helvetica" font-size="' . $fontSize . '" font-weight="bold">' . htmlspecialchars($ln, ENT_XML1) . '</text>';
             }
         }
 
