@@ -82,6 +82,7 @@ class ProtocoloAlturas extends BaseCommand
 
         $ok = 0;
         $err = 0;
+        $fallidos = [];
 
         foreach ($clientes as $i => $cliente) {
             if (!$cliente) continue;
@@ -96,10 +97,48 @@ class ProtocoloAlturas extends BaseCommand
             } else {
                 CLI::write("  [{$pos}/{$total}] {$nombre} => ERROR: " . $result['error'], 'red');
                 $err++;
+                $fallidos[] = [
+                    'nombre' => $nombre,
+                    'correo' => $cliente['correo_cliente'] ?? '',
+                    'error'  => $result['error'] ?? 'desconocido',
+                ];
             }
         }
 
         CLI::write("\nEnviados: {$ok} | Errores: {$err}", $err > 0 ? 'red' : 'green');
+
+        if ($err > 0) {
+            $this->enviarAlertaErrores($recordatorio, $ok, $err, $fallidos);
+        }
+    }
+
+    private function enviarAlertaErrores(bool $recordatorio, int $ok, int $err, array $fallidos): void
+    {
+        $modo = $recordatorio ? 'recordatorio' : 'envio';
+        $html = '<div style="font-family:Arial,sans-serif;max-width:700px;">';
+        $html .= '<h2 style="color:#dc3545;">⚠ Alerta: cron protocolo alturas ('.$modo.')</h2>';
+        $html .= '<p>Fecha: ' . date('Y-m-d H:i') . '</p>';
+        $html .= '<p><strong>Enviados:</strong> '.$ok.' | <strong>Errores:</strong> '.$err.'</p>';
+        $html .= '<h3>Clientes con error</h3><table style="width:100%;border-collapse:collapse;font-size:13px;">';
+        $html .= '<tr style="background:#e9ecef;"><th style="padding:6px;text-align:left;">Cliente</th><th style="padding:6px;">Correo</th><th style="padding:6px;">Error</th></tr>';
+        foreach ($fallidos as $f) {
+            $html .= '<tr style="border-bottom:1px solid #dee2e6;"><td style="padding:6px;">'.htmlspecialchars($f['nombre']).'</td><td style="padding:6px;">'.htmlspecialchars($f['correo']).'</td><td style="padding:6px;color:#dc3545;">'.htmlspecialchars($f['error']).'</td></tr>';
+        }
+        $html .= '</table></div>';
+
+        try {
+            $email = new \SendGrid\Mail\Mail();
+            $email->setFrom("notificacion.cycloidtalent@cycloidtalent.com", "Cycloid Talent");
+            $email->setSubject("⚠ Alerta: cron protocolo alturas — {$err} errores");
+            $email->addTo('edison.cuervo@cycloidtalent.com', 'Edison Cuervo');
+            $email->addContent("text/html", $html);
+            $sendgrid = new \SendGrid(getenv('SENDGRID_API_KEY'));
+            $sendgrid->send($email);
+            CLI::write("Alerta enviada a edison.cuervo@cycloidtalent.com", 'yellow');
+        } catch (\Exception $e) {
+            CLI::write("Error enviando alerta: " . $e->getMessage(), 'red');
+            log_message('error', 'Error alerta cron protocolo alturas: ' . $e->getMessage());
+        }
     }
 
     /**
