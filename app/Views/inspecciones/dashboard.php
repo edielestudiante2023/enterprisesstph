@@ -1227,6 +1227,11 @@
                 <div><strong>Señalización</strong></div>
                 <div class="count">(<?= $totalSenalizacion ?>)</div>
             </a>
+            <a href="<?= base_url('/inspecciones/inventario-choque') ?>" class="card-tipo" style="grid-column:span 2;">
+                <i class="fas fa-clipboard-check"></i>
+                <div><strong>Inventario Fotos de Choque</strong></div>
+                <div class="count">Checklist en sitio</div>
+            </a>
         </div>
     </div>
 

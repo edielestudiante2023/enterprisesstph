@@ -927,6 +927,17 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('acta-visita/api/pta-actividades', 'ActaVisitaController::getPtaActividades');
     $routes->post('acta-visita/generar-token-firma/(:num)', 'ActaVisitaController::generarTokenFirma/$1');
 
+    // Inventario de Fotos de Choque
+    $routes->get('inventario-choque', 'InventarioChoqueController::list');
+    $routes->get('inventario-choque/create', 'InventarioChoqueController::create');
+    $routes->get('inventario-choque/create/(:num)', 'InventarioChoqueController::create/$1');
+    $routes->post('inventario-choque/store', 'InventarioChoqueController::store');
+    $routes->get('inventario-choque/view/(:num)', 'InventarioChoqueController::view/$1');
+    $routes->get('inventario-choque/edit/(:num)', 'InventarioChoqueController::edit/$1');
+    $routes->post('inventario-choque/update/(:num)', 'InventarioChoqueController::update/$1');
+    $routes->post('inventario-choque/toggle', 'InventarioChoqueController::toggleItem');
+    $routes->get('inventario-choque/delete/(:num)', 'InventarioChoqueController::delete/$1');
+
     // Inspección Locativa
     $routes->get('inspeccion-locativa', 'InspeccionLocativaController::list');
     $routes->get('inspeccion-locativa/create', 'InspeccionLocativaController::create');
