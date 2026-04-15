@@ -448,9 +448,9 @@ if (!function_exists('renderGaleriaFotos')) {
     <?php endif; ?>
     <?= renderGaleriaFotos(
         $fotosBase64,
-        ['foto_ruta_evacuacion_1' => 'Ruta de Evacuacion - Tramo 1', 'foto_ruta_evacuacion_2' => 'Ruta de Evacuacion - Tramo 2'],
+        ['foto_ruta_evacuacion_1' => 'Senalizacion Ruta de Evacuacion - Muestra 1', 'foto_ruta_evacuacion_2' => 'Senalizacion Ruta de Evacuacion - Muestra 2'],
         '',
-        'Recorrido fotografico de la ruta principal de evacuacion desde las unidades habitacionales hasta los puntos de encuentro designados.'
+        'Muestras fotograficas de la senalizacion instalada a lo largo de la ruta de evacuacion. La senalizacion permanente y visible conforme a NTC 1700 es indispensable para orientar a los ocupantes durante una emergencia hacia los puntos de encuentro designados.'
     ) ?>
     <?php endif; ?>
 
