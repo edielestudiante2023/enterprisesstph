@@ -481,21 +481,23 @@ if (!function_exists('renderGaleriaFotos')) {
     <p class="content-text">Objetivo: Identificar y evaluar cuales son aquellos eventos o condiciones que pueden llegar a ocasionar una emergencia en <?= $nombreCliente ?>, de tal manera que este analisis se convierta en una herramienta para establecer las medidas de prevencion y control de los riesgos asociados.</p>
 
     <div class="section-subtitle">IDENTIFICACION Y CARACTERIZACION DE PELIGROS Y AMENAZAS</div>
+    <div style="page-break-inside: avoid;">
     <table class="data-table">
         <thead><tr><th style="width:25%;">ORIGEN</th><th>PELIGRO</th></tr></thead>
         <tbody>
-            <tr><td rowspan="3" style="font-weight:bold; text-align:center; background:#f0f0f0;">NATURAL</td><td>Presencia de una falla geologica (Terremotos, sismos)</td></tr>
+            <tr><td rowspan="3" style="font-weight:bold; text-align:center; background:#f0f0f0; vertical-align:middle;">NATURAL</td><td>Presencia de una falla geologica (Terremotos, sismos)</td></tr>
             <tr><td>Condiciones atmosfericas adversas a la zona (inundaciones, vendavales)</td></tr>
             <tr><td>Incendios Forestales</td></tr>
-            <tr><td rowspan="2" style="font-weight:bold; text-align:center; background:#f0f0f0;">SOCIAL</td><td>Condiciones sociales insatisfechas (atentados terroristas, amenazas)</td></tr>
+            <tr><td rowspan="2" style="font-weight:bold; text-align:center; background:#f0f0f0; vertical-align:middle;">SOCIAL</td><td>Condiciones sociales insatisfechas (atentados terroristas, amenazas)</td></tr>
             <tr><td>Condiciones politicas y sociales de la region (robos)</td></tr>
-            <tr><td rowspan="5" style="font-weight:bold; text-align:center; background:#f0f0f0;">TECNOLOGICO</td><td>Presencia copropiedades vecinas (Explosiones, incendios)</td></tr>
+            <tr><td rowspan="5" style="font-weight:bold; text-align:center; background:#f0f0f0; vertical-align:middle;">TECNOLOGICO</td><td>Presencia copropiedades vecinas (Explosiones, incendios)</td></tr>
             <tr><td>Almacenamiento de gases toxicos (fugas de sustancias nocivas)</td></tr>
             <tr><td>Inflamabilidad de una sustancia (incendios, explosiones)</td></tr>
             <tr><td>Presencia Aeropuerto (paso de aviones)</td></tr>
             <tr><td>Movilidad vehiculos automotores</td></tr>
         </tbody>
     </table>
+    </div>
 
     <!-- Probabilidad de ocurrencia (datos de la inspeccion previa) -->
     <?php if ($debugMode): ?><div class="dbg dbg-prob"><span class="dbg-label">PROB. PELIGROS — $ultimaProb</span><?php endif; ?>
@@ -648,8 +650,12 @@ foreach ($ponesCanonicos as $pon):
     $adendoIA = $ponsIaAdendo[$ponKey] ?? null;
     if (!empty($adendoIA)):
     ?>
-    <p class="content-bold" style="background:#f5eef8; color:#5b2c6f; padding:3px 6px; border-left:3px solid #8e44ad;">Adendo personalizado para <?= esc($nombreCliente) ?>:</p>
-    <p class="content-text" style="background:#fbf6fc; padding:6px; border-left:3px solid #8e44ad;"><?= nl2br(esc($adendoIA)) ?></p>
+    <div style="page-break-inside: avoid; margin-top:6px;">
+    <p class="content-bold" style="background:#f5eef8; color:#5b2c6f; padding:4px 8px; border-left:3px solid #8e44ad; margin-bottom:0;">
+        Adendo personalizado del PON <?= esc($pon['codigo']) ?> — <?= esc($pon['titulo']) ?> para <?= esc($nombreCliente) ?>:
+    </p>
+    <p class="content-text" style="background:#fbf6fc; padding:8px; border-left:3px solid #8e44ad; margin-top:0;"><?= nl2br(esc($adendoIA)) ?></p>
+    </div>
     <?php endif; ?>
 
 <?php endforeach; ?>
