@@ -890,7 +890,7 @@ class ActaVisitaController extends BaseController
                     'id_cliente'      => $acta['id_cliente'],
                     'tarea_actividad' => trim($actividad),
                     'fecha_asignacion' => date('Y-m-d'),
-                    'fecha_cierre'    => $fechas[$i] ?? null,
+                    'fecha_plazo'     => $fechas[$i] ?? null,
                     'responsable'     => $responsables[$i] ?? '',
                     'estado'          => 'ABIERTA',
                     'id_acta_visita'  => $idActa,

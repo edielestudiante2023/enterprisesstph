@@ -185,9 +185,9 @@ class PendientesPwaController extends BaseController
         }
 
         $updateData = ['estado' => $nuevoEstado];
-        if ($nuevoEstado === 'CERRADA' && empty($pendiente['fecha_cierre_real'])) {
-            $fechaEnviada = $json['fecha_cierre_real'] ?? $json['fecha_cierre'] ?? null;
-            $updateData['fecha_cierre_real'] = !empty($fechaEnviada) ? $fechaEnviada : date('Y-m-d');
+        if ($nuevoEstado === 'CERRADA' && empty($pendiente['fecha_cierre'])) {
+            $fechaEnviada = $json['fecha_cierre'] ?? $json['fecha_cierre_real'] ?? null;
+            $updateData['fecha_cierre'] = !empty($fechaEnviada) ? $fechaEnviada : date('Y-m-d');
         }
 
         $this->pendientesModel->update($id, $updateData);

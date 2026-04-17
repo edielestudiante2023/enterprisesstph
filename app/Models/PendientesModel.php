@@ -15,7 +15,6 @@ class PendientesModel extends Model
         'fecha_asignacion',
         'fecha_cierre',
         'fecha_plazo',
-        'fecha_cierre_real',
         'fecha_reclasificacion_auto',
         'estado',
         'conteo_dias',
@@ -52,10 +51,9 @@ class PendientesModel extends Model
      */
     protected function calculateConteoDias(array $data)
     {
-        $fechaAsignacion   = $data['data']['fecha_asignacion']   ?? null;
-        $fechaCierreReal   = $data['data']['fecha_cierre_real']  ?? null;
-        $fechaCierreLegacy = $data['data']['fecha_cierre']       ?? null;
-        $estado            = $data['data']['estado']             ?? null;
+        $fechaAsignacion = $data['data']['fecha_asignacion'] ?? null;
+        $fechaCierre     = $data['data']['fecha_cierre']     ?? null;
+        $estado          = $data['data']['estado']           ?? null;
 
         if (!$this->isValidDateString($fechaAsignacion) || !$estado) {
             return $data;
@@ -67,13 +65,8 @@ class PendientesModel extends Model
 
         if ($estado === 'ABIERTA') {
             $conteoDias = $asignacionDate->diff($currentDate)->days;
-        } elseif (in_array($estado, $estadosCerrados, true)) {
-            $fechaFin = $this->isValidDateString($fechaCierreReal)
-                ? $fechaCierreReal
-                : ($this->isValidDateString($fechaCierreLegacy) ? $fechaCierreLegacy : null);
-            $conteoDias = $fechaFin
-                ? $asignacionDate->diff(new \DateTime($fechaFin))->days
-                : 0;
+        } elseif (in_array($estado, $estadosCerrados, true) && $this->isValidDateString($fechaCierre)) {
+            $conteoDias = $asignacionDate->diff(new \DateTime($fechaCierre))->days;
         } else {
             $conteoDias = 0;
         }
