@@ -62,7 +62,7 @@ class PendientesController extends Controller
         $value = $this->request->getPost('value');
 
         // Definir los campos permitidos para actualización
-        $allowedFields = ['tarea_actividad', 'fecha_cierre', 'estado', 'estado_avance', 'evidencia_para_cerrarla', 'fecha_asignacion'];
+        $allowedFields = ['tarea_actividad', 'fecha_cierre', 'fecha_plazo', 'estado', 'estado_avance', 'evidencia_para_cerrarla', 'fecha_asignacion'];
         if (!in_array($field, $allowedFields)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Campo no permitido']);
         }

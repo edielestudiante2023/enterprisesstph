@@ -393,6 +393,7 @@
             <th>Fecha Asignación</th>
             <th>Responsable</th>
             <th>*Tarea Actividad</th>
+            <th>*Fecha Plazo</th>
             <th>*Fecha Cierre</th>
             <th>*Estado</th>
             <th>Conteo Días</th>
@@ -409,7 +410,8 @@
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Fecha"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Responsable"></th>
             <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Tarea"></th>
-            <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Fecha"></th>
+            <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Plazo"></th>
+            <th><input type="text" class="form-control form-control-sm filter-search" placeholder="Filtrar Cierre"></th>
             <th>
               <select class="form-control form-control-sm filter-search">
                 <option value="">Todos</option>
@@ -470,6 +472,7 @@
       html += '<tr><td><strong>Fecha Asignación:</strong></td><td>' + (rowData.fecha_asignacion || '') + '</td></tr>';
       html += '<tr><td><strong>Responsable:</strong></td><td>' + (rowData.responsable || '') + '</td></tr>';
       html += '<tr><td><strong>Tarea/Actividad:</strong></td><td>' + (rowData.tarea_actividad || '') + '</td></tr>';
+      html += '<tr><td><strong>Fecha Plazo:</strong></td><td>' + (rowData.fecha_plazo || '') + '</td></tr>';
       html += '<tr><td><strong>Fecha Cierre:</strong></td><td>' + (rowData.fecha_cierre || '') + '</td></tr>';
       html += '<tr><td><strong>Estado:</strong></td><td>' + (rowData.estado || '') + '</td></tr>';
       html += '<tr><td><strong>Conteo Días:</strong></td><td>' + (rowData.conteo_dias || '0') + '</td></tr>';
@@ -596,6 +599,14 @@
               var displayText = data || '&nbsp;';
               var escaped = data.replace(/"/g, '&quot;');
               return '<span class="editable cell-expandable" data-field="tarea_actividad" data-id="' + row.id_pendientes + '" data-bs-toggle="tooltip" title="' + escaped + '">' + displayText + ' <i class="fas fa-caret-down expand-icon"></i></span>';
+            }
+          },
+          {
+            data: 'fecha_plazo',
+            render: function(data, type, row) {
+              data = (data === null || data === "") ? "" : data;
+              var displayText = data || '&nbsp;';
+              return '<span class="editable-date" data-field="fecha_plazo" data-id="' + row.id_pendientes + '" data-bs-toggle="tooltip" title="' + data + '">' + displayText + '</span>';
             }
           },
           {
