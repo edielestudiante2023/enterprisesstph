@@ -296,7 +296,7 @@
                                         </span>
                                     </td>
                                     <td><?= esc($pend['fecha_asignacion'] ?? 'N/A') ?></td>
-                                    <td><?= esc($pend['fecha_cierre'] ?? 'N/A') ?></td>
+                                    <td><?= esc($pend['fecha_plazo'] ?? 'N/A') ?></td>
                                     <td class="text-center">
                                         <span class="badge bg-info"><?= esc($pend['conteo_dias'] ?? '0') ?> días</span>
                                     </td>
@@ -493,8 +493,8 @@
                     if (yearMonth !== filterMesAsignacion) return false;
                 }
 
-                if (filterMesCierre && item.fecha_cierre) {
-                    var fecha = new Date(item.fecha_cierre);
+                if (filterMesCierre && item.fecha_plazo) {
+                    var fecha = new Date(item.fecha_plazo);
                     var yearMonth = fecha.getFullYear() + '-' + String(fecha.getMonth() + 1).padStart(2, '0');
                     if (yearMonth !== filterMesCierre) return false;
                 }
@@ -555,7 +555,7 @@
                     item.responsable || 'N/A',
                     estadoBadge,
                     item.fecha_asignacion || 'N/A',
-                    item.fecha_cierre || 'N/A',
+                    item.fecha_plazo || 'N/A',
                     '<span class="badge bg-info">' + (item.conteo_dias || '0') + ' días</span>'
                 ]);
             });

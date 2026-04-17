@@ -79,7 +79,7 @@
             <strong><?= esc($comp['tarea_actividad']) ?></strong>
             <div class="text-muted" style="font-size:12px;">
                 Responsable: <?= esc($comp['responsable'] ?? '-') ?>
-                | Fecha cierre: <?= !empty($comp['fecha_cierre']) ? date('d/m/Y', strtotime($comp['fecha_cierre'])) : '-' ?>
+                | Fecha plazo: <?= !empty($comp['fecha_plazo']) ? date('d/m/Y', strtotime($comp['fecha_plazo'])) : '-' ?>
             </div>
         </div>
         <?php endforeach; ?>

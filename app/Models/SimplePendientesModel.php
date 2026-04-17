@@ -12,6 +12,8 @@ class SimplePendientesModel extends Model
         'id_cliente',
         'responsable',
         'tarea_actividad',
+        'fecha_asignacion',
+        'fecha_plazo',
         'fecha_cierre',
         'estado'
     ];

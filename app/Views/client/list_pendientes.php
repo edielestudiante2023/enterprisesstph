@@ -369,7 +369,7 @@
                         <th>Responsable</th>
                         <th>Tarea Actividad</th>
                         <th>Fecha de Asignación</th> <!-- Nueva Columna -->
-                        <th>Fecha Cierre</th>
+                        <th>Fecha Plazo</th>
                         <th>Estado</th>
                         <th>Conteo Días</th>
                         <th>Estado Avance</th>
@@ -383,7 +383,7 @@
                         <th>Responsable</th>
                         <th>Tarea Actividad</th>
                         <th>Fecha de Asignación</th>
-                        <th>Fecha Cierre</th>
+                        <th>Fecha Plazo</th>
                         <th>Estado</th>
                         <th>Conteo Días</th>
                         <th>Estado Avance</th>
@@ -405,8 +405,8 @@
                                 <td data-bs-toggle="tooltip" title="<?= esc($pendiente['fecha_asignacion']); ?>" class="fecha-col">
                                     <?= date('Y-m-d', strtotime($pendiente['fecha_asignacion'])); ?>
                                 </td>
-                                <td data-bs-toggle="tooltip" title="<?= esc($pendiente['fecha_cierre']); ?>" class="fecha-col">
-                                    <?= esc($pendiente['fecha_cierre']); ?>
+                                <td data-bs-toggle="tooltip" title="<?= esc($pendiente['fecha_plazo']); ?>" class="fecha-col">
+                                    <?= esc($pendiente['fecha_plazo']); ?>
                                 </td>
                                 <td data-bs-toggle="tooltip" title="<?= esc($pendiente['estado']); ?>"><?= esc($pendiente['estado']); ?></td>
                                 <td data-bs-toggle="tooltip" title="<?= esc($pendiente['conteo_dias']); ?>"><?= esc($pendiente['conteo_dias']); ?></td>
@@ -480,7 +480,7 @@
                         <p><strong>Responsable:</strong> ${d[2]}</p>
                         <p><strong>Tarea Actividad:</strong> ${d[3]}</p>
                         <p><strong>Fecha de Asignación:</strong> ${d[4]}</p>
-                        <p><strong>Fecha Cierre:</strong> ${d[5]}</p>
+                        <p><strong>Fecha Plazo:</strong> ${d[5]}</p>
                         <p><strong>Estado:</strong> ${d[6]}</p>
                         <p><strong>Conteo Días:</strong> ${d[7]}</p>
                         <p><strong>Estado Avance:</strong> ${d[8]}</p>
@@ -504,7 +504,7 @@
                     $(this).html('');
                 } else {
                     var title = $(this).text();
-                    if (title === 'Fecha de Asignación' || title === 'Fecha Cierre') {
+                    if (title === 'Fecha de Asignación' || title === 'Fecha Plazo') {
                         // Usar un input de fecha para las columnas de fecha
                         $(this).html('<input type="date" class="form-control form-control-sm" placeholder="Filtrar ' + title + '" />');
                     } else {
@@ -563,7 +563,7 @@
                     { width: '15%', targets: 2 }, // Responsable
                     { width: '15%', targets: 3 }, // Tarea Actividad
                     { width: '10%', targets: 4, className: 'fecha-col' }, // Fecha de Asignación
-                    { width: '10%', targets: 5, className: 'fecha-col' }, // Fecha Cierre
+                    { width: '10%', targets: 5, className: 'fecha-col' }, // Fecha Plazo
                     { width: '10%', targets: 6 }, // Estado
                     { width: '10%', targets: 7 }, // Conteo Días
                     { width: '10%', targets: 8 }, // Estado Avance
@@ -627,7 +627,7 @@
                             var colSearch = state.columns[index].search.search;
                             if (colSearch) {
                                 var footerCell = $('th', table.column(index).footer()).text();
-                                if (footerCell === 'Fecha de Asignación' || footerCell === 'Fecha Cierre') {
+                                if (footerCell === 'Fecha de Asignación' || footerCell === 'Fecha Plazo') {
                                     var input = $('input', table.column(index).footer());
                                     input.val(colSearch);
                                 } else {

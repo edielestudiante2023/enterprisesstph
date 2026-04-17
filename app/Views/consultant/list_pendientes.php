@@ -215,7 +215,7 @@
         <select id="yearFilterSelect" class="form-select form-select-sm" style="width: auto; min-width: 130px;">
           <option value="">Todos</option>
           <?php for ($y = 2024; $y <= 2030; $y++): ?>
-            <option value="<?= $y ?>" <?= ($y == date('Y')) ? 'selected' : '' ?>><?= $y ?></option>
+            <option value="<?= $y ?>"><?= $y ?></option>
           <?php endfor; ?>
         </select>
       </div>
@@ -486,7 +486,7 @@
       // Variables globales para filtros activos
       var activeYear = $('#yearFilterSelect').val() || null;
       var activeMonth = null;
-      var activeStatus = null;
+      var activeStatus = 'ABIERTA'; // filtro por defecto al cargar la vista
 
       // Inicializar el select con Select2
       $('#clientSelect').select2({
@@ -920,10 +920,10 @@
       updateMonthlyCounts();
       generateYearCards();
 
-      // Aplicar filtro de año actual al cargar
+      // Aplicar filtro por defecto al cargar: estado = ABIERTA (sin filtro de año)
+      applyFilters();
+      $('.card-status[data-status="ABIERTA"]').addClass('active');
       if (activeYear) {
-        applyFilters();
-        // Sincronizar tarjeta activa
         $('.card-year[data-year="' + activeYear + '"]').addClass('active');
       }
 

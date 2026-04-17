@@ -73,9 +73,9 @@ class ConsultantDashboardPendientesController extends Controller
                 $fecha = date('Y-m', strtotime($pend['fecha_asignacion']));
                 $mesesAsignacionUnicos[$fecha] = date('F Y', strtotime($pend['fecha_asignacion']));
             }
-            if (!empty($pend['fecha_cierre'])) {
-                $fecha = date('Y-m', strtotime($pend['fecha_cierre']));
-                $mesesCierreUnicos[$fecha] = date('F Y', strtotime($pend['fecha_cierre']));
+            if (!empty($pend['fecha_plazo'])) {
+                $fecha = date('Y-m', strtotime($pend['fecha_plazo']));
+                $mesesCierreUnicos[$fecha] = date('F Y', strtotime($pend['fecha_plazo']));
             }
         }
 
