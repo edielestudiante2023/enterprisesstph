@@ -169,15 +169,17 @@ class InformeAvancesController extends BaseController
             $informe['fecha_desde'] ?? date('Y') . '-01-01',
             $informe['fecha_hasta'] ?? date('Y-m-d')
         );
+        $pendientesEnriquecidos = $metricasService->getPendientesEnriquecidos($idCliente, (int) $informe['anio']);
 
         return view('informe_avances/view', [
-            'informe'              => $informe,
-            'cliente'              => $cliente,
-            'consultor'            => $consultor,
-            'vencimientos'         => $this->getVencimientosCliente($idCliente),
-            'historialEstandares'  => $this->getHistorialEstandaresCliente($idCliente, (int) $informe['anio']),
-            'historialPlan'        => $this->getHistorialPlanCliente($idCliente, (int) $informe['anio']),
-            'documentosCargados'   => $documentosCargados,
+            'informe'                 => $informe,
+            'cliente'                 => $cliente,
+            'consultor'               => $consultor,
+            'vencimientos'            => $this->getVencimientosCliente($idCliente),
+            'historialEstandares'     => $this->getHistorialEstandaresCliente($idCliente, (int) $informe['anio']),
+            'historialPlan'           => $this->getHistorialPlanCliente($idCliente, (int) $informe['anio']),
+            'documentosCargados'      => $documentosCargados,
+            'pendientesEnriquecidos'  => $pendientesEnriquecidos,
         ]);
     }
 
@@ -597,18 +599,20 @@ class InformeAvancesController extends BaseController
             $informe['fecha_desde'] ?? "{$anioInforme}-01-01",
             $informe['fecha_hasta'] ?? date('Y-m-d')
         );
+        $pendientesEnriquecidos = $metricasService->getPendientesEnriquecidos($idCliente, $anioInforme);
 
         $data = [
-            'informe'               => $informe,
-            'cliente'               => $cliente,
-            'consultor'             => $consultor,
-            'logoBase64'            => $logoBase64,
-            'soportesBase64'        => $soportesBase64,
-            'desglose'              => $desglose,
-            'vencimientos'          => $vencimientos,
-            'quickChartEstandares'  => $quickChartEstandares,
-            'quickChartPlan'        => $quickChartPlan,
-            'documentosCargados'    => $documentosCargados,
+            'informe'                => $informe,
+            'cliente'                => $cliente,
+            'consultor'              => $consultor,
+            'logoBase64'             => $logoBase64,
+            'soportesBase64'         => $soportesBase64,
+            'desglose'               => $desglose,
+            'vencimientos'           => $vencimientos,
+            'quickChartEstandares'   => $quickChartEstandares,
+            'quickChartPlan'         => $quickChartPlan,
+            'documentosCargados'     => $documentosCargados,
+            'pendientesEnriquecidos' => $pendientesEnriquecidos,
         ];
 
         $html = view('informe_avances/pdf', $data);

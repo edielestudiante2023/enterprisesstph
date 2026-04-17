@@ -221,22 +221,103 @@
         </div>
         <?php endif; ?>
 
-        <!-- Actividades abiertas -->
-        <?php if (!empty($informe['actividades_abiertas'])): ?>
+        <!-- Compromisos y Pendientes (rich, live) -->
+        <?php
+        $pend = $pendientesEnriquecidos ?? null;
+        $tot = $pend['totales'] ?? null;
+        ?>
+        <?php if ($pend && ($tot['total'] ?? 0) > 0): ?>
         <div class="card card-section">
-            <div class="card-header py-3"><i class="fas fa-exclamation-triangle me-2"></i>Actividades Abiertas</div>
+            <div class="card-header py-3"><i class="fas fa-tasks me-2"></i>Compromisos y Pendientes (Estado Actual)</div>
             <div class="card-body">
-                <div class="resumen-text"><?= nl2br(esc($informe['actividades_abiertas'])) ?></div>
-            </div>
-        </div>
-        <?php endif; ?>
+                <!-- Banner indicador de salud -->
+                <div class="row mb-3 text-center">
+                    <div class="col-3"><div style="background:#fee;border-left:4px solid #dc3545;padding:10px;border-radius:6px;"><div style="font-size:22px;font-weight:bold;color:#dc3545;"><?= $tot['vencidos'] ?></div><div style="font-size:11px;color:#666;">VENCIDOS</div></div></div>
+                    <div class="col-3"><div style="background:#fff3cd;border-left:4px solid #ffc107;padding:10px;border-radius:6px;"><div style="font-size:22px;font-weight:bold;color:#d39e00;"><?= $tot['por_vencer'] ?></div><div style="font-size:11px;color:#666;">POR VENCER (≤15d)</div></div></div>
+                    <div class="col-3"><div style="background:#d4edda;border-left:4px solid #28a745;padding:10px;border-radius:6px;"><div style="font-size:22px;font-weight:bold;color:#28a745;"><?= $tot['al_dia'] ?></div><div style="font-size:11px;color:#666;">AL DÍA</div></div></div>
+                    <div class="col-3"><div style="background:#e2e3e5;border-left:4px solid #6c757d;padding:10px;border-radius:6px;"><div style="font-size:22px;font-weight:bold;color:#6c757d;"><?= $tot['sin_respuesta'] ?></div><div style="font-size:11px;color:#666;">SIN RESPUESTA</div></div></div>
+                </div>
 
-        <!-- Actividades sin respuesta del cliente -->
-        <?php if (!empty($informe['actividades_sin_respuesta'])): ?>
-        <div class="card card-section">
-            <div class="card-header py-3" style="background:#ffc107;color:#333;"><i class="fas fa-hourglass-end me-2"></i>Actividades Sin Respuesta del Cliente</div>
-            <div class="card-body">
-                <div class="resumen-text"><?= nl2br(esc($informe['actividades_sin_respuesta'])) ?></div>
+                <!-- Alerta de reclasificación próxima -->
+                <?php if (!empty($pend['reclasificacion_proxima'])): ?>
+                <div class="alert alert-warning" style="border-left:4px solid #ffc107;">
+                    <strong>⚠ Reclasificación automática próxima</strong><br>
+                    <?= count($pend['reclasificacion_proxima']) ?> compromiso(s) se reclasificarán a SIN RESPUESTA DEL CLIENTE en los próximos 15 días si no recibimos evidencia:
+                    <ul class="mb-0 mt-2">
+                        <?php foreach ($pend['reclasificacion_proxima'] as $rp): ?>
+                        <li><strong><?= esc(mb_substr($rp['tarea'], 0, 100)) ?></strong> → reclasifica el <?= esc($rp['fecha_recl_fmt']) ?> (en <?= (int)$rp['dias_restantes'] ?> días)</li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
+
+                <!-- Tabla agrupada por semáforo -->
+                <?php
+                $grupos = [
+                    ['key'=>'vencidos','label'=>'🔴 VENCIDOS','color'=>'#dc3545','bg'=>'#fff5f5'],
+                    ['key'=>'por_vencer','label'=>'🟡 POR VENCER (próximos 15 días)','color'=>'#d39e00','bg'=>'#fffbe6'],
+                    ['key'=>'al_dia','label'=>'🟢 AL DÍA','color'=>'#28a745','bg'=>'#f6fff6'],
+                    ['key'=>'sin_respuesta','label'=>'⏸ SIN RESPUESTA DEL CLIENTE','color'=>'#6c757d','bg'=>'#f4f4f5'],
+                ];
+                foreach ($grupos as $g):
+                    $filas = $pend[$g['key']] ?? [];
+                    if (empty($filas)) continue;
+                ?>
+                <div class="mb-3">
+                    <div style="background:<?= $g['bg'] ?>;border-left:4px solid <?= $g['color'] ?>;padding:8px 12px;font-weight:bold;color:<?= $g['color'] ?>;">
+                        <?= $g['label'] ?> (<?= count($filas) ?>)
+                    </div>
+                    <table class="table table-sm table-bordered mb-0" style="font-size:13px;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tarea / Actividad</th>
+                                <th style="width:18%;">Responsable</th>
+                                <th style="width:12%;text-align:center;">Plazo</th>
+                                <th style="width:12%;text-align:center;">Días</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($filas as $f): ?>
+                            <tr>
+                                <td><?= esc($f['tarea_actividad']) ?></td>
+                                <td><?= esc($f['responsable']) ?></td>
+                                <td style="text-align:center;"><?= esc($f['fecha_plazo_fmt']) ?></td>
+                                <td style="text-align:center;color:<?= $g['color'] ?>;font-weight:bold;">
+                                    <?php
+                                    $d = $f['dias_hasta_plazo'] ?? null;
+                                    if ($d === null) echo '—';
+                                    elseif ($d < 0) echo 'venció hace ' . abs($d) . 'd';
+                                    elseif ($d === 0) echo 'vence hoy';
+                                    else echo 'en ' . $d . 'd';
+                                    ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php endforeach; ?>
+
+                <?php if (($tot['cerrados'] ?? 0) > 0): ?>
+                <details class="mt-2">
+                    <summary style="cursor:pointer;color:#28a745;"><strong>✔ <?= $tot['cerrados'] ?> compromisos cerrados en el ciclo</strong> (click para ver)</summary>
+                    <table class="table table-sm table-bordered mt-2" style="font-size:12px;">
+                        <thead class="table-light"><tr><th>Tarea</th><th style="width:18%;">Responsable</th><th style="width:12%;text-align:center;">Plazo</th><th style="width:12%;text-align:center;">Cerró</th></tr></thead>
+                        <tbody>
+                            <?php foreach ($pend['cerrados'] as $f): ?>
+                            <tr>
+                                <td><?= esc($f['tarea_actividad']) ?></td>
+                                <td><?= esc($f['responsable']) ?></td>
+                                <td style="text-align:center;"><?= esc($f['fecha_plazo_fmt']) ?></td>
+                                <td style="text-align:center;"><?= esc($f['fecha_cierre_fmt'] ?? '—') ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </details>
+                <?php endif; ?>
+
+                <p class="text-muted mt-3" style="font-size:11px;margin:0;">💡 Si ya cumplió un compromiso, envíe evidencia a <strong>notificacion.cycloidtalent@cycloidtalent.com</strong> para reabrir su seguimiento.</p>
             </div>
         </div>
         <?php endif; ?>

@@ -476,13 +476,18 @@
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw_inspecciones.js', { scope: '/' })
-                .then(function(reg) {
-                    console.log('SW registrado, scope:', reg.scope);
-                })
-                .catch(function(err) {
-                    console.log('SW error:', err);
-                });
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+                var unregisters = regs
+                    .filter(function(r) { return r.scope === location.origin + '/'; })
+                    .map(function(r) { return r.unregister(); });
+                return Promise.all(unregisters);
+            }).then(function() {
+                return navigator.serviceWorker.register('/sw_inspecciones.js', { scope: '/inspecciones' });
+            }).then(function(reg) {
+                console.log('SW registrado, scope:', reg.scope);
+            }).catch(function(err) {
+                console.log('SW error:', err);
+            });
         });
     }
     </script>

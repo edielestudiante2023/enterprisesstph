@@ -338,6 +338,113 @@ class MetricasInformeService
     }
 
     /**
+     * Pendientes del cliente enriquecidos para vista cliente (view + pdf):
+     * - Agrupa en semaforos: vencidos, por_vencer (<=15d), al_dia, sin_respuesta, cerrados
+     * - Calcula dias_hasta_plazo, fecha_reclasificacion_prevista
+     * - Ordena por urgencia (vencidos primero)
+     *
+     * Retorna:
+     * [
+     *   'totales' => ['total'=>int, 'vencidos'=>int, 'por_vencer'=>int, 'al_dia'=>int, 'sin_respuesta'=>int, 'cerrados'=>int],
+     *   'vencidos' => [...filas],
+     *   'por_vencer' => [...filas],
+     *   'al_dia' => [...filas],
+     *   'sin_respuesta' => [...filas],
+     *   'cerrados' => [...filas],
+     *   'reclasificacion_proxima' => [ // items ABIERTAS cuya fecha_plazo+90d cae en proximos 15d
+     *     ['tarea'=>..., 'fecha_reclasificacion'=>Y-m-d, 'dias_restantes'=>int], ...
+     *   ],
+     * ]
+     */
+    public function getPendientesEnriquecidos(int $idCliente, int $anio): array
+    {
+        $inicioAnio = "{$anio}-01-01 00:00:00";
+        $finAnio = "{$anio}-12-31 23:59:59";
+
+        $rows = $this->db->table('tbl_pendientes')
+            ->select('id_pendientes, tarea_actividad, responsable, fecha_asignacion, fecha_plazo, fecha_cierre, estado, id_acta_visita')
+            ->where('id_cliente', $idCliente)
+            ->where('fecha_asignacion >=', $inicioAnio)
+            ->where('fecha_asignacion <=', $finAnio)
+            ->orderBy('fecha_plazo', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $hoy = new \DateTime('today');
+        $vencidos = $porVencer = $alDia = $sinRespuesta = $cerrados = [];
+        $reclasProxima = [];
+
+        foreach ($rows as $r) {
+            $plazoTs = !empty($r['fecha_plazo']) ? strtotime($r['fecha_plazo']) : false;
+            $diasHastaPlazo = null;
+            if ($plazoTs !== false && $plazoTs >= strtotime('2000-01-01')) {
+                $plazo = new \DateTime(date('Y-m-d', $plazoTs));
+                $diff = $hoy->diff($plazo);
+                $diasHastaPlazo = $plazo < $hoy ? -$diff->days : $diff->days;
+            }
+            $r['dias_hasta_plazo'] = $diasHastaPlazo;
+            $r['fecha_plazo_fmt'] = $plazoTs !== false ? date('d/m/Y', $plazoTs) : 'S/P';
+            $r['fecha_cierre_fmt'] = !empty($r['fecha_cierre']) ? date('d/m/Y', strtotime($r['fecha_cierre'])) : null;
+
+            $estado = $r['estado'];
+            if (in_array($estado, ['CERRADA', 'CERRADA POR FIN CONTRATO'], true)) {
+                $cerrados[] = $r;
+                continue;
+            }
+            if ($estado === 'SIN RESPUESTA DEL CLIENTE') {
+                $sinRespuesta[] = $r;
+                continue;
+            }
+            // ABIERTA
+            if ($diasHastaPlazo === null) {
+                $alDia[] = $r;
+            } elseif ($diasHastaPlazo < 0) {
+                $vencidos[] = $r;
+            } elseif ($diasHastaPlazo <= 15) {
+                $porVencer[] = $r;
+            } else {
+                $alDia[] = $r;
+            }
+
+            // Reclasificacion prevista: plazo + 90 dias cae en proximos 15 dias
+            if ($estado === 'ABIERTA' && $plazoTs !== false) {
+                $reclasTs = strtotime('+90 days', $plazoTs);
+                $diasARecl = (int) floor(($reclasTs - $hoy->getTimestamp()) / 86400);
+                if ($diasARecl >= 0 && $diasARecl <= 15) {
+                    $reclasProxima[] = [
+                        'tarea'                 => $r['tarea_actividad'],
+                        'fecha_reclasificacion' => date('Y-m-d', $reclasTs),
+                        'fecha_recl_fmt'        => date('d/m/Y', $reclasTs),
+                        'dias_restantes'        => $diasARecl,
+                    ];
+                }
+            }
+        }
+
+        usort($vencidos,    fn($a,$b) => ($a['dias_hasta_plazo'] ?? 0) <=> ($b['dias_hasta_plazo'] ?? 0));
+        usort($porVencer,   fn($a,$b) => ($a['dias_hasta_plazo'] ?? 0) <=> ($b['dias_hasta_plazo'] ?? 0));
+        usort($alDia,       fn($a,$b) => ($a['dias_hasta_plazo'] ?? PHP_INT_MAX) <=> ($b['dias_hasta_plazo'] ?? PHP_INT_MAX));
+        usort($reclasProxima, fn($a,$b) => $a['dias_restantes'] <=> $b['dias_restantes']);
+
+        return [
+            'totales' => [
+                'total'         => count($rows),
+                'vencidos'      => count($vencidos),
+                'por_vencer'    => count($porVencer),
+                'al_dia'        => count($alDia),
+                'sin_respuesta' => count($sinRespuesta),
+                'cerrados'      => count($cerrados),
+            ],
+            'vencidos'                => $vencidos,
+            'por_vencer'              => $porVencer,
+            'al_dia'                  => $alDia,
+            'sin_respuesta'           => $sinRespuesta,
+            'cerrados'                => $cerrados,
+            'reclasificacion_proxima' => $reclasProxima,
+        ];
+    }
+
+    /**
      * Recopila actividades del periodo para el prompt de IA
      */
     public function recopilarActividadesPeriodo(int $idCliente, string $desde, string $hasta): array

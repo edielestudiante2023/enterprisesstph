@@ -491,16 +491,102 @@
 <div class="content-text"><?= nl2br(esc($informe['actividades_no_cerradas_pta'])) ?></div>
 <?php endif; ?>
 
-<!-- ACTIVIDADES ABIERTAS -->
-<?php if (!empty($informe['actividades_abiertas'])): ?>
-<div class="section-title">ACTIVIDADES Y COMPROMISOS ABIERTOS</div>
-<div class="content-text"><?= nl2br(esc($informe['actividades_abiertas'])) ?></div>
+<!-- COMPROMISOS Y PENDIENTES (rich, live) -->
+<?php
+$pend = $pendientesEnriquecidos ?? null;
+$tot = $pend['totales'] ?? null;
+?>
+<?php if ($pend && ($tot['total'] ?? 0) > 0): ?>
+<div class="section-title">COMPROMISOS Y PENDIENTES (ESTADO ACTUAL)</div>
+
+<!-- Banner indicador de salud -->
+<table style="width:100%;border-collapse:collapse;margin:8px 0 12px;">
+    <tr>
+        <td style="width:25%;padding:4px;"><div style="background:#fee;border-left:3px solid #dc3545;padding:8px;text-align:center;"><div style="font-size:18px;font-weight:bold;color:#dc3545;"><?= $tot['vencidos'] ?></div><div style="font-size:9px;color:#666;">VENCIDOS</div></div></td>
+        <td style="width:25%;padding:4px;"><div style="background:#fff3cd;border-left:3px solid #ffc107;padding:8px;text-align:center;"><div style="font-size:18px;font-weight:bold;color:#d39e00;"><?= $tot['por_vencer'] ?></div><div style="font-size:9px;color:#666;">POR VENCER &le;15D</div></div></td>
+        <td style="width:25%;padding:4px;"><div style="background:#d4edda;border-left:3px solid #28a745;padding:8px;text-align:center;"><div style="font-size:18px;font-weight:bold;color:#28a745;"><?= $tot['al_dia'] ?></div><div style="font-size:9px;color:#666;">AL DIA</div></div></td>
+        <td style="width:25%;padding:4px;"><div style="background:#e2e3e5;border-left:3px solid #6c757d;padding:8px;text-align:center;"><div style="font-size:18px;font-weight:bold;color:#6c757d;"><?= $tot['sin_respuesta'] ?></div><div style="font-size:9px;color:#666;">SIN RESPUESTA</div></div></td>
+    </tr>
+</table>
+
+<!-- Alerta de reclasificación próxima -->
+<?php if (!empty($pend['reclasificacion_proxima'])): ?>
+<div style="background:#fff3cd;border-left:4px solid #ffc107;padding:8px 12px;margin:8px 0 12px;font-size:11px;">
+    <strong>&#9888; Reclasificacion automatica proxima</strong><br>
+    <?= count($pend['reclasificacion_proxima']) ?> compromiso(s) se reclasificaran a SIN RESPUESTA DEL CLIENTE en los proximos 15 dias si no recibimos evidencia:
+    <ul style="margin:4px 0 0 15px;padding:0;">
+        <?php foreach ($pend['reclasificacion_proxima'] as $rp): ?>
+        <li><strong><?= esc(mb_substr($rp['tarea'], 0, 100)) ?></strong> &rarr; reclasifica el <?= esc($rp['fecha_recl_fmt']) ?> (en <?= (int)$rp['dias_restantes'] ?> dias)</li>
+        <?php endforeach; ?>
+    </ul>
+</div>
 <?php endif; ?>
 
-<!-- ACTIVIDADES SIN RESPUESTA DEL CLIENTE -->
-<?php if (!empty($informe['actividades_sin_respuesta'])): ?>
-<div class="section-title" style="background:#ffc107;color:#333;">ACTIVIDADES SIN RESPUESTA DEL CLIENTE (>90 DIAS POST-PLAZO)</div>
-<div class="content-text"><?= nl2br(esc($informe['actividades_sin_respuesta'])) ?></div>
+<!-- Tabla agrupada por semáforo -->
+<?php
+$grupos = [
+    ['key'=>'vencidos','label'=>'VENCIDOS','color'=>'#dc3545','bg'=>'#fff5f5'],
+    ['key'=>'por_vencer','label'=>'POR VENCER (proximos 15 dias)','color'=>'#d39e00','bg'=>'#fffbe6'],
+    ['key'=>'al_dia','label'=>'AL DIA','color'=>'#28a745','bg'=>'#f6fff6'],
+    ['key'=>'sin_respuesta','label'=>'SIN RESPUESTA DEL CLIENTE','color'=>'#6c757d','bg'=>'#f4f4f5'],
+];
+foreach ($grupos as $g):
+    $filas = $pend[$g['key']] ?? [];
+    if (empty($filas)) continue;
+?>
+<div style="background:<?= $g['bg'] ?>;border-left:4px solid <?= $g['color'] ?>;padding:6px 10px;font-weight:bold;color:<?= $g['color'] ?>;font-size:11px;margin-top:8px;">
+    <?= $g['label'] ?> (<?= count($filas) ?>)
+</div>
+<table class="actividades-table" style="margin:0 0 8px;">
+    <thead>
+        <tr>
+            <th style="width:50%;">Tarea / Actividad</th>
+            <th style="width:20%;">Responsable</th>
+            <th style="width:15%;text-align:center;">Plazo</th>
+            <th style="width:15%;text-align:center;">Dias</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($filas as $f): ?>
+        <tr>
+            <td><?= esc($f['tarea_actividad']) ?></td>
+            <td><?= esc($f['responsable']) ?></td>
+            <td style="text-align:center;"><?= esc($f['fecha_plazo_fmt']) ?></td>
+            <td style="text-align:center;color:<?= $g['color'] ?>;font-weight:bold;">
+                <?php
+                $d = $f['dias_hasta_plazo'] ?? null;
+                if ($d === null) echo '&mdash;';
+                elseif ($d < 0) echo 'vencio hace ' . abs($d) . 'd';
+                elseif ($d === 0) echo 'vence hoy';
+                else echo 'en ' . $d . 'd';
+                ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+<?php endforeach; ?>
+
+<?php if (($tot['cerrados'] ?? 0) > 0): ?>
+<div style="background:#f6fff6;border-left:4px solid #28a745;padding:6px 10px;font-weight:bold;color:#28a745;font-size:11px;margin-top:8px;">
+    CERRADOS EN EL CICLO (<?= $tot['cerrados'] ?>)
+</div>
+<table class="actividades-table" style="margin:0 0 8px;">
+    <thead><tr><th style="width:50%;">Tarea</th><th style="width:20%;">Responsable</th><th style="width:15%;text-align:center;">Plazo</th><th style="width:15%;text-align:center;">Cerro</th></tr></thead>
+    <tbody>
+        <?php foreach ($pend['cerrados'] as $f): ?>
+        <tr>
+            <td><?= esc($f['tarea_actividad']) ?></td>
+            <td><?= esc($f['responsable']) ?></td>
+            <td style="text-align:center;"><?= esc($f['fecha_plazo_fmt']) ?></td>
+            <td style="text-align:center;"><?= esc($f['fecha_cierre_fmt'] ?? '—') ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+<?php endif; ?>
+
+<p style="font-size:10px;color:#666;margin:6px 0 0;"><em>Si ya cumplio un compromiso, envie evidencia a <strong>notificacion.cycloidtalent@cycloidtalent.com</strong> para reabrir su seguimiento.</em></p>
 <?php endif; ?>
 
 <!-- DOCUMENTOS CARGADOS EN EL PERIODO -->

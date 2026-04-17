@@ -746,7 +746,14 @@
 <!-- Service Worker Registration (PWA) -->
 <script>
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw_inspecciones.js', { scope: '/inspecciones' });
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+        var unregisters = regs
+            .filter(function(r) { return r.scope === location.origin + '/'; })
+            .map(function(r) { return r.unregister(); });
+        return Promise.all(unregisters);
+    }).then(function() {
+        navigator.serviceWorker.register('/sw_inspecciones.js', { scope: '/inspecciones' });
+    });
 }
 </script>
 

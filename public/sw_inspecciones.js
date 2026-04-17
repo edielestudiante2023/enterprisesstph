@@ -1,4 +1,4 @@
-const CACHE_NAME = 'inspecciones-v6';
+const CACHE_NAME = 'inspecciones-v7';
 const ASSETS_TO_CACHE = [
     '/inspecciones',
     '/js/offline_queue.js',
