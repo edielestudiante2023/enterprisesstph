@@ -269,6 +269,15 @@
                 </div>
             </div>
 
+            <!-- SECCION 5A: Actividades Sin Respuesta del Cliente -->
+            <div class="card card-section">
+                <div class="card-header py-3" style="background:#ffc107;color:#333;"><i class="fas fa-hourglass-end me-2"></i>5A. Actividades Sin Respuesta del Cliente (>90 dias post-plazo)</div>
+                <div class="card-body">
+                    <textarea name="actividades_sin_respuesta" id="actividadesSinRespuesta" class="form-control" rows="5" placeholder="Se auto-pobla al seleccionar cliente..."><?= esc($informe['actividades_sin_respuesta'] ?? '') ?></textarea>
+                    <small class="text-muted">Actividades reclasificadas automaticamente por ausencia de gestion del cliente por mas de 90 dias despues del plazo.</small>
+                </div>
+            </div>
+
             <!-- SECCION 5B: Actividades del Plan de Trabajo Anual No Cerradas en el Periodo -->
             <div class="card card-section">
                 <div class="card-header py-3" style="background:#e74c3c;"><i class="fas fa-times-circle me-2"></i>5B. Actividades del Plan de Trabajo Anual No Cerradas en el Periodo (con motivo)</div>
@@ -815,6 +824,9 @@
                 // Actividades
                 if (!$('#actividadesAbiertas').val()) {
                     $('#actividadesAbiertas').val(d.actividades_abiertas);
+                }
+                if (!$('#actividadesSinRespuesta').val()) {
+                    $('#actividadesSinRespuesta').val(d.actividades_sin_respuesta || '');
                 }
                 if (!$('#actividadesCerradas').val()) {
                     $('#actividadesCerradas').val(d.actividades_cerradas_periodo);

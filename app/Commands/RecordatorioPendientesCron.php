@@ -160,18 +160,24 @@ class RecordatorioPendientesCron extends BaseCommand
         $sinFecha  = [];
 
         foreach ($pendientes as $p) {
-            if (empty($p['fecha_cierre'])) {
+            $fechaStr = $p['fecha_plazo'] ?? null;
+            if (empty($fechaStr) || $fechaStr === '0000-00-00') {
                 $sinFecha[] = $p;
+                continue;
+            }
+            $ts = strtotime($fechaStr);
+            if ($ts === false || $ts < strtotime('2000-01-01')) {
+                $sinFecha[] = $p;
+                continue;
+            }
+            $fechaPlazo = new \DateTime($fechaStr);
+            $diff = $hoy->diff($fechaPlazo);
+            $diasRestantes = $fechaPlazo < $hoy ? -$diff->days : $diff->days;
+            $p['dias_restantes'] = $diasRestantes;
+            if ($diasRestantes < 0) {
+                $vencidos[] = $p;
             } else {
-                $fechaCierre = new \DateTime($p['fecha_cierre']);
-                $diff = $hoy->diff($fechaCierre);
-                $diasRestantes = $fechaCierre < $hoy ? -$diff->days : $diff->days;
-                $p['dias_restantes'] = $diasRestantes;
-                if ($diasRestantes < 0) {
-                    $vencidos[] = $p;
-                } else {
-                    $proximos[] = $p;
-                }
+                $proximos[] = $p;
             }
         }
 
@@ -236,7 +242,7 @@ class RecordatorioPendientesCron extends BaseCommand
                         <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px;'>" . htmlspecialchars($p['nombre_cliente'] ?? '') . "</td>
                         <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px;'>" . htmlspecialchars($p['responsable'] ?? '') . "</td>
                         <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px;'>{$tarea}</td>
-                        <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px; text-align:center;'>" . date('d/m/Y', strtotime($p['fecha_cierre'])) . "</td>
+                        <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px; text-align:center;'>" . date('d/m/Y', strtotime($p['fecha_plazo'])) . "</td>
                         <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px; text-align:center; color:#dc3545; font-weight:bold;'>{$diasV} días</td>
                     </tr>";
             }
@@ -271,7 +277,7 @@ class RecordatorioPendientesCron extends BaseCommand
                         <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px;'>" . htmlspecialchars($p['nombre_cliente'] ?? '') . "</td>
                         <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px;'>" . htmlspecialchars($p['responsable'] ?? '') . "</td>
                         <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px;'>{$tarea}</td>
-                        <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px; text-align:center;'>" . date('d/m/Y', strtotime($p['fecha_cierre'])) . "</td>
+                        <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px; text-align:center;'>" . date('d/m/Y', strtotime($p['fecha_plazo'])) . "</td>
                         <td style='padding:6px 10px; border:1px solid #ddd; font-size:12px; text-align:center; color:{$colorDias}; font-weight:bold;'>{$dias} días</td>
                     </tr>";
             }

@@ -231,6 +231,16 @@
         </div>
         <?php endif; ?>
 
+        <!-- Actividades sin respuesta del cliente -->
+        <?php if (!empty($informe['actividades_sin_respuesta'])): ?>
+        <div class="card card-section">
+            <div class="card-header py-3" style="background:#ffc107;color:#333;"><i class="fas fa-hourglass-end me-2"></i>Actividades Sin Respuesta del Cliente</div>
+            <div class="card-body">
+                <div class="resumen-text"><?= nl2br(esc($informe['actividades_sin_respuesta'])) ?></div>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Documentos Cargados en el Periodo -->
         <?php if (!empty($documentosCargados)): ?>
         <div class="card card-section">

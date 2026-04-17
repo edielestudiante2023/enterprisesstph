@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetch('/inspecciones/pendientes/estado/' + id, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    body: JSON.stringify({ estado: 'CERRADA', fecha_cierre: fechaVisita })
+                    body: JSON.stringify({ estado: 'CERRADA', fecha_cierre_real: fechaVisita })
                 }).then(r => r.json()).then(data => {
                     if (data.success) {
                         self.disabled = true;

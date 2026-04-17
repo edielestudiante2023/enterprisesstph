@@ -497,6 +497,12 @@
 <div class="content-text"><?= nl2br(esc($informe['actividades_abiertas'])) ?></div>
 <?php endif; ?>
 
+<!-- ACTIVIDADES SIN RESPUESTA DEL CLIENTE -->
+<?php if (!empty($informe['actividades_sin_respuesta'])): ?>
+<div class="section-title" style="background:#ffc107;color:#333;">ACTIVIDADES SIN RESPUESTA DEL CLIENTE (>90 DIAS POST-PLAZO)</div>
+<div class="content-text"><?= nl2br(esc($informe['actividades_sin_respuesta'])) ?></div>
+<?php endif; ?>
+
 <!-- DOCUMENTOS CARGADOS EN EL PERIODO -->
 <?php if (!empty($documentosCargados)): ?>
 <div class="section-title">DOCUMENTOS CARGADOS EN EL PERIODO (<?= count($documentosCargados) ?>)</div>

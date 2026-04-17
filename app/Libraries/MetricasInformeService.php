@@ -185,6 +185,37 @@ class MetricasInformeService
     }
 
     /**
+     * Pendientes SIN RESPUESTA DEL CLIENTE del cliente (string formateado, paralelo a getActividadesAbiertas).
+     */
+    public function getActividadesSinRespuesta(int $idCliente, int $anio): string
+    {
+        $inicioAnio = "{$anio}-01-01 00:00:00";
+        $finAnio = "{$anio}-12-31 23:59:59";
+
+        $rows = $this->db->table('tbl_pendientes')
+            ->select('tarea_actividad, responsable, fecha_asignacion, fecha_plazo, fecha_reclasificacion_auto')
+            ->where('id_cliente', $idCliente)
+            ->where('estado', 'SIN RESPUESTA DEL CLIENTE')
+            ->where('fecha_asignacion >=', $inicioAnio)
+            ->where('fecha_asignacion <=', $finAnio)
+            ->orderBy('fecha_asignacion', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        if (empty($rows)) {
+            return 'No hay actividades sin respuesta en este ciclo.';
+        }
+
+        $lines = [];
+        foreach ($rows as $row) {
+            $fecha = !empty($row['fecha_asignacion']) ? date('d/m/Y', strtotime($row['fecha_asignacion'])) : 'S/F';
+            $plazo = !empty($row['fecha_plazo']) ? date('d/m/Y', strtotime($row['fecha_plazo'])) : 'S/P';
+            $lines[] = "- {$row['tarea_actividad']} (Resp: {$row['responsable']}, Desde: {$fecha}, Plazo: {$plazo})";
+        }
+        return implode("\n", $lines);
+    }
+
+    /**
      * Actividades PTA cerradas en el periodo.
      * Usa tbl_pta_cliente.fecha_cierre (fecha real de negocio).
      */
@@ -461,6 +492,7 @@ class MetricasInformeService
             'indicador_plan_trabajo'       => $this->calcularIndicadorPlanTrabajo($idCliente, $anio),
             'indicador_capacitacion'       => $this->calcularIndicadorCapacitacion($idCliente, $anio),
             'actividades_abiertas'         => $this->getActividadesAbiertas($idCliente, $anio),
+            'actividades_sin_respuesta'    => $this->getActividadesSinRespuesta($idCliente, $anio),
             'actividades_cerradas_periodo' => $this->formatActividadesCerradas($actividadesCerradas),
             'actividades_cerradas_raw'     => $actividadesCerradas,
             'enlace_dashboard'             => $this->getEnlaceDashboard($idCliente),

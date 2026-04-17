@@ -485,6 +485,7 @@ class InformeAvancesController extends BaseController
             'resumen_avance'               => $this->request->getPost('resumen_avance'),
             'observaciones'                => $this->request->getPost('observaciones'),
             'actividades_abiertas'         => $this->request->getPost('actividades_abiertas'),
+            'actividades_sin_respuesta'    => $this->request->getPost('actividades_sin_respuesta'),
             'actividades_cerradas_periodo' => $this->request->getPost('actividades_cerradas_periodo'),
             'actividades_no_cerradas_pta'  => $this->request->getPost('actividades_no_cerradas_pta'),
             'enlace_dashboard'             => $this->request->getPost('enlace_dashboard'),

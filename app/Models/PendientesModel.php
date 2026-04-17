@@ -14,6 +14,9 @@ class PendientesModel extends Model
         'tarea_actividad',
         'fecha_asignacion',
         'fecha_cierre',
+        'fecha_plazo',
+        'fecha_cierre_real',
+        'fecha_reclasificacion_auto',
         'estado',
         'conteo_dias',
         'estado_avance',
@@ -49,31 +52,43 @@ class PendientesModel extends Model
      */
     protected function calculateConteoDias(array $data)
     {
-        // Obtener los datos del pendiente
-        $fechaAsignacion = isset($data['data']['fecha_asignacion']) ? $data['data']['fecha_asignacion'] : null;
-        $fechaCierre = isset($data['data']['fecha_cierre']) ? $data['data']['fecha_cierre'] : null;
-        $estado = isset($data['data']['estado']) ? $data['data']['estado'] : null;
+        $fechaAsignacion   = $data['data']['fecha_asignacion']   ?? null;
+        $fechaCierreReal   = $data['data']['fecha_cierre_real']  ?? null;
+        $fechaCierreLegacy = $data['data']['fecha_cierre']       ?? null;
+        $estado            = $data['data']['estado']             ?? null;
 
-        if ($fechaAsignacion && $estado) {
-            $asignacionDate = new \DateTime($fechaAsignacion);
-            $currentDate = new \DateTime();
-
-            if ($estado === 'ABIERTA') {
-                // Calcula la diferencia en días entre fecha_asignacion y la fecha actual
-                $interval = $asignacionDate->diff($currentDate);
-                $conteoDias = $interval->days;
-            } elseif ($estado === 'CERRADA' && $fechaCierre) {
-                $cierreDate = new \DateTime($fechaCierre);
-                $interval = $asignacionDate->diff($cierreDate);
-                $conteoDias = $interval->days;
-            } else {
-                $conteoDias = 0;
-            }
-
-            $data['data']['conteo_dias'] = $conteoDias;
+        if (!$this->isValidDateString($fechaAsignacion) || !$estado) {
+            return $data;
         }
 
+        $asignacionDate = new \DateTime($fechaAsignacion);
+        $currentDate = new \DateTime();
+        $estadosCerrados = ['CERRADA', 'CERRADA POR FIN CONTRATO'];
+
+        if ($estado === 'ABIERTA') {
+            $conteoDias = $asignacionDate->diff($currentDate)->days;
+        } elseif (in_array($estado, $estadosCerrados, true)) {
+            $fechaFin = $this->isValidDateString($fechaCierreReal)
+                ? $fechaCierreReal
+                : ($this->isValidDateString($fechaCierreLegacy) ? $fechaCierreLegacy : null);
+            $conteoDias = $fechaFin
+                ? $asignacionDate->diff(new \DateTime($fechaFin))->days
+                : 0;
+        } else {
+            $conteoDias = 0;
+        }
+
+        $data['data']['conteo_dias'] = $conteoDias;
         return $data;
+    }
+
+    private function isValidDateString($s): bool
+    {
+        if (empty($s)) return false;
+        $s = (string) $s;
+        if ($s === '0000-00-00' || $s === '0000-00-00 00:00:00') return false;
+        $ts = strtotime($s);
+        return $ts !== false && $ts > strtotime('2000-01-01');
     }
 
     /**
