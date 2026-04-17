@@ -229,8 +229,8 @@ class NotificadorVisita
         return $this->db->table('v_tbl_pendientes')
             ->where('id_cliente', $idCliente)
             ->where('estado', 'ABIERTA')
-            ->where('fecha_cierre <=', $ultimoDia)
-            ->orderBy('fecha_cierre', 'ASC')
+            ->where('fecha_plazo <=', $ultimoDia)
+            ->orderBy('fecha_plazo', 'ASC')
             ->get()->getResultArray();
     }
 
@@ -339,14 +339,14 @@ class NotificadorVisita
         // SECCIÓN 2 — Compromisos/Pendientes
         if (!empty($pendientes)) {
             $html .= $this->sectionHeader('⏳ Compromisos Abiertos', '#f59e0b', '#fffbeb', count($pendientes));
-            $html .= $this->tableStart(['Tarea / Actividad', 'Responsable', 'Fecha Cierre', 'Días']);
+            $html .= $this->tableStart(['Tarea / Actividad', 'Responsable', 'Fecha Plazo', 'Días']);
             foreach ($pendientes as $row) {
                 $html .= $this->tableRow([
                     htmlspecialchars($row['tarea_actividad'] ?? ''),
                     htmlspecialchars($row['responsable'] ?? ''),
-                    $row['fecha_cierre'] ? date('d/m/Y', strtotime($row['fecha_cierre'])) : '',
+                    $row['fecha_plazo'] ? date('d/m/Y', strtotime($row['fecha_plazo'])) : '',
                     ($row['conteo_dias'] ?? '') . ' días',
-                ], $this->rowBg($row['fecha_cierre']));
+                ], $this->rowBg($row['fecha_plazo']));
             }
             $html .= $this->tableEnd();
         }
