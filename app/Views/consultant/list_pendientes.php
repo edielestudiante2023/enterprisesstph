@@ -546,7 +546,8 @@
         responsive: true,
         autoWidth: false,
         dom: 'Bfltip',
-        pageLength: 10,
+        pageLength: 50,
+        order: [[4, 'asc']], // Fecha Asignacion ASC (cronologico, mas viejos primero)
         buttons: [{
             extend: 'excelHtml5',
             text: 'Exportar a Excel',
