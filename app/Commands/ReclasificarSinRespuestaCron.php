@@ -75,6 +75,7 @@ class ReclasificarSinRespuestaCron extends BaseCommand
                     ->whereIn('id_pendientes', $ids)
                     ->update([
                         'estado' => 'SIN RESPUESTA DEL CLIENTE',
+                        'fecha_cierre' => date('Y-m-d'),
                         'fecha_reclasificacion_auto' => date('Y-m-d'),
                     ]);
                 $reclasificados += $n;

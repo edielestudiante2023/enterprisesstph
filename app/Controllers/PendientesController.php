@@ -75,14 +75,21 @@ class PendientesController extends Controller
 
         $updateData = [$field => $value];
 
+        // Auto-setear fecha_cierre = hoy cuando se cierra (si viene vacia)
+        $estadosCerrados = ['CERRADA', 'CERRADA POR FIN CONTRATO', 'SIN RESPUESTA DEL CLIENTE'];
+        if ($field === 'estado' && in_array($value, $estadosCerrados, true) && empty($pendiente['fecha_cierre'])) {
+            $updateData['fecha_cierre'] = date('Y-m-d');
+        }
+
         // Si el campo afecta el cálculo de 'conteo_dias'
         $fechaAsignacion = strtotime($pendiente['fecha_asignacion']);
         $estado = ($field === 'estado') ? $value : $pendiente['estado'];
-        $fechaCierre = ($field === 'fecha_cierre') ? $value : $pendiente['fecha_cierre'];
+        $fechaCierre = isset($updateData['fecha_cierre']) ? $updateData['fecha_cierre']
+            : (($field === 'fecha_cierre') ? $value : $pendiente['fecha_cierre']);
 
         if ($estado === 'ABIERTA') {
             $updateData['conteo_dias'] = (int) floor((time() - $fechaAsignacion) / (60 * 60 * 24));
-        } elseif (($estado === 'CERRADA' || $estado === 'SIN RESPUESTA DEL CLIENTE') && !empty($fechaCierre)) {
+        } elseif (in_array($estado, $estadosCerrados, true) && !empty($fechaCierre)) {
             $updateData['conteo_dias'] = (int) floor((strtotime($fechaCierre) - $fechaAsignacion) / (60 * 60 * 24));
         } else {
             $updateData['conteo_dias'] = 0;
