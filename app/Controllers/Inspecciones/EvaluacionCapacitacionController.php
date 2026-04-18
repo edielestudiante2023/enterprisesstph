@@ -42,32 +42,32 @@ class EvaluacionCapacitacionController extends BaseController
             ->orderBy('tbl_evaluaciones.created_at', 'DESC')
             ->findAll();
 
-        // Solo mostrar las que tienen respuestas, con estadísticas
-        $conRespuestas = [];
-        foreach ($evaluaciones as $e) {
+        // Mostrar todas las evaluaciones (incluso sin respuestas) con estadísticas
+        foreach ($evaluaciones as &$e) {
             $respuestas = $this->respuestaModel->where('id_evaluacion', $e['id'])->findAll();
             $e['total_respuestas'] = count($respuestas);
-            if ($e['total_respuestas'] === 0) continue;
-            $calificaciones  = array_column($respuestas, 'calificacion');
-            $e['promedio']   = round(array_sum($calificaciones) / count($calificaciones), 1);
-            $e['aprobados']  = count(array_filter($calificaciones, fn($c) => $c >= 70));
-            $conRespuestas[] = $e;
+            if ($e['total_respuestas'] > 0) {
+                $calificaciones = array_column($respuestas, 'calificacion');
+                $e['promedio']  = round(array_sum($calificaciones) / count($calificaciones), 1);
+                $e['aprobados'] = count(array_filter($calificaciones, fn($c) => $c >= 70));
+            } else {
+                $e['promedio']  = 0;
+                $e['aprobados'] = 0;
+            }
         }
+        unset($e);
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/evaluacion-capacitacion/list', ['evaluaciones' => $conRespuestas]),
+            'content' => view('inspecciones/evaluacion-capacitacion/list', ['evaluaciones' => $evaluaciones]),
             'title'   => 'Evaluaciones de Capacitación',
         ]);
     }
 
     public function create()
     {
-        $clientModel = new ClientModel();
-
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/evaluacion-capacitacion/form', [
                 'evaluacion' => null,
-                'clientes'   => $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll(),
                 'temas'      => $this->temaModel->getActivos(),
             ]),
             'title' => 'Nueva Evaluación',
@@ -78,15 +78,11 @@ class EvaluacionCapacitacionController extends BaseController
     {
         $token = bin2hex(random_bytes(20));
 
-        $idCliente = $this->request->getPost('id_cliente');
-        $idCliente = ($idCliente !== null && $idCliente !== '') ? (int) $idCliente : null;
-
         $this->evalModel->insert([
-            'id_cliente' => $idCliente,
+            'id_cliente' => null,
             'id_tema'    => (int) $this->request->getPost('id_tema') ?: null,
             'titulo'     => trim($this->request->getPost('titulo')) ?: 'Evaluación',
             'token'      => $token,
-            'estado'     => 'activo',
         ]);
         $id = $this->evalModel->getInsertID();
 
@@ -101,12 +97,9 @@ class EvaluacionCapacitacionController extends BaseController
             return redirect()->to('/inspecciones/evaluacion-capacitacion')->with('error', 'No encontrada');
         }
 
-        $clientModel = new ClientModel();
-
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/evaluacion-capacitacion/form', [
                 'evaluacion' => $evaluacion,
-                'clientes'   => $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll(),
                 'temas'      => $this->temaModel->getActivos(),
             ]),
             'title' => 'Editar Evaluación',
@@ -120,14 +113,9 @@ class EvaluacionCapacitacionController extends BaseController
             return redirect()->to('/inspecciones/evaluacion-capacitacion')->with('error', 'No encontrada');
         }
 
-        $idCliente = $this->request->getPost('id_cliente');
-        $idCliente = ($idCliente !== null && $idCliente !== '') ? (int) $idCliente : null;
-
         $this->evalModel->update($id, [
-            'id_cliente' => $idCliente,
             'id_tema'    => (int) $this->request->getPost('id_tema') ?: null,
             'titulo'     => trim($this->request->getPost('titulo')) ?: 'Evaluación',
-            'estado'     => $this->request->getPost('estado') ?: 'activo',
         ]);
 
         return redirect()->to('/inspecciones/evaluacion-capacitacion/view/' . $id)
@@ -203,20 +191,6 @@ class EvaluacionCapacitacionController extends BaseController
             ->with('msg', 'Evaluación eliminada.');
     }
 
-    public function toggleEstado(int $id)
-    {
-        $evaluacion = $this->evalModel->find($id);
-        if (!$evaluacion) {
-            return redirect()->to('/inspecciones/evaluacion-capacitacion')->with('error', 'No encontrada');
-        }
-
-        $nuevoEstado = $evaluacion['estado'] === 'activo' ? 'cerrado' : 'activo';
-        $this->evalModel->update($id, ['estado' => $nuevoEstado]);
-
-        $msg = $nuevoEstado === 'activo' ? 'Evaluación reabierta.' : 'Evaluación cerrada.';
-        return redirect()->to('/inspecciones/evaluacion-capacitacion/view/' . $id)->with('msg', $msg);
-    }
-
     // ── API para ReporteCapacitacion ─────────────────────────────────────────
 
     public function apiResultadosPorFecha()
@@ -262,7 +236,7 @@ class EvaluacionCapacitacionController extends BaseController
     {
         $evaluacion = $this->evalModel->where('token', $token)->first();
 
-        if (!$evaluacion || $evaluacion['estado'] === 'cerrado') {
+        if (!$evaluacion) {
             return view('inspecciones/evaluacion-capacitacion/cerrado');
         }
 
@@ -285,7 +259,7 @@ class EvaluacionCapacitacionController extends BaseController
     {
         $evaluacion = $this->evalModel->where('token', $token)->first();
 
-        if (!$evaluacion || $evaluacion['estado'] === 'cerrado') {
+        if (!$evaluacion) {
             return redirect()->to('/evaluar/' . $token);
         }
 

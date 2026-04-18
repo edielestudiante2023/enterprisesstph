@@ -1194,7 +1194,7 @@
     <!-- Capacitaciones -->
     <div class="section-title">Capacitaciones</div>
     <div class="card mb-3 border-0" style="background:#eefcf0; border-radius:12px; padding:10px 8px 6px;">
-        <div class="grid-inspecciones" style="grid-template-columns:repeat(3, minmax(0,1fr));">
+        <div class="grid-inspecciones" style="grid-template-columns:repeat(2, minmax(0,1fr));">
             <a href="<?= base_url('/inspecciones/asistencia-capacitacion') ?>" class="card-tipo">
                 <i class="fas fa-clipboard-list"></i>
                 <div><strong>Asistencia</strong></div>
@@ -1209,6 +1209,11 @@
                 <i class="fas fa-spell-check"></i>
                 <div><strong>Evaluaciones</strong></div>
                 <div class="count">(<?= $totalEvalInd ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/evaluacion-tema') ?>" class="card-tipo">
+                <i class="fas fa-list-check"></i>
+                <div><strong>Preguntas</strong></div>
+                <div class="count">(<?= $totalTemasEval ?>)</div>
             </a>
         </div>
     </div>

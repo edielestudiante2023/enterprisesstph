@@ -32,6 +32,7 @@ use App\Models\ReporteCapacitacionModel;
 use App\Models\PreparacionSimulacroModel;
 use App\Models\AsistenciaCapacitacionModel;
 use App\Models\EvaluacionCapacitacionModel;
+use App\Models\EvaluacionTemaModel;
 use App\Models\ProgramaLimpiezaModel;
 use App\Models\ProgramaResiduosModel;
 use App\Models\ProgramaPlagasModel;
@@ -183,6 +184,7 @@ class InspeccionesController extends BaseController
         $pendientesAsistInd = $asistIndModel->getAllPendientes();
 
         $totalEvalInd = (new EvaluacionCapacitacionModel())->countAllResults();
+        $totalTemasEval = (new EvaluacionTemaModel())->where('estado', 'activo')->countAllResults();
 
         $progLimpModel = new ProgramaLimpiezaModel();
         $totalProgLimp = $progLimpModel->where('estado', 'completo')->countAllResults();
@@ -307,6 +309,7 @@ class InspeccionesController extends BaseController
             'totalPrepSim'     => $totalPrepSim,
             'totalAsistInd'    => $totalAsistInd,
             'totalEvalInd'     => $totalEvalInd,
+            'totalTemasEval'   => $totalTemasEval,
             'totalProgLimp'    => $totalProgLimp,
             'totalProgRes'     => $totalProgRes,
             'totalProgPlag'    => $totalProgPlag,

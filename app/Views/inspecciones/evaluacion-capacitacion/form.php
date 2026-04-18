@@ -33,34 +33,12 @@ $action = $isEdit
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" style="font-size:13px;">Cliente (opcional)</label>
-                    <select name="id_cliente" id="selectCliente" class="form-select form-select-sm">
-                        <option value="">— Transversal (todos los clientes) —</option>
-                        <?php foreach ($clientes as $c): ?>
-                        <option value="<?= $c['id_cliente'] ?>" <?= ($evaluacion['id_cliente'] ?? '') == $c['id_cliente'] ? 'selected' : '' ?>>
-                            <?= esc($c['nombre_cliente']) ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="form-text" style="font-size:11px;">Dejar vacío si la evaluación aplica a todos los clientes.</div>
-                </div>
-
-                <div class="mb-3">
                     <label class="form-label" style="font-size:13px;">Título</label>
                     <input type="text" name="titulo" class="form-control form-control-sm"
                         value="<?= esc($evaluacion['titulo'] ?? 'Evaluación de Capacitación') ?>"
                         placeholder="Evaluación de Capacitación">
                 </div>
 
-                <?php if ($isEdit): ?>
-                <div class="mb-2">
-                    <label class="form-label" style="font-size:13px;">Estado</label>
-                    <select name="estado" class="form-select form-select-sm">
-                        <option value="activo" <?= ($evaluacion['estado'] ?? '') === 'activo' ? 'selected' : '' ?>>Activa (acepta respuestas)</option>
-                        <option value="cerrado" <?= ($evaluacion['estado'] ?? '') === 'cerrado' ? 'selected' : '' ?>>Cerrada</option>
-                    </select>
-                </div>
-                <?php endif; ?>
             </div>
         </div>
 
@@ -74,7 +52,6 @@ $action = $isEdit
 document.addEventListener('DOMContentLoaded', function() {
     function initSelect2() {
         if (typeof $ !== 'undefined' && $.fn.select2) {
-            $('#selectCliente').select2({ placeholder: 'Seleccionar...', width: '100%' });
             $('#selectTema').select2({ placeholder: 'Seleccionar tema...', width: '100%' });
         } else {
             setTimeout(initSelect2, 50);

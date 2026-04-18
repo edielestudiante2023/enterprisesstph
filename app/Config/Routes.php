@@ -1325,7 +1325,6 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('evaluacion-capacitacion/update/(:num)', 'EvaluacionCapacitacionController::update/$1');
     $routes->get('evaluacion-capacitacion/view/(:num)', 'EvaluacionCapacitacionController::view/$1');
     $routes->get('evaluacion-capacitacion/delete/(:num)', 'EvaluacionCapacitacionController::delete/$1');
-    $routes->get('evaluacion-capacitacion/toggle/(:num)', 'EvaluacionCapacitacionController::toggleEstado/$1');
     $routes->get('evaluacion-capacitacion/api-resultados-fecha', 'EvaluacionCapacitacionController::apiResultadosPorFecha');
 
     // Temas de Evaluación (gestión de preguntas dinámicas)

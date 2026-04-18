@@ -20,8 +20,12 @@
     </div>
     <?php else: ?>
     <?php foreach ($evaluaciones as $e): ?>
+    <?php
+        $sinRespuestas = $e['total_respuestas'] === 0;
+        $borderColor   = $sinRespuestas ? '#cbd5e1' : ($e['promedio'] >= 70 ? '#28a745' : '#dc3545');
+    ?>
     <a href="<?= base_url('/inspecciones/evaluacion-capacitacion/view/') ?><?= $e['id'] ?>" class="text-decoration-none">
-        <div class="card mb-2" style="border-left:4px solid <?= $e['promedio'] >= 70 ? '#28a745' : '#dc3545' ?>;">
+        <div class="card mb-2" style="border-left:4px solid <?= $borderColor ?>;">
             <div class="card-body py-2 px-3">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
@@ -33,9 +37,11 @@
                         </div>
                     </div>
                     <div class="text-end">
-                        <span class="badge bg-<?= $e['estado'] === 'activo' ? 'success' : 'secondary' ?>" style="font-size:10px;">
-                            <?= $e['estado'] === 'activo' ? 'Activa' : 'Cerrada' ?>
-                        </span>
+                        <?php if ($sinRespuestas): ?>
+                        <div style="font-size:11px; color:#94a3b8; margin-top:3px;">
+                            <i class="fas fa-hourglass-half"></i> Sin respuestas
+                        </div>
+                        <?php else: ?>
                         <div style="font-size:12px; color:#888; margin-top:3px;">
                             <i class="fas fa-users"></i> <?= $e['total_respuestas'] ?> resp.
                         </div>
@@ -47,6 +53,7 @@
                                 <?= $e['aprobados'] ?>/<?= $e['total_respuestas'] ?> aprobados
                             </span>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

@@ -1,7 +1,6 @@
 <?php
 $aprobadosTotal = array_filter($respuestas, fn($r) => $r['calificacion'] >= 70);
 $evalUrl        = base_url('evaluar/' . $evaluacion['token']);
-$esActiva       = $evaluacion['estado'] === 'activo';
 ?>
 <div class="container-fluid px-3">
     <div class="d-flex align-items-center gap-2 mt-2 mb-3">
@@ -16,17 +15,16 @@ $esActiva       = $evaluacion['estado'] === 'activo';
     <!-- INFO + ACCIONES -->
     <div class="card mb-3">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <div style="font-size:13px; color:#888;"><?= esc($evaluacion['titulo']) ?></div>
-                    <div style="font-size:11px; color:#aaa;">Creada <?= date('d/m/Y', strtotime($evaluacion['created_at'])) ?></div>
-                </div>
-                <span class="badge bg-<?= $esActiva ? 'success' : 'secondary' ?>"><?= $esActiva ? 'Activa' : 'Cerrada' ?></span>
+            <div>
+                <div style="font-size:13px; color:#888;"><?= esc($evaluacion['titulo']) ?></div>
+                <div style="font-size:11px; color:#aaa;">Creada <?= date('d/m/Y', strtotime($evaluacion['created_at'])) ?></div>
             </div>
             <div class="d-flex gap-2 mt-2 flex-wrap">
                 <a href="<?= base_url('/inspecciones/evaluacion-capacitacion/edit/') ?><?= $evaluacion['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i> Editar</a>
-                <a href="<?= base_url('/inspecciones/evaluacion-capacitacion/toggle/') ?><?= $evaluacion['id'] ?>" class="btn btn-sm btn-outline-<?= $esActiva ? 'warning' : 'success' ?>">
-                    <i class="fas fa-<?= $esActiva ? 'lock' : 'unlock' ?>"></i> <?= $esActiva ? 'Cerrar' : 'Reabrir' ?>
+                <a href="<?= base_url('/inspecciones/evaluacion-capacitacion/delete/') ?><?= $evaluacion['id'] ?>"
+                   class="btn btn-sm btn-outline-danger"
+                   onclick="return confirm('¿Eliminar esta evaluación? Se borrarán todas sus respuestas y el QR dejará de funcionar. Esta acción es irreversible.');">
+                    <i class="fas fa-trash"></i> Eliminar
                 </a>
             </div>
         </div>
