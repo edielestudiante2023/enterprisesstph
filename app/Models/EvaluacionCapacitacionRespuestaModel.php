@@ -4,7 +4,7 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class EvaluacionInduccionRespuestaModel extends Model
+class EvaluacionCapacitacionRespuestaModel extends Model
 {
     protected $table      = 'tbl_evaluacion_respuestas';
     protected $primaryKey = 'id';

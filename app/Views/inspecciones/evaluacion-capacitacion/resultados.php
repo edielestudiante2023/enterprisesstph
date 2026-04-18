@@ -5,7 +5,7 @@ $reprobados  = array_filter($respuestas, fn($r) => $r['calificacion'] < 70);
 <div class="container-fluid px-3">
     <div class="d-flex align-items-center gap-2 mb-3 mt-2">
         <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i></a>
-        <h6 class="mb-0" style="font-size:15px; font-weight:700;">Resultados Evaluación Inducción</h6>
+        <h6 class="mb-0" style="font-size:15px; font-weight:700;">Resultados Evaluación</h6>
     </div>
 
     <?php if (session()->getFlashdata('msg')): ?>

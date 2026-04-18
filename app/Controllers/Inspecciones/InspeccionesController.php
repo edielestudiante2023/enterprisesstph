@@ -11,6 +11,7 @@ use App\Models\InspeccionAscensoresModel;
 use App\Models\InspeccionPiscinasModel;
 use App\Models\InspeccionPiscineroModel;
 use App\Models\InspeccionBotiquinModel;
+use App\Models\InspeccionProductosQuimicosModel;
 use App\Models\InspeccionGabineteModel;
 use App\Models\InspeccionComunicacionModel;
 use App\Models\InspeccionRecursosSeguridadModel;
@@ -29,8 +30,8 @@ use App\Models\DotacionToderoModel;
 use App\Models\AuditoriaZonaResiduosModel;
 use App\Models\ReporteCapacitacionModel;
 use App\Models\PreparacionSimulacroModel;
-use App\Models\AsistenciaInduccionModel;
-use App\Models\EvaluacionInduccionModel;
+use App\Models\AsistenciaCapacitacionModel;
+use App\Models\EvaluacionCapacitacionModel;
 use App\Models\ProgramaLimpiezaModel;
 use App\Models\ProgramaResiduosModel;
 use App\Models\ProgramaPlagasModel;
@@ -100,6 +101,10 @@ class InspeccionesController extends BaseController
             ->where('tbl_inspeccion_botiquin.estado', 'borrador')
             ->orderBy('tbl_inspeccion_botiquin.updated_at', 'DESC')
             ->findAll();
+
+        $productosQuimicosModel = new InspeccionProductosQuimicosModel();
+        $totalProductosQuimicos = $productosQuimicosModel->where('estado', 'completo')->countAllResults();
+        $pendientesProductosQuimicos = $productosQuimicosModel->getAllPendientes();
 
         $gabineteModel = new InspeccionGabineteModel();
         $totalGabinetes = $gabineteModel->where('estado', 'completo')->countAllResults();
@@ -173,11 +178,11 @@ class InspeccionesController extends BaseController
         $totalPrepSim = $prepSimModel->where('estado', 'completo')->countAllResults();
         $pendientesPrepSim = $prepSimModel->getAllPendientes();
 
-        $asistIndModel = new AsistenciaInduccionModel();
+        $asistIndModel = new AsistenciaCapacitacionModel();
         $totalAsistInd = $asistIndModel->where('estado', 'completo')->countAllResults();
         $pendientesAsistInd = $asistIndModel->getAllPendientes();
 
-        $totalEvalInd = (new EvaluacionInduccionModel())->countAllResults();
+        $totalEvalInd = (new EvaluacionCapacitacionModel())->countAllResults();
 
         $progLimpModel = new ProgramaLimpiezaModel();
         $totalProgLimp = $progLimpModel->where('estado', 'completo')->countAllResults();
@@ -248,6 +253,7 @@ class InspeccionesController extends BaseController
             'pendientesPiscinas' => $pendientesPiscinas,
             'pendientesPiscinero' => $pendientesPiscinero,
             'pendientesBotiquin' => $pendientesBotiquin,
+            'pendientesProductosQuimicos' => $pendientesProductosQuimicos,
             'pendientesGabinetes' => $pendientesGabinetes,
             'pendientesComunicaciones' => $pendientesComunicaciones,
             'pendientesRecursosSeg' => $pendientesRecursosSeg,
@@ -283,6 +289,7 @@ class InspeccionesController extends BaseController
             'totalPiscinas'    => $totalPiscinas,
             'totalPiscinero'   => $totalPiscinero,
             'totalBotiquin'    => $totalBotiquin,
+            'totalProductosQuimicos' => $totalProductosQuimicos,
             'totalGabinetes'   => $totalGabinetes,
             'totalComunicaciones' => $totalComunicaciones,
             'totalRecursosSeg' => $totalRecursosSeg,

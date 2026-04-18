@@ -97,9 +97,9 @@ $idInspeccion = $inspeccion['id'];
 <script src="/js/offline_queue.js"></script>
 <script>
 const INSPECCION_ID = <?= $idInspeccion ?>;
-const STORE_ASISTENTE_URL = '<?= base_url('/inspecciones/asistencia-induccion/store-asistente/') ?>' + INSPECCION_ID;
-const DELETE_ASISTENTE_URL = '<?= base_url('/inspecciones/asistencia-induccion/delete-asistente/') ?>';
-const FINALIZAR_URL = '<?= base_url('/inspecciones/asistencia-induccion/finalizar/') ?>' + INSPECCION_ID;
+const STORE_ASISTENTE_URL = '<?= base_url('/inspecciones/asistencia-capacitacion/store-asistente/') ?>' + INSPECCION_ID;
+const DELETE_ASISTENTE_URL = '<?= base_url('/inspecciones/asistencia-capacitacion/delete-asistente/') ?>';
+const FINALIZAR_URL = '<?= base_url('/inspecciones/asistencia-capacitacion/finalizar/') ?>' + INSPECCION_ID;
 const CSRFNAME = '<?= csrf_token() ?>';
 let CSRFHASH = '<?= csrf_hash() ?>';
 let pendingOfflineCount = 0;
@@ -346,7 +346,7 @@ function iniciarFinalizacion() {
             fetch(FINALIZAR_URL, { method: 'POST', body: formData })
                 .then(r => {
                     // finalizar hace redirect, seguimos la URL
-                    window.location.href = '<?= base_url('/inspecciones/asistencia-induccion/view/') ?>' + INSPECCION_ID;
+                    window.location.href = '<?= base_url('/inspecciones/asistencia-capacitacion/view/') ?>' + INSPECCION_ID;
                 });
         });
     });

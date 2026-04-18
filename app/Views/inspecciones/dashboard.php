@@ -12,6 +12,7 @@
         + count($pendientesSenalizacion ?? [])
         + count($pendientesExtintores ?? [])
         + count($pendientesBotiquin ?? [])
+        + count($pendientesProductosQuimicos ?? [])
         + count($pendientesGabinetes ?? [])
         + count($pendientesComunicaciones ?? [])
         + count($pendientesRecursosSeg ?? [])
@@ -307,6 +308,37 @@
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/botiquin/delete/') ?><?= $bot['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes productos químicos -->
+    <?php if (!empty($pendientesProductosQuimicos)): ?>
+    <?php foreach ($pendientesProductosQuimicos as $pq): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <i class="fas fa-edit text-warning"></i>
+                        Productos Químicos - <?= esc($pq['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= date('d/m/Y', strtotime($pq['fecha_inspeccion'])) ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-1">
+                <a href="<?= base_url('/inspecciones/productos-quimicos/edit/') ?><?= $pq['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/productos-quimicos/delete/') ?><?= $pq['id'] ?>')">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -744,10 +776,10 @@
                 </div>
             </div>
             <div class="mt-2 d-flex gap-1">
-                <a href="<?= base_url('/inspecciones/asistencia-induccion/edit/') ?><?= $ai['id'] ?>" class="btn btn-sm btn-outline-dark">
+                <a href="<?= base_url('/inspecciones/asistencia-capacitacion/edit/') ?><?= $ai['id'] ?>" class="btn btn-sm btn-outline-dark">
                     Continuar editando <i class="fas fa-arrow-right ms-1"></i>
                 </a>
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/asistencia-induccion/delete/') ?><?= $ai['id'] ?>')">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/asistencia-capacitacion/delete/') ?><?= $ai['id'] ?>')">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -1163,7 +1195,7 @@
     <div class="section-title">Capacitaciones</div>
     <div class="card mb-3 border-0" style="background:#eefcf0; border-radius:12px; padding:10px 8px 6px;">
         <div class="grid-inspecciones" style="grid-template-columns:repeat(3, minmax(0,1fr));">
-            <a href="<?= base_url('/inspecciones/asistencia-induccion') ?>" class="card-tipo">
+            <a href="<?= base_url('/inspecciones/asistencia-capacitacion') ?>" class="card-tipo">
                 <i class="fas fa-clipboard-list"></i>
                 <div><strong>Asistencia</strong></div>
                 <div class="count">(<?= $totalAsistInd ?>)</div>
@@ -1173,7 +1205,7 @@
                 <div><strong>Capacitaciones</strong></div>
                 <div class="count">(<?= $totalRepCap ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/evaluacion-induccion') ?>" class="card-tipo">
+            <a href="<?= base_url('/inspecciones/evaluacion-capacitacion') ?>" class="card-tipo">
                 <i class="fas fa-spell-check"></i>
                 <div><strong>Evaluaciones</strong></div>
                 <div class="count">(<?= $totalEvalInd ?>)</div>
@@ -1227,7 +1259,12 @@
                 <div><strong>Señalización</strong></div>
                 <div class="count">(<?= $totalSenalizacion ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/inventario-choque') ?>" class="card-tipo" style="grid-column:span 2;">
+            <a href="<?= base_url('/inspecciones/productos-quimicos') ?>" class="card-tipo">
+                <i class="fas fa-flask"></i>
+                <div><strong>Prod. Químicos</strong></div>
+                <div class="count">(<?= $totalProductosQuimicos ?? 0 ?>)</div>
+            </a>
+            <a href="<?= base_url('/inspecciones/inventario-choque') ?>" class="card-tipo">
                 <i class="fas fa-clipboard-check"></i>
                 <div><strong>Inventario Fotos de Choque</strong></div>
                 <div class="count">Checklist en sitio</div>

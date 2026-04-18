@@ -1,7 +1,7 @@
 <div class="container-fluid px-3">
     <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
-        <h6 class="mb-0" style="font-size:15px; font-weight:700;">Evaluaciones Inducción SST</h6>
-        <a href="<?= base_url('/inspecciones/evaluacion-induccion/create') ?>" class="btn btn-sm btn-pwa">
+        <h6 class="mb-0" style="font-size:15px; font-weight:700;">Evaluaciones de Capacitación</h6>
+        <a href="<?= base_url('/inspecciones/evaluacion-capacitacion/create') ?>" class="btn btn-sm btn-pwa">
             <i class="fas fa-plus"></i> Nueva
         </a>
     </div>
@@ -20,7 +20,7 @@
     </div>
     <?php else: ?>
     <?php foreach ($evaluaciones as $e): ?>
-    <a href="<?= base_url('/inspecciones/evaluacion-induccion/view/') ?><?= $e['id'] ?>" class="text-decoration-none">
+    <a href="<?= base_url('/inspecciones/evaluacion-capacitacion/view/') ?><?= $e['id'] ?>" class="text-decoration-none">
         <div class="card mb-2" style="border-left:4px solid <?= $e['promedio'] >= 70 ? '#28a745' : '#dc3545' ?>;">
             <div class="card-body py-2 px-3">
                 <div class="d-flex justify-content-between align-items-start">

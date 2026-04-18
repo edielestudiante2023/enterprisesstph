@@ -3,8 +3,8 @@
 namespace App\Controllers\Inspecciones;
 
 use App\Controllers\BaseController;
-use App\Models\AsistenciaInduccionModel;
-use App\Models\AsistenciaInduccionAsistenteModel;
+use App\Models\AsistenciaCapacitacionModel;
+use App\Models\AsistenciaCapacitacionAsistenteModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
@@ -13,12 +13,12 @@ use Dompdf\Dompdf;
 use App\Traits\AutosaveJsonTrait;
 use App\Traits\ImagenCompresionTrait;
 
-class AsistenciaInduccionController extends BaseController
+class AsistenciaCapacitacionController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
-    protected AsistenciaInduccionModel $inspeccionModel;
+    protected AsistenciaCapacitacionModel $inspeccionModel;
 
     public const TIPOS_CHARLA = [
         'induccion_reinduccion' => 'Induccion / Reinduccion',
@@ -30,34 +30,34 @@ class AsistenciaInduccionController extends BaseController
 
     public function __construct()
     {
-        $this->inspeccionModel = new AsistenciaInduccionModel();
+        $this->inspeccionModel = new AsistenciaCapacitacionModel();
     }
 
     public function list()
     {
         $inspecciones = $this->inspeccionModel
-            ->select('tbl_asistencia_induccion.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
-            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_asistencia_induccion.id_cliente', 'left')
-            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_asistencia_induccion.id_consultor', 'left')
-            ->orderBy('tbl_asistencia_induccion.fecha_sesion', 'DESC')
+            ->select('tbl_asistencia_capacitacion.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_asistencia_capacitacion.id_cliente', 'left')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_asistencia_capacitacion.id_consultor', 'left')
+            ->orderBy('tbl_asistencia_capacitacion.fecha_sesion', 'DESC')
             ->findAll();
 
         $data = [
-            'title'        => 'Asistencia Induccion',
+            'title'        => 'Asistencia Capacitación',
             'inspecciones' => $inspecciones,
             'tiposCharla'  => self::TIPOS_CHARLA,
         ];
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/asistencia-induccion/list', $data),
-            'title'   => 'Asistencia Induccion',
+            'content' => view('inspecciones/asistencia-capacitacion/list', $data),
+            'title'   => 'Asistencia Capacitación',
         ]);
     }
 
     public function create($idCliente = null)
     {
         $data = [
-            'title'       => 'Nueva Asistencia Induccion',
+            'title'       => 'Nueva Asistencia',
             'inspeccion'  => null,
             'asistentes'  => [],
             'idCliente'   => $idCliente,
@@ -65,14 +65,14 @@ class AsistenciaInduccionController extends BaseController
         ];
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/asistencia-induccion/form', $data),
+            'content' => view('inspecciones/asistencia-capacitacion/form', $data),
             'title'   => 'Nueva Asistencia',
         ]);
     }
 
     public function store()
     {
-        $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_sesion', '/inspecciones/asistencia-induccion/edit/');
+        $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_sesion', '/inspecciones/asistencia-capacitacion/edit/');
         if ($existing) return $existing;
 
         $userId = session()->get('user_id');
@@ -99,11 +99,11 @@ class AsistenciaInduccionController extends BaseController
         }
 
         if ($this->request->getPost('accion') === 'borrador') {
-            return redirect()->to('/inspecciones/asistencia-induccion')
+            return redirect()->to('/inspecciones/asistencia-capacitacion')
                 ->with('msg', 'Borrador guardado.');
         }
 
-        return redirect()->to('/inspecciones/asistencia-induccion/registrar/' . $idInspeccion)
+        return redirect()->to('/inspecciones/asistencia-capacitacion/registrar/' . $idInspeccion)
             ->with('msg', 'Asistencia creada. Registra los asistentes uno a uno.');
     }
 
@@ -111,12 +111,12 @@ class AsistenciaInduccionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
-            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'Registro no encontrado');
+            return redirect()->to('/inspecciones/asistencia-capacitacion')->with('error', 'Registro no encontrado');
         }
-        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel = new AsistenciaCapacitacionAsistenteModel();
 
         $data = [
-            'title'       => 'Editar Asistencia Induccion',
+            'title'       => 'Editar Asistencia',
             'inspeccion'  => $inspeccion,
             'asistentes'  => $asistenteModel->getByAsistencia($id),
             'idCliente'   => $inspeccion['id_cliente'],
@@ -124,7 +124,7 @@ class AsistenciaInduccionController extends BaseController
         ];
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/asistencia-induccion/form', $data),
+            'content' => view('inspecciones/asistencia-capacitacion/form', $data),
             'title'   => 'Editar Asistencia',
         ]);
     }
@@ -136,7 +136,7 @@ class AsistenciaInduccionController extends BaseController
             if ($this->isAutosaveRequest()) {
                 return $this->autosaveJsonError('No encontrada', 404);
             }
-            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No se puede editar');
+            return redirect()->to('/inspecciones/asistencia-capacitacion')->with('error', 'No se puede editar');
         }
 
         $data = $this->getInspeccionPostData();
@@ -149,11 +149,11 @@ class AsistenciaInduccionController extends BaseController
         }
 
         if ($this->request->getPost('accion') === 'borrador') {
-            return redirect()->to('/inspecciones/asistencia-induccion')
+            return redirect()->to('/inspecciones/asistencia-capacitacion')
                 ->with('msg', 'Borrador guardado.');
         }
 
-        return redirect()->to('/inspecciones/asistencia-induccion/registrar/' . $id)
+        return redirect()->to('/inspecciones/asistencia-capacitacion/registrar/' . $id)
             ->with('msg', 'Asistencia actualizada.');
     }
 
@@ -161,15 +161,15 @@ class AsistenciaInduccionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
-            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No encontrado');
+            return redirect()->to('/inspecciones/asistencia-capacitacion')->with('error', 'No encontrado');
         }
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
-        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel = new AsistenciaCapacitacionAsistenteModel();
 
         $data = [
-            'title'       => 'Ver Asistencia Induccion',
+            'title'       => 'Ver Asistencia',
             'inspeccion'  => $inspeccion,
             'cliente'     => $clientModel->find($inspeccion['id_cliente']),
             'consultor'   => $consultantModel->find($inspeccion['id_consultor']),
@@ -178,7 +178,7 @@ class AsistenciaInduccionController extends BaseController
         ];
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/asistencia-induccion/view', $data),
+            'content' => view('inspecciones/asistencia-capacitacion/view', $data),
             'title'   => 'Ver Asistencia',
         ]);
     }
@@ -190,16 +190,16 @@ class AsistenciaInduccionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
-            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No encontrado');
+            return redirect()->to('/inspecciones/asistencia-capacitacion')->with('error', 'No encontrado');
         }
-        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel = new AsistenciaCapacitacionAsistenteModel();
         $data = [
             'title'      => 'Registrar Asistentes',
             'inspeccion' => $inspeccion,
             'asistentes' => $asistenteModel->getByAsistencia($id),
         ];
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/asistencia-induccion/registrar', $data),
+            'content' => view('inspecciones/asistencia-capacitacion/registrar', $data),
             'title'   => 'Registrar Asistentes',
         ]);
     }
@@ -234,7 +234,7 @@ class AsistenciaInduccionController extends BaseController
             $firmaPath = $dir . $fileName;
         }
 
-        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel = new AsistenciaCapacitacionAsistenteModel();
         $asistenteModel->insert([
             'id_asistencia' => $id,
             'nombre'        => $nombre,
@@ -258,7 +258,7 @@ class AsistenciaInduccionController extends BaseController
      */
     public function deleteAsistente($idAsistente)
     {
-        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel = new AsistenciaCapacitacionAsistenteModel();
         $asistente = $asistenteModel->find($idAsistente);
         if (!$asistente) {
             return $this->response->setJSON(['success' => false]);
@@ -281,10 +281,10 @@ class AsistenciaInduccionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
-            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No encontrado');
+            return redirect()->to('/inspecciones/asistencia-capacitacion')->with('error', 'No encontrado');
         }
 
-        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel = new AsistenciaCapacitacionAsistenteModel();
 
         $data = [
             'title'      => 'Firmas Asistencia',
@@ -293,14 +293,14 @@ class AsistenciaInduccionController extends BaseController
         ];
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/asistencia-induccion/firmas', $data),
+            'content' => view('inspecciones/asistencia-capacitacion/firmas', $data),
             'title'   => 'Firmas Asistencia',
         ]);
     }
 
     public function guardarFirma($idAsistente)
     {
-        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel = new AsistenciaCapacitacionAsistenteModel();
         $asistente = $asistenteModel->find($idAsistente);
         if (!$asistente) {
             return $this->response->setJSON(['success' => false, 'error' => 'No encontrado']);
@@ -338,18 +338,18 @@ class AsistenciaInduccionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
-            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No encontrado');
+            return redirect()->to('/inspecciones/asistencia-capacitacion')->with('error', 'No encontrado');
         }
 
         // Validar que todos los asistentes hayan firmado
-        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel = new AsistenciaCapacitacionAsistenteModel();
         $asistentes = $asistenteModel->getByAsistencia($id);
         if (empty($asistentes)) {
-            return redirect()->to('/inspecciones/asistencia-induccion/edit/' . $id)->with('error', 'Debe agregar al menos un asistente antes de finalizar.');
+            return redirect()->to('/inspecciones/asistencia-capacitacion/edit/' . $id)->with('error', 'Debe agregar al menos un asistente antes de finalizar.');
         }
         $sinFirma = array_filter($asistentes, fn($a) => empty($a['firma']));
         if (!empty($sinFirma)) {
-            return redirect()->to('/inspecciones/asistencia-induccion/firmas/' . $id)->with('error', 'Todos los asistentes deben firmar antes de finalizar. Faltan ' . count($sinFirma) . ' firma(s).');
+            return redirect()->to('/inspecciones/asistencia-capacitacion/firmas/' . $id)->with('error', 'Todos los asistentes deben firmar antes de finalizar. Faltan ' . count($sinFirma) . ' firma(s).');
         }
 
         $result = $this->generarPdfInterno($id);
@@ -403,7 +403,7 @@ class AsistenciaInduccionController extends BaseController
             $msg .= ' (Email no enviado: ' . $emailResult['error'] . ')';
         }
 
-        return redirect()->to('/inspecciones/asistencia-induccion/view/' . $id)
+        return redirect()->to('/inspecciones/asistencia-capacitacion/view/' . $id)
             ->with('msg', $msg);
     }
 
@@ -411,7 +411,7 @@ class AsistenciaInduccionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
-            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No encontrado');
+            return redirect()->to('/inspecciones/asistencia-capacitacion')->with('error', 'No encontrado');
         }
 
         // Serve cached PDF if it already exists
@@ -438,7 +438,7 @@ class AsistenciaInduccionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion || $inspeccion['tipo_charla'] !== 'induccion_reinduccion') {
-            return redirect()->to('/inspecciones/asistencia-induccion/view/' . $id)->with('error', 'Este registro no tiene PDF de responsabilidades.');
+            return redirect()->to('/inspecciones/asistencia-capacitacion/view/' . $id)->with('error', 'Este registro no tiene PDF de responsabilidades.');
         }
 
         if (!empty($inspeccion['ruta_pdf_responsabilidades']) && file_exists(FCPATH . $inspeccion['ruta_pdf_responsabilidades'])) {
@@ -463,10 +463,10 @@ class AsistenciaInduccionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
-            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'No encontrado');
+            return redirect()->to('/inspecciones/asistencia-capacitacion')->with('error', 'No encontrado');
         }
         // Delete attendee firmas
-        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel = new AsistenciaCapacitacionAsistenteModel();
         $asistentes = $asistenteModel->getByAsistencia($id);
         foreach ($asistentes as $a) {
             if (!empty($a['firma']) && file_exists(FCPATH . $a['firma'])) {
@@ -486,7 +486,7 @@ class AsistenciaInduccionController extends BaseController
 
         $this->inspeccionModel->delete($id);
 
-        return redirect()->to('/inspecciones/asistencia-induccion')->with('msg', 'Registro eliminado');
+        return redirect()->to('/inspecciones/asistencia-capacitacion')->with('msg', 'Registro eliminado');
     }
 
     // ===== PRIVATE METHODS =====
@@ -495,7 +495,7 @@ class AsistenciaInduccionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion || ($inspeccion['estado'] ?? '') !== 'completo') {
-            return redirect()->to('/inspecciones/asistencia-induccion')->with('error', 'Solo se puede regenerar un registro finalizado.');
+            return redirect()->to('/inspecciones/asistencia-capacitacion')->with('error', 'Solo se puede regenerar un registro finalizado.');
         }
 
         $result = $this->generarPdfInterno($id);
@@ -515,7 +515,7 @@ class AsistenciaInduccionController extends BaseController
             $this->uploadToReportes($inspeccion, $result['responsabilidades'], 35, 'asist_ind_resp_id:');
         }
 
-        return redirect()->to("/inspecciones/asistencia-induccion/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
+        return redirect()->to("/inspecciones/asistencia-capacitacion/view/{$id}")->with('msg', 'PDF regenerado exitosamente.');
     }
 
     private function getInspeccionPostData(): array
@@ -536,7 +536,7 @@ class AsistenciaInduccionController extends BaseController
 
     private function saveAsistentes(int $idInspeccion, array $firmasPrevias = []): void
     {
-        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel = new AsistenciaCapacitacionAsistenteModel();
 
         $nombres = $this->request->getPost('asistente_nombre');
         $cedulas = $this->request->getPost('asistente_cedula');
@@ -568,7 +568,7 @@ class AsistenciaInduccionController extends BaseController
         $inspeccion = $this->inspeccionModel->find($id);
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
-        $asistenteModel = new AsistenciaInduccionAsistenteModel();
+        $asistenteModel = new AsistenciaCapacitacionAsistenteModel();
         $cliente = $clientModel->find($inspeccion['id_cliente']);
         $consultor = $consultantModel->find($inspeccion['id_consultor']);
 
@@ -610,7 +610,7 @@ class AsistenciaInduccionController extends BaseController
 
         // PDF 1: FT-SST-005 (always)
         $data['pdfType'] = 'asistencia';
-        $html1 = view('inspecciones/asistencia-induccion/pdf', $data);
+        $html1 = view('inspecciones/asistencia-capacitacion/pdf', $data);
 
         $options1 = new \Dompdf\Options();
         $options1->set('isRemoteEnabled', true);
@@ -634,7 +634,7 @@ class AsistenciaInduccionController extends BaseController
         $pdfPath2 = null;
         if ($inspeccion['tipo_charla'] === 'induccion_reinduccion') {
             $data['pdfType'] = 'responsabilidades';
-            $html2 = view('inspecciones/asistencia-induccion/pdf', $data);
+            $html2 = view('inspecciones/asistencia-capacitacion/pdf', $data);
 
             $options2 = new \Dompdf\Options();
             $options2->set('isRemoteEnabled', true);
@@ -664,7 +664,7 @@ class AsistenciaInduccionController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion || $inspeccion['estado'] !== 'completo' || empty($inspeccion['ruta_pdf_asistencia'])) {
-            return redirect()->to("/inspecciones/asistencia-induccion/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
+            return redirect()->to("/inspecciones/asistencia-capacitacion/view/{$id}")->with('error', 'Debe estar finalizado con PDF para enviar email.');
         }
 
         $extraAttachments = [];
@@ -687,9 +687,9 @@ class AsistenciaInduccionController extends BaseController
         );
 
         if ($result['success']) {
-            return redirect()->to("/inspecciones/asistencia-induccion/view/{$id}")->with('msg', $result['message']);
+            return redirect()->to("/inspecciones/asistencia-capacitacion/view/{$id}")->with('msg', $result['message']);
         }
-        return redirect()->to("/inspecciones/asistencia-induccion/view/{$id}")->with('error', $result['error']);
+        return redirect()->to("/inspecciones/asistencia-capacitacion/view/{$id}")->with('error', $result['error']);
     }
 
     private function uploadToReportes(array $inspeccion, string $pdfPath, int $idDetailReport, string $tag): bool

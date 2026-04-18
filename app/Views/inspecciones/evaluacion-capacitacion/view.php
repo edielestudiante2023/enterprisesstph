@@ -5,7 +5,7 @@ $esActiva       = $evaluacion['estado'] === 'activo';
 ?>
 <div class="container-fluid px-3">
     <div class="d-flex align-items-center gap-2 mt-2 mb-3">
-        <a href="<?= base_url('/inspecciones/evaluacion-induccion') ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i></a>
+        <a href="<?= base_url('/inspecciones/evaluacion-capacitacion') ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i></a>
         <h6 class="mb-0" style="font-size:15px; font-weight:700;"><?= esc($evaluacion['titulo']) ?></h6>
     </div>
 
@@ -24,8 +24,8 @@ $esActiva       = $evaluacion['estado'] === 'activo';
                 <span class="badge bg-<?= $esActiva ? 'success' : 'secondary' ?>"><?= $esActiva ? 'Activa' : 'Cerrada' ?></span>
             </div>
             <div class="d-flex gap-2 mt-2 flex-wrap">
-                <a href="<?= base_url('/inspecciones/evaluacion-induccion/edit/') ?><?= $evaluacion['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i> Editar</a>
-                <a href="<?= base_url('/inspecciones/evaluacion-induccion/toggle/') ?><?= $evaluacion['id'] ?>" class="btn btn-sm btn-outline-<?= $esActiva ? 'warning' : 'success' ?>">
+                <a href="<?= base_url('/inspecciones/evaluacion-capacitacion/edit/') ?><?= $evaluacion['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i> Editar</a>
+                <a href="<?= base_url('/inspecciones/evaluacion-capacitacion/toggle/') ?><?= $evaluacion['id'] ?>" class="btn btn-sm btn-outline-<?= $esActiva ? 'warning' : 'success' ?>">
                     <i class="fas fa-<?= $esActiva ? 'lock' : 'unlock' ?>"></i> <?= $esActiva ? 'Cerrar' : 'Reabrir' ?>
                 </a>
             </div>

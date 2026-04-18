@@ -1,6 +1,6 @@
 <?php
 $isEdit = !empty($inspeccion);
-$action = $isEdit ? base_url('/inspecciones/asistencia-induccion/update/') . $inspeccion['id'] : base_url('/inspecciones/asistencia-induccion/store');
+$action = $isEdit ? base_url('/inspecciones/asistencia-capacitacion/update/') . $inspeccion['id'] : base_url('/inspecciones/asistencia-capacitacion/store');
 ?>
 
 <div class="container-fluid px-3">
@@ -118,7 +118,7 @@ $action = $isEdit ? base_url('/inspecciones/asistencia-induccion/update/') . $in
                 <i class="fas fa-users"></i> <?= $isEdit ? 'Guardar y registrar asistentes' : 'Crear y registrar asistentes' ?>
             </button>
             <?php if ($isEdit): ?>
-            <a href="<?= base_url('/inspecciones/asistencia-induccion/registrar/') ?><?= $inspeccion['id'] ?>"
+            <a href="<?= base_url('/inspecciones/asistencia-capacitacion/registrar/') ?><?= $inspeccion['id'] ?>"
                class="btn btn-pwa py-3" style="font-size:17px;">
                 <i class="fas fa-users me-1"></i> Ir a registro de asistentes
             </a>
@@ -202,9 +202,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     initAutosave({
         formId: 'asistIndForm',
-        storeUrl: base_url('/inspecciones/asistencia-induccion/store'),
-        updateUrlBase: base_url('/inspecciones/asistencia-induccion/update/'),
-        editUrlBase: base_url('/inspecciones/asistencia-induccion/edit/'),
+        storeUrl: base_url('/inspecciones/asistencia-capacitacion/store'),
+        updateUrlBase: base_url('/inspecciones/asistencia-capacitacion/update/'),
+        editUrlBase: base_url('/inspecciones/asistencia-capacitacion/edit/'),
         recordId: <?= $inspeccion['id'] ?? 'null' ?>,
         isEdit: <?= $isEdit ? 'true' : 'false' ?>,
         storageKey: STORAGE_KEY,
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 (function() {
     const idInspeccion = <?= $inspeccion['id'] ?>;
-    const firmasUrl = '<?= base_url('/inspecciones/asistencia-induccion/firmas/') ?>' + idInspeccion;
+    const firmasUrl = '<?= base_url('/inspecciones/asistencia-capacitacion/firmas/') ?>' + idInspeccion;
 
     function randOp() {
         const ops = [
@@ -304,7 +304,7 @@ function generarObjetivoIA() {
     btn.disabled = true;
     btn.textContent = '⏳ Generando...';
 
-    fetch('<?= base_url('/inspecciones/asistencia-induccion/generar-objetivo') ?>', {
+    fetch('<?= base_url('/inspecciones/asistencia-capacitacion/generar-objetivo') ?>', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
         body: JSON.stringify({ tema: tema })

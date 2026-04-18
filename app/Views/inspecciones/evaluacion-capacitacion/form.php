@@ -1,12 +1,12 @@
 <?php
 $isEdit = !empty($evaluacion);
 $action = $isEdit
-    ? base_url('/inspecciones/evaluacion-induccion/update/') . $evaluacion['id']
-    : base_url('/inspecciones/evaluacion-induccion/store');
+    ? base_url('/inspecciones/evaluacion-capacitacion/update/') . $evaluacion['id']
+    : base_url('/inspecciones/evaluacion-capacitacion/store');
 ?>
 <div class="container-fluid px-3">
     <div class="d-flex align-items-center gap-2 mt-2 mb-3">
-        <a href="<?= base_url('/inspecciones/evaluacion-induccion') ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i></a>
+        <a href="<?= base_url('/inspecciones/evaluacion-capacitacion') ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i></a>
         <h6 class="mb-0" style="font-size:15px; font-weight:700;"><?= $isEdit ? 'Editar' : 'Nueva' ?> Evaluación</h6>
     </div>
 
@@ -33,22 +33,23 @@ $action = $isEdit
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" style="font-size:13px;">Cliente (conjunto) *</label>
-                    <select name="id_cliente" id="selectCliente" class="form-select form-select-sm" required>
-                        <option value="">Seleccionar...</option>
+                    <label class="form-label" style="font-size:13px;">Cliente (opcional)</label>
+                    <select name="id_cliente" id="selectCliente" class="form-select form-select-sm">
+                        <option value="">— Transversal (todos los clientes) —</option>
                         <?php foreach ($clientes as $c): ?>
                         <option value="<?= $c['id_cliente'] ?>" <?= ($evaluacion['id_cliente'] ?? '') == $c['id_cliente'] ? 'selected' : '' ?>>
                             <?= esc($c['nombre_cliente']) ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
+                    <div class="form-text" style="font-size:11px;">Dejar vacío si la evaluación aplica a todos los clientes.</div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label" style="font-size:13px;">Título</label>
                     <input type="text" name="titulo" class="form-control form-control-sm"
-                        value="<?= esc($evaluacion['titulo'] ?? 'Evaluación Inducción SST') ?>"
-                        placeholder="Evaluación Inducción SST">
+                        value="<?= esc($evaluacion['titulo'] ?? 'Evaluación de Capacitación') ?>"
+                        placeholder="Evaluación de Capacitación">
                 </div>
 
                 <?php if ($isEdit): ?>

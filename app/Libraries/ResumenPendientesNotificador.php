@@ -23,7 +23,7 @@ use App\Models\DotacionToderoModel;
 use App\Models\AuditoriaZonaResiduosModel;
 use App\Models\ReporteCapacitacionModel;
 use App\Models\PreparacionSimulacroModel;
-use App\Models\AsistenciaInduccionModel;
+use App\Models\AsistenciaCapacitacionModel;
 use App\Models\ProgramaLimpiezaModel;
 use App\Models\ProgramaResiduosModel;
 use App\Models\ProgramaPlagasModel;
@@ -62,7 +62,7 @@ class ResumenPendientesNotificador
             'Zona Residuos'            => (new AuditoriaZonaResiduosModel())->getAllPendientes(),
             'Capacitación'             => (new ReporteCapacitacionModel())->getAllPendientes(),
             'Prep. Simulacro'          => (new PreparacionSimulacroModel())->getAllPendientes(),
-            'Asistencia Inducción'     => (new AsistenciaInduccionModel())->getAllPendientes(),
+            'Asistencia Capacitación'  => (new AsistenciaCapacitacionModel())->getAllPendientes(),
             'Limpieza/Desinfección'    => (new ProgramaLimpiezaModel())->getAllPendientes(),
             'Residuos Sólidos'         => (new ProgramaResiduosModel())->getAllPendientes(),
             'Control de Plagas'        => (new ProgramaPlagasModel())->getAllPendientes(),

@@ -4,9 +4,9 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class AsistenciaInduccionAsistenteModel extends Model
+class AsistenciaCapacitacionAsistenteModel extends Model
 {
-    protected $table = 'tbl_asistencia_induccion_asistente';
+    protected $table = 'tbl_asistencia_capacitacion_asistente';
     protected $primaryKey = 'id';
     protected $allowedFields = ['id_asistencia', 'nombre', 'cedula', 'cargo', 'firma'];
     protected $useTimestamps = true;

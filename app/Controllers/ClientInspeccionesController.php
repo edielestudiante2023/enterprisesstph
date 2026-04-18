@@ -42,8 +42,8 @@ use App\Models\DotacionVigilanteModel;
 use App\Models\DotacionAseadoraModel;
 use App\Models\DotacionToderoModel;
 use App\Models\AuditoriaZonaResiduosModel;
-use App\Models\AsistenciaInduccionModel;
-use App\Models\AsistenciaInduccionAsistenteModel;
+use App\Models\AsistenciaCapacitacionModel;
+use App\Models\AsistenciaCapacitacionAsistenteModel;
 use App\Models\ReporteCapacitacionModel;
 use App\Models\PreparacionSimulacroModel;
 use App\Controllers\Inspecciones\InspeccionBotiquinController;
@@ -58,7 +58,7 @@ use App\Controllers\Inspecciones\DotacionVigilanteController;
 use App\Controllers\Inspecciones\DotacionAseadoraController;
 use App\Controllers\Inspecciones\DotacionToderoController;
 use App\Controllers\Inspecciones\AuditoriaZonaResiduosController;
-use App\Controllers\Inspecciones\AsistenciaInduccionController;
+use App\Controllers\Inspecciones\AsistenciaCapacitacionController;
 use App\Controllers\Inspecciones\ReporteCapacitacionController;
 use App\Controllers\Inspecciones\PreparacionSimulacroController;
 use App\Controllers\Inspecciones\DashboardSaneamientoController;
@@ -140,7 +140,7 @@ class ClientInspeccionesController extends Controller
         $dotAseadoraModel = new DotacionAseadoraModel();
         $dotToderoModel = new DotacionToderoModel();
         $audResiduosModel = new AuditoriaZonaResiduosModel();
-        $asistInducModel = new AsistenciaInduccionModel();
+        $asistInducModel = new AsistenciaCapacitacionModel();
         $repCapacModel = new ReporteCapacitacionModel();
         $prepSimulacroModel = new PreparacionSimulacroModel();
 
@@ -411,7 +411,7 @@ class ClientInspeccionesController extends Controller
                 'nombre'  => 'Asistencia Inducción',
                 'icono'   => 'fa-chalkboard-teacher',
                 'color'   => '#1565c0',
-                'url'     => base_url('client/inspecciones/asistencia-induccion'),
+                'url'     => base_url('client/inspecciones/asistencia-capacitacion'),
                 'conteo'  => $asistInducModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
                 'ultima'  => $asistInducModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_sesion', 'DESC')->first(),
                 'campo_fecha' => 'fecha_sesion',
@@ -1821,13 +1821,13 @@ class ClientInspeccionesController extends Controller
 
     // ─── ASISTENCIA INDUCCIÓN ───────────────────────────────
 
-    public function listAsistenciaInduccion()
+    public function listAsistenciaCapacitacion()
     {
         $clientId = $this->getClientId();
         if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
 
         $client = (new ClientModel())->find($clientId);
-        $model = new AsistenciaInduccionModel();
+        $model = new AsistenciaCapacitacionModel();
         $inspecciones = $model->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_sesion', 'DESC')->findAll();
 
         return view('client/inspecciones/layout', [
@@ -1838,35 +1838,35 @@ class ClientInspeccionesController extends Controller
                 'tipo'         => 'asistencia_induccion',
                 'titulo'       => 'Asistencia Inducción',
                 'campo_fecha'  => 'fecha_sesion',
-                'base_url'     => 'client/inspecciones/asistencia-induccion',
+                'base_url'     => 'client/inspecciones/asistencia-capacitacion',
             ]),
         ]);
     }
 
-    public function viewAsistenciaInduccion($id)
+    public function viewAsistenciaCapacitacion($id)
     {
         $clientId = $this->getClientId();
         if (!$clientId) return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
 
-        $model = new AsistenciaInduccionModel();
+        $model = new AsistenciaCapacitacionModel();
         $inspeccion = $model->find($id);
         if (!$inspeccion || (int)$inspeccion['id_cliente'] !== (int)$clientId) {
             return redirect()->to('/client/inspecciones')->with('error', 'Registro no encontrado.');
         }
 
-        $asistentes = (new AsistenciaInduccionAsistenteModel())->where('id_asistencia_induccion', $id)->findAll();
+        $asistentes = (new AsistenciaCapacitacionAsistenteModel())->where('id_asistencia_induccion', $id)->findAll();
 
         $data = [
             'inspeccion'   => $inspeccion,
             'cliente'      => (new ClientModel())->find($inspeccion['id_cliente']),
             'asistentes'   => $asistentes,
-            'tiposCharla'  => AsistenciaInduccionController::TIPOS_CHARLA,
+            'tiposCharla'  => AsistenciaCapacitacionController::TIPOS_CHARLA,
         ];
 
         return view('client/inspecciones/layout', [
             'client'  => (new ClientModel())->find($clientId),
             'title'   => 'Asistencia Inducción',
-            'content' => view('client/inspecciones/asistencia_induccion_view', $data),
+            'content' => view('client/inspecciones/asistencia_capacitacion_view', $data),
         ]);
     }
 

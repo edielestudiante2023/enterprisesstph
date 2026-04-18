@@ -7,9 +7,9 @@ use App\Models\ReporteCapacitacionModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
-use App\Models\AsistenciaInduccionModel;
-use App\Models\AsistenciaInduccionAsistenteModel;
-use App\Models\EvaluacionInduccionRespuestaModel;
+use App\Models\AsistenciaCapacitacionModel;
+use App\Models\AsistenciaCapacitacionAsistenteModel;
+use App\Models\EvaluacionCapacitacionRespuestaModel;
 use App\Models\CronogcapacitacionModel;
 use App\Libraries\InspeccionEmailNotifier;
 use Dompdf\Dompdf;
@@ -304,7 +304,7 @@ class ReporteCapacitacionController extends BaseController
         $perfiles = $this->request->getPost('perfil_asistentes');
         $data['perfil_asistentes'] = is_array($perfiles) ? implode(',', $perfiles) : '';
 
-        $data['mostrar_evaluacion_induccion'] = $this->request->getPost('mostrar_evaluacion_induccion') ? 1 : 0;
+        $data['mostrar_evaluacion_capacitacion'] = $this->request->getPost('mostrar_evaluacion_capacitacion') ? 1 : 0;
 
         $idCronog = $this->request->getPost('id_cronograma_capacitacion');
         if ($idCronog) {
@@ -515,8 +515,8 @@ El objetivo debe:
      */
     private function fetchAsistentes(int $idCliente, string $fecha): array
     {
-        $induccionModel  = new AsistenciaInduccionModel();
-        $asistenteModel  = new AsistenciaInduccionAsistenteModel();
+        $induccionModel  = new AsistenciaCapacitacionModel();
+        $asistenteModel  = new AsistenciaCapacitacionAsistenteModel();
 
         $sesiones = $induccionModel
             ->where('id_cliente', $idCliente)

@@ -3,8 +3,8 @@
 namespace App\Controllers\Inspecciones;
 
 use App\Controllers\BaseController;
-use App\Models\EvaluacionInduccionModel;
-use App\Models\EvaluacionInduccionRespuestaModel;
+use App\Models\EvaluacionCapacitacionModel;
+use App\Models\EvaluacionCapacitacionRespuestaModel;
 use App\Models\EvaluacionSesionModel;
 use App\Models\EvaluacionTemaModel;
 use App\Models\EvaluacionPreguntaModel;
@@ -14,17 +14,17 @@ use chillerlan\QRCode\QROptions;
 use chillerlan\QRCode\Common\EccLevel;
 use chillerlan\QRCode\Output\QROutputInterface;
 
-class EvaluacionInduccionController extends BaseController
+class EvaluacionCapacitacionController extends BaseController
 {
-    protected EvaluacionInduccionModel $evalModel;
-    protected EvaluacionInduccionRespuestaModel $respuestaModel;
+    protected EvaluacionCapacitacionModel $evalModel;
+    protected EvaluacionCapacitacionRespuestaModel $respuestaModel;
     protected EvaluacionTemaModel $temaModel;
     protected EvaluacionPreguntaModel $preguntaModel;
 
     public function __construct()
     {
-        $this->evalModel      = new EvaluacionInduccionModel();
-        $this->respuestaModel = new EvaluacionInduccionRespuestaModel();
+        $this->evalModel      = new EvaluacionCapacitacionModel();
+        $this->respuestaModel = new EvaluacionCapacitacionRespuestaModel();
         $this->temaModel      = new EvaluacionTemaModel();
         $this->preguntaModel  = new EvaluacionPreguntaModel();
     }
@@ -55,8 +55,8 @@ class EvaluacionInduccionController extends BaseController
         }
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/evaluacion-induccion/list', ['evaluaciones' => $conRespuestas]),
-            'title'   => 'Evaluaciones Inducción SST',
+            'content' => view('inspecciones/evaluacion-capacitacion/list', ['evaluaciones' => $conRespuestas]),
+            'title'   => 'Evaluaciones de Capacitación',
         ]);
     }
 
@@ -65,7 +65,7 @@ class EvaluacionInduccionController extends BaseController
         $clientModel = new ClientModel();
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/evaluacion-induccion/form', [
+            'content' => view('inspecciones/evaluacion-capacitacion/form', [
                 'evaluacion' => null,
                 'clientes'   => $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll(),
                 'temas'      => $this->temaModel->getActivos(),
@@ -78,16 +78,19 @@ class EvaluacionInduccionController extends BaseController
     {
         $token = bin2hex(random_bytes(20));
 
+        $idCliente = $this->request->getPost('id_cliente');
+        $idCliente = ($idCliente !== null && $idCliente !== '') ? (int) $idCliente : null;
+
         $this->evalModel->insert([
-            'id_cliente' => (int) $this->request->getPost('id_cliente'),
+            'id_cliente' => $idCliente,
             'id_tema'    => (int) $this->request->getPost('id_tema') ?: null,
-            'titulo'     => trim($this->request->getPost('titulo')) ?: 'Evaluación Inducción SST',
+            'titulo'     => trim($this->request->getPost('titulo')) ?: 'Evaluación',
             'token'      => $token,
             'estado'     => 'activo',
         ]);
         $id = $this->evalModel->getInsertID();
 
-        return redirect()->to('/inspecciones/evaluacion-induccion/view/' . $id)
+        return redirect()->to('/inspecciones/evaluacion-capacitacion/view/' . $id)
             ->with('msg', 'Evaluación creada. Comparte el enlace o QR con los asistentes.');
     }
 
@@ -95,13 +98,13 @@ class EvaluacionInduccionController extends BaseController
     {
         $evaluacion = $this->evalModel->find($id);
         if (!$evaluacion) {
-            return redirect()->to('/inspecciones/evaluacion-induccion')->with('error', 'No encontrada');
+            return redirect()->to('/inspecciones/evaluacion-capacitacion')->with('error', 'No encontrada');
         }
 
         $clientModel = new ClientModel();
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/evaluacion-induccion/form', [
+            'content' => view('inspecciones/evaluacion-capacitacion/form', [
                 'evaluacion' => $evaluacion,
                 'clientes'   => $clientModel->where('estado', 'activo')->orderBy('nombre_cliente')->findAll(),
                 'temas'      => $this->temaModel->getActivos(),
@@ -114,17 +117,20 @@ class EvaluacionInduccionController extends BaseController
     {
         $evaluacion = $this->evalModel->find($id);
         if (!$evaluacion) {
-            return redirect()->to('/inspecciones/evaluacion-induccion')->with('error', 'No encontrada');
+            return redirect()->to('/inspecciones/evaluacion-capacitacion')->with('error', 'No encontrada');
         }
 
+        $idCliente = $this->request->getPost('id_cliente');
+        $idCliente = ($idCliente !== null && $idCliente !== '') ? (int) $idCliente : null;
+
         $this->evalModel->update($id, [
-            'id_cliente' => (int) $this->request->getPost('id_cliente'),
+            'id_cliente' => $idCliente,
             'id_tema'    => (int) $this->request->getPost('id_tema') ?: null,
-            'titulo'     => trim($this->request->getPost('titulo')) ?: 'Evaluación Inducción SST',
+            'titulo'     => trim($this->request->getPost('titulo')) ?: 'Evaluación',
             'estado'     => $this->request->getPost('estado') ?: 'activo',
         ]);
 
-        return redirect()->to('/inspecciones/evaluacion-induccion/view/' . $id)
+        return redirect()->to('/inspecciones/evaluacion-capacitacion/view/' . $id)
             ->with('msg', 'Evaluación actualizada.');
     }
 
@@ -132,7 +138,7 @@ class EvaluacionInduccionController extends BaseController
     {
         $evaluacion = $this->evalModel->find($id);
         if (!$evaluacion) {
-            return redirect()->to('/inspecciones/evaluacion-induccion')->with('error', 'No encontrada');
+            return redirect()->to('/inspecciones/evaluacion-capacitacion')->with('error', 'No encontrada');
         }
 
         $clientModel   = new ClientModel();
@@ -169,9 +175,9 @@ class EvaluacionInduccionController extends BaseController
         $tema = $evaluacion['id_tema'] ? $this->temaModel->find($evaluacion['id_tema']) : null;
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/evaluacion-induccion/view', [
+            'content' => view('inspecciones/evaluacion-capacitacion/view', [
                 'evaluacion' => $evaluacion,
-                'cliente'    => $clientModel->find($evaluacion['id_cliente']),
+                'cliente'    => !empty($evaluacion['id_cliente']) ? $clientModel->find($evaluacion['id_cliente']) : null,
                 'tema'       => $tema,
                 'respuestas' => $respuestasAll,
                 'sesiones'   => $sesiones,
@@ -187,13 +193,13 @@ class EvaluacionInduccionController extends BaseController
     {
         $evaluacion = $this->evalModel->find($id);
         if (!$evaluacion) {
-            return redirect()->to('/inspecciones/evaluacion-induccion')->with('error', 'No encontrada');
+            return redirect()->to('/inspecciones/evaluacion-capacitacion')->with('error', 'No encontrada');
         }
 
         $this->respuestaModel->where('id_evaluacion', $id)->delete();
         $this->evalModel->delete($id);
 
-        return redirect()->to('/inspecciones/evaluacion-induccion')
+        return redirect()->to('/inspecciones/evaluacion-capacitacion')
             ->with('msg', 'Evaluación eliminada.');
     }
 
@@ -201,14 +207,14 @@ class EvaluacionInduccionController extends BaseController
     {
         $evaluacion = $this->evalModel->find($id);
         if (!$evaluacion) {
-            return redirect()->to('/inspecciones/evaluacion-induccion')->with('error', 'No encontrada');
+            return redirect()->to('/inspecciones/evaluacion-capacitacion')->with('error', 'No encontrada');
         }
 
         $nuevoEstado = $evaluacion['estado'] === 'activo' ? 'cerrado' : 'activo';
         $this->evalModel->update($id, ['estado' => $nuevoEstado]);
 
         $msg = $nuevoEstado === 'activo' ? 'Evaluación reabierta.' : 'Evaluación cerrada.';
-        return redirect()->to('/inspecciones/evaluacion-induccion/view/' . $id)->with('msg', $msg);
+        return redirect()->to('/inspecciones/evaluacion-capacitacion/view/' . $id)->with('msg', $msg);
     }
 
     // ── API para ReporteCapacitacion ─────────────────────────────────────────
@@ -257,7 +263,7 @@ class EvaluacionInduccionController extends BaseController
         $evaluacion = $this->evalModel->where('token', $token)->first();
 
         if (!$evaluacion || $evaluacion['estado'] === 'cerrado') {
-            return view('inspecciones/evaluacion-induccion/cerrado');
+            return view('inspecciones/evaluacion-capacitacion/cerrado');
         }
 
         $clientModel = new ClientModel();
@@ -268,7 +274,7 @@ class EvaluacionInduccionController extends BaseController
             $preguntas = $this->preguntaModel->getConOpcionesByTema((int) $evaluacion['id_tema']);
         }
 
-        return view('inspecciones/evaluacion-induccion/form-publico', [
+        return view('inspecciones/evaluacion-capacitacion/form-publico', [
             'evaluacion' => $evaluacion,
             'conjuntos'  => $clientModel->where('estado', 'activo')->orderBy('nombre_cliente', 'ASC')->findAll(),
             'preguntas'  => $preguntas,
@@ -348,7 +354,7 @@ class EvaluacionInduccionController extends BaseController
             return redirect()->to('/');
         }
 
-        return view('inspecciones/evaluacion-induccion/gracias', [
+        return view('inspecciones/evaluacion-capacitacion/gracias', [
             'evaluacion'   => $evaluacion,
             'calificacion' => (float) ($this->request->getGet('cal') ?? 0),
         ]);

@@ -64,9 +64,9 @@ class RegenerarPdfs extends BaseCommand
                 'table'      => 'tbl_reporte_capacitacion',
                 'estado'     => ['campo' => 'estado', 'valor' => 'completo'],
             ],
-            'asistencia-induccion' => [
-                'controller' => \App\Controllers\Inspecciones\AsistenciaInduccionController::class,
-                'table'      => 'tbl_asistencia_induccion',
+            'asistencia-capacitacion' => [
+                'controller' => \App\Controllers\Inspecciones\AsistenciaCapacitacionController::class,
+                'table'      => 'tbl_asistencia_capacitacion',
                 'estado'     => ['campo' => 'estado', 'valor' => 'completo'],
             ],
             'dotacion-vigilante' => [

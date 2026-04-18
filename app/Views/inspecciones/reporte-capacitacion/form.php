@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         evalContainer.innerHTML = '<p class="text-muted" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Buscando...</p>';
         $.ajax({
-            url: '<?= base_url('/inspecciones/evaluacion-induccion/api-resultados-fecha') ?>',
+            url: '<?= base_url('/inspecciones/evaluacion-capacitacion/api-resultados-fecha') ?>',
             data: { id_cliente: idCliente, fecha: fecha },
             dataType: 'json',
             success: function(resp) {

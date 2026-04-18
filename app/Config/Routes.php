@@ -521,8 +521,8 @@ $routes->group('client/inspecciones', ['filter' => 'auth'], function($routes) {
     $routes->get('dotacion-todero/(:num)', 'ClientInspeccionesController::viewDotacionTodero/$1');
     $routes->get('auditoria-zona-residuos', 'ClientInspeccionesController::listAuditoriaResiduos');
     $routes->get('auditoria-zona-residuos/(:num)', 'ClientInspeccionesController::viewAuditoriaResiduos/$1');
-    $routes->get('asistencia-induccion', 'ClientInspeccionesController::listAsistenciaInduccion');
-    $routes->get('asistencia-induccion/(:num)', 'ClientInspeccionesController::viewAsistenciaInduccion/$1');
+    $routes->get('asistencia-capacitacion', 'ClientInspeccionesController::listAsistenciaCapacitacion');
+    $routes->get('asistencia-capacitacion/(:num)', 'ClientInspeccionesController::viewAsistenciaCapacitacion/$1');
     $routes->get('reporte-capacitacion', 'ClientInspeccionesController::listReporteCapacitacion');
     $routes->get('reporte-capacitacion/(:num)', 'ClientInspeccionesController::viewReporteCapacitacion/$1');
     $routes->get('preparacion-simulacro', 'ClientInspeccionesController::listPreparacionSimulacro');
@@ -871,10 +871,10 @@ $routes->get('/contracts/estado-firma/(:num)', 'ContractController::estadoFirma/
 // Rutas públicas (sin autenticación) para firma de contratos
 $routes->get('/contrato/firmar/(:segment)', 'ContractController::paginaFirmaContrato/$1');
 
-// Rutas públicas Evaluación Inducción SST (sin autenticación)
-$routes->get('/evaluar/(:segment)/gracias', 'Inspecciones\EvaluacionInduccionController::gracias/$1');
-$routes->post('/evaluar/(:segment)/submit', 'Inspecciones\EvaluacionInduccionController::submit/$1');
-$routes->get('/evaluar/(:segment)', 'Inspecciones\EvaluacionInduccionController::form/$1');
+// Rutas públicas Evaluación de Capacitación (sin autenticación)
+$routes->get('/evaluar/(:segment)/gracias', 'Inspecciones\EvaluacionCapacitacionController::gracias/$1');
+$routes->post('/evaluar/(:segment)/submit', 'Inspecciones\EvaluacionCapacitacionController::submit/$1');
+$routes->get('/evaluar/(:segment)', 'Inspecciones\EvaluacionCapacitacionController::form/$1');
 $routes->post('/contrato/procesar-firma', 'ContractController::procesarFirmaContrato');
 $routes->get('contrato/verificar/(:any)', 'ContractController::verificarFirma/$1');
 $routes->get('contrato/certificado-pdf/(:num)', 'ContractController::certificadoPDF/$1');
@@ -1035,6 +1035,20 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('botiquin/finalizar/(:num)', 'InspeccionBotiquinController::finalizar/$1');
     $routes->get('botiquin/delete/(:num)', 'InspeccionBotiquinController::delete/$1');
     $routes->get('botiquin/enviar-email/(:num)', 'InspeccionBotiquinController::enviarEmail/$1');
+
+    // Inspección Productos Químicos (Fase 11 - Híbrido PLANO+NFotos)
+    $routes->get('productos-quimicos', 'InspeccionProductosQuimicosController::list');
+    $routes->get('productos-quimicos/create', 'InspeccionProductosQuimicosController::create');
+    $routes->get('productos-quimicos/create/(:num)', 'InspeccionProductosQuimicosController::create/$1');
+    $routes->post('productos-quimicos/store', 'InspeccionProductosQuimicosController::store');
+    $routes->get('productos-quimicos/edit/(:num)', 'InspeccionProductosQuimicosController::edit/$1');
+    $routes->post('productos-quimicos/update/(:num)', 'InspeccionProductosQuimicosController::update/$1');
+    $routes->get('productos-quimicos/view/(:num)', 'InspeccionProductosQuimicosController::view/$1');
+    $routes->get('productos-quimicos/pdf/(:num)', 'InspeccionProductosQuimicosController::generatePdf/$1');
+    $routes->get('productos-quimicos/regenerar/(:num)', 'InspeccionProductosQuimicosController::regenerarPdf/$1');
+    $routes->post('productos-quimicos/finalizar/(:num)', 'InspeccionProductosQuimicosController::finalizar/$1');
+    $routes->get('productos-quimicos/delete/(:num)', 'InspeccionProductosQuimicosController::delete/$1');
+    $routes->get('productos-quimicos/enviar-email/(:num)', 'InspeccionProductosQuimicosController::enviarEmail/$1');
 
     // Inspección Gabinetes
     $routes->get('gabinetes', 'InspeccionGabineteController::list');
@@ -1282,37 +1296,37 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('carta-vigia/generar-enlace/(:num)', 'CartaVigiaPwaController::generarEnlace/$1');
     $routes->get('carta-vigia/pdf/(:num)', 'CartaVigiaPwaController::verPdf/$1');
 
-    // Asistencia Induccion
-    $routes->get('asistencia-induccion', 'AsistenciaInduccionController::list');
-    $routes->get('asistencia-induccion/create', 'AsistenciaInduccionController::create');
-    $routes->get('asistencia-induccion/create/(:num)', 'AsistenciaInduccionController::create/$1');
-    $routes->post('asistencia-induccion/store', 'AsistenciaInduccionController::store');
-    $routes->get('asistencia-induccion/edit/(:num)', 'AsistenciaInduccionController::edit/$1');
-    $routes->post('asistencia-induccion/update/(:num)', 'AsistenciaInduccionController::update/$1');
-    $routes->get('asistencia-induccion/view/(:num)', 'AsistenciaInduccionController::view/$1');
-    $routes->get('asistencia-induccion/registrar/(:num)', 'AsistenciaInduccionController::registrar/$1');
-    $routes->post('asistencia-induccion/store-asistente/(:num)', 'AsistenciaInduccionController::storeAsistente/$1');
-    $routes->post('asistencia-induccion/delete-asistente/(:num)', 'AsistenciaInduccionController::deleteAsistente/$1');
-    $routes->get('asistencia-induccion/firmas/(:num)', 'AsistenciaInduccionController::firmas/$1');
-    $routes->post('asistencia-induccion/guardar-firma/(:num)', 'AsistenciaInduccionController::guardarFirma/$1');
-    $routes->get('asistencia-induccion/pdf/(:num)', 'AsistenciaInduccionController::generatePdf/$1');
-    $routes->get('asistencia-induccion/pdf-responsabilidades/(:num)', 'AsistenciaInduccionController::generatePdfResponsabilidades/$1');
-    $routes->get('asistencia-induccion/regenerar/(:num)', 'AsistenciaInduccionController::regenerarPdf/$1');
-    $routes->post('asistencia-induccion/finalizar/(:num)', 'AsistenciaInduccionController::finalizar/$1');
-    $routes->get('asistencia-induccion/delete/(:num)', 'AsistenciaInduccionController::delete/$1');
-    $routes->get('asistencia-induccion/enviar-email/(:num)', 'AsistenciaInduccionController::enviarEmail/$1');
-    $routes->post('asistencia-induccion/generar-objetivo', 'AsistenciaInduccionController::generarObjetivo');
+    // Asistencia Capacitación
+    $routes->get('asistencia-capacitacion', 'AsistenciaCapacitacionController::list');
+    $routes->get('asistencia-capacitacion/create', 'AsistenciaCapacitacionController::create');
+    $routes->get('asistencia-capacitacion/create/(:num)', 'AsistenciaCapacitacionController::create/$1');
+    $routes->post('asistencia-capacitacion/store', 'AsistenciaCapacitacionController::store');
+    $routes->get('asistencia-capacitacion/edit/(:num)', 'AsistenciaCapacitacionController::edit/$1');
+    $routes->post('asistencia-capacitacion/update/(:num)', 'AsistenciaCapacitacionController::update/$1');
+    $routes->get('asistencia-capacitacion/view/(:num)', 'AsistenciaCapacitacionController::view/$1');
+    $routes->get('asistencia-capacitacion/registrar/(:num)', 'AsistenciaCapacitacionController::registrar/$1');
+    $routes->post('asistencia-capacitacion/store-asistente/(:num)', 'AsistenciaCapacitacionController::storeAsistente/$1');
+    $routes->post('asistencia-capacitacion/delete-asistente/(:num)', 'AsistenciaCapacitacionController::deleteAsistente/$1');
+    $routes->get('asistencia-capacitacion/firmas/(:num)', 'AsistenciaCapacitacionController::firmas/$1');
+    $routes->post('asistencia-capacitacion/guardar-firma/(:num)', 'AsistenciaCapacitacionController::guardarFirma/$1');
+    $routes->get('asistencia-capacitacion/pdf/(:num)', 'AsistenciaCapacitacionController::generatePdf/$1');
+    $routes->get('asistencia-capacitacion/pdf-responsabilidades/(:num)', 'AsistenciaCapacitacionController::generatePdfResponsabilidades/$1');
+    $routes->get('asistencia-capacitacion/regenerar/(:num)', 'AsistenciaCapacitacionController::regenerarPdf/$1');
+    $routes->post('asistencia-capacitacion/finalizar/(:num)', 'AsistenciaCapacitacionController::finalizar/$1');
+    $routes->get('asistencia-capacitacion/delete/(:num)', 'AsistenciaCapacitacionController::delete/$1');
+    $routes->get('asistencia-capacitacion/enviar-email/(:num)', 'AsistenciaCapacitacionController::enviarEmail/$1');
+    $routes->post('asistencia-capacitacion/generar-objetivo', 'AsistenciaCapacitacionController::generarObjetivo');
 
-    // Evaluación Inducción SST (mini-universo CRUD)
-    $routes->get('evaluacion-induccion', 'EvaluacionInduccionController::list');
-    $routes->get('evaluacion-induccion/create', 'EvaluacionInduccionController::create');
-    $routes->post('evaluacion-induccion/store', 'EvaluacionInduccionController::store');
-    $routes->get('evaluacion-induccion/edit/(:num)', 'EvaluacionInduccionController::edit/$1');
-    $routes->post('evaluacion-induccion/update/(:num)', 'EvaluacionInduccionController::update/$1');
-    $routes->get('evaluacion-induccion/view/(:num)', 'EvaluacionInduccionController::view/$1');
-    $routes->get('evaluacion-induccion/delete/(:num)', 'EvaluacionInduccionController::delete/$1');
-    $routes->get('evaluacion-induccion/toggle/(:num)', 'EvaluacionInduccionController::toggleEstado/$1');
-    $routes->get('evaluacion-induccion/api-resultados-fecha', 'EvaluacionInduccionController::apiResultadosPorFecha');
+    // Evaluación de Capacitación (mini-universo CRUD)
+    $routes->get('evaluacion-capacitacion', 'EvaluacionCapacitacionController::list');
+    $routes->get('evaluacion-capacitacion/create', 'EvaluacionCapacitacionController::create');
+    $routes->post('evaluacion-capacitacion/store', 'EvaluacionCapacitacionController::store');
+    $routes->get('evaluacion-capacitacion/edit/(:num)', 'EvaluacionCapacitacionController::edit/$1');
+    $routes->post('evaluacion-capacitacion/update/(:num)', 'EvaluacionCapacitacionController::update/$1');
+    $routes->get('evaluacion-capacitacion/view/(:num)', 'EvaluacionCapacitacionController::view/$1');
+    $routes->get('evaluacion-capacitacion/delete/(:num)', 'EvaluacionCapacitacionController::delete/$1');
+    $routes->get('evaluacion-capacitacion/toggle/(:num)', 'EvaluacionCapacitacionController::toggleEstado/$1');
+    $routes->get('evaluacion-capacitacion/api-resultados-fecha', 'EvaluacionCapacitacionController::apiResultadosPorFecha');
 
     // Temas de Evaluación (gestión de preguntas dinámicas)
     $routes->get('evaluacion-tema', 'EvaluacionTemaController::list');

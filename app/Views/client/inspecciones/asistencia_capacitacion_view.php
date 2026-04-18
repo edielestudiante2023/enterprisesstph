@@ -2,8 +2,8 @@
 $tipoLabel = $tiposCharla[$inspeccion['tipo_charla'] ?? ''] ?? $inspeccion['tipo_charla'] ?? '';
 ?>
 <div class="page-header">
-    <h1><i class="fas fa-chalkboard-teacher me-2"></i> Asistencia Inducción</h1>
-    <a href="<?= base_url('client/inspecciones/asistencia-induccion') ?>" class="btn-back">
+    <h1><i class="fas fa-chalkboard-teacher me-2"></i> Asistencia Capacitación</h1>
+    <a href="<?= base_url('client/inspecciones/asistencia-capacitacion') ?>" class="btn-back">
         <i class="fas fa-arrow-left me-1"></i> Volver
     </a>
 </div>
@@ -98,7 +98,7 @@ $tipoLabel = $tiposCharla[$inspeccion['tipo_charla'] ?? ''] ?? $inspeccion['tipo
 
 <div class="mb-4">
     <?php if (!empty($inspeccion['ruta_pdf_asistencia'])): ?>
-    <a href="<?= base_url('/inspecciones/asistencia-induccion/pdf/') ?><?= $inspeccion['id'] ?>" class="btn btn-primary" target="_blank" style="background:#bd9751; border-color:#bd9751;">
+    <a href="<?= base_url('/inspecciones/asistencia-capacitacion/pdf/') ?><?= $inspeccion['id'] ?>" class="btn btn-primary" target="_blank" style="background:#bd9751; border-color:#bd9751;">
         <i class="fas fa-file-pdf"></i> Ver PDF Asistencia
     </a>
     <?php endif; ?>

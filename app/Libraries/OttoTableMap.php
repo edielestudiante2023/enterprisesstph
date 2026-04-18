@@ -422,7 +422,7 @@ TXT;
             ],
 
             [
-                'table'       => 'tbl_asistencia_induccion',
+                'table'       => 'tbl_asistencia_capacitacion',
                 'view'        => 'v_tbl_asistencia_induccion',
                 'description' => 'Listado de personas que asistieron a inducción SST en un cliente.',
                 'use_for'     => [
@@ -948,12 +948,12 @@ TXT;
             // ═══════════════════════════════════════════════════════════
 
             [
-                'table'       => 'tbl_asistencia_induccion_asistente',
+                'table'       => 'tbl_asistencia_capacitacion_asistente',
                 'view'        => 'v_tbl_asistencia_induccion_asistente',
-                'description' => 'Personas que asistieron individualmente a cada sesión de inducción.',
-                'use_for'     => ['listado de asistentes a inducción', '¿quién asistió a la inducción de X?'],
-                'key_columns' => ['id', 'id_asistencia (FK → tbl_asistencia_induccion.id)', 'nombre_completo', 'documento', 'cargo', 'firma'],
-                'relations'   => ['id_asistencia → tbl_asistencia_induccion.id'],
+                'description' => 'Personas que asistieron individualmente a cada sesión de capacitación/inducción.',
+                'use_for'     => ['listado de asistentes a capacitación', '¿quién asistió a la capacitación de X?'],
+                'key_columns' => ['id', 'id_asistencia (FK → tbl_asistencia_capacitacion.id)', 'nombre_completo', 'documento', 'cargo', 'firma'],
+                'relations'   => ['id_asistencia → tbl_asistencia_capacitacion.id'],
                 'notes'       => '',
             ],
 
