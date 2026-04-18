@@ -1206,8 +1206,8 @@
                 <div class="count">(<?= $totalRepCap ?>)</div>
             </a>
             <a href="<?= base_url('/inspecciones/evaluacion-capacitacion') ?>" class="card-tipo">
-                <i class="fas fa-spell-check"></i>
-                <div><strong>Evaluaciones</strong></div>
+                <i class="fas fa-qrcode"></i>
+                <div><strong>Creador de QR evaluaciones</strong></div>
                 <div class="count">(<?= $totalEvalInd ?>)</div>
             </a>
             <a href="<?= base_url('/inspecciones/evaluacion-tema') ?>" class="card-tipo">
@@ -1331,7 +1331,7 @@
                 <div><strong style="font-size:11px; color:#fff;">Brigada y Simul.</strong></div>
                 <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalBrigadaSimulacros ?? 0 ?>)</div>
             </a>
-            <a href="<?= base_url('/inspecciones/plan-emergencia') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.18); text-align:center; text-decoration:none; border:2px solid #bd9751; transition:transform .2s;">
+            <a href="<?= base_url('/inspecciones/plan-emergencia') ?>" style="grid-column:1 / -1; padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.18); text-align:center; text-decoration:none; border:2px solid #bd9751; transition:transform .2s;">
                 <i class="fas fa-file-medical" style="font-size:22px; color:#bd9751; display:block; margin-bottom:2px;"></i>
                 <div><strong style="font-size:11px; color:#bd9751;">Plan Emerg.</strong></div>
                 <div style="font-size:11px; color:rgba(255,255,255,0.6);">(<?= $totalPlanEmergencia ?>)</div>
