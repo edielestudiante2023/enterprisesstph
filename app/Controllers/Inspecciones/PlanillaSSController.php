@@ -81,6 +81,76 @@ class PlanillaSSController extends BaseController
         return redirect()->to('/inspecciones/planilla-seg-social');
     }
 
+    public function edit(int $id)
+    {
+        $model    = new PlanillaSSModel();
+        $registro = $model->find($id);
+        if (!$registro) {
+            session()->setFlashdata('error', 'No encontrado.');
+            return redirect()->to('/inspecciones/planilla-seg-social');
+        }
+
+        $cliente = $registro['id_cliente'] ? (new ClientModel())->find($registro['id_cliente']) : null;
+
+        return view('inspecciones/layout_pwa', [
+            'title'   => 'Editar Planilla SS',
+            'content' => view('inspecciones/planilla-ss/form', [
+                'idCliente' => $registro['id_cliente'],
+                'cliente'   => $cliente,
+                'registro'  => $registro,
+            ]),
+        ]);
+    }
+
+    public function update(int $id)
+    {
+        $model    = new PlanillaSSModel();
+        $registro = $model->find($id);
+        if (!$registro) {
+            session()->setFlashdata('error', 'No encontrado.');
+            return redirect()->to('/inspecciones/planilla-seg-social');
+        }
+
+        $idCliente     = $this->request->getPost('id_cliente');
+        $periodo       = $this->request->getPost('periodo');
+        $observaciones = $this->request->getPost('observaciones');
+
+        if (!$idCliente || !$periodo) {
+            session()->setFlashdata('error', 'Cliente y período son obligatorios.');
+            return redirect()->back();
+        }
+
+        $archivoPath = $registro['archivo'];
+
+        $archivo = $this->request->getFile('archivo');
+        if ($archivo && $archivo->isValid() && !$archivo->hasMoved()) {
+            $dir = 'uploads/inspecciones/planillas-ss/';
+            if (!is_dir(FCPATH . $dir)) {
+                mkdir(FCPATH . $dir, 0755, true);
+            }
+            if (!empty($registro['archivo']) && file_exists(FCPATH . $registro['archivo'])) {
+                unlink(FCPATH . $registro['archivo']);
+            }
+            $newName = 'planilla_ss_' . $idCliente . '_' . date('Ymd_His') . '.' . $archivo->getExtension();
+            $archivo->move(FCPATH . $dir, $newName);
+            $archivoPath = $dir . $newName;
+        }
+
+        $model->update($id, [
+            'id_cliente'    => $idCliente,
+            'periodo'       => $periodo,
+            'archivo'       => $archivoPath,
+            'observaciones' => $observaciones,
+        ]);
+
+        if ($archivoPath) {
+            $this->subirReporte($idCliente, $periodo, $archivoPath, $id);
+        }
+
+        session()->setFlashdata('msg', 'Planilla actualizada.');
+        return redirect()->to('/inspecciones/planilla-seg-social');
+    }
+
     public function delete(int $id)
     {
         $model = new PlanillaSSModel();

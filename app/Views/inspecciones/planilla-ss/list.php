@@ -49,7 +49,10 @@
                         <i class="fas fa-file-alt"></i>
                     </a>
                     <?php endif; ?>
-                    <button type="button" class="btn btn-sm btn-outline-danger"
+                    <a href="<?= base_url('/inspecciones/planilla-seg-social/edit/' . $reg['id']) ?>" class="btn btn-sm btn-outline-primary" title="Editar">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar"
                         onclick="confirmarEliminar('<?= base_url('/inspecciones/planilla-seg-social/delete/' . $reg['id']) ?>')">
                         <i class="fas fa-trash"></i>
                     </button>

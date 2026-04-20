@@ -1593,6 +1593,8 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('planilla-seg-social/create',       'PlanillaSSController::create');
     $routes->get('planilla-seg-social/create/(:num)','PlanillaSSController::create/$1');
     $routes->post('planilla-seg-social/store',       'PlanillaSSController::store');
+    $routes->get('planilla-seg-social/edit/(:num)',  'PlanillaSSController::edit/$1');
+    $routes->post('planilla-seg-social/update/(:num)','PlanillaSSController::update/$1');
     $routes->post('planilla-seg-social/delete/(:num)','PlanillaSSController::delete/$1');
 });
 
