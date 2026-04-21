@@ -46,6 +46,9 @@ $RECYCLE.BIN/
 .vagrant
 Vagrantfile
 
+# PHP runtime config (open_basedir y session.save_path específicos del servidor)
+public/.user.ini
+
 #-------------------------
 # Temporary Files
 #-------------------------
