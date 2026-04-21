@@ -1240,6 +1240,20 @@
         </div>
     </div>
 
+    <!-- Matriz de Inspecciones por Cliente -->
+    <div class="card mb-3 border-0" style="background: linear-gradient(135deg, #bd9751 0%, #8a6d34 100%); border-radius:12px; padding:10px 10px 8px;">
+        <a href="<?= base_url('/inspecciones/matriz') ?>" style="display:flex; align-items:center; gap:12px; text-decoration:none; color:#fff;">
+            <div style="width:46px; height:46px; border-radius:10px; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <i class="fas fa-th-list" style="font-size:22px; color:#fff;"></i>
+            </div>
+            <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; font-size:14px; line-height:1.2;">Matriz de Inspecciones</div>
+                <div style="font-size:11px; opacity:0.9; line-height:1.3;">Ver inspecciones por cliente y marcar las que no aplican</div>
+            </div>
+            <i class="fas fa-chevron-right" style="font-size:14px; opacity:0.7;"></i>
+        </a>
+    </div>
+
     <!-- Datos de enterprisesst -->
     <div class="section-title">Datos de enterprisesst</div>
     <div class="card mb-3 border-0" style="background:#fef0e8; border-radius:12px; padding:10px 8px 6px;">

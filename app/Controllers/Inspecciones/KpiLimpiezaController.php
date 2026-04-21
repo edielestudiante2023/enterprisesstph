@@ -145,8 +145,29 @@ class KpiLimpiezaController extends BaseController
             $data["registro_formato_$i"] = $this->uploadFoto("registro_formato_$i", static::FOTO_DIR);
         }
 
-        $this->model->insert($data);
-        $id = $this->model->getInsertID();
+        // Upsert por (id_cliente, fecha_inspeccion, indicador): autosaves concurrentes no deben crear duplicados
+        $existing = $this->model
+            ->where('id_cliente', $data['id_cliente'])
+            ->where('fecha_inspeccion', $data['fecha_inspeccion'])
+            ->where('indicador', $data['indicador'])
+            ->first();
+
+        if ($existing) {
+            $updateData = $data;
+            for ($i = 1; $i <= 4; $i++) {
+                if ($updateData["registro_formato_$i"] === null) {
+                    unset($updateData["registro_formato_$i"]);
+                }
+            }
+            if (!empty($existing['estado']) && $existing['estado'] === 'completo') {
+                unset($updateData['estado']);
+            }
+            $this->model->update($existing['id'], $updateData);
+            $id = $existing['id'];
+        } else {
+            $this->model->insert($data);
+            $id = $this->model->getInsertID();
+        }
 
         if ($isAutosave) {
             return $this->autosaveJsonSuccess($id);

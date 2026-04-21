@@ -906,6 +906,12 @@ $routes->get('/firma/verificar/(:any)', 'FirmaElectronicaController::verificar/$
 $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', 'filter' => 'auth'], function($routes) {
     $routes->get('/', 'InspeccionesController::dashboard');
 
+    // Matriz de Inspecciones por Cliente
+    $routes->get('matriz', 'MatrizInspeccionesController::index');
+    $routes->get('matriz/(:num)', 'MatrizInspeccionesController::detalle/$1');
+    $routes->post('matriz/no-aplica', 'MatrizInspeccionesController::marcarNoAplica');
+    $routes->post('matriz/quitar-no-aplica', 'MatrizInspeccionesController::quitarNoAplica');
+
     // Acta de Visita
     $routes->get('acta-visita', 'ActaVisitaController::list');
     $routes->get('acta-visita/create', 'ActaVisitaController::create');
