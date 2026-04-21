@@ -82,13 +82,33 @@ class FirmaAlturasController extends BaseController
         file_put_contents($firmaDir . $firmaFileName, $firmaData);
 
         // Actualizar tbl_clientes
+        $fechaFirmaClientes = date('Y-m-d H:i:s');
         $this->clientModel->update($cliente['id_cliente'], [
             'firma_representante_legal'  => 'firmas-representantes/' . $firmaFileName,
             'protocolo_alturas_firmado'  => 1,
-            'firma_alturas_fecha'        => date('Y-m-d H:i:s'),
+            'firma_alturas_fecha'        => $fechaFirmaClientes,
             'firma_alturas_ip'           => $this->request->getIPAddress(),
             'token_firma_alturas'        => null, // Invalidar token
         ]);
+
+        // Cerrar actividad correspondiente en tbl_pta_cliente
+        $db = \Config\Database::connect();
+        $db->query(
+            "UPDATE tbl_pta_cliente
+             SET estado_actividad='CERRADA',
+                 fecha_cierre=?,
+                 porcentaje_avance=100,
+                 observaciones=CONCAT(
+                     COALESCE(NULLIF(observaciones,''),''),
+                     CASE WHEN observaciones IS NULL OR observaciones='' THEN '' ELSE ' | ' END,
+                     'Cerrada automaticamente al firmar protocolo ', ?
+                 ),
+                 updated_at=NOW()
+             WHERE id_cliente=?
+               AND actividad_plandetrabajo LIKE '%Protocolo%Notificaci%n de Trabajo en Alturas%'
+               AND estado_actividad='ABIERTA'",
+            [date('Y-m-d', strtotime($fechaFirmaClientes)), $fechaFirmaClientes, $cliente['id_cliente']]
+        );
 
         // Propagar firma a contratos del cliente que no tengan firma
         $this->propagarFirmaAContratos($cliente['id_cliente'], 'firmas-representantes/' . $firmaFileName);
