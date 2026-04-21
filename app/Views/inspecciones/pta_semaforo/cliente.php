@@ -1,8 +1,8 @@
 <div class="container-fluid px-3 mt-2">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="mb-0"><i class="fas fa-tachometer-alt"></i> Semáforo PTA — Detalle</h6>
-        <a href="<?= base_url('inspecciones/pta-semaforo?anio=' . $anio) ?>" class="btn btn-sm btn-outline-secondary" style="padding:4px 10px;font-size:12px;">
-            <i class="fas fa-arrow-left"></i> Dashboard
+        <a href="<?= base_url('inspecciones/pta-semaforo') ?>" class="btn btn-sm btn-outline-secondary" style="padding:4px 10px;font-size:12px;">
+            <i class="fas fa-arrow-left"></i> Cambiar cliente
         </a>
     </div>
 

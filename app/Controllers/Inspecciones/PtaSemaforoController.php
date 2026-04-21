@@ -22,74 +22,22 @@ class PtaSemaforoController extends BaseController
     }
 
     /**
-     * Dashboard ejecutivo consolidado: todas las copropiedades con su semaforo.
+     * Pantalla 1: selector de cliente (Select2) + filtro de anio.
+     * Evita la carga de analizar 56 clientes x 43 tipos (~2400 queries) en una sola vista.
      */
-    public function dashboard()
+    public function index()
     {
-        $anio = (int) ($this->request->getGet('anio') ?: date('Y'));
-        $db = \Config\Database::connect();
-
-        $clientes = $db->table('tbl_clientes')
+        $clientes = $this->clienteModel
             ->select('id_cliente, nombre_cliente, nit_cliente')
             ->orderBy('nombre_cliente', 'ASC')
-            ->get()
-            ->getResultArray();
-
-        $clienteStats = [];
-        $totalVerde = 0; $totalAmarillo = 0; $totalRojo = 0; $totalHuerfana = 0;
-        $clientesConPta = 0;
-
-        foreach ($clientes as $c) {
-            $idCli = (int) $c['id_cliente'];
-            $stats = $this->computeClienteStats($idCli, $anio);
-
-            if ($stats['total_pta'] === 0 && $stats['huerfanas'] === 0) {
-                continue;
-            }
-            $clientesConPta++;
-
-            $clienteStats[] = [
-                'id_cliente'      => $idCli,
-                'nombre_cliente'  => $c['nombre_cliente'],
-                'nit_cliente'     => $c['nit_cliente'],
-                'verde'           => $stats['verde'],
-                'amarillo'        => $stats['amarillo'],
-                'rojo'            => $stats['rojo'],
-                'huerfanas'       => $stats['huerfanas'],
-                'total_pta'       => $stats['total_pta'],
-                'pct_cumplimiento'=> $stats['pct_cumplimiento'],
-                'pct_atraso'      => $stats['pct_atraso'],
-            ];
-
-            $totalVerde    += $stats['verde'];
-            $totalAmarillo += $stats['amarillo'];
-            $totalRojo     += $stats['rojo'];
-            $totalHuerfana += $stats['huerfanas'];
-        }
-
-        $totalPta = $totalVerde + $totalAmarillo + $totalRojo;
-        $pctGlobalCump = $totalPta > 0 ? round(($totalVerde / $totalPta) * 100, 1) : 0;
-        $pctGlobalAtraso = $totalPta > 0 ? round(($totalRojo / $totalPta) * 100, 1) : 0;
-
-        $topRojo = $clienteStats;
-        usort($topRojo, fn($a, $b) => ($b['rojo'] - $a['rojo']));
-        $topRojo = array_slice($topRojo, 0, 10);
+            ->findAll();
 
         return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/pta_semaforo/dashboard', [
-                'anio'              => $anio,
-                'aniosDisponibles'  => range((int) date('Y'), (int) date('Y') - 4),
-                'clienteStats'      => $clienteStats,
-                'clientesConPta'    => $clientesConPta,
-                'totalVerde'        => $totalVerde,
-                'totalAmarillo'     => $totalAmarillo,
-                'totalRojo'         => $totalRojo,
-                'totalHuerfana'     => $totalHuerfana,
-                'pctGlobalCump'     => $pctGlobalCump,
-                'pctGlobalAtraso'   => $pctGlobalAtraso,
-                'topRojo'           => $topRojo,
+            'content' => view('inspecciones/pta_semaforo/selector', [
+                'clientes' => $clientes,
+                'anio'     => (int) date('Y'),
             ]),
-            'title' => 'Semáforo PTA',
+            'title'   => 'Semáforo PTA',
         ]);
     }
 
@@ -239,65 +187,6 @@ class PtaSemaforoController extends BaseController
 
         $ok = $this->matchModel->deleteMatch($idCliente, $idPta, $slug);
         return $this->response->setJSON(['ok' => (bool) $ok]);
-    }
-
-    /**
-     * Calcula stats rapidas por cliente para el dashboard global.
-     * Solo cuenta actividades con al menos un match mapeado (ignora sin_match para no inflar rojos).
-     */
-    private function computeClienteStats(int $idCliente, int $anio): array
-    {
-        $db = \Config\Database::connect();
-
-        $ptas = $db->table('tbl_pta_cliente')
-            ->select('id_ptacliente, fecha_propuesta, fecha_cierre')
-            ->where('id_cliente', $idCliente)
-            ->get()
-            ->getResultArray();
-
-        if (empty($ptas)) {
-            return ['verde'=>0,'amarillo'=>0,'rojo'=>0,'huerfanas'=>0,'total_pta'=>0,'pct_cumplimiento'=>0,'pct_atraso'=>0];
-        }
-
-        $mapByPta = $this->matchModel->getMapByCliente($idCliente);
-        $inspCount = $this->getInspeccionesCount($idCliente, $anio);
-
-        $hoy = date('Y-m-d');
-        $radar = date('Y-m-d', strtotime('+30 days'));
-        $verde = $amar = $rojo = 0;
-        $slugsCubiertos = [];
-
-        foreach ($ptas as $p) {
-            $idPta = (int) $p['id_ptacliente'];
-            $matches = $mapByPta[$idPta] ?? [];
-            if (empty($matches)) continue;
-
-            $tiene = false;
-            foreach ($matches as $m) {
-                if (($inspCount[$m['slug_inspeccion']] ?? 0) > 0) {
-                    $tiene = true;
-                    $slugsCubiertos[$m['slug_inspeccion']] = true;
-                }
-            }
-            $fechaRef = $p['fecha_cierre'] ?: ($p['fecha_propuesta'] ?? null);
-            if ($tiene) $verde++;
-            elseif ($fechaRef && $fechaRef < $hoy) $rojo++;
-            elseif ($fechaRef && $fechaRef <= $radar) $amar++;
-            else $amar++;
-        }
-
-        $huerfanas = 0;
-        foreach ($inspCount as $slug => $count) {
-            if ($count > 0 && !isset($slugsCubiertos[$slug])) $huerfanas++;
-        }
-
-        $total = $verde + $amar + $rojo;
-        return [
-            'verde' => $verde, 'amarillo' => $amar, 'rojo' => $rojo,
-            'huerfanas' => $huerfanas, 'total_pta' => $total,
-            'pct_cumplimiento' => $total > 0 ? round(($verde / $total) * 100, 1) : 0,
-            'pct_atraso'       => $total > 0 ? round(($rojo / $total) * 100, 1) : 0,
-        ];
     }
 
     /**
