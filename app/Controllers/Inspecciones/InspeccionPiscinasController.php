@@ -18,6 +18,7 @@ class InspeccionPiscinasController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
 
     protected InspeccionPiscinasModel $inspeccionModel;
     protected PiscinaDetalleModel $detalleModel;
@@ -152,20 +153,29 @@ class InspeccionPiscinasController extends BaseController
         $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/piscinas/edit/');
         if ($existing) return $existing;
 
-        $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 
-        if (!$isAutosave) {
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
+        } else {
             if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
                 return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
             }
         }
 
-        $inspeccionData = $this->collectMasterFields($userId, true);
-        $this->inspeccionModel->insert($inspeccionData);
-        $idInspeccion = $this->inspeccionModel->getInsertID();
+        $userId = session()->get('user_id');
+        $idInspeccion = 0;
+        $detailIds = [];
 
-        $detailIds = $this->savePiscinas($idInspeccion);
+        $txResult = $this->runTransactional(function () use ($userId, &$idInspeccion, &$detailIds) {
+            $inspeccionData = $this->collectMasterFields($userId, true);
+            $this->inspeccionModel->insert($inspeccionData);
+            $idInspeccion = $this->inspeccionModel->getInsertID();
+            $detailIds = $this->savePiscinas($idInspeccion);
+            return true;
+        });
+
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
 
         if ($isAutosave) {
             return $this->autosaveJsonSuccess($idInspeccion, ['detail_ids' => $detailIds]);
@@ -206,16 +216,27 @@ class InspeccionPiscinasController extends BaseController
             return redirect()->to('/inspecciones/piscinas')->with('error', 'No se puede editar');
         }
 
-        $userId = $inspeccion['id_consultor'];
-        $this->inspeccionModel->update($id, $this->collectMasterFields($userId, false));
+        $isAutosave = $this->isAutosaveRequest();
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
+        }
 
-        $detailIds = $this->savePiscinas($id);
+        $userId = $inspeccion['id_consultor'];
+        $detailIds = [];
+
+        $txResult = $this->runTransactional(function () use ($id, $userId, &$detailIds) {
+            $this->inspeccionModel->update($id, $this->collectMasterFields($userId, false));
+            $detailIds = $this->savePiscinas($id);
+            return true;
+        });
+
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
         }
 
-        if ($this->isAutosaveRequest()) {
+        if ($isAutosave) {
             return $this->autosaveJsonSuccess((int)$id, ['detail_ids' => $detailIds]);
         }
 
@@ -254,6 +275,8 @@ class InspeccionPiscinasController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/piscinas')->with('error', 'No encontrada');
         }
+
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/piscinas/view/' . $id)) return $r;
 
         $total = $this->detalleModel->where('id_inspeccion', $id)->countAllResults();
         $this->inspeccionModel->update($id, [

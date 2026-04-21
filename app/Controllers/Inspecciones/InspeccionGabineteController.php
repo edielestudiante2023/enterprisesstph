@@ -18,6 +18,7 @@ class InspeccionGabineteController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected InspeccionGabineteModel $inspeccionModel;
     protected GabineteDetalleModel $detalleModel;
 
@@ -86,28 +87,36 @@ class InspeccionGabineteController extends BaseController
         $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/gabinetes/edit/');
         if ($existing) return $existing;
 
-        $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 
-        if (!$isAutosave) {
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
+        } else {
             if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
                 return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
             }
         }
 
-        $data = $this->getInspeccionPostData();
-        $data['id_consultor'] = $userId;
-        $data['estado'] = 'borrador';
+        $userId = session()->get('user_id');
+        $idInspeccion = 0;
+        $detailIds = [];
 
-        // Fotos generales
-        foreach (['foto_gab_1', 'foto_gab_2', 'foto_det_1', 'foto_det_2'] as $campo) {
-            $data[$campo] = $this->uploadFoto($campo, 'uploads/inspecciones/gabinetes/fotos/');
-        }
+        $txResult = $this->runTransactional(function () use ($userId, &$idInspeccion, &$detailIds) {
+            $data = $this->getInspeccionPostData();
+            $data['id_consultor'] = $userId;
+            $data['estado'] = 'borrador';
 
-        $this->inspeccionModel->insert($data);
-        $idInspeccion = $this->inspeccionModel->getInsertID();
+            foreach (['foto_gab_1', 'foto_gab_2', 'foto_det_1', 'foto_det_2'] as $campo) {
+                $data[$campo] = $this->uploadFoto($campo, 'uploads/inspecciones/gabinetes/fotos/');
+            }
 
-        $detailIds = $this->saveGabinetes($idInspeccion);
+            $this->inspeccionModel->insert($data);
+            $idInspeccion = $this->inspeccionModel->getInsertID();
+            $detailIds = $this->saveGabinetes($idInspeccion);
+            return true;
+        });
+
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
 
         if ($isAutosave) {
             return $this->autosaveJsonSuccess($idInspeccion, ['detail_ids' => $detailIds]);
@@ -147,27 +156,38 @@ class InspeccionGabineteController extends BaseController
             return redirect()->to('/inspecciones/gabinetes')->with('error', 'No se puede editar');
         }
 
-        $data = $this->getInspeccionPostData();
-
-        // Fotos generales (preservar si no se sube nueva)
-        foreach (['foto_gab_1', 'foto_gab_2', 'foto_det_1', 'foto_det_2'] as $campo) {
-            $nueva = $this->uploadFoto($campo, 'uploads/inspecciones/gabinetes/fotos/');
-            if ($nueva) {
-                if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
-                    unlink(FCPATH . $inspeccion[$campo]);
-                }
-                $data[$campo] = $nueva;
-            }
+        $isAutosave = $this->isAutosaveRequest();
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
         }
 
-        $this->inspeccionModel->update($id, $data);
-        $detailIds = $this->saveGabinetes($id);
+        $detailIds = [];
+
+        $txResult = $this->runTransactional(function () use ($id, $inspeccion, &$detailIds) {
+            $data = $this->getInspeccionPostData();
+
+            foreach (['foto_gab_1', 'foto_gab_2', 'foto_det_1', 'foto_det_2'] as $campo) {
+                $nueva = $this->uploadFoto($campo, 'uploads/inspecciones/gabinetes/fotos/');
+                if ($nueva) {
+                    if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
+                        unlink(FCPATH . $inspeccion[$campo]);
+                    }
+                    $data[$campo] = $nueva;
+                }
+            }
+
+            $this->inspeccionModel->update($id, $data);
+            $detailIds = $this->saveGabinetes($id);
+            return true;
+        });
+
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
         }
 
-        if ($this->isAutosaveRequest()) {
+        if ($isAutosave) {
             return $this->autosaveJsonSuccess((int)$id, ['detail_ids' => $detailIds]);
         }
 
@@ -206,6 +226,8 @@ class InspeccionGabineteController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/gabinetes')->with('error', 'No encontrada');
         }
+
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/gabinetes/view/' . $id)) return $r;
 
         $pdfPath = $this->generarPdfInterno($id);
         if (!$pdfPath) {

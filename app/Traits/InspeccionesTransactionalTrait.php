@@ -61,4 +61,28 @@ trait InspeccionesTransactionalTrait
 
         return $result;
     }
+
+    /**
+     * Early return si una inspección ya está finalizada. Previene doble PDF /
+     * email duplicado cuando el usuario reintenta por timeout percibido.
+     *
+     * @param array|null $inspeccion   Registro traído del model (o null).
+     * @param string     $viewUrl      Ruta a redirigir (normalmente /inspecciones/<tipo>/view/{id}).
+     * @param string     $estadoCompleto Valor que representa "ya finalizado" (default 'completo').
+     * @param string     $estadoKey    Nombre del campo de estado en la tabla (default 'estado').
+     *
+     * Uso: if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/botiquin/view/'.$id)) return $r;
+     */
+    protected function guardFinalizado(
+        ?array $inspeccion,
+        string $viewUrl,
+        string $estadoCompleto = 'completo',
+        string $estadoKey = 'estado'
+    ): ?\CodeIgniter\HTTP\RedirectResponse {
+        if ($inspeccion && ($inspeccion[$estadoKey] ?? '') === $estadoCompleto) {
+            return redirect()->to($viewUrl)
+                ->with('msg', 'Esta inspección ya fue finalizada anteriormente.');
+        }
+        return null;
+    }
 }

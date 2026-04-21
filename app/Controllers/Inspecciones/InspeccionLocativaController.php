@@ -18,6 +18,7 @@ class InspeccionLocativaController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected InspeccionLocativaModel $inspeccionModel;
     protected HallazgoLocativoModel $hallazgoModel;
 
@@ -81,32 +82,39 @@ class InspeccionLocativaController extends BaseController
         $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/inspeccion-locativa/edit/');
         if ($existing) return $existing;
 
-        $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 
-        if (!$isAutosave) {
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
+        } else {
             $rules = [
                 'id_cliente'       => 'required|integer',
                 'fecha_inspeccion'  => 'required|valid_date',
             ];
-
             if (!$this->validate($rules)) {
                 return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
             }
         }
 
-        $inspeccionData = [
-            'id_cliente'       => $this->request->getPost('id_cliente'),
-            'id_consultor'     => $userId,
-            'fecha_inspeccion'  => $this->request->getPost('fecha_inspeccion'),
-            'observaciones'    => $this->request->getPost('observaciones'),
-            'estado'           => 'borrador',
-        ];
+        $userId = session()->get('user_id');
+        $idInspeccion = 0;
+        $detailIds = [];
 
-        $this->inspeccionModel->insert($inspeccionData);
-        $idInspeccion = $this->inspeccionModel->getInsertID();
+        $txResult = $this->runTransactional(function () use ($userId, &$idInspeccion, &$detailIds) {
+            $inspeccionData = [
+                'id_cliente'       => $this->request->getPost('id_cliente'),
+                'id_consultor'     => $userId,
+                'fecha_inspeccion'  => $this->request->getPost('fecha_inspeccion'),
+                'observaciones'    => $this->request->getPost('observaciones'),
+                'estado'           => 'borrador',
+            ];
+            $this->inspeccionModel->insert($inspeccionData);
+            $idInspeccion = $this->inspeccionModel->getInsertID();
+            $detailIds = $this->saveHallazgos($idInspeccion);
+            return true;
+        });
 
-        $detailIds = $this->saveHallazgos($idInspeccion);
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
 
         if ($isAutosave) {
             return $this->autosaveJsonSuccess($idInspeccion, ['detail_ids' => $detailIds]);
@@ -151,24 +159,30 @@ class InspeccionLocativaController extends BaseController
             return redirect()->to('/inspecciones/inspeccion-locativa')->with('error', 'No se puede editar esta inspección');
         }
 
-        $inspeccionData = [
-            'id_cliente'       => $this->request->getPost('id_cliente'),
-            'fecha_inspeccion'  => $this->request->getPost('fecha_inspeccion'),
-            'observaciones'    => $this->request->getPost('observaciones'),
-        ];
+        $isAutosave = $this->isAutosaveRequest();
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
+        }
 
-        $this->inspeccionModel->update($id, $inspeccionData);
-        $detailIds = $this->saveHallazgos($id);
+        $detailIds = [];
 
-        $redirect = $this->request->getPost('finalizar')
-            ? '/inspecciones/inspeccion-locativa/finalizar/' . $id
-            : '/inspecciones/inspeccion-locativa/edit/' . $id;
+        $txResult = $this->runTransactional(function () use ($id, &$detailIds) {
+            $this->inspeccionModel->update($id, [
+                'id_cliente'       => $this->request->getPost('id_cliente'),
+                'fecha_inspeccion' => $this->request->getPost('fecha_inspeccion'),
+                'observaciones'    => $this->request->getPost('observaciones'),
+            ]);
+            $detailIds = $this->saveHallazgos($id);
+            return true;
+        });
+
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
         }
 
-        if ($this->isAutosaveRequest()) {
+        if ($isAutosave) {
             return $this->autosaveJsonSuccess((int)$id, ['detail_ids' => $detailIds]);
         }
 
@@ -212,6 +226,8 @@ class InspeccionLocativaController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/inspeccion-locativa')->with('error', 'Inspección no encontrada');
         }
+
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/inspeccion-locativa/view/' . $id)) return $r;
 
         // Generar PDF
         $pdfPath = $this->generarPdfInterno($id);

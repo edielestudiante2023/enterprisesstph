@@ -285,13 +285,7 @@ class InspeccionBotiquinController extends BaseController
             return redirect()->to('/inspecciones/botiquin')->with('error', 'No encontrada');
         }
 
-        // Idempotencia: si ya está finalizada, no regenerar PDF ni reenviar email.
-        // Previene duplicados cuando el usuario hace doble-tap o reintenta por
-        // timeout percibido mientras el servidor procesaba en segundo plano.
-        if (($inspeccion['estado'] ?? '') === 'completo') {
-            return redirect()->to('/inspecciones/botiquin/view/' . $id)
-                ->with('msg', 'Esta inspección ya fue finalizada anteriormente.');
-        }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/botiquin/view/' . $id)) return $r;
 
         // Generar pendientes automáticos
         $this->generarPendientes($id);

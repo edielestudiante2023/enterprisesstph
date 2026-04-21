@@ -20,6 +20,7 @@ class InspeccionExtintoresController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected InspeccionExtintoresModel $inspeccionModel;
     protected ExtintorDetalleModel $detalleModel;
 
@@ -94,41 +95,50 @@ class InspeccionExtintoresController extends BaseController
         $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/extintores/edit/');
         if ($existing) return $existing;
 
-        $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 
-        if (!$isAutosave) {
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
+        } else {
             if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
                 return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
             }
         }
 
-        $inspeccionData = [
-            'id_cliente'                    => $this->request->getPost('id_cliente'),
-            'id_consultor'                  => $userId,
-            'fecha_inspeccion'              => $this->request->getPost('fecha_inspeccion'),
-            'fecha_vencimiento_global'      => $this->request->getPost('fecha_vencimiento_global') ?: null,
-            'numero_extintores_totales'     => (int)$this->request->getPost('numero_extintores_totales'),
-            'cantidad_abc'                  => (int)$this->request->getPost('cantidad_abc'),
-            'cantidad_co2'                  => (int)$this->request->getPost('cantidad_co2'),
-            'cantidad_solkaflam'            => (int)$this->request->getPost('cantidad_solkaflam'),
-            'cantidad_agua'                 => (int)$this->request->getPost('cantidad_agua'),
-            'capacidad_libras'              => $this->request->getPost('capacidad_libras'),
-            'cantidad_unidades_residenciales' => (int)$this->request->getPost('cantidad_unidades_residenciales'),
-            'cantidad_porteria'             => (int)$this->request->getPost('cantidad_porteria'),
-            'cantidad_oficina_admin'        => (int)$this->request->getPost('cantidad_oficina_admin'),
-            'cantidad_shut_basuras'         => (int)$this->request->getPost('cantidad_shut_basuras'),
-            'cantidad_salones_comunales'    => (int)$this->request->getPost('cantidad_salones_comunales'),
-            'cantidad_cuarto_bombas'        => (int)$this->request->getPost('cantidad_cuarto_bombas'),
-            'cantidad_planta_electrica'     => (int)$this->request->getPost('cantidad_planta_electrica'),
-            'recomendaciones_generales'     => $this->request->getPost('recomendaciones_generales'),
-            'estado'                        => 'borrador',
-        ];
+        $userId = session()->get('user_id');
+        $idInspeccion = 0;
+        $detailIds = [];
 
-        $this->inspeccionModel->insert($inspeccionData);
-        $idInspeccion = $this->inspeccionModel->getInsertID();
+        $txResult = $this->runTransactional(function () use ($userId, &$idInspeccion, &$detailIds) {
+            $inspeccionData = [
+                'id_cliente'                    => $this->request->getPost('id_cliente'),
+                'id_consultor'                  => $userId,
+                'fecha_inspeccion'              => $this->request->getPost('fecha_inspeccion'),
+                'fecha_vencimiento_global'      => $this->request->getPost('fecha_vencimiento_global') ?: null,
+                'numero_extintores_totales'     => (int)$this->request->getPost('numero_extintores_totales'),
+                'cantidad_abc'                  => (int)$this->request->getPost('cantidad_abc'),
+                'cantidad_co2'                  => (int)$this->request->getPost('cantidad_co2'),
+                'cantidad_solkaflam'            => (int)$this->request->getPost('cantidad_solkaflam'),
+                'cantidad_agua'                 => (int)$this->request->getPost('cantidad_agua'),
+                'capacidad_libras'              => $this->request->getPost('capacidad_libras'),
+                'cantidad_unidades_residenciales' => (int)$this->request->getPost('cantidad_unidades_residenciales'),
+                'cantidad_porteria'             => (int)$this->request->getPost('cantidad_porteria'),
+                'cantidad_oficina_admin'        => (int)$this->request->getPost('cantidad_oficina_admin'),
+                'cantidad_shut_basuras'         => (int)$this->request->getPost('cantidad_shut_basuras'),
+                'cantidad_salones_comunales'    => (int)$this->request->getPost('cantidad_salones_comunales'),
+                'cantidad_cuarto_bombas'        => (int)$this->request->getPost('cantidad_cuarto_bombas'),
+                'cantidad_planta_electrica'     => (int)$this->request->getPost('cantidad_planta_electrica'),
+                'recomendaciones_generales'     => $this->request->getPost('recomendaciones_generales'),
+                'estado'                        => 'borrador',
+            ];
 
-        $detailIds = $this->saveExtintores($idInspeccion);
+            $this->inspeccionModel->insert($inspeccionData);
+            $idInspeccion = $this->inspeccionModel->getInsertID();
+            $detailIds = $this->saveExtintores($idInspeccion);
+            return true;
+        });
+
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
 
         if ($isAutosave) {
             return $this->autosaveJsonSuccess($idInspeccion, ['detail_ids' => $detailIds]);
@@ -168,33 +178,44 @@ class InspeccionExtintoresController extends BaseController
             return redirect()->to('/inspecciones/extintores')->with('error', 'No se puede editar');
         }
 
-        $this->inspeccionModel->update($id, [
-            'id_cliente'                    => $this->request->getPost('id_cliente'),
-            'fecha_inspeccion'              => $this->request->getPost('fecha_inspeccion'),
-            'fecha_vencimiento_global'      => $this->request->getPost('fecha_vencimiento_global') ?: null,
-            'numero_extintores_totales'     => (int)$this->request->getPost('numero_extintores_totales'),
-            'cantidad_abc'                  => (int)$this->request->getPost('cantidad_abc'),
-            'cantidad_co2'                  => (int)$this->request->getPost('cantidad_co2'),
-            'cantidad_solkaflam'            => (int)$this->request->getPost('cantidad_solkaflam'),
-            'cantidad_agua'                 => (int)$this->request->getPost('cantidad_agua'),
-            'capacidad_libras'              => $this->request->getPost('capacidad_libras'),
-            'cantidad_unidades_residenciales' => (int)$this->request->getPost('cantidad_unidades_residenciales'),
-            'cantidad_porteria'             => (int)$this->request->getPost('cantidad_porteria'),
-            'cantidad_oficina_admin'        => (int)$this->request->getPost('cantidad_oficina_admin'),
-            'cantidad_shut_basuras'         => (int)$this->request->getPost('cantidad_shut_basuras'),
-            'cantidad_salones_comunales'    => (int)$this->request->getPost('cantidad_salones_comunales'),
-            'cantidad_cuarto_bombas'        => (int)$this->request->getPost('cantidad_cuarto_bombas'),
-            'cantidad_planta_electrica'     => (int)$this->request->getPost('cantidad_planta_electrica'),
-            'recomendaciones_generales'     => $this->request->getPost('recomendaciones_generales'),
-        ]);
+        $isAutosave = $this->isAutosaveRequest();
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
+        }
 
-        $detailIds = $this->saveExtintores($id);
+        $detailIds = [];
+
+        $txResult = $this->runTransactional(function () use ($id, &$detailIds) {
+            $this->inspeccionModel->update($id, [
+                'id_cliente'                    => $this->request->getPost('id_cliente'),
+                'fecha_inspeccion'              => $this->request->getPost('fecha_inspeccion'),
+                'fecha_vencimiento_global'      => $this->request->getPost('fecha_vencimiento_global') ?: null,
+                'numero_extintores_totales'     => (int)$this->request->getPost('numero_extintores_totales'),
+                'cantidad_abc'                  => (int)$this->request->getPost('cantidad_abc'),
+                'cantidad_co2'                  => (int)$this->request->getPost('cantidad_co2'),
+                'cantidad_solkaflam'            => (int)$this->request->getPost('cantidad_solkaflam'),
+                'cantidad_agua'                 => (int)$this->request->getPost('cantidad_agua'),
+                'capacidad_libras'              => $this->request->getPost('capacidad_libras'),
+                'cantidad_unidades_residenciales' => (int)$this->request->getPost('cantidad_unidades_residenciales'),
+                'cantidad_porteria'             => (int)$this->request->getPost('cantidad_porteria'),
+                'cantidad_oficina_admin'        => (int)$this->request->getPost('cantidad_oficina_admin'),
+                'cantidad_shut_basuras'         => (int)$this->request->getPost('cantidad_shut_basuras'),
+                'cantidad_salones_comunales'    => (int)$this->request->getPost('cantidad_salones_comunales'),
+                'cantidad_cuarto_bombas'        => (int)$this->request->getPost('cantidad_cuarto_bombas'),
+                'cantidad_planta_electrica'     => (int)$this->request->getPost('cantidad_planta_electrica'),
+                'recomendaciones_generales'     => $this->request->getPost('recomendaciones_generales'),
+            ]);
+            $detailIds = $this->saveExtintores($id);
+            return true;
+        });
+
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
         }
 
-        if ($this->isAutosaveRequest()) {
+        if ($isAutosave) {
             return $this->autosaveJsonSuccess((int)$id, ['detail_ids' => $detailIds]);
         }
 
@@ -233,6 +254,8 @@ class InspeccionExtintoresController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/extintores')->with('error', 'No encontrada');
         }
+
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/extintores/view/' . $id)) return $r;
 
         $pdfPath = $this->generarPdfInterno($id);
         if (!$pdfPath) {

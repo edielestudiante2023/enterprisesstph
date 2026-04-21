@@ -18,6 +18,7 @@ class InspeccionSenalizacionController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected InspeccionSenalizacionModel $inspeccionModel;
     protected ItemSenalizacionModel $itemModel;
 
@@ -134,28 +135,36 @@ class InspeccionSenalizacionController extends BaseController
         $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/senalizacion/edit/');
         if ($existing) return $existing;
 
-        $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 
-        if (!$isAutosave) {
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
+        } else {
             if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
                 return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
             }
         }
 
-        $inspeccionData = [
-            'id_cliente'       => $this->request->getPost('id_cliente'),
-            'id_consultor'     => $userId,
-            'fecha_inspeccion' => $this->request->getPost('fecha_inspeccion'),
-            'observaciones'    => $this->request->getPost('observaciones'),
-            'estado'           => 'borrador',
-        ];
+        $userId = session()->get('user_id');
+        $idInspeccion = 0;
+        $detailIds = [];
 
-        $this->inspeccionModel->insert($inspeccionData);
-        $idInspeccion = $this->inspeccionModel->getInsertID();
+        $txResult = $this->runTransactional(function () use ($userId, &$idInspeccion, &$detailIds) {
+            $inspeccionData = [
+                'id_cliente'       => $this->request->getPost('id_cliente'),
+                'id_consultor'     => $userId,
+                'fecha_inspeccion' => $this->request->getPost('fecha_inspeccion'),
+                'observaciones'    => $this->request->getPost('observaciones'),
+                'estado'           => 'borrador',
+            ];
+            $this->inspeccionModel->insert($inspeccionData);
+            $idInspeccion = $this->inspeccionModel->getInsertID();
+            $detailIds = $this->saveItems($idInspeccion);
+            $this->recalcularCalificacion($idInspeccion);
+            return true;
+        });
 
-        $detailIds = $this->saveItems($idInspeccion);
-        $this->recalcularCalificacion($idInspeccion);
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
 
         if ($isAutosave) {
             return $this->autosaveJsonSuccess($idInspeccion, ['detail_ids' => $detailIds]);
@@ -194,20 +203,31 @@ class InspeccionSenalizacionController extends BaseController
             return redirect()->to('/inspecciones/senalizacion')->with('error', 'No se puede editar');
         }
 
-        $this->inspeccionModel->update($id, [
-            'id_cliente'       => $this->request->getPost('id_cliente'),
-            'fecha_inspeccion' => $this->request->getPost('fecha_inspeccion'),
-            'observaciones'    => $this->request->getPost('observaciones'),
-        ]);
+        $isAutosave = $this->isAutosaveRequest();
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
+        }
 
-        $detailIds = $this->saveItems($id);
-        $this->recalcularCalificacion($id);
+        $detailIds = [];
+
+        $txResult = $this->runTransactional(function () use ($id, &$detailIds) {
+            $this->inspeccionModel->update($id, [
+                'id_cliente'       => $this->request->getPost('id_cliente'),
+                'fecha_inspeccion' => $this->request->getPost('fecha_inspeccion'),
+                'observaciones'    => $this->request->getPost('observaciones'),
+            ]);
+            $detailIds = $this->saveItems($id);
+            $this->recalcularCalificacion($id);
+            return true;
+        });
+
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
         }
 
-        if ($this->isAutosaveRequest()) {
+        if ($isAutosave) {
             return $this->autosaveJsonSuccess((int)$id, ['detail_ids' => $detailIds]);
         }
 
@@ -245,6 +265,8 @@ class InspeccionSenalizacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/senalizacion')->with('error', 'No encontrada');
         }
+
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/senalizacion/view/' . $id)) return $r;
 
         $pdfPath = $this->generarPdfInterno($id);
         if (!$pdfPath) {
