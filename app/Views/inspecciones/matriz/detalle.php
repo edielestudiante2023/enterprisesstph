@@ -214,7 +214,21 @@ document.addEventListener('DOMContentLoaded', function () {
         columnDefs: [
             { orderable: false, targets: [2, 4] }
         ],
-        orderCellsTop: true
+        orderCellsTop: true,
+        stateSave: true,
+        stateDuration: -1,
+        initComplete: function () {
+            document.querySelectorAll('.col-filter').forEach(function (el) {
+                const saved = tabla.column(el.dataset.col).search();
+                if (saved) el.value = saved;
+            });
+            const estadoText = tabla.column(3).search();
+            const textToFiltro = { '': 'todas', 'Hecha': 'hecha', 'Pendiente': 'pendiente', 'No Aplica': 'no_aplica' };
+            const activeFiltro = textToFiltro[estadoText] || 'todas';
+            document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
+            const activeCard = document.querySelector('.card-filtro[data-filtro="' + activeFiltro + '"]');
+            if (activeCard) activeCard.classList.add('active');
+        }
     });
 
     document.querySelectorAll('.col-filter').forEach(function (el) {
