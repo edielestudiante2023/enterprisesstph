@@ -26,6 +26,8 @@ class ReclasificarSinRespuestaCron extends BaseCommand
             ->join('tbl_consultor con', 'con.id_consultor = c.id_consultor', 'left')
             ->where('p.estado', 'ABIERTA')
             ->where('p.fecha_plazo IS NOT NULL', null, false)
+            ->where("CAST(p.fecha_plazo AS CHAR) <> '0000-00-00'", null, false)
+            ->where("p.fecha_plazo >= '2000-01-01'", null, false)
             ->where('p.fecha_plazo < DATE_SUB(CURDATE(), INTERVAL 90 DAY)', null, false)
             ->where('p.fecha_reclasificacion_auto IS NULL', null, false)
             ->orderBy('p.fecha_plazo', 'ASC')
@@ -34,10 +36,15 @@ class ReclasificarSinRespuestaCron extends BaseCommand
 
         if (empty($pendientes)) {
             CLI::write('No hay pendientes para reclasificar.', 'green');
+            log_message('info', '[reclasificar-sin-respuesta] 0 candidatos hoy ' . date('Y-m-d'));
             return;
         }
 
         CLI::write('Pendientes candidatos: ' . count($pendientes), 'yellow');
+        log_message('info', '[reclasificar-sin-respuesta] ' . count($pendientes) . ' candidatos hoy ' . date('Y-m-d'));
+        foreach ($pendientes as $p) {
+            log_message('info', "[reclasificar-sin-respuesta] candidato id={$p['id_pendientes']} cliente={$p['id_cliente']} plazo={$p['fecha_plazo']} asignacion={$p['fecha_asignacion']} tarea=\"" . mb_substr($p['tarea_actividad'] ?? '', 0, 60) . "\"");
+        }
 
         $porCliente = [];
         foreach ($pendientes as $p) {
@@ -79,6 +86,7 @@ class ReclasificarSinRespuestaCron extends BaseCommand
                         'fecha_reclasificacion_auto' => date('Y-m-d'),
                     ]);
                 $reclasificados += $n;
+                log_message('warning', "[reclasificar-sin-respuesta] RECLASIFICADOS ids=" . implode(',', $ids) . " cliente={$cliente['id_cliente']} nombre=\"{$nombre}\"");
             }
 
             CLI::write("  OK: {$nombre} - {$n} pendientes", 'green');

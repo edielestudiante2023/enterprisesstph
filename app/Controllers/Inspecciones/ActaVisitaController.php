@@ -886,17 +886,39 @@ class ActaVisitaController extends BaseController
 
         foreach ($actividades as $i => $actividad) {
             if (!empty(trim($actividad))) {
+                $fechaRaw  = $fechas[$i] ?? null;
+                $fechaPlazo = $this->normalizarFechaPlazo($fechaRaw);
+
+                if ($fechaPlazo === null) {
+                    log_message('warning', "[saveCompromisos] acta={$idActa} cliente={$acta['id_cliente']} compromiso#{$i} SIN fecha_plazo (raw=" . var_export($fechaRaw, true) . ") tarea=\"" . mb_substr(trim($actividad), 0, 80) . "\"");
+                }
+
                 $pendientesModel->insert([
                     'id_cliente'      => $acta['id_cliente'],
                     'tarea_actividad' => trim($actividad),
                     'fecha_asignacion' => date('Y-m-d'),
-                    'fecha_plazo'     => $fechas[$i] ?? null,
+                    'fecha_plazo'     => $fechaPlazo,
                     'responsable'     => $responsables[$i] ?? '',
                     'estado'          => 'ABIERTA',
                     'id_acta_visita'  => $idActa,
                 ]);
             }
         }
+    }
+
+    /**
+     * Normaliza cualquier entrada a Y-m-d valido o null.
+     * Rechaza: null, '', '0000-00-00', fechas previas a 2000-01-01, strings no parseables.
+     */
+    private function normalizarFechaPlazo($raw): ?string
+    {
+        if ($raw === null) return null;
+        $s = trim((string) $raw);
+        if ($s === '' || $s === '0000-00-00') return null;
+        $ts = strtotime($s);
+        if ($ts === false) return null;
+        if ($ts < strtotime('2000-01-01')) return null;
+        return date('Y-m-d', $ts);
     }
 
     /**

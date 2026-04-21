@@ -206,7 +206,7 @@ $action = $isEdit ? base_url('/inspecciones/acta-visita/update/') . $acta['id'] 
                                         <input type="text" name="compromiso_actividad[]" class="form-control mb-1" placeholder="Actividad" value="<?= esc($comp['tarea_actividad']) ?>">
                                         <div class="row g-2">
                                             <div class="col-6">
-                                                <input type="date" name="compromiso_fecha[]" class="form-control" value="<?= $comp['fecha_cierre'] ?? '' ?>">
+                                                <input type="date" name="compromiso_fecha[]" class="form-control" value="<?= $comp['fecha_plazo'] ?? '' ?>">
                                             </div>
                                             <div class="col-5">
                                                 <select name="compromiso_responsable[]" class="form-select">
