@@ -1254,7 +1254,9 @@
         </a>
     </div>
 
-    <!-- Semaforo PTA - Tablero Ejecutivo IA -->
+    <?php /* Semaforo PTA — acceso desactivado temporalmente mientras se redefine el enfoque (2026-04-21).
+             Toda la infra (rutas, controlador, modelos, tabla, clasificador IA) queda intacta.
+             Para reactivar: descomentar este bloque.
     <div class="card mb-3 border-0" style="background: linear-gradient(135deg, #2e7d4f 0%, #1b5e3a 100%); border-radius:12px; padding:10px 10px 8px;">
         <a href="<?= base_url('/inspecciones/pta-semaforo') ?>" style="display:flex; align-items:center; gap:12px; text-decoration:none; color:#fff;">
             <div style="width:46px; height:46px; border-radius:10px; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -1267,6 +1269,7 @@
             <i class="fas fa-chevron-right" style="font-size:14px; opacity:0.7;"></i>
         </a>
     </div>
+    */ ?>
 
     <!-- Datos de enterprisesst -->
     <div class="section-title">Datos de enterprisesst</div>
