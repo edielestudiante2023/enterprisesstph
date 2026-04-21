@@ -70,64 +70,64 @@
         watchStatus();
     }
 
-    // ── 4) Swal loader para submit manual (se cierra al navegar) ──
-    //     El bloque anti-duplicación ya marca form.dataset.submitted='true'.
-    //     Solo abrimos Swal; si algo falla, el setTimeout del layout rehabilita
-    //     los botones → ahí también cerramos Swal.
+    // ── 4) Swal loader fullscreen para submit (manual + programático) ──
+    //     Se cierra solo al navegar (redirect del server destruye la página).
+    //     A los 30s: mensaje actualizado + botón "Cerrar" para desbloquear al usuario.
+    //     NO cerramos automáticamente si el fallback del layout rehabilita botones:
+    //     el servidor puede estar procesando legítimamente (Finalizar con PDF+email
+    //     tarda 15-30s; guardar borrador con fotos en 3G similar).
+
+    function openSavingModal() {
+        if (typeof Swal === 'undefined') return;
+        if (Swal.isVisible()) return;
+
+        Swal.fire({
+            title: 'Guardando...',
+            html: 'No cierres la aplicación',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: function () { Swal.showLoading(); }
+        });
+
+        // A los 30s: tranquilizar al usuario + dar vía de escape manual.
+        setTimeout(function () {
+            if (!Swal.isVisible()) return;
+            Swal.update({
+                title: 'Sigue guardando...',
+                html: 'Si la conexión está lenta puede tardar hasta 1 minuto. Tus datos están en el formulario.',
+                showConfirmButton: true,
+                confirmButtonText: 'Cerrar aviso'
+            });
+        }, 30000);
+    }
+
+    // Guardar referencia a openSavingModal para que otras piezas (autosave_server.js)
+    // puedan llamarla si hiciera falta.
+    window.pwaShowSaving = openSavingModal;
+
+    // 4a) Submit por evento (botones "Guardar borrador"): dispara 'submit' del DOM.
     window.addEventListener('submit', function (e) {
         var form = e.target;
         if (!form || form.tagName !== 'FORM') return;
         if (form.dataset.noPwaLoader === '1') return;
-        // Abrir loader fullscreen
-        if (typeof Swal !== 'undefined') {
-            setTimeout(function () {
-                // Pequeño delay para no interferir con handlers de validación síncrona
-                if (form.dataset.submitted === 'true') {
-                    Swal.fire({
-                        title: 'Guardando...',
-                        html: 'No cierres la aplicación',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        didOpen: function () { Swal.showLoading(); }
-                    });
-                    // Si en 30s no navegamos ni se cerró, avisar al usuario.
-                    setTimeout(function () {
-                        if (Swal.isVisible()) {
-                            Swal.update({
-                                title: 'Sigue guardando...',
-                                html: 'Si la conexión es lenta puede tardar. No cierres la app.'
-                            });
-                        }
-                    }, 30000);
-                }
-            }, 50);
-        }
-    }, false); // bubble phase — después del handler anti-duplicación en capture
+        setTimeout(function () {
+            if (form.dataset.submitted === 'true') openSavingModal();
+        }, 50);
+    }, false);
 
-    // ── 5) Si el fallback de 8s del layout rehabilita los botones sin navegar,
-    //     interpretamos que algo salió mal y cerramos el Swal con mensaje.
-    document.addEventListener('click', function (e) {
-        var btn = e.target.closest && e.target.closest('button[type="submit"], input[type="submit"]');
-        if (!btn) return;
-        var form = btn.form;
-        if (!form) return;
-
-        // Observar cuándo el form.dataset.submitted vuelve a vacío (rehabilitación)
-        var tries = 0;
-        var t = setInterval(function () {
-            tries++;
-            if (tries > 20) { clearInterval(t); return; }  // 20 * 500ms = 10s
-            if (form.dataset.submitted === '' && typeof Swal !== 'undefined' && Swal.isVisible()) {
-                clearInterval(t);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'No se pudo guardar',
-                    text: navigator.onLine
-                        ? 'El servidor no respondió a tiempo. Tus datos siguen en el formulario — intenta de nuevo.'
-                        : 'Sin conexión. Conecta a internet y vuelve a intentar.',
-                    confirmButtonText: 'Entendido'
-                });
+    // 4b) Submit programático (form.submit() tras SweetAlert "¿Está seguro?")
+    //     NO dispara el evento 'submit' por spec. Override del prototype para que
+    //     también abra el modal. El script se carga solo desde layout_pwa.php, por
+    //     lo que este override solo corre dentro del módulo de inspecciones.
+    var nativeSubmit = HTMLFormElement.prototype.submit;
+    HTMLFormElement.prototype.submit = function () {
+        try {
+            if (!this.dataset || this.dataset.noPwaLoader !== '1') {
+                if (this.dataset) this.dataset.submitted = 'true';
+                openSavingModal();
             }
-        }, 500);
-    }, true);
+        } catch (_) { /* no bloquear el submit si algo falla */ }
+        return nativeSubmit.apply(this, arguments);
+    };
 })();

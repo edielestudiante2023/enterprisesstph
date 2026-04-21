@@ -451,7 +451,9 @@
                 clickedBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
             }
 
-            // Re-habilitar después de 8s como fallback (por si hay error de red)
+            // Re-habilitar después de 60s como fallback (por si hay error de red).
+            // Finalizar con PDF + email puede tardar 20-30s legítimamente; guardar
+            // borrador con fotos en 3G similar. 60s cubre el peor caso esperado.
             setTimeout(function() {
                 form.dataset.submitted = '';
                 btns.forEach(function(btn) {
@@ -461,7 +463,7 @@
                         delete btn.dataset.originalHtml;
                     }
                 });
-            }, 8000);
+            }, 60000);
         }, true); // capture phase para interceptar antes que otros handlers
     })();
     </script>
