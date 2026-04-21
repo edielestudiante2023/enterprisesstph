@@ -3,11 +3,12 @@ $totalHechas    = 0;
 $totalPend      = 0;
 $totalNoAplica  = 0;
 foreach ($filas as $f) {
-    if ($f['estado'] === 'hecha')      $totalHechas++;
+    if ($f['estado'] === 'hecha')         $totalHechas++;
     elseif ($f['estado'] === 'pendiente') $totalPend++;
-    else $totalNoAplica++;
+    else                                  $totalNoAplica++;
 }
-$aplicables = count($filas) - $totalNoAplica;
+$totalTodos = count($filas);
+$aplicables = $totalTodos - $totalNoAplica;
 $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
 ?>
 <div class="container-fluid px-3 mt-2">
@@ -37,27 +38,36 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
         </div>
     </div>
 
+    <!-- Cards clickeables para filtrar la tabla -->
     <div class="row g-2 mb-3">
-        <div class="col-4">
-            <div class="card border-0 text-center" style="background:#d4edda; border-radius:10px;">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 text-center card-filtro active" data-filtro="todas" style="background:#eef2f7; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
-                    <div style="font-size:11px; color:#155724; font-weight:600;">Hechas</div>
+                    <div style="font-size:11px; color:#1c2437; font-weight:600;"><i class="fas fa-list"></i> Todas</div>
+                    <div style="font-size:20px; font-weight:700; color:#1c2437;"><?= $totalTodos ?></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 text-center card-filtro" data-filtro="hecha" style="background:#d4edda; border-radius:10px; cursor:pointer;">
+                <div class="card-body py-2 px-1">
+                    <div style="font-size:11px; color:#155724; font-weight:600;"><i class="fas fa-check-circle"></i> Hechas</div>
                     <div style="font-size:20px; font-weight:700; color:#155724;"><?= $totalHechas ?></div>
                 </div>
             </div>
         </div>
-        <div class="col-4">
-            <div class="card border-0 text-center" style="background:#fff3cd; border-radius:10px;">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 text-center card-filtro" data-filtro="pendiente" style="background:#fff3cd; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
-                    <div style="font-size:11px; color:#856404; font-weight:600;">Pendientes</div>
+                    <div style="font-size:11px; color:#856404; font-weight:600;"><i class="fas fa-clock"></i> Pendientes</div>
                     <div style="font-size:20px; font-weight:700; color:#856404;"><?= $totalPend ?></div>
                 </div>
             </div>
         </div>
-        <div class="col-4">
-            <div class="card border-0 text-center" style="background:#e2e3e5; border-radius:10px;">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 text-center card-filtro" data-filtro="no_aplica" style="background:#e2e3e5; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
-                    <div style="font-size:11px; color:#383d41; font-weight:600;">No Aplica</div>
+                    <div style="font-size:11px; color:#383d41; font-weight:600;"><i class="fas fa-ban"></i> No Aplica</div>
                     <div style="font-size:20px; font-weight:700; color:#383d41;"><?= $totalNoAplica ?></div>
                 </div>
             </div>
@@ -72,13 +82,28 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
     </div>
 
     <div class="table-responsive">
-        <table class="table table-sm table-hover" style="width:100%; background:#fff;">
+        <table id="tablaMatriz" class="table table-sm table-hover" style="width:100%; background:#fff;">
             <thead style="background:#1c2437; color:#fff;">
                 <tr>
+                    <th style="font-size:12px;">Grupo</th>
                     <th style="font-size:12px;">Tipo de Inspección</th>
-                    <th style="font-size:12px;">Fecha(s) en <?= (int) $anio ?></th>
+                    <th style="font-size:12px;">Fechas en <?= (int) $anio ?></th>
                     <th style="font-size:12px;">Estado</th>
                     <th style="font-size:12px; text-align:right;">Acciones</th>
+                </tr>
+                <tr style="background:#2a3449;">
+                    <th><input type="text" class="form-control form-control-sm col-filter" data-col="0" placeholder="Filtrar grupo" style="font-size:11px;"></th>
+                    <th><input type="text" class="form-control form-control-sm col-filter" data-col="1" placeholder="Filtrar tipo" style="font-size:11px;"></th>
+                    <th></th>
+                    <th>
+                        <select class="form-select form-select-sm col-filter" data-col="3" style="font-size:11px;">
+                            <option value="">Todos</option>
+                            <option value="Hecha">Hechas</option>
+                            <option value="Pendiente">Pendientes</option>
+                            <option value="No Aplica">No Aplica</option>
+                        </select>
+                    </th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -94,13 +119,15 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                     'pendiente' => '<i class="fas fa-clock"></i> Pendiente',
                     'no_aplica' => '<i class="fas fa-ban"></i> No Aplica',
                 ][$f['estado']];
+                $estadoTexto = ['hecha' => 'Hecha', 'pendiente' => 'Pendiente', 'no_aplica' => 'No Aplica'][$f['estado']];
                 ?>
-                <tr <?= $f['estado'] === 'no_aplica' ? 'style="opacity:0.6;"' : '' ?>>
+                <tr data-estado="<?= esc($f['estado']) ?>" <?= $f['estado'] === 'no_aplica' ? 'style="opacity:0.6;"' : '' ?>>
+                    <td style="font-size:11px; color:#555;"><?= esc($f['group']) ?></td>
                     <td style="font-size:13px;">
                         <i class="fas <?= esc($f['icon']) ?>" style="color:#bd9751; width:18px;"></i>
                         <?= esc($f['label']) ?>
                     </td>
-                    <td style="font-size:12px;">
+                    <td style="font-size:12px;" data-order="<?= esc($f['ultima'] ?? '') ?>">
                         <?php if ($f['estado'] === 'no_aplica'): ?>
                             <span class="text-muted">—</span>
                         <?php elseif ($f['total'] === 0): ?>
@@ -123,6 +150,7 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                         <span class="badge" style="<?= $badgeClass ?> font-size:11px; padding:5px 8px;">
                             <?= $badgeLabel ?>
                         </span>
+                        <span class="d-none"><?= esc($estadoTexto) ?></span>
                         <?php if ($f['estado'] === 'no_aplica' && !empty($f['no_aplica']['motivo'])): ?>
                             <div class="small text-muted mt-1" style="font-size:10px;"><?= esc($f['no_aplica']['motivo']) ?></div>
                         <?php endif; ?>
@@ -163,11 +191,59 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
     </div>
 </div>
 
+<style>
+.card-filtro { transition: transform .15s, box-shadow .15s, outline .15s; outline: 2px solid transparent; }
+.card-filtro:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+.card-filtro.active { outline: 2px solid #bd9751; box-shadow: 0 4px 10px rgba(189,151,81,0.25); }
+</style>
+
 <script>
-(function () {
+document.addEventListener('DOMContentLoaded', function () {
     const ID_CLIENTE = <?= (int) $cliente['id_cliente'] ?>;
     const URL_MARCAR = '<?= base_url('inspecciones/matriz/no-aplica') ?>';
     const URL_QUITAR = '<?= base_url('inspecciones/matriz/quitar-no-aplica') ?>';
+
+    const estadoLabelMap = { 'hecha': 'Hecha', 'pendiente': 'Pendiente', 'no_aplica': 'No Aplica' };
+
+    const tabla = $('#tablaMatriz').DataTable({
+        responsive: true,
+        language: { url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json' },
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'Todas']],
+        order: [[0, 'asc'], [1, 'asc']],
+        columnDefs: [
+            { orderable: false, targets: [2, 4] }
+        ],
+        orderCellsTop: true
+    });
+
+    document.querySelectorAll('.col-filter').forEach(function (el) {
+        el.addEventListener('input', function () {
+            tabla.column(this.dataset.col).search(this.value).draw();
+        });
+        el.addEventListener('change', function () {
+            tabla.column(this.dataset.col).search(this.value).draw();
+        });
+    });
+
+    document.querySelectorAll('.card-filtro').forEach(function (card) {
+        card.addEventListener('click', function () {
+            document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+
+            const filtro = this.dataset.filtro;
+            const selectEstado = document.querySelector('.col-filter[data-col="3"]');
+
+            if (filtro === 'todas') {
+                selectEstado.value = '';
+                tabla.column(3).search('').draw();
+            } else {
+                const label = estadoLabelMap[filtro] || '';
+                selectEstado.value = label;
+                tabla.column(3).search(label).draw();
+            }
+        });
+    });
 
     document.querySelectorAll('.btn-marcar-na').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -182,7 +258,7 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                 showCancelButton: true,
                 confirmButtonText: 'Marcar N/A',
                 cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#6c757d',
+                confirmButtonColor: '#6c757d'
             }).then(function (r) {
                 if (!r.isConfirmed) return;
                 const fd = new FormData();
@@ -212,7 +288,7 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                 showCancelButton: true,
                 confirmButtonText: 'Sí, quitar',
                 cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#ffc107',
+                confirmButtonColor: '#ffc107'
             }).then(function (r) {
                 if (!r.isConfirmed) return;
                 const fd = new FormData();
@@ -228,5 +304,5 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
             });
         });
     });
-})();
+});
 </script>

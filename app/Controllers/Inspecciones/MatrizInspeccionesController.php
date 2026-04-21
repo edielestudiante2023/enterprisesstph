@@ -60,19 +60,37 @@ class MatrizInspeccionesController extends BaseController
             $ultima = null;
             $total = 0;
 
-            if ($db->tableExists($tipo['table'])) {
-                $rows = $db->table($tipo['table'])
-                    ->select("id, {$tipo['date_col']} AS fecha, estado")
-                    ->where('id_cliente', $idCliente)
-                    ->where("YEAR({$tipo['date_col']})", $anio)
-                    ->where('estado', 'completo')
-                    ->orderBy($tipo['date_col'], 'DESC')
-                    ->get()
-                    ->getResultArray();
+            $estadoCol = array_key_exists('estado_col', $tipo) ? $tipo['estado_col'] : 'estado';
+            $estadoValue = $tipo['estado_value'] ?? 'completo';
+            $extraWhere = $tipo['extra_where'] ?? [];
 
-                $inspecciones = $rows;
-                $total = count($rows);
-                $ultima = $rows[0]['fecha'] ?? null;
+            if ($db->tableExists($tipo['table'])) {
+                $fields = $db->getFieldNames($tipo['table']);
+                $dateCol = in_array($tipo['date_col'], $fields, true) ? $tipo['date_col'] : null;
+                $pkCol = in_array('id', $fields, true) ? 'id' : ($fields[0] ?? 'id');
+
+                if ($dateCol !== null && in_array('id_cliente', $fields, true)) {
+                    $builder = $db->table($tipo['table'])
+                        ->select("{$pkCol} AS id, {$dateCol} AS fecha")
+                        ->where('id_cliente', $idCliente)
+                        ->where("YEAR({$dateCol})", $anio)
+                        ->orderBy($dateCol, 'DESC');
+
+                    if ($estadoCol !== null && in_array($estadoCol, $fields, true)) {
+                        $builder->where($estadoCol, $estadoValue);
+                    }
+
+                    foreach ($extraWhere as $col => $val) {
+                        if (in_array($col, $fields, true)) {
+                            $builder->where($col, $val);
+                        }
+                    }
+
+                    $rows = $builder->get()->getResultArray();
+                    $inspecciones = $rows;
+                    $total = count($rows);
+                    $ultima = $rows[0]['fecha'] ?? null;
+                }
             }
 
             $na = $noAplica[$tipo['slug']] ?? null;
@@ -88,6 +106,7 @@ class MatrizInspeccionesController extends BaseController
             $filas[] = [
                 'slug'          => $tipo['slug'],
                 'label'         => $tipo['label'],
+                'group'         => $tipo['group'] ?? 'Otros',
                 'icon'          => $tipo['icon'],
                 'list_route'    => $tipo['list_route'],
                 'create_route'  => $tipo['create_route'],
