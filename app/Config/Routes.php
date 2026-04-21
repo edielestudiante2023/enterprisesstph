@@ -912,6 +912,12 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('matriz/no-aplica', 'MatrizInspeccionesController::marcarNoAplica');
     $routes->post('matriz/quitar-no-aplica', 'MatrizInspeccionesController::quitarNoAplica');
 
+    // Semaforo PTA (tablero ejecutivo IA)
+    $routes->get('pta-semaforo', 'PtaSemaforoController::dashboard');
+    $routes->get('pta-semaforo/(:num)', 'PtaSemaforoController::cliente/$1');
+    $routes->post('pta-semaforo/agregar-match', 'PtaSemaforoController::agregarMatch');
+    $routes->post('pta-semaforo/quitar-match', 'PtaSemaforoController::quitarMatch');
+
     // Acta de Visita
     $routes->get('acta-visita', 'ActaVisitaController::list');
     $routes->get('acta-visita/create', 'ActaVisitaController::create');

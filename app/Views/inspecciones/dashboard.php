@@ -1254,6 +1254,20 @@
         </a>
     </div>
 
+    <!-- Semaforo PTA - Tablero Ejecutivo IA -->
+    <div class="card mb-3 border-0" style="background: linear-gradient(135deg, #2e7d4f 0%, #1b5e3a 100%); border-radius:12px; padding:10px 10px 8px;">
+        <a href="<?= base_url('/inspecciones/pta-semaforo') ?>" style="display:flex; align-items:center; gap:12px; text-decoration:none; color:#fff;">
+            <div style="width:46px; height:46px; border-radius:10px; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <i class="fas fa-tachometer-alt" style="font-size:22px; color:#fff;"></i>
+            </div>
+            <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; font-size:14px; line-height:1.2;">Semáforo PTA <span class="badge bg-warning text-dark" style="font-size:9px;">IA</span></div>
+                <div style="font-size:11px; opacity:0.9; line-height:1.3;">Cumplimiento Plan de Trabajo Anual vs Ejecución — apto para comité</div>
+            </div>
+            <i class="fas fa-chevron-right" style="font-size:14px; opacity:0.7;"></i>
+        </a>
+    </div>
+
     <!-- Datos de enterprisesst -->
     <div class="section-title">Datos de enterprisesst</div>
     <div class="card mb-3 border-0" style="background:#fef0e8; border-radius:12px; padding:10px 8px 6px;">
