@@ -377,18 +377,20 @@ document.addEventListener('DOMContentLoaded', function () {
             const idPta = this.dataset.idpta;
             const actividad = this.dataset.actividad;
             Swal.fire({
-                title: 'Marcar actividad como No Aplica',
-                html: `<div style="text-align:left;"><p style="font-size:12px;color:#666;margin-bottom:10px;">${actividad.substring(0, 200)}${actividad.length > 200 ? '...' : ''}</p></div>`,
-                input: 'text',
-                inputPlaceholder: 'Motivo (opcional), ej: Actividad puramente administrativa',
-                showCancelButton: true, confirmButtonText: 'Marcar N/A', cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#6c757d'
+                title: '¿Marcar como No Aplica?',
+                text: actividad.substring(0, 140) + (actividad.length > 140 ? '...' : ''),
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, N/A',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#6c757d',
+                focusConfirm: true
             }).then(function (r) {
                 if (!r.isConfirmed) return;
                 const fd = new FormData();
                 fd.append('id_cliente', ID_CLIENTE);
                 fd.append('id_ptacliente', idPta);
-                fd.append('motivo', r.value || '');
+                fd.append('motivo', '');
                 fetch(URL_NA, { method: 'POST', body: fd }).then(res => res.json())
                     .then(res => { if (res.ok) location.reload(); else Swal.fire('Error', res.msg || 'Falló.', 'error'); });
             });
