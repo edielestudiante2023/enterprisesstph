@@ -3,7 +3,7 @@
     "short_name": "Inspecciones",
     "description": "Modulo de inspecciones de Seguridad y Salud en el Trabajo",
     "start_url": "/inspecciones",
-    "scope": "/",
+    "scope": "/inspecciones",
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#1c2437",

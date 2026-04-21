@@ -58,16 +58,25 @@
             // en la posición correcta del detalle (extintor, gabinete, etc.)
             var fileInputs = form.querySelectorAll('input[type="file"]');
             fileInputs.forEach(function (input) {
-                if (input.getAttribute('data-dirty') === '1' && input.files.length > 0) {
-                    var row = cfg.detailRowSelector ? input.closest(cfg.detailRowSelector) : null;
-                    if (row) {
-                        var allRows = form.querySelectorAll(cfg.detailRowSelector);
-                        var rowIdx = Array.from(allRows).indexOf(row);
-                        var baseName = input.name.replace('[]', '');
-                        fd.append(baseName + '[' + rowIdx + ']', input.files[0]);
-                    } else {
-                        fd.append(input.name, input.files[0]);
-                    }
+                if (input.getAttribute('data-dirty') !== '1') return;
+
+                // Fallback iOS viejo: image_compressor.js guarda los Blobs comprimidos
+                // en input._compressedFiles cuando DataTransfer no está disponible.
+                var source = (input._compressedFiles && input._compressedFiles.length)
+                    ? input._compressedFiles
+                    : (input.files && input.files.length ? input.files : null);
+                if (!source) return;
+
+                var row = cfg.detailRowSelector ? input.closest(cfg.detailRowSelector) : null;
+                if (row) {
+                    var allRows = form.querySelectorAll(cfg.detailRowSelector);
+                    var rowIdx = Array.from(allRows).indexOf(row);
+                    var baseName = input.name.replace('[]', '');
+                    var f0 = source[0];
+                    fd.append(baseName + '[' + rowIdx + ']', f0, f0.name || 'photo.jpg');
+                } else {
+                    var f = source[0];
+                    fd.append(input.name, f, f.name || 'photo.jpg');
                 }
             });
 
@@ -133,6 +142,9 @@
             var fd = buildFormData();
             var url = getUrl();
 
+            var controller = (typeof AbortController === 'function') ? new AbortController() : null;
+            var timeoutId = controller ? setTimeout(function () { controller.abort(); }, 45000) : null;
+
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -140,10 +152,24 @@
                     'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: fd,
-                credentials: 'same-origin'
+                credentials: 'same-origin',
+                signal: controller ? controller.signal : undefined
             })
             .then(function (resp) {
-                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+                if (resp.status === 422) {
+                    return resp.json().then(function (data) {
+                        var msg = (data && data.message) ? data.message : 'Faltan campos obligatorios';
+                        var err = new Error(msg);
+                        err.code = 'VALIDATION';
+                        throw err;
+                    });
+                }
+                if (!resp.ok) {
+                    var err = new Error('HTTP ' + resp.status);
+                    err.code = 'HTTP';
+                    throw err;
+                }
                 return resp.json();
             })
             .then(function (data) {
@@ -186,13 +212,30 @@
                     showStatus('fa-exclamation-triangle', 'Error: ' + (data.message || ''), '#dc3545');
                 }
             })
-            .catch(function () {
-                if (!submitted) {
-                    showStatus('fa-exclamation-triangle', 'Sin conexión — guardado local', '#dc3545');
+            .catch(function (err) {
+                if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+                if (submitted) return;
+
+                var isAbort = err && (err.name === 'AbortError' || err.code === 20);
+                var isValidation = err && err.code === 'VALIDATION';
+                var isNetwork = err && err.name === 'TypeError';
+
+                if (isValidation) {
+                    showStatus('fa-exclamation-triangle', err.message, '#dc3545');
+                    // No guardar localStorage: el error es de datos, no de red.
+                } else if (isAbort) {
+                    showStatus('fa-clock', 'Conexión lenta — guardado local', '#ffc107');
+                    saveToLocalStorage();
+                } else if (isNetwork || !navigator.onLine) {
+                    showStatus('fa-wifi', 'Sin conexión — guardado local', '#dc3545');
+                    saveToLocalStorage();
+                } else {
+                    showStatus('fa-exclamation-triangle', 'Error al guardar', '#dc3545');
                     saveToLocalStorage();
                 }
             })
             .finally(function () {
+                if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
                 saving = false;
                 submits.forEach(function (btn) { btn.disabled = false; });
 

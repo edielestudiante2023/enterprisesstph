@@ -469,6 +469,55 @@
     <!-- Anti doble-tap en links (crear, editar, continuar) -->
     <script src="/js/prevent_double_tap.js"></script>
 
+    <!-- Compresor de imágenes cliente (antes del FormData) -->
+    <script src="/js/image_compressor.js"></script>
+    <script>
+    // Gancho global: comprime <input type="file"> al seleccionar fotos.
+    // Excluir con data-skip-compress="1" en el input si alguna vista no lo requiere.
+    (function () {
+        document.addEventListener('change', function (e) {
+            var input = e.target;
+            if (!input || input.type !== 'file') return;
+            if (!input.files || !input.files.length) return;
+            if (input.dataset.skipCompress === '1') return;
+            if (input.dataset.compressing === '1') return;
+
+            input.dataset.compressing = '1';
+            var originalDisabled = input.disabled;
+            input.disabled = true;
+
+            (async function () {
+                try {
+                    var compressed = [];
+                    for (var i = 0; i < input.files.length; i++) {
+                        compressed.push(await window.compressImage(input.files[i]));
+                    }
+                    if (typeof DataTransfer === 'function') {
+                        var dt = new DataTransfer();
+                        compressed.forEach(function (f) { dt.items.add(f); });
+                        input.files = dt.files;
+                    } else {
+                        // Safari iOS viejo: guardar Blobs comprimidos para que autosave los use en FormData.
+                        input._compressedFiles = compressed;
+                    }
+                    input.setAttribute('data-dirty', '1');
+                } catch (err) {
+                    // Si algo falla, dejar los files originales (el servidor aún comprime).
+                    console.warn('compressImage error:', err);
+                } finally {
+                    input.dataset.compressing = '0';
+                    input.disabled = originalDisabled;
+                    // Notificar a autosave que los files ya están listos.
+                    input.dispatchEvent(new Event('compressed', { bubbles: true }));
+                }
+            })();
+        }, true);
+    })();
+    </script>
+
+    <!-- Feedback visual PWA (barra online/offline, loader Swal, estilos pill) -->
+    <script src="/js/pwa_feedback.js"></script>
+
     <!-- Autosave Server Engine -->
     <script src="/js/autosave_server.js"></script>
 

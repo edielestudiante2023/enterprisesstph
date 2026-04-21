@@ -20,6 +20,7 @@ class InspeccionBotiquinController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected InspeccionBotiquinModel $inspeccionModel;
     protected ElementoBotiquinModel $elementoModel;
 
@@ -116,31 +117,42 @@ class InspeccionBotiquinController extends BaseController
         $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_inspeccion', '/inspecciones/botiquin/edit/');
         if ($existing) return $existing;
 
-        $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 
-        if (!$isAutosave) {
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
+        } else {
             if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_inspeccion' => 'required|valid_date'])) {
                 return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
             }
         }
 
-        $inspeccionData = $this->getInspeccionPostData($userId);
-        $inspeccionData['estado'] = 'borrador';
+        $userId = session()->get('user_id');
+        $idInspeccion = 0;
 
-        // Fotos del botiquín
-        $inspeccionData['foto_1'] = $this->uploadFoto('foto_1', 'uploads/inspecciones/botiquin/fotos/');
-        $inspeccionData['foto_2'] = $this->uploadFoto('foto_2', 'uploads/inspecciones/botiquin/fotos/');
+        $txResult = $this->runTransactional(function () use ($userId, &$idInspeccion) {
+            $inspeccionData = $this->getInspeccionPostData($userId);
+            $inspeccionData['estado'] = 'borrador';
 
-        // Fotos equipos especiales
-        $inspeccionData['foto_tabla_espinal'] = $this->uploadFoto('foto_tabla_espinal', 'uploads/inspecciones/botiquin/fotos/');
-        $inspeccionData['foto_collares'] = $this->uploadFoto('foto_collares', 'uploads/inspecciones/botiquin/fotos/');
-        $inspeccionData['foto_inmovilizadores'] = $this->uploadFoto('foto_inmovilizadores', 'uploads/inspecciones/botiquin/fotos/');
+            // Fotos del botiquín
+            $inspeccionData['foto_1'] = $this->uploadFoto('foto_1', 'uploads/inspecciones/botiquin/fotos/');
+            $inspeccionData['foto_2'] = $this->uploadFoto('foto_2', 'uploads/inspecciones/botiquin/fotos/');
 
-        $this->inspeccionModel->insert($inspeccionData);
-        $idInspeccion = $this->inspeccionModel->getInsertID();
+            // Fotos equipos especiales
+            $inspeccionData['foto_tabla_espinal']    = $this->uploadFoto('foto_tabla_espinal',    'uploads/inspecciones/botiquin/fotos/');
+            $inspeccionData['foto_collares']         = $this->uploadFoto('foto_collares',         'uploads/inspecciones/botiquin/fotos/');
+            $inspeccionData['foto_inmovilizadores']  = $this->uploadFoto('foto_inmovilizadores',  'uploads/inspecciones/botiquin/fotos/');
 
-        $this->saveElementos($idInspeccion);
+            $this->inspeccionModel->insert($inspeccionData);
+            $idInspeccion = $this->inspeccionModel->getInsertID();
+
+            $this->saveElementos($idInspeccion);
+            return true;
+        });
+
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) {
+            return $txResult;
+        }
 
         if ($isAutosave) {
             return $this->autosaveJsonSuccess($idInspeccion);
@@ -187,24 +199,36 @@ class InspeccionBotiquinController extends BaseController
             return redirect()->to('/inspecciones/botiquin')->with('error', 'No se puede editar');
         }
 
-        $userId = session()->get('user_id');
-        $updateData = $this->getInspeccionPostData($userId);
-
-        // Fotos — solo si se sube nueva
-        $campos_foto = ['foto_1', 'foto_2', 'foto_tabla_espinal', 'foto_collares', 'foto_inmovilizadores'];
-        foreach ($campos_foto as $campo) {
-            $nuevaFoto = $this->uploadFoto($campo, 'uploads/inspecciones/botiquin/fotos/');
-            if ($nuevaFoto) {
-                // Borrar foto anterior
-                if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
-                    unlink(FCPATH . $inspeccion[$campo]);
-                }
-                $updateData[$campo] = $nuevaFoto;
-            }
+        $isAutosave = $this->isAutosaveRequest();
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum()) return $err;
         }
 
-        $this->inspeccionModel->update($id, $updateData);
-        $this->saveElementos($id);
+        $userId = session()->get('user_id');
+
+        $txResult = $this->runTransactional(function () use ($id, $inspeccion, $userId) {
+            $updateData = $this->getInspeccionPostData($userId);
+
+            // Fotos — solo si se sube nueva
+            $campos_foto = ['foto_1', 'foto_2', 'foto_tabla_espinal', 'foto_collares', 'foto_inmovilizadores'];
+            foreach ($campos_foto as $campo) {
+                $nuevaFoto = $this->uploadFoto($campo, 'uploads/inspecciones/botiquin/fotos/');
+                if ($nuevaFoto) {
+                    if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
+                        unlink(FCPATH . $inspeccion[$campo]);
+                    }
+                    $updateData[$campo] = $nuevaFoto;
+                }
+            }
+
+            $this->inspeccionModel->update($id, $updateData);
+            $this->saveElementos($id);
+            return true;
+        });
+
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) {
+            return $txResult;
+        }
 
         if ($this->request->getPost('finalizar')) {
             return $this->finalizar($id);
@@ -215,7 +239,7 @@ class InspeccionBotiquinController extends BaseController
             $this->generarPendientes($id);
         }
 
-        if ($this->isAutosaveRequest()) {
+        if ($isAutosave) {
             return $this->autosaveJsonSuccess((int)$id);
         }
 
