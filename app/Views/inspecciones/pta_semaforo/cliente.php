@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const fd = new FormData();
                 fd.append('id_cliente', ID_CLIENTE);
                 fd.append('id_ptacliente', idPta);
-                fd.append('motivo', '');
+                fd.append('motivo', 'No es una inspección o no se deriva de una inspección');
                 fetch(URL_NA, { method: 'POST', body: fd }).then(res => res.json())
                     .then(res => { if (res.ok) location.reload(); else Swal.fire('Error', res.msg || 'Falló.', 'error'); });
             });
