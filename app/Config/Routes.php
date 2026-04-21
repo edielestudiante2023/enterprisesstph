@@ -917,6 +917,8 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('pta-semaforo/(:num)', 'PtaSemaforoController::cliente/$1');
     $routes->post('pta-semaforo/agregar-match', 'PtaSemaforoController::agregarMatch');
     $routes->post('pta-semaforo/quitar-match', 'PtaSemaforoController::quitarMatch');
+    $routes->post('pta-semaforo/no-aplica', 'PtaSemaforoController::marcarPtaNoAplica');
+    $routes->post('pta-semaforo/quitar-no-aplica', 'PtaSemaforoController::quitarPtaNoAplica');
 
     // Acta de Visita
     $routes->get('acta-visita', 'ActaVisitaController::list');

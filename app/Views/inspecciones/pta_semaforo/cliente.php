@@ -25,9 +25,35 @@
         </div>
     </div>
 
+    <!-- Leyenda de criterios -->
+    <div class="card border-0 mb-3" style="background:#fff;border-radius:10px;border:1px solid #e2e3e5;">
+        <div class="card-body py-2 px-3">
+            <div style="font-size:11px;font-weight:700;color:#1c2437;text-transform:uppercase;margin-bottom:6px;">
+                <i class="fas fa-book-open"></i> ¿Cómo se clasifica cada actividad?
+            </div>
+            <div class="row g-2" style="font-size:11px;">
+                <div class="col-12 col-md-6"><span class="badge" style="background:#d4edda;color:#155724;padding:3px 6px;">🟢 Verde</span> Match con tipo de inspección que YA se ejecutó este año.</div>
+                <div class="col-12 col-md-6"><span class="badge" style="background:#fff3cd;color:#856404;padding:3px 6px;">🟡 Radar</span> Match pero sin ejecución aún (fecha futura o &le;30 días).</div>
+                <div class="col-12 col-md-6"><span class="badge" style="background:#f8d7da;color:#721c24;padding:3px 6px;">🔴 Crítica</span> Match, fecha vencida, sin inspección ejecutada.</div>
+                <div class="col-12 col-md-6"><span class="badge" style="background:#eef2f7;color:#1c2437;padding:3px 6px;">⚪ Sin Match</span> IA no encontró tipo de inspección (actividades administrativas).</div>
+                <div class="col-12 col-md-6"><span class="badge" style="background:#e2e3e5;color:#383d41;padding:3px 6px;">🚫 No Aplica</span> Excluida manualmente — no cuenta en % Cumplimiento.</div>
+                <div class="col-12 col-md-6"><span class="badge" style="background:#fff;color:#8a6d34;border:1px solid #bd9751;padding:3px 6px;">📊 % Cump.</span> Verdes / (Verdes + Radar + Críticas) — excluye Sin Match y No Aplica.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs clickeables -->
     <div class="row g-2 mb-3">
         <div class="col-4 col-md-2">
-            <div class="card border-0 text-center" style="background:#d4edda;border-radius:10px;">
+            <div class="card border-0 text-center card-filtro" data-filtro="todas" style="background:#eef2f7;border-radius:10px;cursor:pointer;">
+                <div class="card-body py-2 px-1">
+                    <div style="font-size:11px;color:#1c2437;font-weight:600;"><i class="fas fa-list"></i> Todas</div>
+                    <div style="font-size:20px;font-weight:700;color:#1c2437;"><?= $kpi['total'] ?></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4 col-md-2">
+            <div class="card border-0 text-center card-filtro" data-filtro="verde" style="background:#d4edda;border-radius:10px;cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px;color:#155724;font-weight:600;"><i class="fas fa-check-circle"></i> Verdes</div>
                     <div style="font-size:20px;font-weight:700;color:#155724;"><?= $kpi['verde'] ?></div>
@@ -35,7 +61,7 @@
             </div>
         </div>
         <div class="col-4 col-md-2">
-            <div class="card border-0 text-center" style="background:#fff3cd;border-radius:10px;">
+            <div class="card border-0 text-center card-filtro" data-filtro="amarillo" style="background:#fff3cd;border-radius:10px;cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px;color:#856404;font-weight:600;"><i class="fas fa-clock"></i> Radar</div>
                     <div style="font-size:20px;font-weight:700;color:#856404;"><?= $kpi['amarillo'] ?></div>
@@ -43,7 +69,7 @@
             </div>
         </div>
         <div class="col-4 col-md-2">
-            <div class="card border-0 text-center" style="background:#f8d7da;border-radius:10px;">
+            <div class="card border-0 text-center card-filtro" data-filtro="rojo" style="background:#f8d7da;border-radius:10px;cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px;color:#721c24;font-weight:600;"><i class="fas fa-times-circle"></i> Críticas</div>
                     <div style="font-size:20px;font-weight:700;color:#721c24;"><?= $kpi['rojo'] ?></div>
@@ -51,7 +77,7 @@
             </div>
         </div>
         <div class="col-4 col-md-2">
-            <div class="card border-0 text-center" style="background:#eef2f7;border-radius:10px;">
+            <div class="card border-0 text-center card-filtro" data-filtro="sin_match" style="background:#eef2f7;border-radius:10px;cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px;color:#1c2437;font-weight:600;"><i class="fas fa-question-circle"></i> Sin Match</div>
                     <div style="font-size:20px;font-weight:700;color:#1c2437;"><?= $kpi['sin_match'] ?></div>
@@ -59,18 +85,29 @@
             </div>
         </div>
         <div class="col-4 col-md-2">
-            <div class="card border-0 text-center" style="background:#e2e3e5;border-radius:10px;">
+            <div class="card border-0 text-center card-filtro" data-filtro="no_aplica" style="background:#e2e3e5;border-radius:10px;cursor:pointer;">
                 <div class="card-body py-2 px-1">
-                    <div style="font-size:11px;color:#383d41;font-weight:600;"><i class="fas fa-ghost"></i> Huérfanas</div>
-                    <div style="font-size:20px;font-weight:700;color:#383d41;"><?= $kpi['huerfanas'] ?></div>
+                    <div style="font-size:11px;color:#383d41;font-weight:600;"><i class="fas fa-ban"></i> No Aplica</div>
+                    <div style="font-size:20px;font-weight:700;color:#383d41;"><?= $kpi['no_aplica'] ?></div>
                 </div>
             </div>
         </div>
-        <div class="col-4 col-md-2">
-            <div class="card border-0 text-center" style="background:#fff;border:2px solid #bd9751;border-radius:10px;">
-                <div class="card-body py-2 px-1">
-                    <div style="font-size:11px;color:#8a6d34;font-weight:600;"><i class="fas fa-chart-pie"></i> % Cump.</div>
-                    <div style="font-size:20px;font-weight:700;color:#8a6d34;"><?= $kpi['pct_cumplimiento'] ?>%</div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-6">
+            <div class="card border-0" style="background:#fff;border:2px solid #bd9751;border-radius:10px;">
+                <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center">
+                    <span style="font-size:12px;color:#8a6d34;font-weight:600;"><i class="fas fa-chart-pie"></i> % Cumplimiento (sobre aplicables)</span>
+                    <span style="font-size:20px;font-weight:700;color:#8a6d34;"><?= $kpi['pct_cumplimiento'] ?>%</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card border-0" style="background:#fff;border-radius:10px;border:1px solid #e2e3e5;">
+                <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center">
+                    <span style="font-size:12px;color:#383d41;font-weight:600;"><i class="fas fa-ghost"></i> Inspecciones huérfanas</span>
+                    <span style="font-size:20px;font-weight:700;color:#383d41;"><?= $kpi['huerfanas'] ?></span>
                 </div>
             </div>
         </div>
@@ -90,7 +127,7 @@
             <?php endforeach; ?>
             </div>
             <div class="small text-muted mt-2" style="font-size:11px;">
-                Estas inspecciones se ejecutaron pero no tienen actividad PTA asociada. Revisa si deben añadirse al plan o si el match manual está faltando.
+                Estas inspecciones se ejecutaron pero no tienen actividad PTA asociada.
             </div>
         </div>
     </div>
@@ -108,6 +145,32 @@
                     <th style="font-size:12px;text-align:center;">Semáforo</th>
                     <th style="font-size:12px;text-align:right;">Acciones</th>
                 </tr>
+                <tr style="background:#2a3449;">
+                    <th>
+                        <select class="form-select form-select-sm col-filter" data-col="0" style="font-size:11px;">
+                            <option value="">Todos</option>
+                            <option value="PLANEAR">PLANEAR</option>
+                            <option value="HACER">HACER</option>
+                            <option value="VERIFICAR">VERIFICAR</option>
+                            <option value="ACTUAR">ACTUAR</option>
+                        </select>
+                    </th>
+                    <th><input type="text" class="form-control form-control-sm col-filter" data-col="1" placeholder="Numeral" style="font-size:11px;"></th>
+                    <th><input type="text" class="form-control form-control-sm col-filter" data-col="2" placeholder="Buscar actividad" style="font-size:11px;"></th>
+                    <th></th>
+                    <th><input type="text" class="form-control form-control-sm col-filter" data-col="4" placeholder="Tipo" style="font-size:11px;"></th>
+                    <th>
+                        <select class="form-select form-select-sm col-filter" data-col="5" style="font-size:11px;">
+                            <option value="">Todos</option>
+                            <option value="Verde">Verde</option>
+                            <option value="Radar">Radar</option>
+                            <option value="Crítica">Crítica</option>
+                            <option value="Sin Match">Sin Match</option>
+                            <option value="No Aplica">No Aplica</option>
+                        </select>
+                    </th>
+                    <th></th>
+                </tr>
             </thead>
             <tbody>
             <?php foreach ($filas as $f):
@@ -118,15 +181,18 @@
                     'amarillo'  => 'background:#fff3cd;color:#856404;',
                     'rojo'      => 'background:#f8d7da;color:#721c24;',
                     'sin_match' => 'background:#eef2f7;color:#1c2437;',
+                    'no_aplica' => 'background:#e2e3e5;color:#383d41;',
                 ][$sem];
                 $semLabel = [
-                    'verde'     => '<i class="fas fa-check-circle"></i> Ejecutado',
+                    'verde'     => '<i class="fas fa-check-circle"></i> Verde',
                     'amarillo'  => '<i class="fas fa-clock"></i> Radar',
-                    'rojo'      => '<i class="fas fa-times-circle"></i> Crítico',
-                    'sin_match' => '<i class="fas fa-question-circle"></i> Sin match',
+                    'rojo'      => '<i class="fas fa-times-circle"></i> Crítica',
+                    'sin_match' => '<i class="fas fa-question-circle"></i> Sin Match',
+                    'no_aplica' => '<i class="fas fa-ban"></i> No Aplica',
                 ][$sem];
+                $semTexto = ['verde' => 'Verde', 'amarillo' => 'Radar', 'rojo' => 'Crítica', 'sin_match' => 'Sin Match', 'no_aplica' => 'No Aplica'][$sem];
             ?>
-                <tr data-sem="<?= $sem ?>">
+                <tr data-sem="<?= $sem ?>" <?= $sem === 'no_aplica' ? 'style="opacity:0.55;"' : '' ?>>
                     <td style="font-size:11px;"><span class="badge bg-secondary"><?= esc($p['phva_plandetrabajo']) ?></span></td>
                     <td style="font-size:11px;"><?= esc($p['numeral_plandetrabajo']) ?></td>
                     <td style="font-size:12px;"><?= esc(mb_substr($p['actividad_plandetrabajo'], 0, 150)) ?></td>
@@ -158,18 +224,38 @@
                     </td>
                     <td style="text-align:center;">
                         <span class="badge" style="<?= $semStyle ?> padding:5px 8px;font-size:11px;"><?= $semLabel ?></span>
+                        <span class="d-none"><?= esc($semTexto) ?></span>
                         <?php if ($f['inspecciones'] > 0): ?>
                             <div class="small text-muted" style="font-size:10px;"><?= $f['inspecciones'] ?> ejecución(es)</div>
                         <?php endif; ?>
+                        <?php if ($sem === 'no_aplica' && !empty($f['no_aplica']['motivo'])): ?>
+                            <div class="small text-muted mt-1" style="font-size:10px;"><?= esc($f['no_aplica']['motivo']) ?></div>
+                        <?php endif; ?>
                     </td>
                     <td style="text-align:right;white-space:nowrap;">
-                        <button class="btn btn-xs btn-outline-primary btn-agregar-match"
-                                data-idpta="<?= (int) $p['id_ptacliente'] ?>"
-                                data-actividad="<?= esc($p['actividad_plandetrabajo']) ?>"
-                                title="Agregar match manual"
-                                style="padding:2px 7px;font-size:11px;">
-                            <i class="fas fa-plus"></i> Match
-                        </button>
+                        <?php if ($sem !== 'no_aplica'): ?>
+                            <button class="btn btn-xs btn-outline-primary btn-agregar-match"
+                                    data-idpta="<?= (int) $p['id_ptacliente'] ?>"
+                                    data-actividad="<?= esc($p['actividad_plandetrabajo']) ?>"
+                                    title="Agregar match manual"
+                                    style="padding:2px 7px;font-size:11px;">
+                                <i class="fas fa-plus"></i> Match
+                            </button>
+                            <button class="btn btn-xs btn-outline-secondary btn-marcar-na"
+                                    data-idpta="<?= (int) $p['id_ptacliente'] ?>"
+                                    data-actividad="<?= esc($p['actividad_plandetrabajo']) ?>"
+                                    title="Marcar como No Aplica"
+                                    style="padding:2px 7px;font-size:11px;">
+                                <i class="fas fa-ban"></i> N/A
+                            </button>
+                        <?php else: ?>
+                            <button class="btn btn-xs btn-outline-warning btn-quitar-na"
+                                    data-idpta="<?= (int) $p['id_ptacliente'] ?>"
+                                    title="Quitar No Aplica"
+                                    style="padding:2px 7px;font-size:11px;">
+                                <i class="fas fa-undo"></i> Quitar N/A
+                            </button>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -178,22 +264,69 @@
     </div>
 </div>
 
+<style>
+.card-filtro { transition: transform .15s, box-shadow .15s, outline .15s; outline: 2px solid transparent; }
+.card-filtro:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+.card-filtro.active { outline: 2px solid #bd9751; box-shadow: 0 4px 10px rgba(189,151,81,0.25); }
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const ID_CLIENTE = <?= (int) $cliente['id_cliente'] ?>;
     const URL_ADD = '<?= base_url('inspecciones/pta-semaforo/agregar-match') ?>';
     const URL_DEL = '<?= base_url('inspecciones/pta-semaforo/quitar-match') ?>';
+    const URL_NA = '<?= base_url('inspecciones/pta-semaforo/no-aplica') ?>';
+    const URL_NA_DEL = '<?= base_url('inspecciones/pta-semaforo/quitar-no-aplica') ?>';
     const CATALOG = <?= json_encode(array_map(fn($t) => ['slug' => $t['slug'], 'label' => $t['label'], 'group' => $t['group']], $catalog), JSON_UNESCAPED_UNICODE) ?>;
 
-    $('#tablaPta').DataTable({
+    const estadoLabelMap = {
+        'verde': 'Verde', 'amarillo': 'Radar', 'rojo': 'Crítica',
+        'sin_match': 'Sin Match', 'no_aplica': 'No Aplica'
+    };
+
+    const tabla = $('#tablaPta').DataTable({
         responsive: true,
         language: { url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json' },
         pageLength: 25,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'Todas']],
         order: [[1, 'asc']],
         columnDefs: [{ orderable: false, targets: [4, 6] }],
+        orderCellsTop: true,
         stateSave: true,
-        stateDuration: -1
+        stateDuration: -1,
+        initComplete: function () {
+            document.querySelectorAll('.col-filter').forEach(function (el) {
+                const saved = tabla.column(el.dataset.col).search();
+                if (saved) el.value = saved;
+            });
+            const semSearch = tabla.column(5).search();
+            const textToFiltro = { '': 'todas', 'Verde': 'verde', 'Radar': 'amarillo', 'Crítica': 'rojo', 'Sin Match': 'sin_match', 'No Aplica': 'no_aplica' };
+            const activeFiltro = textToFiltro[semSearch] || 'todas';
+            document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
+            const activeCard = document.querySelector('.card-filtro[data-filtro="' + activeFiltro + '"]');
+            if (activeCard) activeCard.classList.add('active');
+        }
+    });
+
+    document.querySelectorAll('.col-filter').forEach(function (el) {
+        el.addEventListener('input', function () { tabla.column(this.dataset.col).search(this.value).draw(); });
+        el.addEventListener('change', function () { tabla.column(this.dataset.col).search(this.value).draw(); });
+    });
+
+    document.querySelectorAll('.card-filtro').forEach(function (card) {
+        card.addEventListener('click', function () {
+            document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            const filtro = this.dataset.filtro;
+            const selSem = document.querySelector('.col-filter[data-col="5"]');
+            if (filtro === 'todas') {
+                selSem.value = '';
+                tabla.column(5).search('').draw();
+            } else {
+                selSem.value = estadoLabelMap[filtro] || '';
+                tabla.column(5).search(estadoLabelMap[filtro]).draw();
+            }
+        });
     });
 
     document.querySelectorAll('.btn-agregar-match').forEach(function (btn) {
@@ -201,13 +334,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const idPta = this.dataset.idpta;
             const actividad = this.dataset.actividad;
             const opts = CATALOG.map(t => `<option value="${t.slug}">[${t.group}] ${t.label}</option>`).join('');
-
             Swal.fire({
                 title: 'Agregar match manual',
                 html: `<div style="text-align:left;"><p style="font-size:12px;color:#666;margin-bottom:10px;">${actividad.substring(0, 200)}${actividad.length > 200 ? '...' : ''}</p><select id="swalSlug" class="form-select" style="width:100%;">${opts}</select></div>`,
-                showCancelButton: true,
-                confirmButtonText: 'Agregar',
-                cancelButtonText: 'Cancelar',
+                showCancelButton: true, confirmButtonText: 'Agregar', cancelButtonText: 'Cancelar',
                 confirmButtonColor: '#bd9751',
                 preConfirm: () => document.getElementById('swalSlug').value
             }).then(function (r) {
@@ -216,8 +346,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 fd.append('id_cliente', ID_CLIENTE);
                 fd.append('id_ptacliente', idPta);
                 fd.append('slug_inspeccion', r.value);
-                fetch(URL_ADD, { method: 'POST', body: fd })
-                    .then(res => res.json())
+                fetch(URL_ADD, { method: 'POST', body: fd }).then(res => res.json())
                     .then(res => { if (res.ok) location.reload(); else Swal.fire('Error', res.msg || 'Falló.', 'error'); });
             });
         });
@@ -228,23 +357,56 @@ document.addEventListener('DOMContentLoaded', function () {
             e.stopPropagation();
             const idPta = this.dataset.idpta;
             const slug = this.dataset.slug;
-
             Swal.fire({
-                title: '¿Quitar este match?',
-                text: 'Esta clasificación se eliminará.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, quitar',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#dc3545'
+                title: '¿Quitar este match?', icon: 'warning',
+                showCancelButton: true, confirmButtonText: 'Sí, quitar', cancelButtonText: 'Cancelar', confirmButtonColor: '#dc3545'
             }).then(function (r) {
                 if (!r.isConfirmed) return;
                 const fd = new FormData();
                 fd.append('id_cliente', ID_CLIENTE);
                 fd.append('id_ptacliente', idPta);
                 fd.append('slug_inspeccion', slug);
-                fetch(URL_DEL, { method: 'POST', body: fd })
-                    .then(res => res.json())
+                fetch(URL_DEL, { method: 'POST', body: fd }).then(res => res.json())
+                    .then(res => { if (res.ok) location.reload(); else Swal.fire('Error', 'Falló.', 'error'); });
+            });
+        });
+    });
+
+    document.querySelectorAll('.btn-marcar-na').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const idPta = this.dataset.idpta;
+            const actividad = this.dataset.actividad;
+            Swal.fire({
+                title: 'Marcar actividad como No Aplica',
+                html: `<div style="text-align:left;"><p style="font-size:12px;color:#666;margin-bottom:10px;">${actividad.substring(0, 200)}${actividad.length > 200 ? '...' : ''}</p></div>`,
+                input: 'text',
+                inputPlaceholder: 'Motivo (opcional), ej: Actividad puramente administrativa',
+                showCancelButton: true, confirmButtonText: 'Marcar N/A', cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#6c757d'
+            }).then(function (r) {
+                if (!r.isConfirmed) return;
+                const fd = new FormData();
+                fd.append('id_cliente', ID_CLIENTE);
+                fd.append('id_ptacliente', idPta);
+                fd.append('motivo', r.value || '');
+                fetch(URL_NA, { method: 'POST', body: fd }).then(res => res.json())
+                    .then(res => { if (res.ok) location.reload(); else Swal.fire('Error', res.msg || 'Falló.', 'error'); });
+            });
+        });
+    });
+
+    document.querySelectorAll('.btn-quitar-na').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const idPta = this.dataset.idpta;
+            Swal.fire({
+                title: '¿Quitar marca No Aplica?', icon: 'warning',
+                showCancelButton: true, confirmButtonText: 'Sí, quitar', cancelButtonText: 'Cancelar', confirmButtonColor: '#ffc107'
+            }).then(function (r) {
+                if (!r.isConfirmed) return;
+                const fd = new FormData();
+                fd.append('id_cliente', ID_CLIENTE);
+                fd.append('id_ptacliente', idPta);
+                fetch(URL_NA_DEL, { method: 'POST', body: fd }).then(res => res.json())
                     .then(res => { if (res.ok) location.reload(); else Swal.fire('Error', 'Falló.', 'error'); });
             });
         });

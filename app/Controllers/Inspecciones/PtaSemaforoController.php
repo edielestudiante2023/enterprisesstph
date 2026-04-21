@@ -7,18 +7,21 @@ use App\Libraries\InspeccionTypes;
 use App\Models\ClientModel;
 use App\Models\PtaInspeccionMatchModel;
 use App\Models\InspeccionNoAplicaModel;
+use App\Models\PtaNoAplicaModel;
 
 class PtaSemaforoController extends BaseController
 {
     protected ClientModel $clienteModel;
     protected PtaInspeccionMatchModel $matchModel;
     protected InspeccionNoAplicaModel $noAplicaModel;
+    protected PtaNoAplicaModel $ptaNoAplicaModel;
 
     public function __construct()
     {
         $this->clienteModel = new ClientModel();
         $this->matchModel = new PtaInspeccionMatchModel();
         $this->noAplicaModel = new InspeccionNoAplicaModel();
+        $this->ptaNoAplicaModel = new PtaNoAplicaModel();
     }
 
     /**
@@ -65,6 +68,7 @@ class PtaSemaforoController extends BaseController
 
         $mapByPta = $this->matchModel->getMapByCliente($idCliente);
         $inspCount = $this->getInspeccionesCount($idCliente, $anio);
+        $ptaNoAplica = $this->ptaNoAplicaModel->getByCliente($idCliente);
 
         $slugsCubiertos = [];
         $hoy = date('Y-m-d');
@@ -74,6 +78,7 @@ class PtaSemaforoController extends BaseController
         foreach ($ptas as $p) {
             $idPta = (int) $p['id_ptacliente'];
             $matches = $mapByPta[$idPta] ?? [];
+            $naInfo = $ptaNoAplica[$idPta] ?? null;
 
             $inspeccionesVinculadas = 0;
             $slugsMatched = [];
@@ -90,7 +95,9 @@ class PtaSemaforoController extends BaseController
             $fechaPropuesta = $p['fecha_propuesta'] ?? null;
             $fechaRef = $fechaCierre ?: $fechaPropuesta;
 
-            if (empty($matches)) {
+            if ($naInfo) {
+                $semaforo = 'no_aplica';
+            } elseif (empty($matches)) {
                 $semaforo = 'sin_match';
             } elseif ($inspeccionesVinculadas > 0) {
                 $semaforo = 'verde';
@@ -108,8 +115,15 @@ class PtaSemaforoController extends BaseController
                 'slugs'         => $slugsMatched,
                 'inspecciones'  => $inspeccionesVinculadas,
                 'semaforo'      => $semaforo,
+                'no_aplica'     => $naInfo,
             ];
         }
+
+        usort($filas, function ($a, $b) {
+            if ($a['semaforo'] === 'no_aplica' && $b['semaforo'] !== 'no_aplica') return 1;
+            if ($b['semaforo'] === 'no_aplica' && $a['semaforo'] !== 'no_aplica') return -1;
+            return strcmp($a['pta']['numeral_plandetrabajo'] ?? '', $b['pta']['numeral_plandetrabajo'] ?? '');
+        });
 
         $huerfanas = [];
         foreach ($inspCount as $slug => $count) {
@@ -133,6 +147,7 @@ class PtaSemaforoController extends BaseController
             'amarillo'  => count(array_filter($filas, fn($f) => $f['semaforo'] === 'amarillo')),
             'rojo'      => count(array_filter($filas, fn($f) => $f['semaforo'] === 'rojo')),
             'sin_match' => count(array_filter($filas, fn($f) => $f['semaforo'] === 'sin_match')),
+            'no_aplica' => count(array_filter($filas, fn($f) => $f['semaforo'] === 'no_aplica')),
             'huerfanas' => count($huerfanas),
         ];
         $aplicables = $kpi['verde'] + $kpi['amarillo'] + $kpi['rojo'];
@@ -187,6 +202,34 @@ class PtaSemaforoController extends BaseController
         }
 
         $ok = $this->matchModel->deleteMatch($idCliente, $idPta, $slug);
+        return $this->response->setJSON(['ok' => (bool) $ok]);
+    }
+
+    public function marcarPtaNoAplica()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $idPta = (int) $this->request->getPost('id_ptacliente');
+        $motivo = trim((string) $this->request->getPost('motivo')) ?: null;
+
+        if (!$idCliente || !$idPta) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+
+        $idConsultor = (int) (session('id_consultor') ?: session('id_usuario') ?: 0) ?: null;
+        $ok = $this->ptaNoAplicaModel->marcar($idCliente, $idPta, $motivo, $idConsultor);
+        return $this->response->setJSON(['ok' => (bool) $ok]);
+    }
+
+    public function quitarPtaNoAplica()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $idPta = (int) $this->request->getPost('id_ptacliente');
+
+        if (!$idCliente || !$idPta) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+
+        $ok = $this->ptaNoAplicaModel->quitar($idCliente, $idPta);
         return $this->response->setJSON(['ok' => (bool) $ok]);
     }
 
