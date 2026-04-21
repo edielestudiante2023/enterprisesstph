@@ -57,6 +57,7 @@ class PtaSemaforoController extends BaseController
         $ptas = $db->table('tbl_pta_cliente')
             ->select('id_ptacliente, phva_plandetrabajo, numeral_plandetrabajo, actividad_plandetrabajo, responsable_definido_paralaactividad, fecha_propuesta, fecha_cierre, estado_actividad, porcentaje_avance')
             ->where('id_cliente', $idCliente)
+            ->where('YEAR(fecha_propuesta)', $anio)
             ->orderBy('numeral_plandetrabajo', 'ASC')
             ->orderBy('id_ptacliente', 'ASC')
             ->get()
