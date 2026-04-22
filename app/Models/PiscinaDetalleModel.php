@@ -9,27 +9,37 @@ class PiscinaDetalleModel extends Model
     protected $table = 'tbl_piscina_detalle';
     protected $primaryKey = 'id';
     protected $allowedFields = [
-        'id_inspeccion', 'orden',
-        'identificador', 'tipo', 'profundidad_minima_m', 'profundidad_maxima_m',
-        // Cerramientos
+        'id_inspeccion', 'orden', 'identificador',
+        'tipo', 'uso', 'climatizada',
+        'superficie_piscina_m2', 'volumen_agua_m3',
+        'perfil_profundidad', 'profundidad_max_m', 'profundidad_min_m',
+        'aforo_piscina_max', 'aforo_deck_max',
+        // Infraestructura
         'cerramiento_perimetral', 'puerta_control_acceso',
-        // Alarmas
-        'alarma_inmersion', 'alarma_80db_funcional',
-        // Drenajes
+        'alarma_inmersion_80db', 'boton_parada_emergencia',
         'drenaje_antiatrapamiento', 'minimo_dos_drenajes', 'sistema_liberacion_vacio',
-        // Señalización
         'senalizacion_profundidad', 'baldosas_cambio_profundidad',
-        // Emergencia
-        'botiquin_primeros_auxilios', 'flotadores_circulares_min_2', 'baston_con_gancho', 'citofono_24h',
+        'escaleras_acceso_antideslizantes', 'baranda_escaleras',
+        'iluminacion_adecuada', 'ventilacion_adecuada',
         // Avisos
-        'aviso_menores_12_anos', 'aviso_reglamento_visible',
-        // Agua
-        'agua_limpia_visualmente', 'registro_cloro_diario', 'registro_ph_diario', 'desinfeccion_quimica_vigente',
-        // Equipos
-        'equipo_bombeo_operativo', 'filtros_operativos', 'dosificador_quimicos',
+        'aviso_menores_12', 'aviso_reglamento', 'aviso_horario',
+        'aviso_ducharse_antes', 'aviso_prohibido_zapatos',
+        'aviso_telefonos_emergencia', 'aviso_aforo_visible',
+        // Emergencia
+        'botiquin_tipo', 'camilla_rescate',
+        'flotadores_circulares_min_2', 'baston_con_gancho', 'citofono_24h',
         // Higiene
         'duchas_previas_obligatorias',
-        // Resultado
+        'cubiculos_duchas_mujeres', 'cubiculos_duchas_hombres',
+        'baranda_apoyo_duchas', 'lavapies_funcional',
+        // Dosificación
+        'dosificacion_independiente', 'sistema_seguridad_flujo', 'no_dosificacion_manual_con_publico',
+        'equipo_bombeo_operativo', 'filtros_operativos',
+        // Libro registro
+        'libro_registro_existe', 'libro_ultima_semana_fecha', 'libro_observaciones',
+        // Resultado calculado
+        'irapi_valor', 'irapi_clasificacion',
+        'isl_valor', 'isl_interpretacion',
         'estado_general',
         'foto', 'observaciones',
     ];
