@@ -416,10 +416,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Cliente preseleccionado
-    if (typeof initClientSelect === 'function') {
-        initClientSelect('#selectCliente', '<?= $inspeccion['id_cliente'] ?? $idCliente ?? '' ?>');
-    }
+    // Select2 clientes via AJAX
+    const clienteIdPrefill = '<?= $inspeccion['id_cliente'] ?? $idCliente ?? '' ?>';
+    $.ajax({
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
+        dataType: 'json',
+        success: function(data) {
+            const select = document.getElementById('selectCliente');
+            data.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id_cliente;
+                opt.textContent = c.nombre_cliente;
+                if (clienteIdPrefill && c.id_cliente == clienteIdPrefill) opt.selected = true;
+                select.appendChild(opt);
+            });
+            $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
+        }
+    });
 
     // Finalizar con confirmación
     document.getElementById('btnFinalizar').addEventListener('click', function(e) {
