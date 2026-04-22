@@ -1,216 +1,287 @@
+<?php
+// Clasificación IRAPI con color
+function irapiColor($c) {
+    return match ($c) {
+        'SIN_RIESGO' => '#1b7e3f',
+        'BAJO'       => '#d4a70e',
+        'MEDIO'      => '#e67815',
+        'ALTO'       => '#c0392b',
+        default      => '#888',
+    };
+}
+function irapiLabel($c) {
+    return match ($c) {
+        'SIN_RIESGO' => 'Sin riesgo / Optimo',
+        'BAJO'       => 'Bajo',
+        'MEDIO'      => 'Medio',
+        'ALTO'       => 'ALTO',
+        default      => '—',
+    };
+}
+
+// Peor IRAPI como hallazgo de cabecera
+$peorClas = 'SIN_RIESGO';
+$peorVal = 0;
+$ord = ['SIN_RIESGO'=>0, 'BAJO'=>1, 'MEDIO'=>2, 'ALTO'=>3];
+foreach ($piscinas as $p) {
+    $c = $p['irapi_clasificacion'] ?? 'SIN_RIESGO';
+    if (($ord[$c] ?? 0) > ($ord[$peorClas] ?? 0)) {
+        $peorClas = $c;
+        $peorVal = $p['irapi_valor'] ?? 0;
+    } elseif ($c === $peorClas && ($p['irapi_valor'] ?? 0) > $peorVal) {
+        $peorVal = $p['irapi_valor'];
+    }
+}
+$peorColor = irapiColor($peorClas);
+?>
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <style>
-        @page {
-            margin: 80px 50px 60px 50px;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 9px;
-            color: #333;
-            line-height: 1.3;
-            padding: 10px 15px;
-        }
-
-        .header-table { width: 100%; border-collapse: collapse; border: 1.5px solid #333; margin-bottom: 10px; }
-        .header-table td { border: 1px solid #333; padding: 4px 6px; vertical-align: middle; }
-        .header-logo { width: 100px; text-align: center; font-size: 8px; }
-        .header-logo img { max-width: 85px; max-height: 50px; }
-        .header-title { text-align: center; font-weight: bold; font-size: 9px; }
-        .header-code { width: 120px; font-size: 8px; }
-
-        .main-title { text-align: center; font-size: 12px; font-weight: bold; margin: 8px 0 2px; color: #1c2437; }
-        .main-subtitle { text-align: center; font-size: 8px; color: #555; margin-bottom: 6px; font-style: italic; }
-
-        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; border: 1px solid #ccc; }
-        .info-table td { padding: 3px 6px; font-size: 9px; border: 1px solid #ccc; }
-        .info-label { font-weight: bold; color: #444; width: 130px; background: #f7f7f7; }
-
-        .section-title { background: #1c2437; color: white; padding: 3px 8px; font-weight: bold; font-size: 9px; margin: 8px 0 4px; }
-
-        .piscina-card { border: 1px solid #aaa; margin: 6px 0; page-break-inside: avoid; }
-        .piscina-header { background: #e8e8e8; padding: 3px 6px; font-size: 9px; font-weight: bold; border-bottom: 1px solid #aaa; }
-        .piscina-body { padding: 4px 6px; }
-
-        .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
-        .meta-table td { border: 1px solid #ccc; padding: 2px 4px; font-size: 8px; }
-        .meta-label { background: #f7f7f7; font-weight: bold; width: 90px; }
-
-        .zona { border: 1px solid #ccc; margin: 4px 0; padding: 3px 5px; }
-        .zona-title { font-size: 8px; font-weight: bold; color: #1c2437; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 1px; margin-bottom: 2px; }
-        .crit-table { width: 100%; border-collapse: collapse; }
-        .crit-table td { padding: 1px 3px; font-size: 7px; border: none; }
-        .crit-label { width: 60%; color: #555; }
-
-        .val-si    { color: #155724; font-weight: bold; }
-        .val-no    { color: #721c24; font-weight: bold; }
-        .val-na    { color: #6c757d; }
-        .val-bueno { color: #155724; font-weight: bold; }
-        .val-regular { color: #856404; font-weight: bold; }
-        .val-malo  { color: #721c24; font-weight: bold; }
-        .val-critico { color: #fff; background: #721c24; padding: 1px 3px; }
-
-        .ext-img { max-width: 90px; max-height: 70px; border: 1px solid #ccc; }
-        .marco { background:#f7f7f7; border-left:3px solid #bd9751; padding:6px 8px; font-size:8px; line-height:1.4; margin:6px 0; text-align:justify; }
-        .firma-table { width:100%; margin-top:18px; border-collapse:collapse; }
-        .firma-table td { width:50%; text-align:center; padding:20px 6px 4px; border-top:1px solid #333; font-size:8px; }
-    </style>
+<meta charset="UTF-8">
+<style>
+@page { margin: 30px 30px 40px 30px; }
+body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 10px; color: #222; }
+h1 { font-size: 18px; margin: 0 0 6px 0; color: #1c2437; }
+h2 { font-size: 14px; margin: 12px 0 6px 0; color: #1c2437; border-bottom: 2px solid #bd9751; padding-bottom: 3px; }
+h3 { font-size: 12px; margin: 8px 0 4px 0; color: #1c2437; }
+.header { border-bottom: 3px solid #bd9751; padding-bottom: 8px; margin-bottom: 12px; }
+.header-table { width: 100%; }
+.header-table td { vertical-align: middle; }
+.logo { max-height: 60px; max-width: 160px; }
+.title-box { text-align: right; }
+table { width: 100%; border-collapse: collapse; margin: 4px 0; }
+table.data th, table.data td { border: 1px solid #aaa; padding: 3px 5px; font-size: 9.5px; text-align: left; }
+table.data th { background: #eee; font-weight: 700; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 10px; color: #fff; font-weight: 700; font-size: 11px; }
+.kv { width: 100%; margin: 4px 0; }
+.kv td { padding: 2px 4px; font-size: 10px; vertical-align: top; border: none; }
+.kv td.k { font-weight: 600; width: 32%; color: #555; }
+.hallazgo-critico { background: <?= $peorColor ?>; color: #fff; padding: 14px; border-radius: 6px; margin: 12px 0; }
+.hallazgo-critico h2 { color: #fff; border: none; margin: 0 0 4px 0; }
+.piscina { border: 1.5px solid #bd9751; padding: 8px; margin: 10px 0; border-radius: 4px; page-break-inside: avoid; }
+.piscina h2 { margin-top: 0; }
+.param-tbl td { font-size: 9px; }
+.param-ok { color: #1b7e3f; font-weight: 700; }
+.param-no { color: #c0392b; font-weight: 700; }
+.param-na { color: #888; }
+.footer { font-size: 8px; color: #666; margin-top: 10px; text-align: center; }
+.pagebreak { page-break-after: always; }
+.foto { max-width: 180px; max-height: 140px; border: 1px solid #ccc; }
+</style>
 </head>
 <body>
 
+<div class="header">
     <table class="header-table">
         <tr>
-            <td class="header-logo" rowspan="2">
-                <?php if (!empty($logoBase64)): ?>
-                    <img src="<?= $logoBase64 ?>">
-                <?php else: ?>
-                    <strong style="font-size:7px;"><?= esc($cliente['nombre_cliente'] ?? '') ?></strong>
-                <?php endif; ?>
+            <td style="width: 180px;"><?php if (!empty($logoBase64)): ?><img class="logo" src="<?= $logoBase64 ?>"><?php endif; ?></td>
+            <td class="title-box">
+                <h1>INSPECCION DE PISCINAS</h1>
+                <div style="font-size: 10px;"><?= esc($cliente['nombre_cliente'] ?? '') ?></div>
+                <div style="font-size: 9px; color: #777;">Fecha: <?= date('d/m/Y', strtotime($inspeccion['fecha_inspeccion'])) ?></div>
             </td>
-            <td class="header-title">SISTEMA DE GESTION DE SEGURIDAD Y SALUD EN EL TRABAJO</td>
-            <td class="header-code">Codigo: FT-SST-246<br>Version: 001</td>
-        </tr>
-        <tr>
-            <td class="header-title" style="font-size:10px;">FORMATO DE INSPECCION DE PISCINAS</td>
-            <td class="header-code">Fecha: <?= date('d/m/Y', strtotime($inspeccion['fecha_inspeccion'])) ?></td>
         </tr>
     </table>
+</div>
 
-    <div class="main-title">INSPECCION DE PISCINAS — Conforme a Ley 1209 de 2008 y Decreto 554 de 2015</div>
-    <div class="main-subtitle">Normas de seguridad y adecuacion de instalaciones en piscinas de uso colectivo</div>
+<!-- Hallazgo principal: peor IRAPI -->
+<div class="hallazgo-critico">
+    <h2>Clasificacion IRAPI del establecimiento (peor caso)</h2>
+    <div style="font-size: 22px; font-weight: 700;"><?= number_format((float)$peorVal, 2) ?> — <?= irapiLabel($peorClas) ?></div>
+    <div style="font-size: 9px; margin-top: 4px;">Indice de Riesgo del Agua segun Anexo II de la Resolucion 234/2026 Minsalud.</div>
+</div>
 
-    <div class="section-title">DATOS DE LA INSPECCION</div>
-    <table class="info-table">
-        <tr>
-            <td class="info-label">CLIENTE:</td>
-            <td><?= esc($cliente['nombre_cliente'] ?? '') ?></td>
-            <td class="info-label">FECHA:</td>
-            <td><?= date('d/m/Y', strtotime($inspeccion['fecha_inspeccion'])) ?></td>
-        </tr>
-        <tr>
-            <td class="info-label">CONSULTOR:</td>
-            <td><?= esc($consultor['nombre_consultor'] ?? '') ?></td>
-            <td class="info-label">TOTAL PISCINAS:</td>
-            <td><?= (int)($inspeccion['total_piscinas'] ?? 0) ?></td>
-        </tr>
-    </table>
+<h2>1. Datos generales del establecimiento</h2>
+<table class="kv">
+    <tr><td class="k">Cliente</td><td><?= esc($cliente['nombre_cliente'] ?? '') ?></td><td class="k">Consultor</td><td><?= esc($consultor['nombre_consultor'] ?? '') ?></td></tr>
+    <tr><td class="k">Direccion</td><td colspan="3"><?= esc($cliente['direccion'] ?? '') ?></td></tr>
+    <tr><td class="k">Superficie total (m²)</td><td><?= esc($inspeccion['superficie_total_establecimiento_m2'] ?? '—') ?></td><td class="k">Total piscinas</td><td><?= (int)$inspeccion['total_piscinas'] ?></td></tr>
+    <tr><td class="k">Empresa mantenimiento</td><td><?= esc($inspeccion['empresa_mantenimiento'] ?? '') ?></td><td class="k">NIT</td><td><?= esc($inspeccion['nit_empresa_mantenimiento'] ?? '') ?></td></tr>
+</table>
 
-    <div class="section-title">EMPRESA DE MANTENIMIENTO Y CERTIFICACION MUNICIPAL</div>
-    <table class="info-table">
-        <tr>
-            <td class="info-label">EMPRESA MTTO:</td>
-            <td><?= esc($inspeccion['empresa_mantenimiento'] ?? '-') ?></td>
-            <td class="info-label">NIT:</td>
-            <td><?= esc($inspeccion['nit_empresa_mantenimiento'] ?? '-') ?></td>
-        </tr>
-        <tr>
-            <td class="info-label">CONTACTO:</td>
-            <td colspan="3"><?= esc($inspeccion['contacto_empresa_mantenimiento'] ?? '-') ?></td>
-        </tr>
-        <tr>
-            <td class="info-label">CERT. MPIO VIGENTE:</td>
-            <td><?= esc($inspeccion['certificado_municipal_vigente'] ?? '-') ?></td>
-            <td class="info-label">VENCIMIENTO:</td>
-            <td><?= !empty($inspeccion['fecha_vencimiento_certificado_mpio']) ? date('d/m/Y', strtotime($inspeccion['fecha_vencimiento_certificado_mpio'])) : '-' ?></td>
-        </tr>
-    </table>
+<h2>2. Documentacion y gestion sanitaria</h2>
+<table class="data">
+    <tr><th>Item</th><th>Estado</th><th>Observaciones</th></tr>
+    <tr><td>Concepto sanitario Secretaria de Salud</td><td><?= esc(ucfirst($inspeccion['concepto_sanitario'] ?? 'no_emitido')) ?> <?= !empty($inspeccion['concepto_sanitario_fecha']) ? '(' . date('d/m/Y', strtotime($inspeccion['concepto_sanitario_fecha'])) . ')' : '' ?></td><td><?= esc($inspeccion['concepto_sanitario_observaciones'] ?? '') ?></td></tr>
+    <tr><td>DEA (Desfibrilador) presente</td><td><?= esc($inspeccion['dea_presente'] ?? 'NA') ?></td><td>Personal capacitado: <?= (int)($inspeccion['dea_personal_capacitado_cantidad'] ?? 0) ?></td></tr>
+    <tr><td>Operador de piscinas certificado</td><td><?= !empty($inspeccion['operador_certificado_nombre']) ? esc($inspeccion['operador_certificado_nombre']) : 'No registrado' ?></td><td><?= esc($inspeccion['operador_certificado_entidad'] ?? '') ?> <?= !empty($inspeccion['operador_certificado_vigencia']) ? '(vence ' . date('d/m/Y', strtotime($inspeccion['operador_certificado_vigencia'])) . ')' : '' ?></td></tr>
+    <tr><td>Documentacion Art. 15 (8 procedimientos)</td><td><?= esc($inspeccion['documentacion_art15_completa'] ?? 'NA') ?></td><td><?= esc($inspeccion['documentacion_art15_observaciones'] ?? '') ?></td></tr>
+    <tr><td>Plan de Saneamiento Basico Art. 17 (5 programas)</td><td><?= esc($inspeccion['plan_saneamiento_completo'] ?? 'NA') ?></td><td><?= esc($inspeccion['plan_saneamiento_observaciones'] ?? '') ?></td></tr>
+    <tr><td>Manejo seguro de quimicos (fichas, SDS, EPP, GHS)</td><td><?= esc($inspeccion['manejo_quimicos_conforme'] ?? 'NA') ?></td><td>Decreto 1072/2015 + Decreto 1496/2018</td></tr>
+    <tr><td>Area de almacenamiento de residuos</td><td><?= esc($inspeccion['area_residuos_conforme'] ?? 'NA') ?></td><td>Art. 14 Res 234/2026</td></tr>
+    <tr><td>Contenedores codificados por color</td><td><?= esc($inspeccion['contenedores_codificados_color'] ?? 'NA') ?></td><td>Biologico rojo, ordinario verde, reciclable blanco</td></tr>
+    <tr><td>Tablero publico con resultados mensuales</td><td><?= esc($inspeccion['tablero_publico_resultados'] ?? 'NA') ?></td><td>Art. 16 par. 2 Res 234/2026</td></tr>
+</table>
 
-    <div class="section-title">DETALLE DE PISCINAS INSPECCIONADAS (<?= count($piscinas) ?>)</div>
+<div class="pagebreak"></div>
 
-    <?php
-    $colorClass = function($val) {
-        if ($val === 'SI') return 'val-si';
-        if ($val === 'NO') return 'val-no';
-        if ($val === 'NA') return 'val-na';
-        if ($val === 'BUENO') return 'val-bueno';
-        if ($val === 'REGULAR') return 'val-regular';
-        if ($val === 'MALO') return 'val-malo';
-        if ($val === 'CRITICO') return 'val-critico';
-        return '';
-    };
-    ?>
+<h2>3. Piscinas inspeccionadas</h2>
 
-    <?php if (!empty($piscinas)): ?>
-        <?php foreach ($piscinas as $i => $p): ?>
-        <div class="piscina-card">
-            <div class="piscina-header">
-                Piscina #<?= $i + 1 ?> — <?= esc($p['identificador'] ?? '') ?>
-                <?php if (!empty($p['estado_general'])): ?>
-                    &nbsp;|&nbsp; Estado general: <span class="<?= $colorClass($p['estado_general']) ?>"><?= esc($p['estado_general']) ?></span>
-                <?php endif; ?>
-            </div>
-            <div class="piscina-body">
-                <table class="meta-table">
-                    <tr>
-                        <td class="meta-label">Tipo</td><td><?= esc($p['tipo'] ?? '-') ?></td>
-                        <td class="meta-label">Prof. min (m)</td><td><?= esc($p['profundidad_minima_m'] ?? '-') ?></td>
-                        <td class="meta-label">Prof. max (m)</td><td><?= esc($p['profundidad_maxima_m'] ?? '-') ?></td>
-                    </tr>
-                </table>
-
-                <?php foreach ($zonas as $zKey => $zCfg): ?>
-                <div class="zona">
-                    <div class="zona-title"><?= $zCfg['label'] ?></div>
-                    <table class="crit-table">
-                        <?php
-                        $crits = array_keys($zCfg['criterios']);
-                        $chunks = array_chunk($crits, 2);
-                        foreach ($chunks as $pair):
-                        ?>
-                        <tr>
-                        <?php foreach ($pair as $cKey):
-                            $cCfg = $zCfg['criterios'][$cKey];
-                            $val = $p[$cKey] ?? '';
-                        ?>
-                            <td class="crit-label"><?= $cCfg['label'] ?>:</td>
-                            <td class="<?= $colorClass($val) ?>"><?= esc($val) ?></td>
-                        <?php endforeach; ?>
-                        <?php if (count($pair) === 1): ?>
-                            <td></td><td></td>
-                        <?php endif; ?>
-                        </tr>
-                        <?php endforeach; ?>
-                    </table>
-                </div>
-                <?php endforeach; ?>
-
-                <?php if (!empty($p['foto_base64'])): ?>
-                <div style="margin-top:4px;">
-                    <img src="<?= $p['foto_base64'] ?>" class="ext-img">
-                </div>
-                <?php endif; ?>
-
-                <?php if (!empty($p['observaciones'])): ?>
-                <div style="margin-top:3px; font-size:8px;"><strong>Observaciones:</strong> <?= esc($p['observaciones']) ?></div>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <p style="color:#888; font-style:italic; font-size:8px;">No se inspeccionaron piscinas.</p>
-    <?php endif; ?>
-
-    <?php if (!empty($inspeccion['recomendaciones_generales'])): ?>
-    <div class="section-title">RECOMENDACIONES GENERALES</div>
-    <p style="font-size:9px; line-height:1.4;"><?= nl2br(esc($inspeccion['recomendaciones_generales'])) ?></p>
-    <?php endif; ?>
-
-    <div class="section-title">MARCO NORMATIVO CONSULTADO</div>
-    <div class="marco">
-        <?= nl2br(esc($inspeccion['marco_normativo'] ?? $marcoNormativo ?? '')) ?>
-        <br><br>
-        <em>Aviso: La presente inspeccion documenta condiciones observadas en sitio bajo criterios SST. NO sustituye la certificacion de seguridad de la piscina expedida por la autoridad municipal o distrital competente (Ley 1209 de 2008 y Decreto 554 de 2015). Los hallazgos deben ser remitidos al administrador y a la empresa de mantenimiento para cierre de las acciones correctivas.</em>
+<?php foreach ($piscinas as $i => $p): $idDet = $p['id']; ?>
+<div class="piscina">
+    <h2>Piscina #<?= $i + 1 ?> — <?= esc($p['identificador']) ?></h2>
+    <div style="margin-bottom: 6px;">
+        <span class="badge" style="background: <?= irapiColor($p['irapi_clasificacion'] ?? 'SIN_RIESGO') ?>;">
+            IRAPI: <?= number_format((float)($p['irapi_valor'] ?? 0), 2) ?> — <?= irapiLabel($p['irapi_clasificacion'] ?? 'SIN_RIESGO') ?>
+        </span>
+        <?php if (!empty($p['isl_valor'])): ?>
+        <span class="badge" style="background: #555; margin-left: 4px;">
+            ISL Langelier: <?= number_format((float)$p['isl_valor'], 2) ?> (<?= esc($p['isl_interpretacion']) ?>)
+        </span>
+        <?php endif; ?>
     </div>
 
-    <table class="firma-table">
+    <table class="kv">
+        <tr><td class="k">Tipo</td><td><?= esc($p['tipo']) ?></td><td class="k">Uso</td><td><?= esc($p['uso']) ?></td></tr>
+        <tr><td class="k">Climatizada</td><td><?= esc($p['climatizada']) ?></td><td class="k">Superficie (m²)</td><td><?= esc($p['superficie_piscina_m2'] ?? '—') ?></td></tr>
+        <tr><td class="k">Profundidad max (m)</td><td><?= esc($p['profundidad_max_m'] ?? '—') ?></td><td class="k">Profundidad min (m)</td><td><?= esc($p['profundidad_min_m'] ?? '—') ?></td></tr>
+        <tr><td class="k">Aforo piscina</td><td><?= esc($p['aforo_piscina_max'] ?? '—') ?></td><td class="k">Aforo deck</td><td><?= esc($p['aforo_deck_max'] ?? '—') ?></td></tr>
+    </table>
+
+    <h3>3.<?= $i+1 ?>.1 Parametros in situ (Anexo I)</h3>
+    <?php $params = $parametrosMap[$idDet] ?? []; if (empty($params)): ?>
+    <div style="font-size: 9px; color: #888;">Sin mediciones registradas.</div>
+    <?php else: ?>
+    <table class="data param-tbl">
+        <tr><th>Parametro</th><th>Valor</th><th>Unidad</th><th>Rango</th><th>Conforme</th><th>Obs.</th></tr>
+        <?php foreach ($params as $prm):
+            $label = $parametrosCfg[$prm['parametro']]['label'] ?? $prm['parametro'];
+            $class = ['SI'=>'param-ok','NO'=>'param-no','NA'=>'param-na'][$prm['conforme']] ?? 'param-na';
+        ?>
         <tr>
-            <td>Consultor SST<br><strong><?= esc($consultor['nombre_consultor'] ?? '') ?></strong></td>
-            <td>Recibido por el cliente<br><strong><?= esc($cliente['nombre_cliente'] ?? '') ?></strong></td>
+            <td><?= esc($label) ?></td>
+            <td><?= esc($prm['valor'] ?? '') ?></td>
+            <td><?= esc($prm['unidad'] ?? '') ?></td>
+            <td style="font-size:8px;"><?= esc($prm['rango_referencia'] ?? '') ?></td>
+            <td class="<?= $class ?>"><?= esc($prm['conforme']) ?></td>
+            <td style="font-size:8px;"><?= esc($prm['observaciones'] ?? '') ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+    <?php endif; ?>
+
+    <h3>3.<?= $i+1 ?>.2 Ensayos de laboratorio</h3>
+    <?php $ensayos = $ensayosMap[$idDet] ?? []; if (empty($ensayos)): ?>
+    <div style="font-size: 9px; color: #888;">Sin ensayos registrados.</div>
+    <?php else: ?>
+    <table class="data param-tbl">
+        <tr><th>Tipo</th><th>Fecha toma</th><th>Laboratorio</th><th>N° informe</th><th>Norma</th><th>Conforme</th></tr>
+        <?php foreach ($ensayos as $e): ?>
+        <tr>
+            <td><?= esc($e['tipo']) ?></td>
+            <td><?= !empty($e['fecha_toma']) ? date('d/m/Y', strtotime($e['fecha_toma'])) : '—' ?></td>
+            <td><?= esc($e['laboratorio'] ?? '') ?></td>
+            <td><?= esc($e['numero_informe'] ?? '') ?></td>
+            <td style="font-size:8px;"><?= esc($e['norma_citada'] ?? '') ?></td>
+            <td><?= esc($e['conforme_global']) ?></td>
+        </tr>
+        <?php if ($e['tipo'] === 'MICROBIOLOGICO'): ?>
+        <tr><td colspan="6" style="font-size:8px;">Heterotrofos: <?= esc($e['heterotrofos_ufc'] ?? '—') ?> · Coliformes: <?= esc($e['coliformes_termotolerantes_ufc'] ?? '—') ?> · E.coli: <?= esc($e['ecoli_ufc'] ?? '—') ?> · Pseudomonas: <?= esc($e['pseudomonas_ufc'] ?? '—') ?> · Legionella: <?= esc($e['legionella_ufc'] ?? '—') ?></td></tr>
+        <?php endif; ?>
+        <?php endforeach; ?>
+    </table>
+    <?php endif; ?>
+
+    <h3>3.<?= $i+1 ?>.3 Infraestructura, emergencia y avisos</h3>
+    <table class="data param-tbl">
+        <tr><th>Elemento</th><th>Estado</th><th>Elemento</th><th>Estado</th></tr>
+        <?php
+        $items = [
+            'cerramiento_perimetral' => 'Cerramiento perimetral',
+            'puerta_control_acceso'  => 'Puerta control acceso',
+            'alarma_inmersion_80db'  => 'Alarma inmersion 80dB',
+            'boton_parada_emergencia'=> 'Boton parada emergencia',
+            'drenaje_antiatrapamiento' => 'Drenaje antiatrapamiento',
+            'minimo_dos_drenajes'    => 'Minimo dos drenajes',
+            'sistema_liberacion_vacio' => 'Sistema liberacion vacio',
+            'senalizacion_profundidad' => 'Senalizacion profundidad',
+            'baldosas_cambio_profundidad' => 'Baldosas cambio prof.',
+            'escaleras_acceso_antideslizantes' => 'Escaleras antideslizantes',
+            'baranda_escaleras' => 'Baranda escaleras',
+            'iluminacion_adecuada' => 'Iluminacion adecuada',
+            'ventilacion_adecuada' => 'Ventilacion adecuada',
+            'aviso_menores_12' => 'Aviso menores 12',
+            'aviso_reglamento' => 'Aviso reglamento',
+            'aviso_horario' => 'Aviso horario',
+            'aviso_ducharse_antes' => 'Aviso ducharse antes',
+            'aviso_prohibido_zapatos' => 'Aviso prohibido zapatos',
+            'aviso_telefonos_emergencia' => 'Aviso telefonos emergencia',
+            'aviso_aforo_visible' => 'Aviso aforo',
+            'camilla_rescate' => 'Camilla rescate',
+            'flotadores_circulares_min_2' => 'Flotadores circulares',
+            'baston_con_gancho' => 'Baston con gancho',
+            'citofono_24h' => 'Citofono 24h',
+            'duchas_previas_obligatorias' => 'Duchas previas',
+            'baranda_apoyo_duchas' => 'Baranda apoyo duchas',
+            'lavapies_funcional' => 'Lavapies funcional',
+            'dosificacion_independiente' => 'Dosif. independiente',
+            'sistema_seguridad_flujo' => 'Seguridad de flujo',
+            'no_dosificacion_manual_con_publico' => 'No dosif. manual c/publico',
+            'equipo_bombeo_operativo' => 'Equipo bombeo',
+            'filtros_operativos' => 'Filtros operativos',
+            'libro_registro_existe' => 'Libro registro',
+        ];
+        $keys = array_keys($items);
+        for ($k = 0; $k < count($keys); $k += 2):
+            $k1 = $keys[$k]; $k2 = $keys[$k+1] ?? null;
+            $c1 = $p[$k1] ?? 'NA';
+            $c1cls = ['SI'=>'param-ok','NO'=>'param-no','NA'=>'param-na'][$c1] ?? 'param-na';
+        ?>
+        <tr>
+            <td><?= $items[$k1] ?></td><td class="<?= $c1cls ?>"><?= esc($c1) ?></td>
+            <?php if ($k2): $c2 = $p[$k2] ?? 'NA'; $c2cls = ['SI'=>'param-ok','NO'=>'param-no','NA'=>'param-na'][$c2] ?? 'param-na'; ?>
+            <td><?= $items[$k2] ?></td><td class="<?= $c2cls ?>"><?= esc($c2) ?></td>
+            <?php else: ?><td></td><td></td><?php endif; ?>
+        </tr>
+        <?php endfor; ?>
+        <tr>
+            <td>Botiquin tipo</td><td><?= esc($p['botiquin_tipo'] ?? 'NINGUNO') ?></td>
+            <td>Cubiculos M / H</td><td><?= (int)$p['cubiculos_duchas_mujeres'] ?> / <?= (int)$p['cubiculos_duchas_hombres'] ?></td>
         </tr>
     </table>
+
+    <?php $botItems = $botiquinMap[$idDet] ?? []; if (!empty($botItems)): ?>
+    <h3>3.<?= $i+1 ?>.4 Checklist botiquin tipo <?= esc($p['botiquin_tipo']) ?> (Anexo III)</h3>
+    <table class="data param-tbl">
+        <tr><th>Item</th><th>Exigida</th><th>Observada</th><th>Estado</th></tr>
+        <?php foreach ($botItems as $itm):
+            $cls = ['SI'=>'param-ok','NO'=>'param-no','PARCIAL'=>'param-no','NA'=>'param-na'][$itm['presente']] ?? 'param-na';
+        ?>
+        <tr>
+            <td><?= esc($itm['item_nombre']) ?> <span style="font-size:8px;color:#888;">(<?= esc($itm['unidad_medida']) ?>)</span></td>
+            <td><?= (int)$itm['cantidad_exigida'] ?></td>
+            <td><?= esc($itm['cantidad_observada'] ?? '—') ?></td>
+            <td class="<?= $cls ?>"><?= esc($itm['presente']) ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+    <?php endif; ?>
+
+    <?php if (!empty($p['observaciones']) || !empty($p['foto_base64'])): ?>
+    <h3>3.<?= $i+1 ?>.5 Observaciones y evidencia</h3>
+    <?php if (!empty($p['observaciones'])): ?>
+    <div style="margin: 4px 0; font-size: 9.5px;"><?= nl2br(esc($p['observaciones'])) ?></div>
+    <?php endif; ?>
+    <?php if (!empty($p['foto_base64'])): ?>
+    <img class="foto" src="<?= $p['foto_base64'] ?>">
+    <?php endif; ?>
+    <?php endif; ?>
+</div>
+<?php endforeach; ?>
+
+<?php if (!empty($inspeccion['recomendaciones_generales'])): ?>
+<h2>4. Recomendaciones generales</h2>
+<div style="font-size: 10px;"><?= nl2br(esc($inspeccion['recomendaciones_generales'])) ?></div>
+<?php endif; ?>
+
+<h2>5. Marco normativo</h2>
+<div style="font-size: 9px; color: #555; text-align: justify;">
+    <?= esc($marcoNormativo) ?>
+</div>
+
+<div class="footer">
+    Generado automaticamente por el modulo de inspecciones SST — Fecha emision PDF: <?= date('d/m/Y H:i') ?>.
+</div>
 
 </body>
 </html>

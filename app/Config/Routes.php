@@ -1162,6 +1162,21 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('plan-emergencia/ia-save-contexto/(:num)', 'PlanEmergenciaController::iaSaveContexto/$1');
     $routes->post('plan-emergencia/ia-aprobar/(:num)', 'PlanEmergenciaController::iaAprobar/$1');
 
+    // Procedimiento de Emergencia por Area (piscina, bano turco, sauna, gym, zona BBQ)
+    $routes->get('procedimiento-emergencia-area', 'ProcedimientoEmergenciaAreaController::list');
+    $routes->get('procedimiento-emergencia-area/create', 'ProcedimientoEmergenciaAreaController::create');
+    $routes->get('procedimiento-emergencia-area/create/(:num)', 'ProcedimientoEmergenciaAreaController::create/$1');
+    $routes->post('procedimiento-emergencia-area/store', 'ProcedimientoEmergenciaAreaController::store');
+    $routes->get('procedimiento-emergencia-area/edit/(:num)', 'ProcedimientoEmergenciaAreaController::edit/$1');
+    $routes->post('procedimiento-emergencia-area/update/(:num)', 'ProcedimientoEmergenciaAreaController::update/$1');
+    $routes->get('procedimiento-emergencia-area/view/(:num)', 'ProcedimientoEmergenciaAreaController::view/$1');
+    $routes->get('procedimiento-emergencia-area/pdf/(:num)', 'ProcedimientoEmergenciaAreaController::generatePdf/$1');
+    $routes->get('procedimiento-emergencia-area/regenerar-pdf/(:num)', 'ProcedimientoEmergenciaAreaController::regenerarPdf/$1');
+    $routes->post('procedimiento-emergencia-area/finalizar/(:num)', 'ProcedimientoEmergenciaAreaController::finalizar/$1');
+    $routes->get('procedimiento-emergencia-area/delete/(:num)', 'ProcedimientoEmergenciaAreaController::delete/$1');
+    $routes->get('procedimiento-emergencia-area/enviar-email/(:num)', 'ProcedimientoEmergenciaAreaController::enviarEmail/$1');
+    $routes->post('procedimiento-emergencia-area/generar-escenario-ia/(:num)', 'ProcedimientoEmergenciaAreaController::generarEscenarioIA/$1');
+
     // Inspeccion Brigada y Simulacros (alimenta Plan de Emergencia - Fase 2)
     $routes->get('brigada-simulacros', 'InspeccionBrigadaSimulacrosController::list');
     $routes->get('brigada-simulacros/create', 'InspeccionBrigadaSimulacrosController::create');
