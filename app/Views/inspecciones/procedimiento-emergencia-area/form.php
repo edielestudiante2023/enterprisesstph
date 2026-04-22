@@ -118,9 +118,23 @@ $action = $isEdit
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     <?php if (!$isEdit): ?>
-    if (typeof initClientSelect === 'function') {
-        initClientSelect('#selectCliente', '<?= $idCliente ?? '' ?>');
-    }
+    // Select2 clientes via AJAX
+    const clienteIdPrefillPea = '<?= $idCliente ?? '' ?>';
+    $.ajax({
+        url: '<?= base_url('/inspecciones/api/clientes') ?>',
+        dataType: 'json',
+        success: function(data) {
+            const select = document.getElementById('selectCliente');
+            data.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id_cliente;
+                opt.textContent = c.nombre_cliente;
+                if (clienteIdPrefillPea && c.id_cliente == clienteIdPrefillPea) opt.selected = true;
+                select.appendChild(opt);
+            });
+            $('#selectCliente').select2({ placeholder: 'Seleccionar cliente...', width: '100%' });
+        }
+    });
     <?php endif; ?>
 
     <?php if ($isEdit): ?>
