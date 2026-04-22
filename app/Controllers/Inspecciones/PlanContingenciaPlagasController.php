@@ -17,6 +17,7 @@ class PlanContingenciaPlagasController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected PlanContingenciaPlagasModel $inspeccionModel;
 
     public function __construct()
@@ -95,6 +96,8 @@ class PlanContingenciaPlagasController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/contingencia-plagas')->with('error', 'Registro no encontrado.');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/contingencia-plagas/view/' . )) return ;
 
         return view('inspecciones/layout_pwa', [
             'title'   => 'Editar Plan Contingencia Plagas',

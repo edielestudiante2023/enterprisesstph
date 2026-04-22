@@ -21,6 +21,7 @@ class ReporteCapacitacionController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected ReporteCapacitacionModel $inspeccionModel;
 
     public function __construct()
@@ -157,6 +158,8 @@ class ReporteCapacitacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/reporte-capacitacion')->with('error', 'No encontrado');
         }
+
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/reporte-capacitacion/view/' . $id)) return $r;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();

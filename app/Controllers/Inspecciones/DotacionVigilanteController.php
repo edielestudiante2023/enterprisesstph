@@ -17,6 +17,7 @@ class DotacionVigilanteController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected DotacionVigilanteModel $inspeccionModel;
 
     public const ITEMS_EPP = [
@@ -173,6 +174,8 @@ class DotacionVigilanteController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/dotacion-vigilante')->with('error', 'No encontrada');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/dotacion-vigilante/view/' . )) return ;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();

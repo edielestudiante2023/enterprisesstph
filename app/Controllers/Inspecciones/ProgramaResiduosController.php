@@ -17,6 +17,7 @@ class ProgramaResiduosController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected ProgramaResiduosModel $inspeccionModel;
 
     public function __construct()
@@ -99,6 +100,8 @@ class ProgramaResiduosController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/residuos-solidos')->with('error', 'Registro no encontrado.');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/residuos-solidos/view/' . )) return ;
         $clientModel = new ClientModel();
         $cliente = $clientModel->find($inspeccion['id_cliente']);
 

@@ -17,6 +17,7 @@ class MatrizVulnerabilidadController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected MatrizVulnerabilidadModel $matrizModel;
 
     /**
@@ -395,6 +396,8 @@ class MatrizVulnerabilidadController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/matriz-vulnerabilidad')->with('error', 'No encontrada');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/matriz-vulnerabilidad/view/' . )) return ;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();

@@ -17,6 +17,7 @@ class DotacionAseadoraController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected DotacionAseadoraModel $inspeccionModel;
 
     public const ITEMS_EPP = [
@@ -173,6 +174,8 @@ class DotacionAseadoraController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/dotacion-aseadora')->with('error', 'No encontrada');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/dotacion-aseadora/view/' . )) return ;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();

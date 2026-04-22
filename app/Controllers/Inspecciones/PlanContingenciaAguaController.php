@@ -17,6 +17,7 @@ class PlanContingenciaAguaController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected PlanContingenciaAguaModel $inspeccionModel;
 
     public function __construct()
@@ -96,6 +97,8 @@ class PlanContingenciaAguaController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/contingencia-agua')->with('error', 'Registro no encontrado.');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/contingencia-agua/view/' . )) return ;
 
         return view('inspecciones/layout_pwa', [
             'title'   => 'Editar Plan Contingencia Sin Agua',

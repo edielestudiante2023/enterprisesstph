@@ -18,6 +18,7 @@ class AsistenciaCapacitacionController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected AsistenciaCapacitacionModel $inspeccionModel;
 
     public const TIPOS_CHARLA = [
@@ -75,24 +76,30 @@ class AsistenciaCapacitacionController extends BaseController
         $existing = $this->reuseExistingBorrador($this->inspeccionModel, 'fecha_sesion', '/inspecciones/asistencia-capacitacion/edit/');
         if ($existing) return $existing;
 
-        $userId = session()->get('user_id');
         $isAutosave = $this->isAutosaveRequest();
 
-        if (!$isAutosave) {
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum('id_cliente', 'fecha_sesion')) return $err;
+        } else {
             if (!$this->validate(['id_cliente' => 'required|integer', 'fecha_sesion' => 'required|valid_date'])) {
                 return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
             }
         }
 
-        $data = $this->getInspeccionPostData();
-        $data['id_consultor'] = $userId;
-        $data['estado'] = 'borrador';
+        $userId = session()->get('user_id');
+        $idInspeccion = 0;
 
-        $this->inspeccionModel->insert($data);
-        $idInspeccion = $this->inspeccionModel->getInsertID();
+        $txResult = $this->runTransactional(function () use ($userId, &$idInspeccion) {
+            $data = $this->getInspeccionPostData();
+            $data['id_consultor'] = $userId;
+            $data['estado'] = 'borrador';
+            $this->inspeccionModel->insert($data);
+            $idInspeccion = $this->inspeccionModel->getInsertID();
+            $this->saveAsistentes($idInspeccion);
+            return true;
+        });
 
-        // Insert attendees
-        $this->saveAsistentes($idInspeccion);
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
 
         if ($isAutosave) {
             return $this->autosaveJsonSuccess($idInspeccion);
@@ -139,12 +146,21 @@ class AsistenciaCapacitacionController extends BaseController
             return redirect()->to('/inspecciones/asistencia-capacitacion')->with('error', 'No se puede editar');
         }
 
-        $data = $this->getInspeccionPostData();
-        $this->inspeccionModel->update($id, $data);
+        $isAutosave = $this->isAutosaveRequest();
+        if ($isAutosave) {
+            if ($err = $this->validateAutosaveMinimum('id_cliente', 'fecha_sesion')) return $err;
+        }
+
         // Asistentes se gestionan exclusivamente vía AJAX (storeAsistente/deleteAsistente).
         // update() solo actualiza metadatos de la sesión.
+        $txResult = $this->runTransactional(function () use ($id) {
+            $this->inspeccionModel->update($id, $this->getInspeccionPostData());
+            return true;
+        });
 
-        if ($this->isAutosaveRequest()) {
+        if ($txResult instanceof \CodeIgniter\HTTP\ResponseInterface) return $txResult;
+
+        if ($isAutosave) {
             return $this->autosaveJsonSuccess((int)$id);
         }
 
@@ -340,6 +356,8 @@ class AsistenciaCapacitacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/asistencia-capacitacion')->with('error', 'No encontrado');
         }
+
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/asistencia-capacitacion/view/' . $id)) return $r;
 
         // Validar que todos los asistentes hayan firmado
         $asistenteModel = new AsistenciaCapacitacionAsistenteModel();

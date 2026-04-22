@@ -16,6 +16,7 @@ class EvaluacionSimulacroController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected EvaluacionSimulacroModel $evalModel;
 
     public function __construct()
@@ -54,6 +55,8 @@ class EvaluacionSimulacroController extends BaseController
         if (!$eval) {
             return redirect()->to('/inspecciones/simulacro')->with('error', 'No encontrada');
         }
+
+        if ($r = $this->guardFinalizado($eval, '/inspecciones/simulacro/view/' . $id)) return $r;
 
         $clientModel = new ClientModel();
 

@@ -17,6 +17,7 @@ class InspeccionComunicacionController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected InspeccionComunicacionModel $inspeccionModel;
 
     /**
@@ -169,6 +170,8 @@ class InspeccionComunicacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/comunicaciones')->with('error', 'No encontrada');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/comunicaciones/view/' . )) return ;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();

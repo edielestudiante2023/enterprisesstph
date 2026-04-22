@@ -17,6 +17,7 @@ class ProbabilidadPeligrosController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected ProbabilidadPeligrosModel $inspeccionModel;
 
     /**
@@ -183,6 +184,8 @@ class ProbabilidadPeligrosController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/probabilidad-peligros')->with('error', 'No encontrada');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/probabilidad-peligros/view/' . )) return ;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();

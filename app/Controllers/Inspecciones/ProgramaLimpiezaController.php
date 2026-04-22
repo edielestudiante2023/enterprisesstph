@@ -17,6 +17,7 @@ class ProgramaLimpiezaController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected ProgramaLimpiezaModel $inspeccionModel;
 
     public function __construct()
@@ -98,6 +99,8 @@ class ProgramaLimpiezaController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/limpieza-desinfeccion')->with('error', 'Registro no encontrado.');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/limpieza-desinfeccion/view/' . )) return ;
         $clientModel = new ClientModel();
         $cliente = $clientModel->find($inspeccion['id_cliente']);
 

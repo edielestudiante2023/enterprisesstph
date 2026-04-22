@@ -11,6 +11,9 @@ use Dompdf\Dompdf;
 
 class InspeccionBrigadaSimulacrosController extends BaseController
 {
+    use \App\Traits\AutosaveJsonTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
+
     protected InspeccionBrigadaSimulacrosModel $inspeccionModel;
 
     const FOTO_FIELDS = [
@@ -171,6 +174,8 @@ class InspeccionBrigadaSimulacrosController extends BaseController
             return redirect()->to('/inspecciones/brigada-simulacros')
                 ->with('error', 'No encontrada');
         }
+
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/brigada-simulacros/view/' . $id)) return $r;
 
         $pdfPath = $this->generarPdfInterno($id);
         if (!$pdfPath) {

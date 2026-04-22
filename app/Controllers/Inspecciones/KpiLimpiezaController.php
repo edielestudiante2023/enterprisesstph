@@ -16,6 +16,7 @@ class KpiLimpiezaController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected KpiLimpiezaModel $model;
 
     protected const INDICADOR_CONFIG = [
@@ -185,6 +186,8 @@ class KpiLimpiezaController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/' . static::ROUTE_SLUG)->with('error', 'No encontrado');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/' . static::ROUTE_SLUG . '/view/' . )) return ;
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/kpi-limpieza/form', [
                 'title'              => 'Editar ' . static::MODULE_LABEL,

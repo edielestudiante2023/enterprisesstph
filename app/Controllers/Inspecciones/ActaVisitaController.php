@@ -27,6 +27,7 @@ class ActaVisitaController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected ActaVisitaModel $actaModel;
     protected ActaVisitaIntegranteModel $integranteModel;
     protected ActaVisitaTemaModel $temaModel;
@@ -443,6 +444,16 @@ class ActaVisitaController extends BaseController
         $acta = $this->actaModel->find($id);
         if (!$acta) {
             return $this->response->setJSON(['success' => false, 'error' => 'Acta no encontrada']);
+        }
+
+        // Idempotencia: si ya está completa, responder ok sin regenerar ni reenviar email.
+        if (($acta['estado'] ?? '') === 'completo') {
+            return $this->response->setJSON([
+                'success'           => true,
+                'already_finalized' => true,
+                'pdf_url'           => !empty($acta['ruta_pdf']) ? base_url($acta['ruta_pdf']) : '',
+                'email_msg'         => 'Esta acta ya fue finalizada anteriormente.',
+            ]);
         }
 
         // Verificar que tiene firma del consultor (obligatoria)

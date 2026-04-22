@@ -16,6 +16,7 @@ class KpiAguaPotableController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected KpiAguaPotableModel $model;
 
     protected const INDICADOR_CONFIG = [
@@ -164,6 +165,8 @@ class KpiAguaPotableController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/' . static::ROUTE_SLUG)->with('error', 'No encontrado');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/' . static::ROUTE_SLUG . '/view/' . )) return ;
         return view('inspecciones/layout_pwa', [
             'content' => view(static::VIEW_DIR . '/form', [
                 'title'       => 'Editar ' . static::MODULE_LABEL,

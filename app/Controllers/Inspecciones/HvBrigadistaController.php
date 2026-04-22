@@ -16,6 +16,7 @@ class HvBrigadistaController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected HvBrigadistaModel $hvModel;
 
     public function __construct()
@@ -54,6 +55,8 @@ class HvBrigadistaController extends BaseController
         if (!$hv) {
             return redirect()->to('/inspecciones/hv-brigadista')->with('error', 'No encontrada');
         }
+
+        if ($r = $this->guardFinalizado($hv, '/inspecciones/hv-brigadista/view/' . $id)) return $r;
 
         $clientModel = new ClientModel();
 

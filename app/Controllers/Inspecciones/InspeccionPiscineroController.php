@@ -17,6 +17,7 @@ class InspeccionPiscineroController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
 
     protected InspeccionPiscineroModel $inspeccionModel;
 
@@ -155,6 +156,8 @@ class InspeccionPiscineroController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/piscinero')->with('error', 'No encontrada');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/piscinero/view/' . )) return ;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();

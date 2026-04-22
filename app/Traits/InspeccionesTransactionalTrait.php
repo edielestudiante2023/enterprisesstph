@@ -20,13 +20,15 @@ use Closure;
  */
 trait InspeccionesTransactionalTrait
 {
-    protected function validateAutosaveMinimum(): ?ResponseInterface
-    {
-        $idCliente = $this->request->getPost('id_cliente');
-        $fecha     = $this->request->getPost('fecha_inspeccion');
+    protected function validateAutosaveMinimum(
+        string $idClienteField = 'id_cliente',
+        string $fechaField = 'fecha_inspeccion'
+    ): ?ResponseInterface {
+        $idCliente = $this->request->getPost($idClienteField);
+        $fecha     = $this->request->getPost($fechaField);
 
         if (empty($idCliente) || !is_numeric($idCliente) || empty($fecha)) {
-            return $this->autosaveJsonError('Falta cliente o fecha de inspección', 422);
+            return $this->autosaveJsonError('Falta cliente o fecha', 422);
         }
         return null;
     }

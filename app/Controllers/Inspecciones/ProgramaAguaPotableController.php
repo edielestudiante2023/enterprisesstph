@@ -17,6 +17,7 @@ class ProgramaAguaPotableController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected ProgramaAguaPotableModel $inspeccionModel;
 
     public function __construct()
@@ -101,6 +102,8 @@ class ProgramaAguaPotableController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/agua-potable')->with('error', 'Registro no encontrado.');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/agua-potable/view/' . )) return ;
         $clientModel = new ClientModel();
         $cliente = $clientModel->find($inspeccion['id_cliente']);
 

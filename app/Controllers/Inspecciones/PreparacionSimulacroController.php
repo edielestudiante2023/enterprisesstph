@@ -17,6 +17,7 @@ class PreparacionSimulacroController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected PreparacionSimulacroModel $inspeccionModel;
 
     public const OPCIONES_ALARMA = [
@@ -192,6 +193,8 @@ class PreparacionSimulacroController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/preparacion-simulacro')->with('error', 'No encontrada');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/preparacion-simulacro/view/' . )) return ;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();

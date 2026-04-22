@@ -17,6 +17,7 @@ class ProgramaPlagasController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
+    use AppTraitsInspeccionesTransactionalTrait;
     protected ProgramaPlagasModel $inspeccionModel;
 
     public function __construct()
@@ -98,6 +99,8 @@ class ProgramaPlagasController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/control-plagas')->with('error', 'Registro no encontrado.');
         }
+
+        if ( = ->guardFinalizado(, '/inspecciones/control-plagas/view/' . )) return ;
         $clientModel = new ClientModel();
         $cliente = $clientModel->find($inspeccion['id_cliente']);
 
