@@ -100,8 +100,11 @@ $GRUPOS = [
                                 <input type="date" name="fecha_inspeccion" class="form-control" value="<?= $inspeccion['fecha_inspeccion'] ?? date('Y-m-d') ?>" required>
                             </div>
                             <div class="col-6">
-                                <label class="form-label">Superficie total establecimiento (m²)</label>
-                                <input type="number" step="0.01" name="superficie_total_establecimiento_m2" class="form-control" value="<?= esc($inspeccion['superficie_total_establecimiento_m2'] ?? '') ?>" placeholder="Define tipo botiquin">
+                                <label class="form-label">Superficie total zona húmeda (m²)</label>
+                                <input type="number" step="0.01" name="superficie_total_establecimiento_m2" class="form-control" value="<?= esc($inspeccion['superficie_total_establecimiento_m2'] ?? '') ?>" placeholder="Ej: 750">
+                                <div class="form-text" style="font-size:11px; line-height:1.3;">
+                                    Incluye piscina + deck + vestieres + cuarto de bombas. <strong>NO</strong> es la lámina de agua ni el área construida del edificio. Art. 18 Res 234/2026: &lt;500 m² → Tipo A · 500–2000 m² → Tipo B · &gt;2000 m² → Tipo C.
+                                </div>
                             </div>
                         </div>
                         <hr>
