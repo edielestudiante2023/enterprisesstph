@@ -140,7 +140,7 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                         <i class="fas <?= esc($f['icon']) ?>" style="color:#bd9751; width:18px;"></i>
                         <?= esc($f['label']) ?>
                     </td>
-                    <td style="font-size:12px;" data-order="<?= esc($f['ultima'] ?? '') ?>">
+                    <td style="font-size:12px;" data-order="<?= esc($f['ultima'] ?? $f['proxima_planeada'] ?? $f['ultima_vencida'] ?? '9999-99-99') ?>">
                         <?php if ($f['estado'] === 'no_aplica'): ?>
                             <span class="text-muted">—</span>
                         <?php else: ?>
@@ -219,6 +219,15 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                                 style="padding:2px 7px;font-size:11px;">
                                 <i class="fas fa-link"></i><?= count($f['pta_vinculados']) > 0 ? ' ' . count($f['pta_vinculados']) : '' ?>
                             </button>
+                            <?php if (empty($f['pta_vinculados'])): ?>
+                            <button type="button" class="btn btn-xs btn-outline-success btn-crear-pta"
+                                data-slug="<?= esc($f['slug']) ?>"
+                                data-label="<?= esc($f['label']) ?>"
+                                title="Crear actividad en el Plan de Trabajo"
+                                style="padding:2px 7px;font-size:11px;">
+                                <i class="fas fa-calendar-plus"></i> PTA
+                            </button>
+                            <?php endif; ?>
                             <button type="button" class="btn btn-xs btn-outline-secondary btn-marcar-na"
                                 data-slug="<?= esc($f['slug']) ?>"
                                 data-label="<?= esc($f['label']) ?>"
@@ -320,6 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_QUITAR = '<?= base_url('inspecciones/matriz/quitar-no-aplica') ?>';
     const URL_PTA_LIST = '<?= base_url('inspecciones/matriz/pta-list/' . (int) $cliente['id_cliente']) ?>';
     const URL_PTA_LINK = '<?= base_url('inspecciones/matriz/vincular-pta') ?>';
+    const URL_PTA_CREAR = '<?= base_url('inspecciones/matriz/crear-pta') ?>';
 
     const estadoLabelMap = { 'hecha': 'Hecha', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
 
@@ -330,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'Todas']],
         order: [[0, 'asc'], [1, 'asc']],
         columnDefs: [
-            { orderable: false, targets: [2, 4] }
+            { orderable: false, targets: [4] }
         ],
         orderCellsTop: true,
         stateSave: true,
@@ -557,6 +567,85 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
     // ================ FIN VINCULAR PTA ================
+
+    // ================ CREAR PTA ================
+    document.querySelectorAll('.btn-crear-pta').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const slug = this.dataset.slug;
+            const label = this.dataset.label;
+            const today = new Date().toISOString().slice(0, 10);
+
+            Swal.fire({
+                title: 'Crear actividad en el Plan de Trabajo',
+                html: `
+                    <div style="text-align:left; font-size:13px;">
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Actividad</label>
+                            <textarea id="ptaAct" class="form-control form-control-sm" rows="2" style="font-size:12px;">Inspección de ${label}</textarea>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold mb-1">Fecha propuesta</label>
+                                <input id="ptaFecha" type="date" class="form-control form-control-sm" value="${today}" style="font-size:12px;">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold mb-1">PHVA</label>
+                                <select id="ptaPhva" class="form-select form-select-sm" style="font-size:12px;">
+                                    <option value="PLANEAR">PLANEAR</option>
+                                    <option value="HACER" selected>HACER</option>
+                                    <option value="VERIFICAR">VERIFICAR</option>
+                                    <option value="ACTUAR">ACTUAR</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <label class="form-label small fw-bold mb-1">Numeral <span class="text-muted">(opcional)</span></label>
+                            <input id="ptaNumeral" type="text" class="form-control form-control-sm" placeholder="Ej: 1.2.3" style="font-size:12px;">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Crear y vincular',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#198754',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const act = document.getElementById('ptaAct').value.trim();
+                    const fecha = document.getElementById('ptaFecha').value;
+                    const phva = document.getElementById('ptaPhva').value;
+                    const numeral = document.getElementById('ptaNumeral').value.trim();
+                    if (!act) { Swal.showValidationMessage('La actividad es obligatoria.'); return false; }
+                    if (!fecha) { Swal.showValidationMessage('La fecha es obligatoria.'); return false; }
+                    return { act, fecha, phva, numeral };
+                }
+            }).then(function (r) {
+                if (!r.isConfirmed) return;
+                const fd = new FormData();
+                fd.append('id_cliente', ID_CLIENTE);
+                fd.append('slug_inspeccion', slug);
+                fd.append('actividad', r.value.act);
+                fd.append('fecha_propuesta', r.value.fecha);
+                fd.append('phva', r.value.phva);
+                fd.append('numeral', r.value.numeral);
+                fetch(URL_PTA_CREAR, { method: 'POST', body: fd })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.ok) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Actividad creada y vinculada',
+                                text: 'id_ptacliente=' + res.id_ptacliente,
+                                timer: 1800, showConfirmButton: false
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', res.msg || 'No se pudo crear.', 'error');
+                        }
+                    })
+                    .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
+            });
+        });
+    });
+    // ================ FIN CREAR PTA ================
 
     document.querySelectorAll('.btn-quitar-na').forEach(function (btn) {
         btn.addEventListener('click', function () {

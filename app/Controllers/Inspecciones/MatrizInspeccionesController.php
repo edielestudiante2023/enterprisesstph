@@ -332,6 +332,72 @@ class MatrizInspeccionesController extends BaseController
     }
 
     /**
+     * Crea una nueva actividad en tbl_pta_cliente y la auto-vincula al slug.
+     * Pensado para tipos de inspeccion huerfanas (sin PTA asociado) — el consultor
+     * dispara la creacion desde la matriz con una fecha indicada.
+     */
+    public function crearPta()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $slug = trim((string) $this->request->getPost('slug_inspeccion'));
+        $fecha = trim((string) $this->request->getPost('fecha_propuesta'));
+        $actividad = trim((string) $this->request->getPost('actividad'));
+        $phva = strtoupper(trim((string) $this->request->getPost('phva'))) ?: 'HACER';
+        $numeral = trim((string) $this->request->getPost('numeral')) ?: '-';
+
+        $phvaValidos = ['PLANEAR', 'HACER', 'VERIFICAR', 'ACTUAR'];
+        if (!$idCliente || !$slug || !InspeccionTypes::bySlug($slug) || !$fecha || !$actividad) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+        if (!in_array($phva, $phvaValidos, true)) $phva = 'HACER';
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Fecha inválida (YYYY-MM-DD).']);
+        }
+
+        if (!$this->clienteModel->find($idCliente)) {
+            return $this->response->setStatusCode(404)->setJSON(['ok' => false, 'msg' => 'Cliente no encontrado.']);
+        }
+
+        $db = \Config\Database::connect();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('tbl_pta_cliente')->insert([
+            'id_cliente'                            => $idCliente,
+            'phva_plandetrabajo'                    => $phva,
+            'numeral_plandetrabajo'                 => $numeral,
+            'actividad_plandetrabajo'               => $actividad,
+            'responsable_sugerido_plandetrabajo'    => 'CONSULTOR CYCLOID',
+            'responsable_definido_paralaactividad'  => '-',
+            'fecha_propuesta'                       => $fecha,
+            'estado_actividad'                      => 'ABIERTA',
+            'porcentaje_avance'                     => 0,
+            'created_at'                            => $now,
+            'updated_at'                            => $now,
+        ]);
+        $idPta = (int) $db->insertID();
+
+        if (!$idPta) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'No se pudo crear la actividad.']);
+        }
+
+        $this->matchModel->upsert([
+            'id_cliente'      => $idCliente,
+            'id_ptacliente'   => $idPta,
+            'slug_inspeccion' => $slug,
+            'score'           => 1.000,
+            'method'          => 'manual',
+            'reasoning'       => 'Creada desde la Matriz de Inspecciones.',
+            'ai_model'        => null,
+            'created_at'      => $now,
+        ]);
+
+        return $this->response->setJSON([
+            'ok'            => true,
+            'id_ptacliente' => $idPta,
+        ]);
+    }
+
+    /**
      * Desvincula una sola actividad PTA de un slug (accion rapida desde la fila).
      */
     public function desvincularPta()
