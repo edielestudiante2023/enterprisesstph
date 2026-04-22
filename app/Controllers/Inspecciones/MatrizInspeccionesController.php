@@ -6,16 +6,19 @@ use App\Controllers\BaseController;
 use App\Libraries\InspeccionTypes;
 use App\Models\ClientModel;
 use App\Models\InspeccionNoAplicaModel;
+use App\Models\PtaInspeccionMatchModel;
 
 class MatrizInspeccionesController extends BaseController
 {
     protected ClientModel $clienteModel;
     protected InspeccionNoAplicaModel $noAplicaModel;
+    protected PtaInspeccionMatchModel $matchModel;
 
     public function __construct()
     {
         $this->clienteModel = new ClientModel();
         $this->noAplicaModel = new InspeccionNoAplicaModel();
+        $this->matchModel = new PtaInspeccionMatchModel();
     }
 
     /**
@@ -53,6 +56,22 @@ class MatrizInspeccionesController extends BaseController
         $noAplica = $this->noAplicaModel->getByCliente($idCliente);
 
         $db = \Config\Database::connect();
+
+        // Precargar todos los matches del cliente con info del PTA, indexados por slug
+        $matchesBySlug = [];
+        if ($db->tableExists('tbl_pta_inspeccion_match')) {
+            $matches = $db->table('tbl_pta_inspeccion_match m')
+                ->select('m.slug_inspeccion, m.id_ptacliente, m.method, m.score, p.fecha_propuesta, p.fecha_cierre, p.numeral_plandetrabajo, p.actividad_plandetrabajo, p.estado_actividad')
+                ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'left')
+                ->where('m.id_cliente', $idCliente)
+                ->orderBy('p.fecha_propuesta', 'ASC')
+                ->get()
+                ->getResultArray();
+            foreach ($matches as $m) {
+                $matchesBySlug[$m['slug_inspeccion']][] = $m;
+            }
+        }
+
         $filas = [];
 
         foreach ($tipos as $tipo) {
@@ -116,6 +135,7 @@ class MatrizInspeccionesController extends BaseController
                 'total'         => $total,
                 'estado'        => $estado,
                 'no_aplica'     => $na,
+                'pta_vinculados'=> $matchesBySlug[$tipo['slug']] ?? [],
             ];
         }
 
@@ -164,6 +184,131 @@ class MatrizInspeccionesController extends BaseController
         }
 
         $ok = $this->noAplicaModel->quitar($idCliente, $tipo);
+        return $this->response->setJSON(['ok' => (bool) $ok]);
+    }
+
+    /**
+     * Devuelve las actividades PTA del cliente (por defecto abiertas) + los ya vinculados al slug.
+     * Usado por el modal "Vincular PTA" en la vista detalle.
+     */
+    public function listarPtaPorSlug(int $idCliente)
+    {
+        $cliente = $this->clienteModel->find($idCliente);
+        if (!$cliente) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Cliente no encontrado.']);
+        }
+
+        $slug = trim((string) $this->request->getGet('slug'));
+        if (!InspeccionTypes::bySlug($slug)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Tipo de inspección inválido.']);
+        }
+
+        $incluirCerradas = (bool) $this->request->getGet('cerradas');
+
+        $db = \Config\Database::connect();
+        $builder = $db->table('tbl_pta_cliente')
+            ->select('id_ptacliente, phva_plandetrabajo, numeral_plandetrabajo, actividad_plandetrabajo, fecha_propuesta, fecha_cierre, estado_actividad')
+            ->where('id_cliente', $idCliente)
+            ->orderBy('fecha_propuesta', 'ASC');
+
+        if (!$incluirCerradas) {
+            $builder->whereIn('estado_actividad', ['ABIERTA', 'GESTIONANDO']);
+        }
+
+        $ptas = $builder->get()->getResultArray();
+
+        $vinculados = $this->matchModel->where('id_cliente', $idCliente)
+            ->where('slug_inspeccion', $slug)
+            ->findAll();
+        $vinculadosIds = array_map('intval', array_column($vinculados, 'id_ptacliente'));
+
+        return $this->response->setJSON([
+            'ok'         => true,
+            'ptas'       => $ptas,
+            'vinculados' => $vinculadosIds,
+        ]);
+    }
+
+    /**
+     * Sincroniza los vinculos PTA <-> slug para un cliente.
+     * Body: id_cliente, slug_inspeccion, ids_ptacliente[] (array)
+     * Valida que todos los ids pertenezcan al cliente antes de escribir.
+     */
+    public function vincularPta()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $slug = trim((string) $this->request->getPost('slug_inspeccion'));
+        $idsRaw = $this->request->getPost('ids_ptacliente');
+        $ids = is_array($idsRaw) ? array_values(array_unique(array_map('intval', $idsRaw))) : [];
+
+        if (!$idCliente || !$slug || !InspeccionTypes::bySlug($slug)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+
+        $db = \Config\Database::connect();
+
+        if (!empty($ids)) {
+            $valids = $db->table('tbl_pta_cliente')
+                ->select('id_ptacliente')
+                ->where('id_cliente', $idCliente)
+                ->whereIn('id_ptacliente', $ids)
+                ->get()
+                ->getResultArray();
+            $validIds = array_map('intval', array_column($valids, 'id_ptacliente'));
+            $invalid = array_values(array_diff($ids, $validIds));
+            if (!empty($invalid)) {
+                return $this->response
+                    ->setStatusCode(403)
+                    ->setJSON(['ok' => false, 'msg' => 'Algunas actividades no pertenecen al cliente.', 'invalid' => $invalid]);
+            }
+        }
+
+        $actuales = $this->matchModel->where('id_cliente', $idCliente)
+            ->where('slug_inspeccion', $slug)
+            ->findAll();
+        $actualesIds = array_map('intval', array_column($actuales, 'id_ptacliente'));
+
+        $toAdd = array_diff($ids, $actualesIds);
+        $toRemove = array_diff($actualesIds, $ids);
+
+        foreach ($toAdd as $idPta) {
+            $this->matchModel->upsert([
+                'id_cliente'      => $idCliente,
+                'id_ptacliente'   => $idPta,
+                'slug_inspeccion' => $slug,
+                'score'           => 1.000,
+                'method'          => 'manual',
+                'reasoning'       => 'Vinculado manualmente desde Matriz de Inspecciones.',
+                'ai_model'        => null,
+                'created_at'      => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        foreach ($toRemove as $idPta) {
+            $this->matchModel->deleteMatch($idCliente, $idPta, $slug);
+        }
+
+        return $this->response->setJSON([
+            'ok'      => true,
+            'added'   => count($toAdd),
+            'removed' => count($toRemove),
+        ]);
+    }
+
+    /**
+     * Desvincula una sola actividad PTA de un slug (accion rapida desde la fila).
+     */
+    public function desvincularPta()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $slug = trim((string) $this->request->getPost('slug_inspeccion'));
+        $idPta = (int) $this->request->getPost('id_ptacliente');
+
+        if (!$idCliente || !$slug || !$idPta) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+
+        $ok = $this->matchModel->deleteMatch($idCliente, $idPta, $slug);
         return $this->response->setJSON(['ok' => (bool) $ok]);
     }
 }
