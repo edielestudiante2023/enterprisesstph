@@ -299,18 +299,45 @@ class EvaluacionCapacitacionController extends BaseController
         $respuestasRaw = $this->request->getPost('respuesta') ?? [];
         $calificacion  = EvaluacionPreguntaModel::calcularCalificacion($respuestasRaw, $preguntas);
 
-        $this->respuestaModel->insert([
-            'id_evaluacion'       => $evaluacion['id'],
-            'nombre'              => $nombre,
-            'cedula'              => $cedula,
-            'whatsapp'            => $whatsapp,
-            'empresa_contratante' => $empresa,
-            'cargo'               => $cargo,
-            'id_cliente_conjunto' => $idCliente,
-            'acepta_tratamiento'  => 1,
-            'respuestas'          => json_encode($respuestasRaw),
-            'calificacion'        => $calificacion,
-        ]);
+        // Regla: una persona no puede ser evaluada dos veces el mismo dia en el mismo tema.
+        // Si ya existe respuesta para (id_evaluacion, cedula, hoy), redirigir a gracias sin insertar.
+        $yaRespondido = $this->respuestaModel
+            ->where('id_evaluacion', $evaluacion['id'])
+            ->where('cedula', $cedula)
+            ->where('DATE(created_at)', date('Y-m-d'))
+            ->first();
+        if ($yaRespondido) {
+            return redirect()->to('/evaluar/' . $token . '/gracias?cal=' . $yaRespondido['calificacion'] . '&duplicado=1');
+        }
+
+        try {
+            $this->respuestaModel->insert([
+                'id_evaluacion'       => $evaluacion['id'],
+                'nombre'              => $nombre,
+                'cedula'              => $cedula,
+                'whatsapp'            => $whatsapp,
+                'empresa_contratante' => $empresa,
+                'cargo'               => $cargo,
+                'id_cliente_conjunto' => $idCliente,
+                'acepta_tratamiento'  => 1,
+                'respuestas'          => json_encode($respuestasRaw),
+                'calificacion'        => $calificacion,
+            ]);
+        } catch (\Throwable $e) {
+            // Safety net: si race-condition dispara violacion de UK uk_eval_doc_dia,
+            // tratamos como duplicado amigable (mismo resultado que el pre-check).
+            if (strpos($e->getMessage(), 'uk_eval_doc_dia') !== false
+                || strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                $yaRespondido = $this->respuestaModel
+                    ->where('id_evaluacion', $evaluacion['id'])
+                    ->where('cedula', $cedula)
+                    ->where('DATE(created_at)', date('Y-m-d'))
+                    ->first();
+                $cal = $yaRespondido['calificacion'] ?? $calificacion;
+                return redirect()->to('/evaluar/' . $token . '/gracias?cal=' . $cal . '&duplicado=1');
+            }
+            throw $e;
+        }
 
         // Auto-crear sesión para este cliente+fecha
         if ($idCliente) {
@@ -331,6 +358,7 @@ class EvaluacionCapacitacionController extends BaseController
         return view('inspecciones/evaluacion-capacitacion/gracias', [
             'evaluacion'   => $evaluacion,
             'calificacion' => (float) ($this->request->getGet('cal') ?? 0),
+            'duplicado'    => (bool) $this->request->getGet('duplicado'),
         ]);
     }
 

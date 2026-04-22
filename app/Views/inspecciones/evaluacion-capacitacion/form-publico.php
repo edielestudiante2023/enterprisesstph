@@ -149,14 +149,31 @@ $(function() {
         allowClear: true,
     });
 
+    // Flag para impedir doble submit (multi-tap, doble-tap iOS, o Enter repetido)
+    var _evalSubmitted = false;
+
     $('#evalForm').on('submit', function(e) {
+        if (_evalSubmitted) {
+            e.preventDefault();
+            return false;
+        }
         if (!$('#selectConjunto').val()) {
             e.preventDefault();
             alert('Debe seleccionar el conjunto en el cual trabaja.');
             $('#selectConjunto').next('.select2').find('.select2-selection').css('border-color','#dc3545');
             return false;
         }
-        $('#btnEnviar').prop('disabled', true).text('Enviando...');
+        _evalSubmitted = true;
+        $('#btnEnviar').prop('disabled', true).text('Enviando...').css('opacity', '0.6');
+    });
+
+    // Bloquear clicks directos en el boton incluso antes del submit
+    $('#btnEnviar').on('click', function(e) {
+        if (_evalSubmitted) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
     });
 
     $('#selectConjunto').on('change', function() {

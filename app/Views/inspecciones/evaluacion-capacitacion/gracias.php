@@ -31,6 +31,12 @@ $msg = $cal >= 70 ? '¡Felicitaciones! Aprobó la evaluación.' : ($cal >= 50 ? 
 ?>
 
 <div class="container-fluid px-3 pt-4 text-center">
+    <?php if (!empty($duplicado)): ?>
+    <div class="alert alert-info mb-3" style="font-size:13px; text-align:left;">
+        <strong>¡Gracias!</strong> Ya habías registrado tu evaluación hoy.
+        Tu primera respuesta quedó guardada correctamente.
+    </div>
+    <?php endif; ?>
     <div class="score-circle <?= $scoreClass ?>"><?= $cal ?>%</div>
     <h5 style="font-weight:700; margin-bottom:6px;"><?= $msg ?></h5>
     <p class="text-muted" style="font-size:13px;">Sus respuestas han sido registradas exitosamente.</p>
