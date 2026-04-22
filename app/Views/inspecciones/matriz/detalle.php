@@ -607,15 +607,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </select>
                             </div>
                         </div>
-                        <div class="row g-2 mt-1">
-                            <div class="col-8">
-                                <label class="form-label small fw-bold mb-1">Numeral <span class="text-muted">(D. 1072)</span></label>
-                                <input id="ptaNumeral" type="text" class="form-control form-control-sm" placeholder="Ej: 1.2.3" style="font-size:12px;">
-                            </div>
-                            <div class="col-4">
-                                <label class="form-label small fw-bold mb-1">Semana</label>
-                                <input id="ptaSemana" type="number" min="1" max="52" class="form-control form-control-sm" placeholder="1-52" style="font-size:12px;">
-                            </div>
+                        <div class="mt-2">
+                            <label class="form-label small fw-bold mb-1">Numeral <span class="text-muted">(D. 1072)</span></label>
+                            <input id="ptaNumeral" type="text" class="form-control form-control-sm" placeholder="Ej: 1.2.3" style="font-size:12px;">
                         </div>
                         <div class="mt-2">
                             <label class="form-label small fw-bold mb-1">Responsable sugerido</label>
@@ -662,7 +656,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 if (res.phva) document.getElementById('ptaPhva').value = res.phva;
                                 if (res.responsable_sugerido) document.getElementById('ptaResp').value = res.responsable_sugerido;
                                 if (res.observaciones) document.getElementById('ptaObs').value = res.observaciones;
-                                if (res.semana) document.getElementById('ptaSemana').value = res.semana;
                                 document.getElementById('ptaIAStatus').innerHTML =
                                     '<span style="color:#155724;"><i class="fas fa-check-circle"></i> Campos autocompletados por IA (Claude Haiku). Puedes editarlos.</span>';
                             })
@@ -683,10 +676,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     const numeral = document.getElementById('ptaNumeral').value.trim();
                     const resp = document.getElementById('ptaResp').value.trim();
                     const obs = document.getElementById('ptaObs').value.trim();
-                    const semana = document.getElementById('ptaSemana').value;
                     if (!act) { Swal.showValidationMessage('La actividad es obligatoria.'); return false; }
                     if (!fecha) { Swal.showValidationMessage('La fecha es obligatoria.'); return false; }
-                    return { act, fecha, phva, numeral, resp, obs, semana };
+                    return { act, fecha, phva, numeral, resp, obs };
                 }
             }).then(function (r) {
                 if (!r.isConfirmed) return;
@@ -699,7 +691,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 fd.append('numeral', r.value.numeral);
                 fd.append('responsable_sugerido', r.value.resp);
                 fd.append('observaciones', r.value.obs);
-                if (r.value.semana) fd.append('semana', r.value.semana);
                 fetch(URL_PTA_CREAR, { method: 'POST', body: fd })
                     .then(res => res.json())
                     .then(res => {

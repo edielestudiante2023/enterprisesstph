@@ -346,8 +346,6 @@ class MatrizInspeccionesController extends BaseController
         $numeral = trim((string) $this->request->getPost('numeral')) ?: '-';
         $responsable = trim((string) $this->request->getPost('responsable_sugerido')) ?: 'CONSULTOR CYCLOID';
         $observaciones = trim((string) $this->request->getPost('observaciones')) ?: null;
-        $semanaRaw = $this->request->getPost('semana');
-        $semana = is_numeric($semanaRaw) ? max(1, min(52, (int) $semanaRaw)) : null;
 
         $phvaValidos = ['PLANEAR', 'HACER', 'VERIFICAR', 'ACTUAR'];
         if (!$idCliente || !$slug || !InspeccionTypes::bySlug($slug) || !$fecha || !$actividad) {
@@ -365,7 +363,7 @@ class MatrizInspeccionesController extends BaseController
         $db = \Config\Database::connect();
         $now = date('Y-m-d H:i:s');
 
-        $insert = [
+        $db->table('tbl_pta_cliente')->insert([
             'id_cliente'                            => $idCliente,
             'phva_plandetrabajo'                    => $phva,
             'numeral_plandetrabajo'                 => $numeral,
@@ -378,12 +376,7 @@ class MatrizInspeccionesController extends BaseController
             'observaciones'                         => $observaciones,
             'created_at'                            => $now,
             'updated_at'                            => $now,
-        ];
-        if ($semana !== null) {
-            $insert['semana'] = $semana;
-        }
-
-        $db->table('tbl_pta_cliente')->insert($insert);
+        ]);
         $idPta = (int) $db->insertID();
 
         if (!$idPta) {
@@ -436,8 +429,7 @@ class MatrizInspeccionesController extends BaseController
             . "- numeral: string con el numeral Decreto 1072 mas apropiado (ej 1.2.3 o 4.1.1). Usa solo digitos y puntos.\n"
             . "- phva: PLANEAR | HACER | VERIFICAR | ACTUAR\n"
             . "- responsable_sugerido: string max 80 chars, cargos separados por coma. Incluye CONSULTOR CYCLOID.\n"
-            . "- observaciones: string max 120 chars, una frase breve de contexto u objetivo.\n"
-            . "- semana: numero entero 1-52 sugerido del anio, o null si no aplica.\n\n"
+            . "- observaciones: string max 120 chars, una frase breve de contexto u objetivo.\n\n"
             . "Responde SOLO el JSON valido, sin markdown ni texto adicional.";
 
         $payload = [
@@ -484,11 +476,6 @@ class MatrizInspeccionesController extends BaseController
 
         $phva = strtoupper((string) ($parsed['phva'] ?? 'HACER'));
         if (!in_array($phva, ['PLANEAR', 'HACER', 'VERIFICAR', 'ACTUAR'], true)) $phva = 'HACER';
-        $semana = null;
-        if (isset($parsed['semana']) && is_numeric($parsed['semana'])) {
-            $s = (int) $parsed['semana'];
-            if ($s >= 1 && $s <= 52) $semana = $s;
-        }
 
         return $this->response->setJSON([
             'ok'                   => true,
@@ -496,7 +483,6 @@ class MatrizInspeccionesController extends BaseController
             'phva'                 => $phva,
             'responsable_sugerido' => mb_substr((string) ($parsed['responsable_sugerido'] ?? 'CONSULTOR CYCLOID'), 0, 255),
             'observaciones'        => mb_substr((string) ($parsed['observaciones'] ?? ''), 0, 255),
-            'semana'               => $semana,
         ]);
     }
 
