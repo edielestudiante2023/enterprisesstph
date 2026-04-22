@@ -915,6 +915,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('matriz/vincular-pta', 'MatrizInspeccionesController::vincularPta');
     $routes->post('matriz/desvincular-pta', 'MatrizInspeccionesController::desvincularPta');
     $routes->post('matriz/crear-pta', 'MatrizInspeccionesController::crearPta');
+    $routes->post('matriz/generar-pta-ia', 'MatrizInspeccionesController::generarDetallesPta');
 
     // Semaforo PTA (tablero ejecutivo IA)
     $routes->get('pta-semaforo', 'PtaSemaforoController::index');

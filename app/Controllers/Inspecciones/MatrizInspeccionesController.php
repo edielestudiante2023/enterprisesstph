@@ -344,6 +344,10 @@ class MatrizInspeccionesController extends BaseController
         $actividad = trim((string) $this->request->getPost('actividad'));
         $phva = strtoupper(trim((string) $this->request->getPost('phva'))) ?: 'HACER';
         $numeral = trim((string) $this->request->getPost('numeral')) ?: '-';
+        $responsable = trim((string) $this->request->getPost('responsable_sugerido')) ?: 'CONSULTOR CYCLOID';
+        $observaciones = trim((string) $this->request->getPost('observaciones')) ?: null;
+        $semanaRaw = $this->request->getPost('semana');
+        $semana = is_numeric($semanaRaw) ? max(1, min(52, (int) $semanaRaw)) : null;
 
         $phvaValidos = ['PLANEAR', 'HACER', 'VERIFICAR', 'ACTUAR'];
         if (!$idCliente || !$slug || !InspeccionTypes::bySlug($slug) || !$fecha || !$actividad) {
@@ -361,19 +365,25 @@ class MatrizInspeccionesController extends BaseController
         $db = \Config\Database::connect();
         $now = date('Y-m-d H:i:s');
 
-        $db->table('tbl_pta_cliente')->insert([
+        $insert = [
             'id_cliente'                            => $idCliente,
             'phva_plandetrabajo'                    => $phva,
             'numeral_plandetrabajo'                 => $numeral,
             'actividad_plandetrabajo'               => $actividad,
-            'responsable_sugerido_plandetrabajo'    => 'CONSULTOR CYCLOID',
+            'responsable_sugerido_plandetrabajo'    => mb_substr($responsable, 0, 255),
             'responsable_definido_paralaactividad'  => '-',
             'fecha_propuesta'                       => $fecha,
             'estado_actividad'                      => 'ABIERTA',
             'porcentaje_avance'                     => 0,
+            'observaciones'                         => $observaciones,
             'created_at'                            => $now,
             'updated_at'                            => $now,
-        ]);
+        ];
+        if ($semana !== null) {
+            $insert['semana'] = $semana;
+        }
+
+        $db->table('tbl_pta_cliente')->insert($insert);
         $idPta = (int) $db->insertID();
 
         if (!$idPta) {
@@ -394,6 +404,99 @@ class MatrizInspeccionesController extends BaseController
         return $this->response->setJSON([
             'ok'            => true,
             'id_ptacliente' => $idPta,
+        ]);
+    }
+
+    /**
+     * Genera detalles sugeridos (numeral, PHVA, responsable, observaciones, semana)
+     * para una actividad PTA usando Claude Haiku 4.5. Stateless: no toca BD.
+     */
+    public function generarDetallesPta()
+    {
+        $actividad = trim((string) $this->request->getPost('actividad'));
+        $slug = trim((string) $this->request->getPost('slug_inspeccion'));
+
+        if (!$actividad || !$slug) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Falta actividad o slug.']);
+        }
+        $tipo = InspeccionTypes::bySlug($slug);
+        if (!$tipo) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Tipo inválido.']);
+        }
+
+        $apiKey = getenv('ANTHROPIC_API_KEY') ?: '';
+        if (!$apiKey) {
+            return $this->response->setStatusCode(500)->setJSON(['ok' => false, 'msg' => 'ANTHROPIC_API_KEY no configurada.']);
+        }
+
+        $prompt = "Eres experto en SG-SST Decreto 1072 de 2015 para copropiedades en Colombia.\n\n"
+            . "Actividad PTA: \"" . $actividad . "\"\n"
+            . "Tipo de inspeccion asociada: " . $tipo['label'] . " (grupo: " . ($tipo['group'] ?? 'Otros') . ")\n\n"
+            . "Devuelve UN SOLO JSON estricto con estos campos:\n"
+            . "- numeral: string con el numeral Decreto 1072 mas apropiado (ej 1.2.3 o 4.1.1). Usa solo digitos y puntos.\n"
+            . "- phva: PLANEAR | HACER | VERIFICAR | ACTUAR\n"
+            . "- responsable_sugerido: string max 80 chars, cargos separados por coma. Incluye CONSULTOR CYCLOID.\n"
+            . "- observaciones: string max 120 chars, una frase breve de contexto u objetivo.\n"
+            . "- semana: numero entero 1-52 sugerido del anio, o null si no aplica.\n\n"
+            . "Responde SOLO el JSON valido, sin markdown ni texto adicional.";
+
+        $payload = [
+            'model' => 'claude-haiku-4-5-20251001',
+            'max_tokens' => 500,
+            'messages' => [['role' => 'user', 'content' => $prompt]],
+        ];
+
+        $ch = curl_init('https://api.anthropic.com/v1/messages');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'x-api-key: ' . $apiKey,
+                'anthropic-version: 2023-06-01',
+            ],
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_TIMEOUT => 30,
+        ]);
+        $resp = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err = curl_error($ch);
+        curl_close($ch);
+
+        if ($resp === false) {
+            return $this->response->setStatusCode(502)->setJSON(['ok' => false, 'msg' => 'Error de red: ' . $err]);
+        }
+        if ($httpCode !== 200) {
+            return $this->response->setStatusCode(502)->setJSON(['ok' => false, 'msg' => 'Anthropic HTTP ' . $httpCode]);
+        }
+
+        $data = json_decode($resp, true);
+        $content = $data['content'][0]['text'] ?? '';
+        $content = trim($content);
+        if (str_starts_with($content, '```')) {
+            $content = preg_replace('/^```(json)?\s*|\s*```\s*$/i', '', $content);
+            $content = trim($content);
+        }
+        $parsed = json_decode($content, true);
+        if (!is_array($parsed)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'IA respondió JSON inválido.']);
+        }
+
+        $phva = strtoupper((string) ($parsed['phva'] ?? 'HACER'));
+        if (!in_array($phva, ['PLANEAR', 'HACER', 'VERIFICAR', 'ACTUAR'], true)) $phva = 'HACER';
+        $semana = null;
+        if (isset($parsed['semana']) && is_numeric($parsed['semana'])) {
+            $s = (int) $parsed['semana'];
+            if ($s >= 1 && $s <= 52) $semana = $s;
+        }
+
+        return $this->response->setJSON([
+            'ok'                   => true,
+            'numeral'              => mb_substr((string) ($parsed['numeral'] ?? ''), 0, 60),
+            'phva'                 => $phva,
+            'responsable_sugerido' => mb_substr((string) ($parsed['responsable_sugerido'] ?? 'CONSULTOR CYCLOID'), 0, 255),
+            'observaciones'        => mb_substr((string) ($parsed['observaciones'] ?? ''), 0, 255),
+            'semana'               => $semana,
         ]);
     }
 

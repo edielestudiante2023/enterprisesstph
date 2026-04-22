@@ -330,6 +330,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_PTA_LIST = '<?= base_url('inspecciones/matriz/pta-list/' . (int) $cliente['id_cliente']) ?>';
     const URL_PTA_LINK = '<?= base_url('inspecciones/matriz/vincular-pta') ?>';
     const URL_PTA_CREAR = '<?= base_url('inspecciones/matriz/crear-pta') ?>';
+    const URL_PTA_IA = '<?= base_url('inspecciones/matriz/generar-pta-ia') ?>';
 
     const estadoLabelMap = { 'hecha': 'Hecha', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
 
@@ -577,11 +578,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
             Swal.fire({
                 title: 'Crear actividad en el Plan de Trabajo',
+                width: 620,
                 html: `
                     <div style="text-align:left; font-size:13px;">
                         <div class="mb-2">
-                            <label class="form-label small fw-bold mb-1">Actividad</label>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label small fw-bold m-0">Actividad</label>
+                                <button type="button" id="ptaBtnIA" class="btn btn-sm"
+                                    style="background:linear-gradient(135deg,#7B2D3B,#bd9751);color:#fff;padding:2px 10px;font-size:11px;border:none;border-radius:12px;">
+                                    <i class="fas fa-wand-magic-sparkles"></i> IA: autocompletar
+                                </button>
+                            </div>
                             <textarea id="ptaAct" class="form-control form-control-sm" rows="2" style="font-size:12px;">Inspección de ${label}</textarea>
+                            <div id="ptaIAStatus" class="small text-muted mt-1" style="font-size:10px; min-height:14px;"></div>
                         </div>
                         <div class="row g-2">
                             <div class="col-6">
@@ -598,9 +607,23 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </select>
                             </div>
                         </div>
+                        <div class="row g-2 mt-1">
+                            <div class="col-8">
+                                <label class="form-label small fw-bold mb-1">Numeral <span class="text-muted">(D. 1072)</span></label>
+                                <input id="ptaNumeral" type="text" class="form-control form-control-sm" placeholder="Ej: 1.2.3" style="font-size:12px;">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label small fw-bold mb-1">Semana</label>
+                                <input id="ptaSemana" type="number" min="1" max="52" class="form-control form-control-sm" placeholder="1-52" style="font-size:12px;">
+                            </div>
+                        </div>
                         <div class="mt-2">
-                            <label class="form-label small fw-bold mb-1">Numeral <span class="text-muted">(opcional)</span></label>
-                            <input id="ptaNumeral" type="text" class="form-control form-control-sm" placeholder="Ej: 1.2.3" style="font-size:12px;">
+                            <label class="form-label small fw-bold mb-1">Responsable sugerido</label>
+                            <input id="ptaResp" type="text" class="form-control form-control-sm" value="CONSULTOR CYCLOID" style="font-size:12px;">
+                        </div>
+                        <div class="mt-2">
+                            <label class="form-label small fw-bold mb-1">Observaciones <span class="text-muted">(opcional)</span></label>
+                            <textarea id="ptaObs" class="form-control form-control-sm" rows="1" style="font-size:12px;"></textarea>
                         </div>
                     </div>
                 `,
@@ -609,14 +632,61 @@ document.addEventListener('DOMContentLoaded', function () {
                 cancelButtonText: 'Cancelar',
                 confirmButtonColor: '#198754',
                 focusConfirm: false,
+                didOpen: () => {
+                    const btnIA = document.getElementById('ptaBtnIA');
+                    btnIA.addEventListener('click', function () {
+                        const act = document.getElementById('ptaAct').value.trim();
+                        if (!act) {
+                            document.getElementById('ptaIAStatus').innerHTML =
+                                '<span style="color:#dc3545;"><i class="fas fa-exclamation-circle"></i> Escribe la actividad primero.</span>';
+                            return;
+                        }
+                        btnIA.disabled = true;
+                        const orig = btnIA.innerHTML;
+                        btnIA.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+                        document.getElementById('ptaIAStatus').innerHTML = '';
+
+                        const fd = new FormData();
+                        fd.append('actividad', act);
+                        fd.append('slug_inspeccion', slug);
+
+                        fetch(URL_PTA_IA, { method: 'POST', body: fd })
+                            .then(r => r.json())
+                            .then(res => {
+                                if (!res.ok) {
+                                    document.getElementById('ptaIAStatus').innerHTML =
+                                        '<span style="color:#dc3545;"><i class="fas fa-exclamation-circle"></i> ' + (res.msg || 'Falló la IA.') + '</span>';
+                                    return;
+                                }
+                                if (res.numeral) document.getElementById('ptaNumeral').value = res.numeral;
+                                if (res.phva) document.getElementById('ptaPhva').value = res.phva;
+                                if (res.responsable_sugerido) document.getElementById('ptaResp').value = res.responsable_sugerido;
+                                if (res.observaciones) document.getElementById('ptaObs').value = res.observaciones;
+                                if (res.semana) document.getElementById('ptaSemana').value = res.semana;
+                                document.getElementById('ptaIAStatus').innerHTML =
+                                    '<span style="color:#155724;"><i class="fas fa-check-circle"></i> Campos autocompletados por IA (Claude Haiku). Puedes editarlos.</span>';
+                            })
+                            .catch(() => {
+                                document.getElementById('ptaIAStatus').innerHTML =
+                                    '<span style="color:#dc3545;"><i class="fas fa-exclamation-circle"></i> Error de red.</span>';
+                            })
+                            .finally(() => {
+                                btnIA.disabled = false;
+                                btnIA.innerHTML = orig;
+                            });
+                    });
+                },
                 preConfirm: () => {
                     const act = document.getElementById('ptaAct').value.trim();
                     const fecha = document.getElementById('ptaFecha').value;
                     const phva = document.getElementById('ptaPhva').value;
                     const numeral = document.getElementById('ptaNumeral').value.trim();
+                    const resp = document.getElementById('ptaResp').value.trim();
+                    const obs = document.getElementById('ptaObs').value.trim();
+                    const semana = document.getElementById('ptaSemana').value;
                     if (!act) { Swal.showValidationMessage('La actividad es obligatoria.'); return false; }
                     if (!fecha) { Swal.showValidationMessage('La fecha es obligatoria.'); return false; }
-                    return { act, fecha, phva, numeral };
+                    return { act, fecha, phva, numeral, resp, obs, semana };
                 }
             }).then(function (r) {
                 if (!r.isConfirmed) return;
@@ -627,6 +697,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 fd.append('fecha_propuesta', r.value.fecha);
                 fd.append('phva', r.value.phva);
                 fd.append('numeral', r.value.numeral);
+                fd.append('responsable_sugerido', r.value.resp);
+                fd.append('observaciones', r.value.obs);
+                if (r.value.semana) fd.append('semana', r.value.semana);
                 fetch(URL_PTA_CREAR, { method: 'POST', body: fd })
                     .then(res => res.json())
                     .then(res => {
