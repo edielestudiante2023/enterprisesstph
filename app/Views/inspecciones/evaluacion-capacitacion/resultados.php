@@ -55,7 +55,7 @@ $reprobados  = array_filter($respuestas, fn($r) => $r['calificacion'] < 70);
                         <tr>
                             <th>#</th>
                             <th>Nombre</th>
-                            <th>Cédula</th>
+                            <th>Documento</th>
                             <th>Cargo</th>
                             <th>Conjunto</th>
                             <th>Calificación</th>

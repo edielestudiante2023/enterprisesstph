@@ -272,7 +272,7 @@ class EvaluacionCapacitacionController extends BaseController
         $cargo     = trim($this->request->getPost('cargo') ?? '');
 
         if (!$nombre || !$cedula) {
-            return redirect()->to('/evaluar/' . $token)->with('error', 'Nombre y cédula son obligatorios.');
+            return redirect()->to('/evaluar/' . $token)->with('error', 'Nombre y documento son obligatorios.');
         }
         if (!$idCliente) {
             return redirect()->to('/evaluar/' . $token)->with('error', 'Debe seleccionar el conjunto en el cual trabaja.');

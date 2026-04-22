@@ -114,7 +114,7 @@ $evalUrl        = base_url('evaluar/' . $evaluacion['token']);
                 <div class="table-responsive">
                     <table class="table table-sm table-bordered mb-0" style="font-size:11px;">
                         <thead class="table-light">
-                            <tr><th>#</th><th>Nombre</th><th>Cédula</th><th>Cargo</th><th class="text-center">Calif.</th></tr>
+                            <tr><th>#</th><th>Nombre</th><th>Documento</th><th>Cargo</th><th class="text-center">Calif.</th></tr>
                         </thead>
                         <tbody>
                         <?php foreach ($s['respuestas'] as $i => $r):
@@ -149,7 +149,7 @@ $evalUrl        = base_url('evaluar/' . $evaluacion['token']);
             <div class="table-responsive">
                 <table class="table table-sm table-bordered mb-0" style="font-size:11px;">
                     <thead class="table-light">
-                        <tr><th>#</th><th>Nombre</th><th>Cédula</th><th>Cargo</th><th>Empresa</th><th class="text-center">Calif.</th></tr>
+                        <tr><th>#</th><th>Nombre</th><th>Documento</th><th>Cargo</th><th>Empresa</th><th class="text-center">Calif.</th></tr>
                     </thead>
                     <tbody>
                     <?php foreach ($sinCliente as $i => $r):

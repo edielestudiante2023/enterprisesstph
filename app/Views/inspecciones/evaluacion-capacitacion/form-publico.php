@@ -79,9 +79,9 @@
                         placeholder="Ej: Juan Pérez García">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" style="font-size:13px;">Número de cédula *</label>
+                    <label class="form-label" style="font-size:13px;">Número de documento *</label>
                     <input type="text" name="cedula" class="form-control form-control-sm" required
-                        placeholder="Sin puntos ni guiones" inputmode="numeric">
+                        placeholder="CC, CE, PEP, PPT, pasaporte (sin puntos ni guiones)">
                 </div>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:13px;">Número de WhatsApp *</label>
