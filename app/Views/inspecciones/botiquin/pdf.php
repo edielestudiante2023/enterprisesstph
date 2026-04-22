@@ -216,6 +216,9 @@
                 $data = $elementosData[$clave] ?? null;
                 $cantidad = (int)($data['cantidad'] ?? 0);
                 $estado = $data['estado'] ?? 'SIN EXISTENCIAS';
+                if ($cantidad === 0) {
+                    $estado = 'SIN EXISTENCIAS';
+                }
                 $cantOk = $cantidad >= $config['min'];
             ?>
             <tr>

@@ -123,6 +123,9 @@ function estadoColor(string $estado): string {
                                 $data = $elementosData[$clave] ?? null;
                                 $cantidad = (int)($data['cantidad'] ?? 0);
                                 $estado = $data['estado'] ?? 'SIN EXISTENCIAS';
+                                if ($cantidad === 0) {
+                                    $estado = 'SIN EXISTENCIAS';
+                                }
                                 $cantColor = $cantidad >= $config['min'] ? 'text-success' : 'text-danger';
                             ?>
                             <tr>

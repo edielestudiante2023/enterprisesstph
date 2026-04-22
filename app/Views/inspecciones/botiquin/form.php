@@ -175,11 +175,11 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                 <div class="row g-2 mt-1">
                                     <div class="col-4">
                                         <label class="form-label" style="font-size:11px;">Cantidad (min: <?= $configTE['min'] ?>)</label>
-                                        <input type="number" name="elem_<?= $claveTE ?>_cantidad" class="form-control form-control-sm" min="0" value="<?= $dataTE['cantidad'] ?? 0 ?>">
+                                        <input type="number" name="elem_<?= $claveTE ?>_cantidad" class="form-control form-control-sm cant-elem" data-clave="<?= $claveTE ?>" min="0" value="<?= $dataTE['cantidad'] ?? 0 ?>">
                                     </div>
                                     <div class="col-8">
                                         <label class="form-label" style="font-size:11px;">Estado</label>
-                                        <select name="elem_<?= $claveTE ?>_estado" class="form-select form-select-sm" style="font-size:12px;">
+                                        <select name="elem_<?= $claveTE ?>_estado" class="form-select form-select-sm estado-elem" data-clave="<?= $claveTE ?>" style="font-size:12px;">
                                             <?php foreach ($estadosElemento as $est): ?>
                                             <option value="<?= $est ?>" <?= ($dataTE['estado'] ?? 'BUEN ESTADO') === $est ? 'selected' : '' ?>><?= $est ?></option>
                                             <?php endforeach; ?>
@@ -312,11 +312,11 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                 <div class="row g-2 mt-1">
                                     <div class="col-4">
                                         <label class="form-label" style="font-size:11px;">Cantidad (min: <?= $config['min'] ?>)</label>
-                                        <input type="number" name="elem_<?= $clave ?>_cantidad" class="form-control form-control-sm" min="0" value="<?= $data['cantidad'] ?? 0 ?>">
+                                        <input type="number" name="elem_<?= $clave ?>_cantidad" class="form-control form-control-sm cant-elem" data-clave="<?= $clave ?>" min="0" value="<?= $data['cantidad'] ?? 0 ?>">
                                     </div>
                                     <div class="<?= $config['venc'] ? 'col-4' : 'col-8' ?>">
                                         <label class="form-label" style="font-size:11px;">Estado</label>
-                                        <select name="elem_<?= $clave ?>_estado" class="form-select form-select-sm" style="font-size:12px;">
+                                        <select name="elem_<?= $clave ?>_estado" class="form-select form-select-sm estado-elem" data-clave="<?= $clave ?>" style="font-size:12px;">
                                             <?php foreach ($estadosElemento as $est): ?>
                                             <option value="<?= $est ?>" <?= ($data['estado'] ?? 'BUEN ESTADO') === $est ? 'selected' : '' ?>><?= $est ?></option>
                                             <?php endforeach; ?>
@@ -468,6 +468,42 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================================
+    // REGLA: cantidad = 0 → estado "SIN EXISTENCIAS" (bloqueado)
+    // ============================================================
+    function sincronizarEstadoPorCantidad(cantInput) {
+        const clave = cantInput.dataset.clave;
+        const estadoSel = document.querySelector('select.estado-elem[data-clave="' + clave + '"]');
+        if (!estadoSel) return;
+        const cantidad = parseInt(cantInput.value, 10) || 0;
+        if (cantidad === 0) {
+            estadoSel.value = 'SIN EXISTENCIAS';
+            estadoSel.disabled = true;
+            estadoSel.style.backgroundColor = '#f8d7da';
+        } else {
+            if (estadoSel.value === 'SIN EXISTENCIAS') {
+                estadoSel.value = 'BUEN ESTADO';
+            }
+            estadoSel.disabled = false;
+            estadoSel.style.backgroundColor = '';
+        }
+    }
+
+    document.addEventListener('input', function(e) {
+        if (e.target.classList && e.target.classList.contains('cant-elem')) {
+            sincronizarEstadoPorCantidad(e.target);
+        }
+    });
+
+    document.querySelectorAll('input.cant-elem').forEach(sincronizarEstadoPorCantidad);
+
+    // Asegurar envío del estado aunque el select esté disabled
+    document.getElementById('botForm').addEventListener('submit', function() {
+        document.querySelectorAll('select.estado-elem[disabled]').forEach(sel => {
+            sel.disabled = false;
+        });
+    });
+
+    // ============================================================
     // AUTOGUARDADO EN LOCALSTORAGE (restaurar borradores)
     // ============================================================
     const STORAGE_KEY = 'bot_draft_<?= $inspeccion['id'] ?? 'new' ?>';
@@ -502,6 +538,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (vencInput && vals.vencimiento) vencInput.value = vals.vencimiento;
             }
         }
+        document.querySelectorAll('input.cant-elem').forEach(sincronizarEstadoPorCantidad);
     }
 
     if (!isEditLocal) {

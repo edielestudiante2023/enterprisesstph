@@ -434,6 +434,9 @@ class InspeccionBotiquinController extends BaseController
         foreach (self::ELEMENTOS as $clave => $config) {
             $cantidad = (int)($this->request->getPost('elem_' . $clave . '_cantidad') ?? 0);
             $estado = $this->request->getPost('elem_' . $clave . '_estado') ?? 'BUEN ESTADO';
+            if ($cantidad === 0) {
+                $estado = 'SIN EXISTENCIAS';
+            }
             $vencimiento = null;
             if ($config['venc']) {
                 $vencimiento = $this->request->getPost('elem_' . $clave . '_vencimiento') ?: null;

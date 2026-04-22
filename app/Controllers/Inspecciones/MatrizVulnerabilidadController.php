@@ -136,7 +136,7 @@ class MatrizVulnerabilidadController extends BaseController
         ],
         'c13_iluminacion_emergencia' => [
             'numero' => 13,
-            'titulo' => 'El sistema de iluminacion de emergencia',
+            'titulo' => 'El sistema de iluminacion alterno de emergencia',
             'opciones' => [
                 'a' => 'Es de encendido automatico en caso de corte de energia.',
                 'b' => 'Es de encendido manual en caso de corte de energia.',
