@@ -22,6 +22,7 @@ use App\Models\PendientesModel;
 use App\Models\VencimientosMantenimientoModel;
 use App\Models\CartaVigiaModel;
 use App\Models\PlanEmergenciaModel;
+use App\Models\ProcedimientoEmergenciaAreaModel;
 use App\Models\EvaluacionSimulacroModel;
 use App\Models\HvBrigadistaModel;
 use App\Models\DotacionVigilanteModel;
@@ -130,6 +131,9 @@ class InspeccionesController extends BaseController
         $planEmgModel = new PlanEmergenciaModel();
         $totalPlanEmergencia = $planEmgModel->where('estado', 'completo')->countAllResults();
         $pendientesPlanEmg = $planEmgModel->getAllPendientes();
+
+        $procEmgAreaModel = new ProcedimientoEmergenciaAreaModel();
+        $totalProcedimientoEmergencia = $procEmgAreaModel->where('estado', 'completo')->countAllResults();
 
         $totalBrigadaSimulacros = 0;
         if (class_exists('\\App\\Models\\InspeccionBrigadaSimulacrosModel')) {
@@ -298,6 +302,7 @@ class InspeccionesController extends BaseController
             'totalProbPeligros' => $totalProbPeligros,
             'totalMatrizVul'   => $totalMatrizVul,
             'totalPlanEmergencia' => $totalPlanEmergencia,
+            'totalProcedimientoEmergencia' => $totalProcedimientoEmergencia,
             'totalBrigadaSimulacros' => $totalBrigadaSimulacros,
             'totalSimulacro'   => $totalSimulacro,
             'totalHvBrigadista' => $totalHvBrigadista,
