@@ -146,15 +146,24 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                                     <a href="<?= base_url($f['list_route']) ?>" class="small text-muted">+<?= $f['total'] - 3 ?> más</a>
                                 <?php endif; ?>
                             <?php endif; ?>
-                            <?php if (!empty($f['pta_vinculados'])): ?>
-                                <div class="mt-1" style="font-size:10px;">
-                                    <?php foreach ($f['pta_vinculados'] as $v): if (empty($v['fecha_propuesta'])) continue; ?>
-                                        <span class="badge me-1" style="background:#e8f1fb; color:#0b5ed7; font-weight:500; padding:3px 6px;"
-                                              title="PTA <?= esc($v['numeral_plandetrabajo'] ?? '') ?>: <?= esc(mb_substr($v['actividad_plandetrabajo'] ?? '', 0, 120)) ?>">
-                                            <i class="fas fa-calendar-alt"></i> Plan <?= date('d/m/Y', strtotime($v['fecha_propuesta'])) ?><?= $v['estado_actividad'] === 'CERRADA' ? ' ✓' : '' ?>
-                                        </span>
-                                    <?php endforeach; ?>
-                                </div>
+                            <?php
+                            $ptaVisibles = array_values(array_filter($f['pta_vinculados'], fn($v) => !empty($v['fecha_propuesta'])));
+                            $ptaCount = count($ptaVisibles);
+                            ?>
+                            <?php if ($ptaCount > 0): ?>
+                                <details class="pta-details mt-1">
+                                    <summary class="pta-summary">
+                                        <i class="fas fa-calendar-alt"></i> <?= $ptaCount ?> planeada<?= $ptaCount > 1 ? 's' : '' ?>
+                                    </summary>
+                                    <div class="pta-badges mt-1">
+                                        <?php foreach ($ptaVisibles as $v): ?>
+                                            <span class="badge me-1 mb-1" style="background:#e8f1fb; color:#0b5ed7; font-weight:500; padding:3px 6px; font-size:10px;"
+                                                  title="PTA <?= esc($v['numeral_plandetrabajo'] ?? '') ?>: <?= esc(mb_substr($v['actividad_plandetrabajo'] ?? '', 0, 120)) ?>">
+                                                <i class="fas fa-calendar-alt"></i> <?= date('d/m/Y', strtotime($v['fecha_propuesta'])) ?><?= $v['estado_actividad'] === 'CERRADA' ? ' ✓' : '' ?>
+                                            </span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </details>
                             <?php endif; ?>
                         <?php endif; ?>
                     </td>
@@ -259,6 +268,25 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
 .pta-row input[type=checkbox] { margin-top:3px; flex-shrink:0; }
 .pta-row .pta-meta { font-size:11px; color:#666; }
 .pta-row .pta-activity { font-size:12px; }
+
+.pta-details { display:inline-block; }
+.pta-details > .pta-summary {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:3px 8px; background:#e8f1fb; color:#0b5ed7;
+    border-radius:10px; font-size:10px; font-weight:600;
+    cursor:pointer; list-style:none; user-select:none;
+    transition: background .15s;
+}
+.pta-details > .pta-summary::-webkit-details-marker { display:none; }
+.pta-details > .pta-summary::after {
+    content:"\f107"; /* fa-chevron-down */
+    font-family:"Font Awesome 6 Free", "Font Awesome 5 Free", FontAwesome;
+    font-weight:900; margin-left:4px; font-size:9px;
+    transition: transform .15s;
+}
+.pta-details[open] > .pta-summary::after { transform: rotate(180deg); }
+.pta-details > .pta-summary:hover { background:#d6e7fb; }
+.pta-details .pta-badges { display:flex; flex-wrap:wrap; gap:2px; max-width:100%; }
 </style>
 
 <script>
