@@ -178,12 +178,27 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                                     <summary class="pta-summary">
                                         <i class="fas fa-calendar-alt"></i> <?= $ptaCount ?> planeada<?= $ptaCount > 1 ? 's' : '' ?>
                                     </summary>
-                                    <div class="pta-badges mt-1">
+                                    <div class="pta-list mt-1">
                                         <?php foreach ($ptaVisibles as $v): ?>
-                                            <span class="badge me-1 mb-1" style="background:#e8f1fb; color:#0b5ed7; font-weight:500; padding:3px 6px; font-size:10px;"
-                                                  title="PTA <?= esc($v['numeral_plandetrabajo'] ?? '') ?>: <?= esc(mb_substr($v['actividad_plandetrabajo'] ?? '', 0, 120)) ?>">
-                                                <i class="fas fa-calendar-alt"></i> <?= date('d/m/Y', strtotime($v['fecha_propuesta'])) ?><?= $v['estado_actividad'] === 'CERRADA' ? ' ✓' : '' ?>
-                                            </span>
+                                            <?php
+                                            $isCerrada = ($v['estado_actividad'] ?? '') === 'CERRADA';
+                                            $isGestionando = ($v['estado_actividad'] ?? '') === 'GESTIONANDO';
+                                            ?>
+                                            <div class="pta-item<?= $isCerrada ? ' pta-item-cerrada' : '' ?>">
+                                                <span class="pta-date">
+                                                    <i class="fas fa-calendar-alt"></i> <?= date('d/m/Y', strtotime($v['fecha_propuesta'])) ?>
+                                                    <?php if ($isCerrada): ?><span class="pta-check">✓</span><?php endif; ?>
+                                                </span>
+                                                <?php if (!empty($v['numeral_plandetrabajo']) && $v['numeral_plandetrabajo'] !== '-'): ?>
+                                                    <span class="pta-numeral"><?= esc($v['numeral_plandetrabajo']) ?></span>
+                                                <?php endif; ?>
+                                                <?php if ($isGestionando): ?>
+                                                    <span class="pta-estado-gest">Gestionando</span>
+                                                <?php endif; ?>
+                                                <span class="pta-text" title="<?= esc($v['actividad_plandetrabajo'] ?? '') ?>">
+                                                    <?= esc(mb_substr($v['actividad_plandetrabajo'] ?? '', 0, 140)) ?><?= mb_strlen($v['actividad_plandetrabajo'] ?? '') > 140 ? '…' : '' ?>
+                                                </span>
+                                            </div>
                                         <?php endforeach; ?>
                                     </div>
                                 </details>
@@ -319,6 +334,33 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
 .pta-details[open] > .pta-summary::after { transform: rotate(180deg); }
 .pta-details > .pta-summary:hover { background:#d6e7fb; }
 .pta-details .pta-badges { display:flex; flex-wrap:wrap; gap:2px; max-width:100%; }
+.pta-details .pta-list {
+    display:flex; flex-direction:column; gap:4px; max-width:520px;
+}
+.pta-item {
+    display:flex; gap:6px; align-items:flex-start; flex-wrap:wrap;
+    background:#e8f1fb; padding:5px 8px; border-radius:6px;
+    font-size:10px; line-height:1.35;
+}
+.pta-item.pta-item-cerrada { background:#d4edda; }
+.pta-item .pta-date { color:#0b5ed7; font-weight:600; white-space:nowrap; flex-shrink:0; }
+.pta-item.pta-item-cerrada .pta-date { color:#155724; }
+.pta-item .pta-check { color:#155724; font-weight:700; margin-left:2px; }
+.pta-item .pta-numeral {
+    background:#fff; color:#555; padding:1px 5px; border-radius:4px;
+    font-size:9px; font-weight:600; flex-shrink:0;
+}
+.pta-item .pta-estado-gest {
+    background:#fff3cd; color:#856404; padding:1px 5px; border-radius:4px;
+    font-size:9px; font-weight:600; flex-shrink:0;
+}
+.pta-item .pta-text {
+    color:#1c2437; flex:1 1 100%; font-weight:400;
+    overflow-wrap: break-word; word-wrap: break-word;
+}
+@media (min-width: 768px) {
+    .pta-item .pta-text { flex:1 1 auto; min-width:0; }
+}
 </style>
 
 <script>
