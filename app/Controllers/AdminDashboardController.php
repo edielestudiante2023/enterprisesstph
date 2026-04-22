@@ -27,10 +27,10 @@ class AdminDashboardController extends Controller
         }
 
         $ordenCategorias = [
+            'Inspecciones y Auditoría',
             'IA y Asistencia',
             'Operación Diaria',
             'Gestión Clientes',
-            'Inspecciones y Auditoría',
             'Cumplimiento y Control',
             'Planeación SST',
             'Dashboards Analíticos',
