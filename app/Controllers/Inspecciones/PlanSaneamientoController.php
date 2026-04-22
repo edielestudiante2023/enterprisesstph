@@ -17,7 +17,7 @@ class PlanSaneamientoController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
-    use AppTraitsInspeccionesTransactionalTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected PlanSaneamientoModel $inspeccionModel;
 
     public function __construct()
@@ -100,7 +100,7 @@ class PlanSaneamientoController extends BaseController
             return redirect()->to('/inspecciones/plan-saneamiento')->with('error', 'Registro no encontrado.');
         }
 
-        if ( = ->guardFinalizado(, '/inspecciones/plan-saneamiento/view/' . )) return ;
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/plan-saneamiento/view/' . $id)) return $r;
         $clientModel = new ClientModel();
         $cliente = $clientModel->find($inspeccion['id_cliente']);
 

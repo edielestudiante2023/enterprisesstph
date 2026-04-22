@@ -16,7 +16,7 @@ class HvBrigadistaController extends BaseController
 {
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
-    use AppTraitsInspeccionesTransactionalTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected HvBrigadistaModel $hvModel;
 
     public function __construct()

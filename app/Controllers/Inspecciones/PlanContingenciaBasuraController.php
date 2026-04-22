@@ -17,7 +17,7 @@ class PlanContingenciaBasuraController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
-    use AppTraitsInspeccionesTransactionalTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected PlanContingenciaBasuraModel $inspeccionModel;
 
     public function __construct()
@@ -98,7 +98,7 @@ class PlanContingenciaBasuraController extends BaseController
             return redirect()->to('/inspecciones/contingencia-basura')->with('error', 'Registro no encontrado.');
         }
 
-        if ( = ->guardFinalizado(, '/inspecciones/contingencia-basura/view/' . )) return ;
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/contingencia-basura/view/' . $id)) return $r;
 
         return view('inspecciones/layout_pwa', [
             'title'   => 'Editar Plan Contingencia Basura',

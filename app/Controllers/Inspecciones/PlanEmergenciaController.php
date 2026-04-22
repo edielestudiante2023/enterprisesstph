@@ -25,7 +25,7 @@ class PlanEmergenciaController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
-    use AppTraitsInspeccionesTransactionalTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected PlanEmergenciaModel $model;
 
     public const TELEFONOS = [
@@ -224,7 +224,7 @@ class PlanEmergenciaController extends BaseController
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'No encontrado');
         }
 
-        if ( = ->guardFinalizado(, '/inspecciones/plan-emergencia/view/' . )) return ;
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/plan-emergencia/view/' . $id)) return $r;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();

@@ -17,7 +17,7 @@ class InspeccionRecursosSeguridadController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
-    use AppTraitsInspeccionesTransactionalTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected InspeccionRecursosSeguridadModel $inspeccionModel;
 
     /**
@@ -205,7 +205,7 @@ class InspeccionRecursosSeguridadController extends BaseController
             return redirect()->to('/inspecciones/recursos-seguridad')->with('error', 'No encontrada');
         }
 
-        if ( = ->guardFinalizado(, '/inspecciones/recursos-seguridad/view/' . )) return ;
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/recursos-seguridad/view/' . $id)) return $r;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();

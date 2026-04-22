@@ -17,7 +17,7 @@ class DotacionToderoController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
-    use AppTraitsInspeccionesTransactionalTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected DotacionToderoModel $inspeccionModel;
 
     public const ITEMS_EPP = [
@@ -183,7 +183,7 @@ class DotacionToderoController extends BaseController
             return redirect()->to('/inspecciones/dotacion-todero')->with('error', 'No encontrada');
         }
 
-        if ( = ->guardFinalizado(, '/inspecciones/dotacion-todero/view/' . )) return ;
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/dotacion-todero/view/' . $id)) return $r;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();

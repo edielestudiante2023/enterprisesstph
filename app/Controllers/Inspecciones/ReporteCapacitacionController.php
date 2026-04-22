@@ -21,7 +21,7 @@ class ReporteCapacitacionController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
-    use AppTraitsInspeccionesTransactionalTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected ReporteCapacitacionModel $inspeccionModel;
 
     public function __construct()

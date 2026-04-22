@@ -17,7 +17,7 @@ class AuditoriaZonaResiduosController extends BaseController
     use AutosaveJsonTrait;
     use ImagenCompresionTrait;
     use \App\Traits\PreventDuplicateBorradorTrait;
-    use AppTraitsInspeccionesTransactionalTrait;
+    use \App\Traits\InspeccionesTransactionalTrait;
     protected AuditoriaZonaResiduosModel $inspeccionModel;
 
     public const ITEMS_ZONA = [
@@ -184,7 +184,7 @@ class AuditoriaZonaResiduosController extends BaseController
             return redirect()->to('/inspecciones/auditoria-zona-residuos')->with('error', 'No encontrada');
         }
 
-        if ( = ->guardFinalizado(, '/inspecciones/auditoria-zona-residuos/view/' . )) return ;
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/auditoria-zona-residuos/view/' . $id)) return $r;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
