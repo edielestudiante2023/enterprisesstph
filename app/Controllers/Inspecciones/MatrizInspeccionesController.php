@@ -123,7 +123,7 @@ class MatrizInspeccionesController extends BaseController
             foreach ($ptaVincs as $v) {
                 $fp = $v['fecha_propuesta'] ?? null;
                 if (!$fp) continue;
-                if ($fp >= $hoy) {
+                if ($fp > $hoy) {
                     $hayFuturas = true;
                     if ($proxima === null || $fp < $proxima) $proxima = $fp;
                 } else {
