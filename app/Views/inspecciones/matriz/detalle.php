@@ -264,6 +264,7 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const ID_CLIENTE = <?= (int) $cliente['id_cliente'] ?>;
+    const ANIO = <?= (int) $anio ?>;
     const URL_MARCAR = '<?= base_url('inspecciones/matriz/no-aplica') ?>';
     const URL_QUITAR = '<?= base_url('inspecciones/matriz/quitar-no-aplica') ?>';
     const URL_PTA_LIST = '<?= base_url('inspecciones/matriz/pta-list/' . (int) $cliente['id_cliente']) ?>';
@@ -442,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function cargarPtas(incluirCerradas) {
-        const params = new URLSearchParams({ slug: modalSlug });
+        const params = new URLSearchParams({ slug: modalSlug, anio: ANIO });
         if (incluirCerradas) params.append('cerradas', '1');
         fetch(URL_PTA_LIST + '?' + params.toString())
             .then(r => r.json())
@@ -474,6 +475,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const fd = new FormData();
         fd.append('id_cliente', ID_CLIENTE);
         fd.append('slug_inspeccion', modalSlug);
+        fd.append('anio', ANIO);
         Array.from(modalVinculados).forEach(id => fd.append('ids_ptacliente[]', id));
 
         this.disabled = true;

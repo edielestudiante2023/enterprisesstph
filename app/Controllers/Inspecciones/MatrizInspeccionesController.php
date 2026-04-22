@@ -57,13 +57,14 @@ class MatrizInspeccionesController extends BaseController
 
         $db = \Config\Database::connect();
 
-        // Precargar todos los matches del cliente con info del PTA, indexados por slug
+        // Precargar matches del cliente cuyo PTA cae en el anio seleccionado
         $matchesBySlug = [];
         if ($db->tableExists('tbl_pta_inspeccion_match')) {
             $matches = $db->table('tbl_pta_inspeccion_match m')
                 ->select('m.slug_inspeccion, m.id_ptacliente, m.method, m.score, p.fecha_propuesta, p.fecha_cierre, p.numeral_plandetrabajo, p.actividad_plandetrabajo, p.estado_actividad')
-                ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'left')
+                ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'inner')
                 ->where('m.id_cliente', $idCliente)
+                ->where('YEAR(p.fecha_propuesta)', $anio)
                 ->orderBy('p.fecha_propuesta', 'ASC')
                 ->get()
                 ->getResultArray();
@@ -204,11 +205,13 @@ class MatrizInspeccionesController extends BaseController
         }
 
         $incluirCerradas = (bool) $this->request->getGet('cerradas');
+        $anio = (int) ($this->request->getGet('anio') ?: date('Y'));
 
         $db = \Config\Database::connect();
         $builder = $db->table('tbl_pta_cliente')
             ->select('id_ptacliente, phva_plandetrabajo, numeral_plandetrabajo, actividad_plandetrabajo, fecha_propuesta, fecha_cierre, estado_actividad')
             ->where('id_cliente', $idCliente)
+            ->where('YEAR(fecha_propuesta)', $anio)
             ->orderBy('fecha_propuesta', 'ASC');
 
         if (!$incluirCerradas) {
@@ -217,10 +220,17 @@ class MatrizInspeccionesController extends BaseController
 
         $ptas = $builder->get()->getResultArray();
 
-        $vinculados = $this->matchModel->where('id_cliente', $idCliente)
-            ->where('slug_inspeccion', $slug)
-            ->findAll();
-        $vinculadosIds = array_map('intval', array_column($vinculados, 'id_ptacliente'));
+        $ptaIds = array_map('intval', array_column($ptas, 'id_ptacliente'));
+
+        // Solo pre-marcar los que aparecen en la lista del anio (asi no se borran los de otros anios al guardar)
+        $vinculadosIds = [];
+        if (!empty($ptaIds)) {
+            $vinculados = $this->matchModel->where('id_cliente', $idCliente)
+                ->where('slug_inspeccion', $slug)
+                ->whereIn('id_ptacliente', $ptaIds)
+                ->findAll();
+            $vinculadosIds = array_map('intval', array_column($vinculados, 'id_ptacliente'));
+        }
 
         return $this->response->setJSON([
             'ok'         => true,
@@ -238,33 +248,38 @@ class MatrizInspeccionesController extends BaseController
     {
         $idCliente = (int) $this->request->getPost('id_cliente');
         $slug = trim((string) $this->request->getPost('slug_inspeccion'));
+        $anio = (int) $this->request->getPost('anio');
         $idsRaw = $this->request->getPost('ids_ptacliente');
         $ids = is_array($idsRaw) ? array_values(array_unique(array_map('intval', $idsRaw))) : [];
 
-        if (!$idCliente || !$slug || !InspeccionTypes::bySlug($slug)) {
+        if (!$idCliente || !$slug || !$anio || !InspeccionTypes::bySlug($slug)) {
             return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
         }
 
         $db = \Config\Database::connect();
 
-        if (!empty($ids)) {
-            $valids = $db->table('tbl_pta_cliente')
-                ->select('id_ptacliente')
-                ->where('id_cliente', $idCliente)
-                ->whereIn('id_ptacliente', $ids)
-                ->get()
-                ->getResultArray();
-            $validIds = array_map('intval', array_column($valids, 'id_ptacliente'));
-            $invalid = array_values(array_diff($ids, $validIds));
-            if (!empty($invalid)) {
-                return $this->response
-                    ->setStatusCode(403)
-                    ->setJSON(['ok' => false, 'msg' => 'Algunas actividades no pertenecen al cliente.', 'invalid' => $invalid]);
-            }
+        // Scope: IDs de PTAs del cliente en el anio (base para sincronizar sin tocar otros anios)
+        $scopeRows = $db->table('tbl_pta_cliente')
+            ->select('id_ptacliente')
+            ->where('id_cliente', $idCliente)
+            ->where('YEAR(fecha_propuesta)', $anio)
+            ->get()
+            ->getResultArray();
+        $scopeIds = array_map('intval', array_column($scopeRows, 'id_ptacliente'));
+
+        // Validacion: los seleccionados deben estar dentro del scope (implica pertenecer al cliente)
+        $invalid = array_values(array_diff($ids, $scopeIds));
+        if (!empty($invalid)) {
+            return $this->response
+                ->setStatusCode(403)
+                ->setJSON(['ok' => false, 'msg' => 'Algunas actividades no pertenecen al cliente o al año.', 'invalid' => $invalid]);
         }
 
-        $actuales = $this->matchModel->where('id_cliente', $idCliente)
+        // Matches actuales restringidos al scope del anio
+        $actuales = empty($scopeIds) ? [] : $this->matchModel
+            ->where('id_cliente', $idCliente)
             ->where('slug_inspeccion', $slug)
+            ->whereIn('id_ptacliente', $scopeIds)
             ->findAll();
         $actualesIds = array_map('intval', array_column($actuales, 'id_ptacliente'));
 
