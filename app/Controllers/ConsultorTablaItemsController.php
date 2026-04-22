@@ -24,10 +24,10 @@ class ConsultorTablaItemsController extends Controller
 
         // Orden de las categorías en el dashboard
         $ordenCategorias = [
+            'Inspecciones y Auditoría',
             'IA y Asistencia',
             'Operación Diaria',
             'Gestión Clientes',
-            'Inspecciones y Auditoría',
             'Cumplimiento y Control',
             'Planeación SST',
             'Dashboards Analíticos',
