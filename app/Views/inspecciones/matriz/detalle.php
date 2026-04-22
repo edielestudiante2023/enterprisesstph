@@ -1,10 +1,12 @@
 <?php
 $totalHechas    = 0;
 $totalPend      = 0;
+$totalAtrasadas = 0;
 $totalNoAplica  = 0;
 foreach ($filas as $f) {
     if ($f['estado'] === 'hecha')         $totalHechas++;
     elseif ($f['estado'] === 'pendiente') $totalPend++;
+    elseif ($f['estado'] === 'atrasada')  $totalAtrasadas++;
     else                                  $totalNoAplica++;
 }
 $totalTodos = count($filas);
@@ -40,7 +42,7 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
 
     <!-- Cards clickeables para filtrar la tabla -->
     <div class="row g-2 mb-3">
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md">
             <div class="card border-0 text-center card-filtro active" data-filtro="todas" style="background:#eef2f7; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#1c2437; font-weight:600;"><i class="fas fa-list"></i> Todas</div>
@@ -48,7 +50,7 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md">
             <div class="card border-0 text-center card-filtro" data-filtro="hecha" style="background:#d4edda; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#155724; font-weight:600;"><i class="fas fa-check-circle"></i> Hechas</div>
@@ -56,7 +58,7 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md">
             <div class="card border-0 text-center card-filtro" data-filtro="pendiente" style="background:#fff3cd; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#856404; font-weight:600;"><i class="fas fa-clock"></i> Pendientes</div>
@@ -64,7 +66,15 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md">
+            <div class="card border-0 text-center card-filtro" data-filtro="atrasada" style="background:#f8d7da; border-radius:10px; cursor:pointer;">
+                <div class="card-body py-2 px-1">
+                    <div style="font-size:11px; color:#721c24; font-weight:600;"><i class="fas fa-exclamation-triangle"></i> Atrasadas</div>
+                    <div style="font-size:20px; font-weight:700; color:#721c24;"><?= $totalAtrasadas ?></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md">
             <div class="card border-0 text-center card-filtro" data-filtro="no_aplica" style="background:#e2e3e5; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#383d41; font-weight:600;"><i class="fas fa-ban"></i> No Aplica</div>
@@ -100,6 +110,7 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                             <option value="">Todos</option>
                             <option value="Hecha">Hechas</option>
                             <option value="Pendiente">Pendientes</option>
+                            <option value="Atrasada">Atrasadas</option>
                             <option value="No Aplica">No Aplica</option>
                         </select>
                     </th>
@@ -112,14 +123,16 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                 $badgeClass = [
                     'hecha'     => 'background:#d4edda; color:#155724;',
                     'pendiente' => 'background:#fff3cd; color:#856404;',
+                    'atrasada'  => 'background:#f8d7da; color:#721c24;',
                     'no_aplica' => 'background:#e2e3e5; color:#383d41;',
                 ][$f['estado']];
                 $badgeLabel = [
                     'hecha'     => '<i class="fas fa-check-circle"></i> Hecha' . ($f['total'] > 1 ? ' (' . $f['total'] . ')' : ''),
                     'pendiente' => '<i class="fas fa-clock"></i> Pendiente',
+                    'atrasada'  => '<i class="fas fa-exclamation-triangle"></i> Atrasada',
                     'no_aplica' => '<i class="fas fa-ban"></i> No Aplica',
                 ][$f['estado']];
-                $estadoTexto = ['hecha' => 'Hecha', 'pendiente' => 'Pendiente', 'no_aplica' => 'No Aplica'][$f['estado']];
+                $estadoTexto = ['hecha' => 'Hecha', 'pendiente' => 'Pendiente', 'atrasada' => 'Atrasada', 'no_aplica' => 'No Aplica'][$f['estado']];
                 ?>
                 <tr data-estado="<?= esc($f['estado']) ?>" <?= $f['estado'] === 'no_aplica' ? 'style="opacity:0.6;"' : '' ?>>
                     <td style="font-size:11px; color:#555;"><?= esc($f['group']) ?></td>
@@ -132,7 +145,17 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                             <span class="text-muted">—</span>
                         <?php else: ?>
                             <?php if ($f['total'] === 0): ?>
-                                <span class="text-muted">Sin registros</span>
+                                <?php if ($f['estado'] === 'atrasada' && !empty($f['ultima_vencida'])): ?>
+                                    <span style="color:#721c24; font-weight:600;">
+                                        <i class="fas fa-exclamation-triangle"></i> Vencida desde <?= date('d/m/Y', strtotime($f['ultima_vencida'])) ?>
+                                    </span>
+                                <?php elseif (!empty($f['proxima_planeada'])): ?>
+                                    <span style="color:#856404; font-weight:600;">
+                                        <i class="fas fa-calendar-day"></i> Próxima: <?= date('d/m/Y', strtotime($f['proxima_planeada'])) ?>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="text-muted">Sin registros</span>
+                                <?php endif; ?>
                             <?php else: ?>
                                 <?php foreach ($f['inspecciones'] as $i => $insp): if ($i >= 3) break; ?>
                                     <a href="<?= base_url($f['view_route'] . '/' . (int) $insp['id']) ?>"
@@ -298,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_PTA_LIST = '<?= base_url('inspecciones/matriz/pta-list/' . (int) $cliente['id_cliente']) ?>';
     const URL_PTA_LINK = '<?= base_url('inspecciones/matriz/vincular-pta') ?>';
 
-    const estadoLabelMap = { 'hecha': 'Hecha', 'pendiente': 'Pendiente', 'no_aplica': 'No Aplica' };
+    const estadoLabelMap = { 'hecha': 'Hecha', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
 
     const tabla = $('#tablaMatriz').DataTable({
         responsive: true,
@@ -318,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (saved) el.value = saved;
             });
             const estadoText = tabla.column(3).search();
-            const textToFiltro = { '': 'todas', 'Hecha': 'hecha', 'Pendiente': 'pendiente', 'No Aplica': 'no_aplica' };
+            const textToFiltro = { '': 'todas', 'Hecha': 'hecha', 'Pendiente': 'pendiente', 'Atrasada': 'atrasada', 'No Aplica': 'no_aplica' };
             const activeFiltro = textToFiltro[estadoText] || 'todas';
             document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
             const activeCard = document.querySelector('.card-filtro[data-filtro="' + activeFiltro + '"]');

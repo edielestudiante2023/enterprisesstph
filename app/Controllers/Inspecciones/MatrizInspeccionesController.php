@@ -115,28 +115,49 @@ class MatrizInspeccionesController extends BaseController
 
             $na = $noAplica[$tipo['slug']] ?? null;
 
+            // Analizar PTAs vinculados para determinar 'atrasada' y proxima fecha
+            $ptaVincs = $matchesBySlug[$tipo['slug']] ?? [];
+            $hoy = date('Y-m-d');
+            $proxima = null; $ultimaVencida = null;
+            $hayFuturas = false; $hayPasadas = false;
+            foreach ($ptaVincs as $v) {
+                $fp = $v['fecha_propuesta'] ?? null;
+                if (!$fp) continue;
+                if ($fp >= $hoy) {
+                    $hayFuturas = true;
+                    if ($proxima === null || $fp < $proxima) $proxima = $fp;
+                } else {
+                    $hayPasadas = true;
+                    if ($ultimaVencida === null || $fp > $ultimaVencida) $ultimaVencida = $fp;
+                }
+            }
+
             if ($na) {
                 $estado = 'no_aplica';
             } elseif ($total > 0) {
                 $estado = 'hecha';
+            } elseif ($hayPasadas && !$hayFuturas) {
+                $estado = 'atrasada';
             } else {
                 $estado = 'pendiente';
             }
 
             $filas[] = [
-                'slug'          => $tipo['slug'],
-                'label'         => $tipo['label'],
-                'group'         => $tipo['group'] ?? 'Otros',
-                'icon'          => $tipo['icon'],
-                'list_route'    => $tipo['list_route'],
-                'create_route'  => $tipo['create_route'],
-                'view_route'    => $tipo['view_route'],
-                'inspecciones'  => $inspecciones,
-                'ultima'        => $ultima,
-                'total'         => $total,
-                'estado'        => $estado,
-                'no_aplica'     => $na,
-                'pta_vinculados'=> $matchesBySlug[$tipo['slug']] ?? [],
+                'slug'           => $tipo['slug'],
+                'label'          => $tipo['label'],
+                'group'          => $tipo['group'] ?? 'Otros',
+                'icon'           => $tipo['icon'],
+                'list_route'     => $tipo['list_route'],
+                'create_route'   => $tipo['create_route'],
+                'view_route'     => $tipo['view_route'],
+                'inspecciones'   => $inspecciones,
+                'ultima'         => $ultima,
+                'total'          => $total,
+                'estado'         => $estado,
+                'no_aplica'      => $na,
+                'pta_vinculados' => $ptaVincs,
+                'proxima_planeada' => $proxima,
+                'ultima_vencida'   => $ultimaVencida,
             ];
         }
 
