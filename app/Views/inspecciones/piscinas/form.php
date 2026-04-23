@@ -622,6 +622,25 @@ function buildPiscinaRow(num, data, paramsData, ensayosData) {
         thumbsHtml += '</div>';
     }
     const listaId = 'catEvidList_' + idxPisc;
+    // 6 SLOTS FIJOS (3x2 en desktop, 1 por fila en movil). Cada slot = card con
+    // foto + categoria (datalist libre) + descripcion opcional.
+    let slotsHtml = '<div class="row g-2">';
+    for (let s = 0; s < 6; s++) {
+        slotsHtml +=
+              '<div class="col-12 col-md-6 col-lg-4">'
+            + '  <div style="border:1px solid #d0d3d7; border-radius:6px; padding:6px; background:#fff; height:100%;">'
+            + '    <div class="small-label">Slot #' + (s + 1) + '</div>'
+            + '    <label class="small-label"><i class="fas fa-images me-1"></i>Foto</label>'
+            + '    <input type="file" name="item_evidencia_' + idxPisc + '[]" class="form-control form-control-sm" accept="image/*" data-multi-name="1">'
+            + '    <label class="small-label mt-1">Categoria</label>'
+            + '    <input type="text" name="item_evidencia_categoria_' + idxPisc + '[]" class="form-control form-control-sm" list="' + listaId + '" placeholder="Ej: Drenaje">'
+            + '    <label class="small-label mt-1">Descripcion</label>'
+            + '    <input type="text" name="item_evidencia_descripcion_' + idxPisc + '[]" class="form-control form-control-sm" placeholder="Hallazgo / detalle (opcional)">'
+            + '  </div>'
+            + '</div>';
+    }
+    slotsHtml += '</div>';
+
     html += '<div class="sub-block evid-det-block" style="background:#f5f5fa;" data-idx="' + idxPisc + '">'
         + '<div class="sub-block-title">Evidencias adicionales de esta piscina</div>'
         + thumbsHtml
@@ -632,8 +651,8 @@ function buildPiscinaRow(num, data, paramsData, ensayosData) {
         +   '<option value="Senalizacion"><option value="Iluminacion"><option value="Ventilacion">'
         +   '<option value="Equipos"><option value="Cuarto bombas"><option value="Otra">'
         + '</datalist>'
-        + '<div class="evid-new-rows"></div>'
-        + '<button type="button" class="btn btn-sm btn-outline-primary mt-1 btn-add-evid-row" data-idx="' + idxPisc + '" data-list="' + listaId + '"><i class="fas fa-plus"></i> Agregar foto de evidencia</button>'
+        + '<div class="form-text mb-1" style="font-size:10px;">6 slots por piscina. Llena los que necesites, los vacios se ignoran. Para agregar mas fotos guarda y vuelve a entrar.</div>'
+        + slotsHtml
         + '</div>';
 
     html += '</div>'; // /piscina-row
@@ -803,38 +822,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Agregar fila nueva de evidencia (categoria + archivo + descripcion) por piscina
-    function addEvidRow(idxPisc, listaId, block) {
-        const rowsHolder = block.querySelector('.evid-new-rows');
-        const row = document.createElement('div');
-        row.className = 'evid-new-row';
-        row.style.cssText = 'display:flex; flex-wrap:wrap; gap:4px; align-items:flex-end; background:#fff; border:1px solid #ddd; border-radius:4px; padding:4px; margin-bottom:4px;';
-        row.innerHTML =
-              '<div style="flex:1 1 130px;"><label class="small-label">Categoria</label>'
-            + '<input type="text" name="item_evidencia_categoria_' + idxPisc + '[]" class="form-control form-control-sm" list="' + listaId + '" placeholder="Ej: Drenaje ninos"></div>'
-            + '<div style="flex:1 1 160px;"><label class="small-label"><i class="fas fa-images me-1"></i>Foto</label>'
-            + '<input type="file" name="item_evidencia_' + idxPisc + '[]" class="form-control form-control-sm" accept="image/*" data-multi-name="1" required></div>'
-            + '<div style="flex:2 1 200px;"><label class="small-label">Descripcion (opcional)</label>'
-            + '<input type="text" name="item_evidencia_descripcion_' + idxPisc + '[]" class="form-control form-control-sm" placeholder="Hallazgo / detalle"></div>'
-            + '<button type="button" class="btn btn-sm btn-outline-danger btn-remove-evid-row" style="padding:2px 7px;" title="Descartar fila"><i class="fas fa-xmark"></i></button>';
-        rowsHolder.appendChild(row);
-    }
-
     container.addEventListener('click', (e) => {
         if (e.target.closest('.btn-remove-piscina')) {
             e.target.closest('.piscina-row').remove();
             renumerarPiscinas();
-        }
-        const btnAddEvid = e.target.closest('.btn-add-evid-row');
-        if (btnAddEvid) {
-            const idx = parseInt(btnAddEvid.dataset.idx, 10);
-            const listaId = btnAddEvid.dataset.list;
-            const block = btnAddEvid.closest('.evid-det-block');
-            addEvidRow(idx, listaId, block);
-        }
-        const btnRmRow = e.target.closest('.btn-remove-evid-row');
-        if (btnRmRow) {
-            btnRmRow.closest('.evid-new-row').remove();
         }
         const btnDet = e.target.closest('.btn-remove-evidencia-det');
         if (btnDet) {
