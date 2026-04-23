@@ -14,6 +14,15 @@ function irapiLabelView($c) {
         </span>
     </div>
 
+    <div class="mb-3">
+        <a href="https://camacol.co/sites/default/files/descargables/RESOLUCION%20MINSALUD%20NACIONAL%20234%20DE%20FEBRERO%20DE%202026.pdf"
+           target="_blank" rel="noopener"
+           class="btn btn-sm"
+           style="background:#bd9751;color:#fff;font-size:12px;padding:5px 12px;">
+            <i class="fas fa-book"></i> Ver normativa (Res 234/2026 + anexos técnicos)
+        </a>
+    </div>
+
     <div class="card mb-3">
         <div class="card-body">
             <h6 class="card-title" style="font-size:14px; color:#999;">DATOS GENERALES</h6>

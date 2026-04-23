@@ -74,6 +74,18 @@ $GRUPOS = [
     <form method="post" action="<?= $action ?>" enctype="multipart/form-data" id="pisForm">
         <?= csrf_field() ?>
 
+        <div class="mt-2 mb-2 d-flex flex-wrap gap-2 align-items-center">
+            <a href="https://camacol.co/sites/default/files/descargables/RESOLUCION%20MINSALUD%20NACIONAL%20234%20DE%20FEBRERO%20DE%202026.pdf"
+               target="_blank" rel="noopener"
+               class="btn btn-sm"
+               style="background:#bd9751;color:#fff;font-size:12px;padding:5px 12px;">
+                <i class="fas fa-book"></i> Ver normativa (Res 234/2026 + anexos técnicos)
+            </a>
+            <span style="font-size:11px;color:#777;">
+                Ministerio de Salud y Protección Social · Calidad del agua + buenas prácticas sanitarias + IRAPI + botiquines.
+            </span>
+        </div>
+
         <?php if (session()->getFlashdata('errors')): ?>
         <div class="alert alert-danger mt-2" style="font-size:14px;">
             <ul class="mb-0"><?php foreach ((array)session()->getFlashdata('errors') as $e): ?><li><?= esc($e) ?></li><?php endforeach; ?></ul>

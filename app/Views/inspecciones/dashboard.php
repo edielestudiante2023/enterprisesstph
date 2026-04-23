@@ -1390,8 +1390,8 @@
                 <div style="font-size:11px; color:rgba(30,58,95,0.7);">(<?= $totalPiscinas ?>)</div>
             </a>
             <a href="<?= base_url('/inspecciones/piscinero') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.55); text-align:center; text-decoration:none; transition:transform .2s;">
-                <i class="fas fa-person-swimming" style="font-size:22px; color:#1e3a5f; display:block; margin-bottom:2px;"></i>
-                <div><strong style="font-size:11px; color:#1e3a5f;">Piscinero</strong></div>
+                <i class="fas fa-user-gear" style="font-size:22px; color:#1e3a5f; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#1e3a5f;">Operador de piscina</strong></div>
                 <div style="font-size:11px; color:rgba(30,58,95,0.7);">(<?= $totalPiscinero ?>)</div>
             </a>
             <a href="<?= base_url('/inspecciones/procedimiento-emergencia-area') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.55); text-align:center; text-decoration:none; border:2px solid #c0392b; transition:transform .2s;">
