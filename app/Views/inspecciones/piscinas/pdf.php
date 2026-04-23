@@ -113,6 +113,29 @@ table.data th { background: #eee; font-weight: 700; }
     <tr><td>Tablero publico con resultados mensuales</td><td><?= esc($inspeccion['tablero_publico_resultados'] ?? 'NA') ?></td><td>Art. 16 par. 2 Res 234/2026</td></tr>
 </table>
 
+<?php if (!empty($evidenciasMaestroB64)): ?>
+<h2>2.1 Evidencias fotograficas — documentacion y gestion sanitaria</h2>
+<?php foreach ($camposEvidenciaMaestro as $codigo => $label): ?>
+    <?php $fotos = $evidenciasMaestroB64[$codigo] ?? []; if (empty($fotos)) continue; ?>
+    <h3><?= esc($label) ?> <span style="font-size:9px;color:#777;font-weight:normal;">(<?= count($fotos) ?> foto<?= count($fotos) > 1 ? 's' : '' ?>)</span></h3>
+    <table style="width:100%;margin-bottom:6px;"><tr>
+    <?php $col = 0; foreach ($fotos as $f):
+        if (empty($f['foto_b64'])) continue;
+        if ($col === 3) { echo '</tr><tr>'; $col = 0; }
+    ?>
+        <td style="width:33%;padding:3px;border:none;vertical-align:top;text-align:center;">
+            <img src="<?= $f['foto_b64'] ?>" style="max-width:170px;max-height:120px;border:1px solid #bbb;">
+            <?php if (!empty($f['descripcion'])): ?>
+            <div style="font-size:8px;color:#666;margin-top:2px;"><?= esc($f['descripcion']) ?></div>
+            <?php endif; ?>
+        </td>
+    <?php $col++; endforeach;
+    while ($col > 0 && $col < 3) { echo '<td></td>'; $col++; }
+    ?>
+    </tr></table>
+<?php endforeach; ?>
+<?php endif; ?>
+
 <div class="pagebreak"></div>
 
 <h2>3. Piscinas inspeccionadas</h2>

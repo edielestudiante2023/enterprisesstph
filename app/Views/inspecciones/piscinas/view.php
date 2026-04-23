@@ -31,6 +31,36 @@ function irapiLabelView($c) {
         </div>
     </div>
 
+    <?php if (!empty($evidenciasMap)): ?>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title" style="font-size:14px; color:#999;">EVIDENCIAS FOTOGRAFICAS — DOCUMENTACION Y GESTION SANITARIA</h6>
+            <?php foreach ($camposEvidenciaMaestro as $codigo => $label): ?>
+                <?php $rows = $evidenciasMap[$codigo] ?? []; if (empty($rows)) continue; ?>
+                <div class="mb-3">
+                    <div class="small-label" style="font-size:12px; font-weight:700; color:#1c2437;"><?= esc($label) ?> — <?= count($rows) ?> foto(s)</div>
+                    <div class="d-flex flex-wrap gap-2 mt-1">
+                        <?php foreach ($rows as $r): ?>
+                        <img src="<?= base_url('/' . $r['foto_path']) ?>" onclick="openPhotoView(this.src)"
+                             style="width:120px;height:120px;object-fit:cover;border:1px solid #ccc;border-radius:4px;cursor:pointer;"
+                             title="<?= esc($r['descripcion'] ?? '') ?>">
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <div class="modal fade" id="photoModalView" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content bg-dark"><div class="modal-body p-1 text-center"><img id="photoModalViewImg" src="" class="img-fluid" style="max-height:80vh;"></div></div></div></div>
+    <script>
+    function openPhotoView(src) {
+        const m = document.getElementById('photoModalView');
+        if (!m) return;
+        document.getElementById('photoModalViewImg').src = src;
+        new bootstrap.Modal(m).show();
+    }
+    </script>
+    <?php endif; ?>
+
     <?php foreach ($piscinas as $i => $p): ?>
     <div class="card mb-3">
         <div class="card-body">
