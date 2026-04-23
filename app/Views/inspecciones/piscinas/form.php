@@ -811,9 +811,9 @@ document.addEventListener('DOMContentLoaded', function() {
         row.style.cssText = 'display:flex; flex-wrap:wrap; gap:4px; align-items:flex-end; background:#fff; border:1px solid #ddd; border-radius:4px; padding:4px; margin-bottom:4px;';
         row.innerHTML =
               '<div style="flex:1 1 130px;"><label class="small-label">Categoria</label>'
-            + '<input type="text" name="item_evidencia_categoria_' + idxPisc + '[]" class="form-control form-control-sm" list="' + listaId + '" placeholder="Ej: Drenaje ninos" value="Otra"></div>'
+            + '<input type="text" name="item_evidencia_categoria_' + idxPisc + '[]" class="form-control form-control-sm" list="' + listaId + '" placeholder="Ej: Drenaje ninos"></div>'
             + '<div style="flex:1 1 160px;"><label class="small-label"><i class="fas fa-images me-1"></i>Foto</label>'
-            + '<input type="file" name="item_evidencia_' + idxPisc + '[]" class="form-control form-control-sm" accept="image/*" required></div>'
+            + '<input type="file" name="item_evidencia_' + idxPisc + '[]" class="form-control form-control-sm" accept="image/*" data-multi-name="1" required></div>'
             + '<div style="flex:2 1 200px;"><label class="small-label">Descripcion (opcional)</label>'
             + '<input type="text" name="item_evidencia_descripcion_' + idxPisc + '[]" class="form-control form-control-sm" placeholder="Hallazgo / detalle"></div>'
             + '<button type="button" class="btn btn-sm btn-outline-danger btn-remove-evid-row" style="padding:2px 7px;" title="Descartar fila"><i class="fas fa-xmark"></i></button>';

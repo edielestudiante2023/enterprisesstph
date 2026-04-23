@@ -67,6 +67,18 @@
                     : (input.files && input.files.length ? input.files : null);
                 if (!source) return;
 
+                // Multi-foto: si el input tiene data-multi-name="1", preservar el
+                // nombre original (incluye [] para que PHP los acumule como array).
+                // Esto soporta el patron de multi-foto por piscina (N inputs con
+                // mismo name dentro de la misma fila de detalle).
+                if (input.getAttribute('data-multi-name') === '1') {
+                    for (var j = 0; j < source.length; j++) {
+                        var fm = source[j];
+                        fd.append(input.name, fm, fm.name || ('photo' + j + '.jpg'));
+                    }
+                    return;
+                }
+
                 var row = cfg.detailRowSelector ? input.closest(cfg.detailRowSelector) : null;
                 if (row) {
                     var allRows = form.querySelectorAll(cfg.detailRowSelector);
