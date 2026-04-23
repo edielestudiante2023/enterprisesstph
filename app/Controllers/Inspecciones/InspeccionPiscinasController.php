@@ -607,7 +607,16 @@ class InspeccionPiscinasController extends BaseController
     }
 
     /**
-     * Persiste N piscinas + sus hijas (parámetros, ensayos, botiquín).
+     * Persiste N piscinas + sus hijas (parámetros, ensayos, botiquín, evidencias).
+     *
+     * Patrón delete-and-reinsert: borra todas las piscinas (cascada borra hijas)
+     * y las reinserta desde el POST. Esto funciona bien para parametros/ensayos/
+     * botiquin porque sus valores ESTÁN en el POST.
+     *
+     * Para las evidencias multi-foto (que solo tienen foto_path en DB, no en el
+     * POST) se hace un SNAPSHOT antes del delete y se reinsertan post-delete,
+     * mapeadas por `orden` de piscina. Así las fotos existentes se preservan a
+     * través del cycle de autosave.
      */
     private function savePiscinas(int $idInspeccion): array
     {
@@ -621,7 +630,42 @@ class InspeccionPiscinasController extends BaseController
             $existentesPorOrden[(int)$row['orden']] = $row;
         }
 
-        // Borrar piscinas previas (sus hijas caen por cascada)
+        // SNAPSHOT evidencias multi-foto antes del cascade delete.
+        // Clave: orden de piscina => [filas de evidencia]. Se reinsertan luego.
+        $evidSnapshotPorOrden = [];
+        foreach ($existentes as $pisRow) {
+            $ordenPis = (int)$pisRow['orden'];
+            $evidSnapshotPorOrden[$ordenPis] = $this->evidenciaDetalleModel->getByPiscina((int)$pisRow['id']);
+        }
+
+        // Procesar IDs marcados para borrado ANTES del cascade (para limpiar archivos físicos
+        // y excluirlos del snapshot que se reinserta)
+        $borrarIdsDet = $this->request->getPost('detalle_evidencia_borrar_ids') ?? [];
+        $borrarIdsDetSet = [];
+        if (is_array($borrarIdsDet)) {
+            foreach ($borrarIdsDet as $idBorrar) {
+                $idBorrar = (int)$idBorrar;
+                if ($idBorrar > 0) $borrarIdsDetSet[$idBorrar] = true;
+            }
+        }
+        if (!empty($borrarIdsDetSet)) {
+            foreach ($evidSnapshotPorOrden as $ordenKey => $rows) {
+                $filtered = [];
+                foreach ($rows as $ev) {
+                    $evId = (int)$ev['id'];
+                    if (isset($borrarIdsDetSet[$evId])) {
+                        if (!empty($ev['foto_path']) && file_exists(FCPATH . $ev['foto_path'])) {
+                            @unlink(FCPATH . $ev['foto_path']);
+                        }
+                        continue; // no preservar
+                    }
+                    $filtered[] = $ev;
+                }
+                $evidSnapshotPorOrden[$ordenKey] = $filtered;
+            }
+        }
+
+        // Borrar piscinas previas (sus hijas caen por cascada, incluyendo evidencias)
         $this->detalleModel->deleteByInspeccion($idInspeccion);
 
         $dir = FCPATH . 'uploads/inspecciones/piscinas/fotos/';
@@ -704,25 +748,21 @@ class InspeccionPiscinasController extends BaseController
             // Recalcular IRAPI e ISL ahora que las hijas están
             $this->recalcularResultados($idDetalle, 'PISCINAS');
 
-            // Multi-foto evidencia piscina detalle
-            $this->savePiscinaEvidencias($idDetalle, $i);
-        }
-
-        // Eliminar evidencias marcadas por el usuario (IDs enviados via POST)
-        $borrarIdsDet = $this->request->getPost('detalle_evidencia_borrar_ids') ?? [];
-        if (is_array($borrarIdsDet)) {
-            foreach ($borrarIdsDet as $idBorrar) {
-                $idBorrar = (int)$idBorrar;
-                if ($idBorrar <= 0) continue;
-                $row = $this->evidenciaDetalleModel->find($idBorrar);
-                if (!$row) continue;
-                $detOwner = $this->detalleModel->find($row['id_piscina_detalle']);
-                if (!$detOwner || (int)$detOwner['id_inspeccion'] !== $idInspeccion) continue;
-                if (!empty($row['foto_path']) && file_exists(FCPATH . $row['foto_path'])) {
-                    @unlink(FCPATH . $row['foto_path']);
-                }
-                $this->evidenciaDetalleModel->delete($idBorrar);
+            // Reinsertar evidencias previas (del snapshot, mapeadas por orden)
+            $ordenPisc = $i + 1;
+            $evidPrevias = $evidSnapshotPorOrden[$ordenPisc] ?? [];
+            foreach ($evidPrevias as $ev) {
+                $this->evidenciaDetalleModel->insert([
+                    'id_piscina_detalle' => $idDetalle,
+                    'categoria'          => $ev['categoria'] ?? '',
+                    'orden'              => (int)($ev['orden'] ?? 0),
+                    'foto_path'          => $ev['foto_path'],
+                    'descripcion'        => $ev['descripcion'] ?? null,
+                ]);
             }
+
+            // Append de NUEVAS fotos multi-foto desde el POST (pueden ser varias)
+            $this->savePiscinaEvidencias($idDetalle, $i);
         }
 
         return $newIds;
