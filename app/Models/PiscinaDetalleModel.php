@@ -26,7 +26,8 @@ class PiscinaDetalleModel extends Model
         'aviso_ducharse_antes', 'aviso_prohibido_zapatos',
         'aviso_telefonos_emergencia', 'aviso_aforo_visible',
         // Emergencia
-        'botiquin_tipo', 'camilla_rescate',
+        'botiquin_tipo', 'foto_botiquin', 'botiquin_observaciones_faltantes',
+        'camilla_rescate',
         'flotadores_circulares_min_2', 'baston_con_gancho', 'citofono_24h',
         // Higiene
         'duchas_previas_obligatorias',
@@ -37,9 +38,7 @@ class PiscinaDetalleModel extends Model
         'equipo_bombeo_operativo', 'filtros_operativos',
         // Libro registro
         'libro_registro_existe', 'libro_ultima_semana_fecha', 'libro_observaciones',
-        // Resultado calculado
-        'irapi_valor', 'irapi_clasificacion',
-        'isl_valor', 'isl_interpretacion',
+        // Resultado general
         'estado_general',
         'foto', 'observaciones',
     ];

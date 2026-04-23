@@ -370,6 +370,62 @@ $GRUPOS = [
                 </div>
             </div>
 
+            <!-- BLOQUE DOCUMENTOS DEL OPERADOR (planilla diaria + ensayo microbiologico) -->
+            <?php
+            $ensayoMicro = null;
+            foreach (($ensayos ?? []) as $ens) {
+                if (($ens['tipo'] ?? '') === 'MICROBIOLOGICO') { $ensayoMicro = $ens; break; }
+            }
+            ?>
+            <div class="accordion-item">
+                <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#secDocsOperador">Documentos del operador</button></h2>
+                <div id="secDocsOperador" class="accordion-collapse collapse" data-bs-parent="#accordionPis">
+                    <div class="accordion-body">
+                        <h6 class="mb-1"><i class="fas fa-clipboard-list me-1"></i> Planilla diaria de operaciones (Art. 16 Res 234)</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            El operador lleva un libro/registro sistematizado con valores diarios (pH, cloro, transparencia, temperatura, Langelier). Sube foto(s) de la planilla de la semana actual. Sube las evidencias en <strong>"Evidencias fotograficas - documentacion"</strong> categoria <em>Planilla diaria</em> (el bloque de evidencias del maestro ya lo soporta).
+                        </div>
+
+                        <hr>
+
+                        <h6 class="mb-1"><i class="fas fa-vials me-1"></i> Ultimo ensayo microbiologico (Art. 6 Res 234)</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            El operador debe exhibir ensayo microbiologico del ultimo trimestre (realizado por laboratorio privado acreditado). El consultor SST solo verifica vigencia y acreditacion; <strong>no interpreta UFC</strong>.
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6 col-md-3">
+                                <label class="form-label" style="font-size:12px;">Fecha del ensayo</label>
+                                <input type="date" name="ensayo_microbiologico_fecha" id="ensayoMicroFecha" class="form-control form-control-sm" value="<?= esc($ensayoMicro['fecha_toma'] ?? '') ?>">
+                                <div id="ensayoMicroVigencia" style="font-size:10px; margin-top:2px;"></div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label" style="font-size:12px;">Laboratorio</label>
+                                <input type="text" name="ensayo_microbiologico_lab" class="form-control form-control-sm" value="<?= esc($ensayoMicro['laboratorio'] ?? '') ?>" placeholder="Ej: ACQUA Laboratorio S.A.S">
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label" style="font-size:12px;">Laboratorio acreditado</label>
+                                <select name="ensayo_microbiologico_acreditado" class="form-select form-select-sm">
+                                    <?php $a = $ensayoMicro['laboratorio_acreditado'] ?? 'NA'; foreach (['SI','NO','NA'] as $o): ?><option value="<?= $o ?>" <?= $a===$o?'selected':'' ?>><?= $o ?></option><?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label" style="font-size:12px;">Informe reporta cumplimiento</label>
+                                <select name="ensayo_microbiologico_cumplimiento" class="form-select form-select-sm">
+                                    <?php $c = $ensayoMicro['reporta_cumplimiento'] ?? 'NA'; foreach (['SI','NO','NA'] as $o): ?><option value="<?= $o ?>" <?= $c===$o?'selected':'' ?>><?= $o ?></option><?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" style="font-size:12px;">Observaciones</label>
+                            <textarea name="ensayo_microbiologico_obs" class="form-control form-control-sm" rows="2" placeholder="Notas del consultor SST"><?= esc($ensayoMicro['observaciones'] ?? '') ?></textarea>
+                        </div>
+                        <div class="form-text" style="font-size:10px;">
+                            Sube la foto/PDF del informe en el bloque <strong>"Evidencias fotograficas"</strong> categoria <em>Ensayo microbiologico</em>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- BLOQUE PISCINAS -->
             <div class="accordion-item">
                 <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#secPiscinas">Piscinas inspeccionadas (<span id="countPis"><?= count($piscinas ?? []) ?></span>)</button></h2>
@@ -421,17 +477,7 @@ $GRUPOS = [
 
 <script>
 const GRUPOS = <?= json_encode($GRUPOS) ?>;
-const PARAMETROS = <?= json_encode($parametrosCfg ?? []) ?>;
-const RANGOS_REF = {
-    'pH': '6.8 - 7.3', 'cloro_libre': '1.5 - 3.5 (piscinas)', 'cloro_combinado': '≤ 0.3 (piscinas)',
-    'temperatura': '≤ 40', 'turbidez': '< 1', 'orp': '≤ 700',
-    'acido_cianurico': '20-40 ideal / ≤ 150', 'dureza_calcica': '200-400 / ≤ 700',
-    'alcalinidad_total': '60-150', 'tds': '1000-1200', 'conductividad': '2000-2400', 'bromo_total': '2.0-4.0'
-};
 const PISCINAS_INIT = <?= json_encode($piscinas ?? []) ?>;
-const PARAMETROS_INIT = <?= json_encode($parametrosMap ?? []) ?>;
-const ENSAYOS_INIT   = <?= json_encode($ensayosMap ?? []) ?>;
-const BOTIQUIN_INIT  = <?= json_encode($botiquinMap ?? []) ?>;
 const EVIDENCIAS_DET_INIT = <?= json_encode($evidenciasDetMap ?? []) ?>;
 
 function buildEnumSelect(name, value, options) {
@@ -451,84 +497,7 @@ function buildGrupo(grpKey, grp, data) {
     return '<div class="sub-block"><div class="sub-block-title">' + grp.label + '</div><div class="row g-1">' + rows + '</div></div>';
 }
 
-function buildParametros(data, idPisc) {
-    // data viene como array de filas [{parametro, valor, observaciones, ...}, ...]
-    // Lo convertimos a mapa { pH: {valor, observaciones}, cloro_libre: {...}, ... }
-    // para poder precargar los valores existentes al editar.
-    const paramMap = {};
-    if (Array.isArray(data)) {
-        data.forEach(r => {
-            if (!r || !r.parametro) return;
-            paramMap[r.parametro] = { valor: r.valor, observaciones: r.observaciones };
-        });
-    } else if (data && typeof data === 'object') {
-        Object.assign(paramMap, data);
-    }
-
-    let rows = '';
-    Object.keys(PARAMETROS).forEach(key => {
-        const cfg = PARAMETROS[key];
-        const rec = paramMap[key] || {};
-        const val = (rec.valor !== undefined && rec.valor !== null) ? rec.valor : '';
-        const obs = rec.observaciones || '';
-        const rango = RANGOS_REF[key] || '';
-        rows += '<div class="row g-1 mb-1 align-items-center">' +
-                '<div class="col-5"><label class="small-label">' + cfg.label + (cfg.unidad ? ' (' + cfg.unidad + ')' : '') + '</label><div style="font-size:9px;color:#888;">Rango: ' + rango + '</div></div>' +
-                '<div class="col-3"><input type="number" step="0.01" name="param_' + key + '[]" class="form-control form-control-sm" value="' + val + '"></div>' +
-                '<div class="col-4"><input type="text" name="param_' + key + '_obs[]" class="form-control form-control-sm" placeholder="obs." value="' + (obs || '').replace(/"/g, '&quot;') + '"></div>' +
-                '</div>';
-    });
-    return '<div class="sub-block" style="background:#f0f7ff;"><div class="sub-block-title">Parametros in situ del dia (Anexo I Res 234/2026)</div>' + rows + '</div>';
-}
-
-function buildEnsayos(ensayosData) {
-    const arr = ensayosData || [];
-    const micro = arr.find(e => e.tipo === 'MICROBIOLOGICO') || {};
-    const fq    = arr.find(e => e.tipo === 'FISICOQUIMICO') || {};
-
-    const microHtml = `
-        <div class="row g-1">
-            <div class="col-6 col-md-3"><label class="small-label">Fecha toma</label><input type="date" name="ensayo_microbiologico_fecha[]" class="form-control form-control-sm" value="${micro.fecha_toma || ''}"></div>
-            <div class="col-6 col-md-3"><label class="small-label">Laboratorio</label><input type="text" name="ensayo_microbiologico_lab[]" class="form-control form-control-sm" value="${(micro.laboratorio || '').replace(/"/g, '&quot;')}"></div>
-            <div class="col-6 col-md-3"><label class="small-label">N° informe</label><input type="text" name="ensayo_microbiologico_informe[]" class="form-control form-control-sm" value="${(micro.numero_informe || '').replace(/"/g, '&quot;')}"></div>
-            <div class="col-6 col-md-3"><label class="small-label">Norma citada</label><input type="text" name="ensayo_microbiologico_norma[]" class="form-control form-control-sm" value="${(micro.norma_citada || '').replace(/"/g, '&quot;')}"></div>
-            <div class="col-6 col-md-2"><label class="small-label">Heterotrofos UFC</label><input type="number" step="0.01" name="ensayo_microbiologico_heterotrofos[]" class="form-control form-control-sm" value="${micro.heterotrofos_ufc || ''}"></div>
-            <div class="col-6 col-md-2"><label class="small-label">Coliformes UFC</label><input type="number" step="0.01" name="ensayo_microbiologico_coliformes[]" class="form-control form-control-sm" value="${micro.coliformes_termotolerantes_ufc || ''}"></div>
-            <div class="col-6 col-md-2"><label class="small-label">E.coli UFC</label><input type="number" step="0.01" name="ensayo_microbiologico_ecoli[]" class="form-control form-control-sm" value="${micro.ecoli_ufc || ''}"></div>
-            <div class="col-6 col-md-2"><label class="small-label">Pseudomonas UFC</label><input type="number" step="0.01" name="ensayo_microbiologico_pseudomonas[]" class="form-control form-control-sm" value="${micro.pseudomonas_ufc || ''}"></div>
-            <div class="col-6 col-md-2"><label class="small-label">Legionella UFC</label><input type="number" step="0.01" name="ensayo_microbiologico_legionella[]" class="form-control form-control-sm" value="${micro.legionella_ufc || ''}"></div>
-            <div class="col-6 col-md-2"><label class="small-label">Conforme global</label>${buildEnumSelect('ensayo_microbiologico_conforme[]', micro.conforme_global || 'NA', ['SI','NO','PARCIAL','NA'])}</div>
-        </div>`;
-
-    const fqHtml = `
-        <div class="row g-1">
-            <div class="col-6 col-md-3"><label class="small-label">Fecha toma</label><input type="date" name="ensayo_fisicoquimico_fecha[]" class="form-control form-control-sm" value="${fq.fecha_toma || ''}"></div>
-            <div class="col-6 col-md-3"><label class="small-label">Laboratorio</label><input type="text" name="ensayo_fisicoquimico_lab[]" class="form-control form-control-sm" value="${(fq.laboratorio || '').replace(/"/g, '&quot;')}"></div>
-            <div class="col-6 col-md-3"><label class="small-label">N° informe</label><input type="text" name="ensayo_fisicoquimico_informe[]" class="form-control form-control-sm" value="${(fq.numero_informe || '').replace(/"/g, '&quot;')}"></div>
-            <div class="col-6 col-md-3"><label class="small-label">Norma citada</label><input type="text" name="ensayo_fisicoquimico_norma[]" class="form-control form-control-sm" value="${(fq.norma_citada || '').replace(/"/g, '&quot;')}"></div>
-            <div class="col-6 col-md-3"><label class="small-label">Conforme global</label>${buildEnumSelect('ensayo_fisicoquimico_conforme[]', fq.conforme_global || 'NA', ['SI','NO','PARCIAL','NA'])}</div>
-            <div class="col-12 col-md-9"><label class="small-label">Observaciones</label><input type="text" name="ensayo_fisicoquimico_obs[]" class="form-control form-control-sm" value="${(fq.observaciones || '').replace(/"/g, '&quot;')}"></div>
-        </div>`;
-
-    const iaHtml = `
-        <div class="alert alert-info mb-2" style="font-size:10px;padding:4px 8px;margin-top:4px;">
-            <i class="fas fa-wand-magic-sparkles"></i>
-            <strong>Acelera captura:</strong> sube el PDF del informe y la IA llenara los campos automaticamente.
-            <div class="d-flex gap-1 mt-1">
-                <input type="file" class="form-control form-control-sm ia-ensayo-file" accept="application/pdf" style="flex:1;">
-                <button type="button" class="btn btn-sm btn-primary ia-ensayo-btn" data-tipo="MICROBIOLOGICO" style="font-size:10px;">Leer Micro</button>
-                <button type="button" class="btn btn-sm btn-warning ia-ensayo-btn" data-tipo="FISICOQUIMICO" style="font-size:10px;">Leer Fisicoquimico</button>
-            </div>
-            <div class="ia-ensayo-status" style="font-size:10px;color:#666;margin-top:2px;"></div>
-        </div>`;
-
-    return '<div class="sub-block" style="background:#fff8f3;"><div class="sub-block-title">Ensayos de laboratorio (trimestral Res 234/2026)</div>' +
-           iaHtml +
-           '<div class="small-label mb-1">Microbiologico</div>' + microHtml +
-           '<hr style="margin:6px 0;"><div class="small-label mb-1">Fisico-quimico</div>' + fqHtml + '</div>';
-}
-
-function buildPiscinaRow(num, data, paramsData, ensayosData) {
+function buildPiscinaRow(num, data) {
     data = data || {};
     const esNueva = !data.id;
     const idInput = esNueva ? '' : '<input type="hidden" name="item_id[]" value="' + data.id + '">';
@@ -576,23 +545,16 @@ function buildPiscinaRow(num, data, paramsData, ensayosData) {
         '<div class="col-6"><label class="small-label">Cubiculos hombres</label><input type="number" min="0" name="item_cubiculos_duchas_hombres[]" class="form-control form-control-sm" value="' + (data.cubiculos_duchas_hombres || 0) + '"></div>' +
         '</div></div>';
 
-    // Botiquín tipo
-    html += '<div class="sub-block"><div class="sub-block-title">Botiquin (Anexo III Res 234)</div><div class="row g-1">' +
-        '<div class="col-6"><label class="small-label">Tipo</label><select name="item_botiquin_tipo[]" class="form-select form-select-sm">' + botiqOpts + '</select></div>' +
-        '<div class="col-6"><div class="small-label">A&lt;500m² · B 500-2000 · C &gt;2000</div></div>' +
+    // Botiquín — simplificado: tipo (ref) + foto + observaciones de faltantes
+    const fotoBotiquinHtml = data.foto_botiquin
+        ? '<div class="mb-1"><img src="' + '<?= base_url('/') ?>' + data.foto_botiquin + '" style="max-width:100px;max-height:80px;cursor:pointer;border:1px solid #ccc;border-radius:4px;" onclick="openPhoto(this.src)"></div>'
+        : '';
+    html += '<div class="sub-block" style="background:#fff9e5;"><div class="sub-block-title">Botiquin de primeros auxilios (Art. 18 + Anexo III Res 234)</div>' +
+        '<div class="row g-1">' +
+        '<div class="col-6 col-md-3"><label class="small-label">Tipo exigido</label><select name="item_botiquin_tipo[]" class="form-select form-select-sm">' + botiqOpts + '</select><div style="font-size:9px;color:#888;">A&lt;500m² · B 500-2000 · C &gt;2000</div></div>' +
+        '<div class="col-12 col-md-3">' + fotoBotiquinHtml + '<label class="small-label"><i class="fas fa-images me-1"></i>Foto del botiquin</label><input type="file" name="item_foto_botiquin[]" class="form-control form-control-sm" accept="image/*"></div>' +
+        '<div class="col-12 col-md-6"><label class="small-label">Observaciones / faltantes</label><textarea name="item_botiquin_observaciones_faltantes[]" class="form-control form-control-sm" rows="3" placeholder="Ej: Falta tijeras corta-todo, venda de algodon 3x5, yodopovidona...">' + (data.botiquin_observaciones_faltantes || '') + '</textarea></div>' +
         '</div></div>';
-
-    // Libro fecha
-    html += '<div class="sub-block"><div class="sub-block-title">Libro diario</div><div class="row g-1">' +
-        '<div class="col-4"><label class="small-label">Fecha ultima semana</label><input type="date" name="item_libro_ultima_semana_fecha[]" class="form-control form-control-sm" value="' + (data.libro_ultima_semana_fecha || '') + '"></div>' +
-        '<div class="col-8"><label class="small-label">Obs. libro</label><input type="text" name="item_libro_observaciones[]" class="form-control form-control-sm" value="' + (data.libro_observaciones || '').replace(/"/g, '&quot;') + '"></div>' +
-        '</div></div>';
-
-    // Parámetros
-    html += buildParametros(paramsData, num);
-
-    // Ensayos
-    html += buildEnsayos(ensayosData);
 
     // Foto principal + observaciones
     const fotoHtml = data.foto
@@ -701,7 +663,30 @@ document.addEventListener('change', function(e) {
     preview.innerHTML = '<img src="' + url + '" style="max-width:110px;max-height:85px;border:2px solid #1b7e3f;border-radius:4px;display:block;margin-bottom:2px;"><span style="font-size:10px;color:#1b7e3f;"><i class="fas fa-check"></i> ' + nombreCorto + '</span>';
 });
 
+// Vigencia del ensayo microbiologico: badge rojo si >90 dias, verde si <=90
+function actualizarVigenciaEnsayoMicro() {
+    const input = document.getElementById('ensayoMicroFecha');
+    const out = document.getElementById('ensayoMicroVigencia');
+    if (!input || !out) return;
+    const v = input.value;
+    if (!v) { out.innerHTML = ''; return; }
+    const ensayo = new Date(v + 'T00:00:00');
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const diff = Math.floor((hoy - ensayo) / (1000 * 60 * 60 * 24));
+    if (diff < 0) {
+        out.innerHTML = '<span style="color:#888;">Fecha futura ?</span>';
+    } else if (diff <= 90) {
+        out.innerHTML = '<span style="color:#1b7e3f;font-weight:700;">Vigente (' + diff + ' dias)</span>';
+    } else {
+        out.innerHTML = '<span style="color:#c0392b;font-weight:700;">VENCIDO (' + diff + ' dias > 90) - exigir renovacion</span>';
+    }
+}
+document.addEventListener('input', (e) => {
+    if (e.target && e.target.id === 'ensayoMicroFecha') actualizarVigenciaEnsayoMicro();
+});
+
 document.addEventListener('DOMContentLoaded', function() {
+    actualizarVigenciaEnsayoMicro();
     // --- Eliminar evidencia maestro (marca ID y oculta la miniatura) ---
     document.querySelectorAll('.btn-remove-evidencia').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -728,98 +713,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('piscinasContainer');
     if (PISCINAS_INIT.length > 0) {
         PISCINAS_INIT.forEach((p, i) => {
-            const idDet = p.id;
-            container.insertAdjacentHTML('beforeend', buildPiscinaRow(i + 1, p, PARAMETROS_INIT[idDet] || [], ENSAYOS_INIT[idDet] || []));
-            // convertir array de paramsData a mapa clave->{valor,observaciones}
-            const arr = PARAMETROS_INIT[idDet] || [];
-            const map = {};
-            arr.forEach(x => map[x.parametro] = { valor: x.valor, observaciones: x.observaciones });
-            // re-render params con el mapa
-            const row = container.lastElementChild;
-            const paramBlock = row.querySelector('.sub-block:last-of-type').previousElementSibling;
-            // simplificación: ya los renderizamos arriba con el array, no hace falta re-render
+            container.insertAdjacentHTML('beforeend', buildPiscinaRow(i + 1, p));
         });
     } else {
-        container.insertAdjacentHTML('beforeend', buildPiscinaRow(1, {}, [], []));
+        container.insertAdjacentHTML('beforeend', buildPiscinaRow(1, {}));
     }
 
     document.getElementById('btnAddPiscina').addEventListener('click', () => {
         const n = document.querySelectorAll('.piscina-row').length + 1;
-        container.insertAdjacentHTML('beforeend', buildPiscinaRow(n, {}, [], []));
-    });
-
-    // --- IA: leer PDF de ensayo y rellenar campos ---
-    const URL_IA_ENSAYO = '<?= base_url('/inspecciones/piscinas/extraer-ensayo-ia') ?>';
-    const CSRF_NAME_PIS = '<?= csrf_token() ?>';
-    const CSRF_HASH_PIS = '<?= csrf_hash() ?>';
-
-    document.addEventListener('click', async function(e) {
-        const btn = e.target.closest('.ia-ensayo-btn');
-        if (!btn) return;
-        const tipo = btn.dataset.tipo;
-        const subBlock = btn.closest('.sub-block');
-        const fileInput = subBlock.querySelector('.ia-ensayo-file');
-        const statusEl = subBlock.querySelector('.ia-ensayo-status');
-        if (!fileInput.files || !fileInput.files[0]) {
-            statusEl.textContent = 'Adjunta primero el PDF.';
-            statusEl.style.color = '#c0392b';
-            return;
-        }
-        const file = fileInput.files[0];
-
-        const fd = new FormData();
-        fd.append('tipo', tipo);
-        fd.append('pdf', file);
-        fd.append(CSRF_NAME_PIS, CSRF_HASH_PIS);
-
-        btn.disabled = true;
-        statusEl.style.color = '#666';
-        statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Leyendo PDF con IA...';
-
-        try {
-            const resp = await fetch(URL_IA_ENSAYO, { method: 'POST', body: fd });
-            const json = await resp.json();
-            if (!json.ok) throw new Error(json.error || 'Error IA');
-
-            const d = json.data || {};
-            const piscinaRow = subBlock.closest('.piscina-row');
-            if (!piscinaRow) throw new Error('No se pudo ubicar la fila de piscina');
-
-            // Mapa de campo -> nombre del input en el DOM del bloque ensayo
-            const prefix = tipo === 'MICROBIOLOGICO' ? 'ensayo_microbiologico_' : 'ensayo_fisicoquimico_';
-            const mapa = {
-                'fecha_toma':       prefix + 'fecha',
-                'laboratorio':      prefix + 'lab',
-                'numero_informe':   prefix + 'informe',
-                'norma_citada':     prefix + 'norma',
-                'conforme_global':  prefix + 'conforme',
-                'observaciones':    prefix + 'obs',
-            };
-            if (tipo === 'MICROBIOLOGICO') {
-                Object.assign(mapa, {
-                    'heterotrofos_ufc': 'ensayo_microbiologico_heterotrofos',
-                    'coliformes_termotolerantes_ufc': 'ensayo_microbiologico_coliformes',
-                    'ecoli_ufc': 'ensayo_microbiologico_ecoli',
-                    'pseudomonas_ufc': 'ensayo_microbiologico_pseudomonas',
-                    'legionella_ufc': 'ensayo_microbiologico_legionella',
-                });
-            }
-            let llenados = 0;
-            for (const [srcKey, targetName] of Object.entries(mapa)) {
-                const v = d[srcKey];
-                if (v === undefined || v === null || v === '') continue;
-                const el = piscinaRow.querySelector('[name="' + targetName + '[]"]');
-                if (el) { el.value = v; llenados++; }
-            }
-
-            statusEl.style.color = '#1b7e3f';
-            statusEl.innerHTML = '<i class="fas fa-check"></i> ' + llenados + ' campos llenados por IA. Revisa y ajusta.';
-        } catch (err) {
-            statusEl.style.color = '#c0392b';
-            statusEl.innerHTML = '<i class="fas fa-xmark"></i> ' + err.message;
-        } finally {
-            btn.disabled = false;
-        }
+        container.insertAdjacentHTML('beforeend', buildPiscinaRow(n, {}));
     });
 
     container.addEventListener('click', (e) => {
