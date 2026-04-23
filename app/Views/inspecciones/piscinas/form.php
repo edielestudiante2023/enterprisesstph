@@ -115,9 +115,45 @@ $GRUPOS = [
                             <div class="col-6 col-md-3"><label class="form-label" style="font-size:12px;">Contacto</label><input type="text" name="contacto_empresa_mantenimiento" class="form-control form-control-sm" value="<?= esc($inspeccion['contacto_empresa_mantenimiento'] ?? '') ?>"></div>
                         </div>
                         <hr>
-                        <h6 class="mb-2">Concepto sanitario Secretaria de Salud</h6>
+                        <?php
+                        /**
+                         * Componente multi-foto para evidencia maestro.
+                         * - Muestra las fotos existentes como miniaturas con botón de eliminar.
+                         * - Permite seleccionar N fotos nuevas (accept="image/*", multiple).
+                         */
+                        $renderEvidenciaMultiFoto = function($campoCodigo) use ($evidenciasMap) {
+                            $rows = $evidenciasMap[$campoCodigo] ?? [];
+                            $html = '<div class="col-12 mb-3"><label class="form-label" style="font-size:11px;"><i class="fas fa-images me-1"></i> Evidencias fotograficas (galeria - multiples)</label>';
+                            if (!empty($rows)) {
+                                $html .= '<div class="d-flex flex-wrap gap-2 mb-2" style="border:1px dashed #ccc; padding:6px; border-radius:4px; background:#fafafa;">';
+                                foreach ($rows as $r) {
+                                    $id = (int)$r['id'];
+                                    $src = base_url('/' . $r['foto_path']);
+                                    $html .= '<div class="evidencia-thumb" data-id="' . $id . '" style="position:relative; width:90px; height:90px;">'
+                                        . '<img src="' . $src . '" style="width:90px;height:90px;object-fit:cover;border:1px solid #bbb;border-radius:4px;cursor:pointer;" onclick="openPhoto(\'' . $src . '\')">'
+                                        . '<button type="button" class="btn-remove-evidencia" data-id="' . $id . '" title="Eliminar" style="position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:#c0392b;color:#fff;border:none;font-size:12px;line-height:20px;padding:0;cursor:pointer;">×</button>'
+                                        . '</div>';
+                                }
+                                $html .= '</div>';
+                            }
+                            $html .= '<input type="file" name="item_foto_' . $campoCodigo . '[]" class="form-control form-control-sm" accept="image/*" multiple>';
+                            $html .= '<div class="form-text" style="font-size:10px;">Puedes seleccionar varias fotos a la vez. Se anadiran a las existentes.</div>';
+                            $html .= '</div>';
+                            return $html;
+                        };
+                        ?>
+
+                        <!-- Holder oculto para IDs de evidencias a eliminar (lo llena JS) -->
+                        <div id="evidenciasBorrarHolder" style="display:none;"></div>
+
+                        <!-- CONCEPTO SANITARIO -->
+                        <h6 class="mb-1">Concepto sanitario Secretaria de Salud</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            Art. 10 Res 234/2026: documento emitido por la autoridad sanitaria (Secretaria de Salud) tras fiscalizar el estanque.
+                            Concepto <strong>desfavorable</strong> (Art. 11 num 2) dispara priorizacion de muestreo.
+                        </div>
                         <div class="row g-2 mb-3">
-                            <div class="col-6 col-md-4">
+                            <div class="col-6 col-md-3">
                                 <label class="form-label" style="font-size:12px;">Estado</label>
                                 <select name="concepto_sanitario" class="form-select form-select-sm">
                                     <?php $cs = $inspeccion['concepto_sanitario'] ?? 'no_emitido'; foreach (['favorable'=>'Favorable','desfavorable'=>'Desfavorable','no_emitido'=>'No emitido'] as $v=>$lbl): ?>
@@ -125,52 +161,163 @@ $GRUPOS = [
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-6 col-md-4"><label class="form-label" style="font-size:12px;">Fecha</label><input type="date" name="concepto_sanitario_fecha" class="form-control form-control-sm" value="<?= $inspeccion['concepto_sanitario_fecha'] ?? '' ?>"></div>
-                            <div class="col-12 col-md-4"><label class="form-label" style="font-size:12px;">Observaciones</label><input type="text" name="concepto_sanitario_observaciones" class="form-control form-control-sm" value="<?= esc($inspeccion['concepto_sanitario_observaciones'] ?? '') ?>"></div>
+                            <div class="col-6 col-md-2"><label class="form-label" style="font-size:12px;">Fecha</label><input type="date" name="concepto_sanitario_fecha" class="form-control form-control-sm" value="<?= $inspeccion['concepto_sanitario_fecha'] ?? '' ?>"></div>
+                            <div class="col-12 col-md-3"><label class="form-label" style="font-size:12px;">Observaciones</label><input type="text" name="concepto_sanitario_observaciones" class="form-control form-control-sm" value="<?= esc($inspeccion['concepto_sanitario_observaciones'] ?? '') ?>"></div>
+                            <?= $renderEvidenciaMultiFoto('concepto_sanitario') ?>
                         </div>
                         <hr>
-                        <h6 class="mb-2">DEA (Art. 18)</h6>
+
+                        <!-- DEA -->
+                        <h6 class="mb-1">DEA — Desfibrilador Externo Automatico (Art. 18)</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            Equipo portatil que aplica descarga electrica en paro cardiaco. Art. 18 Res 234/2026 lo exige por alta afluencia.
+                            <strong>Verifique:</strong> presencia fisica, bateria OK, ubicacion visible con aviso pictograma DEA, personal con curso vigente (BLS / primeros auxilios).
+                        </div>
                         <div class="row g-2 mb-3">
                             <?php foreach (['dea_presente'=>'DEA presente','dea_ubicacion_senalizada'=>'Ubicacion senalizada'] as $f=>$lbl): ?>
-                            <div class="col-6 col-md-4">
+                            <div class="col-6 col-md-3">
                                 <label class="form-label" style="font-size:12px;"><?= $lbl ?></label>
                                 <select name="<?= $f ?>" class="form-select form-select-sm">
                                     <?php $v = $inspeccion[$f] ?? 'NA'; foreach (['SI','NO','NA'] as $o): ?><option value="<?= $o ?>" <?= $v===$o?'selected':'' ?>><?= $o ?></option><?php endforeach; ?>
                                 </select>
                             </div>
                             <?php endforeach; ?>
-                            <div class="col-6 col-md-4"><label class="form-label" style="font-size:12px;">Personal capacitado (cantidad)</label><input type="number" min="0" name="dea_personal_capacitado_cantidad" class="form-control form-control-sm" value="<?= esc($inspeccion['dea_personal_capacitado_cantidad'] ?? 0) ?>"></div>
+                            <div class="col-6 col-md-2"><label class="form-label" style="font-size:12px;">Personal capacitado</label><input type="number" min="0" name="dea_personal_capacitado_cantidad" class="form-control form-control-sm" value="<?= esc($inspeccion['dea_personal_capacitado_cantidad'] ?? 0) ?>"></div>
+                            <?= $renderEvidenciaMultiFoto('dea') ?>
                         </div>
                         <hr>
-                        <h6 class="mb-2">Operador de piscinas certificado</h6>
+
+                        <!-- OPERADOR -->
+                        <h6 class="mb-1">Operador de piscinas certificado</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            Art. 11 num 7 Res 234/2026: la <strong>ausencia de operador certificado</strong> es factor de priorizacion sanitaria.
+                            Entidades que expiden certificacion: SENA, IDEAM, universidades, o autoridad sanitaria municipal.
+                        </div>
                         <div class="row g-2 mb-3">
-                            <div class="col-12 col-md-5"><label class="form-label" style="font-size:12px;">Nombre</label><input type="text" name="operador_certificado_nombre" class="form-control form-control-sm" value="<?= esc($inspeccion['operador_certificado_nombre'] ?? '') ?>"></div>
-                            <div class="col-12 col-md-4"><label class="form-label" style="font-size:12px;">Entidad certificadora</label><input type="text" name="operador_certificado_entidad" class="form-control form-control-sm" value="<?= esc($inspeccion['operador_certificado_entidad'] ?? '') ?>"></div>
-                            <div class="col-12 col-md-3"><label class="form-label" style="font-size:12px;">Vigencia</label><input type="date" name="operador_certificado_vigencia" class="form-control form-control-sm" value="<?= $inspeccion['operador_certificado_vigencia'] ?? '' ?>"></div>
+                            <div class="col-12 col-md-3"><label class="form-label" style="font-size:12px;">Nombre</label><input type="text" name="operador_certificado_nombre" class="form-control form-control-sm" value="<?= esc($inspeccion['operador_certificado_nombre'] ?? '') ?>"></div>
+                            <div class="col-12 col-md-3"><label class="form-label" style="font-size:12px;">Entidad certificadora</label><input type="text" name="operador_certificado_entidad" class="form-control form-control-sm" value="<?= esc($inspeccion['operador_certificado_entidad'] ?? '') ?>"></div>
+                            <div class="col-12 col-md-2"><label class="form-label" style="font-size:12px;">Vigencia</label><input type="date" name="operador_certificado_vigencia" class="form-control form-control-sm" value="<?= $inspeccion['operador_certificado_vigencia'] ?? '' ?>"></div>
+                            <?= $renderEvidenciaMultiFoto('operador_cert') ?>
                         </div>
                         <hr>
-                        <h6 class="mb-2">Documentacion y gestion sanitaria</h6>
+
+                        <!-- DOCUMENTACION ART 15 -->
+                        <h6 class="mb-1">Documentacion Art. 15 — 8 procedimientos obligatorios</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            La copropiedad debe tener documentado:
+                            (1) operacion y mantenimiento del agua ·
+                            (2) limpieza del sistema ·
+                            (3) cierre temporal ·
+                            (4) recoleccion de muestras y analisis in situ ·
+                            (5) protocolo de resultados fuera de rango + liberacion fecal ·
+                            (6) manejo de microorganismos no listados ·
+                            (7) libro o registro sistematizado de control ·
+                            (8) Plan de Saneamiento Basico.
+                        </div>
                         <div class="row g-2 mb-3">
-                            <?php
-                            $maestroEnumFields = [
-                                'documentacion_art15_completa'   => ['8 procedimientos Art. 15', ['SI','NO','PARCIAL','NA']],
-                                'plan_saneamiento_completo'      => ['Plan Saneamiento Basico Art. 17 (5 programas)', ['SI','NO','PARCIAL','NA']],
-                                'manejo_quimicos_conforme'       => ['Manejo de quimicos (fichas, SDS, EPP, GHS)', ['SI','NO','NA']],
-                                'area_residuos_conforme'         => ['Area de residuos conforme', ['SI','NO','NA']],
-                                'contenedores_codificados_color' => ['Contenedores codificados por color', ['SI','NO','NA']],
-                                'tablero_publico_resultados'     => ['Tablero publico con resultados mensuales', ['SI','NO','NA']],
-                            ];
-                            foreach ($maestroEnumFields as $f => [$lbl, $opts]): ?>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label" style="font-size:12px;"><?= $lbl ?></label>
-                                <select name="<?= $f ?>" class="form-select form-select-sm">
-                                    <?php $v = $inspeccion[$f] ?? 'NA'; foreach ($opts as $o): ?><option value="<?= $o ?>" <?= $v===$o?'selected':'' ?>><?= $o ?></option><?php endforeach; ?>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label" style="font-size:12px;">Estado</label>
+                                <select name="documentacion_art15_completa" class="form-select form-select-sm">
+                                    <?php $v = $inspeccion['documentacion_art15_completa'] ?? 'NA'; foreach (['SI','NO','PARCIAL','NA'] as $o): ?><option value="<?= $o ?>" <?= $v===$o?'selected':'' ?>><?= $o ?></option><?php endforeach; ?>
                                 </select>
                             </div>
-                            <?php endforeach; ?>
+                            <div class="col-12 col-md-5"><label class="form-label" style="font-size:12px;">Observaciones</label><input type="text" name="documentacion_art15_observaciones" class="form-control form-control-sm" value="<?= esc($inspeccion['documentacion_art15_observaciones'] ?? '') ?>" placeholder="Cuales faltan, cuales estan desactualizados..."></div>
+                            <?= $renderEvidenciaMultiFoto('doc_art15') ?>
                         </div>
-                        <div class="mb-2"><label class="form-label" style="font-size:12px;">Obs. documentacion Art. 15</label><textarea name="documentacion_art15_observaciones" class="form-control form-control-sm" rows="2"><?= esc($inspeccion['documentacion_art15_observaciones'] ?? '') ?></textarea></div>
-                        <div class="mb-2"><label class="form-label" style="font-size:12px;">Obs. plan de saneamiento</label><textarea name="plan_saneamiento_observaciones" class="form-control form-control-sm" rows="2"><?= esc($inspeccion['plan_saneamiento_observaciones'] ?? '') ?></textarea></div>
+                        <hr>
+
+                        <!-- PLAN SANEAMIENTO -->
+                        <h6 class="mb-1">Plan de Saneamiento Basico Art. 17 — 5 programas</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            Debe contener:
+                            (1) limpieza y desinfeccion ·
+                            (2) gestion integral de residuos solidos ·
+                            (3) gestion integral de residuos liquidos / lodos ·
+                            (4) control integrado de plagas ·
+                            (5) abastecimiento de agua para consumo humano.
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6 col-md-3">
+                                <label class="form-label" style="font-size:12px;">Estado</label>
+                                <select name="plan_saneamiento_completo" class="form-select form-select-sm">
+                                    <?php $v = $inspeccion['plan_saneamiento_completo'] ?? 'NA'; foreach (['SI','NO','PARCIAL','NA'] as $o): ?><option value="<?= $o ?>" <?= $v===$o?'selected':'' ?>><?= $o ?></option><?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-5"><label class="form-label" style="font-size:12px;">Observaciones</label><input type="text" name="plan_saneamiento_observaciones" class="form-control form-control-sm" value="<?= esc($inspeccion['plan_saneamiento_observaciones'] ?? '') ?>" placeholder="Programas que faltan o estan desactualizados..."></div>
+                            <?= $renderEvidenciaMultiFoto('plan_saneamiento') ?>
+                        </div>
+                        <hr>
+
+                        <!-- MANEJO QUIMICOS -->
+                        <h6 class="mb-1">Manejo seguro de productos quimicos (Art. 13)</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            Verifique: <strong>fichas tecnicas</strong> y <strong>Hojas de Seguridad (SDS)</strong> visibles,
+                            <strong>EPP</strong> apropiados (guantes, gafas, respirador), etiquetado <strong>GHS/SGA</strong> conforme
+                            Decreto 1496/2018 y cumplimiento del SG-SST Decreto 1072/2015.
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6 col-md-3">
+                                <label class="form-label" style="font-size:12px;">Estado</label>
+                                <select name="manejo_quimicos_conforme" class="form-select form-select-sm">
+                                    <?php $v = $inspeccion['manejo_quimicos_conforme'] ?? 'NA'; foreach (['SI','NO','NA'] as $o): ?><option value="<?= $o ?>" <?= $v===$o?'selected':'' ?>><?= $o ?></option><?php endforeach; ?>
+                                </select>
+                            </div>
+                            <?= $renderEvidenciaMultiFoto('manejo_quimicos') ?>
+                        </div>
+                        <hr>
+
+                        <!-- AREA RESIDUOS -->
+                        <h6 class="mb-1">Area de almacenamiento de residuos (Art. 14)</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            Verifique: area especifica <strong>senalizada</strong>, separada por tipo de residuo, con iluminacion y
+                            ventilacion, pisos con drenajes + rejillas protectoras, paredes lavables, que impidan ingreso de vectores.
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6 col-md-3">
+                                <label class="form-label" style="font-size:12px;">Estado</label>
+                                <select name="area_residuos_conforme" class="form-select form-select-sm">
+                                    <?php $v = $inspeccion['area_residuos_conforme'] ?? 'NA'; foreach (['SI','NO','NA'] as $o): ?><option value="<?= $o ?>" <?= $v===$o?'selected':'' ?>><?= $o ?></option><?php endforeach; ?>
+                                </select>
+                            </div>
+                            <?= $renderEvidenciaMultiFoto('area_residuos') ?>
+                        </div>
+                        <hr>
+
+                        <!-- CONTENEDORES COLOR -->
+                        <h6 class="mb-1">Contenedores codificados por color</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            <strong>Rojo</strong> = biologicos / biosanitarios (tapabocas, gasas con sangre) ·
+                            <strong>Verde</strong> = ordinarios no aprovechables ·
+                            <strong>Blanco</strong> = aprovechables (plastico, metal, carton) ·
+                            <strong>Negro</strong> = peligrosos (quimicos, tintas, envases de cloro).
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6 col-md-3">
+                                <label class="form-label" style="font-size:12px;">Estado</label>
+                                <select name="contenedores_codificados_color" class="form-select form-select-sm">
+                                    <?php $v = $inspeccion['contenedores_codificados_color'] ?? 'NA'; foreach (['SI','NO','NA'] as $o): ?><option value="<?= $o ?>" <?= $v===$o?'selected':'' ?>><?= $o ?></option><?php endforeach; ?>
+                                </select>
+                            </div>
+                            <?= $renderEvidenciaMultiFoto('contenedores_color') ?>
+                        </div>
+                        <hr>
+
+                        <!-- TABLERO PUBLICO -->
+                        <h6 class="mb-1">Tablero publico con resultados mensuales</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            Art. 16 par. 2 Res 234/2026: tablero <strong>visible y legible al publico</strong> con los resultados analiticos
+                            efectuados al agua de cada estanque. Se actualiza <strong>mensualmente</strong>.
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6 col-md-3">
+                                <label class="form-label" style="font-size:12px;">Estado</label>
+                                <select name="tablero_publico_resultados" class="form-select form-select-sm">
+                                    <?php $v = $inspeccion['tablero_publico_resultados'] ?? 'NA'; foreach (['SI','NO','NA'] as $o): ?><option value="<?= $o ?>" <?= $v===$o?'selected':'' ?>><?= $o ?></option><?php endforeach; ?>
+                                </select>
+                            </div>
+                            <?= $renderEvidenciaMultiFoto('tablero_publico') ?>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -369,7 +516,7 @@ function buildPiscinaRow(num, data, paramsData, ensayosData) {
         ? '<div class="mb-1"><img src="' + '<?= base_url('/') ?>' + data.foto + '" style="max-width:120px;max-height:90px;cursor:pointer;" onclick="openPhoto(this.src)"></div>'
         : '';
     html += '<div class="sub-block"><div class="row g-1">' +
-        '<div class="col-12 col-md-4">' + fotoHtml + '<label class="small-label">Foto</label><input type="file" name="item_foto[]" class="form-control form-control-sm" accept="image/*" capture="environment"></div>' +
+        '<div class="col-12 col-md-4">' + fotoHtml + '<label class="small-label"><i class="fas fa-images me-1"></i> Foto piscina (galeria)</label><input type="file" name="item_foto[]" class="form-control form-control-sm" accept="image/*"></div>' +
         '<div class="col-12 col-md-8"><label class="small-label">Observaciones</label><textarea name="item_observaciones[]" class="form-control form-control-sm" rows="2">' + (data.observaciones || '') + '</textarea></div>' +
         '</div></div>';
 
@@ -389,6 +536,29 @@ function renumerarPiscinas() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // --- Eliminar evidencia maestro (marca ID y oculta la miniatura) ---
+    document.querySelectorAll('.btn-remove-evidencia').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = parseInt(this.dataset.id, 10);
+            if (!id) return;
+            if (!confirm('Eliminar esta foto al guardar?')) return;
+            // Agregar input hidden con el ID
+            const holder = document.getElementById('evidenciasBorrarHolder');
+            const inp = document.createElement('input');
+            inp.type = 'hidden';
+            inp.name = 'evidencia_borrar_ids[]';
+            inp.value = id;
+            holder.appendChild(inp);
+            // Ocultar la miniatura con efecto
+            const thumb = this.closest('.evidencia-thumb');
+            if (thumb) {
+                thumb.style.opacity = '0.3';
+                thumb.style.pointerEvents = 'none';
+                thumb.setAttribute('title', 'Se eliminara al guardar');
+            }
+        });
+    });
+
     const container = document.getElementById('piscinasContainer');
     if (PISCINAS_INIT.length > 0) {
         PISCINAS_INIT.forEach((p, i) => {
