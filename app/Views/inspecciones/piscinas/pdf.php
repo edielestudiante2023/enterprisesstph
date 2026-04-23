@@ -91,7 +91,19 @@ table.data th { background: #eee; font-weight: 700; }
     <div style="font-size: 9px; margin-top: 4px;">Indice de Riesgo del Agua segun Anexo II de la Resolucion 234/2026 Minsalud.</div>
 </div>
 
-<h2>1. Datos generales del establecimiento</h2>
+<!-- INTRODUCCION / ALCANCE -->
+<h2>1. Introduccion, alcance y justificacion</h2>
+<div style="font-size: 10px; text-align: justify; line-height: 1.4;">
+    <p>El presente informe consolida los hallazgos de la inspeccion realizada por el consultor de Seguridad y Salud en el Trabajo (SST) a las piscinas y estanques de uso restringido / colectivo del cliente <strong><?= esc($cliente['nombre_cliente'] ?? '') ?></strong>, el dia <strong><?= date('d/m/Y', strtotime($inspeccion['fecha_inspeccion'])) ?></strong>.</p>
+
+    <p><strong>Alcance.</strong> Verifica el cumplimiento normativo en 4 frentes: (a) <em>infraestructura y seguridad</em> de la piscina (Ley 1209/2008), (b) <em>calidad del agua</em> con parametros fisicos, quimicos y microbiologicos (Resolucion 234 de 2026 del Ministerio de Salud y Proteccion Social, Anexo I), (c) <em>buenas practicas sanitarias</em>: manejo de quimicos, residuos, documentacion Art. 15, plan de saneamiento Art. 17 (Res 234/2026 Capitulo III), y (d) <em>dotacion de emergencia</em>: DEA, botiquines Tipo A/B/C segun superficie, flotadores, bastones (Art. 18 Res 234/2026).</p>
+
+    <p><strong>Metodo.</strong> Cada parametro in situ capturado se compara contra los valores aceptables del Anexo I y se marca Conforme (SI) / No conforme (NO) / No aplica (NA). Se calcula automaticamente el <strong>IRAPI</strong> (Indice de Riesgo del Agua, Anexo II) a partir de las mediciones, ponderando 45% microbiologicos, 20% residual de desinfectante, 30% asociados a cloracion (pH, ORP, cianurico) y 5% turbiedad. El IRAPI clasifica la piscina en Sin Riesgo (0-10), Bajo (10.1-35), Medio (35.1-75) o Alto (75.1-100). Tambien se calcula el Indice de Saturacion de Langelier (ISL) para determinar si el agua tiende a ser corrosiva, balanceada o incrustante.</p>
+
+    <p><strong>Disclaimer.</strong> Este informe identifica hallazgos de riesgo SST para la copropiedad y sirve de insumo para el plan de mejoramiento. <u>No reemplaza</u> el concepto sanitario de la Secretaria de Salud competente (Art. 10 Res 234), ni la certificacion del operador de piscinas por entidad acreditada (Art. 11 num 7), ni los ensayos de laboratorio trimestrales (Art. 6) que deben ser realizados por laboratorio privado acreditado y entregados por el responsable del establecimiento.</p>
+</div>
+
+<h2>2. Datos generales del establecimiento</h2>
 <table class="kv">
     <tr><td class="k">Cliente</td><td><?= esc($cliente['nombre_cliente'] ?? '') ?></td><td class="k">Consultor</td><td><?= esc($consultor['nombre_consultor'] ?? '') ?></td></tr>
     <tr><td class="k">Direccion</td><td colspan="3"><?= esc($cliente['direccion'] ?? '') ?></td></tr>
@@ -99,7 +111,7 @@ table.data th { background: #eee; font-weight: 700; }
     <tr><td class="k">Empresa mantenimiento</td><td><?= esc($inspeccion['empresa_mantenimiento'] ?? '') ?></td><td class="k">NIT</td><td><?= esc($inspeccion['nit_empresa_mantenimiento'] ?? '') ?></td></tr>
 </table>
 
-<h2>2. Documentacion y gestion sanitaria</h2>
+<h2>3. Documentacion y gestion sanitaria</h2>
 <table class="data">
     <tr><th>Item</th><th>Estado</th><th>Observaciones</th></tr>
     <tr><td>Concepto sanitario Secretaria de Salud</td><td><?= esc(ucfirst($inspeccion['concepto_sanitario'] ?? 'no_emitido')) ?> <?= !empty($inspeccion['concepto_sanitario_fecha']) ? '(' . date('d/m/Y', strtotime($inspeccion['concepto_sanitario_fecha'])) . ')' : '' ?></td><td><?= esc($inspeccion['concepto_sanitario_observaciones'] ?? '') ?></td></tr>
@@ -114,7 +126,7 @@ table.data th { background: #eee; font-weight: 700; }
 </table>
 
 <?php if (!empty($evidenciasMaestroB64)): ?>
-<h2>2.1 Evidencias fotograficas — documentacion y gestion sanitaria</h2>
+<h2>3.1 Evidencias fotograficas — documentacion y gestion sanitaria</h2>
 <?php foreach ($camposEvidenciaMaestro as $codigo => $label): ?>
     <?php $fotos = $evidenciasMaestroB64[$codigo] ?? []; if (empty($fotos)) continue; ?>
     <h3><?= esc($label) ?> <span style="font-size:9px;color:#777;font-weight:normal;">(<?= count($fotos) ?> foto<?= count($fotos) > 1 ? 's' : '' ?>)</span></h3>
@@ -138,7 +150,7 @@ table.data th { background: #eee; font-weight: 700; }
 
 <div class="pagebreak"></div>
 
-<h2>3. Piscinas inspeccionadas</h2>
+<h2>4. Piscinas inspeccionadas</h2>
 
 <?php foreach ($piscinas as $i => $p): $idDet = $p['id']; ?>
 <div class="piscina">
@@ -161,7 +173,7 @@ table.data th { background: #eee; font-weight: 700; }
         <tr><td class="k">Aforo piscina</td><td><?= esc($p['aforo_piscina_max'] ?? '—') ?></td><td class="k">Aforo deck</td><td><?= esc($p['aforo_deck_max'] ?? '—') ?></td></tr>
     </table>
 
-    <h3>3.<?= $i+1 ?>.1 Parametros in situ (Anexo I)</h3>
+    <h3>4.<?= $i+1 ?>.1 Parametros in situ (Anexo I)</h3>
     <?php $params = $parametrosMap[$idDet] ?? []; if (empty($params)): ?>
     <div style="font-size: 9px; color: #888;">Sin mediciones registradas.</div>
     <?php else: ?>
@@ -183,7 +195,7 @@ table.data th { background: #eee; font-weight: 700; }
     </table>
     <?php endif; ?>
 
-    <h3>3.<?= $i+1 ?>.2 Ensayos de laboratorio</h3>
+    <h3>4.<?= $i+1 ?>.2 Ensayos de laboratorio</h3>
     <?php $ensayos = $ensayosMap[$idDet] ?? []; if (empty($ensayos)): ?>
     <div style="font-size: 9px; color: #888;">Sin ensayos registrados.</div>
     <?php else: ?>
@@ -205,7 +217,7 @@ table.data th { background: #eee; font-weight: 700; }
     </table>
     <?php endif; ?>
 
-    <h3>3.<?= $i+1 ?>.3 Infraestructura, emergencia y avisos</h3>
+    <h3>4.<?= $i+1 ?>.3 Infraestructura, emergencia y avisos</h3>
     <table class="data param-tbl">
         <tr><th>Elemento</th><th>Estado</th><th>Elemento</th><th>Estado</th></tr>
         <?php
@@ -264,7 +276,7 @@ table.data th { background: #eee; font-weight: 700; }
     </table>
 
     <?php $botItems = $botiquinMap[$idDet] ?? []; if (!empty($botItems)): ?>
-    <h3>3.<?= $i+1 ?>.4 Checklist botiquin tipo <?= esc($p['botiquin_tipo']) ?> (Anexo III)</h3>
+    <h3>4.<?= $i+1 ?>.4 Checklist botiquin tipo <?= esc($p['botiquin_tipo']) ?> (Anexo III)</h3>
     <table class="data param-tbl">
         <tr><th>Item</th><th>Exigida</th><th>Observada</th><th>Estado</th></tr>
         <?php foreach ($botItems as $itm):
@@ -281,7 +293,7 @@ table.data th { background: #eee; font-weight: 700; }
     <?php endif; ?>
 
     <?php if (!empty($p['observaciones']) || !empty($p['foto_base64'])): ?>
-    <h3>3.<?= $i+1 ?>.5 Observaciones y evidencia</h3>
+    <h3>4.<?= $i+1 ?>.5 Observaciones y evidencia</h3>
     <?php if (!empty($p['observaciones'])): ?>
     <div style="margin: 4px 0; font-size: 9.5px;"><?= nl2br(esc($p['observaciones'])) ?></div>
     <?php endif; ?>
@@ -291,7 +303,7 @@ table.data th { background: #eee; font-weight: 700; }
     <?php endif; ?>
 
     <?php $detEvids = $evidenciasDetB64[$idDet] ?? []; if (!empty($detEvids)): ?>
-    <h3>3.<?= $i+1 ?>.6 Evidencias adicionales (<?= count($detEvids) ?>)</h3>
+    <h3>4.<?= $i+1 ?>.6 Evidencias adicionales (<?= count($detEvids) ?>)</h3>
     <table style="width:100%;margin-bottom:6px;"><tr>
     <?php $col = 0; foreach ($detEvids as $ev):
         if (empty($ev['foto_b64'])) continue;
@@ -310,11 +322,49 @@ table.data th { background: #eee; font-weight: 700; }
 <?php endforeach; ?>
 
 <?php if (!empty($inspeccion['recomendaciones_generales'])): ?>
-<h2>4. Recomendaciones generales</h2>
+<h2>5. Recomendaciones generales</h2>
 <div style="font-size: 10px;"><?= nl2br(esc($inspeccion['recomendaciones_generales'])) ?></div>
 <?php endif; ?>
 
-<h2>5. Marco normativo</h2>
+<div class="pagebreak"></div>
+
+<h2>6. Marco normativo aplicable</h2>
+
+<div style="font-size: 9.5px; text-align: justify; margin-bottom: 6px;">
+    La inspeccion se sustenta en el siguiente marco juridico vigente en Colombia. Cada hallazgo de este informe remite al articulado especifico que lo exige.
+</div>
+
+<h3 style="font-size: 11px;">6.1 Jerarquia normativa</h3>
+<table class="data" style="font-size: 9px;">
+    <tr><th style="width: 22%;">Norma</th><th style="width: 30%;">Entidad emisora</th><th>Alcance</th></tr>
+    <tr><td><strong>Ley 9 de 1979</strong></td><td>Congreso de la Republica</td><td>Codigo Sanitario Nacional. Arts. 222, 227 y 229 regulan agua de piscinas, personal capacitado en primeros auxilios y equipos de control del agua.</td></tr>
+    <tr><td><strong>Ley 1209 de 2008</strong></td><td>Congreso de la Republica</td><td>Normas de seguridad en piscinas de uso colectivo: cerramientos, alarmas de inmersion, drenajes antiatrapamiento, senalizacion, dotacion de emergencia, salvavidas con RCP.</td></tr>
+    <tr><td><strong>Decreto 554 de 2015</strong></td><td>Ministerio de Salud</td><td>Reglamenta la Ley 1209 (Art. 5 al 14): estandares tecnicos de elementos de seguridad obligatorios.</td></tr>
+    <tr><td><strong>Decreto 780 de 2016</strong></td><td>Ministerio de Salud</td><td>Unico reglamentario del sector salud. Titulo 8 (Arts. 2.8.7.x) regula piscinas y estructuras similares, competencias de autoridades sanitarias, concepto sanitario.</td></tr>
+    <tr><td><strong>Resolucion 234 de 2026</strong></td><td>Ministerio de Salud y Proteccion Social</td><td><strong>Norma central de este informe.</strong> Criterios de calidad del agua (Anexo I), IRAPI (Anexo II), contenido del botiquin (Anexo III), buenas practicas sanitarias.</td></tr>
+    <tr><td><strong>Decreto 1072 de 2015</strong></td><td>Ministerio del Trabajo</td><td>SG-SST. Aplica al personal operario de la piscina (dosificacion de quimicos, EPP, examenes medicos).</td></tr>
+    <tr><td><strong>Decreto 1496 de 2018</strong></td><td>Ministerio del Trabajo</td><td>Sistema Globalmente Armonizado (SGA/GHS) para el etiquetado de productos quimicos utilizados en el tratamiento del agua.</td></tr>
+</table>
+
+<h3 style="font-size: 11px;">6.2 Articulos especificos de la Resolucion 234 de 2026 evaluados</h3>
+<table class="data" style="font-size: 9px;">
+    <tr><th style="width: 14%;">Articulo</th><th style="width: 28%;">Tema</th><th>Como se evalua en este informe</th></tr>
+    <tr><td><strong>Art. 4</strong></td><td>Fuente de abastecimiento</td><td>Se verifica si el agua proviene de acueducto o fuente natural con analisis fisico-quimico y microbiologico de referencia.</td></tr>
+    <tr><td><strong>Art. 5</strong></td><td>Dosificacion segura</td><td>Tres chequeos: dosificacion independiente por quimico, sistema de seguridad por retorno de flujo, prohibicion de dosificacion manual con publico.</td></tr>
+    <tr><td><strong>Art. 6</strong></td><td>Muestras de control</td><td>Parametros fisicos y quimicos: ejecucion diaria (pH, cloros, temperatura, color, olor, transparencia) + trimestral con laboratorio (turbidez, ORP, TDS, microbiologicos).</td></tr>
+    <tr><td><strong>Art. 7</strong></td><td>Equipos in situ</td><td>Equipos calibrados para analisis rutinario: evidenciado por la existencia del libro de registro diario.</td></tr>
+    <tr><td><strong>Art. 9 + Anexo II</strong></td><td>IRAPI</td><td>Se calcula automaticamente desde los parametros capturados: VCM(45%) + VCR(20%) + VAC(30%) + VCT(5%). Clasificacion: 0-10 Sin riesgo, 10.1-35 Bajo, 35.1-75 Medio, 75.1-100 Alto.</td></tr>
+    <tr><td><strong>Art. 10</strong></td><td>Concepto sanitario</td><td>Documento emitido por Secretaria de Salud. Se registra estado (favorable/desfavorable/no emitido), fecha y foto.</td></tr>
+    <tr><td><strong>Art. 11 num 7</strong></td><td>Operador certificado</td><td>Se documenta nombre, entidad certificadora (SENA, IDEAM, universidad, autoridad municipal) y vigencia.</td></tr>
+    <tr><td><strong>Art. 13</strong></td><td>Manejo quimicos</td><td>Fichas tecnicas, Hojas de Seguridad (SDS), EPP, etiquetado GHS.</td></tr>
+    <tr><td><strong>Art. 14</strong></td><td>Area residuos</td><td>Area senalizada, separada por tipo, con iluminacion, ventilacion, pisos con drenajes.</td></tr>
+    <tr><td><strong>Art. 15</strong></td><td>8 procedimientos obligatorios</td><td>(1) operacion del agua, (2) limpieza del sistema, (3) cierre temporal, (4) muestras, (5) resultados fuera de rango + liberacion fecal, (6) microorganismos no listados, (7) libro de control, (8) plan saneamiento.</td></tr>
+    <tr><td><strong>Art. 16</strong></td><td>Libro de registro</td><td>Registro sistematizado con pH, cloros, transparencia, ISL, productos, caudal, retrolavado, bañistas, horas de operacion, volumen de reposicion. Par. 2: publicacion mensual visible al publico.</td></tr>
+    <tr><td><strong>Art. 17</strong></td><td>Plan saneamiento</td><td>5 programas: (1) limpieza y desinfeccion, (2) residuos solidos, (3) residuos liquidos, (4) control integrado plagas, (5) abastecimiento agua potable.</td></tr>
+    <tr><td><strong>Art. 18 + Anexo III</strong></td><td>Dotacion de emergencia</td><td>DEA con personal capacitado, botiquin por m² (Tipo A &lt;500 / Tipo B 500-2000 / Tipo C &gt;2000) con items listados en Anexo III, 2 flotadores circulares, baston con gancho.</td></tr>
+</table>
+
+<h3 style="font-size: 11px; margin-top: 8px;">6.3 Resumen congelado al finalizar</h3>
 <div style="font-size: 9px; color: #555; text-align: justify;">
     <?= esc($marcoNormativo) ?>
 </div>
