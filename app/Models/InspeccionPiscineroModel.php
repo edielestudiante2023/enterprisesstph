@@ -20,6 +20,10 @@ class InspeccionPiscineroModel extends Model
         'dotacion_epp_entregada',
         'gafas_proteccion_quimica', 'guantes_nitrilo', 'careta_proteccion', 'delantal_impermeable',
         'capacitacion_manejo_quimicos', 'conocimiento_hojas_seguridad', 'conocimiento_plan_emergencia',
+        // Res 234/2026 alineacion
+        'certificacion_operador_piscinas', 'operador_entidad_certificadora',
+        'operador_vigencia', 'foto_certificado_operador',
+        'capacitacion_dosificacion_quimica',
         'horario_cubre_operacion_piscina', 'horario_inicio', 'horario_fin',
         'foto_piscinero',
         'observaciones',

@@ -40,6 +40,79 @@ class EmergencyProcedureIAService
     }
 
     /**
+     * Extrae campos de un ensayo de laboratorio (microbiologico o fisicoquimico)
+     * a partir del PDF enviado por el consultor. Usa la API Claude con contenido
+     * tipo "document" (PDF nativo).
+     *
+     * @param string $pdfAbsolutePath Ruta absoluta al PDF.
+     * @param string $tipoHint         'MICROBIOLOGICO' o 'FISICOQUIMICO' para guiar el parseo.
+     * @return array ['ok'=>bool, 'data'=>array con campos extraidos, 'error'=>string]
+     */
+    public function extraerEnsayoDesdePDF(string $pdfAbsolutePath, string $tipoHint = 'MICROBIOLOGICO'): array
+    {
+        if (empty($this->apiKey)) return ['ok'=>false,'error'=>'ANTHROPIC_API_KEY no configurada'];
+        if (!file_exists($pdfAbsolutePath)) return ['ok'=>false,'error'=>'PDF no encontrado: ' . $pdfAbsolutePath];
+
+        $pdfB64 = base64_encode(file_get_contents($pdfAbsolutePath));
+
+        $tipoLbl = $tipoHint === 'FISICOQUIMICO' ? 'fisicoquimico' : 'microbiologico';
+        $prompt = <<<PROMPT
+Eres un lector experto de informes de laboratorio de calidad de agua para piscinas en Colombia, bajo la Resolucion 234/2026 del Minsalud.
+
+Analiza el PDF adjunto (informe de ensayo {$tipoLbl}) y extrae los siguientes campos.
+Si un campo no aparece, devuelve cadena vacia.
+
+Campos a extraer:
+- fecha_toma            (formato YYYY-MM-DD o vacio)
+- fecha_emision         (formato YYYY-MM-DD o vacio)
+- laboratorio           (razon social)
+- laboratorio_nit       (NIT con guiones si aparece)
+- numero_informe        (codigo del informe, ej A25-0799)
+- norma_citada          (nombre completo de la resolucion/decreto que cita el informe)
+- heterotrofos_ufc      (numero decimal, ej 1, 10, 200)
+- coliformes_termotolerantes_ufc
+- ecoli_ufc
+- pseudomonas_ufc
+- legionella_ufc
+- conforme_global       ("SI", "NO" o "PARCIAL" segun diga el informe)
+- observaciones         (alerta si el informe cita una resolucion derogada antes de 2026)
+
+Convierte "<1" a 0. Convierte "Ausencia" / "Presencia" a 0 y 1 respectivamente.
+
+Devuelve EXCLUSIVAMENTE un objeto JSON valido con esas claves. Sin texto adicional ni markdown.
+PROMPT;
+
+        $payload = [
+            'model'      => $this->model,
+            'max_tokens' => 1500,
+            'messages'   => [[
+                'role' => 'user',
+                'content' => [
+                    ['type' => 'document', 'source' => ['type'=>'base64', 'media_type'=>'application/pdf', 'data'=>$pdfB64]],
+                    ['type' => 'text', 'text' => $prompt],
+                ],
+            ]],
+        ];
+
+        $resp = $this->request($payload);
+        if (!$resp['ok']) return $resp;
+
+        $texto = $resp['data']['content'][0]['text'] ?? '';
+        $json  = $this->extraerJSON($texto);
+        if ($json === null) return ['ok'=>false, 'error'=>'Respuesta IA no es JSON valido', 'raw'=>$texto];
+
+        return [
+            'ok'     => true,
+            'data'   => $json,
+            'modelo' => $this->model,
+            'tokens' => [
+                'in'  => $resp['data']['usage']['input_tokens'] ?? 0,
+                'out' => $resp['data']['usage']['output_tokens'] ?? 0,
+            ],
+        ];
+    }
+
+    /**
      * Ping de prueba.
      */
     public function ping(): array

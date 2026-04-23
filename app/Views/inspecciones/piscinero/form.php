@@ -152,6 +152,35 @@ $sn = function($name) use ($inspeccion) {
                             <?php endif; ?>
                             <input type="file" name="foto_certificado_salvamento" class="form-control form-control-sm" accept="image/*">
                         </div>
+
+                        <hr>
+                        <h6 class="mb-1">Operador de piscinas certificado (Res 234/2026 Art. 11 num 7)</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            <strong>Distinto del salvavidas RCP (Ley 1209).</strong> Es la persona que opera quimicos y mantenimiento.
+                            La ausencia de operador certificado es factor de priorizacion sanitaria.
+                            Entidades: SENA, IDEAM, universidades o autoridad sanitaria municipal.
+                        </div>
+                        <div class="row g-1 mb-2 align-items-center">
+                            <div class="col-7"><label class="form-label mb-0" style="font-size:12px;">Operador de piscinas certificado</label></div>
+                            <div class="col-5">
+                                <select name="certificacion_operador_piscinas" class="form-select form-select-sm"><?= $sn('certificacion_operador_piscinas') ?></select>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" style="font-size:12px;">Entidad certificadora</label>
+                            <input type="text" name="operador_entidad_certificadora" class="form-control form-control-sm" value="<?= esc($inspeccion['operador_entidad_certificadora'] ?? '') ?>" placeholder="Ej: SENA, IDEAM, Universidad...">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" style="font-size:12px;">Vigencia certificacion</label>
+                            <input type="date" name="operador_vigencia" class="form-control form-control-sm" value="<?= $inspeccion['operador_vigencia'] ?? '' ?>">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" style="font-size:12px;"><i class="fas fa-images me-1"></i> Foto certificado operador (galeria)</label>
+                            <?php if (!empty($inspeccion['foto_certificado_operador'])): ?>
+                            <div class="mb-1"><img src="<?= base_url($inspeccion['foto_certificado_operador']) ?>" class="img-fluid rounded" style="max-height:80px;"></div>
+                            <?php endif; ?>
+                            <input type="file" name="foto_certificado_operador" class="form-control form-control-sm" accept="image/*">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -227,9 +256,10 @@ $sn = function($name) use ($inspeccion) {
                     <div class="accordion-body">
                         <?php
                         $cap = [
-                            'capacitacion_manejo_quimicos' => 'Capacitacion manejo de quimicos',
-                            'conocimiento_hojas_seguridad' => 'Conocimiento de hojas de seguridad',
-                            'conocimiento_plan_emergencia' => 'Conocimiento del plan de emergencia',
+                            'capacitacion_manejo_quimicos'      => 'Capacitacion manejo de quimicos',
+                            'capacitacion_dosificacion_quimica' => 'Capacitacion en dosificacion quimica (Art. 5 Res 234)',
+                            'conocimiento_hojas_seguridad'      => 'Conocimiento de hojas de seguridad',
+                            'conocimiento_plan_emergencia'      => 'Conocimiento del plan de emergencia',
                         ];
                         foreach ($cap as $f => $l): ?>
                         <div class="row g-1 mb-2 align-items-center">
