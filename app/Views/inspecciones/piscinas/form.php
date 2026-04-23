@@ -452,12 +452,24 @@ function buildGrupo(grpKey, grp, data) {
 }
 
 function buildParametros(data, idPisc) {
-    const params = data || {};
+    // data viene como array de filas [{parametro, valor, observaciones, ...}, ...]
+    // Lo convertimos a mapa { pH: {valor, observaciones}, cloro_libre: {...}, ... }
+    // para poder precargar los valores existentes al editar.
+    const paramMap = {};
+    if (Array.isArray(data)) {
+        data.forEach(r => {
+            if (!r || !r.parametro) return;
+            paramMap[r.parametro] = { valor: r.valor, observaciones: r.observaciones };
+        });
+    } else if (data && typeof data === 'object') {
+        Object.assign(paramMap, data);
+    }
+
     let rows = '';
     Object.keys(PARAMETROS).forEach(key => {
         const cfg = PARAMETROS[key];
-        const rec = params[key] || {};
-        const val = rec.valor !== undefined ? rec.valor : '';
+        const rec = paramMap[key] || {};
+        const val = (rec.valor !== undefined && rec.valor !== null) ? rec.valor : '';
         const obs = rec.observaciones || '';
         const rango = RANGOS_REF[key] || '';
         rows += '<div class="row g-1 mb-1 align-items-center">' +
