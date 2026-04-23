@@ -603,7 +603,7 @@ function buildPiscinaRow(num, data, paramsData, ensayosData) {
         '<div class="col-12 col-md-8"><label class="small-label">Observaciones</label><textarea name="item_observaciones[]" class="form-control form-control-sm" rows="2">' + (data.observaciones || '') + '</textarea></div>' +
         '</div></div>';
 
-    // Evidencias multi-foto por piscina (N fotos con categoría)
+    // Evidencias multi-foto por piscina (N fotos con categoria libre)
     const idxPisc = (num - 1);
     const evidPiscinaData = (typeof EVIDENCIAS_DET_INIT !== 'undefined' && data.id) ? (EVIDENCIAS_DET_INIT[data.id] || []) : [];
     let thumbsHtml = '';
@@ -611,29 +611,30 @@ function buildPiscinaRow(num, data, paramsData, ensayosData) {
         thumbsHtml = '<div class="d-flex flex-wrap gap-2 mb-2" style="border:1px dashed #ccc; padding:6px; border-radius:4px; background:#fafafa;">';
         evidPiscinaData.forEach(e => {
             const src = '<?= base_url('/') ?>' + e.foto_path;
-            thumbsHtml += '<div class="evidencia-det-thumb" data-id="' + e.id + '" style="position:relative; width:80px; height:80px;">'
-                + '<img src="' + src + '" style="width:80px;height:80px;object-fit:cover;border:1px solid #bbb;border-radius:4px;cursor:pointer;" onclick="openPhoto(\'' + src + '\')">'
-                + '<div style="position:absolute;bottom:-14px;left:0;right:0;font-size:8px;color:#666;text-align:center;">' + (e.categoria || '') + '</div>'
+            const cat = (e.categoria || '').replace(/"/g, '&quot;');
+            const desc = (e.descripcion || '').replace(/"/g, '&quot;');
+            thumbsHtml += '<div class="evidencia-det-thumb" data-id="' + e.id + '" style="position:relative; width:92px; margin-bottom:14px;" title="' + cat + (desc ? ' — ' + desc : '') + '">'
+                + '<img src="' + src + '" style="width:92px;height:92px;object-fit:cover;border:1px solid #bbb;border-radius:4px;cursor:pointer;" onclick="openPhoto(\'' + src + '\')">'
+                + '<div style="font-size:9px;color:#444;line-height:1.1;text-align:center;margin-top:2px;"><strong>' + cat + '</strong>' + (desc ? '<br><em>' + desc + '</em>' : '') + '</div>'
                 + '<button type="button" class="btn-remove-evidencia-det" data-id="' + e.id + '" title="Eliminar" style="position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:#c0392b;color:#fff;border:none;font-size:11px;line-height:18px;padding:0;cursor:pointer;">×</button>'
                 + '</div>';
         });
         thumbsHtml += '</div>';
     }
-    html += '<div class="sub-block" style="background:#f5f5fa;"><div class="sub-block-title">Evidencias adicionales de esta piscina (multi-foto)</div>'
+    const listaId = 'catEvidList_' + idxPisc;
+    html += '<div class="sub-block evid-det-block" style="background:#f5f5fa;" data-idx="' + idxPisc + '">'
+        + '<div class="sub-block-title">Evidencias adicionales de esta piscina</div>'
         + thumbsHtml
-        + '<div class="row g-1">'
-        + '<div class="col-4"><label class="small-label">Categoria</label>'
-        + '<select name="item_evidencia_categoria[]" class="form-select form-select-sm">'
-        + '<option value="INFRAESTRUCTURA">Infraestructura</option>'
-        + '<option value="AVISOS">Avisos</option>'
-        + '<option value="EMERGENCIA">Emergencia</option>'
-        + '<option value="HIGIENE">Higiene</option>'
-        + '<option value="AGUA">Agua</option>'
-        + '<option value="OTRA" selected>Otra</option>'
-        + '</select></div>'
-        + '<div class="col-8"><label class="small-label"><i class="fas fa-images me-1"></i> Agregar fotos (multiples)</label>'
-        + '<input type="file" name="item_evidencia_' + idxPisc + '[]" class="form-control form-control-sm" accept="image/*" multiple>'
-        + '</div></div></div>';
+        + '<datalist id="' + listaId + '">'
+        +   '<option value="Infraestructura"><option value="Avisos"><option value="Emergencia">'
+        +   '<option value="Higiene"><option value="Agua"><option value="Cerramientos">'
+        +   '<option value="Drenajes"><option value="Escaleras"><option value="Lavapies">'
+        +   '<option value="Senalizacion"><option value="Iluminacion"><option value="Ventilacion">'
+        +   '<option value="Equipos"><option value="Cuarto bombas"><option value="Otra">'
+        + '</datalist>'
+        + '<div class="evid-new-rows"></div>'
+        + '<button type="button" class="btn btn-sm btn-outline-primary mt-1 btn-add-evid-row" data-idx="' + idxPisc + '" data-list="' + listaId + '"><i class="fas fa-plus"></i> Agregar foto de evidencia</button>'
+        + '</div>';
 
     html += '</div>'; // /piscina-row
     return html;
@@ -771,10 +772,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Agregar fila nueva de evidencia (categoria + archivo + descripcion) por piscina
+    function addEvidRow(idxPisc, listaId, block) {
+        const rowsHolder = block.querySelector('.evid-new-rows');
+        const row = document.createElement('div');
+        row.className = 'evid-new-row';
+        row.style.cssText = 'display:flex; flex-wrap:wrap; gap:4px; align-items:flex-end; background:#fff; border:1px solid #ddd; border-radius:4px; padding:4px; margin-bottom:4px;';
+        row.innerHTML =
+              '<div style="flex:1 1 130px;"><label class="small-label">Categoria</label>'
+            + '<input type="text" name="item_evidencia_categoria_' + idxPisc + '[]" class="form-control form-control-sm" list="' + listaId + '" placeholder="Ej: Drenaje ninos" value="Otra"></div>'
+            + '<div style="flex:1 1 160px;"><label class="small-label"><i class="fas fa-images me-1"></i>Foto</label>'
+            + '<input type="file" name="item_evidencia_' + idxPisc + '[]" class="form-control form-control-sm" accept="image/*" required></div>'
+            + '<div style="flex:2 1 200px;"><label class="small-label">Descripcion (opcional)</label>'
+            + '<input type="text" name="item_evidencia_descripcion_' + idxPisc + '[]" class="form-control form-control-sm" placeholder="Hallazgo / detalle"></div>'
+            + '<button type="button" class="btn btn-sm btn-outline-danger btn-remove-evid-row" style="padding:2px 7px;" title="Descartar fila"><i class="fas fa-xmark"></i></button>';
+        rowsHolder.appendChild(row);
+    }
+
     container.addEventListener('click', (e) => {
         if (e.target.closest('.btn-remove-piscina')) {
             e.target.closest('.piscina-row').remove();
             renumerarPiscinas();
+        }
+        const btnAddEvid = e.target.closest('.btn-add-evid-row');
+        if (btnAddEvid) {
+            const idx = parseInt(btnAddEvid.dataset.idx, 10);
+            const listaId = btnAddEvid.dataset.list;
+            const block = btnAddEvid.closest('.evid-det-block');
+            addEvidRow(idx, listaId, block);
+        }
+        const btnRmRow = e.target.closest('.btn-remove-evid-row');
+        if (btnRmRow) {
+            btnRmRow.closest('.evid-new-row').remove();
         }
         const btnDet = e.target.closest('.btn-remove-evidencia-det');
         if (btnDet) {
