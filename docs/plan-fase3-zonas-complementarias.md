@@ -105,9 +105,9 @@ En la vista `form.php` de cada módulo, bloque al final:
 [🚨 Crear procedimiento de emergencia para esta área]
 ```
 
-Botón que abre `/inspecciones/procedimiento-emergencia-area/nuevo?id_cliente=X&area=Y`. Los valores `area` ya soportados en el ENUM:
+Botón que abre `/inspecciones/procedimiento-emergencia-area/nuevo?id_cliente=X&area=Y`. Los valores `area` ya soportados en el ENUM (verificado en `app/SQL/migrate_procedimiento_emergencia_area.php:74` — **sin Ñ**):
 - Gimnasio → `area=GYM`
-- Turco → `area=BAÑO_TURCO`
+- Turco → `area=BANO_TURCO`
 - Sauna → `area=SAUNA`
 - BBQ → `area=ZONA_BBQ`
 
@@ -380,6 +380,96 @@ Para cada módulo, en este orden:
 - [ ] Usuario confirma que el ENUM `area` en `tbl_procedimiento_emergencia_area` tiene: `PISCINA, BAÑO_TURCO, SAUNA, GYM, ZONA_BBQ`.
 - [ ] Usuario confirma que no hay otro módulo FT-SST-249/250/251 en pipeline.
 - [ ] Inicio módulo 1 (Gimnasio).
+
+## 9.B. Convenciones de estilo para los PDFs (aplicar tal cual)
+
+Durante la iteración de piscinas el usuario empujó varias veces hacia un PDF "texto-texto denso". Consolidar estos lineamientos al crear cualquier PDF nuevo (turco, sauna, gym, bbq):
+
+### CSS base (copiar de `app/Views/inspecciones/piscinas/pdf.php`)
+
+```css
+@page { margin: 28px 28px 36px 28px; }
+body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 10px; color: #222; }
+h1 { font-size: 16px; margin: 0 0 4px 0; color: #1c2437; }
+h2 { font-size: 12px; margin: 6px 0 3px 0; color: #1c2437; border-bottom: 1px solid #bd9751; padding-bottom: 2px; }
+h3 { font-size: 10.5px; margin: 4px 0 2px 0; color: #1c2437; }
+```
+
+### Reglas de layout (explícitas, no negociables)
+
+1. **Prohibido `<div class="pagebreak"></div>` manuales.** DOMPDF corta natural donde llene la página. Saltos forzados dejan huecos grandes al final de la sección previa.
+2. **Prohibido cajas anidadas con `border` + `background` por bloque** (tipo "CUANDO / QUE HACER / QUE NO HACER" con cada uno en una caja coloreada). Generan saltos irregulares. Reemplazar por **párrafos con label en bold coloreado** al inicio de cada línea:
+   ```html
+   <p><span style="color:#1b7e3f;font-weight:700;">QUE HACER:</span> texto...</p>
+   <p><span style="color:#c0392b;font-weight:700;">QUE NO HACER:</span> texto...</p>
+   ```
+3. **Prohibido `<table class="dualcol">` 2-cols** para QUE HACER/QUE NO HACER lado a lado. DOMPDF calcula mal el ancho cuando el contenido es desigual → huecos.
+4. **`page-break-inside: avoid` SOLO** en el contenedor del "detalle" (una piscina, una zona del gym, etc.). No en `.escenario`, no en párrafos.
+5. **Hallazgo crítico / resumen ejecutivo** no debe ser caja con fondo coloreado — usar línea horizontal con border-bottom color + texto grande. Ejemplo:
+   ```css
+   .hallazgo-critico { color: <?= $peorColor ?>; padding: 2px 0; margin: 4px 0 8px 0;
+       border-bottom: 2px solid <?= $peorColor ?>; }
+   .hallazgo-critico .hc-label { font-size: 10px; font-weight: 600; color: #555; }
+   .hallazgo-critico .hc-value { font-size: 14px; font-weight: 700; }
+   ```
+6. **Introducción compacta**: párrafos con `margin: 0 0 3px 0` (no el `<p>` default de 16px). 4 párrafos densos. `font-size: 9.5px; line-height: 1.35;`.
+7. **Tablas de datos** (`.kv`): `padding: 1px 3px; font-size: 9.5px;` para datos clave-valor.
+8. **Evidencias fotográficas**: aplanar todas las fotos en un **grid 3-col** usando `<table><tr><td>...</td></tr></table>`, no un bloque por categoría. Cada celda: label bold 8.5px + img + descripción opcional 8px gris.
+9. **Marco normativo**: sí usar tablas (6.1 jerarquía + 6.2 artículos evaluados) — aquí las tablas están justificadas porque es información estructurada. Reusar el patrón exacto de `piscinas/pdf.php`.
+
+### Validación de normas citadas (ya implementado en piscinas, replicar)
+
+Si el PDF muestra una norma citada por un ensayo de laboratorio u otro elemento, clasificarla y mostrar warning si aplica:
+
+```php
+function clasificarNorma(?string $norma): string {
+    if (empty($norma)) return '';
+    $n = strtolower($norma);
+    if (preg_match('/\b234[^\d]*2026\b/', $n)) return 'vigente';
+    if (preg_match('/\b1618[^\d]*2010\b/', $n)) return 'derogada';
+    if (preg_match('/\b780[^\d]*2016\b/', $n)) return 'otra_legal';
+    if (preg_match('/\bley\s*9[^\d]*1979\b/', $n)) return 'otra_legal';
+    if (preg_match('/\bres(?:oluci[oó]n)?[^\d]*\d{3,4}/i', $norma)) return 'sospechosa';
+    return 'otra_legal';
+}
+```
+
+Si es `derogada` → `⚠ Derogada. [Norma vigente] es la actual.`
+Si es `sospechosa` → `⚠ Norma no reconocida — verificar con el laboratorio.`
+
+### Prompts IA con whitelist de normas
+
+El patrón de `extraerEnsayoDesdePDF` en `EmergencyProcedureIAService.php` incluye una sección "NORMAS VALIDAS EN ESTE DOMINIO — lista blanca" para reducir alucinaciones. Replicar este patrón en cualquier nuevo prompt que extraiga referencias normativas:
+
+- Listar explícitamente las normas aceptables.
+- Listar las normas con números parecidos que NO aplican (para que Haiku las descarte).
+- Instruir: "si no está en la lista blanca, devuelve vacío y anota OCR ambiguo en observaciones".
+
+### Encabezados con código FT-SST
+
+Tabla 3-col con logo cliente a la izquierda rowspan=2, sistema + código a la derecha, formato + fecha abajo. Copiar exacto de `piscinas/pdf.php` cambiando el número.
+
+```html
+<table class="header-corp">
+    <tr>
+        <td class="header-logo" rowspan="2"><img src="<?= $logoBase64 ?>"></td>
+        <td class="header-sist">SISTEMA DE GESTION DE SEGURIDAD Y SALUD EN EL TRABAJO</td>
+        <td class="header-code">Codigo: FT-SST-###<br>Version: 001</td>
+    </tr>
+    <tr>
+        <td class="header-sist" style="font-size:10px;">FORMATO DE INSPECCION DE {AREA}</td>
+        <td class="header-code">Fecha: <?= date('d/m/Y', ...) ?></td>
+    </tr>
+</table>
+```
+
+### Códigos FT-SST asignados en Fase 3
+
+- FT-SST-249 — Inspección Baño Turco / Sauna
+- FT-SST-250 — Inspección Gimnasio
+- FT-SST-251 — Inspección Zona BBQ
+
+(Versión 001 para los 3 nuevos.)
 
 ## 10. Fuentes consultadas
 

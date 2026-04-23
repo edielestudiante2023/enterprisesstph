@@ -1,4 +1,24 @@
 <?php
+/**
+ * Clasifica la norma citada por un informe de laboratorio:
+ *   'vigente'   -> Resolucion 234/2026 (actual)
+ *   'derogada'  -> Resolucion 1618/2010 (anterior, derogada por Res 234/2026)
+ *   'otra_legal'-> Dec 780/2016, Ley 9/1979 (validas pero generales)
+ *   'sospechosa'-> numero no reconocido (probable OCR / alucinacion IA)
+ *   ''          -> vacia, no analiza
+ */
+function clasificarNorma(?string $norma): string {
+    if (empty($norma)) return '';
+    $n = strtolower($norma);
+    if (preg_match('/\b234[^\d]*2026\b/', $n)) return 'vigente';
+    if (preg_match('/\b1618[^\d]*2010\b/', $n)) return 'derogada';
+    if (preg_match('/\b780[^\d]*2016\b/', $n)) return 'otra_legal';
+    if (preg_match('/\bley\s*9[^\d]*1979\b/', $n)) return 'otra_legal';
+    // Si menciona numero de resolucion pero no esta en blanca
+    if (preg_match('/\bres(?:oluci[oó]n)?[^\d]*\d{3,4}/i', $norma)) return 'sospechosa';
+    return 'otra_legal'; // texto libre
+}
+
 // Clasificación IRAPI con color
 function irapiColor($c) {
     return match ($c) {
@@ -220,7 +240,16 @@ while ($col > 0 && $col < 3) { echo '<td></td>'; $col++; }
             <td><?= !empty($e['fecha_toma']) ? date('d/m/Y', strtotime($e['fecha_toma'])) : '—' ?></td>
             <td><?= esc($e['laboratorio'] ?? '') ?></td>
             <td><?= esc($e['numero_informe'] ?? '') ?></td>
-            <td style="font-size:8px;"><?= esc($e['norma_citada'] ?? '') ?></td>
+            <td style="font-size:8px;">
+                <?= esc($e['norma_citada'] ?? '') ?>
+                <?php
+                $cn = clasificarNorma($e['norma_citada'] ?? '');
+                if ($cn === 'derogada'): ?>
+                <div style="font-size:7px;color:#c0392b;margin-top:1px;"><strong>⚠ Derogada.</strong> Res 234/2026 es la vigente.</div>
+                <?php elseif ($cn === 'sospechosa'): ?>
+                <div style="font-size:7px;color:#c0392b;margin-top:1px;"><strong>⚠ Norma no reconocida para agua de piscinas.</strong> Las normas validas son Res 1618/2010 (derogada) y Res 234/2026 (vigente). Posible lectura incorrecta — verificar con el laboratorio.</div>
+                <?php endif; ?>
+            </td>
             <td><?= esc($e['conforme_global']) ?></td>
         </tr>
         <?php if ($e['tipo'] === 'MICROBIOLOGICO'): ?>
