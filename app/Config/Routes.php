@@ -1042,6 +1042,20 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('piscinero/delete/(:num)', 'InspeccionPiscineroController::delete/$1');
     $routes->get('piscinero/enviar-email/(:num)', 'InspeccionPiscineroController::enviarEmail/$1');
 
+    // Inspección Gimnasio (FT-SST-250) — riesgos locativos puros
+    $routes->get('gimnasio', 'InspeccionGimnasioController::list');
+    $routes->get('gimnasio/create', 'InspeccionGimnasioController::create');
+    $routes->get('gimnasio/create/(:num)', 'InspeccionGimnasioController::create/$1');
+    $routes->post('gimnasio/store', 'InspeccionGimnasioController::store');
+    $routes->get('gimnasio/edit/(:num)', 'InspeccionGimnasioController::edit/$1');
+    $routes->post('gimnasio/update/(:num)', 'InspeccionGimnasioController::update/$1');
+    $routes->get('gimnasio/view/(:num)', 'InspeccionGimnasioController::view/$1');
+    $routes->get('gimnasio/pdf/(:num)', 'InspeccionGimnasioController::generatePdf/$1');
+    $routes->get('gimnasio/regenerar/(:num)', 'InspeccionGimnasioController::regenerarPdf/$1');
+    $routes->post('gimnasio/finalizar/(:num)', 'InspeccionGimnasioController::finalizar/$1');
+    $routes->get('gimnasio/delete/(:num)', 'InspeccionGimnasioController::delete/$1');
+    $routes->get('gimnasio/enviar-email/(:num)', 'InspeccionGimnasioController::enviarEmail/$1');
+
     // Inspección Botiquín
     $routes->get('botiquin', 'InspeccionBotiquinController::list');
     $routes->get('botiquin/create', 'InspeccionBotiquinController::create');
@@ -1162,9 +1176,6 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('plan-emergencia/ia-review/(:num)', 'PlanEmergenciaController::iaReview/$1');
     $routes->post('plan-emergencia/ia-save-contexto/(:num)', 'PlanEmergenciaController::iaSaveContexto/$1');
     $routes->post('plan-emergencia/ia-aprobar/(:num)', 'PlanEmergenciaController::iaAprobar/$1');
-
-    // Piscinas — endpoint IA para extraer ensayo de laboratorio desde PDF
-    $routes->post('piscinas/extraer-ensayo-ia', 'InspeccionPiscinasController::extraerEnsayoIA');
 
     // Procedimiento de Emergencia por Area (piscina, bano turco, sauna, gym, zona BBQ)
     $routes->get('procedimiento-emergencia-area', 'ProcedimientoEmergenciaAreaController::list');

@@ -1,58 +1,15 @@
 <?php
 /**
- * Clasifica la norma citada por un informe de laboratorio:
- *   'vigente'   -> Resolucion 234/2026 (actual)
- *   'derogada'  -> Resolucion 1618/2010 (anterior, derogada por Res 234/2026)
- *   'otra_legal'-> Dec 780/2016, Ley 9/1979 (validas pero generales)
- *   'sospechosa'-> numero no reconocido (probable OCR / alucinacion IA)
- *   ''          -> vacia, no analiza
+ * Calcula dias entre fecha_toma del ensayo y hoy. Retorna null si fecha vacia.
  */
-function clasificarNorma(?string $norma): string {
-    if (empty($norma)) return '';
-    $n = strtolower($norma);
-    if (preg_match('/\b234[^\d]*2026\b/', $n)) return 'vigente';
-    if (preg_match('/\b1618[^\d]*2010\b/', $n)) return 'derogada';
-    if (preg_match('/\b780[^\d]*2016\b/', $n)) return 'otra_legal';
-    if (preg_match('/\bley\s*9[^\d]*1979\b/', $n)) return 'otra_legal';
-    // Si menciona numero de resolucion pero no esta en blanca
-    if (preg_match('/\bres(?:oluci[oó]n)?[^\d]*\d{3,4}/i', $norma)) return 'sospechosa';
-    return 'otra_legal'; // texto libre
+function diasDesdeEnsayo(?string $fecha): ?int {
+    if (empty($fecha)) return null;
+    try {
+        $f = new DateTime($fecha);
+        $h = new DateTime('today');
+        return (int)$h->diff($f)->days * ($f > $h ? -1 : 1);
+    } catch (\Throwable $e) { return null; }
 }
-
-// Clasificación IRAPI con color
-function irapiColor($c) {
-    return match ($c) {
-        'SIN_RIESGO' => '#1b7e3f',
-        'BAJO'       => '#d4a70e',
-        'MEDIO'      => '#e67815',
-        'ALTO'       => '#c0392b',
-        default      => '#888',
-    };
-}
-function irapiLabel($c) {
-    return match ($c) {
-        'SIN_RIESGO' => 'Sin riesgo / Optimo',
-        'BAJO'       => 'Bajo',
-        'MEDIO'      => 'Medio',
-        'ALTO'       => 'ALTO',
-        default      => '—',
-    };
-}
-
-// Peor IRAPI como hallazgo de cabecera
-$peorClas = 'SIN_RIESGO';
-$peorVal = 0;
-$ord = ['SIN_RIESGO'=>0, 'BAJO'=>1, 'MEDIO'=>2, 'ALTO'=>3];
-foreach ($piscinas as $p) {
-    $c = $p['irapi_clasificacion'] ?? 'SIN_RIESGO';
-    if (($ord[$c] ?? 0) > ($ord[$peorClas] ?? 0)) {
-        $peorClas = $c;
-        $peorVal = $p['irapi_valor'] ?? 0;
-    } elseif ($c === $peorClas && ($p['irapi_valor'] ?? 0) > $peorVal) {
-        $peorVal = $p['irapi_valor'];
-    }
-}
-$peorColor = irapiColor($peorClas);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -78,12 +35,11 @@ table.data th { background: #eee; font-weight: 700; }
 .kv { width: 100%; margin: 2px 0; }
 .kv td { padding: 1px 3px; font-size: 9.5px; vertical-align: top; border: none; }
 .kv td.k { font-weight: 600; width: 32%; color: #555; }
-.hallazgo-critico { color: <?= $peorColor ?>; padding: 2px 0; margin: 4px 0 8px 0; border-bottom: 2px solid <?= $peorColor ?>; }
-.hallazgo-critico .hc-label { font-size: 10px; font-weight: 600; margin-right: 8px; color: #555; }
-.hallazgo-critico .hc-value { font-size: 14px; font-weight: 700; }
-.hallazgo-critico .hc-note { font-size: 8.5px; margin-top: 2px; color: #777; }
 .piscina { margin: 6px 0 10px 0; page-break-inside: avoid; }
 .piscina h2 { margin-top: 0; border-bottom: 1.5px solid #bd9751; padding-bottom: 2px; }
+.badge-vigente { background:#1b7e3f; color:#fff; padding:2px 8px; border-radius:10px; font-size:9px; font-weight:700; }
+.badge-vencido { background:#c0392b; color:#fff; padding:2px 8px; border-radius:10px; font-size:9px; font-weight:700; }
+.badge-na { background:#888; color:#fff; padding:2px 8px; border-radius:10px; font-size:9px; font-weight:700; }
 .param-tbl td { font-size: 9px; }
 .param-ok { color: #1b7e3f; font-weight: 700; }
 .param-no { color: #c0392b; font-weight: 700; }
@@ -116,19 +72,12 @@ table.data th { background: #eee; font-weight: 700; }
 
 <div class="main-title">INFORME DE INSPECCION DE PISCINAS<br><?= esc($cliente['nombre_cliente'] ?? '') ?></div>
 
-<!-- Hallazgo principal: peor IRAPI (linea compacta) -->
-<div class="hallazgo-critico">
-    <span class="hc-label">IRAPI (peor caso):</span>
-    <span class="hc-value"><?= number_format((float)$peorVal, 2) ?> — <?= irapiLabel($peorClas) ?></span>
-    <div class="hc-note">Indice de Riesgo del Agua — Anexo II Resolucion 234/2026 Minsalud.</div>
-</div>
-
-<!-- INTRODUCCION / ALCANCE (compacto) -->
+<!-- INTRODUCCION / ALCANCE (compacto, alcance SST real) -->
 <h2>1. Introduccion, alcance y justificacion</h2>
 <div style="font-size: 9.5px; text-align: justify; line-height: 1.35;">
     <p style="margin: 0 0 3px 0;">Informe de inspeccion SST a las piscinas del cliente <strong><?= esc($cliente['nombre_cliente'] ?? '') ?></strong> realizada el <strong><?= date('d/m/Y', strtotime($inspeccion['fecha_inspeccion'])) ?></strong>.</p>
-    <p style="margin: 0 0 3px 0;"><strong>Alcance:</strong> (a) infraestructura y seguridad (Ley 1209/2008), (b) calidad del agua (Res 234/2026 Anexo I), (c) buenas practicas sanitarias y documentacion (Res 234 Cap. III), (d) dotacion de emergencia: DEA, botiquines A/B/C por m², flotadores, bastones (Art. 18).</p>
-    <p style="margin: 0 0 3px 0;"><strong>Metodo:</strong> cada parametro in situ se compara contra valores aceptables del Anexo I (SI/NO/NA). El <strong>IRAPI</strong> se calcula automaticamente: VCM(45%) + VCR(20%) + VAC(30%) + VCT(5%), clasificacion 0-10 Sin riesgo, 10.1-35 Bajo, 35.1-75 Medio, 75.1-100 Alto. Tambien se calcula ISL Langelier (corrosiva/balanceada/incrustante).</p>
+    <p style="margin: 0 0 3px 0;"><strong>Alcance:</strong> el consultor SST verifica condiciones de infraestructura y seguridad (Ley 1209/2008), avisos reglamentarios, dotacion de emergencia (DEA, botiquines A/B/C por m², flotadores, baston), estado de higiene y la <strong>existencia de los documentos que exige el operador</strong>: libro/planilla diaria de operaciones (Art. 16 Res 234) y ensayo microbiologico trimestral vigente (Art. 6 Res 234).</p>
+    <p style="margin: 0 0 3px 0;"><strong>Lo que NO evalua este informe:</strong> interpretacion de parametros fisicoquimicos in situ, calculo de IRAPI, interpretacion de UFC microbiologicos. Estos son <strong>responsabilidad del laboratorio acreditado</strong> y se evidencian en el certificado trimestral. El consultor solo verifica que exista vigente.</p>
     <p style="margin: 0;"><strong>Disclaimer:</strong> este informe identifica hallazgos SST; <u>no reemplaza</u> el concepto sanitario de la Secretaria de Salud (Art. 10), la certificacion del operador por entidad acreditada (Art. 11 num 7) ni los ensayos de laboratorio trimestrales (Art. 6).</p>
 </div>
 
@@ -183,21 +132,50 @@ while ($col > 0 && $col < 3) { echo '<td></td>'; $col++; }
 </tr></table>
 <?php endif; ?>
 
-<h2>4. Piscinas inspeccionadas</h2>
+<!-- Seccion 4: Documentos del operador (nivel maestro) -->
+<h2>4. Documentos del operador (Art. 6 + Art. 16 Res 234/2026)</h2>
+<?php
+$ensayoMicro = null;
+foreach (($ensayos ?? []) as $ens) {
+    if (($ens['tipo'] ?? '') === 'MICROBIOLOGICO') { $ensayoMicro = $ens; break; }
+}
+$diasMicro = $ensayoMicro ? diasDesdeEnsayo($ensayoMicro['fecha_toma'] ?? '') : null;
+$estadoEnsayo = '';
+$badgeClass = 'badge-na';
+if ($diasMicro !== null && $diasMicro >= 0) {
+    if ($diasMicro <= 90) { $estadoEnsayo = 'Vigente (' . $diasMicro . ' dias)'; $badgeClass = 'badge-vigente'; }
+    else                   { $estadoEnsayo = 'VENCIDO (' . $diasMicro . ' dias > 90)'; $badgeClass = 'badge-vencido'; }
+}
+?>
+<table class="data">
+    <tr><th>Documento</th><th>Estado</th><th>Observaciones</th></tr>
+    <tr>
+        <td><strong>Planilla diaria de operaciones</strong><br><span style="font-size:8px;color:#666;">Art. 16 Res 234/2026</span></td>
+        <td>Ver evidencias fotograficas (categoria "planilla_diaria")</td>
+        <td style="font-size:8.5px;">El operador lleva registro diario con pH, cloros, transparencia, Langelier. El consultor SST solo verifica existencia y actualizacion.</td>
+    </tr>
+    <tr>
+        <td><strong>Ensayo microbiologico trimestral</strong><br><span style="font-size:8px;color:#666;">Art. 6 Res 234/2026</span></td>
+        <td>
+            <?php if ($ensayoMicro): ?>
+                Fecha: <?= !empty($ensayoMicro['fecha_toma']) ? date('d/m/Y', strtotime($ensayoMicro['fecha_toma'])) : '—' ?><br>
+                Laboratorio: <?= esc($ensayoMicro['laboratorio'] ?? '—') ?><br>
+                Laboratorio acreditado: <?= esc($ensayoMicro['laboratorio_acreditado'] ?? 'NA') ?><br>
+                Informe reporta cumplimiento: <?= esc($ensayoMicro['reporta_cumplimiento'] ?? 'NA') ?><br>
+                <span class="<?= $badgeClass ?>"><?= $estadoEnsayo ?: 'Sin fecha' ?></span>
+            <?php else: ?>
+                <span class="badge-na">No registra</span>
+            <?php endif; ?>
+        </td>
+        <td style="font-size:8.5px;"><?= esc($ensayoMicro['observaciones'] ?? '') ?></td>
+    </tr>
+</table>
+
+<h2>5. Piscinas inspeccionadas</h2>
 
 <?php foreach ($piscinas as $i => $p): $idDet = $p['id']; ?>
 <div class="piscina">
     <h2>Piscina #<?= $i + 1 ?> — <?= esc($p['identificador']) ?></h2>
-    <div style="margin-bottom: 6px;">
-        <span class="badge" style="background: <?= irapiColor($p['irapi_clasificacion'] ?? 'SIN_RIESGO') ?>;">
-            IRAPI: <?= number_format((float)($p['irapi_valor'] ?? 0), 2) ?> — <?= irapiLabel($p['irapi_clasificacion'] ?? 'SIN_RIESGO') ?>
-        </span>
-        <?php if (!empty($p['isl_valor'])): ?>
-        <span class="badge" style="background: #555; margin-left: 4px;">
-            ISL Langelier: <?= number_format((float)$p['isl_valor'], 2) ?> (<?= esc($p['isl_interpretacion']) ?>)
-        </span>
-        <?php endif; ?>
-    </div>
 
     <table class="kv">
         <tr><td class="k">Tipo</td><td><?= esc($p['tipo']) ?></td><td class="k">Uso</td><td><?= esc($p['uso']) ?></td></tr>
@@ -206,60 +184,7 @@ while ($col > 0 && $col < 3) { echo '<td></td>'; $col++; }
         <tr><td class="k">Aforo piscina</td><td><?= esc($p['aforo_piscina_max'] ?? '—') ?></td><td class="k">Aforo deck</td><td><?= esc($p['aforo_deck_max'] ?? '—') ?></td></tr>
     </table>
 
-    <h3>4.<?= $i+1 ?>.1 Parametros in situ (Anexo I)</h3>
-    <?php $params = $parametrosMap[$idDet] ?? []; if (empty($params)): ?>
-    <div style="font-size: 9px; color: #888;">Sin mediciones registradas.</div>
-    <?php else: ?>
-    <table class="data param-tbl">
-        <tr><th>Parametro</th><th>Valor</th><th>Unidad</th><th>Rango</th><th>Conforme</th><th>Obs.</th></tr>
-        <?php foreach ($params as $prm):
-            $label = $parametrosCfg[$prm['parametro']]['label'] ?? $prm['parametro'];
-            $class = ['SI'=>'param-ok','NO'=>'param-no','NA'=>'param-na'][$prm['conforme']] ?? 'param-na';
-        ?>
-        <tr>
-            <td><?= esc($label) ?></td>
-            <td><?= esc($prm['valor'] ?? '') ?></td>
-            <td><?= esc($prm['unidad'] ?? '') ?></td>
-            <td style="font-size:8px;"><?= esc($prm['rango_referencia'] ?? '') ?></td>
-            <td class="<?= $class ?>"><?= esc($prm['conforme']) ?></td>
-            <td style="font-size:8px;"><?= esc($prm['observaciones'] ?? '') ?></td>
-        </tr>
-        <?php endforeach; ?>
-    </table>
-    <?php endif; ?>
-
-    <h3>4.<?= $i+1 ?>.2 Ensayos de laboratorio</h3>
-    <?php $ensayos = $ensayosMap[$idDet] ?? []; if (empty($ensayos)): ?>
-    <div style="font-size: 9px; color: #888;">Sin ensayos registrados.</div>
-    <?php else: ?>
-    <table class="data param-tbl">
-        <tr><th>Tipo</th><th>Fecha toma</th><th>Laboratorio</th><th>N° informe</th><th>Norma</th><th>Conforme</th></tr>
-        <?php foreach ($ensayos as $e): ?>
-        <tr>
-            <td><?= esc($e['tipo']) ?></td>
-            <td><?= !empty($e['fecha_toma']) ? date('d/m/Y', strtotime($e['fecha_toma'])) : '—' ?></td>
-            <td><?= esc($e['laboratorio'] ?? '') ?></td>
-            <td><?= esc($e['numero_informe'] ?? '') ?></td>
-            <td style="font-size:8px;">
-                <?= esc($e['norma_citada'] ?? '') ?>
-                <?php
-                $cn = clasificarNorma($e['norma_citada'] ?? '');
-                if ($cn === 'derogada'): ?>
-                <div style="font-size:7px;color:#c0392b;margin-top:1px;"><strong>⚠ Derogada.</strong> Res 234/2026 es la vigente.</div>
-                <?php elseif ($cn === 'sospechosa'): ?>
-                <div style="font-size:7px;color:#c0392b;margin-top:1px;"><strong>⚠ Norma no reconocida para agua de piscinas.</strong> Las normas validas son Res 1618/2010 (derogada) y Res 234/2026 (vigente). Posible lectura incorrecta — verificar con el laboratorio.</div>
-                <?php endif; ?>
-            </td>
-            <td><?= esc($e['conforme_global']) ?></td>
-        </tr>
-        <?php if ($e['tipo'] === 'MICROBIOLOGICO'): ?>
-        <tr><td colspan="6" style="font-size:8px;">Heterotrofos: <?= esc($e['heterotrofos_ufc'] ?? '—') ?> · Coliformes: <?= esc($e['coliformes_termotolerantes_ufc'] ?? '—') ?> · E.coli: <?= esc($e['ecoli_ufc'] ?? '—') ?> · Pseudomonas: <?= esc($e['pseudomonas_ufc'] ?? '—') ?> · Legionella: <?= esc($e['legionella_ufc'] ?? '—') ?></td></tr>
-        <?php endif; ?>
-        <?php endforeach; ?>
-    </table>
-    <?php endif; ?>
-
-    <h3>4.<?= $i+1 ?>.3 Infraestructura, emergencia y avisos</h3>
+    <h3>5.<?= $i+1 ?>.1 Infraestructura, emergencia y avisos</h3>
     <table class="data param-tbl">
         <tr><th>Elemento</th><th>Estado</th><th>Elemento</th><th>Estado</th></tr>
         <?php
@@ -317,25 +242,30 @@ while ($col > 0 && $col < 3) { echo '<td></td>'; $col++; }
         </tr>
     </table>
 
-    <?php $botItems = $botiquinMap[$idDet] ?? []; if (!empty($botItems)): ?>
-    <h3>4.<?= $i+1 ?>.4 Checklist botiquin tipo <?= esc($p['botiquin_tipo']) ?> (Anexo III)</h3>
-    <table class="data param-tbl">
-        <tr><th>Item</th><th>Exigida</th><th>Observada</th><th>Estado</th></tr>
-        <?php foreach ($botItems as $itm):
-            $cls = ['SI'=>'param-ok','NO'=>'param-no','PARCIAL'=>'param-no','NA'=>'param-na'][$itm['presente']] ?? 'param-na';
-        ?>
+    <h3>5.<?= $i+1 ?>.2 Botiquin (Anexo III — Tipo <?= esc($p['botiquin_tipo'] ?? 'NINGUNO') ?>)</h3>
+    <table style="width:100%;margin:4px 0;">
         <tr>
-            <td><?= esc($itm['item_nombre']) ?> <span style="font-size:8px;color:#888;">(<?= esc($itm['unidad_medida']) ?>)</span></td>
-            <td><?= (int)$itm['cantidad_exigida'] ?></td>
-            <td><?= esc($itm['cantidad_observada'] ?? '—') ?></td>
-            <td class="<?= $cls ?>"><?= esc($itm['presente']) ?></td>
+            <td style="width:40%;vertical-align:top;text-align:center;border:none;padding:4px;">
+                <?php if (!empty($p['foto_botiquin_base64'])): ?>
+                <img src="<?= $p['foto_botiquin_base64'] ?>" style="max-width:180px;max-height:140px;border:1px solid #bbb;">
+                <div style="font-size:8px;color:#666;margin-top:2px;">Foto del botiquin</div>
+                <?php else: ?>
+                <div style="font-size:9px;color:#888;border:1px dashed #ccc;padding:14px;">Sin foto del botiquin</div>
+                <?php endif; ?>
+            </td>
+            <td style="vertical-align:top;border:none;padding:4px;">
+                <div style="font-size:9.5px;"><strong>Observaciones / items faltantes:</strong></div>
+                <?php if (!empty($p['botiquin_observaciones_faltantes'])): ?>
+                <div style="font-size:9px;margin-top:3px;"><?= nl2br(esc($p['botiquin_observaciones_faltantes'])) ?></div>
+                <?php else: ?>
+                <div style="font-size:9px;color:#888;margin-top:3px;">Sin observaciones registradas.</div>
+                <?php endif; ?>
+            </td>
         </tr>
-        <?php endforeach; ?>
     </table>
-    <?php endif; ?>
 
     <?php if (!empty($p['observaciones']) || !empty($p['foto_base64'])): ?>
-    <h3>4.<?= $i+1 ?>.5 Observaciones y evidencia</h3>
+    <h3>5.<?= $i+1 ?>.3 Observaciones y evidencia</h3>
     <?php if (!empty($p['observaciones'])): ?>
     <div style="margin: 4px 0; font-size: 9.5px;"><?= nl2br(esc($p['observaciones'])) ?></div>
     <?php endif; ?>
@@ -345,7 +275,7 @@ while ($col > 0 && $col < 3) { echo '<td></td>'; $col++; }
     <?php endif; ?>
 
     <?php $detEvids = $evidenciasDetB64[$idDet] ?? []; if (!empty($detEvids)): ?>
-    <h3>4.<?= $i+1 ?>.6 Evidencias adicionales (<?= count($detEvids) ?>)</h3>
+    <h3>5.<?= $i+1 ?>.4 Evidencias adicionales (<?= count($detEvids) ?>)</h3>
     <table style="width:100%;margin-bottom:6px;"><tr>
     <?php $col = 0; foreach ($detEvids as $ev):
         if (empty($ev['foto_b64'])) continue;
@@ -364,17 +294,17 @@ while ($col > 0 && $col < 3) { echo '<td></td>'; $col++; }
 <?php endforeach; ?>
 
 <?php if (!empty($inspeccion['recomendaciones_generales'])): ?>
-<h2>5. Recomendaciones generales</h2>
+<h2>6. Recomendaciones generales</h2>
 <div style="font-size: 10px;"><?= nl2br(esc($inspeccion['recomendaciones_generales'])) ?></div>
 <?php endif; ?>
 
-<h2>6. Marco normativo aplicable</h2>
+<h2>7. Marco normativo aplicable</h2>
 
 <div style="font-size: 9.5px; text-align: justify; margin-bottom: 6px;">
-    La inspeccion se sustenta en el siguiente marco juridico vigente en Colombia. Cada hallazgo de este informe remite al articulado especifico que lo exige.
+    La inspeccion se sustenta en el siguiente marco juridico vigente en Colombia.
 </div>
 
-<h3 style="font-size: 11px;">6.1 Jerarquia normativa</h3>
+<h3 style="font-size: 11px;">7.1 Jerarquia normativa</h3>
 <table class="data" style="font-size: 9px;">
     <tr><th style="width: 22%;">Norma</th><th style="width: 30%;">Entidad emisora</th><th>Alcance</th></tr>
     <tr><td><strong>Ley 9 de 1979</strong></td><td>Congreso de la Republica</td><td>Codigo Sanitario Nacional. Arts. 222, 227 y 229 regulan agua de piscinas, personal capacitado en primeros auxilios y equipos de control del agua.</td></tr>
@@ -386,25 +316,7 @@ while ($col > 0 && $col < 3) { echo '<td></td>'; $col++; }
     <tr><td><strong>Decreto 1496 de 2018</strong></td><td>Ministerio del Trabajo</td><td>Sistema Globalmente Armonizado (SGA/GHS) para el etiquetado de productos quimicos utilizados en el tratamiento del agua.</td></tr>
 </table>
 
-<h3 style="font-size: 11px;">6.2 Articulos especificos de la Resolucion 234 de 2026 evaluados</h3>
-<table class="data" style="font-size: 9px;">
-    <tr><th style="width: 14%;">Articulo</th><th style="width: 28%;">Tema</th><th>Como se evalua en este informe</th></tr>
-    <tr><td><strong>Art. 4</strong></td><td>Fuente de abastecimiento</td><td>Se verifica si el agua proviene de acueducto o fuente natural con analisis fisico-quimico y microbiologico de referencia.</td></tr>
-    <tr><td><strong>Art. 5</strong></td><td>Dosificacion segura</td><td>Tres chequeos: dosificacion independiente por quimico, sistema de seguridad por retorno de flujo, prohibicion de dosificacion manual con publico.</td></tr>
-    <tr><td><strong>Art. 6</strong></td><td>Muestras de control</td><td>Parametros fisicos y quimicos: ejecucion diaria (pH, cloros, temperatura, color, olor, transparencia) + trimestral con laboratorio (turbidez, ORP, TDS, microbiologicos).</td></tr>
-    <tr><td><strong>Art. 7</strong></td><td>Equipos in situ</td><td>Equipos calibrados para analisis rutinario: evidenciado por la existencia del libro de registro diario.</td></tr>
-    <tr><td><strong>Art. 9 + Anexo II</strong></td><td>IRAPI</td><td>Se calcula automaticamente desde los parametros capturados: VCM(45%) + VCR(20%) + VAC(30%) + VCT(5%). Clasificacion: 0-10 Sin riesgo, 10.1-35 Bajo, 35.1-75 Medio, 75.1-100 Alto.</td></tr>
-    <tr><td><strong>Art. 10</strong></td><td>Concepto sanitario</td><td>Documento emitido por Secretaria de Salud. Se registra estado (favorable/desfavorable/no emitido), fecha y foto.</td></tr>
-    <tr><td><strong>Art. 11 num 7</strong></td><td>Operador certificado</td><td>Se documenta nombre, entidad certificadora (SENA, IDEAM, universidad, autoridad municipal) y vigencia.</td></tr>
-    <tr><td><strong>Art. 13</strong></td><td>Manejo quimicos</td><td>Fichas tecnicas, Hojas de Seguridad (SDS), EPP, etiquetado GHS.</td></tr>
-    <tr><td><strong>Art. 14</strong></td><td>Area residuos</td><td>Area senalizada, separada por tipo, con iluminacion, ventilacion, pisos con drenajes.</td></tr>
-    <tr><td><strong>Art. 15</strong></td><td>8 procedimientos obligatorios</td><td>(1) operacion del agua, (2) limpieza del sistema, (3) cierre temporal, (4) muestras, (5) resultados fuera de rango + liberacion fecal, (6) microorganismos no listados, (7) libro de control, (8) plan saneamiento.</td></tr>
-    <tr><td><strong>Art. 16</strong></td><td>Libro de registro</td><td>Registro sistematizado con pH, cloros, transparencia, ISL, productos, caudal, retrolavado, bañistas, horas de operacion, volumen de reposicion. Par. 2: publicacion mensual visible al publico.</td></tr>
-    <tr><td><strong>Art. 17</strong></td><td>Plan saneamiento</td><td>5 programas: (1) limpieza y desinfeccion, (2) residuos solidos, (3) residuos liquidos, (4) control integrado plagas, (5) abastecimiento agua potable.</td></tr>
-    <tr><td><strong>Art. 18 + Anexo III</strong></td><td>Dotacion de emergencia</td><td>DEA con personal capacitado, botiquin por m² (Tipo A &lt;500 / Tipo B 500-2000 / Tipo C &gt;2000) con items listados en Anexo III, 2 flotadores circulares, baston con gancho.</td></tr>
-</table>
-
-<h3 style="font-size: 11px; margin-top: 8px;">6.3 Resumen congelado al finalizar</h3>
+<h3 style="font-size: 11px; margin-top: 8px;">7.2 Resumen congelado al finalizar</h3>
 <div style="font-size: 9px; color: #555; text-align: justify;">
     <?= esc($marcoNormativo) ?>
 </div>
