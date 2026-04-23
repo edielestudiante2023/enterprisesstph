@@ -60,7 +60,18 @@ class EmergencyProcedureIAService
 Eres un lector experto de informes de laboratorio de calidad de agua para piscinas en Colombia, bajo la Resolucion 234/2026 del Minsalud.
 
 Analiza el PDF adjunto (informe de ensayo {$tipoLbl}) y extrae los siguientes campos.
-Si un campo no aparece, devuelve cadena vacia.
+Si un campo no aparece claramente, devuelve cadena vacia — NO inventes ni adivines.
+
+NORMAS VALIDAS EN ESTE DOMINIO (lista blanca — solo estas son aceptables como `norma_citada`):
+  - "Resolucion 234 de 2026 del Ministerio de Salud y Proteccion Social" (vigente)
+  - "Resolucion 1618 de 2010 del Ministerio de la Proteccion Social" (derogada por Res 234/2026 pero aun aparece en informes viejos)
+  - "Decreto 780 de 2016 del Ministerio de Salud" (compilatorio)
+  - "Ley 9 de 1979 Codigo Sanitario Nacional"
+
+CRITICO — lectura cuidadosa del numero de resolucion:
+  - NO son normas validas para calidad de agua de piscinas: Res 1411/2010 (afiliados SGSSS), Res 1441/2010 (habilitacion prestadores), Res 1510/2011, Res 4113/2012.
+  - Si el informe cita Resolucion 1618 de 2010 pero la firmas leen 1411, 1441, 1618 — privilegia 1618 porque es la UNICA de esa serie que regula agua de piscinas.
+  - Si el numero leido no esta en la lista blanca arriba, verifica el OCR. Si persistes, devuelve "norma_citada" vacia y agrega en "observaciones" algo como "OCR ambiguo: leyo Res XXX/YYYY — verificar manualmente".
 
 Campos a extraer:
 - fecha_toma            (formato YYYY-MM-DD o vacio)
@@ -68,14 +79,14 @@ Campos a extraer:
 - laboratorio           (razon social)
 - laboratorio_nit       (NIT con guiones si aparece)
 - numero_informe        (codigo del informe, ej A25-0799)
-- norma_citada          (nombre completo de la resolucion/decreto que cita el informe)
+- norma_citada          (UNA de la lista blanca arriba; vacia si no es reconocida)
 - heterotrofos_ufc      (numero decimal, ej 1, 10, 200)
 - coliformes_termotolerantes_ufc
 - ecoli_ufc
 - pseudomonas_ufc
 - legionella_ufc
 - conforme_global       ("SI", "NO" o "PARCIAL" segun diga el informe)
-- observaciones         (alerta si el informe cita una resolucion derogada antes de 2026)
+- observaciones         (alerta si el informe cita una resolucion derogada antes de 2026; o nota de OCR ambiguo)
 
 Convierte "<1" a 0. Convierte "Ausencia" / "Presencia" a 0 y 1 respectivamente.
 
