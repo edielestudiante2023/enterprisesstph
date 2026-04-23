@@ -38,27 +38,27 @@ class InspeccionPiscineroController extends BaseController
             ->findAll();
 
         $data = [
-            'title'        => 'Inspeccion del Piscinero / Salvavidas',
+            'title'        => 'Inspeccion del operador de piscina',
             'inspecciones' => $inspecciones,
         ];
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/piscinero/list', $data),
-            'title'   => 'Piscinero',
+            'title'   => 'Operador de piscina',
         ]);
     }
 
     public function create($idCliente = null)
     {
         $data = [
-            'title'      => 'Nueva Inspeccion del Piscinero',
+            'title'      => 'Nueva Inspeccion del operador de piscina',
             'inspeccion' => null,
             'idCliente'  => $idCliente,
         ];
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/piscinero/form', $data),
-            'title'   => 'Nuevo Piscinero',
+            'title'   => 'Nuevo Operador de piscina',
         ]);
     }
 
@@ -102,14 +102,14 @@ class InspeccionPiscineroController extends BaseController
         }
 
         $data = [
-            'title'      => 'Editar Inspeccion del Piscinero',
+            'title'      => 'Editar Inspeccion del operador de piscina',
             'inspeccion' => $inspeccion,
             'idCliente'  => $inspeccion['id_cliente'],
         ];
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/piscinero/form', $data),
-            'title'   => 'Editar Piscinero',
+            'title'   => 'Editar Operador de piscina',
         ]);
     }
 
@@ -164,7 +164,7 @@ class InspeccionPiscineroController extends BaseController
         $consultantModel = new ConsultantModel();
 
         $data = [
-            'title'      => 'Ver Inspeccion del Piscinero',
+            'title'      => 'Ver Inspeccion del operador de piscina',
             'inspeccion' => $inspeccion,
             'cliente'    => $clientModel->find($inspeccion['id_cliente']),
             'consultor'  => $consultantModel->find($inspeccion['id_consultor']),
@@ -172,7 +172,7 @@ class InspeccionPiscineroController extends BaseController
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/piscinero/view', $data),
-            'title'   => 'Ver Piscinero',
+            'title'   => 'Ver Operador de piscina',
         ]);
     }
 
@@ -203,7 +203,7 @@ class InspeccionPiscineroController extends BaseController
         $emailResult = InspeccionEmailNotifier::enviar(
             (int) $inspeccion['id_cliente'],
             (int) $inspeccion['id_consultor'],
-            'INSPECCIÓN PISCINERO / SALVAVIDAS',
+            'INSPECCIÓN OPERADOR DE PISCINA',
             $inspeccion['fecha_inspeccion'],
             $pdfPath,
             (int) $inspeccion['id'],
@@ -286,7 +286,7 @@ class InspeccionPiscineroController extends BaseController
         $result = InspeccionEmailNotifier::enviar(
             (int) $inspeccion['id_cliente'],
             (int) $inspeccion['id_consultor'],
-            'INSPECCIÓN PISCINERO / SALVAVIDAS',
+            'INSPECCIÓN OPERADOR DE PISCINA',
             $inspeccion['fecha_inspeccion'],
             $inspeccion['ruta_pdf'],
             (int) $inspeccion['id'],

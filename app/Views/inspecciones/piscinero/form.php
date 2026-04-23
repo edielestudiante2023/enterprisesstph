@@ -59,7 +59,7 @@ $sn = function($name) use ($inspeccion) {
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#secPersonal">
-                        Datos Personales del Piscinero
+                        Datos personales del operador de piscina
                     </button>
                 </h2>
                 <div id="secPersonal" class="accordion-collapse collapse" data-bs-parent="#accordionPiscinero">
@@ -98,7 +98,7 @@ $sn = function($name) use ($inspeccion) {
                             </div>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label" style="font-size:12px;">Foto del piscinero</label>
+                            <label class="form-label" style="font-size:12px;">Foto del operador de piscina</label>
                             <?php if (!empty($inspeccion['foto_piscinero'])): ?>
                             <div class="mb-1"><img src="<?= base_url($inspeccion['foto_piscinero']) ?>" class="img-fluid rounded" style="max-height:80px;"></div>
                             <?php endif; ?>

@@ -114,7 +114,7 @@
     <?php if (!empty($fotosBase64['foto_piscinero'])): ?>
     <div class="foto-box" style="margin:6px 0;">
         <img src="<?= $fotosBase64['foto_piscinero'] ?>">
-        <div class="cap">Fotografia del piscinero</div>
+        <div class="cap">Fotografia del operador de piscina</div>
     </div>
     <?php endif; ?>
 

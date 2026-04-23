@@ -1,4 +1,4 @@
-<?php $SLUG = 'piscinero'; $TITULO = 'Piscinero / Salvavidas'; $ICONO = 'fa-person-swimming'; ?>
+<?php $SLUG = 'piscinero'; $TITULO = 'Operador de piscina'; $ICONO = 'fa-person-swimming'; ?>
 <div class="container-fluid px-3 mt-2">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h6 class="mb-0"><i class="fas <?= $ICONO ?>"></i> <?= $TITULO ?></h6>
@@ -6,7 +6,7 @@
     </div>
     <div class="table-responsive">
     <table id="tablaInsp" class="table table-sm table-hover" style="width:100%">
-        <thead><tr><th>#</th><th>Cliente</th><th>Piscinero</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>#</th><th>Cliente</th><th>Operador</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody>
         <?php foreach ($inspecciones as $i => $r):
             $f = $r['fecha_inspeccion'];
