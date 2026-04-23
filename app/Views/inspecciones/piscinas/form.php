@@ -651,6 +651,37 @@ function renumerarPiscinas() {
     document.getElementById('totalPiscinasInput').value = rows.length;
 }
 
+// Preview en vivo de cualquier input type="file" del form (delegado, funciona con inputs dinamicos).
+document.addEventListener('change', function(e) {
+    const input = e.target;
+    if (!(input && input.tagName === 'INPUT' && input.type === 'file')) return;
+    if (!input.files || input.files.length === 0) return;
+
+    // Solo preview para imagenes (no PDF u otros)
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) return;
+
+    // Busca o crea el contenedor de preview ANTES del input
+    let preview = input.previousElementSibling;
+    const isPreview = preview && preview.classList && preview.classList.contains('file-live-preview');
+    if (!isPreview) {
+        preview = document.createElement('div');
+        preview.className = 'file-live-preview';
+        preview.style.cssText = 'margin: 2px 0 4px 0;';
+        input.parentNode.insertBefore(preview, input);
+    }
+
+    // Revocar URL previo si existe para liberar memoria
+    const existingImg = preview.querySelector('img');
+    if (existingImg && existingImg.src.startsWith('blob:')) {
+        URL.revokeObjectURL(existingImg.src);
+    }
+
+    const url = URL.createObjectURL(file);
+    const nombreCorto = file.name.length > 28 ? file.name.slice(0, 25) + '...' : file.name;
+    preview.innerHTML = '<img src="' + url + '" style="max-width:110px;max-height:85px;border:2px solid #1b7e3f;border-radius:4px;display:block;margin-bottom:2px;"><span style="font-size:10px;color:#1b7e3f;"><i class="fas fa-check"></i> ' + nombreCorto + '</span>';
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     // --- Eliminar evidencia maestro (marca ID y oculta la miniatura) ---
     document.querySelectorAll('.btn-remove-evidencia').forEach(btn => {

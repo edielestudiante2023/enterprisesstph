@@ -71,7 +71,16 @@ $action = $isEdit
             <div class="card-body">
                 <h6 class="mb-3">Escenarios de emergencia</h6>
                 <div class="alert alert-info" style="font-size:12px;">
-                    Usa el boton "Generar con IA" en cada escenario para autocompletar los 5 bloques (que hacer, que no hacer, cuando, quien, recursos). Revisa y ajusta manualmente, luego marca "Aprobado" para cada escenario.
+                    Usa el boton "Generar con IA" en cada escenario para autocompletar los 5 bloques (que hacer, que no hacer, cuando, quien, recursos). El prompt contempla automaticamente poblaciones vulnerables: ninos de brazos, ninos menores de 12, adultos mayores, mujeres embarazadas y personas en condicion de discapacidad. Revisa y ajusta manualmente, luego marca "Aprobado" para cada escenario.
+                </div>
+
+                <div class="d-flex gap-2 align-items-center mb-3" style="border:1px dashed #bd9751; padding:8px; border-radius:6px; background:#fff8e1;">
+                    <button type="button" id="btnGenerarTodos" class="btn btn-warning">
+                        <i class="fas fa-wand-magic-sparkles"></i> Generar TODOS los escenarios con IA
+                    </button>
+                    <span id="genTodosStatus" style="font-size:12px; color:#555;">
+                        Genera los 5 bloques para cada escenario uno tras otro. Tarda ~3-5 segundos por escenario.
+                    </span>
                 </div>
 
                 <?php foreach ($escenarios as $idx => $esc): ?>
@@ -142,6 +151,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const CSRF_NAME = '<?= csrf_token() ?>';
     const CSRF_HASH = '<?= csrf_hash() ?>';
 
+    // Invoca la IA para un escenario y rellena su bloque. Reutilizable.
+    async function generarEscenarioIA(id, block, silent = false) {
+        const fd = new FormData();
+        fd.append('id_escenario', id);
+        fd.append(CSRF_NAME, CSRF_HASH);
+
+        const resp = await fetch(URL_IA, { method: 'POST', body: fd });
+        const data = await resp.json();
+        if (!data.ok) throw new Error(data.error || 'Error IA');
+
+        block.querySelector('.esc-que-hacer').value = data.data.que_hacer || '';
+        block.querySelector('.esc-que-no-hacer').value = data.data.que_no_hacer || '';
+        block.querySelector('.esc-cuando').value = data.data.cuando || '';
+        block.querySelector('.esc-quien').value = data.data.quien || '';
+        block.querySelector('.esc-recursos').value = data.data.recursos || '';
+
+        return data;
+    }
+
+    // Handler individual por escenario
     document.querySelectorAll('.btn-ia').forEach(btn => {
         btn.addEventListener('click', async function() {
             const id = this.dataset.id;
@@ -150,21 +179,8 @@ document.addEventListener('DOMContentLoaded', function() {
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
             this.disabled = true;
 
-            const fd = new FormData();
-            fd.append('id_escenario', id);
-            fd.append(CSRF_NAME, CSRF_HASH);
-
             try {
-                const resp = await fetch(URL_IA, { method: 'POST', body: fd });
-                const data = await resp.json();
-                if (!data.ok) throw new Error(data.error || 'Error IA');
-
-                block.querySelector('.esc-que-hacer').value = data.data.que_hacer || '';
-                block.querySelector('.esc-que-no-hacer').value = data.data.que_no_hacer || '';
-                block.querySelector('.esc-cuando').value = data.data.cuando || '';
-                block.querySelector('.esc-quien').value = data.data.quien || '';
-                block.querySelector('.esc-recursos').value = data.data.recursos || '';
-
+                const data = await generarEscenarioIA(id, block);
                 Swal.fire({
                     icon: 'success', title: 'Escenario generado',
                     html: 'Tokens: ' + (data.tokens?.in || 0) + ' in / ' + (data.tokens?.out || 0) + ' out',
@@ -178,6 +194,71 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Boton global: generar todos los escenarios en secuencia
+    const btnTodos = document.getElementById('btnGenerarTodos');
+    const statusTodos = document.getElementById('genTodosStatus');
+    if (btnTodos) {
+        btnTodos.addEventListener('click', async function() {
+            const confirmacion = await Swal.fire({
+                icon: 'question',
+                title: 'Generar todos los escenarios?',
+                html: 'Se generara IA para cada escenario en secuencia. Sobrescribira el contenido actual de todos los bloques.',
+                showCancelButton: true,
+                confirmButtonColor: '#bd9751',
+                confirmButtonText: 'Si, generar todos',
+                cancelButtonText: 'Cancelar'
+            });
+            if (!confirmacion.isConfirmed) return;
+
+            const blocks = Array.from(document.querySelectorAll('.escenario-block'));
+            const original = btnTodos.innerHTML;
+            btnTodos.disabled = true;
+
+            let fallas = 0;
+            let totTokensIn = 0, totTokensOut = 0;
+            for (let i = 0; i < blocks.length; i++) {
+                const block = blocks[i];
+                const id = parseInt(block.dataset.id, 10);
+                const nombre = block.querySelector('.editable-title')?.textContent || ('Escenario ' + (i+1));
+                btnTodos.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando ' + (i+1) + '/' + blocks.length + '...';
+                statusTodos.textContent = 'En curso: ' + nombre;
+
+                // Marca el boton individual como "en curso" para feedback visual
+                const btnInd = block.querySelector('.btn-ia');
+                const btnIndOrig = btnInd ? btnInd.innerHTML : null;
+                if (btnInd) { btnInd.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btnInd.disabled = true; }
+
+                try {
+                    const data = await generarEscenarioIA(id, block);
+                    totTokensIn  += data.tokens?.in  || 0;
+                    totTokensOut += data.tokens?.out || 0;
+                } catch (err) {
+                    fallas++;
+                    console.error('Fallo escenario ' + id + ':', err);
+                } finally {
+                    if (btnInd) { btnInd.innerHTML = btnIndOrig; btnInd.disabled = false; }
+                }
+
+                // Pequena pausa para no saturar la API
+                await new Promise(r => setTimeout(r, 600));
+            }
+
+            btnTodos.disabled = false;
+            btnTodos.innerHTML = original;
+            statusTodos.innerHTML = 'Completado: ' + (blocks.length - fallas) + '/' + blocks.length
+                + ' · Tokens totales: ' + totTokensIn + ' in / ' + totTokensOut + ' out'
+                + (fallas > 0 ? ' · <span style="color:#c0392b;">' + fallas + ' fallaron, reintenta esos individualmente</span>' : '');
+
+            Swal.fire({
+                icon: fallas === 0 ? 'success' : 'warning',
+                title: fallas === 0 ? 'Todos los escenarios generados' : 'Generacion parcial',
+                html: 'OK: ' + (blocks.length - fallas) + ' / ' + blocks.length + '<br>Tokens: ' + totTokensIn + ' in / ' + totTokensOut + ' out'
+                    + (fallas > 0 ? '<br><strong>Reintenta individualmente los ' + fallas + ' que fallaron.</strong>' : ''),
+                confirmButtonColor: '#bd9751'
+            });
+        });
+    }
 
     document.getElementById('btnFinalizar')?.addEventListener('click', function(e) {
         e.preventDefault();

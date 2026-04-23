@@ -154,18 +154,29 @@ Tu tarea: redactar un PROCEDIMIENTO DE REACCION EN EMERGENCIA para el area "{$ar
 CONTEXTO DE LA COPROPIEDAD:
 {$ctxTxt}
 
+POBLACIONES VULNERABLES (INCLUIR SIEMPRE):
+En una copropiedad residencial conviven poblaciones vulnerables que requieren manejo diferencial en emergencia:
+  - Ninos de brazos (0-2 anos): no pueden agarrarse ni seguir instrucciones
+  - Ninos entre 3 y 12 anos: requieren un adulto que los acompane y los contenga
+  - Mujeres embarazadas: riesgo de caida, estres fisiologico, no cargar pesos
+  - Adultos mayores (60+): movilidad reducida, tiempos de respuesta mas largos
+  - Personas en condicion de discapacidad motriz (silla de ruedas, muletas): requieren ayuda fisica para evacuar
+  - Personas con discapacidad cognitiva, visual, auditiva: requieren instrucciones adaptadas y acompanante
+
+DEBES incluir en "que_hacer" pasos explicitos para estas poblaciones cuando el escenario las afecte. En "quien" nombra a quien queda a cargo de asistir a cada poblacion (vecino mas cercano, brigadista de piso, administrador). NO invisibilices estas poblaciones en el procedimiento.
+
 REGLAS DE REDACCION:
 1. Espanol colombiano 100%. Sin tildes (compatibilidad DOMPDF). Sin emojis. Sin anglicismos.
 2. Tono formal tecnico, operativo, accionable. Como lo leeria un vigilante o administrador bajo presion.
 3. NO describas la amenaza ni des teoria — ve directo a que hacer en los primeros minutos del evento.
 4. Acciones concretas, verbos en imperativo o tercera persona del plural. Evita generalidades.
 5. Especifico para el area (piscina vs gym vs turco). Contempla caracteristicas del agua, vapor, temperatura, electricidad, quimicos, segun corresponda.
-6. 5 bloques, cada uno 40-120 palabras aproximadamente:
-   - que_hacer: secuencia numerada de acciones inmediatas en los primeros 5 minutos.
-   - que_no_hacer: errores graves que agravarian la emergencia.
-   - cuando: disparadores / momento del dia / condiciones que activan el procedimiento.
-   - quien: roles responsables (vigilante, administrador, brigadista, operario, familiares).
-   - recursos: equipos, dotacion, comunicaciones y documentos necesarios.
+6. 5 bloques, cada uno 60-150 palabras aproximadamente (mas largo que antes porque debe contemplar poblaciones vulnerables):
+   - que_hacer: secuencia numerada de acciones inmediatas en los primeros 5 minutos. Incluir sub-acciones para poblaciones vulnerables aplicables al escenario.
+   - que_no_hacer: errores graves que agravarian la emergencia, incluyendo errores con poblaciones vulnerables (ej: no dejar a un nino de brazos en el piso, no forzar a un adulto mayor a correr).
+   - cuando: disparadores / momento del dia / condiciones que activan el procedimiento. Identifica momentos de mayor afluencia de poblaciones vulnerables (ej: fines de semana, horario familiar).
+   - quien: roles responsables (vigilante, administrador, brigadista, operario, familiares) + asignacion clara de quien asiste a cada poblacion vulnerable.
+   - recursos: equipos, dotacion, comunicaciones y documentos necesarios. Incluir recursos para poblaciones vulnerables (flotador infantil, silla portatil, camilla, linterna, etc.) segun aplique.
 
 FORMATO DE RESPUESTA:
 Devuelve EXCLUSIVAMENTE un objeto JSON valido sin markdown ni texto adicional:
@@ -180,7 +191,7 @@ PROMPT;
 
         $payload = [
             'model'      => $this->model,
-            'max_tokens' => 1500,
+            'max_tokens' => 2500,
             'messages'   => [['role' => 'user', 'content' => $prompt]],
         ];
 
