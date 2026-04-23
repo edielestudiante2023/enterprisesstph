@@ -8,7 +8,7 @@ $fDate = function($v) { return !empty($v) ? date('d/m/Y', strtotime($v)) : '-'; 
 ?>
 <div class="container-fluid px-3">
     <div class="mt-2 mb-3 d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">Inspeccion del Piscinero / Salvavidas</h6>
+        <h6 class="mb-0">Inspeccion del operador de piscina</h6>
         <span class="badge badge-<?= esc($inspeccion['estado']) ?>">
             <?= $inspeccion['estado'] === 'completo' ? 'Completo' : 'Borrador' ?>
         </span>
