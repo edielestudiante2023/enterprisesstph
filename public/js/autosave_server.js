@@ -33,9 +33,16 @@
         var intervalId = null;
 
         // ── Marcar file inputs como dirty cuando el usuario selecciona archivo ──
+        // ADICIONALMENTE disparar autosave debounce (3s) porque el evento `input`
+        // no se dispara con file inputs, entonces sin este trigger las fotos se
+        // quedaban sin guardar hasta el intervalo de 60s o el submit manual.
         form.addEventListener('change', function (e) {
             if (e.target.type === 'file' && e.target.files && e.target.files.length > 0) {
                 e.target.setAttribute('data-dirty', '1');
+                if (!submitted) {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(doAutosave, 3000);
+                }
             }
         });
 
@@ -221,11 +228,11 @@
                         input.removeAttribute('data-dirty');
                         input.value = ''; // Evitar re-subir en el próximo tick
 
-                        // Multi-foto: si el input está en una fila dinámica de "agregar foto",
-                        // remover la fila completa (la foto ya se persistió en BD).
-                        // Evita que el usuario vea el input vacío pensando que perdió la foto.
-                        var dynamicRow = input.closest('.evid-new-row');
-                        if (dynamicRow) dynamicRow.remove();
+                        // Limpiar preview visual de la foto recién subida para que se vean los slots listos para una nueva foto
+                        var prevPreview = input.previousElementSibling;
+                        if (prevPreview && prevPreview.classList && prevPreview.classList.contains('file-live-preview')) {
+                            prevPreview.remove();
+                        }
                     });
 
                 } else {
