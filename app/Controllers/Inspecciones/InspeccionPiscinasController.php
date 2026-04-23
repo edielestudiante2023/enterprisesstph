@@ -766,8 +766,7 @@ class InspeccionPiscinasController extends BaseController
             $file->move($dir, $fileName);
             $this->comprimirImagen($dir . $fileName);
             $maxOrden++;
-            $categoria = trim((string)($categorias[$idx] ?? 'Otra'));
-            if ($categoria === '') $categoria = 'Otra';
+            $categoria = trim((string)($categorias[$idx] ?? ''));
             if (strlen($categoria) > 60) $categoria = substr($categoria, 0, 60);
             $descripcion = $descripciones[$idx] ?? null;
             if ($descripcion !== null && strlen($descripcion) > 255) {
