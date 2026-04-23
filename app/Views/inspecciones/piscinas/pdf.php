@@ -58,12 +58,12 @@ table.data th { background: #eee; font-weight: 700; }
 .kv { width: 100%; margin: 2px 0; }
 .kv td { padding: 1px 3px; font-size: 9.5px; vertical-align: top; border: none; }
 .kv td.k { font-weight: 600; width: 32%; color: #555; }
-.hallazgo-critico { background: <?= $peorColor ?>; color: #fff; padding: 8px 12px; border-radius: 5px; margin: 6px 0; }
-.hallazgo-critico .hc-label { font-size: 10px; font-weight: 600; margin-right: 8px; }
-.hallazgo-critico .hc-value { font-size: 16px; font-weight: 700; }
-.hallazgo-critico .hc-note { font-size: 8.5px; margin-top: 2px; }
-.piscina { border: 1.5px solid #bd9751; padding: 6px 8px; margin: 6px 0; border-radius: 4px; page-break-inside: avoid; }
-.piscina h2 { margin-top: 0; }
+.hallazgo-critico { color: <?= $peorColor ?>; padding: 2px 0; margin: 4px 0 8px 0; border-bottom: 2px solid <?= $peorColor ?>; }
+.hallazgo-critico .hc-label { font-size: 10px; font-weight: 600; margin-right: 8px; color: #555; }
+.hallazgo-critico .hc-value { font-size: 14px; font-weight: 700; }
+.hallazgo-critico .hc-note { font-size: 8.5px; margin-top: 2px; color: #777; }
+.piscina { margin: 6px 0 10px 0; page-break-inside: avoid; }
+.piscina h2 { margin-top: 0; border-bottom: 1.5px solid #bd9751; padding-bottom: 2px; }
 .param-tbl td { font-size: 9px; }
 .param-ok { color: #1b7e3f; font-weight: 700; }
 .param-no { color: #c0392b; font-weight: 700; }

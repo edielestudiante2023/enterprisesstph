@@ -19,13 +19,14 @@ table { width: 100%; border-collapse: collapse; margin: 4px 0; }
 .kv { width: 100%; }
 .kv td { padding: 2px 4px; font-size: 9.5px; vertical-align: top; }
 .kv td.k { font-weight: 600; width: 28%; color: #555; background: #f6f6f6; }
-.escenario { border: 1.2px solid #c0392b; padding: 6px 8px; margin: 6px 0; border-radius: 4px; }
-.escenario h2 { margin: 0 0 4px 0; font-size: 12px; border-bottom-color: #c0392b; padding-bottom: 2px; }
-.escenario table.dualcol { width: 100%; margin: 0; border-collapse: collapse; }
-.escenario table.dualcol td { width: 50%; vertical-align: top; padding: 2px; border: none; }
-.block { margin: 2px 0; padding: 4px 6px; border-left: 3px solid #c0392b; background: #fffbfb; }
-.block-title { font-size: 9.5px; font-weight: 700; color: #c0392b; text-transform: uppercase; margin-bottom: 1px; }
-.block-content { font-size: 9.5px; line-height: 1.3; }
+.escenario { margin: 6px 0 10px 0; }
+.escenario h3 { margin: 0 0 2px 0; font-size: 11px; color: #c0392b; border-bottom: 0.5px solid #c0392b; padding-bottom: 1px; }
+.escenario p { margin: 1px 0 3px 0; font-size: 9.5px; line-height: 1.35; text-align: justify; }
+.escenario .label-hacer    { color: #1b7e3f; font-weight: 700; }
+.escenario .label-no-hacer { color: #c0392b; font-weight: 700; }
+.escenario .label-quien    { color: #3b5bbd; font-weight: 700; }
+.escenario .label-recursos { color: #8a6d30; font-weight: 700; }
+.escenario .label-cuando   { color: #555;    font-weight: 700; }
 .footer { font-size: 8px; color: #666; margin-top: 10px; text-align: center; }
 .warning-box { background: #fff8e1; border: 1px solid #d4a70e; padding: 4px 8px; border-radius: 4px; margin: 4px 0; font-size: 9px; }
 </style>
@@ -84,46 +85,30 @@ table { width: 100%; border-collapse: collapse; margin: 4px 0; }
     if (empty($esc['que_hacer']) && empty($esc['que_no_hacer'])) continue;
 ?>
 <div class="escenario">
-    <h2>2.<?= $i + 1 ?>. <?= esc($esc['escenario_nombre']) ?></h2>
+    <h3>2.<?= $i + 1 ?>. <?= esc($esc['escenario_nombre']) ?></h3>
 
     <?php if (!empty($esc['cuando'])): ?>
-    <div class="block"><div class="block-title">CUANDO</div><div class="block-content"><?= nl2br(esc($esc['cuando'])) ?></div></div>
+    <p><span class="label-cuando">CUANDO:</span> <?= nl2br(esc($esc['cuando'])) ?></p>
     <?php endif; ?>
 
-    <!-- QUE HACER + QUE NO HACER en 2 columnas para compactar -->
-    <?php if (!empty($esc['que_hacer']) || !empty($esc['que_no_hacer'])): ?>
-    <table class="dualcol"><tr>
-        <td>
-            <?php if (!empty($esc['que_hacer'])): ?>
-            <div class="block" style="border-left-color:#1b7e3f; background:#f1faf4;"><div class="block-title" style="color:#1b7e3f;">QUE HACER</div><div class="block-content"><?= nl2br(esc($esc['que_hacer'])) ?></div></div>
-            <?php endif; ?>
-        </td>
-        <td>
-            <?php if (!empty($esc['que_no_hacer'])): ?>
-            <div class="block"><div class="block-title">QUE NO HACER</div><div class="block-content"><?= nl2br(esc($esc['que_no_hacer'])) ?></div></div>
-            <?php endif; ?>
-        </td>
-    </tr></table>
+    <?php if (!empty($esc['que_hacer'])): ?>
+    <p><span class="label-hacer">QUE HACER:</span> <?= nl2br(esc($esc['que_hacer'])) ?></p>
     <?php endif; ?>
 
-    <!-- QUIEN + RECURSOS en 2 columnas -->
-    <?php if (!empty($esc['quien']) || !empty($esc['recursos'])): ?>
-    <table class="dualcol"><tr>
-        <td>
-            <?php if (!empty($esc['quien'])): ?>
-            <div class="block" style="border-left-color:#3b5bbd; background:#f5f7ff;"><div class="block-title" style="color:#3b5bbd;">QUIEN responde</div><div class="block-content"><?= nl2br(esc($esc['quien'])) ?></div></div>
-            <?php endif; ?>
-        </td>
-        <td>
-            <?php if (!empty($esc['recursos'])): ?>
-            <div class="block" style="border-left-color:#bd9751; background:#fffaf0;"><div class="block-title" style="color:#8a6d30;">RECURSOS</div><div class="block-content"><?= nl2br(esc($esc['recursos'])) ?></div></div>
-            <?php endif; ?>
-        </td>
-    </tr></table>
+    <?php if (!empty($esc['que_no_hacer'])): ?>
+    <p><span class="label-no-hacer">QUE NO HACER:</span> <?= nl2br(esc($esc['que_no_hacer'])) ?></p>
+    <?php endif; ?>
+
+    <?php if (!empty($esc['quien'])): ?>
+    <p><span class="label-quien">QUIEN RESPONDE:</span> <?= nl2br(esc($esc['quien'])) ?></p>
+    <?php endif; ?>
+
+    <?php if (!empty($esc['recursos'])): ?>
+    <p><span class="label-recursos">RECURSOS:</span> <?= nl2br(esc($esc['recursos'])) ?></p>
     <?php endif; ?>
 
     <?php if (!empty($esc['observaciones'])): ?>
-    <div style="font-size:9px; color:#555; margin-top:3px;"><em><strong>Observaciones:</strong> <?= nl2br(esc($esc['observaciones'])) ?></em></div>
+    <p style="color:#555;"><em><strong>Observaciones:</strong> <?= nl2br(esc($esc['observaciones'])) ?></em></p>
     <?php endif; ?>
 </div>
 <?php endforeach; ?>

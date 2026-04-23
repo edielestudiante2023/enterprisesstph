@@ -387,6 +387,22 @@ class ContractLibrary
         $estandares = $map[strtoupper($frecuenciaVisitas ?? '')] ?? null;
         if ($estandares) {
             $this->clientModel->update($idCliente, ['estandares' => $estandares]);
+
+            $mesActual  = (int) date('n');
+            $anioActual = (int) date('Y');
+
+            \Config\Database::connect()
+                ->table('tbl_ciclos_visita')
+                ->where('id_cliente', $idCliente)
+                ->where('fecha_acta', null)
+                ->groupStart()
+                    ->where('anio >', $anioActual)
+                    ->orGroupStart()
+                        ->where('anio', $anioActual)
+                        ->where('mes_esperado >=', $mesActual)
+                    ->groupEnd()
+                ->groupEnd()
+                ->update(['estandar' => $estandares]);
         }
     }
 
