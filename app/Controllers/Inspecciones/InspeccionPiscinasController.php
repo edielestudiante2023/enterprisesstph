@@ -730,7 +730,13 @@ class InspeccionPiscinasController extends BaseController
 
     /**
      * Procesa fotos adicionales por piscina detalle (N fotos, append).
-     * Los inputs vienen como item_evidencia_<i>[] donde <i> es el índice de la piscina (0-based).
+     *
+     * Form envía tres arrays paralelos (uno por fila de "+ Agregar foto"):
+     *   item_evidencia_<i>[]             (archivo)
+     *   item_evidencia_categoria_<i>[]   (texto libre, con datalist de sugerencias)
+     *   item_evidencia_descripcion_<i>[] (texto opcional)
+     *
+     * donde <i> es el índice (0-based) de la piscina en el form.
      */
     private function savePiscinaEvidencias(int $idDetalle, int $i): void
     {
@@ -740,26 +746,40 @@ class InspeccionPiscinasController extends BaseController
         $files = $this->request->getFiles();
         $inputName = 'item_evidencia_' . $i;
         if (!isset($files[$inputName])) return;
+
         $fileList = $files[$inputName];
         if (!is_array($fileList)) $fileList = [$fileList];
 
-        $categoria = $this->pickIdx('item_evidencia_categoria', $i, 'OTRA');
+        $categorias    = $this->request->getPost('item_evidencia_categoria_' . $i);
+        $descripciones = $this->request->getPost('item_evidencia_descripcion_' . $i);
+        if (!is_array($categorias))    $categorias    = [];
+        if (!is_array($descripciones)) $descripciones = [];
+
         $maxOrden = (int)($this->evidenciaDetalleModel
             ->selectMax('orden')
             ->where('id_piscina_detalle', $idDetalle)
             ->first()['orden'] ?? 0);
 
-        foreach ($fileList as $file) {
+        foreach ($fileList as $idx => $file) {
             if (!$file || !$file->isValid() || $file->hasMoved()) continue;
             $fileName = $file->getRandomName();
             $file->move($dir, $fileName);
             $this->comprimirImagen($dir . $fileName);
             $maxOrden++;
+            $categoria = trim((string)($categorias[$idx] ?? 'Otra'));
+            if ($categoria === '') $categoria = 'Otra';
+            if (strlen($categoria) > 60) $categoria = substr($categoria, 0, 60);
+            $descripcion = $descripciones[$idx] ?? null;
+            if ($descripcion !== null && strlen($descripcion) > 255) {
+                $descripcion = substr($descripcion, 0, 255);
+            }
+
             $this->evidenciaDetalleModel->insert([
                 'id_piscina_detalle' => $idDetalle,
                 'categoria'          => $categoria,
                 'orden'              => $maxOrden,
                 'foto_path'          => 'uploads/inspecciones/piscinas/fotos/detalle/' . $fileName,
+                'descripcion'        => $descripcion,
             ]);
         }
     }
