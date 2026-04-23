@@ -8,11 +8,13 @@ body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 11px; color: #222
 h1 { font-size: 20px; margin: 0 0 6px 0; color: #1c2437; }
 h2 { font-size: 14px; margin: 12px 0 6px 0; color: #1c2437; border-bottom: 2px solid #c0392b; padding-bottom: 3px; }
 h3 { font-size: 12px; margin: 8px 0 4px 0; color: #1c2437; }
-.header { border-bottom: 3px solid #c0392b; padding-bottom: 8px; margin-bottom: 12px; }
-.header-table { width: 100%; }
-.header-table td { vertical-align: middle; }
-.logo { max-height: 60px; max-width: 160px; }
-.title-box { text-align: right; }
+.header-corp { width: 100%; border-collapse: collapse; border: 1.5px solid #333; margin-bottom: 8px; }
+.header-corp td { border: 1px solid #333; padding: 4px 6px; vertical-align: middle; }
+.header-logo { width: 100px; text-align: center; font-size: 8px; }
+.header-logo img { max-width: 85px; max-height: 50px; }
+.header-sist { text-align: center; font-weight: bold; font-size: 9px; }
+.header-code { width: 130px; font-size: 8px; }
+.main-title { text-align: center; font-size: 14px; font-weight: bold; margin: 6px 0 10px; color: #c0392b; }
 table { width: 100%; border-collapse: collapse; margin: 4px 0; }
 .kv { width: 100%; }
 .kv td { padding: 3px 5px; font-size: 11px; vertical-align: top; }
@@ -28,18 +30,29 @@ table { width: 100%; border-collapse: collapse; margin: 4px 0; }
 </head>
 <body>
 
-<div class="header">
-    <table class="header-table">
-        <tr>
-            <td style="width: 180px;"><?php if (!empty($logoBase64)): ?><img class="logo" src="<?= $logoBase64 ?>"><?php endif; ?></td>
-            <td class="title-box">
-                <h1>PROCEDIMIENTO DE REACCION EN EMERGENCIA</h1>
-                <div style="font-size: 13px; font-weight: 600;"><?= esc($areasLabels[$procedimiento['area']] ?? '') ?></div>
-                <div style="font-size: 11px; color: #444;"><?= esc($cliente['nombre_cliente'] ?? '') ?></div>
-                <div style="font-size: 9px; color: #777;">Fecha: <?= date('d/m/Y', strtotime($procedimiento['fecha_elaboracion'])) ?></div>
-            </td>
-        </tr>
-    </table>
+<!-- HEADER CORPORATIVO (FT-SST-248) -->
+<table class="header-corp">
+    <tr>
+        <td class="header-logo" rowspan="2">
+            <?php if (!empty($logoBase64)): ?>
+                <img src="<?= $logoBase64 ?>">
+            <?php else: ?>
+                <strong style="font-size:7px;"><?= esc($cliente['nombre_cliente'] ?? '') ?></strong>
+            <?php endif; ?>
+        </td>
+        <td class="header-sist">SISTEMA DE GESTION DE SEGURIDAD Y SALUD EN EL TRABAJO</td>
+        <td class="header-code">Codigo: FT-SST-248<br>Version: 001</td>
+    </tr>
+    <tr>
+        <td class="header-sist" style="font-size:10px;">PROCEDIMIENTO DE REACCION EN EMERGENCIA POR AREA</td>
+        <td class="header-code">Fecha: <?= date('d/m/Y', strtotime($procedimiento['fecha_elaboracion'])) ?></td>
+    </tr>
+</table>
+
+<div class="main-title">
+    PROCEDIMIENTO DE REACCION EN EMERGENCIA<br>
+    <?= esc($areasLabels[$procedimiento['area']] ?? '') ?><br>
+    <span style="font-size:11px;font-weight:normal;color:#444;"><?= esc($cliente['nombre_cliente'] ?? '') ?></span>
 </div>
 
 <div class="warning-box">

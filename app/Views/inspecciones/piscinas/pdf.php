@@ -44,11 +44,13 @@ body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 10px; color: #222
 h1 { font-size: 18px; margin: 0 0 6px 0; color: #1c2437; }
 h2 { font-size: 14px; margin: 12px 0 6px 0; color: #1c2437; border-bottom: 2px solid #bd9751; padding-bottom: 3px; }
 h3 { font-size: 12px; margin: 8px 0 4px 0; color: #1c2437; }
-.header { border-bottom: 3px solid #bd9751; padding-bottom: 8px; margin-bottom: 12px; }
-.header-table { width: 100%; }
-.header-table td { vertical-align: middle; }
-.logo { max-height: 60px; max-width: 160px; }
-.title-box { text-align: right; }
+.header-corp { width: 100%; border-collapse: collapse; border: 1.5px solid #333; margin-bottom: 8px; }
+.header-corp td { border: 1px solid #333; padding: 4px 6px; vertical-align: middle; }
+.header-logo { width: 100px; text-align: center; font-size: 8px; }
+.header-logo img { max-width: 85px; max-height: 50px; }
+.header-sist { text-align: center; font-weight: bold; font-size: 9px; }
+.header-code { width: 130px; font-size: 8px; }
+.main-title { text-align: center; font-size: 13px; font-weight: bold; margin: 6px 0 10px; color: #1c2437; }
 table { width: 100%; border-collapse: collapse; margin: 4px 0; }
 table.data th, table.data td { border: 1px solid #aaa; padding: 3px 5px; font-size: 9.5px; text-align: left; }
 table.data th { background: #eee; font-weight: 700; }
@@ -71,18 +73,26 @@ table.data th { background: #eee; font-weight: 700; }
 </head>
 <body>
 
-<div class="header">
-    <table class="header-table">
-        <tr>
-            <td style="width: 180px;"><?php if (!empty($logoBase64)): ?><img class="logo" src="<?= $logoBase64 ?>"><?php endif; ?></td>
-            <td class="title-box">
-                <h1>INSPECCION DE PISCINAS</h1>
-                <div style="font-size: 10px;"><?= esc($cliente['nombre_cliente'] ?? '') ?></div>
-                <div style="font-size: 9px; color: #777;">Fecha: <?= date('d/m/Y', strtotime($inspeccion['fecha_inspeccion'])) ?></div>
-            </td>
-        </tr>
-    </table>
-</div>
+<!-- HEADER CORPORATIVO (FT-SST-246) -->
+<table class="header-corp">
+    <tr>
+        <td class="header-logo" rowspan="2">
+            <?php if (!empty($logoBase64)): ?>
+                <img src="<?= $logoBase64 ?>">
+            <?php else: ?>
+                <strong style="font-size:7px;"><?= esc($cliente['nombre_cliente'] ?? '') ?></strong>
+            <?php endif; ?>
+        </td>
+        <td class="header-sist">SISTEMA DE GESTION DE SEGURIDAD Y SALUD EN EL TRABAJO</td>
+        <td class="header-code">Codigo: FT-SST-246<br>Version: 001</td>
+    </tr>
+    <tr>
+        <td class="header-sist" style="font-size:10px;">FORMATO DE INSPECCION DE PISCINAS (Res 234/2026 Minsalud)</td>
+        <td class="header-code">Fecha: <?= date('d/m/Y', strtotime($inspeccion['fecha_inspeccion'])) ?></td>
+    </tr>
+</table>
+
+<div class="main-title">INFORME DE INSPECCION DE PISCINAS<br><?= esc($cliente['nombre_cliente'] ?? '') ?></div>
 
 <!-- Hallazgo principal: peor IRAPI -->
 <div class="hallazgo-critico">

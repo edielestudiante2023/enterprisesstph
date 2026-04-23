@@ -1023,6 +1023,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('piscinas/view/(:num)', 'InspeccionPiscinasController::view/$1');
     $routes->get('piscinas/pdf/(:num)', 'InspeccionPiscinasController::generatePdf/$1');
     $routes->get('piscinas/regenerar/(:num)', 'InspeccionPiscinasController::regenerarPdf/$1');
+    $routes->get('piscinas/regenerar-pdf/(:num)', 'InspeccionPiscinasController::regenerarPdf/$1');
     $routes->post('piscinas/finalizar/(:num)', 'InspeccionPiscinasController::finalizar/$1');
     $routes->get('piscinas/delete/(:num)', 'InspeccionPiscinasController::delete/$1');
     $routes->get('piscinas/enviar-email/(:num)', 'InspeccionPiscinasController::enviarEmail/$1');
