@@ -147,9 +147,11 @@
             saving = true;
             showStatus('fa-spinner fa-spin', 'Guardando...', '#999');
 
-            // Deshabilitar botones submit durante autosave
-            var submits = form.querySelectorAll('button[type="submit"], input[type="submit"]');
-            submits.forEach(function (btn) { btn.disabled = true; });
+            // NO deshabilitar los botones submit: si el usuario hace submit manual
+            // durante el autosave, el handler de submit lo detecta (saving=true) y
+            // lo pone en pendingSubmitBtn para ejecutarlo al terminar.
+            // Dejamos la referencia vacía para mantener el interfaz con .finally().
+            var submits = [];
 
             var fd = buildFormData();
             var url = getUrl();
@@ -218,6 +220,12 @@
                     form.querySelectorAll('input[type="file"][data-dirty="1"]').forEach(function (input) {
                         input.removeAttribute('data-dirty');
                         input.value = ''; // Evitar re-subir en el próximo tick
+
+                        // Multi-foto: si el input está en una fila dinámica de "agregar foto",
+                        // remover la fila completa (la foto ya se persistió en BD).
+                        // Evita que el usuario vea el input vacío pensando que perdió la foto.
+                        var dynamicRow = input.closest('.evid-new-row');
+                        if (dynamicRow) dynamicRow.remove();
                     });
 
                 } else {
