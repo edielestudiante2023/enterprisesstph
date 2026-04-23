@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <style>
-@page { margin: 30px 30px 40px 30px; }
-body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 11px; color: #222; }
-h1 { font-size: 20px; margin: 0 0 6px 0; color: #1c2437; }
-h2 { font-size: 14px; margin: 12px 0 6px 0; color: #1c2437; border-bottom: 2px solid #c0392b; padding-bottom: 3px; }
-h3 { font-size: 12px; margin: 8px 0 4px 0; color: #1c2437; }
+@page { margin: 28px 28px 36px 28px; }
+body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 10px; color: #222; }
+h1 { font-size: 16px; margin: 0 0 4px 0; color: #1c2437; }
+h2 { font-size: 12px; margin: 6px 0 3px 0; color: #1c2437; border-bottom: 1px solid #c0392b; padding-bottom: 2px; }
+h3 { font-size: 10.5px; margin: 4px 0 2px 0; color: #1c2437; }
 .header-corp { width: 100%; border-collapse: collapse; border: 1.5px solid #333; margin-bottom: 8px; }
 .header-corp td { border: 1px solid #333; padding: 4px 6px; vertical-align: middle; }
 .header-logo { width: 100px; text-align: center; font-size: 8px; }
 .header-logo img { max-width: 85px; max-height: 50px; }
 .header-sist { text-align: center; font-weight: bold; font-size: 9px; }
 .header-code { width: 130px; font-size: 8px; }
-.main-title { text-align: center; font-size: 14px; font-weight: bold; margin: 6px 0 10px; color: #c0392b; }
+.main-title { text-align: center; font-size: 12px; font-weight: bold; margin: 4px 0 6px; color: #c0392b; }
 table { width: 100%; border-collapse: collapse; margin: 4px 0; }
 .kv { width: 100%; }
-.kv td { padding: 3px 5px; font-size: 11px; vertical-align: top; }
-.kv td.k { font-weight: 600; width: 32%; color: #555; background: #f6f6f6; }
+.kv td { padding: 2px 4px; font-size: 9.5px; vertical-align: top; }
+.kv td.k { font-weight: 600; width: 28%; color: #555; background: #f6f6f6; }
 .escenario { border: 1.2px solid #c0392b; padding: 6px 8px; margin: 6px 0; border-radius: 4px; }
 .escenario h2 { margin: 0 0 4px 0; font-size: 12px; border-bottom-color: #c0392b; padding-bottom: 2px; }
 .escenario table.dualcol { width: 100%; margin: 0; border-collapse: collapse; }
@@ -27,7 +27,7 @@ table { width: 100%; border-collapse: collapse; margin: 4px 0; }
 .block-title { font-size: 9.5px; font-weight: 700; color: #c0392b; text-transform: uppercase; margin-bottom: 1px; }
 .block-content { font-size: 9.5px; line-height: 1.3; }
 .footer { font-size: 8px; color: #666; margin-top: 10px; text-align: center; }
-.warning-box { background: #fff8e1; border: 1px solid #d4a70e; padding: 8px; border-radius: 4px; margin: 10px 0; font-size: 10px; }
+.warning-box { background: #fff8e1; border: 1px solid #d4a70e; padding: 4px 8px; border-radius: 4px; margin: 4px 0; font-size: 9px; }
 </style>
 </head>
 <body>

@@ -39,11 +39,11 @@ $peorColor = irapiColor($peorClas);
 <head>
 <meta charset="UTF-8">
 <style>
-@page { margin: 30px 30px 40px 30px; }
+@page { margin: 28px 28px 36px 28px; }
 body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 10px; color: #222; }
-h1 { font-size: 18px; margin: 0 0 6px 0; color: #1c2437; }
-h2 { font-size: 14px; margin: 12px 0 6px 0; color: #1c2437; border-bottom: 2px solid #bd9751; padding-bottom: 3px; }
-h3 { font-size: 12px; margin: 8px 0 4px 0; color: #1c2437; }
+h1 { font-size: 16px; margin: 0 0 4px 0; color: #1c2437; }
+h2 { font-size: 12px; margin: 6px 0 3px 0; color: #1c2437; border-bottom: 1px solid #bd9751; padding-bottom: 2px; }
+h3 { font-size: 10.5px; margin: 4px 0 2px 0; color: #1c2437; }
 .header-corp { width: 100%; border-collapse: collapse; border: 1.5px solid #333; margin-bottom: 8px; }
 .header-corp td { border: 1px solid #333; padding: 4px 6px; vertical-align: middle; }
 .header-logo { width: 100px; text-align: center; font-size: 8px; }
@@ -55,12 +55,14 @@ table { width: 100%; border-collapse: collapse; margin: 4px 0; }
 table.data th, table.data td { border: 1px solid #aaa; padding: 3px 5px; font-size: 9.5px; text-align: left; }
 table.data th { background: #eee; font-weight: 700; }
 .badge { display: inline-block; padding: 3px 10px; border-radius: 10px; color: #fff; font-weight: 700; font-size: 11px; }
-.kv { width: 100%; margin: 4px 0; }
-.kv td { padding: 2px 4px; font-size: 10px; vertical-align: top; border: none; }
+.kv { width: 100%; margin: 2px 0; }
+.kv td { padding: 1px 3px; font-size: 9.5px; vertical-align: top; border: none; }
 .kv td.k { font-weight: 600; width: 32%; color: #555; }
-.hallazgo-critico { background: <?= $peorColor ?>; color: #fff; padding: 14px; border-radius: 6px; margin: 12px 0; }
-.hallazgo-critico h2 { color: #fff; border: none; margin: 0 0 4px 0; }
-.piscina { border: 1.5px solid #bd9751; padding: 8px; margin: 10px 0; border-radius: 4px; page-break-inside: avoid; }
+.hallazgo-critico { background: <?= $peorColor ?>; color: #fff; padding: 8px 12px; border-radius: 5px; margin: 6px 0; }
+.hallazgo-critico .hc-label { font-size: 10px; font-weight: 600; margin-right: 8px; }
+.hallazgo-critico .hc-value { font-size: 16px; font-weight: 700; }
+.hallazgo-critico .hc-note { font-size: 8.5px; margin-top: 2px; }
+.piscina { border: 1.5px solid #bd9751; padding: 6px 8px; margin: 6px 0; border-radius: 4px; page-break-inside: avoid; }
 .piscina h2 { margin-top: 0; }
 .param-tbl td { font-size: 9px; }
 .param-ok { color: #1b7e3f; font-weight: 700; }
@@ -94,23 +96,20 @@ table.data th { background: #eee; font-weight: 700; }
 
 <div class="main-title">INFORME DE INSPECCION DE PISCINAS<br><?= esc($cliente['nombre_cliente'] ?? '') ?></div>
 
-<!-- Hallazgo principal: peor IRAPI -->
+<!-- Hallazgo principal: peor IRAPI (linea compacta) -->
 <div class="hallazgo-critico">
-    <h2>Clasificacion IRAPI del establecimiento (peor caso)</h2>
-    <div style="font-size: 22px; font-weight: 700;"><?= number_format((float)$peorVal, 2) ?> — <?= irapiLabel($peorClas) ?></div>
-    <div style="font-size: 9px; margin-top: 4px;">Indice de Riesgo del Agua segun Anexo II de la Resolucion 234/2026 Minsalud.</div>
+    <span class="hc-label">IRAPI (peor caso):</span>
+    <span class="hc-value"><?= number_format((float)$peorVal, 2) ?> — <?= irapiLabel($peorClas) ?></span>
+    <div class="hc-note">Indice de Riesgo del Agua — Anexo II Resolucion 234/2026 Minsalud.</div>
 </div>
 
-<!-- INTRODUCCION / ALCANCE -->
+<!-- INTRODUCCION / ALCANCE (compacto) -->
 <h2>1. Introduccion, alcance y justificacion</h2>
-<div style="font-size: 10px; text-align: justify; line-height: 1.4;">
-    <p>El presente informe consolida los hallazgos de la inspeccion realizada por el consultor de Seguridad y Salud en el Trabajo (SST) a las piscinas y estanques de uso restringido / colectivo del cliente <strong><?= esc($cliente['nombre_cliente'] ?? '') ?></strong>, el dia <strong><?= date('d/m/Y', strtotime($inspeccion['fecha_inspeccion'])) ?></strong>.</p>
-
-    <p><strong>Alcance.</strong> Verifica el cumplimiento normativo en 4 frentes: (a) <em>infraestructura y seguridad</em> de la piscina (Ley 1209/2008), (b) <em>calidad del agua</em> con parametros fisicos, quimicos y microbiologicos (Resolucion 234 de 2026 del Ministerio de Salud y Proteccion Social, Anexo I), (c) <em>buenas practicas sanitarias</em>: manejo de quimicos, residuos, documentacion Art. 15, plan de saneamiento Art. 17 (Res 234/2026 Capitulo III), y (d) <em>dotacion de emergencia</em>: DEA, botiquines Tipo A/B/C segun superficie, flotadores, bastones (Art. 18 Res 234/2026).</p>
-
-    <p><strong>Metodo.</strong> Cada parametro in situ capturado se compara contra los valores aceptables del Anexo I y se marca Conforme (SI) / No conforme (NO) / No aplica (NA). Se calcula automaticamente el <strong>IRAPI</strong> (Indice de Riesgo del Agua, Anexo II) a partir de las mediciones, ponderando 45% microbiologicos, 20% residual de desinfectante, 30% asociados a cloracion (pH, ORP, cianurico) y 5% turbiedad. El IRAPI clasifica la piscina en Sin Riesgo (0-10), Bajo (10.1-35), Medio (35.1-75) o Alto (75.1-100). Tambien se calcula el Indice de Saturacion de Langelier (ISL) para determinar si el agua tiende a ser corrosiva, balanceada o incrustante.</p>
-
-    <p><strong>Disclaimer.</strong> Este informe identifica hallazgos de riesgo SST para la copropiedad y sirve de insumo para el plan de mejoramiento. <u>No reemplaza</u> el concepto sanitario de la Secretaria de Salud competente (Art. 10 Res 234), ni la certificacion del operador de piscinas por entidad acreditada (Art. 11 num 7), ni los ensayos de laboratorio trimestrales (Art. 6) que deben ser realizados por laboratorio privado acreditado y entregados por el responsable del establecimiento.</p>
+<div style="font-size: 9.5px; text-align: justify; line-height: 1.35;">
+    <p style="margin: 0 0 3px 0;">Informe de inspeccion SST a las piscinas del cliente <strong><?= esc($cliente['nombre_cliente'] ?? '') ?></strong> realizada el <strong><?= date('d/m/Y', strtotime($inspeccion['fecha_inspeccion'])) ?></strong>.</p>
+    <p style="margin: 0 0 3px 0;"><strong>Alcance:</strong> (a) infraestructura y seguridad (Ley 1209/2008), (b) calidad del agua (Res 234/2026 Anexo I), (c) buenas practicas sanitarias y documentacion (Res 234 Cap. III), (d) dotacion de emergencia: DEA, botiquines A/B/C por m², flotadores, bastones (Art. 18).</p>
+    <p style="margin: 0 0 3px 0;"><strong>Metodo:</strong> cada parametro in situ se compara contra valores aceptables del Anexo I (SI/NO/NA). El <strong>IRAPI</strong> se calcula automaticamente: VCM(45%) + VCR(20%) + VAC(30%) + VCT(5%), clasificacion 0-10 Sin riesgo, 10.1-35 Bajo, 35.1-75 Medio, 75.1-100 Alto. Tambien se calcula ISL Langelier (corrosiva/balanceada/incrustante).</p>
+    <p style="margin: 0;"><strong>Disclaimer:</strong> este informe identifica hallazgos SST; <u>no reemplaza</u> el concepto sanitario de la Secretaria de Salud (Art. 10), la certificacion del operador por entidad acreditada (Art. 11 num 7) ni los ensayos de laboratorio trimestrales (Art. 6).</p>
 </div>
 
 <h2>2. Datos generales del establecimiento</h2>
@@ -163,8 +162,6 @@ while ($col > 0 && $col < 3) { echo '<td></td>'; $col++; }
 ?>
 </tr></table>
 <?php endif; ?>
-
-<div class="pagebreak"></div>
 
 <h2>4. Piscinas inspeccionadas</h2>
 
@@ -341,8 +338,6 @@ while ($col > 0 && $col < 3) { echo '<td></td>'; $col++; }
 <h2>5. Recomendaciones generales</h2>
 <div style="font-size: 10px;"><?= nl2br(esc($inspeccion['recomendaciones_generales'])) ?></div>
 <?php endif; ?>
-
-<div class="pagebreak"></div>
 
 <h2>6. Marco normativo aplicable</h2>
 
