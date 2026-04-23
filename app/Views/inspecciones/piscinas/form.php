@@ -83,6 +83,16 @@ $GRUPOS = [
         <div class="alert alert-success mt-2" style="font-size:14px;"><?= session()->getFlashdata('msg') ?></div>
         <?php endif; ?>
 
+        <?php $advertencias = session()->getFlashdata('advertencias_cruzadas'); if (!empty($advertencias)): ?>
+        <div class="alert alert-warning mt-2" style="font-size:13px;">
+            <strong><i class="fas fa-triangle-exclamation"></i> Validaciones cruzadas detectadas:</strong>
+            <ul class="mb-2" style="margin-top:4px;">
+                <?php foreach ($advertencias as $a): ?><li><?= esc($a) ?></li><?php endforeach; ?>
+            </ul>
+            <div class="form-text" style="font-size:12px;">Corrige las inconsistencias arriba, o si confirmas que son correctas, marca la casilla al final del formulario para finalizar igual.</div>
+        </div>
+        <?php endif; ?>
+
         <div class="accordion mt-2" id="accordionPis">
 
             <!-- BLOQUE MAESTRO -->
@@ -108,11 +118,36 @@ $GRUPOS = [
                             </div>
                         </div>
                         <hr>
-                        <h6 class="mb-2">Empresa de mantenimiento</h6>
+                        <h6 class="mb-1">Empresa de mantenimiento</h6>
+                        <div class="form-text mb-2" style="font-size:11px; line-height:1.3;">
+                            Verificar: contrato vigente con la copropiedad, cumplimiento del SG-SST (Decreto 1072/2015),
+                            certificados de idoneidad del personal operativo y afiliacion a ARL. Si la empresa asume
+                            dosificacion, aplica tambien el Art. 5 Res 234 (dosificacion segura).
+                        </div>
                         <div class="row g-2 mb-3">
-                            <div class="col-12 col-md-6"><label class="form-label" style="font-size:12px;">Empresa</label><input type="text" name="empresa_mantenimiento" class="form-control form-control-sm" value="<?= esc($inspeccion['empresa_mantenimiento'] ?? '') ?>"></div>
+                            <div class="col-12 col-md-6"><label class="form-label" style="font-size:12px;">Empresa (razon social)</label><input type="text" name="empresa_mantenimiento" class="form-control form-control-sm" value="<?= esc($inspeccion['empresa_mantenimiento'] ?? '') ?>"></div>
                             <div class="col-6 col-md-3"><label class="form-label" style="font-size:12px;">NIT</label><input type="text" name="nit_empresa_mantenimiento" class="form-control form-control-sm" value="<?= esc($inspeccion['nit_empresa_mantenimiento'] ?? '') ?>"></div>
                             <div class="col-6 col-md-3"><label class="form-label" style="font-size:12px;">Contacto</label><input type="text" name="contacto_empresa_mantenimiento" class="form-control form-control-sm" value="<?= esc($inspeccion['contacto_empresa_mantenimiento'] ?? '') ?>"></div>
+                        </div>
+                        <?php
+                        // renderEvidenciaMultiFoto aun no esta definida en este punto del PHP render flow.
+                        // Se define mas abajo en el bloque siguiente, entonces lo incrustamos inline con un stub temprano:
+                        $rowsEmp = $evidenciasMap['empresa_mantenimiento'] ?? [];
+                        ?>
+                        <div class="col-12 mb-3">
+                            <label class="form-label" style="font-size:11px;"><i class="fas fa-images me-1"></i> Evidencias empresa de mantenimiento (contrato, certificados, SG-SST)</label>
+                            <?php if (!empty($rowsEmp)): ?>
+                            <div class="d-flex flex-wrap gap-2 mb-2" style="border:1px dashed #ccc; padding:6px; border-radius:4px; background:#fafafa;">
+                                <?php foreach ($rowsEmp as $r): ?>
+                                <div class="evidencia-thumb" data-id="<?= (int)$r['id'] ?>" style="position:relative; width:90px; height:90px;">
+                                    <img src="<?= base_url('/' . $r['foto_path']) ?>" style="width:90px;height:90px;object-fit:cover;border:1px solid #bbb;border-radius:4px;cursor:pointer;" onclick="openPhoto('<?= base_url('/' . $r['foto_path']) ?>')">
+                                    <button type="button" class="btn-remove-evidencia" data-id="<?= (int)$r['id'] ?>" title="Eliminar" style="position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:#c0392b;color:#fff;border:none;font-size:12px;line-height:20px;padding:0;cursor:pointer;">×</button>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php endif; ?>
+                            <input type="file" name="item_foto_empresa_mantenimiento[]" class="form-control form-control-sm" accept="image/*" multiple>
+                            <div class="form-text" style="font-size:10px;">Multiples fotos: contrato firmado, certificaciones del personal, planilla ARL, polizas vigentes.</div>
                         </div>
                         <hr>
                         <?php
@@ -145,6 +180,7 @@ $GRUPOS = [
 
                         <!-- Holder oculto para IDs de evidencias a eliminar (lo llena JS) -->
                         <div id="evidenciasBorrarHolder" style="display:none;"></div>
+                        <div id="evidenciasDetBorrarHolder" style="display:none;"></div>
 
                         <!-- CONCEPTO SANITARIO -->
                         <h6 class="mb-1">Concepto sanitario Secretaria de Salud</h6>
@@ -344,6 +380,15 @@ $GRUPOS = [
 
         <div id="autoSaveStatus" style="font-size:12px; color:#999; text-align:center; padding:4px 0;"><i class="fas fa-cloud"></i> Autoguardado activado</div>
 
+        <?php if (!empty($advertencias)): ?>
+        <div class="form-check mt-2 mb-3">
+            <input class="form-check-input" type="checkbox" name="ignorar_advertencias" value="1" id="ignorarAdvertencias">
+            <label class="form-check-label" for="ignorarAdvertencias" style="font-size:13px;">
+                Confirmo que revise las advertencias y quiero finalizar igual.
+            </label>
+        </div>
+        <?php endif; ?>
+
         <div class="d-grid gap-3 mt-3 mb-5 pb-3">
             <button type="submit" class="btn btn-pwa btn-pwa-outline py-3" style="font-size:17px;"><i class="fas fa-save"></i> Guardar borrador</button>
             <button type="submit" name="finalizar" value="1" class="btn btn-pwa btn-pwa-primary py-3" style="font-size:17px;" id="btnFinalizar"><i class="fas fa-check-circle"></i> Finalizar inspeccion</button>
@@ -375,6 +420,7 @@ const PISCINAS_INIT = <?= json_encode($piscinas ?? []) ?>;
 const PARAMETROS_INIT = <?= json_encode($parametrosMap ?? []) ?>;
 const ENSAYOS_INIT   = <?= json_encode($ensayosMap ?? []) ?>;
 const BOTIQUIN_INIT  = <?= json_encode($botiquinMap ?? []) ?>;
+const EVIDENCIAS_DET_INIT = <?= json_encode($evidenciasDetMap ?? []) ?>;
 
 function buildEnumSelect(name, value, options) {
     let html = '<select name="' + name + '" class="form-select form-select-sm">';
@@ -440,7 +486,20 @@ function buildEnsayos(ensayosData) {
             <div class="col-12 col-md-9"><label class="small-label">Observaciones</label><input type="text" name="ensayo_fisicoquimico_obs[]" class="form-control form-control-sm" value="${(fq.observaciones || '').replace(/"/g, '&quot;')}"></div>
         </div>`;
 
+    const iaHtml = `
+        <div class="alert alert-info mb-2" style="font-size:10px;padding:4px 8px;margin-top:4px;">
+            <i class="fas fa-wand-magic-sparkles"></i>
+            <strong>Acelera captura:</strong> sube el PDF del informe y la IA llenara los campos automaticamente.
+            <div class="d-flex gap-1 mt-1">
+                <input type="file" class="form-control form-control-sm ia-ensayo-file" accept="application/pdf" style="flex:1;">
+                <button type="button" class="btn btn-sm btn-primary ia-ensayo-btn" data-tipo="MICROBIOLOGICO" style="font-size:10px;">Leer Micro</button>
+                <button type="button" class="btn btn-sm btn-warning ia-ensayo-btn" data-tipo="FISICOQUIMICO" style="font-size:10px;">Leer Fisicoquimico</button>
+            </div>
+            <div class="ia-ensayo-status" style="font-size:10px;color:#666;margin-top:2px;"></div>
+        </div>`;
+
     return '<div class="sub-block" style="background:#fff8f3;"><div class="sub-block-title">Ensayos de laboratorio (trimestral Res 234/2026)</div>' +
+           iaHtml +
            '<div class="small-label mb-1">Microbiologico</div>' + microHtml +
            '<hr style="margin:6px 0;"><div class="small-label mb-1">Fisico-quimico</div>' + fqHtml + '</div>';
 }
@@ -511,14 +570,46 @@ function buildPiscinaRow(num, data, paramsData, ensayosData) {
     // Ensayos
     html += buildEnsayos(ensayosData);
 
-    // Foto y observaciones
+    // Foto principal + observaciones
     const fotoHtml = data.foto
         ? '<div class="mb-1"><img src="' + '<?= base_url('/') ?>' + data.foto + '" style="max-width:120px;max-height:90px;cursor:pointer;" onclick="openPhoto(this.src)"></div>'
         : '';
     html += '<div class="sub-block"><div class="row g-1">' +
-        '<div class="col-12 col-md-4">' + fotoHtml + '<label class="small-label"><i class="fas fa-images me-1"></i> Foto piscina (galeria)</label><input type="file" name="item_foto[]" class="form-control form-control-sm" accept="image/*"></div>' +
+        '<div class="col-12 col-md-4">' + fotoHtml + '<label class="small-label"><i class="fas fa-images me-1"></i> Foto principal piscina</label><input type="file" name="item_foto[]" class="form-control form-control-sm" accept="image/*"></div>' +
         '<div class="col-12 col-md-8"><label class="small-label">Observaciones</label><textarea name="item_observaciones[]" class="form-control form-control-sm" rows="2">' + (data.observaciones || '') + '</textarea></div>' +
         '</div></div>';
+
+    // Evidencias multi-foto por piscina (N fotos con categoría)
+    const idxPisc = (num - 1);
+    const evidPiscinaData = (typeof EVIDENCIAS_DET_INIT !== 'undefined' && data.id) ? (EVIDENCIAS_DET_INIT[data.id] || []) : [];
+    let thumbsHtml = '';
+    if (evidPiscinaData.length > 0) {
+        thumbsHtml = '<div class="d-flex flex-wrap gap-2 mb-2" style="border:1px dashed #ccc; padding:6px; border-radius:4px; background:#fafafa;">';
+        evidPiscinaData.forEach(e => {
+            const src = '<?= base_url('/') ?>' + e.foto_path;
+            thumbsHtml += '<div class="evidencia-det-thumb" data-id="' + e.id + '" style="position:relative; width:80px; height:80px;">'
+                + '<img src="' + src + '" style="width:80px;height:80px;object-fit:cover;border:1px solid #bbb;border-radius:4px;cursor:pointer;" onclick="openPhoto(\'' + src + '\')">'
+                + '<div style="position:absolute;bottom:-14px;left:0;right:0;font-size:8px;color:#666;text-align:center;">' + (e.categoria || '') + '</div>'
+                + '<button type="button" class="btn-remove-evidencia-det" data-id="' + e.id + '" title="Eliminar" style="position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:#c0392b;color:#fff;border:none;font-size:11px;line-height:18px;padding:0;cursor:pointer;">×</button>'
+                + '</div>';
+        });
+        thumbsHtml += '</div>';
+    }
+    html += '<div class="sub-block" style="background:#f5f5fa;"><div class="sub-block-title">Evidencias adicionales de esta piscina (multi-foto)</div>'
+        + thumbsHtml
+        + '<div class="row g-1">'
+        + '<div class="col-4"><label class="small-label">Categoria</label>'
+        + '<select name="item_evidencia_categoria[]" class="form-select form-select-sm">'
+        + '<option value="INFRAESTRUCTURA">Infraestructura</option>'
+        + '<option value="AVISOS">Avisos</option>'
+        + '<option value="EMERGENCIA">Emergencia</option>'
+        + '<option value="HIGIENE">Higiene</option>'
+        + '<option value="AGUA">Agua</option>'
+        + '<option value="OTRA" selected>Otra</option>'
+        + '</select></div>'
+        + '<div class="col-8"><label class="small-label"><i class="fas fa-images me-1"></i> Agregar fotos (multiples)</label>'
+        + '<input type="file" name="item_evidencia_' + idxPisc + '[]" class="form-control form-control-sm" accept="image/*" multiple>'
+        + '</div></div></div>';
 
     html += '</div>'; // /piscina-row
     return html;
@@ -582,10 +673,102 @@ document.addEventListener('DOMContentLoaded', function() {
         container.insertAdjacentHTML('beforeend', buildPiscinaRow(n, {}, [], []));
     });
 
+    // --- IA: leer PDF de ensayo y rellenar campos ---
+    const URL_IA_ENSAYO = '<?= base_url('/inspecciones/piscinas/extraer-ensayo-ia') ?>';
+    const CSRF_NAME_PIS = '<?= csrf_token() ?>';
+    const CSRF_HASH_PIS = '<?= csrf_hash() ?>';
+
+    document.addEventListener('click', async function(e) {
+        const btn = e.target.closest('.ia-ensayo-btn');
+        if (!btn) return;
+        const tipo = btn.dataset.tipo;
+        const subBlock = btn.closest('.sub-block');
+        const fileInput = subBlock.querySelector('.ia-ensayo-file');
+        const statusEl = subBlock.querySelector('.ia-ensayo-status');
+        if (!fileInput.files || !fileInput.files[0]) {
+            statusEl.textContent = 'Adjunta primero el PDF.';
+            statusEl.style.color = '#c0392b';
+            return;
+        }
+        const file = fileInput.files[0];
+
+        const fd = new FormData();
+        fd.append('tipo', tipo);
+        fd.append('pdf', file);
+        fd.append(CSRF_NAME_PIS, CSRF_HASH_PIS);
+
+        btn.disabled = true;
+        statusEl.style.color = '#666';
+        statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Leyendo PDF con IA...';
+
+        try {
+            const resp = await fetch(URL_IA_ENSAYO, { method: 'POST', body: fd });
+            const json = await resp.json();
+            if (!json.ok) throw new Error(json.error || 'Error IA');
+
+            const d = json.data || {};
+            const piscinaRow = subBlock.closest('.piscina-row');
+            if (!piscinaRow) throw new Error('No se pudo ubicar la fila de piscina');
+
+            // Mapa de campo -> nombre del input en el DOM del bloque ensayo
+            const prefix = tipo === 'MICROBIOLOGICO' ? 'ensayo_microbiologico_' : 'ensayo_fisicoquimico_';
+            const mapa = {
+                'fecha_toma':       prefix + 'fecha',
+                'laboratorio':      prefix + 'lab',
+                'numero_informe':   prefix + 'informe',
+                'norma_citada':     prefix + 'norma',
+                'conforme_global':  prefix + 'conforme',
+                'observaciones':    prefix + 'obs',
+            };
+            if (tipo === 'MICROBIOLOGICO') {
+                Object.assign(mapa, {
+                    'heterotrofos_ufc': 'ensayo_microbiologico_heterotrofos',
+                    'coliformes_termotolerantes_ufc': 'ensayo_microbiologico_coliformes',
+                    'ecoli_ufc': 'ensayo_microbiologico_ecoli',
+                    'pseudomonas_ufc': 'ensayo_microbiologico_pseudomonas',
+                    'legionella_ufc': 'ensayo_microbiologico_legionella',
+                });
+            }
+            let llenados = 0;
+            for (const [srcKey, targetName] of Object.entries(mapa)) {
+                const v = d[srcKey];
+                if (v === undefined || v === null || v === '') continue;
+                const el = piscinaRow.querySelector('[name="' + targetName + '[]"]');
+                if (el) { el.value = v; llenados++; }
+            }
+
+            statusEl.style.color = '#1b7e3f';
+            statusEl.innerHTML = '<i class="fas fa-check"></i> ' + llenados + ' campos llenados por IA. Revisa y ajusta.';
+        } catch (err) {
+            statusEl.style.color = '#c0392b';
+            statusEl.innerHTML = '<i class="fas fa-xmark"></i> ' + err.message;
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
     container.addEventListener('click', (e) => {
         if (e.target.closest('.btn-remove-piscina')) {
             e.target.closest('.piscina-row').remove();
             renumerarPiscinas();
+        }
+        const btnDet = e.target.closest('.btn-remove-evidencia-det');
+        if (btnDet) {
+            const id = parseInt(btnDet.dataset.id, 10);
+            if (!id) return;
+            if (!confirm('Eliminar esta foto al guardar?')) return;
+            const holder = document.getElementById('evidenciasDetBorrarHolder');
+            const inp = document.createElement('input');
+            inp.type = 'hidden';
+            inp.name = 'detalle_evidencia_borrar_ids[]';
+            inp.value = id;
+            holder.appendChild(inp);
+            const thumb = btnDet.closest('.evidencia-det-thumb');
+            if (thumb) {
+                thumb.style.opacity = '0.3';
+                thumb.style.pointerEvents = 'none';
+                thumb.setAttribute('title', 'Se eliminara al guardar');
+            }
         }
     });
 

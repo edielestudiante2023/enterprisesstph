@@ -107,6 +107,21 @@ function irapiLabelView($c) {
             <img src="<?= base_url('/' . $p['foto']) ?>" style="max-width:220px;max-height:160px;border:1px solid #ddd;">
             <?php endif; ?>
 
+            <?php $evidsDet = $evidenciasDetMap[$p['id']] ?? []; if (!empty($evidsDet)): ?>
+            <h6 class="mt-2" style="font-size:12px;">Evidencias adicionales (<?= count($evidsDet) ?> foto<?= count($evidsDet) > 1 ? 's' : '' ?>)</h6>
+            <div class="d-flex flex-wrap gap-2 mt-1">
+                <?php foreach ($evidsDet as $ev): ?>
+                <div style="position:relative;">
+                    <img src="<?= base_url('/' . $ev['foto_path']) ?>"
+                         style="width:100px;height:100px;object-fit:cover;border:1px solid #ccc;border-radius:4px;cursor:pointer;"
+                         onclick="openPhotoView(this.src)"
+                         title="<?= esc($ev['categoria'] ?? '') ?>">
+                    <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.55);color:#fff;font-size:9px;text-align:center;padding:1px 2px;"><?= esc($ev['categoria'] ?? 'OTRA') ?></div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+
             <?php if (!empty($p['observaciones'])): ?>
             <p style="font-size:11px; margin-top:4px;"><strong>Obs.:</strong> <?= nl2br(esc($p['observaciones'])) ?></p>
             <?php endif; ?>

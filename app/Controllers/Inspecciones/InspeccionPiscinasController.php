@@ -9,6 +9,7 @@ use App\Models\PiscinaParametroAguaModel;
 use App\Models\PiscinaEnsayoLaboratorioModel;
 use App\Models\PiscinaBotiquinItemModel;
 use App\Models\PiscinaEvidenciaMaestroModel;
+use App\Models\PiscinaDetalleEvidenciaModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
@@ -32,6 +33,7 @@ class InspeccionPiscinasController extends BaseController
     protected PiscinaEnsayoLaboratorioModel $ensayoModel;
     protected PiscinaBotiquinItemModel $botiquinModel;
     protected PiscinaEvidenciaMaestroModel $evidenciaModel;
+    protected PiscinaDetalleEvidenciaModel $evidenciaDetalleModel;
 
     public const MARCO_NORMATIVO = 'Ley 1209 de 2008, Decreto Reglamentario 554 de 2015 y Resolución 234 de 2026 del Ministerio de Salud y Protección Social — Seguridad, adecuación sanitaria y parámetros de calidad del agua en estanques de piscinas y estructuras similares. Esta inspección SST identifica hallazgos de riesgo y NO reemplaza el concepto sanitario de la Secretaría de Salud competente ni la certificación del operador por entidad acreditada.';
 
@@ -58,7 +60,8 @@ class InspeccionPiscinasController extends BaseController
         $this->parametroModel  = new PiscinaParametroAguaModel();
         $this->ensayoModel     = new PiscinaEnsayoLaboratorioModel();
         $this->botiquinModel   = new PiscinaBotiquinItemModel();
-        $this->evidenciaModel  = new PiscinaEvidenciaMaestroModel();
+        $this->evidenciaModel       = new PiscinaEvidenciaMaestroModel();
+        $this->evidenciaDetalleModel = new PiscinaDetalleEvidenciaModel();
     }
 
     // ==================================================================
@@ -98,6 +101,7 @@ class InspeccionPiscinasController extends BaseController
                 'parametrosMap'          => [],
                 'ensayosMap'             => [],
                 'botiquinMap'            => [],
+                'evidenciasDetMap'       => [],
                 'parametrosCfg'          => self::PARAMETROS_IN_SITU,
                 'evidenciasMap'          => [],
                 'camposEvidenciaMaestro' => self::CAMPOS_EVIDENCIA_MAESTRO,
@@ -108,15 +112,16 @@ class InspeccionPiscinasController extends BaseController
 
     /** Códigos de campo del bloque maestro con evidencia fotográfica multi-foto */
     public const CAMPOS_EVIDENCIA_MAESTRO = [
-        'concepto_sanitario' => 'Concepto sanitario Secretaría de Salud',
-        'dea'                => 'DEA (Desfibrilador Externo Automático)',
-        'operador_cert'      => 'Operador de piscinas certificado',
-        'doc_art15'          => 'Documentación Art. 15 (8 procedimientos)',
-        'plan_saneamiento'   => 'Plan Saneamiento Básico Art. 17 (5 programas)',
-        'manejo_quimicos'    => 'Manejo seguro de químicos (Art. 13)',
-        'area_residuos'      => 'Área de residuos (Art. 14)',
-        'contenedores_color' => 'Contenedores codificados por color',
-        'tablero_publico'    => 'Tablero público con resultados mensuales',
+        'empresa_mantenimiento' => 'Empresa de mantenimiento (contrato, idoneidad)',
+        'concepto_sanitario'    => 'Concepto sanitario Secretaría de Salud',
+        'dea'                   => 'DEA (Desfibrilador Externo Automático)',
+        'operador_cert'         => 'Operador de piscinas certificado',
+        'doc_art15'             => 'Documentación Art. 15 (8 procedimientos)',
+        'plan_saneamiento'      => 'Plan Saneamiento Básico Art. 17 (5 programas)',
+        'manejo_quimicos'       => 'Manejo seguro de químicos (Art. 13)',
+        'area_residuos'         => 'Área de residuos (Art. 14)',
+        'contenedores_color'    => 'Contenedores codificados por color',
+        'tablero_publico'       => 'Tablero público con resultados mensuales',
     ];
 
     public function store()
@@ -165,7 +170,7 @@ class InspeccionPiscinasController extends BaseController
         }
 
         $piscinas = $this->detalleModel->getByInspeccion($id);
-        [$parametrosMap, $ensayosMap, $botiquinMap] = $this->hijasPorPiscina($piscinas);
+        [$parametrosMap, $ensayosMap, $botiquinMap, $evidenciasDetMap] = $this->hijasPorPiscina($piscinas);
         $evidenciasMap = $this->evidenciaModel->mapaPorCampo((int)$id);
 
         return view('inspecciones/layout_pwa', [
@@ -177,6 +182,7 @@ class InspeccionPiscinasController extends BaseController
                 'parametrosMap'          => $parametrosMap,
                 'ensayosMap'             => $ensayosMap,
                 'botiquinMap'            => $botiquinMap,
+                'evidenciasDetMap'       => $evidenciasDetMap,
                 'parametrosCfg'          => self::PARAMETROS_IN_SITU,
                 'evidenciasMap'          => $evidenciasMap,
                 'camposEvidenciaMaestro' => self::CAMPOS_EVIDENCIA_MAESTRO,
@@ -225,7 +231,7 @@ class InspeccionPiscinasController extends BaseController
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
         $piscinas = $this->detalleModel->getByInspeccion($id);
-        [$parametrosMap, $ensayosMap, $botiquinMap] = $this->hijasPorPiscina($piscinas);
+        [$parametrosMap, $ensayosMap, $botiquinMap, $evidenciasDetMap] = $this->hijasPorPiscina($piscinas);
         $evidenciasMap = $this->evidenciaModel->mapaPorCampo((int)$id);
 
         return view('inspecciones/layout_pwa', [
@@ -238,6 +244,7 @@ class InspeccionPiscinasController extends BaseController
                 'parametrosMap'          => $parametrosMap,
                 'ensayosMap'             => $ensayosMap,
                 'botiquinMap'            => $botiquinMap,
+                'evidenciasDetMap'       => $evidenciasDetMap,
                 'parametrosCfg'          => self::PARAMETROS_IN_SITU,
                 'evidenciasMap'          => $evidenciasMap,
                 'camposEvidenciaMaestro' => self::CAMPOS_EVIDENCIA_MAESTRO,
@@ -251,6 +258,14 @@ class InspeccionPiscinasController extends BaseController
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) return redirect()->to('/inspecciones/piscinas')->with('error', 'No encontrada');
         if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/piscinas/view/' . $id)) return $r;
+
+        // Validaciones cruzadas antes de finalizar
+        $advertencias = $this->validacionesCruzadas($inspeccion);
+        if (!empty($advertencias) && !$this->request->getPost('ignorar_advertencias')) {
+            return redirect()->to('/inspecciones/piscinas/edit/' . $id)
+                ->with('advertencias_cruzadas', $advertencias)
+                ->with('msg', 'Revisa las advertencias antes de finalizar.');
+        }
 
         // Recalcular IRAPI + ISL por cada piscina
         foreach ($this->detalleModel->getByInspeccion($id) as $p) {
@@ -341,6 +356,54 @@ class InspeccionPiscinasController extends BaseController
         return redirect()->to('/inspecciones/piscinas')->with('msg', 'Inspección eliminada');
     }
 
+    /**
+     * AJAX POST: extrae los campos de un ensayo de laboratorio desde el PDF
+     * subido, usando IA. Devuelve JSON con los campos a rellenar en el form.
+     *
+     * Input:
+     *   - tipo (MICROBIOLOGICO|FISICOQUIMICO)
+     *   - pdf  (archivo)
+     */
+    public function extraerEnsayoIA()
+    {
+        $tipo = strtoupper($this->request->getPost('tipo') ?: 'MICROBIOLOGICO');
+        if (!in_array($tipo, ['MICROBIOLOGICO', 'FISICOQUIMICO'], true)) {
+            return $this->response->setStatusCode(400)->setJSON(['ok'=>false, 'error'=>'Tipo invalido']);
+        }
+
+        $file = $this->request->getFile('pdf');
+        if (!$file || !$file->isValid()) {
+            return $this->response->setStatusCode(400)->setJSON(['ok'=>false, 'error'=>'Debe adjuntar el PDF']);
+        }
+        if ($file->getMimeType() !== 'application/pdf' && strtolower($file->getClientExtension()) !== 'pdf') {
+            return $this->response->setStatusCode(400)->setJSON(['ok'=>false, 'error'=>'El archivo debe ser PDF']);
+        }
+
+        $tmpDir = FCPATH . 'uploads/inspecciones/piscinas/ensayos_tmp/';
+        if (!is_dir($tmpDir)) mkdir($tmpDir, 0755, true);
+        $tmpName = uniqid('ensayo_', true) . '.pdf';
+        $file->move($tmpDir, $tmpName);
+        $tmpPath = $tmpDir . $tmpName;
+
+        try {
+            $svc = new \App\Libraries\EmergencyProcedureIAService();
+            $r = $svc->extraerEnsayoDesdePDF($tmpPath, $tipo);
+        } finally {
+            @unlink($tmpPath);
+        }
+
+        if (!$r['ok']) {
+            return $this->response->setStatusCode(502)->setJSON(['ok'=>false, 'error'=>$r['error'] ?? 'Error IA']);
+        }
+
+        return $this->response->setJSON([
+            'ok'     => true,
+            'tipo'   => $tipo,
+            'data'   => $r['data'],
+            'tokens' => $r['tokens'] ?? null,
+        ]);
+    }
+
     public function enviarEmail($id)
     {
         $inspeccion = $this->inspeccionModel->find($id);
@@ -405,6 +468,79 @@ class InspeccionPiscinasController extends BaseController
         }
 
         return $data;
+    }
+
+    /**
+     * Validaciones cruzadas entre campos del maestro y detalles.
+     * Devuelve un array de strings con advertencias humanas.
+     * Si no hay advertencias, el array está vacío.
+     *
+     * Reglas:
+     *   - Si hay piscina climatizada, ventilación_adecuada debe ser SI (no NA/NO)
+     *   - Si m² establecimiento > 0, botiquin_tipo de cada piscina debe coincidir
+     *     con el umbral (<500 A, 500-2000 B, >2000 C)
+     *   - Si cualquier microbiológico > 0 (coliformes, E.coli, pseudomonas),
+     *     concepto_sanitario no puede ser 'favorable'
+     *   - DEA presente=SI pero personal_capacitado=0 => inconsistente
+     *   - Operador certificado nombre lleno pero vigencia vencida => advertencia
+     */
+    private function validacionesCruzadas(array $inspeccion): array
+    {
+        $adv = [];
+        $piscinas = $this->detalleModel->getByInspeccion($inspeccion['id']);
+
+        // 1. Climatizada → ventilación obligatoria
+        foreach ($piscinas as $p) {
+            if ($p['climatizada'] === 'SI' && $p['ventilacion_adecuada'] !== 'SI') {
+                $adv[] = 'Piscina "' . $p['identificador'] . '" es climatizada pero ventilación adecuada no está marcada como SI (riesgo de acumulación de cloraminas).';
+            }
+        }
+
+        // 2. m² → tipo de botiquín coherente
+        $m2 = (float)($inspeccion['superficie_total_establecimiento_m2'] ?? 0);
+        if ($m2 > 0) {
+            $esperado = \App\Libraries\BotiquinCatalogo::tipoPorSuperficie($m2);
+            foreach ($piscinas as $p) {
+                $actual = $p['botiquin_tipo'] ?? 'NINGUNO';
+                if ($actual !== $esperado) {
+                    $adv[] = 'Piscina "' . $p['identificador'] . '": superficie ' . $m2 . ' m² exige botiquín Tipo ' . $esperado . ' pero está registrado como ' . $actual . ' (Art. 18 Res 234/2026).';
+                }
+            }
+        }
+
+        // 3. Microbiológicos > 0 pero concepto favorable
+        $conceptoEs = $inspeccion['concepto_sanitario'] ?? 'no_emitido';
+        if ($conceptoEs === 'favorable') {
+            foreach ($piscinas as $p) {
+                $ensayos = $this->ensayoModel->getByPiscina((int)$p['id']);
+                foreach ($ensayos as $e) {
+                    if ($e['tipo'] !== 'MICROBIOLOGICO') continue;
+                    $microPos = ($e['coliformes_termotolerantes_ufc'] ?? 0) > 0
+                        || ($e['ecoli_ufc'] ?? 0) > 0
+                        || ($e['pseudomonas_ufc'] ?? 0) > 0;
+                    if ($microPos) {
+                        $adv[] = 'Concepto sanitario marcado "favorable" pero el ensayo microbiológico del ' . $e['fecha_toma'] . ' de piscina "' . $p['identificador'] . '" reporta microorganismos patógenos — revisa coherencia.';
+                    }
+                }
+            }
+        }
+
+        // 4. DEA presente sin personal capacitado
+        if (($inspeccion['dea_presente'] ?? 'NA') === 'SI' && (int)($inspeccion['dea_personal_capacitado_cantidad'] ?? 0) === 0) {
+            $adv[] = 'DEA marcado como presente pero 0 personas capacitadas en su uso — sin personal el equipo no es funcional.';
+        }
+
+        // 5. Operador certificado con vigencia pasada
+        if (!empty($inspeccion['operador_certificado_vigencia'])) {
+            try {
+                $venc = new \DateTime($inspeccion['operador_certificado_vigencia']);
+                if ($venc < new \DateTime('today')) {
+                    $adv[] = 'La certificación del operador de piscinas vence el ' . $venc->format('d/m/Y') . ' (ya vencida).';
+                }
+            } catch (\Throwable $e) { /* fecha inválida, ignorar */ }
+        }
+
+        return $adv;
     }
 
     /**
@@ -567,9 +703,65 @@ class InspeccionPiscinasController extends BaseController
 
             // Recalcular IRAPI e ISL ahora que las hijas están
             $this->recalcularResultados($idDetalle, 'PISCINAS');
+
+            // Multi-foto evidencia piscina detalle
+            $this->savePiscinaEvidencias($idDetalle, $i);
+        }
+
+        // Eliminar evidencias marcadas por el usuario (IDs enviados via POST)
+        $borrarIdsDet = $this->request->getPost('detalle_evidencia_borrar_ids') ?? [];
+        if (is_array($borrarIdsDet)) {
+            foreach ($borrarIdsDet as $idBorrar) {
+                $idBorrar = (int)$idBorrar;
+                if ($idBorrar <= 0) continue;
+                $row = $this->evidenciaDetalleModel->find($idBorrar);
+                if (!$row) continue;
+                $detOwner = $this->detalleModel->find($row['id_piscina_detalle']);
+                if (!$detOwner || (int)$detOwner['id_inspeccion'] !== $idInspeccion) continue;
+                if (!empty($row['foto_path']) && file_exists(FCPATH . $row['foto_path'])) {
+                    @unlink(FCPATH . $row['foto_path']);
+                }
+                $this->evidenciaDetalleModel->delete($idBorrar);
+            }
         }
 
         return $newIds;
+    }
+
+    /**
+     * Procesa fotos adicionales por piscina detalle (N fotos, append).
+     * Los inputs vienen como item_evidencia_<i>[] donde <i> es el índice de la piscina (0-based).
+     */
+    private function savePiscinaEvidencias(int $idDetalle, int $i): void
+    {
+        $dir = FCPATH . 'uploads/inspecciones/piscinas/fotos/detalle/';
+        if (!is_dir($dir)) mkdir($dir, 0755, true);
+
+        $files = $this->request->getFiles();
+        $inputName = 'item_evidencia_' . $i;
+        if (!isset($files[$inputName])) return;
+        $fileList = $files[$inputName];
+        if (!is_array($fileList)) $fileList = [$fileList];
+
+        $categoria = $this->pickIdx('item_evidencia_categoria', $i, 'OTRA');
+        $maxOrden = (int)($this->evidenciaDetalleModel
+            ->selectMax('orden')
+            ->where('id_piscina_detalle', $idDetalle)
+            ->first()['orden'] ?? 0);
+
+        foreach ($fileList as $file) {
+            if (!$file || !$file->isValid() || $file->hasMoved()) continue;
+            $fileName = $file->getRandomName();
+            $file->move($dir, $fileName);
+            $this->comprimirImagen($dir . $fileName);
+            $maxOrden++;
+            $this->evidenciaDetalleModel->insert([
+                'id_piscina_detalle' => $idDetalle,
+                'categoria'          => $categoria,
+                'orden'              => $maxOrden,
+                'foto_path'          => 'uploads/inspecciones/piscinas/fotos/detalle/' . $fileName,
+            ]);
+        }
     }
 
     private function pickIdx(string $fieldName, int $i, $default = null)
@@ -710,13 +902,15 @@ class InspeccionPiscinasController extends BaseController
         $parametrosMap = [];
         $ensayosMap    = [];
         $botiquinMap   = [];
+        $evidenciasDetMap = [];
         foreach ($piscinas as $p) {
             $id = (int)$p['id'];
-            $parametrosMap[$id] = $this->parametroModel->getByPiscina($id);
-            $ensayosMap[$id]    = $this->ensayoModel->getByPiscina($id);
-            $botiquinMap[$id]   = $this->botiquinModel->getByPiscina($id);
+            $parametrosMap[$id]    = $this->parametroModel->getByPiscina($id);
+            $ensayosMap[$id]       = $this->ensayoModel->getByPiscina($id);
+            $botiquinMap[$id]      = $this->botiquinModel->getByPiscina($id);
+            $evidenciasDetMap[$id] = $this->evidenciaDetalleModel->getByPiscina($id);
         }
-        return [$parametrosMap, $ensayosMap, $botiquinMap];
+        return [$parametrosMap, $ensayosMap, $botiquinMap, $evidenciasDetMap];
     }
 
     // ==================================================================
@@ -731,7 +925,7 @@ class InspeccionPiscinasController extends BaseController
         $cliente = $clientModel->find($inspeccion['id_cliente']);
         $consultor = $consultantModel->find($inspeccion['id_consultor']);
         $piscinas = $this->detalleModel->getByInspeccion($id);
-        [$parametrosMap, $ensayosMap, $botiquinMap] = $this->hijasPorPiscina($piscinas);
+        [$parametrosMap, $ensayosMap, $botiquinMap, $evidenciasDetMap] = $this->hijasPorPiscina($piscinas);
 
         $logoBase64 = '';
         if (!empty($cliente['logo'])) {
@@ -766,6 +960,24 @@ class InspeccionPiscinasController extends BaseController
             }
         }
 
+        // Convertir evidencias multi-foto de piscina detalle a base64
+        $evidenciasDetB64 = [];
+        foreach ($evidenciasDetMap as $idDet => $rows) {
+            $evidenciasDetB64[$idDet] = [];
+            foreach ($rows as $r) {
+                $b64 = '';
+                if (!empty($r['foto_path'])) {
+                    $fp = FCPATH . $r['foto_path'];
+                    if (file_exists($fp)) $b64 = $this->fotoABase64ParaPdf($fp);
+                }
+                $evidenciasDetB64[$idDet][] = [
+                    'foto_b64'    => $b64,
+                    'categoria'   => $r['categoria'] ?? 'OTRA',
+                    'descripcion' => $r['descripcion'] ?? '',
+                ];
+            }
+        }
+
         $data = [
             'inspeccion'      => $inspeccion,
             'cliente'         => $cliente,
@@ -774,10 +986,12 @@ class InspeccionPiscinasController extends BaseController
             'parametrosMap'   => $parametrosMap,
             'ensayosMap'      => $ensayosMap,
             'botiquinMap'     => $botiquinMap,
+            'evidenciasDetMap' => $evidenciasDetMap,
             'parametrosCfg'   => self::PARAMETROS_IN_SITU,
             'logoBase64'      => $logoBase64,
             'evidenciasMaestroB64' => $evidenciasMaestroB64,
             'camposEvidenciaMaestro' => self::CAMPOS_EVIDENCIA_MAESTRO,
+            'evidenciasDetB64'    => $evidenciasDetB64,
             'marcoNormativo'  => self::MARCO_NORMATIVO,
         ];
 

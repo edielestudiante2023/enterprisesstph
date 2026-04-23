@@ -1162,6 +1162,9 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('plan-emergencia/ia-save-contexto/(:num)', 'PlanEmergenciaController::iaSaveContexto/$1');
     $routes->post('plan-emergencia/ia-aprobar/(:num)', 'PlanEmergenciaController::iaAprobar/$1');
 
+    // Piscinas — endpoint IA para extraer ensayo de laboratorio desde PDF
+    $routes->post('piscinas/extraer-ensayo-ia', 'InspeccionPiscinasController::extraerEnsayoIA');
+
     // Procedimiento de Emergencia por Area (piscina, bano turco, sauna, gym, zona BBQ)
     $routes->get('procedimiento-emergencia-area', 'ProcedimientoEmergenciaAreaController::list');
     $routes->get('procedimiento-emergencia-area/create', 'ProcedimientoEmergenciaAreaController::create');

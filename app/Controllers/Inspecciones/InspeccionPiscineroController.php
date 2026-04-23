@@ -21,7 +21,7 @@ class InspeccionPiscineroController extends BaseController
 
     protected InspeccionPiscineroModel $inspeccionModel;
 
-    public const MARCO_NORMATIVO = 'Ley 1209 de 2008 Artículo 14 — Obligatoriedad de salvavidas con certificación vigente en Resucitación Cardiopulmonar (RCP) por cada piscina de uso colectivo en conjuntos residenciales. Esta inspección SST verifica la idoneidad del personal a cargo de la piscina y NO reemplaza la certificación del personal por entidades acreditadas.';
+    public const MARCO_NORMATIVO = 'Ley 1209 de 2008 Art. 14 (salvavidas con RCP vigente para piscinas de uso colectivo), Resolución 234 de 2026 del Ministerio de Salud y Protección Social Art. 11 numeral 7 (operador de piscinas certificado — factor de priorización sanitaria) y Art. 5 (capacitación en dosificación química segura). Esta inspección SST verifica la idoneidad del personal a cargo de la piscina y NO reemplaza la certificación expedida por entidades acreditadas.';
 
     public function __construct()
     {
@@ -78,9 +78,10 @@ class InspeccionPiscineroController extends BaseController
 
         $inspeccionData = $this->getInspeccionPostData($userId);
         $inspeccionData['estado'] = 'borrador';
-        $inspeccionData['foto_piscinero']            = $this->uploadFoto('foto_piscinero', 'uploads/inspecciones/piscinero/fotos/');
-        $inspeccionData['foto_certificado_rcp']      = $this->uploadFoto('foto_certificado_rcp', 'uploads/inspecciones/piscinero/fotos/');
+        $inspeccionData['foto_piscinero']              = $this->uploadFoto('foto_piscinero', 'uploads/inspecciones/piscinero/fotos/');
+        $inspeccionData['foto_certificado_rcp']        = $this->uploadFoto('foto_certificado_rcp', 'uploads/inspecciones/piscinero/fotos/');
         $inspeccionData['foto_certificado_salvamento'] = $this->uploadFoto('foto_certificado_salvamento', 'uploads/inspecciones/piscinero/fotos/');
+        $inspeccionData['foto_certificado_operador']   = $this->uploadFoto('foto_certificado_operador', 'uploads/inspecciones/piscinero/fotos/');
 
         $this->inspeccionModel->insert($inspeccionData);
         $idInspeccion = $this->inspeccionModel->getInsertID();
@@ -125,7 +126,7 @@ class InspeccionPiscineroController extends BaseController
         $userId = $inspeccion['id_consultor'];
         $updateData = $this->getInspeccionPostData($userId);
 
-        $camposFoto = ['foto_piscinero', 'foto_certificado_rcp', 'foto_certificado_salvamento'];
+        $camposFoto = ['foto_piscinero', 'foto_certificado_rcp', 'foto_certificado_salvamento', 'foto_certificado_operador'];
         foreach ($camposFoto as $campo) {
             $nueva = $this->uploadFoto($campo, 'uploads/inspecciones/piscinero/fotos/');
             if ($nueva) {
@@ -259,7 +260,7 @@ class InspeccionPiscineroController extends BaseController
             return redirect()->to('/inspecciones/piscinero')->with('error', 'No encontrada');
         }
 
-        $camposFoto = ['foto_piscinero', 'foto_certificado_rcp', 'foto_certificado_salvamento'];
+        $camposFoto = ['foto_piscinero', 'foto_certificado_rcp', 'foto_certificado_salvamento', 'foto_certificado_operador'];
         foreach ($camposFoto as $campo) {
             if (!empty($inspeccion[$campo]) && file_exists(FCPATH . $inspeccion[$campo])) {
                 unlink(FCPATH . $inspeccion[$campo]);
@@ -328,6 +329,11 @@ class InspeccionPiscineroController extends BaseController
             'capacitacion_manejo_quimicos'    => $this->request->getPost('capacitacion_manejo_quimicos') ?: 'NA',
             'conocimiento_hojas_seguridad'    => $this->request->getPost('conocimiento_hojas_seguridad') ?: 'NA',
             'conocimiento_plan_emergencia'    => $this->request->getPost('conocimiento_plan_emergencia') ?: 'NA',
+            // Res 234/2026 alineacion
+            'certificacion_operador_piscinas' => $this->request->getPost('certificacion_operador_piscinas') ?: 'NA',
+            'operador_entidad_certificadora'  => $this->request->getPost('operador_entidad_certificadora'),
+            'operador_vigencia'               => $this->request->getPost('operador_vigencia') ?: null,
+            'capacitacion_dosificacion_quimica' => $this->request->getPost('capacitacion_dosificacion_quimica') ?: 'NA',
             'horario_cubre_operacion_piscina' => $this->request->getPost('horario_cubre_operacion_piscina') ?: 'NA',
             'horario_inicio'                  => $this->request->getPost('horario_inicio') ?: null,
             'horario_fin'                     => $this->request->getPost('horario_fin') ?: null,
