@@ -145,6 +145,8 @@ class InspeccionRecursosSeguridadController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/recursos-seguridad')->with('error', 'Inspeccion no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/recursos-seguridad/view/' . $id)) return $r;
+
         $data = [
             'title'      => 'Editar Inspeccion de Recursos de Seguridad',
             'inspeccion' => $inspeccion,
@@ -167,6 +169,7 @@ class InspeccionRecursosSeguridadController extends BaseController
             }
             return redirect()->to('/inspecciones/recursos-seguridad')->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/recursos-seguridad/view/' . $id)) return $r;
 
         $data = $this->getInspeccionPostData();
 
@@ -205,8 +208,6 @@ class InspeccionRecursosSeguridadController extends BaseController
             return redirect()->to('/inspecciones/recursos-seguridad')->with('error', 'No encontrada');
         }
 
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/recursos-seguridad/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 
@@ -229,6 +230,11 @@ class InspeccionRecursosSeguridadController extends BaseController
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/recursos-seguridad')->with('error', 'No encontrada');
+        }
+
+        if (($inspeccion['estado'] ?? '') === 'completo') {
+            return redirect()->to('/inspecciones/recursos-seguridad/view/' . $id)
+                ->with('msg', 'Esta inspeccion ya fue finalizada anteriormente.');
         }
 
         $pdfPath = $this->generarPdfInterno($id);

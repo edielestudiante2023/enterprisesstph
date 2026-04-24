@@ -114,6 +114,8 @@ class InspeccionComunicacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/comunicaciones')->with('error', 'Inspeccion no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/comunicaciones/view/' . $id)) return $r;
+
         $data = [
             'title'      => 'Editar Inspeccion de Comunicaciones',
             'inspeccion' => $inspeccion,
@@ -136,6 +138,7 @@ class InspeccionComunicacionController extends BaseController
             }
             return redirect()->to('/inspecciones/comunicaciones')->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/comunicaciones/view/' . $id)) return $r;
 
         $data = $this->getInspeccionPostData();
 
@@ -171,8 +174,6 @@ class InspeccionComunicacionController extends BaseController
             return redirect()->to('/inspecciones/comunicaciones')->with('error', 'No encontrada');
         }
 
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/comunicaciones/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 
@@ -195,6 +196,11 @@ class InspeccionComunicacionController extends BaseController
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/comunicaciones')->with('error', 'No encontrada');
+        }
+
+        if (($inspeccion['estado'] ?? '') === 'completo') {
+            return redirect()->to('/inspecciones/comunicaciones/view/' . $id)
+                ->with('msg', 'Esta inspeccion ya fue finalizada anteriormente.');
         }
 
         $pdfPath = $this->generarPdfInterno($id);

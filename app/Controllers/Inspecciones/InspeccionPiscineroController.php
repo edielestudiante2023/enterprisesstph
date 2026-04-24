@@ -100,6 +100,7 @@ class InspeccionPiscineroController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/piscinero')->with('error', 'Inspeccion no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/piscinero/view/' . $id)) return $r;
 
         $data = [
             'title'      => 'Editar Inspeccion del operador de piscina',
@@ -122,6 +123,7 @@ class InspeccionPiscineroController extends BaseController
             }
             return redirect()->to('/inspecciones/piscinero')->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/piscinero/view/' . $id)) return $r;
 
         $userId = $inspeccion['id_consultor'];
         $updateData = $this->getInspeccionPostData($userId);
@@ -158,8 +160,6 @@ class InspeccionPiscineroController extends BaseController
             return redirect()->to('/inspecciones/piscinero')->with('error', 'No encontrada');
         }
 
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/piscinero/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 
@@ -181,6 +181,11 @@ class InspeccionPiscineroController extends BaseController
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/piscinero')->with('error', 'No encontrada');
+        }
+
+        if (($inspeccion['estado'] ?? '') === 'completo') {
+            return redirect()->to('/inspecciones/piscinero/view/' . $id)
+                ->with('msg', 'Esta inspeccion ya fue finalizada anteriormente.');
         }
 
         $this->inspeccionModel->update($id, [

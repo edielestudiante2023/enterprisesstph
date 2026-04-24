@@ -132,6 +132,8 @@ class InspeccionGabineteController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/gabinetes')->with('error', 'Inspeccion no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/gabinetes/view/' . $id)) return $r;
+
         $data = [
             'title'      => 'Editar Inspeccion de Gabinetes',
             'inspeccion'  => $inspeccion,
@@ -155,6 +157,7 @@ class InspeccionGabineteController extends BaseController
             }
             return redirect()->to('/inspecciones/gabinetes')->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/gabinetes/view/' . $id)) return $r;
 
         $isAutosave = $this->isAutosaveRequest();
         if ($isAutosave) {

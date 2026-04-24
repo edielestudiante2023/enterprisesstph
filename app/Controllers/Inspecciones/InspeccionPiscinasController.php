@@ -145,6 +145,7 @@ class InspeccionPiscinasController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/piscinas')->with('error', 'Inspección no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/piscinas/view/' . $id)) return $r;
 
         $piscinas = $this->detalleModel->getByInspeccion($id);
         $evidenciasDetMap = $this->hijasPorPiscina($piscinas);
@@ -173,6 +174,7 @@ class InspeccionPiscinasController extends BaseController
             if ($this->isAutosaveRequest()) return $this->autosaveJsonError('No encontrada', 404);
             return redirect()->to('/inspecciones/piscinas')->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/piscinas/view/' . $id)) return $r;
 
         $isAutosave = $this->isAutosaveRequest();
         if ($isAutosave) {
