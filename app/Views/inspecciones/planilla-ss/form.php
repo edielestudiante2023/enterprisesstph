@@ -50,7 +50,7 @@ $formAction = $isEdit
                 </a>
             </div>
             <?php endif; ?>
-            <input type="file" name="archivo" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+            <input type="file" name="archivo" class="foto-input-pwa" accept=".pdf,.jpg,.jpeg,.png" data-label="Soporte planilla (PDF o imagen)">
             <div class="form-text">
                 <?= $isEdit
                     ? 'Opcional. Si no cargas archivo nuevo, se conserva el actual.'

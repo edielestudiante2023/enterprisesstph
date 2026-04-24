@@ -158,7 +158,7 @@ $GRUPOS = [
                                 <?php endforeach; ?>
                             </div>
                             <?php endif; ?>
-                            <input type="file" name="item_foto_empresa_mantenimiento[]" class="form-control form-control-sm" accept="image/*" multiple>
+                            <input type="file" name="item_foto_empresa_mantenimiento[]" class="foto-input-pwa" accept="image/*" multiple data-multi-name="1" data-label="Agregar evidencia empresa mantto">
                             <div class="form-text" style="font-size:10px;">Multiples fotos: contrato firmado, certificaciones del personal, planilla ARL, polizas vigentes.</div>
                         </div>
                         <hr>
@@ -183,7 +183,7 @@ $GRUPOS = [
                                 }
                                 $html .= '</div>';
                             }
-                            $html .= '<input type="file" name="item_foto_' . $campoCodigo . '[]" class="form-control form-control-sm" accept="image/*" multiple>';
+                            $html .= '<input type="file" name="item_foto_' . $campoCodigo . '[]" class="foto-input-pwa" accept="image/*" multiple data-multi-name="1" data-label="Agregar evidencias">';
                             $html .= '<div class="form-text" style="font-size:10px;">Puedes seleccionar varias fotos a la vez. Se anadiran a las existentes.</div>';
                             $html .= '</div>';
                             return $html;
@@ -546,22 +546,18 @@ function buildPiscinaRow(num, data) {
         '</div></div>';
 
     // Botiquín — simplificado: tipo (ref) + foto + observaciones de faltantes
-    const fotoBotiquinHtml = data.foto_botiquin
-        ? '<div class="mb-1"><img src="' + '<?= base_url('/') ?>' + data.foto_botiquin + '" style="max-width:100px;max-height:80px;cursor:pointer;border:1px solid #ccc;border-radius:4px;" onclick="openPhoto(this.src)"></div>'
-        : '';
+    const fotoBotiquinPrev = data.foto_botiquin ? ' data-previous-url="<?= base_url('/') ?>' + data.foto_botiquin + '"' : '';
     html += '<div class="sub-block" style="background:#fff9e5;"><div class="sub-block-title">Botiquin de primeros auxilios (Art. 18 + Anexo III Res 234)</div>' +
         '<div class="row g-1">' +
         '<div class="col-6 col-md-3"><label class="small-label">Tipo exigido</label><select name="item_botiquin_tipo[]" class="form-select form-select-sm">' + botiqOpts + '</select><div style="font-size:9px;color:#888;">A&lt;500m² · B 500-2000 · C &gt;2000</div></div>' +
-        '<div class="col-12 col-md-3">' + fotoBotiquinHtml + '<label class="small-label"><i class="fas fa-images me-1"></i>Foto del botiquin</label><input type="file" name="item_foto_botiquin[]" class="form-control form-control-sm" accept="image/*"></div>' +
+        '<div class="col-12 col-md-3"><label class="small-label"><i class="fas fa-images me-1"></i>Foto del botiquin</label><input type="file" name="item_foto_botiquin[]" class="foto-input-pwa" accept="image/*" data-label="Foto botiquin piscina"' + fotoBotiquinPrev + '></div>' +
         '<div class="col-12 col-md-6"><label class="small-label">Observaciones / faltantes</label><textarea name="item_botiquin_observaciones_faltantes[]" class="form-control form-control-sm" rows="3" placeholder="Ej: Falta tijeras corta-todo, venda de algodon 3x5, yodopovidona...">' + (data.botiquin_observaciones_faltantes || '') + '</textarea></div>' +
         '</div></div>';
 
     // Foto principal + observaciones
-    const fotoHtml = data.foto
-        ? '<div class="mb-1"><img src="' + '<?= base_url('/') ?>' + data.foto + '" style="max-width:120px;max-height:90px;cursor:pointer;" onclick="openPhoto(this.src)"></div>'
-        : '';
+    const fotoPrincipalPrev = data.foto ? ' data-previous-url="<?= base_url('/') ?>' + data.foto + '"' : '';
     html += '<div class="sub-block"><div class="row g-1">' +
-        '<div class="col-12 col-md-4">' + fotoHtml + '<label class="small-label"><i class="fas fa-images me-1"></i> Foto principal piscina</label><input type="file" name="item_foto[]" class="form-control form-control-sm" accept="image/*"></div>' +
+        '<div class="col-12 col-md-4"><label class="small-label"><i class="fas fa-images me-1"></i> Foto principal piscina</label><input type="file" name="item_foto[]" class="foto-input-pwa" accept="image/*" data-label="Foto principal piscina"' + fotoPrincipalPrev + '></div>' +
         '<div class="col-12 col-md-8"><label class="small-label">Observaciones</label><textarea name="item_observaciones[]" class="form-control form-control-sm" rows="2">' + (data.observaciones || '') + '</textarea></div>' +
         '</div></div>';
 
@@ -593,7 +589,7 @@ function buildPiscinaRow(num, data) {
             + '  <div style="border:1px solid #d0d3d7; border-radius:6px; padding:6px; background:#fff; height:100%;">'
             + '    <div class="small-label">Slot #' + (s + 1) + '</div>'
             + '    <label class="small-label"><i class="fas fa-images me-1"></i>Foto</label>'
-            + '    <input type="file" name="item_evidencia_' + idxPisc + '[]" class="form-control form-control-sm" accept="image/*" data-multi-name="1">'
+            + '    <input type="file" name="item_evidencia_' + idxPisc + '[]" class="foto-input-pwa" accept="image/*" data-multi-name="1" data-label="Slot ' + (s + 1) + '">'
             + '    <label class="small-label mt-1">Categoria</label>'
             + '    <input type="text" name="item_evidencia_categoria_' + idxPisc + '[]" class="form-control form-control-sm" list="' + listaId + '" placeholder="Ej: Drenaje">'
             + '    <label class="small-label mt-1">Descripcion</label>'
@@ -711,17 +707,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const container = document.getElementById('piscinasContainer');
+    function appendPiscinaRow(num, data) {
+        container.insertAdjacentHTML('beforeend', buildPiscinaRow(num, data));
+        const newRow = container.lastElementChild;
+        if (window.fotoInputPwa && newRow) window.fotoInputPwa.scan(newRow);
+    }
     if (PISCINAS_INIT.length > 0) {
-        PISCINAS_INIT.forEach((p, i) => {
-            container.insertAdjacentHTML('beforeend', buildPiscinaRow(i + 1, p));
-        });
+        PISCINAS_INIT.forEach((p, i) => appendPiscinaRow(i + 1, p));
     } else {
-        container.insertAdjacentHTML('beforeend', buildPiscinaRow(1, {}));
+        appendPiscinaRow(1, {});
     }
 
     document.getElementById('btnAddPiscina').addEventListener('click', () => {
         const n = document.querySelectorAll('.piscina-row').length + 1;
-        container.insertAdjacentHTML('beforeend', buildPiscinaRow(n, {}));
+        appendPiscinaRow(n, {});
     });
 
     container.addEventListener('click', (e) => {
