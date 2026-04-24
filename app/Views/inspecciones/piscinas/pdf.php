@@ -282,9 +282,13 @@ if ($diasMicro !== null && $diasMicro >= 0) {
         if (empty($ev['foto_b64'])) continue;
         if ($col === 3) { echo '</tr><tr>'; $col = 0; }
     ?>
+        <?php
+            $cat  = !empty($ev['categoria'])   ? $ev['categoria']   : 'Evidencia';
+            $desc = $ev['descripcion'] ?? '';
+        ?>
         <td style="width:33%;padding:3px;border:none;vertical-align:top;text-align:center;">
             <img src="<?= $ev['foto_b64'] ?>" style="max-width:150px;max-height:110px;border:1px solid #bbb;">
-            <div style="font-size:8px;color:#444;margin-top:2px;"><strong><?= esc($ev['categoria'] ?? 'OTRA') ?></strong><?= !empty($ev['descripcion']) ? ' — ' . esc($ev['descripcion']) : '' ?></div>
+            <div style="font-size:8px;color:#444;margin-top:2px;"><strong><?= esc($cat) ?></strong><?= $desc !== '' ? ' — ' . esc($desc) : '' ?></div>
         </td>
     <?php $col++; endforeach;
     while ($col > 0 && $col < 3) { echo '<td></td>'; $col++; }
