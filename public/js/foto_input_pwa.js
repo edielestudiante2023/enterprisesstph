@@ -106,9 +106,10 @@
             wrapper.appendChild(hiddenDelete);
         }
 
-        // Insertar el wrapper donde estaba el input, mover el input adentro.
+        // Insertar el wrapper donde estaba el input. El input va DENTRO del
+        // label (dropzone) para que click/tap en el label dispare el file picker.
         input.parentNode.insertBefore(wrapper, input);
-        wrapper.appendChild(input);
+        dropzone.appendChild(input);
         wrapper.appendChild(dropzone);
         wrapper.appendChild(removeBtn);
         wrapper.appendChild(spinner);
