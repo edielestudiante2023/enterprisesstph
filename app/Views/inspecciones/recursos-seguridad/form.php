@@ -65,12 +65,7 @@ $action = $isEdit ? base_url('/inspecciones/recursos-seguridad/update/') . $insp
                     <?php if (!empty($info['tiene_foto'])): ?>
                     <div>
                         <label class="form-label" style="font-size:12px;">Foto evidencia</label>
-                        <?php if ($isEdit && !empty($inspeccion['foto_' . $key])): ?>
-                        <div class="mb-1">
-                            <img src="/<?= esc($inspeccion['foto_' . $key]) ?>" class="img-thumbnail" style="max-height:80px;">
-                        </div>
-                        <?php endif; ?>
-                        <input type="file" name="foto_<?= $key ?>" class="form-control form-control-sm" accept="image/*">
+                        <input type="file" name="foto_<?= $key ?>" class="foto-input-pwa" accept="image/*" data-label="Foto evidencia"<?= ($isEdit && !empty($inspeccion['foto_' . $key])) ? ' data-previous-url="/' . esc($inspeccion['foto_' . $key]) . '"' : '' ?>>
                     </div>
                     <?php endif; ?>
                 </div>

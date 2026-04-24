@@ -64,12 +64,7 @@ $action = $isEdit ? base_url('/inspecciones/auditoria-zona-residuos/update/') . 
                     <?php endif; ?>
                     <div>
                         <label class="form-label" style="font-size:11px; color:#666;">Foto <?= $info['label'] ?></label>
-                        <?php if ($isEdit && !empty($inspeccion['foto_' . $key])): ?>
-                        <div class="mb-1">
-                            <img src="/<?= esc($inspeccion['foto_' . $key]) ?>" class="img-thumbnail" style="max-height:80px;">
-                        </div>
-                        <?php endif; ?>
-                        <input type="file" name="foto_<?= $key ?>" class="form-control form-control-sm" accept="image/*">
+                        <input type="file" name="foto_<?= $key ?>" class="foto-input-pwa" accept="image/*" data-label="Foto <?= esc($info['label']) ?>"<?= ($isEdit && !empty($inspeccion['foto_' . $key])) ? ' data-previous-url="/' . esc($inspeccion['foto_' . $key]) . '"' : '' ?>>
                     </div>
                 </div>
                 <?php endforeach; ?>

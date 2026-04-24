@@ -471,6 +471,9 @@
     <!-- Anti doble-tap en links (crear, editar, continuar) -->
     <script src="/js/prevent_double_tap.js"></script>
 
+    <!-- UI unificada de carga de foto (opt-in por clase .foto-input-pwa) -->
+    <script src="/js/foto_input_pwa.js"></script>
+
     <!-- Compresor de imágenes cliente (antes del FormData) -->
     <script src="/js/image_compressor.js"></script>
     <script>

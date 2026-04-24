@@ -234,11 +234,7 @@ $criterios = [
                 <?php foreach (['imagen_1' => 'Imagen 1', 'imagen_2' => 'Imagen 2'] as $campo => $label): ?>
                 <div class="mb-3">
                     <label class="form-label"><?= $label ?></label>
-                    <?php if (!empty($e[$campo])): ?>
-                    <div class="mb-1"><img src="/<?= esc($e[$campo]) ?>" style="max-width:200px; max-height:150px; border-radius:8px;" alt="<?= $label ?>"></div>
-                    <?php endif; ?>
-                    <input type="file" name="<?= $campo ?>" class="form-control" accept="image/*">
-                    <div class="form-text">Dejar vacio para mantener la imagen actual</div>
+                    <input type="file" name="<?= $campo ?>" class="foto-input-pwa" accept="image/*" data-label="<?= esc($label) ?>"<?= !empty($e[$campo]) ? ' data-previous-url="/' . esc($e[$campo]) . '"' : '' ?>>
                 </div>
                 <?php endforeach; ?>
 
