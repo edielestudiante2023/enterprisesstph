@@ -243,18 +243,47 @@
             </div>
 
             <div class="col-md-3">
-                <label class="form-label fw-bold"><i class="fas fa-calendar"></i> Fecha Desde</label>
-                <input type="date" class="form-control" id="filterFechaDesde">
+                <label class="form-label fw-bold"><i class="fas fa-calendar"></i> Seleccione Año</label>
+                <select class="form-select" id="filterAnio">
+                    <option value="">Todos los años</option>
+                    <?php foreach ($aniosDisponibles as $y): ?>
+                        <option value="<?= $y ?>" <?= $y === $anioActual ? 'selected' : '' ?>><?= $y ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
             <div class="col-md-3">
-                <label class="form-label fw-bold"><i class="fas fa-calendar"></i> Fecha Hasta</label>
-                <input type="date" class="form-control" id="filterFechaHasta">
+                <label class="form-label fw-bold"><i class="fas fa-calendar-day"></i> Seleccione Mes</label>
+                <select class="form-select" id="filterMes">
+                    <option value="">Todos los meses</option>
+                    <option value="01">Enero</option>
+                    <option value="02">Febrero</option>
+                    <option value="03">Marzo</option>
+                    <option value="04">Abril</option>
+                    <option value="05">Mayo</option>
+                    <option value="06">Junio</option>
+                    <option value="07">Julio</option>
+                    <option value="08">Agosto</option>
+                    <option value="09">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
             </div>
         </div>
 
         <div class="row mb-4">
             <div class="col-md-3">
+                <label class="form-label fw-bold"><i class="fas fa-calendar"></i> Fecha Desde</label>
+                <input type="date" class="form-control" id="filterFechaDesde" value="<?= $anioActual ?>-01-01">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold"><i class="fas fa-calendar"></i> Fecha Hasta</label>
+                <input type="date" class="form-control" id="filterFechaHasta" value="<?= $anioActual ?>-12-31">
+            </div>
+
+            <div class="col-md-3 d-flex align-items-end">
                 <button type="button" class="btn btn-secondary w-100" id="btnLimpiarFiltros">
                     <i class="fas fa-eraser"></i> Limpiar Filtros
                 </button>
@@ -384,6 +413,8 @@
             $('#filterEstandares').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione un estándar', allowClear: true, width: '100%', language: select2Lang });
             $('#filterPhva').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione PHVA', allowClear: true, width: '100%', language: select2Lang });
             $('#filterEstado').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione estado', allowClear: true, width: '100%', language: select2Lang });
+            $('#filterAnio').select2({ theme: 'bootstrap-5', placeholder: 'Todos los años', allowClear: true, width: '100%', language: select2Lang });
+            $('#filterMes').select2({ theme: 'bootstrap-5', placeholder: 'Todos los meses', allowClear: true, width: '100%', language: select2Lang });
 
             // DataTable
             dataTable = $('#actividadesTable').DataTable({
@@ -411,22 +442,54 @@
                 applyFilters();
             });
 
-            // Filtros que no cascadean (solo filtran actividades)
+            // Filtros que no cascadean y disparan applyFilters directamente
             $('#filterEstado, #filterPhva, #filterFechaDesde, #filterFechaHasta').on('change', function() {
+                applyFilters();
+            });
+
+            // Año y Mes: auto-rellenan Desde/Hasta y luego aplican filtros
+            $('#filterAnio, #filterMes').on('change', function() {
+                autoFillFechas();
                 applyFilters();
             });
 
             // Botón limpiar filtros
             $('#btnLimpiarFiltros').on('click', function() {
                 suspendCascade = true;
-                $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares, #filterEstado, #filterPhva').val('').trigger('change');
+                $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares, #filterEstado, #filterPhva, #filterAnio, #filterMes').val('').trigger('change');
                 $('#filterFechaDesde').val('');
                 $('#filterFechaHasta').val('');
                 suspendCascade = false;
                 updateCascadeDropdowns();
                 applyFilters();
             });
+
+            // Aplicar filtro inicial (año actual por defecto, Desde/Hasta ya pre-rellenados desde PHP)
+            applyFilters();
         });
+
+        // Auto-rellena Fecha Desde/Hasta segun Año + Mes seleccionados
+        function autoFillFechas() {
+            var year = $('#filterAnio').val();
+            var month = $('#filterMes').val();
+            if (!year) {
+                $('#filterFechaDesde').val('');
+                $('#filterFechaHasta').val('');
+                return;
+            }
+            if (!month) {
+                $('#filterFechaDesde').val(year + '-01-01');
+                $('#filterFechaHasta').val(year + '-12-31');
+                return;
+            }
+            var y = parseInt(year, 10);
+            var m = parseInt(month, 10);
+            var lastDay = new Date(y, m, 0).getDate(); // day 0 del mes siguiente = ultimo dia del mes actual
+            var mm = String(m).padStart(2, '0');
+            var dd = String(lastDay).padStart(2, '0');
+            $('#filterFechaDesde').val(year + '-' + mm + '-01');
+            $('#filterFechaHasta').val(year + '-' + mm + '-' + dd);
+        }
 
         // === Cascadeo bidireccional de los 4 filtros basados en el cliente ===
         function filterClientesPool(opts) {
@@ -672,7 +735,8 @@
                 if (filterEstado && item.estado_actividad !== filterEstado) return false;
                 if (filterPhva && item.phva_plandetrabajo !== filterPhva) return false;
 
-                if (item.fecha_propuesta) {
+                if (filterFechaDesde || filterFechaHasta) {
+                    if (!item.fecha_propuesta) return false;
                     if (filterFechaDesde && item.fecha_propuesta < filterFechaDesde) return false;
                     if (filterFechaHasta && item.fecha_propuesta > filterFechaHasta) return false;
                 }

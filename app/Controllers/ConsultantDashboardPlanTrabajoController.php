@@ -118,6 +118,22 @@ class ConsultantDashboardPlanTrabajoController extends Controller
         $phvasUnicos = array_unique(array_filter(array_column($actividades, 'phva_plandetrabajo')));
         sort($phvasUnicos);
 
+        // Años disponibles: desde el mínimo derivado de los datos hasta el año actual (descendente)
+        $anioActual = (int) date('Y');
+        $anioMinimo = $anioActual;
+        foreach ($actividades as $act) {
+            if (!empty($act['fecha_propuesta'])) {
+                $y = (int) substr($act['fecha_propuesta'], 0, 4);
+                if ($y > 0 && $y < $anioMinimo) {
+                    $anioMinimo = $y;
+                }
+            }
+        }
+        $aniosDisponibles = [];
+        for ($y = $anioActual; $y >= $anioMinimo; $y--) {
+            $aniosDisponibles[] = $y;
+        }
+
         $data = [
             'clientes'                   => $clientes,
             'clientesCascade'            => $clientesCascade,
@@ -131,6 +147,8 @@ class ConsultantDashboardPlanTrabajoController extends Controller
             'consultoresUnicos'          => array_values($consultoresUnicos),
             'consultoresExternosUnicos'  => $consultoresExternosUnicos,
             'estandaresUnicos'           => $estandaresUnicos,
+            'aniosDisponibles'           => $aniosDisponibles,
+            'anioActual'                 => $anioActual,
         ];
 
         return view('consultant/dashboard_plan_trabajo', $data);
