@@ -424,6 +424,40 @@
                 return;
             }
 
+            // Si image_compressor.js tiene fotos comprimiendo, esperar antes de enviar.
+            // Sin esto, los inputs disabled=true durante compresion NO se incluyen en el
+            // form data, y las fotos no llegan al servidor.
+            var compressing = form.querySelectorAll('input[type="file"][data-compressing="1"]');
+            if (compressing.length > 0 && !form.dataset.waitingCompression) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                form.dataset.waitingCompression = '1';
+                var activeBtn = document.activeElement;
+                if (activeBtn && activeBtn.type === 'submit') {
+                    var origHtml = activeBtn.innerHTML;
+                    activeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Comprimiendo foto...';
+                    activeBtn.dataset.origHtmlCompress = origHtml;
+                }
+                var pending = Array.from(compressing).map(function(input) {
+                    return new Promise(function(resolve) {
+                        input.addEventListener('compressed', function handler() {
+                            input.removeEventListener('compressed', handler);
+                            resolve();
+                        });
+                    });
+                });
+                Promise.all(pending).then(function() {
+                    delete form.dataset.waitingCompression;
+                    if (activeBtn && activeBtn.dataset.origHtmlCompress) {
+                        activeBtn.innerHTML = activeBtn.dataset.origHtmlCompress;
+                        delete activeBtn.dataset.origHtmlCompress;
+                    }
+                    if (activeBtn && activeBtn.type === 'submit') activeBtn.click();
+                });
+                return;
+            }
+            delete form.dataset.waitingCompression;
+
             // Marcar como enviado
             form.dataset.submitted = 'true';
 
@@ -472,7 +506,7 @@
     <script src="/js/prevent_double_tap.js"></script>
 
     <!-- UI unificada de carga de foto (opt-in por clase .foto-input-pwa) -->
-    <script src="/js/foto_input_pwa.js?v=2"></script>
+    <script src="/js/foto_input_pwa.js?v=3"></script>
 
     <!-- Compresor de imágenes cliente (antes del FormData) -->
     <script src="/js/image_compressor.js"></script>
