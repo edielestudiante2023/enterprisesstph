@@ -174,19 +174,9 @@ $recintoFlags = ['TURCO' => 'aplica_turco', 'SAUNA' => 'aplica_sauna', 'JACUZZI'
                 ?>
                 <div class="border rounded p-2 mb-3" style="background:#fafbfc;">
                     <div style="font-size:13px; font-weight:600; color:#1c2437;">Slot <?= $slot ?></div>
-                    <?php if ($ev && !empty($ev['ruta_foto'])): ?>
-                    <div class="my-1">
-                        <div style="font-size:10px; color:#28a745; margin-bottom:2px;"><i class="fas fa-check-circle"></i> Guardada en servidor:</div>
-                        <img src="/<?= esc($ev['ruta_foto']) ?>" class="img-thumbnail" style="max-height:100px;">
-                    </div>
-                    <?php endif; ?>
-                    <div class="my-1" id="preview_container_<?= $slot ?>" style="display:none;">
-                        <div style="font-size:10px; color:#bd9751; margin-bottom:2px;"><i class="fas fa-clock"></i> Vista previa (aun no guardada):</div>
-                        <img id="preview_<?= $slot ?>" src="" class="img-thumbnail" style="max-height:120px; border:2px dashed #bd9751;">
-                    </div>
                     <div class="mb-1">
                         <label class="form-label" style="font-size:12px;">Foto</label>
-                        <input type="file" name="slot_foto_<?= $slot ?>" class="form-control form-control-sm slot-foto-input" accept="image/*" data-slot="<?= $slot ?>" data-multi-name="1">
+                        <input type="file" name="slot_foto_<?= $slot ?>" class="foto-input-pwa" accept="image/*" data-slot="<?= $slot ?>" data-multi-name="1" data-label="Foto slot <?= $slot ?>"<?= ($ev && !empty($ev['ruta_foto'])) ? ' data-previous-url="/' . esc($ev['ruta_foto']) . '"' : '' ?>>
                     </div>
                     <div class="row g-1">
                         <div class="col-5">
@@ -276,20 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Preview instantaneo de foto en slots
-    document.querySelectorAll('.slot-foto-input').forEach(function(inp) {
-        inp.addEventListener('change', function() {
-            const slot = this.dataset.slot;
-            const prevContainer = document.getElementById('preview_container_' + slot);
-            const prevImg = document.getElementById('preview_' + slot);
-            if (!this.files || !this.files[0]) { prevContainer.style.display = 'none'; return; }
-            const file = this.files[0];
-            if (!file.type.startsWith('image/')) return;
-            const reader = new FileReader();
-            reader.onload = function(e) { prevImg.src = e.target.result; prevContainer.style.display = 'block'; };
-            reader.readAsDataURL(file);
-        });
-    });
+    // Preview slots: gestionado por foto_input_pwa.js
 
     // Toggle secciones por recinto segun flags
     document.querySelectorAll('.flag-recinto').forEach(function(cb) {

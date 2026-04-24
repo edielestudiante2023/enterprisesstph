@@ -92,33 +92,11 @@ $action = $isEdit ? base_url('/inspecciones/inspeccion-locativa/update/') . $ins
                                         <div class="row g-2 mb-2">
                                             <div class="col-6">
                                                 <label class="form-label" style="font-size:12px;">Foto hallazgo</label>
-                                                <?php if (!empty($h['imagen'])): ?>
-                                                    <div class="mb-1">
-                                                        <img src="<?= base_url($h['imagen']) ?>" class="img-fluid rounded" style="max-height:80px; object-fit:cover; cursor:pointer;" onclick="openPhoto(this.src)">
-                                                    </div>
-                                                <?php endif; ?>
-                                                <div class="photo-input-group">
-                                                    <input type="file" name="hallazgo_imagen[]" class="file-preview" accept="image/*" style="display:none;">
-                                                    <div class="d-flex gap-1">
-                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                                                    </div>
-                                                    <div class="preview-img mt-1"></div>
-                                                </div>
+                                                <input type="file" name="hallazgo_imagen[]" class="foto-input-pwa" accept="image/*" data-label="Foto hallazgo"<?= !empty($h['imagen']) ? ' data-previous-url="' . base_url($h['imagen']) . '"' : '' ?>>
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label" style="font-size:12px;">Foto correccion</label>
-                                                <?php if (!empty($h['imagen_correccion'])): ?>
-                                                    <div class="mb-1">
-                                                        <img src="<?= base_url($h['imagen_correccion']) ?>" class="img-fluid rounded" style="max-height:80px; object-fit:cover; cursor:pointer;" onclick="openPhoto(this.src)">
-                                                    </div>
-                                                <?php endif; ?>
-                                                <div class="photo-input-group">
-                                                    <input type="file" name="hallazgo_correccion[]" class="file-preview" accept="image/*" style="display:none;">
-                                                    <div class="d-flex gap-1">
-                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                                                    </div>
-                                                    <div class="preview-img mt-1"></div>
-                                                </div>
+                                                <input type="file" name="hallazgo_correccion[]" class="foto-input-pwa" accept="image/*" data-label="Foto correccion"<?= !empty($h['imagen_correccion']) ? ' data-previous-url="' . base_url($h['imagen_correccion']) . '"' : '' ?>>
                                             </div>
                                         </div>
 
@@ -250,23 +228,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="row g-2 mb-2">
                         <div class="col-6">
                             <label class="form-label" style="font-size:12px;">Foto hallazgo</label>
-                            <div class="photo-input-group">
-                                <input type="file" name="hallazgo_imagen[]" class="file-preview" accept="image/*" style="display:none;">
-                                <div class="d-flex gap-1">
-                                    <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                                </div>
-                                <div class="preview-img mt-1"></div>
-                            </div>
+                            <input type="file" name="hallazgo_imagen[]" class="foto-input-pwa" accept="image/*" data-label="Foto hallazgo">
                         </div>
                         <div class="col-6">
                             <label class="form-label" style="font-size:12px;">Foto correccion</label>
-                            <div class="photo-input-group">
-                                <input type="file" name="hallazgo_correccion[]" class="file-preview" accept="image/*" style="display:none;">
-                                <div class="d-flex gap-1">
-                                    <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                                </div>
-                                <div class="preview-img mt-1"></div>
-                            </div>
+                            <input type="file" name="hallazgo_correccion[]" class="foto-input-pwa" accept="image/*" data-label="Foto correccion">
                         </div>
                     </div>
 
@@ -286,7 +252,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             </div>`;
-        document.getElementById('hallazgosContainer').insertAdjacentHTML('beforeend', html);
+        const container = document.getElementById('hallazgosContainer');
+        container.insertAdjacentHTML('beforeend', html);
+        const newRow = container.lastElementChild;
+        if (window.fotoInputPwa && newRow) window.fotoInputPwa.scan(newRow);
         updateHallazgos();
 
         // Abrir accordion si esta cerrado
@@ -399,23 +368,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="row g-2 mb-2">
                             <div class="col-6">
                                 <label class="form-label" style="font-size:12px;">Foto hallazgo</label>
-                                <div class="photo-input-group">
-                                    <input type="file" name="hallazgo_imagen[]" class="file-preview" accept="image/*" style="display:none;">
-                                    <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                                    </div>
-                                    <div class="preview-img mt-1"></div>
-                                </div>
+                                <input type="file" name="hallazgo_imagen[]" class="foto-input-pwa" accept="image/*" data-label="Foto hallazgo">
                             </div>
                             <div class="col-6">
                                 <label class="form-label" style="font-size:12px;">Foto correccion</label>
-                                <div class="photo-input-group">
-                                    <input type="file" name="hallazgo_correccion[]" class="file-preview" accept="image/*" style="display:none;">
-                                    <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                                    </div>
-                                    <div class="preview-img mt-1"></div>
-                                </div>
+                                <input type="file" name="hallazgo_correccion[]" class="foto-input-pwa" accept="image/*" data-label="Foto correccion">
                             </div>
                         </div>
                         <div class="row g-2">

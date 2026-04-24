@@ -138,17 +138,7 @@ function brig_sel(array $ops, ?string $val, string $default = 'no'): string {
                             <?php foreach (['foto_brigada_1' => 'Foto brigada 1', 'foto_brigada_2' => 'Foto brigada 2', 'foto_dotacion' => 'Foto dotación'] as $campo => $lbl): ?>
                             <div class="col-4">
                                 <label class="form-label" style="font-size:12px;"><?= $lbl ?></label>
-                                <div class="photo-input-group">
-                                    <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" capture="environment" style="display:none;">
-                                    <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                                    </div>
-                                    <div class="preview-img mt-1">
-                                        <?php if (!empty($inspeccion[$campo])): ?>
-                                        <img src="/<?= esc($inspeccion[$campo]) ?>" class="img-fluid rounded" style="max-height:60px; object-fit:cover; cursor:pointer; border:2px solid #28a745;" onclick="openPhoto(this.src)">
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
+                                <input type="file" name="<?= $campo ?>" class="foto-input-pwa" accept="image/*" data-label="<?= esc($lbl) ?>"<?= !empty($inspeccion[$campo]) ? ' data-previous-url="/' . esc($inspeccion[$campo]) . '"' : '' ?>>
                             </div>
                             <?php endforeach; ?>
                         </div>
@@ -237,17 +227,7 @@ function brig_sel(array $ops, ?string $val, string $default = 'no'): string {
                         </div>
                         <div>
                             <label class="form-label" style="font-size:12px;">Foto acta de simulacro</label>
-                            <div class="photo-input-group">
-                                <input type="file" name="foto_acta_simulacro" class="file-preview" accept="image/*" capture="environment" style="display:none;">
-                                <div class="d-flex gap-1">
-                                    <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                                </div>
-                                <div class="preview-img mt-1">
-                                    <?php if (!empty($inspeccion['foto_acta_simulacro'])): ?>
-                                    <img src="/<?= esc($inspeccion['foto_acta_simulacro']) ?>" class="img-fluid rounded" style="max-height:80px; object-fit:cover; cursor:pointer; border:2px solid #28a745;" onclick="openPhoto(this.src)">
-                                    <?php endif; ?>
-                                </div>
-                            </div>
+                            <input type="file" name="foto_acta_simulacro" class="foto-input-pwa" accept="image/*" data-label="Acta simulacro"<?= !empty($inspeccion['foto_acta_simulacro']) ? ' data-previous-url="/' . esc($inspeccion['foto_acta_simulacro']) . '"' : '' ?>>
                         </div>
                     </div>
                 </div>

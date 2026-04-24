@@ -67,31 +67,11 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                         <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <label class="form-label" style="font-size:12px;">Foto 1 del botiquin</label>
-                                <div class="photo-input-group">
-                                    <input type="file" name="foto_1" class="file-preview" accept="image/*" style="display:none;">
-                                    <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                                    </div>
-                                    <div class="preview-img mt-1">
-                                        <?php if (!empty($inspeccion['foto_1'])): ?>
-                                        <img src="/<?= esc($inspeccion['foto_1']) ?>" class="img-fluid rounded" style="max-height:60px; object-fit:cover; cursor:pointer; border:2px solid #28a745;" onclick="openPhoto(this.src)">
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
+                                <input type="file" name="foto_1" class="foto-input-pwa" accept="image/*" data-label="Foto 1 botiquin"<?= !empty($inspeccion['foto_1']) ? ' data-previous-url="/' . esc($inspeccion['foto_1']) . '"' : '' ?>>
                             </div>
                             <div class="col-6">
                                 <label class="form-label" style="font-size:12px;">Foto 2 del botiquin</label>
-                                <div class="photo-input-group">
-                                    <input type="file" name="foto_2" class="file-preview" accept="image/*" style="display:none;">
-                                    <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                                    </div>
-                                    <div class="preview-img mt-1">
-                                        <?php if (!empty($inspeccion['foto_2'])): ?>
-                                        <img src="/<?= esc($inspeccion['foto_2']) ?>" class="img-fluid rounded" style="max-height:60px; object-fit:cover; cursor:pointer; border:2px solid #28a745;" onclick="openPhoto(this.src)">
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
+                                <input type="file" name="foto_2" class="foto-input-pwa" accept="image/*" data-label="Foto 2 botiquin"<?= !empty($inspeccion['foto_2']) ? ' data-previous-url="/' . esc($inspeccion['foto_2']) . '"' : '' ?>>
                             </div>
                         </div>
 
@@ -190,17 +170,7 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                 <div class="row g-2 mt-1">
                                     <div class="col-6">
                                         <label class="form-label" style="font-size:11px;">Foto tabla espinal</label>
-                                        <div class="photo-input-group">
-                                            <input type="file" name="foto_tabla_espinal" class="file-preview" accept="image/*" style="display:none;">
-                                            <div class="d-flex gap-1">
-                                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                                            </div>
-                                            <div class="preview-img mt-1">
-                                                <?php if (!empty($inspeccion['foto_tabla_espinal'])): ?>
-                                                <img src="/<?= esc($inspeccion['foto_tabla_espinal']) ?>" class="img-fluid rounded" style="max-height:60px; cursor:pointer; border:2px solid #28a745;" onclick="openPhoto(this.src)">
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
+                                        <input type="file" name="foto_tabla_espinal" class="foto-input-pwa" accept="image/*" data-label="Foto tabla espinal"<?= !empty($inspeccion['foto_tabla_espinal']) ? ' data-previous-url="/' . esc($inspeccion['foto_tabla_espinal']) . '"' : '' ?>>
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label" style="font-size:11px;">Observaciones</label>
@@ -238,17 +208,7 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label" style="font-size:11px;">Foto collares</label>
-                                        <div class="photo-input-group">
-                                            <input type="file" name="foto_collares" class="file-preview" accept="image/*" style="display:none;">
-                                            <div class="d-flex gap-1">
-                                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                                            </div>
-                                            <div class="preview-img mt-1">
-                                                <?php if (!empty($inspeccion['foto_collares'])): ?>
-                                                <img src="/<?= esc($inspeccion['foto_collares']) ?>" class="img-fluid rounded" style="max-height:60px; cursor:pointer; border:2px solid #28a745;" onclick="openPhoto(this.src)">
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
+                                        <input type="file" name="foto_collares" class="foto-input-pwa" accept="image/*" data-label="Foto collares"<?= !empty($inspeccion['foto_collares']) ? ' data-previous-url="/' . esc($inspeccion['foto_collares']) . '"' : '' ?>>
                                     </div>
                                 </div>
                             </div>
@@ -282,17 +242,7 @@ $estadosEquipo = ['BUEN ESTADO', 'ESTADO REGULAR', 'MAL ESTADO'];
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label" style="font-size:11px;">Foto inmovilizadores</label>
-                                        <div class="photo-input-group">
-                                            <input type="file" name="foto_inmovilizadores" class="file-preview" accept="image/*" style="display:none;">
-                                            <div class="d-flex gap-1">
-                                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                                            </div>
-                                            <div class="preview-img mt-1">
-                                                <?php if (!empty($inspeccion['foto_inmovilizadores'])): ?>
-                                                <img src="/<?= esc($inspeccion['foto_inmovilizadores']) ?>" class="img-fluid rounded" style="max-height:60px; cursor:pointer; border:2px solid #28a745;" onclick="openPhoto(this.src)">
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
+                                        <input type="file" name="foto_inmovilizadores" class="foto-input-pwa" accept="image/*" data-label="Foto inmovilizadores"<?= !empty($inspeccion['foto_inmovilizadores']) ? ' data-previous-url="/' . esc($inspeccion['foto_inmovilizadores']) . '"' : '' ?>>
                                     </div>
                                 </div>
                             </div>

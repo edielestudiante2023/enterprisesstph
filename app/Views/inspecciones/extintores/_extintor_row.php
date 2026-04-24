@@ -26,18 +26,7 @@
             </div>
             <div class="col-6">
                 <label class="form-label" style="font-size:11px;">Foto</label>
-                <?php if (!empty($ext['foto'])): ?>
-                <div class="mb-1">
-                    <img src="<?= base_url($ext['foto']) ?>" class="img-fluid rounded" style="max-height:60px; object-fit:cover; cursor:pointer;" onclick="openPhoto(this.src)">
-                </div>
-                <?php endif; ?>
-                <div class="photo-input-group">
-                    <input type="file" name="ext_foto[]" class="file-preview" accept="image/*" style="display:none;">
-                    <div class="d-flex gap-1">
-                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                    </div>
-                    <div class="preview-img mt-1"></div>
-                </div>
+                <input type="file" name="ext_foto[]" class="foto-input-pwa" accept="image/*" data-label="Foto extintor"<?= !empty($ext['foto']) ? ' data-previous-url="' . base_url($ext['foto']) . '"' : '' ?>>
             </div>
         </div>
         <div class="mt-1">

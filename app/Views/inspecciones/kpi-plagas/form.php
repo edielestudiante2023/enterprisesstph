@@ -128,22 +128,7 @@ $storageKey = $isEdit ? 'kpi_plagas_draft_' . $inspeccion['id'] : 'kpi_plagas_dr
                 <div class="col-6 mb-3">
                     <label class="form-label" style="font-size:12px;">Evidencia <?= $i ?></label>
                     <?php $campo = "registro_formato_$i"; ?>
-                    <?php if ($isEdit && !empty($inspeccion[$campo])): ?>
-                        <div class="mb-1">
-                            <img src="/<?= esc($inspeccion[$campo]) ?>" class="img-fluid rounded"
-                                 style="max-height:80px; object-fit:cover; cursor:pointer; border:2px solid #28a745;"
-                                 onclick="openPhoto(this.src)">
-                        </div>
-                    <?php endif; ?>
-                    <div class="photo-input-group">
-                        <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;">
-                                <i class="fas fa-images"></i> Foto
-                            </button>
-                        </div>
-                        <div class="preview-img mt-1"></div>
-                    </div>
+                    <input type="file" name="<?= $campo ?>" class="foto-input-pwa" accept="image/*" data-label="Evidencia <?= $i ?>"<?= ($isEdit && !empty($inspeccion[$campo])) ? ' data-previous-url="/' . esc($inspeccion[$campo]) . '"' : '' ?>>
                 </div>
                 <?php endfor; ?>
             </div>
