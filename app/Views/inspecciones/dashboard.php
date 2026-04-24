@@ -1416,11 +1416,11 @@
                 <div><strong style="font-size:11px; color:#6b3e12;">Gimnasio</strong></div>
                 <div style="font-size:11px; color:rgba(107,62,18,0.7);">(<?= $totalGimnasio ?? 0 ?>)</div>
             </a>
-            <span style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.25); text-align:center; opacity:0.7;">
+            <a href="<?= base_url('/inspecciones/turco-sauna') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.55); text-align:center; text-decoration:none; transition:transform .2s;">
                 <i class="fas fa-hot-tub-person" style="font-size:22px; color:#6b3e12; display:block; margin-bottom:2px;"></i>
                 <div><strong style="font-size:11px; color:#6b3e12;">Turco/Sauna/Jacuzzi</strong></div>
-                <div style="font-size:10px; color:rgba(107,62,18,0.7);">(proximamente)</div>
-            </span>
+                <div style="font-size:11px; color:rgba(107,62,18,0.7);">(<?= $totalTurcoSauna ?? 0 ?>)</div>
+            </a>
             <span style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.25); text-align:center; opacity:0.7;">
                 <i class="fas fa-fire-burner" style="font-size:22px; color:#6b3e12; display:block; margin-bottom:2px;"></i>
                 <div><strong style="font-size:11px; color:#6b3e12;">Zona BBQ</strong></div>

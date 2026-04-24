@@ -1056,6 +1056,20 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('gimnasio/delete/(:num)', 'InspeccionGimnasioController::delete/$1');
     $routes->get('gimnasio/enviar-email/(:num)', 'InspeccionGimnasioController::enviarEmail/$1');
 
+    // Inspección Turco + Sauna + Jacuzzi (FT-SST-249)
+    $routes->get('turco-sauna', 'InspeccionTurcoSaunaController::list');
+    $routes->get('turco-sauna/create', 'InspeccionTurcoSaunaController::create');
+    $routes->get('turco-sauna/create/(:num)', 'InspeccionTurcoSaunaController::create/$1');
+    $routes->post('turco-sauna/store', 'InspeccionTurcoSaunaController::store');
+    $routes->get('turco-sauna/edit/(:num)', 'InspeccionTurcoSaunaController::edit/$1');
+    $routes->post('turco-sauna/update/(:num)', 'InspeccionTurcoSaunaController::update/$1');
+    $routes->get('turco-sauna/view/(:num)', 'InspeccionTurcoSaunaController::view/$1');
+    $routes->get('turco-sauna/pdf/(:num)', 'InspeccionTurcoSaunaController::generatePdf/$1');
+    $routes->get('turco-sauna/regenerar/(:num)', 'InspeccionTurcoSaunaController::regenerarPdf/$1');
+    $routes->post('turco-sauna/finalizar/(:num)', 'InspeccionTurcoSaunaController::finalizar/$1');
+    $routes->get('turco-sauna/delete/(:num)', 'InspeccionTurcoSaunaController::delete/$1');
+    $routes->get('turco-sauna/enviar-email/(:num)', 'InspeccionTurcoSaunaController::enviarEmail/$1');
+
     // Inspección Botiquín
     $routes->get('botiquin', 'InspeccionBotiquinController::list');
     $routes->get('botiquin/create', 'InspeccionBotiquinController::create');
