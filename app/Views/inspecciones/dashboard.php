@@ -1402,6 +1402,33 @@
         </div>
     </div>
 
+    <!-- Zonas complementarias (turco/sauna/jacuzzi, gimnasio, zona BBQ) -->
+    <div class="section-title">Zonas complementarias</div>
+    <div class="card mb-3 border-0" style="background: linear-gradient(135deg, #F6C87E 0%, #E5A24F 100%); border-radius: 12px; padding: 14px 10px 10px;">
+        <div style="text-align:center; margin-bottom:8px;">
+            <span style="color:#6b3e12; font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">
+                <i class="fas fa-spa me-1"></i>Areas recreativas de la copropiedad
+            </span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+            <a href="<?= base_url('/inspecciones/gimnasio') ?>" style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.55); text-align:center; text-decoration:none; transition:transform .2s;">
+                <i class="fas fa-dumbbell" style="font-size:22px; color:#6b3e12; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#6b3e12;">Gimnasio</strong></div>
+                <div style="font-size:11px; color:rgba(107,62,18,0.7);">(<?= $totalGimnasio ?? 0 ?>)</div>
+            </a>
+            <span style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.25); text-align:center; opacity:0.7;">
+                <i class="fas fa-hot-tub-person" style="font-size:22px; color:#6b3e12; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#6b3e12;">Turco/Sauna/Jacuzzi</strong></div>
+                <div style="font-size:10px; color:rgba(107,62,18,0.7);">(proximamente)</div>
+            </span>
+            <span style="padding:12px 6px; margin:0; border-radius:10px; background:rgba(255,255,255,0.25); text-align:center; opacity:0.7;">
+                <i class="fas fa-fire-burner" style="font-size:22px; color:#6b3e12; display:block; margin-bottom:2px;"></i>
+                <div><strong style="font-size:11px; color:#6b3e12;">Zona BBQ</strong></div>
+                <div style="font-size:10px; color:rgba(107,62,18,0.7);">(proximamente)</div>
+            </span>
+        </div>
+    </div>
+
     <!-- Mini-universo Saneamiento Básico -->
     <div class="section-title">Saneamiento Básico</div>
     <div class="card mb-3 border-0" style="background: linear-gradient(135deg, #2E7D4F 0%, #1B5E3A 100%); border-radius: 12px; padding: 14px 10px 10px;">

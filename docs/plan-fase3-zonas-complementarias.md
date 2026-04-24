@@ -11,8 +11,8 @@ Construir 3 módulos de inspección nuevos, reusando el patrón consolidado en p
 
 | # | Módulo | Código | Ruta | Tipo |
 |---|--------|--------|------|------|
-| 1 | Gimnasio | FT-SST-250 | `/inspecciones/gimnasio` | PLANO con dotación |
-| 2 | Baño Turco + Sauna | FT-SST-249 | `/inspecciones/turco-sauna` | HÍBRIDO (flags aplica_turco / aplica_sauna) |
+| 1 | Gimnasio (riesgos locativos) | FT-SST-250 | `/inspecciones/gimnasio` | PLANO puro |
+| 2 | Baño Turco + Sauna + Jacuzzi | FT-SST-249 | `/inspecciones/turco-sauna` | HÍBRIDO (flags aplica_turco / aplica_sauna / aplica_jacuzzi) |
 | 3 | Zona BBQ | FT-SST-251 | `/inspecciones/zona-bbq` | PLANO |
 
 **Orden de construcción:** Gimnasio → Turco+Sauna → Zona BBQ. Un deploy por módulo.
@@ -105,20 +105,24 @@ En la vista `form.php` de cada módulo, bloque al final:
 [🚨 Crear procedimiento de emergencia para esta área]
 ```
 
-Botón que abre `/inspecciones/procedimiento-emergencia-area/nuevo?id_cliente=X&area=Y`. Los valores `area` ya soportados en el ENUM (verificado en `app/SQL/migrate_procedimiento_emergencia_area.php:74` — **sin Ñ**):
+Botón que abre `/inspecciones/procedimiento-emergencia-area/nuevo?id_cliente=X&area=Y`. Los valores `area` actuales del ENUM (verificado en `app/SQL/migrate_procedimiento_emergencia_area.php:74` — **sin Ñ**):
 - Gimnasio → `area=GYM`
 - Turco → `area=BANO_TURCO`
 - Sauna → `area=SAUNA`
 - BBQ → `area=ZONA_BBQ`
 
-Cuando es turco+sauna, mostramos 2 botones si ambos aplican.
+**⚠ Cambio pendiente**: agregar `JACUZZI` como 6° valor del ENUM. Script independiente `app/SQL/migrate_enum_area_add_jacuzzi.php` antes de construir el módulo 2.
+
+Cuando turco+sauna+jacuzzi, mostramos 1 botón por recinto que aplique (máximo 3 botones).
 
 ### 3.5. Dashboard
 
 Nueva sección "**Zonas complementarias**" en `app/Views/inspecciones/dashboard.php`, con tarjetas:
-- FT-SST-249 Turco + Sauna (icono 🧖)
-- FT-SST-250 Gimnasio (icono 🏋️)
-- FT-SST-251 Zona BBQ (icono 🔥)
+- FT-SST-249 Turco + Sauna + Jacuzzi
+- FT-SST-250 Gimnasio
+- FT-SST-251 Zona BBQ
+
+La sección se crea al construir el módulo 1 (con tarjetas "próximamente" para los módulos 2 y 3 que se habilitan al desplegarse).
 
 Color de sección sugerido: naranja/amarillo para diferenciarlas de piscinas (azul).
 
@@ -134,47 +138,41 @@ Color de sección sugerido: naranja/amarillo para diferenciarlas de piscinas (az
 - DOMPDF 3.0.0, `@page margin` en `px` (NO `cm`), `isRemoteEnabled(true)`, `isHtml5ParserEnabled(true)`.
 - Logos cliente: `FCPATH . 'uploads/' . $cliente['logo']` convertidos a base64 con `file_get_contents` + `mime_content_type`.
 
-## 4. Módulo 1 — Gimnasio (FT-SST-250)
+## 4. Módulo 1 — Gimnasio (FT-SST-250) — SOLO RIESGOS LOCATIVOS
 
-### 4.1. Tablas
+**Decisión del usuario (2026-04-23)**: este módulo se reduce a riesgos locativos/infraestructura. NO captura dotación EPP del instructor, NO gestiona mantenimiento de equipos. Si mañana se necesita capturar equipos, va aparte en un nuevo módulo.
+
+### 4.1. Tablas (3 tablas — sin detalle de equipos)
 
 ```sql
 CREATE TABLE tbl_inspeccion_gimnasio (
   -- columnas comunes (ver 3.2) +
   aforo_maximo INT NULL,
   horario_operacion VARCHAR(100) NULL,
-  tiene_instructor TINYINT(1) DEFAULT 0,
   tiene_botiquin TINYINT(1) DEFAULT 0,
   tiene_extintor TINYINT(1) DEFAULT 0,
   tiene_plano_evacuacion TINYINT(1) DEFAULT 0,
   tiene_ventilacion_mecanica TINYINT(1) DEFAULT 0,
   tiene_reglamento_visible TINYINT(1) DEFAULT 0,
   piso_antideslizante TINYINT(1) DEFAULT 0,
-  ultima_fumigacion DATE NULL,
-  ...
+  tiene_punto_hidratacion TINYINT(1) DEFAULT 0,
+  tiene_pulsador_emergencia TINYINT(1) DEFAULT 0,
+  espejos_seguros TINYINT(1) DEFAULT 0,
+  vestier_ordenado TINYINT(1) DEFAULT 0,
+  salida_emergencia_libre TINYINT(1) DEFAULT 0,
+  iluminacion_adecuada TINYINT(1) DEFAULT 0,
+  -- checklist locativa + observaciones
 );
 
-CREATE TABLE tbl_gimnasio_equipo (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  id_inspeccion INT NOT NULL,
-  tipo_equipo ENUM('CARDIO','PESO_LIBRE','MAQUINA_GUIADA','FUNCIONAL','OTRO') NOT NULL,
-  descripcion VARCHAR(200) NOT NULL,
-  estado ENUM('operativo','dañado','requiere_mant') NOT NULL,
-  fecha_ultimo_mant DATE NULL,
-  observaciones TEXT NULL,
-  orden INT NOT NULL DEFAULT 0,
-  FOREIGN KEY (id_inspeccion) REFERENCES tbl_inspeccion_gimnasio(id) ON DELETE CASCADE
-);
-
-CREATE TABLE tbl_gimnasio_evidencia_maestro ( ... );  -- 6 slots
+CREATE TABLE tbl_gimnasio_evidencia_maestro ( ... );  -- 6 slots fijos
 CREATE TABLE tbl_gimnasio_detalle_evidencia ( ... );
 ```
 
-### 4.2. Checklist de riesgos (Gimnasio)
+### 4.2. Checklist de riesgos LOCATIVOS (Gimnasio)
 
 | Código | Descripción | Fundamento |
 |--------|-------------|------------|
-| GYM-01 | Aforo máximo señalizado y respetado | Reglamento interno (Ley 675) |
+| GYM-01 | Aforo máximo señalizado | Ley 675 + Reglamento interno |
 | GYM-02 | Reglamento de uso visible | Ley 675 + Criterio SST |
 | GYM-03 | Piso antideslizante / amortiguado | Res 2400/1979 art 205 + NTC 1700 |
 | GYM-04 | Ventilación natural o mecánica adecuada | Res 2400/1979 art 63 |
@@ -182,26 +180,20 @@ CREATE TABLE tbl_gimnasio_detalle_evidencia ( ... );
 | GYM-06 | Extintor multipropósito ABC vigente y señalizado | Decreto 1072/2015 + NTC 1700 |
 | GYM-07 | Botiquín primeros auxilios visible y dotado | Decreto 1072/2015 |
 | GYM-08 | Plano de evacuación visible | NFPA 101 + NTC 1700 |
-| GYM-09 | Equipos cardiovasculares con mantenimiento vigente | Criterio SST + NTC EN 957 |
-| GYM-10 | Anclajes y tornillería de equipos de peso libre revisados | Criterio SST + NTC EN 957 |
-| GYM-11 | Espejos instalados con seguridad (no bordes vivos) | Res 2400/1979 + Criterio SST |
-| GYM-12 | Punto de hidratación disponible | Res 2400/1979 art 44 |
-| GYM-13 | Casilleros/vestier limpios y con orden | Decreto 1072/2015 + Ley 9/1979 |
-| GYM-14 | Salida de emergencia libre de obstrucciones | NFPA 101 |
-| GYM-15 | Pulsador de emergencia / intercom funcional | Criterio SST |
+| GYM-09 | Espejos instalados con seguridad (no bordes vivos, anclados) | Res 2400/1979 + Criterio SST |
+| GYM-10 | Punto de hidratación disponible | Res 2400/1979 art 44 |
+| GYM-11 | Vestier limpio y con orden | Decreto 1072/2015 + Ley 9/1979 |
+| GYM-12 | Salida de emergencia libre de obstrucciones | NFPA 101 |
+| GYM-13 | Pulsador de emergencia / intercom funcional | Criterio SST |
 
 ### 4.3. Categorías de evidencia
-- `aforo` (señal capacidad)
-- `reglamento`
-- `extintor_botiquin`
-- `equipo_cardio`
-- `equipo_peso`
-- `hallazgo` (para deficiencias)
-- `plano_evacuacion`
-- `ventilacion`
-- `general`
+- `aforo`, `reglamento`, `extintor_botiquin`, `hallazgo`, `plano_evacuacion`, `ventilacion`, `vestier`, `salida_emergencia`, `general`
 
-## 5. Módulo 2 — Turco + Sauna (FT-SST-249)
+## 5. Módulo 2 — Turco + Sauna + Jacuzzi (FT-SST-249)
+
+**Decisión del usuario (2026-04-23)**: se adiciona jacuzzi como 3er recinto del módulo (criterio J1 = locativo puro, sin análisis químico de agua; ese caso seguiría usando el módulo de piscinas existente).
+
+**Precondición**: agregar `JACUZZI` al ENUM `area` de `tbl_procedimiento_emergencia_area` mediante `app/SQL/migrate_enum_area_add_jacuzzi.php` antes de construir este módulo.
 
 ### 5.1. Tablas
 
@@ -210,32 +202,48 @@ CREATE TABLE tbl_inspeccion_turco_sauna (
   -- columnas comunes (3.2) +
   aplica_turco TINYINT(1) DEFAULT 0,
   aplica_sauna TINYINT(1) DEFAULT 0,
+  aplica_jacuzzi TINYINT(1) DEFAULT 0,
   aforo_maximo_turco INT NULL,
   aforo_maximo_sauna INT NULL,
+  aforo_maximo_jacuzzi INT NULL,
   horario_operacion VARCHAR(100) NULL,
   tiene_reglamento_visible TINYINT(1) DEFAULT 0,
   reglamento_prohibe_menores TINYINT(1) DEFAULT 0,
   tiene_cronometro TINYINT(1) DEFAULT 0,
   tiene_timbre_emergencia TINYINT(1) DEFAULT 0,
   punto_hidratacion TINYINT(1) DEFAULT 0,
-  CONSTRAINT chk_aplica CHECK (aplica_turco = 1 OR aplica_sauna = 1),
+  CONSTRAINT chk_aplica CHECK (aplica_turco = 1 OR aplica_sauna = 1 OR aplica_jacuzzi = 1),
   ...
 );
 
 CREATE TABLE tbl_turco_sauna_detalle (
   id INT AUTO_INCREMENT PRIMARY KEY,
   id_inspeccion INT NOT NULL,
-  recinto ENUM('TURCO','SAUNA') NOT NULL,
-  material_interno VARCHAR(100) NULL,       -- cerámica, madera aislada, etc.
-  fuente_calor VARCHAR(100) NULL,           -- generador vapor, hornillo piedras, eléctrico
-  temperatura_operacion VARCHAR(50) NULL,   -- rango °C
+  recinto ENUM('TURCO','SAUNA','JACUZZI') NOT NULL,
+
+  -- Comunes a todos los recintos
+  material_interno VARCHAR(100) NULL,
+  fuente_calor VARCHAR(100) NULL,
+  temperatura_operacion VARCHAR(50) NULL,
   sistema_ventilacion VARCHAR(100) NULL,
   piso_antideslizante TINYINT(1) DEFAULT 0,
   iluminacion_adecuada TINYINT(1) DEFAULT 0,
-  puerta_abre_hacia_fuera TINYINT(1) DEFAULT 0,
-  puerta_polarizada_visible_exterior TINYINT(1) DEFAULT 0,
   aislamiento_electrico_ok TINYINT(1) DEFAULT 0,
   control_temp_protegido TINYINT(1) DEFAULT 0,
+
+  -- Turco/Sauna específicos (pueden quedar NULL para jacuzzi)
+  puerta_abre_hacia_fuera TINYINT(1) DEFAULT 0,
+  puerta_polarizada_visible_exterior TINYINT(1) DEFAULT 0,
+
+  -- Jacuzzi específicos (pueden quedar NULL para turco/sauna)
+  tiene_cobertura_cuando_no_usado TINYINT(1) DEFAULT 0,
+  tiene_agarraderas TINYINT(1) DEFAULT 0,
+  tiene_gfci_rcd TINYINT(1) DEFAULT 0,
+  profundidad_senalizada TINYINT(1) DEFAULT 0,
+  desague_funcional TINYINT(1) DEFAULT 0,
+  profundidad_m DECIMAL(3,2) NULL,
+  temperatura_agua_c DECIMAL(4,1) NULL,
+
   observaciones TEXT NULL,
   orden INT NOT NULL DEFAULT 0,
   FOREIGN KEY (id_inspeccion) REFERENCES tbl_inspeccion_turco_sauna(id) ON DELETE CASCADE
@@ -245,35 +253,42 @@ CREATE TABLE tbl_turco_sauna_evidencia_maestro ( ... );
 CREATE TABLE tbl_turco_sauna_detalle_evidencia ( ... );
 ```
 
-### 5.2. Comportamiento de aplica_turco / aplica_sauna
+### 5.2. Comportamiento de los flags aplica_*
 - Al menos uno debe estar marcado (CHECK en BD + validación server + JS).
-- Si `aplica_turco=0`, la sección turco se colapsa, sus inputs se convierten en no-required, no se crea fila en `tbl_turco_sauna_detalle`.
-- El PDF solo imprime la sección del recinto que aplica.
+- Si `aplica_X=0`, la sección X se colapsa, sus inputs se convierten en no-required, no se crea fila en `tbl_turco_sauna_detalle` con `recinto=X`.
+- El PDF solo imprime los recintos que aplican.
+- El botón "Crear procedimiento de emergencia" se muestra 1–3 veces según recintos activos, con `area=BANO_TURCO | SAUNA | JACUZZI`.
 
-### 5.3. Checklist de riesgos (Turco + Sauna)
+### 5.3. Checklist de riesgos (Turco + Sauna + Jacuzzi)
 
 | Código | Descripción | Fundamento | Aplica |
 |--------|-------------|------------|--------|
-| TS-01 | Reglamento de uso visible (prohibe menores sin acompañante, mayores 18a, tiempo máximo 15–20 min) | Ley 675 + Criterio SST | AMBOS |
-| TS-02 | Aforo máximo señalizado | Ley 675 + Reglamento interno | AMBOS |
-| TS-03 | Timbre/pulsador de emergencia funcional comunicado con recepción | Criterio SST + NFPA 101 | AMBOS |
-| TS-04 | Punto de hidratación cercano | Criterio SST | AMBOS |
-| TS-05 | Control de temperatura protegido contra intervención | Criterio SST | AMBOS |
-| TS-06 | Puerta abre hacia afuera y con visualización exterior | NFPA 101 + Criterio SST | AMBOS |
-| TS-07 | Piso antideslizante (interior y salida) | Res 2400/1979 + Criterio SST | AMBOS |
-| TS-08 | Iluminación adecuada y protegida para alta humedad | Res 2400/1979 + RETIE | AMBOS |
-| TS-09 | Sistema de ventilación / rendijas | Ley 9/1979 + Criterio SST | AMBOS |
-| TS-10 | Desagüe funcional en piso | Ley 9/1979 + Criterio SST | TURCO |
+| TS-01 | Reglamento de uso visible (prohibe menores sin acompañante, mayores 18a, tiempo máximo 15–20 min, prohibido bajo efectos de alcohol) | Ley 675 + Criterio SST | TODOS |
+| TS-02 | Aforo máximo señalizado | Ley 675 + Reglamento interno | TODOS |
+| TS-03 | Timbre/pulsador de emergencia funcional comunicado con recepción | Criterio SST + NFPA 101 | TODOS |
+| TS-04 | Punto de hidratación cercano | Criterio SST | TODOS |
+| TS-05 | Control de temperatura protegido contra intervención | Criterio SST | TODOS |
+| TS-06 | Puerta abre hacia afuera y con visualización exterior | NFPA 101 + Criterio SST | TURCO/SAUNA |
+| TS-07 | Piso antideslizante (interior y salida / deck perimetral en jacuzzi) | Res 2400/1979 + Criterio SST | TODOS |
+| TS-08 | Iluminación adecuada y protegida para alta humedad | Res 2400/1979 + RETIE | TODOS |
+| TS-09 | Sistema de ventilación / rendijas | Ley 9/1979 + Criterio SST | TURCO/SAUNA |
+| TS-10 | Desagüe funcional en piso | Ley 9/1979 + Criterio SST | TURCO/JACUZZI |
 | TS-11 | Generador de vapor con mantenimiento vigente | NTC 2505 (si gas) + Criterio SST | TURCO |
 | TS-12 | Hornillo/piedras aislado del área de asiento | Criterio SST (manual fabricante) | SAUNA |
 | TS-13 | Madera interna sin daños, sin tornillos expuestos | Criterio SST | SAUNA |
 | TS-14 | Prohibición de aceites/productos inflamables visible | Criterio SST | SAUNA |
-| TS-15 | Alarma de humo en área adyacente | NFPA 72 + Ley 1523/2012 | AMBOS |
-| TS-16 | Cronómetro visible para control de tiempo de exposición | Criterio SST | AMBOS |
+| TS-15 | Alarma de humo en área adyacente | NFPA 72 + Ley 1523/2012 | TURCO/SAUNA |
+| TS-16 | Cronómetro visible para control de tiempo de exposición | Criterio SST | TODOS |
+| TS-17 | Agarraderas/pasamanos de acceso | Criterio SST | JACUZZI |
+| TS-18 | GFCI/RCD en circuito eléctrico del jacuzzi | RETIE + NFPA 70 | JACUZZI |
+| TS-19 | Profundidad señalizada en borde | Criterio SST + Ley 1209 | JACUZZI |
+| TS-20 | Cobertura/tapa cuando no está en uso | Criterio SST | JACUZZI |
+| TS-21 | Cartel "prohibido menores sin adulto", "no usar bajo efectos alcohol" | Ley 675 + Criterio SST | JACUZZI |
 
 ### 5.4. Categorías de evidencia
 - `turco_interior`, `turco_desague`, `turco_generador`
 - `sauna_interior`, `sauna_hornillo`, `sauna_puerta`
+- `jacuzzi_interior`, `jacuzzi_agarradera`, `jacuzzi_gfci`, `jacuzzi_cobertura`
 - `reglamento`, `aforo`, `control_temp`, `punto_hidratacion`, `hallazgo`, `general`
 
 ## 6. Módulo 3 — Zona BBQ (FT-SST-251)
@@ -376,10 +391,14 @@ Para cada módulo, en este orden:
 
 ## 9. Pendientes confirmados
 
-- [ ] Usuario confirma este plan.
-- [ ] Usuario confirma que el ENUM `area` en `tbl_procedimiento_emergencia_area` tiene: `PISCINA, BAÑO_TURCO, SAUNA, GYM, ZONA_BBQ`.
-- [ ] Usuario confirma que no hay otro módulo FT-SST-249/250/251 en pipeline.
-- [ ] Inicio módulo 1 (Gimnasio).
+- [x] Usuario aprueba arquitectura (Opción C + C1) — 2026-04-23.
+- [x] Usuario aprueba códigos FT-SST-249/250/251 — 2026-04-23.
+- [x] Usuario aprueba orden de construcción (Gym → Turco+Sauna+Jacuzzi → BBQ) — 2026-04-23.
+- [x] Usuario adiciona **jacuzzi** al módulo 2 (criterio J1 locativo puro) — 2026-04-23.
+- [x] Usuario confirma gym **solo riesgos locativos** (sin tabla de equipos, sin dotación, sin mantenimientos) — 2026-04-23.
+- [x] Usuario aprueba **ALTER TABLE** del ENUM `area` en local y producción — 2026-04-23.
+- [x] ENUM actual verificado en `app/SQL/migrate_procedimiento_emergencia_area.php:74` (sin Ñ).
+- [ ] Ejecutar módulo 1 (Gimnasio) — siguiente paso.
 
 ## 9.B. Convenciones de estilo para los PDFs (aplicar tal cual)
 
