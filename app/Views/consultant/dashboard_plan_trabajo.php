@@ -97,6 +97,14 @@
             margin-bottom: 1rem;
         }
 
+        .chart-container .chart-hint {
+            display: block;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
         .table-container {
             background: white;
             border-radius: 10px;
@@ -199,9 +207,7 @@
             </div>
 
             <div class="col-md-3">
-                <label class="form-label fw-bold">
-                    <i class="fas fa-filter"></i> Seleccione Estado
-                </label>
+                <label class="form-label fw-bold"><i class="fas fa-filter"></i> Seleccione Estado</label>
                 <select class="form-select" id="filterEstado">
                     <option value="">Todos los estados</option>
                     <?php foreach ($estadosUnicos as $estado): ?>
@@ -211,36 +217,44 @@
                     <?php endforeach; ?>
                 </select>
             </div>
+        </div>
 
+        <div class="row mb-4">
             <div class="col-md-3">
-                <label class="form-label fw-bold">
-                    <i class="fas fa-user-tie"></i> Seleccione Responsable
-                </label>
-                <select class="form-select" id="filterResponsable">
-                    <option value="">Todos los responsables</option>
-                    <?php foreach ($responsablesUnicos as $responsable): ?>
-                        <?php if (!empty($responsable)): ?>
-                            <option value="<?= esc($responsable) ?>"><?= esc($responsable) ?></option>
+                <label class="form-label fw-bold"><i class="fas fa-sync-alt"></i> Seleccione PHVA</label>
+                <select class="form-select" id="filterPhva">
+                    <option value="">Todos los PHVA</option>
+                    <?php foreach ($phvasUnicos as $phva): ?>
+                        <?php if (!empty($phva)): ?>
+                            <option value="<?= esc($phva) ?>"><?= esc($phva) ?></option>
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </select>
             </div>
 
             <div class="col-md-3">
-                <label class="form-label fw-bold">
-                    <i class="fas fa-calendar"></i> Fecha Desde
-                </label>
+                <label class="form-label fw-bold"><i class="fas fa-layer-group"></i> Seleccione Estándares</label>
+                <select class="form-select" id="filterEstandares">
+                    <option value="">Todos los estándares</option>
+                    <?php foreach ($estandaresUnicos as $es): ?>
+                        <option value="<?= esc($es['estandares']) ?>"><?= esc($es['estandares']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold"><i class="fas fa-calendar"></i> Fecha Desde</label>
                 <input type="date" class="form-control" id="filterFechaDesde">
             </div>
 
             <div class="col-md-3">
-                <label class="form-label fw-bold">
-                    <i class="fas fa-calendar"></i> Fecha Hasta
-                </label>
+                <label class="form-label fw-bold"><i class="fas fa-calendar"></i> Fecha Hasta</label>
                 <input type="date" class="form-control" id="filterFechaHasta">
             </div>
+        </div>
 
-            <div class="col-md-3 mt-4">
+        <div class="row mb-4">
+            <div class="col-md-3">
                 <button type="button" class="btn btn-secondary w-100" id="btnLimpiarFiltros">
                     <i class="fas fa-eraser"></i> Limpiar Filtros
                 </button>
@@ -249,26 +263,29 @@
 
         <!-- Gráficos -->
         <div class="row">
-            <!-- Gráfico Responsables (Barras Horizontales) -->
+            <!-- Gráfico Clientes (Barras Horizontales, clickeable) -->
             <div class="col-md-4">
                 <div class="chart-container">
-                    <h5><i class="fas fa-users"></i> Actividades por Responsable</h5>
-                    <canvas id="chartResponsables"></canvas>
+                    <h5><i class="fas fa-building"></i> Actividades por Cliente</h5>
+                    <span class="chart-hint">Click en una barra para filtrar por ese cliente</span>
+                    <canvas id="chartClientes"></canvas>
                 </div>
             </div>
 
-            <!-- Gráfico Estado (Donut) -->
+            <!-- Gráfico Estado (Donut, clickeable) -->
             <div class="col-md-4">
                 <div class="chart-container">
                     <h5><i class="fas fa-toggle-on"></i> Estado de Actividades</h5>
+                    <span class="chart-hint">Click en un segmento para filtrar por estado</span>
                     <canvas id="chartEstado"></canvas>
                 </div>
             </div>
 
-            <!-- Gráfico PHVA (Donut) -->
+            <!-- Gráfico PHVA (Donut, clickeable) -->
             <div class="col-md-4">
                 <div class="chart-container">
                     <h5><i class="fas fa-sync-alt"></i> Ciclo PHVA</h5>
+                    <span class="chart-hint">Click en un segmento para filtrar por PHVA</span>
                     <canvas id="chartPhva"></canvas>
                 </div>
             </div>
@@ -287,7 +304,6 @@
                                 <th>FECHA PROPUESTA</th>
                                 <th>FECHA CIERRE</th>
                                 <th>ESTADO</th>
-                                <th>RESPONSABLE</th>
                                 <th>PHVA</th>
                                 <th>% AVANCE</th>
                             </tr>
@@ -304,7 +320,6 @@
                                             <?= esc($act['estado_actividad'] ?? 'N/A') ?>
                                         </span>
                                     </td>
-                                    <td><?= esc($act['responsable_definido_paralaactividad'] ?? $act['responsable_sugerido_plandetrabajo'] ?? 'N/A') ?></td>
                                     <td><?= esc($act['phva_plandetrabajo'] ?? 'N/A') ?></td>
                                     <td class="text-center"><?= esc($act['porcentaje_avance'] ?? '0') ?>%</td>
                                 </tr>
@@ -337,135 +352,215 @@
     <script>
         // Registrar el plugin de datalabels globalmente
         Chart.register(ChartDataLabels);
+
         // Datos originales
         var originalData = <?= json_encode($actividades) ?>;
+        var clientesCascade = <?= json_encode($clientesCascade) ?>;
+
+        // Paleta amplia para el gráfico de clientes
+        var CLIENTES_PALETTE = [
+            '#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+            '#28a745', '#dc3545', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997'
+        ];
 
         // Variables globales para gráficos
-        var chartResponsables, chartEstado, chartPhva;
+        var chartClientes, chartEstado, chartPhva;
         var dataTable;
+        // Guardo los id_cliente paralelos a las labels del bar chart
+        var chartClientesIds = [];
+
+        // Bandera para evitar cascadas recursivas mientras actualizo los selects
+        var suspendCascade = false;
 
         $(document).ready(function() {
-            // Inicializar Select2 para los selectores de cliente y consultores
             var select2Lang = {
-                noResults: function() {
-                    return "No se encontraron resultados";
-                },
-                searching: function() {
-                    return "Buscando...";
-                }
+                noResults: function() { return "No se encontraron resultados"; },
+                searching: function() { return "Buscando..."; }
             };
 
-            $('#filterCliente').select2({
-                theme: 'bootstrap-5',
-                placeholder: 'Seleccione un cliente',
-                allowClear: true,
-                width: '100%',
-                language: select2Lang
-            });
+            $('#filterCliente').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione un cliente', allowClear: true, width: '100%', language: select2Lang });
+            $('#filterConsultor').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione un consultor', allowClear: true, width: '100%', language: select2Lang });
+            $('#filterConsultorExterno').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione un consultor externo', allowClear: true, width: '100%', language: select2Lang });
+            $('#filterEstandares').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione un estándar', allowClear: true, width: '100%', language: select2Lang });
+            $('#filterPhva').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione PHVA', allowClear: true, width: '100%', language: select2Lang });
+            $('#filterEstado').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione estado', allowClear: true, width: '100%', language: select2Lang });
 
-            $('#filterConsultor').select2({
-                theme: 'bootstrap-5',
-                placeholder: 'Seleccione un consultor',
-                allowClear: true,
-                width: '100%',
-                language: select2Lang
-            });
-
-            $('#filterConsultorExterno').select2({
-                theme: 'bootstrap-5',
-                placeholder: 'Seleccione un consultor externo',
-                allowClear: true,
-                width: '100%',
-                language: select2Lang
-            });
-
-            // Inicializar DataTable
+            // DataTable
             dataTable = $('#actividadesTable').DataTable({
-                language: {
-                    url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
-                },
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json" },
                 dom: 'Bfrtip',
-                buttons: [
-                    {
-                        extend: 'excelHtml5',
-                        text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
-                        className: 'btn btn-success btn-sm',
-                        title: 'Plan de Trabajo - Consultor',
-                        exportOptions: {
-                            columns: ':visible'
-                        }
-                    }
-                ],
+                buttons: [{
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
+                    className: 'btn btn-success btn-sm',
+                    title: 'Plan de Trabajo - Consultor',
+                    exportOptions: { columns: ':visible' }
+                }],
                 pageLength: 25,
                 order: [[2, 'desc']],
                 responsive: true
             });
 
-            // Inicializar gráficos
             initCharts();
 
-            // Event listeners para filtros
-            $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstado, #filterResponsable, #filterFechaDesde, #filterFechaHasta').on('change', function() {
+            // Filtros que participan del cascadeo (bidireccional, afectan el pool de clientes)
+            var cascadeSelectors = '#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares';
+            $(cascadeSelectors).on('change', function() {
+                if (suspendCascade) return;
+                updateCascadeDropdowns();
+                applyFilters();
+            });
+
+            // Filtros que no cascadean (solo filtran actividades)
+            $('#filterEstado, #filterPhva, #filterFechaDesde, #filterFechaHasta').on('change', function() {
                 applyFilters();
             });
 
             // Botón limpiar filtros
             $('#btnLimpiarFiltros').on('click', function() {
-                $('#filterCliente').val('').trigger('change');
-                $('#filterConsultor').val('').trigger('change');
-                $('#filterConsultorExterno').val('').trigger('change');
-                $('#filterEstado').val('');
-                $('#filterResponsable').val('');
+                suspendCascade = true;
+                $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares, #filterEstado, #filterPhva').val('').trigger('change');
                 $('#filterFechaDesde').val('');
                 $('#filterFechaHasta').val('');
+                suspendCascade = false;
+                updateCascadeDropdowns();
                 applyFilters();
             });
         });
 
+        // === Cascadeo bidireccional de los 4 filtros basados en el cliente ===
+        function filterClientesPool(opts) {
+            return clientesCascade.filter(function(c) {
+                if (opts.cliente && String(c.id_cliente) !== String(opts.cliente)) return false;
+                if (opts.consultor && String(c.id_consultor || '') !== String(opts.consultor)) return false;
+                if (opts.externo && (c.consultor_externo || '') !== opts.externo) return false;
+                if (opts.estandares && (c.estandares || '') !== opts.estandares) return false;
+                return true;
+            });
+        }
+
+        function rebuildSelect($sel, options, currentVal, placeholderText) {
+            var html = '<option value="">' + placeholderText + '</option>';
+            var stillValid = false;
+            options.forEach(function(opt) {
+                var sel = (String(opt.value) === String(currentVal)) ? ' selected' : '';
+                if (sel) stillValid = true;
+                html += '<option value="' + $('<div>').text(opt.value).html() + '"' + sel + '>' +
+                        $('<div>').text(opt.label).html() + '</option>';
+            });
+            $sel.html(html);
+            if (!stillValid && currentVal) {
+                $sel.val('');
+            }
+        }
+
+        function updateCascadeDropdowns() {
+            var sCliente = $('#filterCliente').val();
+            var sConsultor = $('#filterConsultor').val();
+            var sExterno = $('#filterConsultorExterno').val();
+            var sEstandares = $('#filterEstandares').val();
+
+            // Clientes disponibles: pool filtrado por consultor/externo/estandares
+            var poolCliente = filterClientesPool({ consultor: sConsultor, externo: sExterno, estandares: sEstandares });
+            var clienteOptions = [];
+            var seenCli = {};
+            poolCliente.forEach(function(c) {
+                if (!seenCli[c.id_cliente]) {
+                    seenCli[c.id_cliente] = true;
+                    clienteOptions.push({ value: c.id_cliente, label: c.nombre_cliente });
+                }
+            });
+            clienteOptions.sort(function(a, b) { return String(a.label).localeCompare(String(b.label)); });
+
+            // Consultores disponibles: pool filtrado por cliente/externo/estandares
+            var poolConsultor = filterClientesPool({ cliente: sCliente, externo: sExterno, estandares: sEstandares });
+            var consultorOptions = [];
+            var seenCons = {};
+            poolConsultor.forEach(function(c) {
+                if (c.id_consultor && c.nombre_consultor && !seenCons[c.id_consultor]) {
+                    seenCons[c.id_consultor] = true;
+                    consultorOptions.push({ value: c.id_consultor, label: c.nombre_consultor });
+                }
+            });
+            consultorOptions.sort(function(a, b) { return String(a.label).localeCompare(String(b.label)); });
+
+            // Consultores externos disponibles
+            var poolExterno = filterClientesPool({ cliente: sCliente, consultor: sConsultor, estandares: sEstandares });
+            var externoOptions = [];
+            var seenExt = {};
+            poolExterno.forEach(function(c) {
+                var ext = c.consultor_externo || '';
+                if (ext && !seenExt[ext]) {
+                    seenExt[ext] = true;
+                    externoOptions.push({ value: ext, label: ext });
+                }
+            });
+            externoOptions.sort(function(a, b) { return String(a.label).localeCompare(String(b.label)); });
+
+            // Estándares disponibles
+            var poolEst = filterClientesPool({ cliente: sCliente, consultor: sConsultor, externo: sExterno });
+            var estandaresOptions = [];
+            var seenEst = {};
+            poolEst.forEach(function(c) {
+                var e = c.estandares || '';
+                if (e && !seenEst[e]) {
+                    seenEst[e] = true;
+                    estandaresOptions.push({ value: e, label: e });
+                }
+            });
+            estandaresOptions.sort(function(a, b) { return String(a.label).localeCompare(String(b.label)); });
+
+            suspendCascade = true;
+            rebuildSelect($('#filterCliente'), clienteOptions, sCliente, 'Todos los clientes');
+            rebuildSelect($('#filterConsultor'), consultorOptions, sConsultor, 'Todos los consultores');
+            rebuildSelect($('#filterConsultorExterno'), externoOptions, sExterno, 'Todos los consultores externos');
+            rebuildSelect($('#filterEstandares'), estandaresOptions, sEstandares, 'Todos los estándares');
+            $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares').trigger('change.select2');
+            suspendCascade = false;
+        }
+
+        // === Gráficos ===
         function initCharts() {
-            // Gráfico Responsables (Barras horizontales)
-            var ctxResponsables = document.getElementById('chartResponsables').getContext('2d');
-            var responsablesData = <?= json_encode($responsableCounts) ?>;
-            chartResponsables = new Chart(ctxResponsables, {
+            // Bar chart: Actividades por Cliente
+            var ctxClientes = document.getElementById('chartClientes').getContext('2d');
+            var clientesInit = computeClienteCounts(originalData);
+            chartClientesIds = clientesInit.map(function(x) { return x.id_cliente; });
+            chartClientes = new Chart(ctxClientes, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(responsablesData),
+                    labels: clientesInit.map(function(x) { return x.nombre_cliente; }),
                     datasets: [{
                         label: 'Actividades',
-                        data: Object.values(responsablesData),
-                        backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+                        data: clientesInit.map(function(x) { return x.count; }),
+                        backgroundColor: clientesInit.map(function(_, i) { return CLIENTES_PALETTE[i % CLIENTES_PALETTE.length]; })
                     }]
                 },
                 options: {
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: true,
+                    onClick: function(evt, elements) {
+                        if (!elements.length) return;
+                        var idx = elements[0].index;
+                        var clickedId = chartClientesIds[idx];
+                        if (clickedId === undefined || clickedId === null) return;
+                        var current = $('#filterCliente').val();
+                        var newVal = (String(current) === String(clickedId)) ? '' : String(clickedId);
+                        $('#filterCliente').val(newVal).trigger('change');
+                    },
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         datalabels: {
-                            color: '#333',
-                            anchor: 'end',
-                            align: 'end',
-                            font: {
-                                weight: 'bold',
-                                size: 11
-                            },
-                            formatter: function(value) {
-                                return value > 0 ? value : '';
-                            }
+                            color: '#333', anchor: 'end', align: 'end',
+                            font: { weight: 'bold', size: 11 },
+                            formatter: function(value) { return value > 0 ? value : ''; }
                         }
                     },
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        }
-                    }
+                    scales: { x: { beginAtZero: true } }
                 }
             });
 
-            // Gráfico Estado (Donut)
+            // Donut Estado
             var ctxEstado = document.getElementById('chartEstado').getContext('2d');
             var estadoData = <?= json_encode($estadoCounts) ?>;
             chartEstado = new Chart(ctxEstado, {
@@ -480,16 +575,20 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
+                    onClick: function(evt, elements) {
+                        if (!elements.length) return;
+                        var idx = elements[0].index;
+                        var clickedLabel = chartEstado.data.labels[idx];
+                        if (!clickedLabel) return;
+                        var current = $('#filterEstado').val();
+                        var newVal = (current === clickedLabel) ? '' : clickedLabel;
+                        $('#filterEstado').val(newVal).trigger('change');
+                    },
                     plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
+                        legend: { position: 'bottom' },
                         datalabels: {
                             color: '#fff',
-                            font: {
-                                weight: 'bold',
-                                size: 12
-                            },
+                            font: { weight: 'bold', size: 12 },
                             formatter: function(value, context) {
                                 var total = context.dataset.data.reduce((a, b) => a + b, 0);
                                 var percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
@@ -500,7 +599,7 @@
                 }
             });
 
-            // Gráfico PHVA (Donut)
+            // Donut PHVA
             var ctxPhva = document.getElementById('chartPhva').getContext('2d');
             var phvaData = <?= json_encode($phvaCounts) ?>;
             chartPhva = new Chart(ctxPhva, {
@@ -515,16 +614,20 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
+                    onClick: function(evt, elements) {
+                        if (!elements.length) return;
+                        var idx = elements[0].index;
+                        var clickedLabel = chartPhva.data.labels[idx];
+                        if (!clickedLabel) return;
+                        var current = $('#filterPhva').val();
+                        var newVal = (current === clickedLabel) ? '' : clickedLabel;
+                        $('#filterPhva').val(newVal).trigger('change');
+                    },
                     plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
+                        legend: { position: 'bottom' },
                         datalabels: {
                             color: '#fff',
-                            font: {
-                                weight: 'bold',
-                                size: 12
-                            },
+                            font: { weight: 'bold', size: 12 },
                             formatter: function(value, context) {
                                 var total = context.dataset.data.reduce((a, b) => a + b, 0);
                                 var percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
@@ -536,60 +639,61 @@
             });
         }
 
+        function computeClienteCounts(acts) {
+            var byId = {};
+            acts.forEach(function(a) {
+                var id = a.id_cliente;
+                if (id === undefined || id === null) return;
+                if (!byId[id]) {
+                    byId[id] = { id_cliente: id, nombre_cliente: a.nombre_cliente || 'SIN NOMBRE', count: 0 };
+                }
+                byId[id].count++;
+            });
+            var arr = Object.keys(byId).map(function(k) { return byId[k]; });
+            arr.sort(function(a, b) { return b.count - a.count; });
+            return arr;
+        }
+
         function applyFilters() {
             var filterCliente = $('#filterCliente').val();
             var filterConsultor = $('#filterConsultor').val();
             var filterConsultorExterno = $('#filterConsultorExterno').val();
+            var filterEstandares = $('#filterEstandares').val();
             var filterEstado = $('#filterEstado').val();
-            var filterResponsable = $('#filterResponsable').val();
+            var filterPhva = $('#filterPhva').val();
             var filterFechaDesde = $('#filterFechaDesde').val();
             var filterFechaHasta = $('#filterFechaHasta').val();
 
-            // Filtrar datos
             var filteredData = originalData.filter(function(item) {
-                if (filterCliente && item.id_cliente != filterCliente) return false;
-                if (filterConsultor && item.id_consultor != filterConsultor) return false;
+                if (filterCliente && String(item.id_cliente) !== String(filterCliente)) return false;
+                if (filterConsultor && String(item.id_consultor || '') !== String(filterConsultor)) return false;
                 if (filterConsultorExterno && (item.consultor_externo || '') !== filterConsultorExterno) return false;
+                if (filterEstandares && (item.estandares || '') !== filterEstandares) return false;
                 if (filterEstado && item.estado_actividad !== filterEstado) return false;
+                if (filterPhva && item.phva_plandetrabajo !== filterPhva) return false;
 
-                var responsable = item.responsable_definido_paralaactividad || item.responsable_sugerido_plandetrabajo;
-                if (filterResponsable && responsable !== filterResponsable) return false;
-
-                // Filtro de rango de fechas
                 if (item.fecha_propuesta) {
                     if (filterFechaDesde && item.fecha_propuesta < filterFechaDesde) return false;
                     if (filterFechaHasta && item.fecha_propuesta > filterFechaHasta) return false;
                 }
-
                 return true;
             });
 
-            // Actualizar métrica de total
             $('#metricTotal').text(filteredData.length);
 
-            // Recalcular datos para gráficos
-            var responsableCounts = {};
             var estadoCounts = {};
             var phvaCounts = {};
-
             filteredData.forEach(function(item) {
-                // Responsables
-                var responsable = item.responsable_definido_paralaactividad || item.responsable_sugerido_plandetrabajo || 'SIN ASIGNAR';
-                responsableCounts[responsable] = (responsableCounts[responsable] || 0) + 1;
-
-                // Estado
                 var estado = item.estado_actividad || 'SIN ESTADO';
                 estadoCounts[estado] = (estadoCounts[estado] || 0) + 1;
-
-                // PHVA
                 var phva = item.phva_plandetrabajo || 'SIN PHVA';
                 phvaCounts[phva] = (phvaCounts[phva] || 0) + 1;
             });
 
-            // Actualizar gráficos
-            updateCharts(responsableCounts, estadoCounts, phvaCounts);
+            var clienteCounts = computeClienteCounts(filteredData);
 
-            // Actualizar tabla
+            updateCharts(clienteCounts, estadoCounts, phvaCounts);
+
             dataTable.clear();
             filteredData.forEach(function(item) {
                 var estadoBadge = '';
@@ -601,15 +705,12 @@
                     estadoBadge = '<span class="badge bg-secondary">' + (item.estado_actividad || 'N/A') + '</span>';
                 }
 
-                var responsable = item.responsable_definido_paralaactividad || item.responsable_sugerido_plandetrabajo || 'N/A';
-
                 dataTable.row.add([
                     item.nombre_cliente,
                     item.actividad_plandetrabajo || 'N/A',
                     item.fecha_propuesta || 'N/A',
                     item.fecha_cierre || 'N/A',
                     estadoBadge,
-                    responsable,
                     item.phva_plandetrabajo || 'N/A',
                     (item.porcentaje_avance || '0') + '%'
                 ]);
@@ -617,18 +718,20 @@
             dataTable.draw();
         }
 
-        function updateCharts(responsableCounts, estadoCounts, phvaCounts) {
-            // Actualizar gráfico Responsables
-            chartResponsables.data.labels = Object.keys(responsableCounts);
-            chartResponsables.data.datasets[0].data = Object.values(responsableCounts);
-            chartResponsables.update();
+        function updateCharts(clienteCounts, estadoCounts, phvaCounts) {
+            // Clientes
+            chartClientes.data.labels = clienteCounts.map(function(x) { return x.nombre_cliente; });
+            chartClientes.data.datasets[0].data = clienteCounts.map(function(x) { return x.count; });
+            chartClientes.data.datasets[0].backgroundColor = clienteCounts.map(function(_, i) { return CLIENTES_PALETTE[i % CLIENTES_PALETTE.length]; });
+            chartClientesIds = clienteCounts.map(function(x) { return x.id_cliente; });
+            chartClientes.update();
 
-            // Actualizar gráfico Estado
+            // Estado
             chartEstado.data.labels = Object.keys(estadoCounts);
             chartEstado.data.datasets[0].data = Object.values(estadoCounts);
             chartEstado.update();
 
-            // Actualizar gráfico PHVA
+            // PHVA
             chartPhva.data.labels = Object.keys(phvaCounts);
             chartPhva.data.datasets[0].data = Object.values(phvaCounts);
             chartPhva.update();
