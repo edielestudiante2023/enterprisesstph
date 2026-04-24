@@ -80,6 +80,7 @@ class ConsultantDashboardPlanTrabajoController extends Controller
 
         // Métricas globales
         $totalActividades = count($actividades);
+        $totalClientes = count(array_unique(array_filter(array_column($actividades, 'id_cliente'), fn($v) => $v !== null)));
 
         // Agrupar por estado
         $estadoCounts = [];
@@ -139,6 +140,7 @@ class ConsultantDashboardPlanTrabajoController extends Controller
             'clientesCascade'            => $clientesCascade,
             'actividades'                => $actividades,
             'totalActividades'           => $totalActividades,
+            'totalClientes'              => $totalClientes,
             'estadoCounts'               => $estadoCounts,
             'phvaCounts'                 => $phvaCounts,
             'clienteCounts'              => $clienteCounts,

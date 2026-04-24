@@ -158,11 +158,21 @@
                     <p class="mb-0">Vista consolidada de todos los clientes</p>
                     <p class="mb-0"><i class="fas fa-user me-2"></i>Sesión: <strong><?= session()->get('nombre_usuario') ?? 'Usuario' ?></strong></p>
                 </div>
-                <div class="col-md-4 text-center">
-                    <div style="font-size: 3rem; font-weight: bold;">
-                        <span id="metricTotal"><?= $totalActividades ?></span>
+                <div class="col-md-4">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div style="font-size: 3rem; font-weight: bold; line-height: 1;">
+                                <span id="metricTotal"><?= $totalActividades ?></span>
+                            </div>
+                            <p class="mb-0">Total Actividades</p>
+                        </div>
+                        <div class="col-6">
+                            <div style="font-size: 3rem; font-weight: bold; line-height: 1;">
+                                <span id="metricClientes"><?= $totalClientes ?></span>
+                            </div>
+                            <p class="mb-0">Total Clientes</p>
+                        </div>
                     </div>
-                    <p class="mb-0">Total Actividades</p>
                 </div>
             </div>
         </div>
@@ -744,6 +754,14 @@
             });
 
             $('#metricTotal').text(filteredData.length);
+
+            var clientesDistintos = {};
+            filteredData.forEach(function(item) {
+                if (item.id_cliente !== undefined && item.id_cliente !== null) {
+                    clientesDistintos[item.id_cliente] = true;
+                }
+            });
+            $('#metricClientes').text(Object.keys(clientesDistintos).length);
 
             var estadoCounts = {};
             var phvaCounts = {};
