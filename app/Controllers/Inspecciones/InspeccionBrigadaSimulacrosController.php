@@ -99,6 +99,7 @@ class InspeccionBrigadaSimulacrosController extends BaseController
             return redirect()->to('/inspecciones/brigada-simulacros')
                 ->with('error', 'Inspeccion no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/brigada-simulacros/view/' . $id)) return $r;
 
         $data = [
             'title'      => 'Editar Inspeccion de Brigada y Simulacros',
@@ -119,6 +120,7 @@ class InspeccionBrigadaSimulacrosController extends BaseController
             return redirect()->to('/inspecciones/brigada-simulacros')
                 ->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/brigada-simulacros/view/' . $id)) return $r;
 
         $userId     = session()->get('user_id');
         $updateData = $this->getInspeccionPostData($userId);

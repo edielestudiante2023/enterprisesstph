@@ -213,6 +213,7 @@ class InspeccionAscensoresController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/ascensores')->with('error', 'Inspeccion no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/ascensores/view/' . $id)) return $r;
 
         $data = [
             'title'      => 'Editar Inspeccion de Ascensores',
@@ -237,6 +238,7 @@ class InspeccionAscensoresController extends BaseController
             }
             return redirect()->to('/inspecciones/ascensores')->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/ascensores/view/' . $id)) return $r;
 
         $isAutosave = $this->isAutosaveRequest();
         if ($isAutosave) {

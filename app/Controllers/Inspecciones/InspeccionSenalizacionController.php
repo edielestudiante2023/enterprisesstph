@@ -180,6 +180,8 @@ class InspeccionSenalizacionController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/senalizacion')->with('error', 'Inspección no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/senalizacion/view/' . $id)) return $r;
+
         $data = [
             'title'        => 'Editar Inspección de Señalización',
             'inspeccion'   => $inspeccion,
@@ -202,6 +204,7 @@ class InspeccionSenalizacionController extends BaseController
             }
             return redirect()->to('/inspecciones/senalizacion')->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/senalizacion/view/' . $id)) return $r;
 
         $isAutosave = $this->isAutosaveRequest();
         if ($isAutosave) {

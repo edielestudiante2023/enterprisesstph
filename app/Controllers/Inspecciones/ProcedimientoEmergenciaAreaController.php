@@ -14,6 +14,8 @@ use Dompdf\Dompdf;
 
 class ProcedimientoEmergenciaAreaController extends BaseController
 {
+    use \App\Traits\InspeccionesTransactionalTrait;
+
     protected ProcedimientoEmergenciaAreaModel $areaModel;
     protected ProcedimientoEmergenciaEscenarioModel $escenarioModel;
 
@@ -121,6 +123,7 @@ class ProcedimientoEmergenciaAreaController extends BaseController
     {
         $procedimiento = $this->areaModel->find($id);
         if (!$procedimiento) return redirect()->to('/inspecciones/procedimiento-emergencia-area')->with('error', 'No encontrada');
+        if ($r = $this->guardFinalizado($procedimiento, '/inspecciones/procedimiento-emergencia-area/view/' . $id)) return $r;
 
         $escenarios = $this->escenarioModel->getByProcedimiento($id);
 
@@ -142,6 +145,7 @@ class ProcedimientoEmergenciaAreaController extends BaseController
     {
         $procedimiento = $this->areaModel->find($id);
         if (!$procedimiento) return redirect()->to('/inspecciones/procedimiento-emergencia-area')->with('error', 'No encontrada');
+        if ($r = $this->guardFinalizado($procedimiento, '/inspecciones/procedimiento-emergencia-area/view/' . $id)) return $r;
 
         $userId = $procedimiento['id_consultor'];
         $this->areaModel->update($id, $this->collectMasterFields($userId, false));
@@ -179,6 +183,11 @@ class ProcedimientoEmergenciaAreaController extends BaseController
     {
         $procedimiento = $this->areaModel->find($id);
         if (!$procedimiento) return redirect()->to('/inspecciones/procedimiento-emergencia-area')->with('error', 'No encontrada');
+
+        if (($procedimiento['estado'] ?? '') === 'completo') {
+            return redirect()->to('/inspecciones/procedimiento-emergencia-area/view/' . $id)
+                ->with('msg', 'Este procedimiento ya fue finalizado anteriormente.');
+        }
 
         // Validación: al menos un escenario aprobado con contenido
         $escenarios = $this->escenarioModel->getByProcedimiento($id);

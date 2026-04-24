@@ -168,6 +168,8 @@ class InspeccionBotiquinController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/botiquin')->with('error', 'Inspeccion no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/botiquin/view/' . $id)) return $r;
+
         // Indexar elementos por clave para restaurar en el form
         $elementosRaw = $this->elementoModel->getByInspeccion($id);
         $elementosData = [];
@@ -198,6 +200,7 @@ class InspeccionBotiquinController extends BaseController
             }
             return redirect()->to('/inspecciones/botiquin')->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/botiquin/view/' . $id)) return $r;
 
         $isAutosave = $this->isAutosaveRequest();
         if ($isAutosave) {

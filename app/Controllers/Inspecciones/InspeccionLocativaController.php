@@ -133,6 +133,8 @@ class InspeccionLocativaController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/inspeccion-locativa')->with('error', 'Inspección no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/inspeccion-locativa/view/' . $id)) return $r;
+
         $data = [
             'title'      => 'Editar Inspección Locativa',
             'inspeccion'  => $inspeccion,
@@ -158,6 +160,7 @@ class InspeccionLocativaController extends BaseController
             }
             return redirect()->to('/inspecciones/inspeccion-locativa')->with('error', 'No se puede editar esta inspección');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/inspeccion-locativa/view/' . $id)) return $r;
 
         $isAutosave = $this->isAutosaveRequest();
         if ($isAutosave) {

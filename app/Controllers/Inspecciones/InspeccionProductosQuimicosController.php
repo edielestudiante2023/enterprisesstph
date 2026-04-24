@@ -135,6 +135,7 @@ class InspeccionProductosQuimicosController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/productos-quimicos')->with('error', 'Inspeccion no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/productos-quimicos/view/' . $id)) return $r;
 
         $data = [
             'title'      => 'Editar Inspeccion de Productos Quimicos',
@@ -159,6 +160,7 @@ class InspeccionProductosQuimicosController extends BaseController
             }
             return redirect()->to('/inspecciones/productos-quimicos')->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/productos-quimicos/view/' . $id)) return $r;
 
         $isAutosave = $this->isAutosaveRequest();
         if ($isAutosave) {

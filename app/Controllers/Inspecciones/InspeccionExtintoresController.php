@@ -154,6 +154,8 @@ class InspeccionExtintoresController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/extintores')->with('error', 'Inspeccion no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/extintores/view/' . $id)) return $r;
+
         $data = [
             'title'      => 'Editar Inspeccion de Extintores',
             'inspeccion'  => $inspeccion,
@@ -177,6 +179,7 @@ class InspeccionExtintoresController extends BaseController
             }
             return redirect()->to('/inspecciones/extintores')->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/extintores/view/' . $id)) return $r;
 
         $isAutosave = $this->isAutosaveRequest();
         if ($isAutosave) {
