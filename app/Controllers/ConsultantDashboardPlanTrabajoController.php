@@ -26,40 +26,57 @@ class ConsultantDashboardPlanTrabajoController extends Controller
         $clientModel = new ClientModel();
         $db = \Config\Database::connect();
 
-        // Obtener solo clientes activos (para el Select2 de filtro)
-        $clientes = $clientModel
-            ->where('estado', 'activo')
-            ->orderBy('nombre_cliente', 'ASC')
-            ->findAll();
+        // Pool de clientes activos con al menos una actividad PTA (para cascadeo bidireccional)
+        $clientesCascade = $db->table('tbl_clientes cl')
+            ->distinct()
+            ->select('cl.id_cliente, cl.nombre_cliente, cl.id_consultor, c.nombre_consultor, cl.consultor_externo, cl.estandares')
+            ->join('tbl_consultor c', 'c.id_consultor = cl.id_consultor', 'left')
+            ->join('tbl_pta_cliente pta', 'pta.id_cliente = cl.id_cliente')
+            ->where('cl.estado', 'activo')
+            ->orderBy('cl.nombre_cliente', 'ASC')
+            ->get()->getResultArray();
+
+        // Lista inicial para el Select2 de Cliente
+        $clientes = $clientesCascade;
 
         // Obtener TODAS las actividades con JOIN a clientes y consultor
         $actividades = $ptaModel
-            ->select('tbl_pta_cliente.*, tbl_clientes.nombre_cliente, tbl_clientes.id_cliente, tbl_clientes.id_consultor, tbl_clientes.consultor_externo, tbl_consultor.nombre_consultor')
+            ->select('tbl_pta_cliente.*, tbl_clientes.nombre_cliente, tbl_clientes.id_cliente, tbl_clientes.id_consultor, tbl_clientes.consultor_externo, tbl_clientes.estandares, tbl_consultor.nombre_consultor')
             ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_pta_cliente.id_cliente')
             ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_clientes.id_consultor', 'left')
             ->findAll();
 
-        // Consultores principales que tengan clientes activos con al menos una actividad PTA
-        $consultoresUnicos = $db->table('tbl_consultor')
-            ->distinct()
-            ->select('tbl_consultor.id_consultor, tbl_consultor.nombre_consultor')
-            ->join('tbl_clientes', "tbl_clientes.id_consultor = tbl_consultor.id_consultor AND tbl_clientes.estado = 'activo'")
-            ->join('tbl_pta_cliente', 'tbl_pta_cliente.id_cliente = tbl_clientes.id_cliente')
-            ->where('tbl_consultor.nombre_consultor IS NOT NULL')
-            ->where('tbl_consultor.nombre_consultor !=', '')
-            ->orderBy('tbl_consultor.nombre_consultor', 'ASC')
-            ->get()->getResultArray();
+        // Consultores principales (derivados del pool de clientes cascadeables)
+        $consultoresUnicos = [];
+        foreach ($clientesCascade as $cl) {
+            if (!empty($cl['id_consultor']) && !empty($cl['nombre_consultor'])) {
+                $consultoresUnicos[$cl['id_consultor']] = [
+                    'id_consultor'    => $cl['id_consultor'],
+                    'nombre_consultor'=> $cl['nombre_consultor'],
+                ];
+            }
+        }
+        usort($consultoresUnicos, fn($a, $b) => strcmp($a['nombre_consultor'], $b['nombre_consultor']));
 
-        // Consultores externos distintos (de clientes activos con al menos una actividad PTA)
-        $consultoresExternosUnicos = $db->table('tbl_clientes')
-            ->distinct()
-            ->select('tbl_clientes.consultor_externo')
-            ->join('tbl_pta_cliente', 'tbl_pta_cliente.id_cliente = tbl_clientes.id_cliente')
-            ->where('tbl_clientes.estado', 'activo')
-            ->where('tbl_clientes.consultor_externo IS NOT NULL')
-            ->where('tbl_clientes.consultor_externo !=', '')
-            ->orderBy('tbl_clientes.consultor_externo', 'ASC')
-            ->get()->getResultArray();
+        // Consultores externos distintos (del mismo pool)
+        $consultoresExternosUnicos = [];
+        foreach ($clientesCascade as $cl) {
+            if (!empty($cl['consultor_externo'])) {
+                $consultoresExternosUnicos[$cl['consultor_externo']] = ['consultor_externo' => $cl['consultor_externo']];
+            }
+        }
+        ksort($consultoresExternosUnicos);
+        $consultoresExternosUnicos = array_values($consultoresExternosUnicos);
+
+        // Estándares distintos (del mismo pool)
+        $estandaresUnicos = [];
+        foreach ($clientesCascade as $cl) {
+            if (!empty($cl['estandares'])) {
+                $estandaresUnicos[$cl['estandares']] = ['estandares' => $cl['estandares']];
+            }
+        }
+        ksort($estandaresUnicos);
+        $estandaresUnicos = array_values($estandaresUnicos);
 
         // Métricas globales
         $totalActividades = count($actividades);
@@ -78,51 +95,42 @@ class ConsultantDashboardPlanTrabajoController extends Controller
             $phvaCounts[$phva] = ($phvaCounts[$phva] ?? 0) + 1;
         }
 
-        // Agrupar por responsable (usar definido o sugerido como fallback)
-        $responsableCounts = [];
+        // Agrupar por cliente (reemplaza gráfico de responsables)
+        $clienteCounts = [];
         foreach ($actividades as $act) {
-            $resp = $act['responsable_definido_paralaactividad'] ?? $act['responsable_sugerido_plandetrabajo'] ?? 'SIN ASIGNAR';
-            $responsableCounts[$resp] = ($responsableCounts[$resp] ?? 0) + 1;
+            $idC = $act['id_cliente'] ?? null;
+            if ($idC === null) continue;
+            if (!isset($clienteCounts[$idC])) {
+                $clienteCounts[$idC] = [
+                    'id_cliente'    => $idC,
+                    'nombre_cliente'=> $act['nombre_cliente'] ?? 'SIN NOMBRE',
+                    'count'         => 0,
+                ];
+            }
+            $clienteCounts[$idC]['count']++;
         }
+        usort($clienteCounts, fn($a, $b) => $b['count'] <=> $a['count']);
 
-        // Obtener valores únicos para los selectores
-        // Incluir todos los estados posibles del sistema, no solo los que existen en los datos
+        // Estados del sistema (lista fija, no derivada)
         $estadosUnicos = ['ABIERTA', 'CERRADA', 'GESTIONANDO', 'CERRADA SIN EJECUCIÓN'];
 
-        // Para responsables, usar responsable_definido o sugerido como fallback
-        $responsablesUnicos = [];
-        foreach ($actividades as $act) {
-            $responsable = $act['responsable_definido_paralaactividad'] ?? $act['responsable_sugerido_plandetrabajo'] ?? null;
-            if ($responsable) {
-                $responsablesUnicos[] = $responsable;
-            }
-        }
-        $responsablesUnicos = array_unique($responsablesUnicos);
-
-        $phvasUnicos = array_unique(array_column($actividades, 'phva_plandetrabajo'));
-
-        // Obtener fechas únicas para el selector
-        $fechasPropuestaUnicas = [];
-        foreach ($actividades as $act) {
-            if (!empty($act['fecha_propuesta'])) {
-                $fecha = date('Y-m', strtotime($act['fecha_propuesta']));
-                $fechasPropuestaUnicas[$fecha] = date('F Y', strtotime($act['fecha_propuesta']));
-            }
-        }
+        // PHVAs únicos
+        $phvasUnicos = array_unique(array_filter(array_column($actividades, 'phva_plandetrabajo')));
+        sort($phvasUnicos);
 
         $data = [
-            'clientes' => $clientes,
-            'actividades' => $actividades,
-            'totalActividades' => $totalActividades,
-            'estadoCounts' => $estadoCounts,
-            'phvaCounts' => $phvaCounts,
-            'responsableCounts' => $responsableCounts,
-            'estadosUnicos' => array_filter($estadosUnicos),
-            'responsablesUnicos' => array_filter($responsablesUnicos),
-            'phvasUnicos' => array_filter($phvasUnicos),
-            'fechasPropuestaUnicas' => $fechasPropuestaUnicas,
-            'consultoresUnicos' => $consultoresUnicos,
-            'consultoresExternosUnicos' => $consultoresExternosUnicos
+            'clientes'                   => $clientes,
+            'clientesCascade'            => $clientesCascade,
+            'actividades'                => $actividades,
+            'totalActividades'           => $totalActividades,
+            'estadoCounts'               => $estadoCounts,
+            'phvaCounts'                 => $phvaCounts,
+            'clienteCounts'              => $clienteCounts,
+            'estadosUnicos'              => array_filter($estadosUnicos),
+            'phvasUnicos'                => $phvasUnicos,
+            'consultoresUnicos'          => array_values($consultoresUnicos),
+            'consultoresExternosUnicos'  => $consultoresExternosUnicos,
+            'estandaresUnicos'           => $estandaresUnicos,
         ];
 
         return view('consultant/dashboard_plan_trabajo', $data);
