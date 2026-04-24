@@ -409,6 +409,55 @@
         // Bandera para evitar cascadas recursivas mientras actualizo los selects
         var suspendCascade = false;
 
+        // === Persistencia de filtros (localStorage) ===
+        var FILTERS_STORAGE_KEY = 'dashboardPlanTrabajoFilters';
+
+        function saveFiltersToStorage() {
+            try {
+                var state = {
+                    cliente:          $('#filterCliente').val(),
+                    consultor:        $('#filterConsultor').val(),
+                    consultorExterno: $('#filterConsultorExterno').val(),
+                    estandares:       $('#filterEstandares').val(),
+                    estado:           $('#filterEstado').val(),
+                    phva:             $('#filterPhva').val(),
+                    anio:             $('#filterAnio').val(),
+                    mes:              $('#filterMes').val(),
+                    fechaDesde:       $('#filterFechaDesde').val(),
+                    fechaHasta:       $('#filterFechaHasta').val()
+                };
+                localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(state));
+            } catch (e) { /* localStorage no disponible: silencioso */ }
+        }
+
+        function loadFiltersFromStorage() {
+            try {
+                var raw = localStorage.getItem(FILTERS_STORAGE_KEY);
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function applySavedFiltersToUI(state) {
+            if (!state) return;
+            suspendCascade = true;
+            if (state.cliente !== undefined)          $('#filterCliente').val(state.cliente);
+            if (state.consultor !== undefined)        $('#filterConsultor').val(state.consultor);
+            if (state.consultorExterno !== undefined) $('#filterConsultorExterno').val(state.consultorExterno);
+            if (state.estandares !== undefined)       $('#filterEstandares').val(state.estandares);
+            if (state.estado !== undefined)           $('#filterEstado').val(state.estado);
+            if (state.phva !== undefined)             $('#filterPhva').val(state.phva);
+            if (state.anio !== undefined)             $('#filterAnio').val(state.anio);
+            if (state.mes !== undefined)              $('#filterMes').val(state.mes);
+            if (state.fechaDesde !== undefined)       $('#filterFechaDesde').val(state.fechaDesde);
+            if (state.fechaHasta !== undefined)       $('#filterFechaHasta').val(state.fechaHasta);
+            $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares, #filterEstado, #filterPhva, #filterAnio, #filterMes')
+                .trigger('change.select2');
+            suspendCascade = false;
+        }
+
         $(document).ready(function() {
             var select2Lang = {
                 noResults: function() { return "No se encontraron resultados"; },
@@ -461,7 +510,7 @@
                 applyFilters();
             });
 
-            // Botón limpiar filtros
+            // Botón limpiar filtros (tambien purga el localStorage)
             $('#btnLimpiarFiltros').on('click', function() {
                 suspendCascade = true;
                 $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares, #filterEstado, #filterPhva, #filterAnio, #filterMes').val('').trigger('change');
@@ -470,9 +519,15 @@
                 suspendCascade = false;
                 updateCascadeDropdowns();
                 applyFilters();
+                try { localStorage.removeItem(FILTERS_STORAGE_KEY); } catch (e) {}
             });
 
-            // Aplicar filtro inicial (año actual por defecto, Desde/Hasta ya pre-rellenados desde PHP)
+            // Cargar filtros persistidos (si los hay); si no, defaults PHP ya estan aplicados
+            var savedFilters = loadFiltersFromStorage();
+            if (savedFilters) {
+                applySavedFiltersToUI(savedFilters);
+            }
+            updateCascadeDropdowns();
             applyFilters();
         });
 
@@ -809,6 +864,8 @@
                 ]);
             });
             dataTable.draw();
+
+            saveFiltersToStorage();
         }
 
         function updateCharts(clienteCounts, estadoCounts, phvaCounts) {
