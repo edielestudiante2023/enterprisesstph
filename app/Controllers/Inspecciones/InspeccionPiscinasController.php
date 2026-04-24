@@ -831,7 +831,7 @@ class InspeccionPiscinasController extends BaseController
                 }
                 $evidenciasDetB64[$idDet][] = [
                     'foto_b64'    => $b64,
-                    'categoria'   => $r['categoria'] ?? 'OTRA',
+                    'categoria'   => !empty($r['categoria']) ? $r['categoria'] : '',
                     'descripcion' => $r['descripcion'] ?? '',
                 ];
             }
