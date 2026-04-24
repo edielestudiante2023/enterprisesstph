@@ -97,14 +97,7 @@ $c = $cliente;
                 <i class="fas fa-camera"></i> Foto del Brigadista
             </div>
             <div class="card-body py-2">
-                <?php if (!empty($h['foto_brigadista'])): ?>
-                <div class="mb-2 text-center">
-                    <img src="/<?= esc($h['foto_brigadista']) ?>" style="max-height:160px; border-radius:8px;" id="fotoActual">
-                    <div class="text-muted mt-1" style="font-size:11px;">Foto actual</div>
-                </div>
-                <?php endif; ?>
-                <input type="file" name="foto_brigadista" class="form-control form-control-sm" accept="image/*">
-                <small class="text-muted">Seleccione una nueva foto para reemplazar la actual</small>
+                <input type="file" name="foto_brigadista" class="foto-input-pwa" accept="image/*" data-label="Foto del brigadista"<?= !empty($h['foto_brigadista']) ? ' data-previous-url="/' . esc($h['foto_brigadista']) . '"' : '' ?>>
             </div>
         </div>
 

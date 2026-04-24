@@ -74,21 +74,11 @@ $action = $isEdit ? base_url('/inspecciones/dotacion-todero/update/') . $inspecc
                 <h6 class="card-title" style="font-size:14px; color:#999;">REGISTRO FOTOGRAFICO</h6>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:12px;">Foto cuerpo completo</label>
-                    <?php if ($isEdit && !empty($inspeccion['foto_cuerpo_completo'])): ?>
-                    <div class="mb-1">
-                        <img src="/<?= esc($inspeccion['foto_cuerpo_completo']) ?>" class="img-thumbnail" style="max-height:80px;">
-                    </div>
-                    <?php endif; ?>
-                    <input type="file" name="foto_cuerpo_completo" class="form-control form-control-sm" accept="image/*">
+                    <input type="file" name="foto_cuerpo_completo" class="foto-input-pwa" accept="image/*" data-label="Foto cuerpo completo"<?= ($isEdit && !empty($inspeccion['foto_cuerpo_completo'])) ? ' data-previous-url="/' . esc($inspeccion['foto_cuerpo_completo']) . '"' : '' ?>>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:12px;">Foto cuarto de almacenamiento</label>
-                    <?php if ($isEdit && !empty($inspeccion['foto_cuarto_almacenamiento'])): ?>
-                    <div class="mb-1">
-                        <img src="/<?= esc($inspeccion['foto_cuarto_almacenamiento']) ?>" class="img-thumbnail" style="max-height:80px;">
-                    </div>
-                    <?php endif; ?>
-                    <input type="file" name="foto_cuarto_almacenamiento" class="form-control form-control-sm" accept="image/*">
+                    <input type="file" name="foto_cuarto_almacenamiento" class="foto-input-pwa" accept="image/*" data-label="Cuarto almacenamiento"<?= ($isEdit && !empty($inspeccion['foto_cuarto_almacenamiento'])) ? ' data-previous-url="/' . esc($inspeccion['foto_cuarto_almacenamiento']) . '"' : '' ?>>
                 </div>
             </div>
         </div>

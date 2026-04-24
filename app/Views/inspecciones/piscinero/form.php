@@ -99,10 +99,7 @@ $sn = function($name) use ($inspeccion) {
                         </div>
                         <div class="mb-2">
                             <label class="form-label" style="font-size:12px;">Foto del operador de piscina</label>
-                            <?php if (!empty($inspeccion['foto_piscinero'])): ?>
-                            <div class="mb-1"><img src="<?= base_url($inspeccion['foto_piscinero']) ?>" class="img-fluid rounded" style="max-height:80px;"></div>
-                            <?php endif; ?>
-                            <input type="file" name="foto_piscinero" class="form-control form-control-sm" accept="image/*">
+                            <input type="file" name="foto_piscinero" class="foto-input-pwa" accept="image/*" data-label="Foto del operador"<?= !empty($inspeccion['foto_piscinero']) ? ' data-previous-url="' . base_url($inspeccion['foto_piscinero']) . '"' : '' ?>>
                         </div>
                     </div>
                 </div>
@@ -129,10 +126,7 @@ $sn = function($name) use ($inspeccion) {
                         </div>
                         <div class="mb-2">
                             <label class="form-label" style="font-size:12px;">Foto certificado RCP</label>
-                            <?php if (!empty($inspeccion['foto_certificado_rcp'])): ?>
-                            <div class="mb-1"><img src="<?= base_url($inspeccion['foto_certificado_rcp']) ?>" class="img-fluid rounded" style="max-height:80px;"></div>
-                            <?php endif; ?>
-                            <input type="file" name="foto_certificado_rcp" class="form-control form-control-sm" accept="image/*">
+                            <input type="file" name="foto_certificado_rcp" class="foto-input-pwa" accept="image/*" data-label="Certificado RCP"<?= !empty($inspeccion['foto_certificado_rcp']) ? ' data-previous-url="' . base_url($inspeccion['foto_certificado_rcp']) . '"' : '' ?>>
                         </div>
                         <hr>
                         <div class="row g-2 mb-2 align-items-center">
@@ -147,10 +141,7 @@ $sn = function($name) use ($inspeccion) {
                         </div>
                         <div class="mb-2">
                             <label class="form-label" style="font-size:12px;">Foto certificado salvamento</label>
-                            <?php if (!empty($inspeccion['foto_certificado_salvamento'])): ?>
-                            <div class="mb-1"><img src="<?= base_url($inspeccion['foto_certificado_salvamento']) ?>" class="img-fluid rounded" style="max-height:80px;"></div>
-                            <?php endif; ?>
-                            <input type="file" name="foto_certificado_salvamento" class="form-control form-control-sm" accept="image/*">
+                            <input type="file" name="foto_certificado_salvamento" class="foto-input-pwa" accept="image/*" data-label="Certificado salvamento"<?= !empty($inspeccion['foto_certificado_salvamento']) ? ' data-previous-url="' . base_url($inspeccion['foto_certificado_salvamento']) . '"' : '' ?>>
                         </div>
 
                         <hr>
@@ -175,11 +166,8 @@ $sn = function($name) use ($inspeccion) {
                             <input type="date" name="operador_vigencia" class="form-control form-control-sm" value="<?= $inspeccion['operador_vigencia'] ?? '' ?>">
                         </div>
                         <div class="mb-2">
-                            <label class="form-label" style="font-size:12px;"><i class="fas fa-images me-1"></i> Foto certificado operador (galeria)</label>
-                            <?php if (!empty($inspeccion['foto_certificado_operador'])): ?>
-                            <div class="mb-1"><img src="<?= base_url($inspeccion['foto_certificado_operador']) ?>" class="img-fluid rounded" style="max-height:80px;"></div>
-                            <?php endif; ?>
-                            <input type="file" name="foto_certificado_operador" class="form-control form-control-sm" accept="image/*">
+                            <label class="form-label" style="font-size:12px;"><i class="fas fa-images me-1"></i> Foto certificado operador</label>
+                            <input type="file" name="foto_certificado_operador" class="foto-input-pwa" accept="image/*" data-label="Certificado operador"<?= !empty($inspeccion['foto_certificado_operador']) ? ' data-previous-url="' . base_url($inspeccion['foto_certificado_operador']) . '"' : '' ?>>
                         </div>
                     </div>
                 </div>

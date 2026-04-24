@@ -74,12 +74,7 @@ $action = $isEdit ? base_url('/inspecciones/comunicaciones/update/') . $inspecci
                 <?php foreach (['foto_1' => 'Foto 1', 'foto_2' => 'Foto 2'] as $campo => $label): ?>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:13px;"><?= $label ?></label>
-                    <?php if ($isEdit && !empty($inspeccion[$campo])): ?>
-                    <div class="mb-1">
-                        <img src="/<?= esc($inspeccion[$campo]) ?>" class="img-thumbnail" style="max-height:80px;">
-                    </div>
-                    <?php endif; ?>
-                    <input type="file" name="<?= $campo ?>" class="form-control form-control-sm" accept="image/*">
+                    <input type="file" name="<?= $campo ?>" class="foto-input-pwa" accept="image/*" data-label="<?= esc($label) ?>"<?= ($isEdit && !empty($inspeccion[$campo])) ? ' data-previous-url="/' . esc($inspeccion[$campo]) . '"' : '' ?>>
                 </div>
                 <?php endforeach; ?>
             </div>

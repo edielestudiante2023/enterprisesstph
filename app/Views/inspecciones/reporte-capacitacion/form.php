@@ -153,30 +153,15 @@ if ($isEdit && !empty($inspeccion['perfil_asistentes'])) {
                 <h6 class="card-title" style="font-size:14px; color:#999;">REGISTRO FOTOGRAFICO</h6>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:12px;">Foto capacitacion</label>
-                    <?php if ($isEdit && !empty($inspeccion['foto_capacitacion'])): ?>
-                    <div class="mb-1">
-                        <img src="/<?= esc($inspeccion['foto_capacitacion']) ?>" class="img-thumbnail" style="max-height:80px;">
-                    </div>
-                    <?php endif; ?>
-                    <input type="file" name="foto_capacitacion" class="form-control form-control-sm" accept="image/*">
+                    <input type="file" name="foto_capacitacion" class="foto-input-pwa" accept="image/*" data-label="Foto capacitacion"<?= ($isEdit && !empty($inspeccion['foto_capacitacion'])) ? ' data-previous-url="/' . esc($inspeccion['foto_capacitacion']) . '"' : '' ?>>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:12px;">Foto otros 1</label>
-                    <?php if ($isEdit && !empty($inspeccion['foto_otros_1'])): ?>
-                    <div class="mb-1">
-                        <img src="/<?= esc($inspeccion['foto_otros_1']) ?>" class="img-thumbnail" style="max-height:80px;">
-                    </div>
-                    <?php endif; ?>
-                    <input type="file" name="foto_otros_1" class="form-control form-control-sm" accept="image/*">
+                    <input type="file" name="foto_otros_1" class="foto-input-pwa" accept="image/*" data-label="Foto otros 1"<?= ($isEdit && !empty($inspeccion['foto_otros_1'])) ? ' data-previous-url="/' . esc($inspeccion['foto_otros_1']) . '"' : '' ?>>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:12px;">Foto otros 2</label>
-                    <?php if ($isEdit && !empty($inspeccion['foto_otros_2'])): ?>
-                    <div class="mb-1">
-                        <img src="/<?= esc($inspeccion['foto_otros_2']) ?>" class="img-thumbnail" style="max-height:80px;">
-                    </div>
-                    <?php endif; ?>
-                    <input type="file" name="foto_otros_2" class="form-control form-control-sm" accept="image/*">
+                    <input type="file" name="foto_otros_2" class="foto-input-pwa" accept="image/*" data-label="Foto otros 2"<?= ($isEdit && !empty($inspeccion['foto_otros_2'])) ? ' data-previous-url="/' . esc($inspeccion['foto_otros_2']) . '"' : '' ?>>
                 </div>
             </div>
         </div>
