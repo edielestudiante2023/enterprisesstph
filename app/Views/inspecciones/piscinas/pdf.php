@@ -19,8 +19,8 @@ function diasDesdeEnsayo(?string $fecha): ?int {
 @page { margin: 28px 28px 36px 28px; }
 body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 10px; color: #222; }
 h1 { font-size: 16px; margin: 0 0 4px 0; color: #1c2437; }
-h2 { font-size: 12px; margin: 6px 0 3px 0; color: #1c2437; border-bottom: 1px solid #bd9751; padding-bottom: 2px; }
-h3 { font-size: 10.5px; margin: 4px 0 2px 0; color: #1c2437; }
+h2 { font-size: 12px; margin: 6px 0 3px 0; color: #1c2437; border-bottom: 1px solid #bd9751; padding-bottom: 2px; page-break-after: avoid; }
+h3 { font-size: 10.5px; margin: 4px 0 2px 0; color: #1c2437; page-break-after: avoid; }
 .header-corp { width: 100%; border-collapse: collapse; border: 1.5px solid #333; margin-bottom: 8px; }
 .header-corp td { border: 1px solid #333; padding: 4px 6px; vertical-align: middle; }
 .header-logo { width: 100px; text-align: center; font-size: 8px; }
@@ -32,10 +32,11 @@ table { width: 100%; border-collapse: collapse; margin: 4px 0; }
 table.data th, table.data td { border: 1px solid #aaa; padding: 3px 5px; font-size: 9.5px; text-align: left; }
 table.data th { background: #eee; font-weight: 700; }
 .badge { display: inline-block; padding: 3px 10px; border-radius: 10px; color: #fff; font-weight: 700; font-size: 11px; }
-.kv { width: 100%; margin: 2px 0; }
+.kv { width: 100%; margin: 2px 0; page-break-inside: avoid; }
 .kv td { padding: 1px 3px; font-size: 9.5px; vertical-align: top; border: none; }
 .kv td.k { font-weight: 600; width: 32%; color: #555; }
-.piscina { margin: 6px 0 10px 0; page-break-inside: avoid; }
+.piscina { margin: 6px 0 10px 0; }
+.botiquin-box { page-break-inside: avoid; }
 .piscina h2 { margin-top: 0; border-bottom: 1.5px solid #bd9751; padding-bottom: 2px; }
 .badge-vigente { background:#1b7e3f; color:#fff; padding:2px 8px; border-radius:10px; font-size:9px; font-weight:700; }
 .badge-vencido { background:#c0392b; color:#fff; padding:2px 8px; border-radius:10px; font-size:9px; font-weight:700; }
@@ -171,8 +172,6 @@ if ($diasMicro !== null && $diasMicro >= 0) {
     </tr>
 </table>
 
-<h2>5. Piscinas inspeccionadas</h2>
-
 <?php foreach ($piscinas as $i => $p): $idDet = $p['id']; ?>
 <div class="piscina">
     <h2>Piscina #<?= $i + 1 ?> — <?= esc($p['identificador']) ?></h2>
@@ -184,7 +183,7 @@ if ($diasMicro !== null && $diasMicro >= 0) {
         <tr><td class="k">Aforo piscina</td><td><?= esc($p['aforo_piscina_max'] ?? '—') ?></td><td class="k">Aforo deck</td><td><?= esc($p['aforo_deck_max'] ?? '—') ?></td></tr>
     </table>
 
-    <h3>5.<?= $i+1 ?>.1 Infraestructura, emergencia y avisos</h3>
+    <h3>Infraestructura, emergencia y avisos</h3>
     <table class="data param-tbl">
         <tr><th>Elemento</th><th>Estado</th><th>Elemento</th><th>Estado</th></tr>
         <?php
@@ -242,7 +241,8 @@ if ($diasMicro !== null && $diasMicro >= 0) {
         </tr>
     </table>
 
-    <h3>5.<?= $i+1 ?>.2 Botiquin (Anexo III — Tipo <?= esc($p['botiquin_tipo'] ?? 'NINGUNO') ?>)</h3>
+    <div class="botiquin-box">
+    <h3>Botiquin (Anexo III — Tipo <?= esc($p['botiquin_tipo'] ?? 'NINGUNO') ?>)</h3>
     <table style="width:100%;margin:4px 0;">
         <tr>
             <td style="width:40%;vertical-align:top;text-align:center;border:none;padding:4px;">
@@ -263,9 +263,10 @@ if ($diasMicro !== null && $diasMicro >= 0) {
             </td>
         </tr>
     </table>
+    </div>
 
     <?php if (!empty($p['observaciones']) || !empty($p['foto_base64'])): ?>
-    <h3>5.<?= $i+1 ?>.3 Observaciones y evidencia</h3>
+    <h3>Observaciones y evidencia</h3>
     <?php if (!empty($p['observaciones'])): ?>
     <div style="margin: 4px 0; font-size: 9.5px;"><?= nl2br(esc($p['observaciones'])) ?></div>
     <?php endif; ?>
@@ -275,7 +276,7 @@ if ($diasMicro !== null && $diasMicro >= 0) {
     <?php endif; ?>
 
     <?php $detEvids = $evidenciasDetB64[$idDet] ?? []; if (!empty($detEvids)): ?>
-    <h3>5.<?= $i+1 ?>.4 Evidencias adicionales (<?= count($detEvids) ?>)</h3>
+    <h3>Evidencias adicionales (<?= count($detEvids) ?>)</h3>
     <table style="width:100%;margin-bottom:6px;"><tr>
     <?php $col = 0; foreach ($detEvids as $ev):
         if (empty($ev['foto_b64'])) continue;
@@ -294,17 +295,17 @@ if ($diasMicro !== null && $diasMicro >= 0) {
 <?php endforeach; ?>
 
 <?php if (!empty($inspeccion['recomendaciones_generales'])): ?>
-<h2>6. Recomendaciones generales</h2>
+<h2>5. Recomendaciones generales</h2>
 <div style="font-size: 10px;"><?= nl2br(esc($inspeccion['recomendaciones_generales'])) ?></div>
 <?php endif; ?>
 
-<h2>7. Marco normativo aplicable</h2>
+<h2>6. Marco normativo aplicable</h2>
 
 <div style="font-size: 9.5px; text-align: justify; margin-bottom: 6px;">
     La inspeccion se sustenta en el siguiente marco juridico vigente en Colombia.
 </div>
 
-<h3 style="font-size: 11px;">7.1 Jerarquia normativa</h3>
+<h3 style="font-size: 11px;">6.1 Jerarquia normativa</h3>
 <table class="data" style="font-size: 9px;">
     <tr><th style="width: 22%;">Norma</th><th style="width: 30%;">Entidad emisora</th><th>Alcance</th></tr>
     <tr><td><strong>Ley 9 de 1979</strong></td><td>Congreso de la Republica</td><td>Codigo Sanitario Nacional. Arts. 222, 227 y 229 regulan agua de piscinas, personal capacitado en primeros auxilios y equipos de control del agua.</td></tr>
@@ -316,7 +317,7 @@ if ($diasMicro !== null && $diasMicro >= 0) {
     <tr><td><strong>Decreto 1496 de 2018</strong></td><td>Ministerio del Trabajo</td><td>Sistema Globalmente Armonizado (SGA/GHS) para el etiquetado de productos quimicos utilizados en el tratamiento del agua.</td></tr>
 </table>
 
-<h3 style="font-size: 11px; margin-top: 8px;">7.2 Resumen congelado al finalizar</h3>
+<h3 style="font-size: 11px; margin-top: 8px;">6.2 Resumen congelado al finalizar</h3>
 <div style="font-size: 9px; color: #555; text-align: justify;">
     <?= esc($marcoNormativo) ?>
 </div>
