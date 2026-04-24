@@ -271,7 +271,7 @@ if ($diasMicro !== null && $diasMicro >= 0) {
     <div style="margin: 4px 0; font-size: 9.5px;"><?= nl2br(esc($p['observaciones'])) ?></div>
     <?php endif; ?>
     <?php if (!empty($p['foto_base64'])): ?>
-    <img class="foto" src="<?= $p['foto_base64'] ?>">
+    <div style="text-align:center;margin:4px 0;"><img class="foto" src="<?= $p['foto_base64'] ?>"></div>
     <?php endif; ?>
     <?php endif; ?>
 
@@ -287,7 +287,11 @@ if ($diasMicro !== null && $diasMicro >= 0) {
             $desc = $ev['descripcion'] ?? '';
         ?>
         <td style="width:33%;padding:3px;border:none;vertical-align:top;text-align:center;">
-            <img src="<?= $ev['foto_b64'] ?>" style="max-width:150px;max-height:110px;border:1px solid #bbb;">
+            <table style="width:100%;border:none;"><tr>
+                <td style="height:115px;border:none;text-align:center;vertical-align:middle;padding:0;">
+                    <img src="<?= $ev['foto_b64'] ?>" style="max-width:150px;max-height:110px;border:1px solid #bbb;">
+                </td>
+            </tr></table>
             <div style="font-size:8px;color:#444;margin-top:2px;"><strong><?= esc($cat) ?></strong><?= $desc !== '' ? ' — ' . esc($desc) : '' ?></div>
         </td>
     <?php $col++; endforeach;
