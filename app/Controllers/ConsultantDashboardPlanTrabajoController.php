@@ -24,6 +24,7 @@ class ConsultantDashboardPlanTrabajoController extends Controller
 
         $ptaModel = new PtaClienteNuevaModel();
         $clientModel = new ClientModel();
+        $db = \Config\Database::connect();
 
         // Obtener solo clientes activos (para el Select2 de filtro)
         $clientes = $clientModel
@@ -31,11 +32,34 @@ class ConsultantDashboardPlanTrabajoController extends Controller
             ->orderBy('nombre_cliente', 'ASC')
             ->findAll();
 
-        // Obtener TODAS las actividades con JOIN a clientes
+        // Obtener TODAS las actividades con JOIN a clientes y consultor
         $actividades = $ptaModel
-            ->select('tbl_pta_cliente.*, tbl_clientes.nombre_cliente, tbl_clientes.id_cliente')
+            ->select('tbl_pta_cliente.*, tbl_clientes.nombre_cliente, tbl_clientes.id_cliente, tbl_clientes.id_consultor, tbl_clientes.consultor_externo, tbl_consultor.nombre_consultor')
             ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_pta_cliente.id_cliente')
+            ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_clientes.id_consultor', 'left')
             ->findAll();
+
+        // Consultores principales que tengan clientes activos con al menos una actividad PTA
+        $consultoresUnicos = $db->table('tbl_consultor')
+            ->distinct()
+            ->select('tbl_consultor.id_consultor, tbl_consultor.nombre_consultor')
+            ->join('tbl_clientes', "tbl_clientes.id_consultor = tbl_consultor.id_consultor AND tbl_clientes.estado = 'activo'")
+            ->join('tbl_pta_cliente', 'tbl_pta_cliente.id_cliente = tbl_clientes.id_cliente')
+            ->where('tbl_consultor.nombre_consultor IS NOT NULL')
+            ->where('tbl_consultor.nombre_consultor !=', '')
+            ->orderBy('tbl_consultor.nombre_consultor', 'ASC')
+            ->get()->getResultArray();
+
+        // Consultores externos distintos (de clientes activos con al menos una actividad PTA)
+        $consultoresExternosUnicos = $db->table('tbl_clientes')
+            ->distinct()
+            ->select('tbl_clientes.consultor_externo')
+            ->join('tbl_pta_cliente', 'tbl_pta_cliente.id_cliente = tbl_clientes.id_cliente')
+            ->where('tbl_clientes.estado', 'activo')
+            ->where('tbl_clientes.consultor_externo IS NOT NULL')
+            ->where('tbl_clientes.consultor_externo !=', '')
+            ->orderBy('tbl_clientes.consultor_externo', 'ASC')
+            ->get()->getResultArray();
 
         // Métricas globales
         $totalActividades = count($actividades);
@@ -96,7 +120,9 @@ class ConsultantDashboardPlanTrabajoController extends Controller
             'estadosUnicos' => array_filter($estadosUnicos),
             'responsablesUnicos' => array_filter($responsablesUnicos),
             'phvasUnicos' => array_filter($phvasUnicos),
-            'fechasPropuestaUnicas' => $fechasPropuestaUnicas
+            'fechasPropuestaUnicas' => $fechasPropuestaUnicas,
+            'consultoresUnicos' => $consultoresUnicos,
+            'consultoresExternosUnicos' => $consultoresExternosUnicos
         ];
 
         return view('consultant/dashboard_plan_trabajo', $data);

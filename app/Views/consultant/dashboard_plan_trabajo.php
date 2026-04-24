@@ -179,6 +179,26 @@
             </div>
 
             <div class="col-md-3">
+                <label class="form-label fw-bold"><i class="fas fa-user-tie"></i> Seleccione Consultor</label>
+                <select class="form-select" id="filterConsultor">
+                    <option value="">Todos los consultores</option>
+                    <?php foreach ($consultoresUnicos as $c): ?>
+                        <option value="<?= $c['id_consultor'] ?>"><?= esc($c['nombre_consultor']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold"><i class="fas fa-user-friends"></i> Seleccione Consultor Externo</label>
+                <select class="form-select" id="filterConsultorExterno">
+                    <option value="">Todos los consultores externos</option>
+                    <?php foreach ($consultoresExternosUnicos as $ce): ?>
+                        <option value="<?= esc($ce['consultor_externo']) ?>"><?= esc($ce['consultor_externo']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="col-md-3">
                 <label class="form-label fw-bold">
                     <i class="fas fa-filter"></i> Seleccione Estado
                 </label>
@@ -325,20 +345,38 @@
         var dataTable;
 
         $(document).ready(function() {
-            // Inicializar Select2 para el selector de cliente
+            // Inicializar Select2 para los selectores de cliente y consultores
+            var select2Lang = {
+                noResults: function() {
+                    return "No se encontraron resultados";
+                },
+                searching: function() {
+                    return "Buscando...";
+                }
+            };
+
             $('#filterCliente').select2({
                 theme: 'bootstrap-5',
                 placeholder: 'Seleccione un cliente',
                 allowClear: true,
                 width: '100%',
-                language: {
-                    noResults: function() {
-                        return "No se encontraron resultados";
-                    },
-                    searching: function() {
-                        return "Buscando...";
-                    }
-                }
+                language: select2Lang
+            });
+
+            $('#filterConsultor').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Seleccione un consultor',
+                allowClear: true,
+                width: '100%',
+                language: select2Lang
+            });
+
+            $('#filterConsultorExterno').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Seleccione un consultor externo',
+                allowClear: true,
+                width: '100%',
+                language: select2Lang
             });
 
             // Inicializar DataTable
@@ -367,13 +405,15 @@
             initCharts();
 
             // Event listeners para filtros
-            $('#filterCliente, #filterEstado, #filterResponsable, #filterFechaDesde, #filterFechaHasta').on('change', function() {
+            $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstado, #filterResponsable, #filterFechaDesde, #filterFechaHasta').on('change', function() {
                 applyFilters();
             });
 
             // Botón limpiar filtros
             $('#btnLimpiarFiltros').on('click', function() {
                 $('#filterCliente').val('').trigger('change');
+                $('#filterConsultor').val('').trigger('change');
+                $('#filterConsultorExterno').val('').trigger('change');
                 $('#filterEstado').val('');
                 $('#filterResponsable').val('');
                 $('#filterFechaDesde').val('');
@@ -498,6 +538,8 @@
 
         function applyFilters() {
             var filterCliente = $('#filterCliente').val();
+            var filterConsultor = $('#filterConsultor').val();
+            var filterConsultorExterno = $('#filterConsultorExterno').val();
             var filterEstado = $('#filterEstado').val();
             var filterResponsable = $('#filterResponsable').val();
             var filterFechaDesde = $('#filterFechaDesde').val();
@@ -506,6 +548,8 @@
             // Filtrar datos
             var filteredData = originalData.filter(function(item) {
                 if (filterCliente && item.id_cliente != filterCliente) return false;
+                if (filterConsultor && item.id_consultor != filterConsultor) return false;
+                if (filterConsultorExterno && (item.consultor_externo || '') !== filterConsultorExterno) return false;
                 if (filterEstado && item.estado_actividad !== filterEstado) return false;
 
                 var responsable = item.responsable_definido_paralaactividad || item.responsable_sugerido_plandetrabajo;
