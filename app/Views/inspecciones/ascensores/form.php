@@ -230,9 +230,7 @@ function buildAscensorRow(num, data) {
         tipoOpts += '<option value="' + t + '" ' + sel + '>' + t + '</option>';
     });
 
-    const fotoExistenteHtml = data.foto
-        ? `<div class="mb-1"><img src="<?= base_url() ?>${data.foto}" class="img-fluid rounded" style="max-height:60px; object-fit:cover; cursor:pointer;" onclick="openPhoto(this.src)"></div>`
-        : '';
+    const fotoPrevAttr = data.foto ? ` data-previous-url="<?= base_url() ?>${data.foto}"` : '';
 
     return `
     <div class="card mb-2 ascensor-row" style="border-left:3px solid #1c2437;">
@@ -274,14 +272,7 @@ function buildAscensorRow(num, data) {
             <div class="row g-2 mt-1">
                 <div class="col-12">
                     <label class="form-label" style="font-size:11px;">Foto</label>
-                    ${fotoExistenteHtml}
-                    <div class="photo-input-group">
-                        <input type="file" name="item_foto[]" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                        </div>
-                        <div class="preview-img mt-1"></div>
-                    </div>
+                    <input type="file" name="item_foto[]" class="foto-input-pwa" accept="image/*" data-label="Foto ascensor"${fotoPrevAttr}>
                 </div>
             </div>
             <div class="mt-1">
@@ -327,7 +318,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Render filas existentes (vienen del controller en edit)
     ASCENSORES_INIT.forEach((row, i) => {
-        document.getElementById('ascensoresContainer').insertAdjacentHTML('beforeend', buildAscensorRow(i + 1, row));
+        const container = document.getElementById('ascensoresContainer');
+        container.insertAdjacentHTML('beforeend', buildAscensorRow(i + 1, row));
+        const newRow = container.lastElementChild;
+        if (window.fotoInputPwa && newRow) window.fotoInputPwa.scan(newRow);
     });
     updateAscensores();
 
@@ -342,7 +336,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Agregar ascensor
     document.getElementById('btnAddAscensor').addEventListener('click', function() {
         const num = document.querySelectorAll('.ascensor-row').length + 1;
-        document.getElementById('ascensoresContainer').insertAdjacentHTML('beforeend', buildAscensorRow(num));
+        const container = document.getElementById('ascensoresContainer');
+        container.insertAdjacentHTML('beforeend', buildAscensorRow(num));
+        const newRow = container.lastElementChild;
+        if (window.fotoInputPwa && newRow) window.fotoInputPwa.scan(newRow);
         updateAscensores();
 
         const sec = document.getElementById('secAscensores');

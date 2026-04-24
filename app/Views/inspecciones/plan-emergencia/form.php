@@ -77,16 +77,7 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
                 <?php foreach (['foto_fachada' => 'Foto Fachada del Conjunto', 'foto_panorama' => 'Vista de Panorama'] as $campo => $label): ?>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:13px;"><?= $label ?></label>
-                    <?php if ($isEdit && !empty($inspeccion[$campo])): ?>
-                    <div class="mb-1"><img src="/<?= esc($inspeccion[$campo]) ?>" class="img-thumbnail" style="max-height:100px;"></div>
-                    <?php endif; ?>
-                    <div class="photo-input-group">
-                        <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                        </div>
-                        <div class="preview-img mt-1"></div>
-                    </div>
+                    <input type="file" name="<?= $campo ?>" class="foto-input-pwa" accept="image/*" data-label="<?= esc($label ?? 'Foto') ?>"<?= ($isEdit && !empty($inspeccion[$campo])) ? ' data-previous-url="/' . esc($inspeccion[$campo]) . '"' : '' ?>>
                 </div>
                 <?php endforeach; ?>
             </div>
@@ -127,16 +118,7 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
                 <?php foreach (['foto_torres_1' => 'Foto 1 de Torres o Casas', 'foto_torres_2' => 'Foto 2 de Torres o Casas'] as $campo => $label): ?>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:13px;"><?= $label ?></label>
-                    <?php if ($isEdit && !empty($inspeccion[$campo])): ?>
-                    <div class="mb-1"><img src="/<?= esc($inspeccion[$campo]) ?>" class="img-thumbnail" style="max-height:80px;"></div>
-                    <?php endif; ?>
-                    <div class="photo-input-group">
-                        <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                        </div>
-                        <div class="preview-img mt-1"></div>
-                    </div>
+                    <input type="file" name="<?= $campo ?>" class="foto-input-pwa" accept="image/*" data-label="<?= esc($label ?? 'Foto') ?>"<?= ($isEdit && !empty($inspeccion[$campo])) ? ' data-previous-url="/' . esc($inspeccion[$campo]) . '"' : '' ?>>
                 </div>
                 <?php endforeach; ?>
             </div>
@@ -170,16 +152,7 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
                 <?php foreach (['foto_parqueaderos_carros' => 'Foto Parqueaderos Carros', 'foto_parqueaderos_motos' => 'Foto Parqueaderos Motos'] as $campo => $label): ?>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:13px;"><?= $label ?></label>
-                    <?php if ($isEdit && !empty($inspeccion[$campo])): ?>
-                    <div class="mb-1"><img src="/<?= esc($inspeccion[$campo]) ?>" class="img-thumbnail" style="max-height:80px;"></div>
-                    <?php endif; ?>
-                    <div class="photo-input-group">
-                        <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                        </div>
-                        <div class="preview-img mt-1"></div>
-                    </div>
+                    <input type="file" name="<?= $campo ?>" class="foto-input-pwa" accept="image/*" data-label="<?= esc($label ?? 'Foto') ?>"<?= ($isEdit && !empty($inspeccion[$campo])) ? ' data-previous-url="/' . esc($inspeccion[$campo]) . '"' : '' ?>>
                 </div>
                 <?php endforeach; ?>
             </div>
@@ -207,16 +180,7 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
                 </div>
                 <div id="divFotoOficina" style="display:none;">
                     <label class="form-label" style="font-size:13px;">Foto Oficina de Administracion</label>
-                    <?php if ($isEdit && !empty($inspeccion['foto_oficina_admin'])): ?>
-                    <div class="mb-1"><img src="/<?= esc($inspeccion['foto_oficina_admin']) ?>" class="img-thumbnail" style="max-height:80px;"></div>
-                    <?php endif; ?>
-                    <div class="photo-input-group">
-                        <input type="file" name="foto_oficina_admin" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                        </div>
-                        <div class="preview-img mt-1"></div>
-                    </div>
+                    <input type="file" name="foto_oficina_admin" class="foto-input-pwa" accept="image/*" data-label="Foto Oficina Administracion"<?= ($isEdit && !empty($inspeccion['foto_oficina_admin'])) ? ' data-previous-url="/' . esc($inspeccion['foto_oficina_admin']) . '"' : '' ?>>
                 </div>
             </div>
         </div>
@@ -256,16 +220,7 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
                 <?php foreach ($circ['fotos'] as $campo => $label): ?>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:13px;"><?= $label ?></label>
-                    <?php if ($isEdit && !empty($inspeccion[$campo])): ?>
-                    <div class="mb-1"><img src="/<?= esc($inspeccion[$campo]) ?>" class="img-thumbnail" style="max-height:80px;"></div>
-                    <?php endif; ?>
-                    <div class="photo-input-group">
-                        <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                        </div>
-                        <div class="preview-img mt-1"></div>
-                    </div>
+                    <input type="file" name="<?= $campo ?>" class="foto-input-pwa" accept="image/*" data-label="<?= esc($label ?? 'Foto') ?>"<?= ($isEdit && !empty($inspeccion[$campo])) ? ' data-previous-url="/' . esc($inspeccion[$campo]) . '"' : '' ?>>
                 </div>
                 <?php endforeach; ?>
             </div>
@@ -370,16 +325,7 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
                 <?php foreach (['foto_ruta_evacuacion_1' => 'Foto 1 Ruta de Evacuacion', 'foto_ruta_evacuacion_2' => 'Foto 2 Ruta de Evacuacion'] as $campo => $label): ?>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:13px;"><?= $label ?></label>
-                    <?php if ($isEdit && !empty($inspeccion[$campo])): ?>
-                    <div class="mb-1"><img src="/<?= esc($inspeccion[$campo]) ?>" class="img-thumbnail" style="max-height:80px;"></div>
-                    <?php endif; ?>
-                    <div class="photo-input-group">
-                        <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                        </div>
-                        <div class="preview-img mt-1"></div>
-                    </div>
+                    <input type="file" name="<?= $campo ?>" class="foto-input-pwa" accept="image/*" data-label="<?= esc($label ?? 'Foto') ?>"<?= ($isEdit && !empty($inspeccion[$campo])) ? ' data-previous-url="/' . esc($inspeccion[$campo]) . '"' : '' ?>>
                 </div>
                 <?php endforeach; ?>
             </div>
@@ -396,16 +342,7 @@ $action = $isEdit ? base_url('/inspecciones/plan-emergencia/update/') . $inspecc
                 <?php foreach (['foto_punto_encuentro_1' => 'Foto 1 Punto de Encuentro', 'foto_punto_encuentro_2' => 'Foto 2 Punto de Encuentro'] as $campo => $label): ?>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:13px;"><?= $label ?></label>
-                    <?php if ($isEdit && !empty($inspeccion[$campo])): ?>
-                    <div class="mb-1"><img src="/<?= esc($inspeccion[$campo]) ?>" class="img-thumbnail" style="max-height:80px;"></div>
-                    <?php endif; ?>
-                    <div class="photo-input-group">
-                        <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Foto</button>
-                        </div>
-                        <div class="preview-img mt-1"></div>
-                    </div>
+                    <input type="file" name="<?= $campo ?>" class="foto-input-pwa" accept="image/*" data-label="<?= esc($label ?? 'Foto') ?>"<?= ($isEdit && !empty($inspeccion[$campo])) ? ' data-previous-url="/' . esc($inspeccion[$campo]) . '"' : '' ?>>
                 </div>
                 <?php endforeach; ?>
             </div>

@@ -253,14 +253,8 @@ $action = $isEdit ? base_url('/inspecciones/acta-visita/update/') . $acta['id'] 
                         <?php endif; ?>
 
                         <label class="form-label">Agregar fotos</label>
-                        <div class="photo-input-group">
-                            <input type="file" name="fotos[]" class="file-preview" accept="image/*" multiple style="display:none;">
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery"><i class="fas fa-images"></i> Cargar foto</button>
-                            </div>
-                            <div class="preview-img mt-1"></div>
-                        </div>
-                        <small class="text-muted">Selecciona fotos desde tu galeria o toma una nueva</small>
+                        <input type="file" name="fotos[]" class="foto-input-pwa" accept="image/*" multiple data-label="Agregar fotos del acta">
+                        <small class="text-muted">Selecciona fotos desde tu galeria (puedes elegir varias)</small>
                     </div>
                 </div>
             </div>

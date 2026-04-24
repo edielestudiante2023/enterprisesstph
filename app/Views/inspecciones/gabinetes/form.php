@@ -88,17 +88,7 @@ $action = $isEdit ? base_url('/inspecciones/gabinetes/update/') . $inspeccion['i
                             <?php foreach (['foto_gab_1' => 'Foto gabinete 1', 'foto_gab_2' => 'Foto gabinete 2'] as $campo => $label): ?>
                             <div class="col-6">
                                 <label class="form-label" style="font-size:12px;"><?= $label ?></label>
-                                <div class="photo-input-group">
-                                    <input type="file" name="<?= $campo ?>" class="file-preview" accept="image/*" style="display:none;">
-                                    <div class="d-flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                                    </div>
-                                    <div class="preview-img mt-1">
-                                        <?php if (!empty($inspeccion[$campo])): ?>
-                                        <img src="/<?= esc($inspeccion[$campo]) ?>" class="img-fluid rounded" style="max-height:60px; object-fit:cover; cursor:pointer; border:2px solid #28a745;" onclick="openPhoto(this.src)">
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
+                                <input type="file" name="<?= $campo ?>" class="foto-input-pwa" accept="image/*" data-label="<?= esc($label) ?>"<?= !empty($inspeccion[$campo]) ? ' data-previous-url="/' . esc($inspeccion[$campo]) . '"' : '' ?>>
                             </div>
                             <?php endforeach; ?>
                         </div>
@@ -171,17 +161,7 @@ $action = $isEdit ? base_url('/inspecciones/gabinetes/update/') . $inspeccion['i
                                         <div class="row g-2 mt-1">
                                             <div class="col-6">
                                                 <label class="form-label" style="font-size:11px;">Foto</label>
-                                                <div class="photo-input-group">
-                                                    <input type="file" name="gab_foto[]" class="file-preview" accept="image/*" style="display:none;">
-                                                    <div class="d-flex gap-1">
-                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                                                    </div>
-                                                    <div class="preview-img mt-1">
-                                                        <?php if (!empty($gab['foto'])): ?>
-                                                        <img src="/<?= esc($gab['foto']) ?>" class="img-fluid rounded" style="max-height:60px; object-fit:cover; cursor:pointer; border:2px solid #28a745;" onclick="openPhoto(this.src)">
-                                                        <?php endif; ?>
-                                                    </div>
-                                                </div>
+                                                <input type="file" name="gab_foto[]" class="foto-input-pwa" accept="image/*" data-label="Foto gabinete"<?= !empty($gab['foto']) ? ' data-previous-url="/' . esc($gab['foto']) . '"' : '' ?>>
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label" style="font-size:11px;">Observaciones</label>
@@ -371,13 +351,7 @@ function buildGabineteRow(num, data) {
             <div class="row g-2 mt-1">
                 <div class="col-6">
                     <label class="form-label" style="font-size:11px;">Foto</label>
-                    <div class="photo-input-group">
-                        <input type="file" name="gab_foto[]" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                        </div>
-                        <div class="preview-img mt-1"></div>
-                    </div>
+                    <input type="file" name="gab_foto[]" class="foto-input-pwa" accept="image/*" data-label="Foto gabinete">
                 </div>
                 <div class="col-6">
                     <label class="form-label" style="font-size:11px;">Observaciones</label>
@@ -433,7 +407,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Agregar gabinete ---
     document.getElementById('btnAddGabinete').addEventListener('click', function() {
         const num = document.querySelectorAll('.gabinete-row').length + 1;
-        document.getElementById('gabinetesContainer').insertAdjacentHTML('beforeend', buildGabineteRow(num));
+        const container = document.getElementById('gabinetesContainer');
+        container.insertAdjacentHTML('beforeend', buildGabineteRow(num));
+        const newRow = container.lastElementChild;
+        if (window.fotoInputPwa && newRow) window.fotoInputPwa.scan(newRow);
         updateGabinetes();
 
         const secGab = document.getElementById('secGabinetes');

@@ -239,13 +239,7 @@ function buildExtintorRow(num, data) {
                 </div>
                 <div class="col-6">
                     <label class="form-label" style="font-size:11px;">Foto</label>
-                    <div class="photo-input-group">
-                        <input type="file" name="ext_foto[]" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                        </div>
-                        <div class="preview-img mt-1"></div>
-                    </div>
+                    <input type="file" name="ext_foto[]" class="foto-input-pwa" accept="image/*" data-label="Foto extintor">
                 </div>
             </div>
             <div class="mt-1">
@@ -301,7 +295,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Agregar extintor ---
     document.getElementById('btnAddExtintor').addEventListener('click', function() {
         const num = document.querySelectorAll('.extintor-row').length + 1;
-        document.getElementById('extintoresContainer').insertAdjacentHTML('beforeend', buildExtintorRow(num));
+        const container = document.getElementById('extintoresContainer');
+        container.insertAdjacentHTML('beforeend', buildExtintorRow(num));
+        const newRow = container.lastElementChild;
+        if (window.fotoInputPwa && newRow) window.fotoInputPwa.scan(newRow);
         updateExtintores();
 
         const secExt = document.getElementById('secExtintores');

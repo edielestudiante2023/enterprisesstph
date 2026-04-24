@@ -156,17 +156,7 @@ $calificaciones = [
                                         <div class="row g-2">
                                             <div class="col-6">
                                                 <label class="form-label" style="font-size:11px;">Foto</label>
-                                                <div class="photo-input-group">
-                                                    <input type="file" name="foto_file[]" class="file-preview" accept="image/*" style="display:none;">
-                                                    <div class="d-flex gap-1">
-                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Cambiar</button>
-                                                    </div>
-                                                    <div class="preview-img mt-1">
-                                                        <?php if (!empty($f['foto'])): ?>
-                                                        <img src="/<?= esc($f['foto']) ?>" class="img-fluid rounded" style="max-height:80px; object-fit:cover; cursor:pointer; border:2px solid #28a745;" onclick="openPhoto(this.src)">
-                                                        <?php endif; ?>
-                                                    </div>
-                                                </div>
+                                                <input type="file" name="foto_file[]" class="foto-input-pwa" accept="image/*" data-label="Foto producto"<?= !empty($f['foto']) ? ' data-previous-url="/' . esc($f['foto']) . '"' : '' ?>>
                                             </div>
                                             <div class="col-6">
                                                 <label class="form-label" style="font-size:11px;">Observacion</label>
@@ -251,13 +241,7 @@ function buildFotoRow(num, data) {
             <div class="row g-2">
                 <div class="col-6">
                     <label class="form-label" style="font-size:11px;">Foto</label>
-                    <div class="photo-input-group">
-                        <input type="file" name="foto_file[]" class="file-preview" accept="image/*" style="display:none;">
-                        <div class="d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-photo-gallery" style="font-size:11px; padding:2px 6px;"><i class="fas fa-images"></i> Foto</button>
-                        </div>
-                        <div class="preview-img mt-1">${preview}</div>
-                    </div>
+                    <input type="file" name="foto_file[]" class="foto-input-pwa" accept="image/*" data-label="Foto producto">
                 </div>
                 <div class="col-6">
                     <label class="form-label" style="font-size:11px;">Observacion</label>
@@ -390,7 +374,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Agregar foto
     document.getElementById('btnAddFoto').addEventListener('click', function() {
         const num = document.querySelectorAll('.foto-row').length + 1;
-        document.getElementById('fotosContainer').insertAdjacentHTML('beforeend', buildFotoRow(num));
+        const container = document.getElementById('fotosContainer');
+        container.insertAdjacentHTML('beforeend', buildFotoRow(num));
+        const newRow = container.lastElementChild;
+        if (window.fotoInputPwa && newRow) window.fotoInputPwa.scan(newRow);
         updateFotos();
         const secFotos = document.getElementById('secFotos');
         if (!secFotos.classList.contains('show')) {
