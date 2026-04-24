@@ -118,6 +118,7 @@ class InspeccionGimnasioController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/gimnasio')->with('error', 'Inspeccion no encontrada');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/gimnasio/view/' . $id)) return $r;
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/gimnasio/form', [
@@ -140,6 +141,7 @@ class InspeccionGimnasioController extends BaseController
             if ($this->isAutosaveRequest()) return $this->autosaveJsonError('No encontrada', 404);
             return redirect()->to('/inspecciones/gimnasio')->with('error', 'No se puede editar');
         }
+        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/gimnasio/view/' . $id)) return $r;
 
         $data = $this->getInspeccionPostData();
         $this->inspeccionModel->update($id, $data);
@@ -161,7 +163,6 @@ class InspeccionGimnasioController extends BaseController
         if (!$inspeccion) {
             return redirect()->to('/inspecciones/gimnasio')->with('error', 'No encontrada');
         }
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/gimnasio/view/' . $id)) return $r;
 
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
@@ -184,6 +185,11 @@ class InspeccionGimnasioController extends BaseController
     {
         $inspeccion = $this->inspeccionModel->find($id);
         if (!$inspeccion) return redirect()->to('/inspecciones/gimnasio')->with('error', 'No encontrada');
+
+        if (($inspeccion['estado'] ?? '') === 'completo') {
+            return redirect()->to('/inspecciones/gimnasio/view/' . $id)
+                ->with('msg', 'Esta inspeccion ya fue finalizada anteriormente.');
+        }
 
         $pdfPath = $this->generarPdfInterno($id);
         if (!$pdfPath) return redirect()->back()->with('error', 'Error al generar PDF');
