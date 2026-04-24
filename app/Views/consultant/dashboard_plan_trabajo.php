@@ -243,9 +243,9 @@
             </div>
 
             <div class="col-md-3">
-                <label class="form-label fw-bold"><i class="fas fa-layer-group"></i> Seleccione Estándares</label>
+                <label class="form-label fw-bold"><i class="fas fa-layer-group"></i> Seleccione Frecuencia de Visita</label>
                 <select class="form-select" id="filterEstandares">
-                    <option value="">Todos los estándares</option>
+                    <option value="">Todas las frecuencias</option>
                     <?php foreach ($estandaresUnicos as $es): ?>
                         <option value="<?= esc($es['estandares']) ?>"><?= esc($es['estandares']) ?></option>
                     <?php endforeach; ?>
@@ -343,8 +343,7 @@
                                 <th>FECHA PROPUESTA</th>
                                 <th>FECHA CIERRE</th>
                                 <th>ESTADO</th>
-                                <th>PHVA</th>
-                                <th>% AVANCE</th>
+                                <th>OBSERVACIONES</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -359,8 +358,7 @@
                                             <?= esc($act['estado_actividad'] ?? 'N/A') ?>
                                         </span>
                                     </td>
-                                    <td><?= esc($act['phva_plandetrabajo'] ?? 'N/A') ?></td>
-                                    <td class="text-center"><?= esc($act['porcentaje_avance'] ?? '0') ?>%</td>
+                                    <td><?= esc($act['observaciones'] ?? '') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -420,7 +418,7 @@
             $('#filterCliente').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione un cliente', allowClear: true, width: '100%', language: select2Lang });
             $('#filterConsultor').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione un consultor', allowClear: true, width: '100%', language: select2Lang });
             $('#filterConsultorExterno').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione un consultor externo', allowClear: true, width: '100%', language: select2Lang });
-            $('#filterEstandares').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione un estándar', allowClear: true, width: '100%', language: select2Lang });
+            $('#filterEstandares').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione una frecuencia', allowClear: true, width: '100%', language: select2Lang });
             $('#filterPhva').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione PHVA', allowClear: true, width: '100%', language: select2Lang });
             $('#filterEstado').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione estado', allowClear: true, width: '100%', language: select2Lang });
             $('#filterAnio').select2({ theme: 'bootstrap-5', placeholder: 'Todos los años', allowClear: true, width: '100%', language: select2Lang });
@@ -587,7 +585,7 @@
             rebuildSelect($('#filterCliente'), clienteOptions, sCliente, 'Todos los clientes');
             rebuildSelect($('#filterConsultor'), consultorOptions, sConsultor, 'Todos los consultores');
             rebuildSelect($('#filterConsultorExterno'), externoOptions, sExterno, 'Todos los consultores externos');
-            rebuildSelect($('#filterEstandares'), estandaresOptions, sEstandares, 'Todos los estándares');
+            rebuildSelect($('#filterEstandares'), estandaresOptions, sEstandares, 'Todas las frecuencias');
             $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares').trigger('change.select2');
             suspendCascade = false;
         }
@@ -807,8 +805,7 @@
                     item.fecha_propuesta || 'N/A',
                     item.fecha_cierre || 'N/A',
                     estadoBadge,
-                    item.phva_plandetrabajo || 'N/A',
-                    (item.porcentaje_avance || '0') + '%'
+                    item.observaciones || ''
                 ]);
             });
             dataTable.draw();
