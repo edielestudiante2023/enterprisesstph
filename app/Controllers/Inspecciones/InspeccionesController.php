@@ -12,6 +12,7 @@ use App\Models\InspeccionPiscinasModel;
 use App\Models\InspeccionPiscineroModel;
 use App\Models\InspeccionGimnasioModel;
 use App\Models\InspeccionTurcoSaunaModel;
+use App\Models\InspeccionZonaBbqModel;
 use App\Models\InspeccionBotiquinModel;
 use App\Models\InspeccionProductosQuimicosModel;
 use App\Models\InspeccionGabineteModel;
@@ -102,6 +103,9 @@ class InspeccionesController extends BaseController
 
         $turcoSaunaModel = new InspeccionTurcoSaunaModel();
         $totalTurcoSauna = $turcoSaunaModel->where('estado', 'completo')->countAllResults();
+
+        $zonaBbqModel = new InspeccionZonaBbqModel();
+        $totalZonaBbq = $zonaBbqModel->where('estado', 'completo')->countAllResults();
 
         $botiquinModel = new InspeccionBotiquinModel();
         $totalBotiquin = $botiquinModel->where('estado', 'completo')->countAllResults();
@@ -304,6 +308,7 @@ class InspeccionesController extends BaseController
             'totalPiscinero'   => $totalPiscinero,
             'totalGimnasio'    => $totalGimnasio,
             'totalTurcoSauna'  => $totalTurcoSauna,
+            'totalZonaBbq'     => $totalZonaBbq,
             'totalBotiquin'    => $totalBotiquin,
             'totalProductosQuimicos' => $totalProductosQuimicos,
             'totalGabinetes'   => $totalGabinetes,

@@ -1070,6 +1070,20 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('turco-sauna/delete/(:num)', 'InspeccionTurcoSaunaController::delete/$1');
     $routes->get('turco-sauna/enviar-email/(:num)', 'InspeccionTurcoSaunaController::enviarEmail/$1');
 
+    // Inspección Zona BBQ (FT-SST-251)
+    $routes->get('zona-bbq', 'InspeccionZonaBbqController::list');
+    $routes->get('zona-bbq/create', 'InspeccionZonaBbqController::create');
+    $routes->get('zona-bbq/create/(:num)', 'InspeccionZonaBbqController::create/$1');
+    $routes->post('zona-bbq/store', 'InspeccionZonaBbqController::store');
+    $routes->get('zona-bbq/edit/(:num)', 'InspeccionZonaBbqController::edit/$1');
+    $routes->post('zona-bbq/update/(:num)', 'InspeccionZonaBbqController::update/$1');
+    $routes->get('zona-bbq/view/(:num)', 'InspeccionZonaBbqController::view/$1');
+    $routes->get('zona-bbq/pdf/(:num)', 'InspeccionZonaBbqController::generatePdf/$1');
+    $routes->get('zona-bbq/regenerar/(:num)', 'InspeccionZonaBbqController::regenerarPdf/$1');
+    $routes->post('zona-bbq/finalizar/(:num)', 'InspeccionZonaBbqController::finalizar/$1');
+    $routes->get('zona-bbq/delete/(:num)', 'InspeccionZonaBbqController::delete/$1');
+    $routes->get('zona-bbq/enviar-email/(:num)', 'InspeccionZonaBbqController::enviarEmail/$1');
+
     // Inspección Botiquín
     $routes->get('botiquin', 'InspeccionBotiquinController::list');
     $routes->get('botiquin/create', 'InspeccionBotiquinController::create');
