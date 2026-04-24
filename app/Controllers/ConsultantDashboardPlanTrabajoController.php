@@ -25,8 +25,11 @@ class ConsultantDashboardPlanTrabajoController extends Controller
         $ptaModel = new PtaClienteNuevaModel();
         $clientModel = new ClientModel();
 
-        // Obtener TODOS los clientes
-        $clientes = $clientModel->findAll();
+        // Obtener solo clientes activos (para el Select2 de filtro)
+        $clientes = $clientModel
+            ->where('estado', 'activo')
+            ->orderBy('nombre_cliente', 'ASC')
+            ->findAll();
 
         // Obtener TODAS las actividades con JOIN a clientes
         $actividades = $ptaModel
