@@ -39,11 +39,12 @@ class ConsultantDashboardPlanTrabajoController extends Controller
         // Lista inicial para el Select2 de Cliente
         $clientes = $clientesCascade;
 
-        // Obtener TODAS las actividades con JOIN a clientes y consultor
+        // Obtener actividades solo de clientes activos (alineado con los dropdowns)
         $actividades = $ptaModel
             ->select('tbl_pta_cliente.*, tbl_clientes.nombre_cliente, tbl_clientes.id_cliente, tbl_clientes.id_consultor, tbl_clientes.consultor_externo, tbl_clientes.estandares, tbl_consultor.nombre_consultor')
             ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_pta_cliente.id_cliente')
             ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_clientes.id_consultor', 'left')
+            ->where('tbl_clientes.estado', 'activo')
             ->findAll();
 
         // Consultores principales (derivados del pool de clientes cascadeables)
