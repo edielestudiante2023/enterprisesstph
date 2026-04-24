@@ -303,7 +303,7 @@
         <!-- Gráficos -->
         <div class="row">
             <!-- Gráfico Clientes (Barras Horizontales, clickeable) -->
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="chart-container">
                     <h5><i class="fas fa-building"></i> Actividades por Cliente</h5>
                     <span class="chart-hint">Click en una barra para filtrar por ese cliente</span>
@@ -312,7 +312,7 @@
             </div>
 
             <!-- Gráfico Estado (Donut, clickeable) -->
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="chart-container">
                     <h5><i class="fas fa-toggle-on"></i> Estado de Actividades</h5>
                     <span class="chart-hint">Click en un segmento para filtrar por estado</span>
@@ -321,7 +321,7 @@
             </div>
 
             <!-- Gráfico PHVA (Donut, clickeable) -->
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="chart-container">
                     <h5><i class="fas fa-sync-alt"></i> Ciclo PHVA</h5>
                     <span class="chart-hint">Click en un segmento para filtrar por PHVA</span>
@@ -612,6 +612,7 @@
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: true,
+                    layout: { padding: { right: 30 } },
                     onClick: function(evt, elements) {
                         if (!elements.length) return;
                         var idx = elements[0].index;
@@ -629,7 +630,20 @@
                             formatter: function(value) { return value > 0 ? value : ''; }
                         }
                     },
-                    scales: { x: { beginAtZero: true } }
+                    scales: {
+                        x: { beginAtZero: true },
+                        y: {
+                            ticks: {
+                                autoSkip: false,
+                                font: { size: 10 },
+                                callback: function(value) {
+                                    var label = this.getLabelForValue(value);
+                                    if (!label) return label;
+                                    return label.length > 35 ? label.substring(0, 33) + '…' : label;
+                                }
+                            }
+                        }
+                    }
                 }
             });
 
