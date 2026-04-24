@@ -190,18 +190,10 @@
             wrapper.classList.remove('is-working');
         });
 
-        // Observer: autosave_server.js limpia input.value + remueve data-dirty despues del upload.
-        // Detectamos eso para sincronizar el preview.
-        var observer = new MutationObserver(function () {
-            // El autosave clear: input.files vacio + sin data-dirty.
-            if ((!input.files || !input.files.length) && input.getAttribute('data-dirty') !== '1') {
-                // El autosave acaba de limpiar: la foto quedo en BD. Volver al estado vacio
-                // (el user tendra que recargar para ver la URL nueva — comportamiento consistente con autosave actual).
-                if (prevUrl && (!hiddenDelete || hiddenDelete.value !== '1')) showThumb(prevUrl);
-                else showEmpty();
-            }
-        });
-        observer.observe(input, { attributes: true, attributeFilter: ['data-dirty', 'value'] });
+        // Nota: NO observamos el clear que autosave_server.js hace tras subir.
+        // El preview queda visible para que el usuario confirme "mi foto esta ahi".
+        // La foto YA se guardo en server via autosave; el input vacio es irrelevante
+        // a la UX. Si el user re-selecciona otra foto o da X, eso se maneja por change/click.
     }
 
     function escapeHtml(s) {
