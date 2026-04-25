@@ -23,7 +23,7 @@ class EvolucionEstandaresController extends Controller
 
         $model = new HistorialEstandaresModel();
 
-        // Si es consultor, filtrar solo sus clientes
+        // Filtro por consultor logueado
         $nombreConsultorFiltro = null;
         if ($role === 'consultant') {
             $consultantModel = new ConsultantModel();
@@ -31,32 +31,45 @@ class EvolucionEstandaresController extends Controller
             $nombreConsultorFiltro = $consultor['nombre_consultor'] ?? null;
         }
 
+        // Enriquecer cada snapshot con consultor_externo y estado actual del cliente
+        $builder = $model
+            ->select('historial_resumen_estandares.*, tbl_clientes.consultor_externo as cliente_consultor_externo, tbl_clientes.estado as cliente_estado_actual')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = historial_resumen_estandares.id_cliente', 'left');
+
         if ($nombreConsultorFiltro) {
-            $registros = $model->where('nombre_consultor', $nombreConsultorFiltro)->findAll();
-        } else {
-            $registros = $model->findAll();
+            $builder = $builder->where('historial_resumen_estandares.nombre_consultor', $nombreConsultorFiltro);
         }
 
-        // Valores únicos para filtros
-        $consultoresUnicos = array_values(array_unique(array_filter(array_column($registros, 'nombre_consultor'))));
-        $clientesUnicos = array_values(array_unique(array_filter(array_column($registros, 'nombre_cliente'))));
-        $estandaresUnicos = array_values(array_unique(array_filter(array_column($registros, 'estandares'))));
+        $registros = $builder->findAll();
 
-        // Fechas únicas (formato Y-m)
-        $fechasRaw = array_column($registros, 'fecha_extraccion');
-        $fechasMes = array_values(array_unique(array_map(function ($f) {
-            return substr($f, 0, 7);
-        }, $fechasRaw)));
-        sort($fechasMes);
+        // Valores únicos para dropdowns iniciales
+        $consultoresUnicos = array_values(array_unique(array_filter(array_column($registros, 'nombre_consultor'))));
+        sort($consultoresUnicos);
+        $clientesUnicos = array_values(array_unique(array_filter(array_column($registros, 'nombre_cliente'))));
+        sort($clientesUnicos);
+        $estandaresFrecUnicos = array_values(array_unique(array_filter(array_column($registros, 'estandares'))));
+        sort($estandaresFrecUnicos);
+        $consultoresExternosUnicos = array_values(array_unique(array_filter(array_column($registros, 'cliente_consultor_externo'))));
+        sort($consultoresExternosUnicos);
+
+        // Métricas globales
+        $totalValor   = array_sum(array_map(fn($r) => floatval($r['total_valor'] ?? 0), $registros));
+        $totalPuntaje = array_sum(array_map(fn($r) => floatval($r['total_puntaje'] ?? 0), $registros));
+        $pctCumplimiento = $totalPuntaje > 0 ? round(($totalValor / $totalPuntaje) * 100, 1) : 0;
+
+        // Año actual para defaults del período (Q9=B)
+        $anioActual = (int) date('Y');
 
         $data = [
-            'registros'          => $registros,
-            'consultoresUnicos'  => $consultoresUnicos,
-            'clientesUnicos'     => $clientesUnicos,
-            'estandaresUnicos'   => $estandaresUnicos,
-            'fechasMes'          => $fechasMes,
-            'role'               => $role,
-            'totalClientes'      => count($clientesUnicos),
+            'registros'                  => $registros,
+            'consultoresUnicos'          => $consultoresUnicos,
+            'clientesUnicos'             => $clientesUnicos,
+            'estandaresFrecUnicos'       => $estandaresFrecUnicos,
+            'consultoresExternosUnicos'  => $consultoresExternosUnicos,
+            'role'                       => $role,
+            'totalClientes'              => count($clientesUnicos),
+            'pctCumplimiento'            => $pctCumplimiento,
+            'anioActual'                 => $anioActual,
         ];
 
         return view('consultant/evolucion_estandares', $data);

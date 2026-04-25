@@ -6,146 +6,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evolucion Planes de Trabajo - Enterprise SST</title>
 
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- DataTables -->
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .navbar-logos {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 10px 0;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        .header-section {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 15px;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .header-section h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .metric-card h6 {
-            color: #6c757d;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-card h2 {
-            color: #4facfe;
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin: 0;
-        }
-
-        .chart-container {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem;
-            min-height: 350px;
-        }
-
-        .chart-container h5 {
-            text-align: center;
-            color: #1c2437;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        .filter-section {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem;
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem;
-        }
-
-        .btn-clear {
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            color: white;
-            border: none;
-        }
-
-        .btn-clear:hover {
-            background: linear-gradient(135deg, #00f2fe, #4facfe);
-            color: white;
-        }
-
-        footer {
-            background: white;
-            padding: 20px 0;
-            border-top: 1px solid #dee2e6;
-            margin-top: 40px;
-            text-align: center;
-            font-size: 14px;
-            color: #6c757d;
-        }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar-logos { background: white; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); padding: 10px 0; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .header-metric { text-align: center; padding: 0 6px; }
+        .header-metric small { display: block; color: #6c757d; font-size: 0.7rem; line-height: 1; }
+        .header-metric h4 { margin: 0; font-size: 1.4rem; line-height: 1.1; color: #1c2437; }
+        .chart-container { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin-bottom: 1.5rem; min-height: 350px; }
+        .chart-container h5 { text-align: center; color: #1c2437; font-weight: 600; margin-bottom: 0.5rem; }
+        .chart-container .chart-hint { display: block; text-align: center; color: #6c757d; font-size: 0.75rem; margin-bottom: 0.5rem; }
+        .filter-section { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin-bottom: 1.5rem; }
+        .table-container { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin-bottom: 1.5rem; }
+        .btn-clear { background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; border: none; }
+        .btn-clear:hover { background: linear-gradient(135deg, #00f2fe, #4facfe); color: white; }
+        footer { background: white; padding: 20px 0; border-top: 1px solid #dee2e6; margin-top: 40px; text-align: center; font-size: 14px; color: #6c757d; }
     </style>
 </head>
 
 <body>
-    <!-- Navbar -->
     <nav class="navbar-logos">
-        <div class="d-flex justify-content-between align-items-center px-4" style="max-width: 1400px; margin: 0 auto;">
+        <div class="d-flex justify-content-between align-items-center px-4" style="max-width: 1500px; margin: 0 auto;">
             <div>
-                <a href="<?= base_url('/admin/dashboard') ?>">
-                    <img src="<?= base_url('uploads/logocycloidhorizontal.png') ?>" alt="Cycloid" style="height: 50px;">
-                </a>
+                <a href="<?= base_url('/admin/dashboard') ?>"><img src="<?= base_url('uploads/logocycloidhorizontal.png') ?>" alt="Cycloid" style="height: 50px;"></a>
             </div>
-            <div class="text-center">
-                <small class="text-muted d-block">CUENTA DE ACTIVIDADES</small>
-                <h4 class="mb-0 fw-bold" id="headerTotalActividades"><?= number_format($totalActividades) ?></h4>
+            <div class="header-metric">
+                <small>TOTAL ACTIVIDADES</small>
+                <h4 id="headerTotalActividades"><?= number_format($totalActividades) ?></h4>
+            </div>
+            <div class="header-metric">
+                <small>ACTIVIDADES ABIERTAS</small>
+                <h4 id="headerTotalAbiertas"><?= number_format($totalAbiertas) ?></h4>
+            </div>
+            <div class="header-metric">
+                <small>% ABIERTAS PROMEDIO</small>
+                <h4 id="headerPctAbiertas"><?= $pctAbiertasProm ?>%</h4>
+            </div>
+            <div class="header-metric">
+                <small>TOTAL CLIENTES</small>
+                <h4 id="headerTotalClientes"><?= $totalClientes ?></h4>
             </div>
             <div>
-                <h5 class="mb-0 fw-bold" style="color: #1c2437;">EVOLUCION PLANES DE TRABAJO CLIENTES</h5>
-            </div>
-            <div class="text-center">
-                <small class="text-muted d-block">CUENTA DE CLIENTES</small>
-                <h4 class="mb-0 fw-bold" id="headerTotalClientes"><?= $totalClientes ?></h4>
+                <h6 class="mb-0 fw-bold" style="color: #1c2437;">EVOLUCION PLANES DE TRABAJO</h6>
             </div>
             <div>
                 <img src="<?= base_url('uploads/logoenterprisesstblancoslogan.png') ?>" alt="Enterprise SST" style="height: 50px;">
@@ -155,16 +63,16 @@
 
     <div style="height: 80px;"></div>
 
-    <div class="container-fluid px-4" style="max-width: 1400px; margin: 0 auto;">
+    <div class="container-fluid px-4" style="max-width: 1500px; margin: 0 auto;">
 
-        <!-- Filtros -->
+        <!-- Filtros principales -->
         <div class="filter-section">
             <div class="row g-3 align-items-end">
                 <?php if ($role === 'admin'): ?>
                 <div class="col-md-3">
-                    <label class="form-label fw-bold"><i class="fas fa-user-tie me-1"></i> CONSULTOR</label>
+                    <label class="form-label fw-bold"><i class="fas fa-user-tie me-1"></i> Consultor</label>
                     <select id="filterConsultor" class="form-select">
-                        <option value="">Todos</option>
+                        <option value="">Todos los consultores</option>
                         <?php foreach ($consultoresUnicos as $c): ?>
                             <option value="<?= esc($c) ?>"><?= esc($c) ?></option>
                         <?php endforeach; ?>
@@ -172,33 +80,60 @@
                 </div>
                 <?php endif; ?>
                 <div class="col-md-3">
-                    <label class="form-label fw-bold"><i class="fas fa-building me-1"></i> CLIENTE</label>
+                    <label class="form-label fw-bold"><i class="fas fa-building me-1"></i> Cliente</label>
                     <select id="filterCliente" class="form-select">
-                        <option value="">Todos</option>
+                        <option value="">Todos los clientes</option>
                         <?php foreach ($clientesUnicos as $cl): ?>
                             <option value="<?= esc($cl) ?>"><?= esc($cl) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label fw-bold"><i class="fas fa-tags me-1"></i> TIPO DE CLIENTE</label>
-                    <select id="filterEstandar" class="form-select">
-                        <option value="">Todos</option>
-                        <?php foreach ($estandaresUnicos as $e): ?>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold"><i class="fas fa-user-friends me-1"></i> Consultor Externo</label>
+                    <select id="filterConsultorExterno" class="form-select">
+                        <option value="">Todos los consultores externos</option>
+                        <?php foreach ($consultoresExternosUnicos as $ce): ?>
+                            <option value="<?= esc($ce) ?>"><?= esc($ce) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold"><i class="fas fa-layer-group me-1"></i> Frecuencia de Visita</label>
+                    <select id="filterEstandaresFrec" class="form-select">
+                        <option value="">Todas las frecuencias</option>
+                        <?php foreach ($estandaresFrecUnicos as $e): ?>
                             <option value="<?= esc($e) ?>"><?= esc($e) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label fw-bold"><i class="fas fa-calendar me-1"></i> MES DE EXTRACCION</label>
-                    <select id="filterMes" class="form-select">
-                        <option value="">Todos</option>
-                        <?php foreach ($fechasMes as $fm): ?>
-                            <option value="<?= esc($fm) ?>"><?= esc($fm) ?></option>
-                        <?php endforeach; ?>
-                    </select>
+            </div>
+        </div>
+
+        <!-- Período + toggle activos + slider % -->
+        <div class="filter-section">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold"><i class="fas fa-calendar me-1"></i> Período Desde</label>
+                    <input type="month" class="form-control" id="filterPeriodoDesde" value="<?= $anioActual ?>-01">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold"><i class="fas fa-calendar me-1"></i> Período Hasta</label>
+                    <input type="month" class="form-control" id="filterPeriodoHasta" value="<?= $anioActual ?>-12">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold"><i class="fas fa-percentage me-1"></i> Rango % Abiertas</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="number" class="form-control form-control-sm" id="filterPctMin" min="0" max="100" value="0" style="width: 70px;">
+                        <input type="range" class="form-range flex-grow-1" id="rangeMin" min="0" max="100" value="0">
+                        <input type="range" class="form-range flex-grow-1" id="rangeMax" min="0" max="100" value="100">
+                        <input type="number" class="form-control form-control-sm" id="filterPctMax" min="0" max="100" value="100" style="width: 70px;">
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex flex-column gap-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="filterSoloActivos">
+                        <label class="form-check-label fw-bold" for="filterSoloActivos">Solo clientes activos hoy</label>
+                    </div>
                     <button id="btnClear" class="btn btn-clear w-100">
                         <i class="fas fa-eraser me-1"></i> Limpiar Filtros
                     </button>
@@ -208,33 +143,18 @@
 
         <!-- Charts -->
         <div class="row">
-            <!-- Línea evolutiva -->
             <div class="col-md-8">
                 <div class="chart-container">
-                    <h5>Evolucion % Actividades Abiertas por Consultor</h5>
+                    <h5>Evolución % Actividades Abiertas por Consultor</h5>
+                    <span class="chart-hint">Click en un punto para filtrar por consultor + mes</span>
                     <canvas id="chartLinea"></canvas>
                 </div>
             </div>
-            <!-- Donut -->
             <div class="col-md-4">
                 <div class="chart-container">
-                    <h5>Distribucion por Consultor</h5>
+                    <h5>Distribución por Consultor</h5>
+                    <span class="chart-hint">Click en un segmento para filtrar por consultor</span>
                     <canvas id="chartDonut"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slider porcentaje -->
-        <div class="filter-section">
-            <div class="row align-items-center">
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">porcentaje_abiertas</label>
-                    <div class="d-flex align-items-center gap-2">
-                        <input type="number" class="form-control form-control-sm" id="filterPctMin" min="0" max="100" value="0" style="width: 80px;">
-                        <input type="range" class="form-range flex-grow-1" id="rangeMin" min="0" max="100" value="0">
-                        <input type="range" class="form-range flex-grow-1" id="rangeMax" min="0" max="100" value="100">
-                        <input type="number" class="form-control form-control-sm" id="filterPctMax" min="0" max="100" value="100" style="width: 80px;">
-                    </div>
                 </div>
             </div>
         </div>
@@ -245,11 +165,11 @@
                 <table id="tablaPlan" class="table table-striped table-bordered" style="width: 100%;">
                     <thead class="table-dark">
                         <tr>
-                            <th>nombre_consultor</th>
-                            <th>nombre_cliente</th>
-                            <th>total_actividades</th>
-                            <th>actividades_abiertas</th>
-                            <th>porcentaje_abiertas</th>
+                            <th>Consultor</th>
+                            <th>Cliente</th>
+                            <th>Total Actividades</th>
+                            <th>Actividades Abiertas</th>
+                            <th>% Abiertas</th>
                         </tr>
                     </thead>
                     <tbody id="tablaBody"></tbody>
@@ -262,7 +182,6 @@
         <p class="mb-0"><strong>Cycloid Talent SAS</strong> - Todos los derechos reservados &copy; <?= date('Y') ?></p>
     </footer>
 
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -271,32 +190,69 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // ========== DATA ==========
         const originalData = <?= json_encode($registros) ?>;
         const role = '<?= $role ?>';
+        const colorsLine = ['#4facfe', '#f5576c', '#43e97b', '#fa709a', '#667eea', '#ffc107', '#20c997', '#e44d26', '#6f42c1', '#fd7e14'];
+        const colorsDonut = ['rgba(79, 172, 254, 0.8)', 'rgba(245, 87, 108, 0.8)', 'rgba(67, 233, 123, 0.8)', 'rgba(250, 112, 154, 0.8)', 'rgba(102, 126, 234, 0.8)', 'rgba(255, 193, 7, 0.8)', 'rgba(32, 201, 151, 0.8)', 'rgba(228, 77, 38, 0.8)'];
 
-        const colorsLine = [
-            '#4facfe', '#f5576c', '#43e97b', '#fa709a', '#667eea',
-            '#ffc107', '#20c997', '#e44d26', '#6f42c1', '#fd7e14'
-        ];
-        const colorsDonut = [
-            'rgba(79, 172, 254, 0.8)', 'rgba(245, 87, 108, 0.8)',
-            'rgba(67, 233, 123, 0.8)', 'rgba(250, 112, 154, 0.8)',
-            'rgba(102, 126, 234, 0.8)', 'rgba(255, 193, 7, 0.8)',
-            'rgba(32, 201, 151, 0.8)', 'rgba(228, 77, 38, 0.8)'
-        ];
-
-        // ========== CHARTS ==========
         let chartLinea = null;
         let chartDonut = null;
+        let lineaConsultoresOrden = [];
+        let lineaMesesOrden = [];
+        let donutLabels = [];
+        let suspendCascade = false;
 
-        // ========== SELECT2 ==========
-        <?php if ($role === 'admin'): ?>
-        $('#filterConsultor').select2({ theme: 'bootstrap-5', placeholder: 'Todos', allowClear: true, width: '100%' });
-        <?php endif; ?>
-        $('#filterCliente').select2({ theme: 'bootstrap-5', placeholder: 'Todos', allowClear: true, width: '100%' });
+        // === Persistencia ===
+        const FILTERS_STORAGE_KEY = 'evolucionPlanTrabajoFilters';
 
-        // ========== DATATABLE ==========
+        function saveFilters() {
+            try {
+                const state = {
+                    consultor:        $('#filterConsultor').val(),
+                    cliente:          $('#filterCliente').val(),
+                    consultorExterno: $('#filterConsultorExterno').val(),
+                    estandaresFrec:   $('#filterEstandaresFrec').val(),
+                    periodoDesde:     $('#filterPeriodoDesde').val(),
+                    periodoHasta:     $('#filterPeriodoHasta').val(),
+                    pctMin:           $('#filterPctMin').val(),
+                    pctMax:           $('#filterPctMax').val(),
+                    soloActivos:      $('#filterSoloActivos').is(':checked')
+                };
+                localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {}
+        }
+
+        function loadFilters() {
+            try {
+                const raw = localStorage.getItem(FILTERS_STORAGE_KEY);
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch (e) { return null; }
+        }
+
+        function applySavedFilters(state) {
+            if (!state) return;
+            suspendCascade = true;
+            if (state.consultor !== undefined && $('#filterConsultor').length) $('#filterConsultor').val(state.consultor);
+            if (state.cliente !== undefined)          $('#filterCliente').val(state.cliente);
+            if (state.consultorExterno !== undefined) $('#filterConsultorExterno').val(state.consultorExterno);
+            if (state.estandaresFrec !== undefined)   $('#filterEstandaresFrec').val(state.estandaresFrec);
+            if (state.periodoDesde !== undefined)     $('#filterPeriodoDesde').val(state.periodoDesde);
+            if (state.periodoHasta !== undefined)     $('#filterPeriodoHasta').val(state.periodoHasta);
+            if (state.pctMin !== undefined)           { $('#filterPctMin').val(state.pctMin); $('#rangeMin').val(state.pctMin); }
+            if (state.pctMax !== undefined)           { $('#filterPctMax').val(state.pctMax); $('#rangeMax').val(state.pctMax); }
+            if (state.soloActivos !== undefined)      $('#filterSoloActivos').prop('checked', !!state.soloActivos);
+            $('#filterConsultor, #filterCliente, #filterConsultorExterno, #filterEstandaresFrec').trigger('change.select2');
+            suspendCascade = false;
+        }
+
+        // === Select2 ===
+        if (role === 'admin') $('#filterConsultor').select2({ theme: 'bootstrap-5', placeholder: 'Todos los consultores', allowClear: true, width: '100%' });
+        $('#filterCliente').select2({ theme: 'bootstrap-5', placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
+        $('#filterConsultorExterno').select2({ theme: 'bootstrap-5', placeholder: 'Todos los externos', allowClear: true, width: '100%' });
+        $('#filterEstandaresFrec').select2({ theme: 'bootstrap-5', placeholder: 'Todas las frecuencias', allowClear: true, width: '100%' });
+
+        // === DataTable ===
         const dt = $('#tablaPlan').DataTable({
             language: { url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' },
             pageLength: 25,
@@ -310,59 +266,113 @@
             ]
         });
 
-        // ========== FILTERS ==========
-        function getFiltered() {
-            let data = [...originalData];
-
+        // === Filtrado ===
+        function getFiltered(excluding) {
             const consultor = $('#filterConsultor').val();
             const cliente = $('#filterCliente').val();
-            const estandar = $('#filterEstandar').val();
-            const mes = $('#filterMes').val();
+            const externo = $('#filterConsultorExterno').val();
+            const frec = $('#filterEstandaresFrec').val();
+            const desde = $('#filterPeriodoDesde').val(); // YYYY-MM
+            const hasta = $('#filterPeriodoHasta').val();
             const pctMin = parseFloat($('#filterPctMin').val()) || 0;
             const pctMax = parseFloat($('#filterPctMax').val()) || 100;
+            const soloActivos = $('#filterSoloActivos').is(':checked');
 
-            if (consultor) data = data.filter(r => r.nombre_consultor === consultor);
-            if (cliente) data = data.filter(r => r.nombre_cliente === cliente);
-            if (estandar) data = data.filter(r => r.estandares === estandar);
-            if (mes) data = data.filter(r => r.fecha_extraccion && r.fecha_extraccion.substring(0, 7) === mes);
-            data = data.filter(r => {
+            return originalData.filter(r => {
+                const ym = r.fecha_extraccion ? String(r.fecha_extraccion).substring(0, 7) : null;
+                if (desde && (!ym || ym < desde)) return false;
+                if (hasta && (!ym || ym > hasta)) return false;
+
+                if (soloActivos && (r.cliente_estado_actual !== 'activo')) return false;
+
+                if (excluding !== 'consultor' && consultor && r.nombre_consultor !== consultor) return false;
+                if (excluding !== 'cliente' && cliente && r.nombre_cliente !== cliente) return false;
+                if (excluding !== 'externo' && externo && (r.cliente_consultor_externo || '') !== externo) return false;
+                if (excluding !== 'frec' && frec && r.estandares !== frec) return false;
+
                 const pct = parseFloat(r.porcentaje_abiertas) || 0;
-                return pct >= pctMin && pct <= pctMax;
-            });
+                if (pct < pctMin || pct > pctMax) return false;
 
-            return data;
+                return true;
+            });
         }
 
+        // === Cascadeo temporal-aware ===
+        function rebuildSelect($sel, options, currentVal, placeholderText) {
+            let html = '<option value="">' + placeholderText + '</option>';
+            let stillValid = false;
+            options.forEach(opt => {
+                const sel = (String(opt) === String(currentVal)) ? ' selected' : '';
+                if (sel) stillValid = true;
+                html += '<option value="' + $('<div>').text(opt).html() + '"' + sel + '>' + $('<div>').text(opt).html() + '</option>';
+            });
+            $sel.html(html);
+            if (!stillValid && currentVal) $sel.val('');
+        }
+
+        function updateCascadeDropdowns() {
+            const sConsultor = $('#filterConsultor').val();
+            const sCliente = $('#filterCliente').val();
+            const sExterno = $('#filterConsultorExterno').val();
+            const sFrec = $('#filterEstandaresFrec').val();
+
+            // Pool por dropdown excluyendo su propio filtro
+            const distinctNonEmpty = (arr) => [...new Set(arr.filter(Boolean))].sort();
+
+            if (role === 'admin') {
+                const poolConsultor = getFiltered('consultor');
+                const consultorOpts = distinctNonEmpty(poolConsultor.map(r => r.nombre_consultor));
+                rebuildSelect($('#filterConsultor'), consultorOpts, sConsultor, 'Todos los consultores');
+            }
+
+            const poolCliente = getFiltered('cliente');
+            const clienteOpts = distinctNonEmpty(poolCliente.map(r => r.nombre_cliente));
+            rebuildSelect($('#filterCliente'), clienteOpts, sCliente, 'Todos los clientes');
+
+            const poolExterno = getFiltered('externo');
+            const externoOpts = distinctNonEmpty(poolExterno.map(r => r.cliente_consultor_externo));
+            rebuildSelect($('#filterConsultorExterno'), externoOpts, sExterno, 'Todos los consultores externos');
+
+            const poolFrec = getFiltered('frec');
+            const frecOpts = distinctNonEmpty(poolFrec.map(r => r.estandares));
+            rebuildSelect($('#filterEstandaresFrec'), frecOpts, sFrec, 'Todas las frecuencias');
+
+            $('#filterCliente, #filterConsultorExterno, #filterEstandaresFrec').trigger('change.select2');
+            if (role === 'admin') $('#filterConsultor').trigger('change.select2');
+        }
+
+        // === Update charts/tabla/headers ===
         function updateAll() {
             const filtered = getFiltered();
             updateLineChart(filtered);
             updateDonutChart(filtered);
             updateTable(filtered);
             updateHeaders(filtered);
+            saveFilters();
         }
 
-        // ========== LINE CHART ==========
         function updateLineChart(data) {
-            const consultores = [...new Set(data.map(r => r.nombre_consultor))].filter(Boolean);
-            const meses = [...new Set(data.map(r => r.fecha_extraccion ? r.fecha_extraccion.substring(0, 7) : null).filter(Boolean))].sort();
+            const consultores = [...new Set(data.map(r => r.nombre_consultor))].filter(Boolean).sort();
+            const meses = [...new Set(data.map(r => r.fecha_extraccion ? String(r.fecha_extraccion).substring(0, 7) : null).filter(Boolean))].sort();
+
+            lineaConsultoresOrden = consultores;
+            lineaMesesOrden = meses;
 
             const datasets = consultores.map((consultor, idx) => {
                 const points = meses.map(mes => {
-                    const regs = data.filter(r => r.nombre_consultor === consultor && r.fecha_extraccion && r.fecha_extraccion.substring(0, 7) === mes);
+                    const regs = data.filter(r => r.nombre_consultor === consultor && r.fecha_extraccion && String(r.fecha_extraccion).substring(0, 7) === mes);
                     if (regs.length === 0) return null;
-                    const avg = regs.reduce((sum, r) => sum + parseFloat(r.porcentaje_abiertas || 0), 0) / regs.length;
-                    return Math.round(avg * 100) / 100;
+                    const totalAct = regs.reduce((s, r) => s + parseInt(r.total_actividades || 0), 0);
+                    const totalAbi = regs.reduce((s, r) => s + parseInt(r.actividades_abiertas || 0), 0);
+                    return totalAct > 0 ? Math.round((totalAbi / totalAct) * 1000) / 10 : null;
                 });
                 return {
                     label: consultor,
                     data: points,
                     borderColor: colorsLine[idx % colorsLine.length],
                     backgroundColor: colorsLine[idx % colorsLine.length],
-                    fill: false,
-                    tension: 0.3,
-                    spanGaps: true,
-                    pointRadius: 5,
-                    pointHoverRadius: 7
+                    fill: false, tension: 0.3, spanGaps: true,
+                    pointRadius: 5, pointHoverRadius: 7
                 };
             });
 
@@ -377,46 +387,59 @@
                 type: 'line',
                 data: { labels, datasets },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { position: 'top', labels: { usePointStyle: true } }
+                    responsive: true, maintainAspectRatio: true,
+                    onClick: function(evt, elements) {
+                        if (!elements.length) return;
+                        const el = elements[0];
+                        const consultor = lineaConsultoresOrden[el.datasetIndex];
+                        const mes = lineaMesesOrden[el.index];
+                        if (role === 'admin') {
+                            $('#filterConsultor').val(consultor).trigger('change.select2');
+                        }
+                        if (mes) {
+                            $('#filterPeriodoDesde').val(mes);
+                            $('#filterPeriodoHasta').val(mes);
+                        }
+                        updateCascadeDropdowns();
+                        updateAll();
                     },
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: '% Abiertas' } }
-                    }
+                    plugins: { legend: { position: 'top', labels: { usePointStyle: true } } },
+                    scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '% Abiertas' } } }
                 }
             });
         }
 
-        // ========== DONUT CHART ==========
         function updateDonutChart(data) {
-            const consultores = [...new Set(data.map(r => r.nombre_consultor))].filter(Boolean);
+            const consultores = [...new Set(data.map(r => r.nombre_consultor))].filter(Boolean).sort();
             const counts = consultores.map(c => data.filter(r => r.nombre_consultor === c).length);
             const total = counts.reduce((a, b) => a + b, 0) || 1;
+
+            donutLabels = consultores;
 
             if (chartDonut) chartDonut.destroy();
             chartDonut = new Chart(document.getElementById('chartDonut').getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: consultores,
-                    datasets: [{
-                        data: counts,
-                        backgroundColor: colorsDonut.slice(0, consultores.length),
-                        borderWidth: 2
-                    }]
+                    datasets: [{ data: counts, backgroundColor: colorsDonut.slice(0, consultores.length), borderWidth: 2 }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
+                    responsive: true, maintainAspectRatio: true,
+                    onClick: function(evt, elements) {
+                        if (!elements.length || role !== 'admin') return;
+                        const idx = elements[0].index;
+                        const consultor = donutLabels[idx];
+                        const current = $('#filterConsultor').val();
+                        const newVal = (current === consultor) ? '' : consultor;
+                        $('#filterConsultor').val(newVal).trigger('change.select2');
+                        updateCascadeDropdowns();
+                        updateAll();
+                    },
                     plugins: {
                         legend: { position: 'bottom', labels: { usePointStyle: true } },
                         tooltip: {
                             callbacks: {
-                                label: function(ctx) {
-                                    const pct = ((ctx.raw / total) * 100).toFixed(1);
-                                    return ctx.label + ': ' + pct + '%';
-                                }
+                                label: ctx => ctx.label + ': ' + ((ctx.raw / total) * 100).toFixed(1) + '%'
                             }
                         }
                     }
@@ -424,17 +447,12 @@
             });
         }
 
-        // ========== TABLE ==========
         function updateTable(data) {
-            // Para la tabla, agrupar por cliente tomando el último registro
             const latest = {};
             data.forEach(r => {
                 const key = r.nombre_cliente;
-                if (!latest[key] || r.fecha_extraccion > latest[key].fecha_extraccion) {
-                    latest[key] = r;
-                }
+                if (!latest[key] || r.fecha_extraccion > latest[key].fecha_extraccion) latest[key] = r;
             });
-
             dt.clear();
             Object.values(latest).forEach(r => {
                 dt.row.add({
@@ -448,49 +466,54 @@
             dt.draw();
         }
 
-        // ========== HEADERS ==========
         function updateHeaders(data) {
             const clientes = [...new Set(data.map(r => r.nombre_cliente))];
-            document.getElementById('headerTotalClientes').textContent = clientes.length;
+            const totalAct = data.reduce((s, r) => s + parseInt(r.total_actividades || 0), 0);
+            const totalAbi = data.reduce((s, r) => s + parseInt(r.actividades_abiertas || 0), 0);
+            const pct = totalAct > 0 ? ((totalAbi / totalAct) * 100).toFixed(1) : 0;
 
-            const totalAct = data.reduce((sum, r) => sum + parseInt(r.total_actividades || 0), 0);
+            document.getElementById('headerTotalClientes').textContent = clientes.length;
             document.getElementById('headerTotalActividades').textContent = totalAct.toLocaleString();
+            document.getElementById('headerTotalAbiertas').textContent = totalAbi.toLocaleString();
+            document.getElementById('headerPctAbiertas').textContent = pct + '%';
         }
 
-        // ========== EVENT LISTENERS ==========
-        <?php if ($role === 'admin'): ?>
-        $('#filterConsultor').on('change', updateAll);
-        <?php endif; ?>
-        $('#filterCliente').on('change', updateAll);
-        $('#filterEstandar').on('change', updateAll);
-        $('#filterMes').on('change', updateAll);
-        $('#filterPctMin').on('change', updateAll);
-        $('#filterPctMax').on('change', updateAll);
-        $('#rangeMin').on('input', function() {
-            $('#filterPctMin').val(this.value);
+        // === Event listeners ===
+        if (role === 'admin') {
+            $('#filterConsultor').on('change', () => { if (suspendCascade) return; updateCascadeDropdowns(); updateAll(); });
+        }
+        $('#filterCliente').on('change', () => { if (suspendCascade) return; updateCascadeDropdowns(); updateAll(); });
+        $('#filterConsultorExterno').on('change', () => { if (suspendCascade) return; updateCascadeDropdowns(); updateAll(); });
+        $('#filterEstandaresFrec').on('change', () => { if (suspendCascade) return; updateCascadeDropdowns(); updateAll(); });
+
+        $('#filterPeriodoDesde, #filterPeriodoHasta').on('change', () => { updateCascadeDropdowns(); updateAll(); });
+        $('#filterSoloActivos').on('change', () => { updateCascadeDropdowns(); updateAll(); });
+
+        $('#filterPctMin, #filterPctMax').on('change', updateAll);
+        $('#rangeMin').on('input', function() { $('#filterPctMin').val(this.value); updateAll(); });
+        $('#rangeMax').on('input', function() { $('#filterPctMax').val(this.value); updateAll(); });
+
+        $('#btnClear').on('click', () => {
+            suspendCascade = true;
+            if (role === 'admin') $('#filterConsultor').val('').trigger('change.select2');
+            $('#filterCliente').val('').trigger('change.select2');
+            $('#filterConsultorExterno').val('').trigger('change.select2');
+            $('#filterEstandaresFrec').val('').trigger('change.select2');
+            $('#filterPeriodoDesde').val('<?= $anioActual ?>-01');
+            $('#filterPeriodoHasta').val('<?= $anioActual ?>-12');
+            $('#filterPctMin').val(0); $('#rangeMin').val(0);
+            $('#filterPctMax').val(100); $('#rangeMax').val(100);
+            $('#filterSoloActivos').prop('checked', false);
+            suspendCascade = false;
+            updateCascadeDropdowns();
             updateAll();
-        });
-        $('#rangeMax').on('input', function() {
-            $('#filterPctMax').val(this.value);
-            updateAll();
+            try { localStorage.removeItem(FILTERS_STORAGE_KEY); } catch (e) {}
         });
 
-        // Limpiar
-        $('#btnClear').on('click', function () {
-            <?php if ($role === 'admin'): ?>
-            $('#filterConsultor').val('').trigger('change');
-            <?php endif; ?>
-            $('#filterCliente').val('').trigger('change');
-            $('#filterEstandar').val('');
-            $('#filterMes').val('');
-            $('#filterPctMin').val(0);
-            $('#filterPctMax').val(100);
-            $('#rangeMin').val(0);
-            $('#rangeMax').val(100);
-            updateAll();
-        });
-
-        // Inicializar
+        // Cargar filtros guardados
+        const saved = loadFilters();
+        if (saved) applySavedFilters(saved);
+        updateCascadeDropdowns();
         updateAll();
     });
     </script>
