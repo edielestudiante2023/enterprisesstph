@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Models\HistorialEstandaresModel;
-use App\Models\ConsultantModel;
 use CodeIgniter\Controller;
 
 class EvolucionEstandaresController extends Controller
@@ -23,24 +22,11 @@ class EvolucionEstandaresController extends Controller
 
         $model = new HistorialEstandaresModel();
 
-        // Filtro por consultor logueado
-        $nombreConsultorFiltro = null;
-        if ($role === 'consultant') {
-            $consultantModel = new ConsultantModel();
-            $consultor = $consultantModel->find($session->get('user_id'));
-            $nombreConsultorFiltro = $consultor['nombre_consultor'] ?? null;
-        }
-
-        // Enriquecer cada snapshot con consultor_externo y estado actual del cliente
-        $builder = $model
+        // Todos los usuarios ven todos los datos; el filtro por consultor lo hace el Select2 en JS
+        $registros = $model
             ->select('historial_resumen_estandares.*, tbl_clientes.consultor_externo as cliente_consultor_externo, tbl_clientes.estado as cliente_estado_actual')
-            ->join('tbl_clientes', 'tbl_clientes.id_cliente = historial_resumen_estandares.id_cliente', 'left');
-
-        if ($nombreConsultorFiltro) {
-            $builder = $builder->where('historial_resumen_estandares.nombre_consultor', $nombreConsultorFiltro);
-        }
-
-        $registros = $builder->findAll();
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = historial_resumen_estandares.id_cliente', 'left')
+            ->findAll();
 
         // Valores únicos para dropdowns iniciales
         $consultoresUnicos = array_values(array_unique(array_filter(array_column($registros, 'nombre_consultor'))));
