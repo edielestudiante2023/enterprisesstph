@@ -68,7 +68,6 @@
         <!-- Filtros principales -->
         <div class="filter-section">
             <div class="row g-3 align-items-end">
-                <?php if ($role === 'admin'): ?>
                 <div class="col-md-3">
                     <label class="form-label fw-bold"><i class="fas fa-user-tie me-1"></i> Consultor</label>
                     <select id="filterConsultor" class="form-select">
@@ -78,7 +77,6 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <?php endif; ?>
                 <div class="col-md-3">
                     <label class="form-label fw-bold"><i class="fas fa-building me-1"></i> Cliente</label>
                     <select id="filterCliente" class="form-select">
@@ -247,7 +245,7 @@
         }
 
         // === Select2 ===
-        if (role === 'admin') $('#filterConsultor').select2({ theme: 'bootstrap-5', placeholder: 'Todos los consultores', allowClear: true, width: '100%' });
+        $('#filterConsultor').select2({ theme: 'bootstrap-5', placeholder: 'Todos los consultores', allowClear: true, width: '100%' });
         $('#filterCliente').select2({ theme: 'bootstrap-5', placeholder: 'Todos los clientes', allowClear: true, width: '100%' });
         $('#filterConsultorExterno').select2({ theme: 'bootstrap-5', placeholder: 'Todos los externos', allowClear: true, width: '100%' });
         $('#filterEstandaresFrec').select2({ theme: 'bootstrap-5', placeholder: 'Todas las frecuencias', allowClear: true, width: '100%' });
@@ -319,11 +317,9 @@
             // Pool por dropdown excluyendo su propio filtro
             const distinctNonEmpty = (arr) => [...new Set(arr.filter(Boolean))].sort();
 
-            if (role === 'admin') {
-                const poolConsultor = getFiltered('consultor');
-                const consultorOpts = distinctNonEmpty(poolConsultor.map(r => r.nombre_consultor));
-                rebuildSelect($('#filterConsultor'), consultorOpts, sConsultor, 'Todos los consultores');
-            }
+            const poolConsultor = getFiltered('consultor');
+            const consultorOpts = distinctNonEmpty(poolConsultor.map(r => r.nombre_consultor));
+            rebuildSelect($('#filterConsultor'), consultorOpts, sConsultor, 'Todos los consultores');
 
             const poolCliente = getFiltered('cliente');
             const clienteOpts = distinctNonEmpty(poolCliente.map(r => r.nombre_cliente));
@@ -337,8 +333,7 @@
             const frecOpts = distinctNonEmpty(poolFrec.map(r => r.estandares));
             rebuildSelect($('#filterEstandaresFrec'), frecOpts, sFrec, 'Todas las frecuencias');
 
-            $('#filterCliente, #filterConsultorExterno, #filterEstandaresFrec').trigger('change.select2');
-            if (role === 'admin') $('#filterConsultor').trigger('change.select2');
+            $('#filterConsultor, #filterCliente, #filterConsultorExterno, #filterEstandaresFrec').trigger('change.select2');
         }
 
         // === Update charts/tabla/headers ===
@@ -393,9 +388,7 @@
                         const el = elements[0];
                         const consultor = lineaConsultoresOrden[el.datasetIndex];
                         const mes = lineaMesesOrden[el.index];
-                        if (role === 'admin') {
-                            $('#filterConsultor').val(consultor).trigger('change.select2');
-                        }
+                        if (consultor) $('#filterConsultor').val(consultor).trigger('change.select2');
                         if (mes) {
                             $('#filterPeriodoDesde').val(mes);
                             $('#filterPeriodoHasta').val(mes);
@@ -426,7 +419,7 @@
                 options: {
                     responsive: true, maintainAspectRatio: true,
                     onClick: function(evt, elements) {
-                        if (!elements.length || role !== 'admin') return;
+                        if (!elements.length) return;
                         const idx = elements[0].index;
                         const consultor = donutLabels[idx];
                         const current = $('#filterConsultor').val();
@@ -479,9 +472,7 @@
         }
 
         // === Event listeners ===
-        if (role === 'admin') {
-            $('#filterConsultor').on('change', () => { if (suspendCascade) return; updateCascadeDropdowns(); updateAll(); });
-        }
+        $('#filterConsultor').on('change', () => { if (suspendCascade) return; updateCascadeDropdowns(); updateAll(); });
         $('#filterCliente').on('change', () => { if (suspendCascade) return; updateCascadeDropdowns(); updateAll(); });
         $('#filterConsultorExterno').on('change', () => { if (suspendCascade) return; updateCascadeDropdowns(); updateAll(); });
         $('#filterEstandaresFrec').on('change', () => { if (suspendCascade) return; updateCascadeDropdowns(); updateAll(); });
@@ -495,7 +486,7 @@
 
         $('#btnClear').on('click', () => {
             suspendCascade = true;
-            if (role === 'admin') $('#filterConsultor').val('').trigger('change.select2');
+            $('#filterConsultor').val('').trigger('change.select2');
             $('#filterCliente').val('').trigger('change.select2');
             $('#filterConsultorExterno').val('').trigger('change.select2');
             $('#filterEstandaresFrec').val('').trigger('change.select2');
