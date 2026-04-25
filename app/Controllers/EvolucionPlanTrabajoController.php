@@ -23,7 +23,7 @@ class EvolucionPlanTrabajoController extends Controller
 
         $model = new HistorialPlanTrabajoModel();
 
-        // Si es consultor, filtrar solo sus clientes
+        // Filtro por consultor logueado
         $nombreConsultorFiltro = null;
         if ($role === 'consultant') {
             $consultantModel = new ConsultantModel();
@@ -31,36 +31,47 @@ class EvolucionPlanTrabajoController extends Controller
             $nombreConsultorFiltro = $consultor['nombre_consultor'] ?? null;
         }
 
+        // Enriquecer cada snapshot con consultor_externo y estado actual del cliente
+        $builder = $model
+            ->select('historial_resumen_plan_trabajo.*, tbl_clientes.consultor_externo as cliente_consultor_externo, tbl_clientes.estado as cliente_estado_actual')
+            ->join('tbl_clientes', 'tbl_clientes.id_cliente = historial_resumen_plan_trabajo.id_cliente', 'left');
+
         if ($nombreConsultorFiltro) {
-            $registros = $model->where('nombre_consultor', $nombreConsultorFiltro)->findAll();
-        } else {
-            $registros = $model->findAll();
+            $builder = $builder->where('historial_resumen_plan_trabajo.nombre_consultor', $nombreConsultorFiltro);
         }
 
-        // Valores únicos para filtros
+        $registros = $builder->findAll();
+
+        // Valores únicos para dropdowns iniciales (los reduce JS por cascadeo temporal-aware)
         $consultoresUnicos = array_values(array_unique(array_filter(array_column($registros, 'nombre_consultor'))));
+        sort($consultoresUnicos);
         $clientesUnicos = array_values(array_unique(array_filter(array_column($registros, 'nombre_cliente'))));
-        $estandaresUnicos = array_values(array_unique(array_filter(array_column($registros, 'estandares'))));
+        sort($clientesUnicos);
+        $estandaresFrecUnicos = array_values(array_unique(array_filter(array_column($registros, 'estandares'))));
+        sort($estandaresFrecUnicos);
+        $consultoresExternosUnicos = array_values(array_unique(array_filter(array_column($registros, 'cliente_consultor_externo'))));
+        sort($consultoresExternosUnicos);
 
-        // Fechas únicas (formato Y-m)
-        $fechasRaw = array_column($registros, 'fecha_extraccion');
-        $fechasMes = array_values(array_unique(array_map(function ($f) {
-            return substr($f, 0, 7);
-        }, $fechasRaw)));
-        sort($fechasMes);
+        // Total agregados
+        $totalActividades = array_sum(array_map(fn($r) => intval($r['total_actividades'] ?? 0), $registros));
+        $totalAbiertas    = array_sum(array_map(fn($r) => intval($r['actividades_abiertas'] ?? 0), $registros));
+        $pctAbiertasProm  = $totalActividades > 0 ? round(($totalAbiertas / $totalActividades) * 100, 1) : 0;
 
-        // Contar actividades totales
-        $totalActividades = array_sum(array_column($registros, 'total_actividades'));
+        // Año actual para defaults del período (Q9=B: año completo Ene-Dic)
+        $anioActual = (int) date('Y');
 
         $data = [
-            'registros'          => $registros,
-            'consultoresUnicos'  => $consultoresUnicos,
-            'clientesUnicos'     => $clientesUnicos,
-            'estandaresUnicos'   => $estandaresUnicos,
-            'fechasMes'          => $fechasMes,
-            'role'               => $role,
-            'totalClientes'      => count($clientesUnicos),
-            'totalActividades'   => $totalActividades,
+            'registros'                  => $registros,
+            'consultoresUnicos'          => $consultoresUnicos,
+            'clientesUnicos'             => $clientesUnicos,
+            'estandaresFrecUnicos'       => $estandaresFrecUnicos,
+            'consultoresExternosUnicos'  => $consultoresExternosUnicos,
+            'role'                       => $role,
+            'totalClientes'              => count($clientesUnicos),
+            'totalActividades'           => $totalActividades,
+            'totalAbiertas'              => $totalAbiertas,
+            'pctAbiertasProm'            => $pctAbiertasProm,
+            'anioActual'                 => $anioActual,
         ];
 
         return view('consultant/evolucion_plan_trabajo', $data);
