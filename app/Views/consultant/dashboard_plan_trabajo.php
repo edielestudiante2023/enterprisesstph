@@ -284,6 +284,15 @@
 
         <div class="row mb-4">
             <div class="col-md-3">
+                <label class="form-label fw-bold"><i class="fas fa-comment-dots"></i> Observaciones</label>
+                <select class="form-select" id="filterObservaciones">
+                    <option value="">Todas</option>
+                    <option value="con">Con observaciones</option>
+                    <option value="sin">Sin observaciones</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
                 <label class="form-label fw-bold"><i class="fas fa-calendar"></i> Fecha Desde</label>
                 <input type="date" class="form-control" id="filterFechaDesde" value="<?= $anioActual ?>-01-01">
             </div>
@@ -424,7 +433,8 @@
                     anio:             $('#filterAnio').val(),
                     mes:              $('#filterMes').val(),
                     fechaDesde:       $('#filterFechaDesde').val(),
-                    fechaHasta:       $('#filterFechaHasta').val()
+                    fechaHasta:       $('#filterFechaHasta').val(),
+                    observaciones:    $('#filterObservaciones').val()
                 };
                 localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(state));
             } catch (e) { /* localStorage no disponible: silencioso */ }
@@ -453,7 +463,8 @@
             if (state.mes !== undefined)              $('#filterMes').val(state.mes);
             if (state.fechaDesde !== undefined)       $('#filterFechaDesde').val(state.fechaDesde);
             if (state.fechaHasta !== undefined)       $('#filterFechaHasta').val(state.fechaHasta);
-            $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares, #filterEstado, #filterPhva, #filterAnio, #filterMes')
+            if (state.observaciones !== undefined)    $('#filterObservaciones').val(state.observaciones);
+            $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares, #filterEstado, #filterPhva, #filterAnio, #filterMes, #filterObservaciones')
                 .trigger('change.select2');
             suspendCascade = false;
         }
@@ -472,6 +483,7 @@
             $('#filterEstado').select2({ theme: 'bootstrap-5', placeholder: 'Seleccione estado', allowClear: true, width: '100%', language: select2Lang });
             $('#filterAnio').select2({ theme: 'bootstrap-5', placeholder: 'Todos los años', allowClear: true, width: '100%', language: select2Lang });
             $('#filterMes').select2({ theme: 'bootstrap-5', placeholder: 'Todos los meses', allowClear: true, width: '100%', language: select2Lang });
+            $('#filterObservaciones').select2({ theme: 'bootstrap-5', placeholder: 'Todas', allowClear: true, width: '100%', language: select2Lang });
 
             // DataTable
             dataTable = $('#actividadesTable').DataTable({
@@ -500,7 +512,7 @@
             });
 
             // Filtros que no cascadean y disparan applyFilters directamente
-            $('#filterEstado, #filterPhva, #filterFechaDesde, #filterFechaHasta').on('change', function() {
+            $('#filterEstado, #filterPhva, #filterFechaDesde, #filterFechaHasta, #filterObservaciones').on('change', function() {
                 applyFilters();
             });
 
@@ -513,7 +525,7 @@
             // Botón limpiar filtros (tambien purga el localStorage)
             $('#btnLimpiarFiltros').on('click', function() {
                 suspendCascade = true;
-                $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares, #filterEstado, #filterPhva, #filterAnio, #filterMes').val('').trigger('change');
+                $('#filterCliente, #filterConsultor, #filterConsultorExterno, #filterEstandares, #filterEstado, #filterPhva, #filterAnio, #filterMes, #filterObservaciones').val('').trigger('change');
                 $('#filterFechaDesde').val('');
                 $('#filterFechaHasta').val('');
                 suspendCascade = false;
@@ -803,6 +815,7 @@
             var filterPhva = $('#filterPhva').val();
             var filterFechaDesde = $('#filterFechaDesde').val();
             var filterFechaHasta = $('#filterFechaHasta').val();
+            var filterObservaciones = $('#filterObservaciones').val();
 
             var filteredData = originalData.filter(function(item) {
                 if (filterCliente && String(item.id_cliente) !== String(filterCliente)) return false;
@@ -811,6 +824,12 @@
                 if (filterEstandares && (item.estandares || '') !== filterEstandares) return false;
                 if (filterEstado && item.estado_actividad !== filterEstado) return false;
                 if (filterPhva && item.phva_plandetrabajo !== filterPhva) return false;
+
+                if (filterObservaciones) {
+                    var hasObs = item.observaciones && String(item.observaciones).trim() !== '';
+                    if (filterObservaciones === 'con' && !hasObs) return false;
+                    if (filterObservaciones === 'sin' && hasObs) return false;
+                }
 
                 if (filterFechaDesde || filterFechaHasta) {
                     if (!item.fecha_propuesta) return false;
