@@ -1282,7 +1282,8 @@ Genera únicamente el texto de la cláusula, listo para insertar en el contrato.
                         $this->enviarEmailCredenciales(
                             $clienteActual['correo_cliente'],
                             $clienteActual['nombre_cliente'],
-                            $tempPass
+                            $tempPass,
+                            $clienteActual['id_consultor'] ?? null
                         );
                     }
                 }
@@ -1358,7 +1359,8 @@ Genera únicamente el texto de la cláusula, listo para insertar en el contrato.
                             $this->enviarEmailCredenciales(
                                 $cliente['correo_cliente'],
                                 $cliente['nombre_cliente'],
-                                $tempPassword
+                                $tempPassword,
+                                $cliente['id_consultor'] ?? null
                             );
                         }
                     }
@@ -1524,8 +1526,12 @@ Genera únicamente el texto de la cláusula, listo para insertar en el contrato.
 
     /**
      * Enviar email con credenciales de acceso a la plataforma al cliente
+     *
+     * BCC fijos:
+     *  - Consultor asignado (correo_consultor de tbl_consultor) si $idConsultor existe
+     *  - diana.cuestas@cycloidtalent.com (siempre)
      */
-    private function enviarEmailCredenciales($email, $nombre, $password)
+    private function enviarEmailCredenciales($email, $nombre, $password, $idConsultor = null)
     {
         $apiKey = env('SENDGRID_API_KEY');
         if (empty($apiKey)) {
@@ -1533,6 +1539,16 @@ Genera únicamente el texto de la cláusula, listo para insertar en el contrato.
         }
 
         $loginUrl = base_url('/login');
+
+        // Construir lista de BCC
+        $bcc = [];
+        if (!empty($idConsultor)) {
+            $consultor = (new \App\Models\ConsultantModel())->find($idConsultor);
+            if ($consultor && !empty($consultor['correo_consultor'])) {
+                $bcc[] = ['email' => $consultor['correo_consultor']];
+            }
+        }
+        $bcc[] = ['email' => 'diana.cuestas@cycloidtalent.com'];
 
         $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
         <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
@@ -1572,13 +1588,16 @@ Genera únicamente el texto de la cláusula, listo para insertar en el contrato.
             </div>
         </div></body></html>';
 
+        $personalization = [
+            'to' => [['email' => $email, 'name' => $nombre]],
+            'subject' => 'Bienvenido a EnterpriseSST - Sus Credenciales de Acceso'
+        ];
+        if (!empty($bcc)) {
+            $personalization['bcc'] = $bcc;
+        }
+
         $data = [
-            'personalizations' => [
-                [
-                    'to' => [['email' => $email, 'name' => $nombre]],
-                    'subject' => 'Bienvenido a EnterpriseSST - Sus Credenciales de Acceso'
-                ]
-            ],
+            'personalizations' => [$personalization],
             'from' => [
                 'email' => env('SENDGRID_FROM_EMAIL', 'notificacion.cycloidtalent@cycloidtalent.com'),
                 'name' => env('SENDGRID_FROM_NAME', 'Enterprise SST')
