@@ -127,6 +127,7 @@ class ReclasificarSinRespuestaCron extends BaseCommand
         $agregar($correoExterno,   $cliente['consultor_externo'] ?? 'Consultor Externo');
         $agregar('edison.cuervo@cycloidtalent.com', 'Edison Cuervo');
         $agregar('diana.cuestas@cycloidtalent.com', 'Diana Cuestas');
+        $agregar('head.consultant.cycloidtalent@gmail.com', 'Head Consultant');
 
         if (empty($destinatarios)) {
             CLI::write("  SKIP: {$nombreCliente} sin emails validos", 'yellow');
