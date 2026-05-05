@@ -92,7 +92,7 @@
 <body>
 
 <div class="topbar">
-    <img src="<?= base_url('otto/otto.png') ?>" alt="Otto">
+    <img src="<?= base_url('otto/otto.png?v=2') ?>" alt="Otto">
     <h1>Otto — Monitor de Conversaciones</h1>
     <a href="<?= base_url('/consultor/dashboard') ?>" class="back-btn"><i class="fas fa-arrow-left me-1"></i> Dashboard</a>
 </div>

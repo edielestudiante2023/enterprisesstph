@@ -708,12 +708,12 @@
 
     <!-- Otto Chat Widget -->
     <div class="otto-bubble hidden" id="ottoBubble" title="Hablar con Otto">
-        <img src="<?= base_url('otto/otto.png') ?>" alt="Otto">
+        <img src="<?= base_url('otto/otto.png?v=2') ?>" alt="Otto">
     </div>
 
     <div class="otto-widget" id="ottoWidget">
         <div class="otto-widget-header">
-            <img src="<?= base_url('otto/otto.png') ?>" alt="Otto">
+            <img src="<?= base_url('otto/otto.png?v=2') ?>" alt="Otto">
             <div class="otto-info">
                 <p class="otto-name">Otto</p>
                 <p class="otto-role">Asistente IA de SST</p>
