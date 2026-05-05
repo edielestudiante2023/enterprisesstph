@@ -631,7 +631,7 @@
                     <img src="<?= base_url('uploads/logocycloidsinfondo.png') ?>" alt="Cycloid" style="max-height:40px;">
                 </div>
                 <div class="nav-title" style="display:flex;align-items:center;gap:8px;">
-                    <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                    <img src="<?= base_url('otto/otto.png?v=2') ?>" alt="Otto" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
                     <span>Otto</span>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;">
@@ -654,7 +654,7 @@
         <div class="chat-messages" id="chatMessages">
             <div class="welcome-message" id="welcomeMessage">
                 <div class="icon-circle" style="background:white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                    <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:70px;height:70px;object-fit:cover;border-radius:50%;">
+                    <img src="<?= base_url('otto/otto.png?v=2') ?>" alt="Otto" style="width:70px;height:70px;object-fit:cover;border-radius:50%;">
                 </div>
                 <h3>Hola, soy Otto</h3>
                 <p>Tu asistente virtual de SST. Tengo acceso a todas las tablas del sistema. Puedo consultar datos, actualizar registros y ayudarte con lo que necesites.</p>
@@ -671,7 +671,7 @@
         <!-- Typing indicator -->
         <div class="typing-indicator" id="typingIndicator">
             <div class="message-avatar" style="background:white; width:36px; height:36px; border-radius:50%; overflow:hidden; margin-right:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-                <img src="<?= base_url('otto/otto.png') ?>" alt="Otto" style="width:100%;height:100%;object-fit:cover;">
+                <img src="<?= base_url('otto/otto.png?v=2') ?>" alt="Otto" style="width:100%;height:100%;object-fit:cover;">
             </div>
             <div class="typing-dots">
                 <span></span><span></span><span></span>
@@ -789,7 +789,7 @@
                     ? '<img src="' + USER_PHOTO + '" alt="Consultor" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">'
                     : '<i class="fas fa-user"></i>';
             } else {
-                avatar.innerHTML = '<img src="' + BASE_URL + 'otto/otto.png" alt="Otto">';
+                avatar.innerHTML = '<img src="' + BASE_URL + 'otto/otto.png?v=2" alt="Otto">';
             }
 
             const bubble = document.createElement('div');
