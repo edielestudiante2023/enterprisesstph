@@ -20,7 +20,7 @@
             gap: 12px;
             border-bottom: 3px solid var(--gold);
         }
-        .topbar img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .topbar img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #1d2638; }
         .topbar h1 { font-size: 1.2rem; margin: 0; font-weight: 600; }
         .topbar .back-btn {
             margin-left: auto;

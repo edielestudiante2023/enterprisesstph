@@ -333,8 +333,8 @@
             width: 68px;
             height: 68px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #bd9751 0%, #8B6914 100%);
-            box-shadow: 0 6px 24px rgba(139, 105, 20, 0.45);
+            background: #1d2638;
+            box-shadow: 0 6px 24px rgba(29, 38, 56, 0.45);
             cursor: pointer;
             z-index: 1050;
             display: flex;
@@ -344,13 +344,14 @@
         }
         .otto-bubble:hover {
             transform: scale(1.1);
-            box-shadow: 0 8px 30px rgba(139, 105, 20, 0.6);
+            box-shadow: 0 8px 30px rgba(29, 38, 56, 0.6);
         }
         .otto-bubble img {
             width: 52px;
             height: 52px;
             border-radius: 50%;
             object-fit: cover;
+            background: #1d2638;
         }
         .otto-bubble.hidden { display: none; }
 
@@ -393,6 +394,7 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #bd9751;
+            background: #1d2638;
         }
         .otto-widget-header .otto-info {
             flex: 1;

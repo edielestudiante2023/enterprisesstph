@@ -161,7 +161,7 @@
         }
 
         .message.assistant .message-avatar {
-            background: white;
+            background: #1d2638;
             margin-right: 10px;
             padding: 0;
             overflow: hidden;
@@ -431,7 +431,7 @@
                     <img src="<?= base_url('uploads/logocycloidsinfondo.png') ?>" alt="Cycloid" style="max-height:40px;">
                 </div>
                 <div class="nav-title">
-                    <img src="<?= base_url('otto/otto.png?v=2') ?>" alt="Otto" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                    <img src="<?= base_url('otto/otto.png?v=2') ?>" alt="Otto" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#1d2638;">
                     <span>Otto · <?= esc($usuario['nombre_copropiedad'] ?: $usuario['nombre']) ?></span>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;">
@@ -454,7 +454,7 @@
         <div class="chat-messages" id="chatMessages">
             <div class="welcome-message" id="welcomeMessage">
                 <div class="icon-circle">
-                    <img src="<?= base_url('otto/otto.png?v=2') ?>" alt="Otto" style="width:70px;height:70px;object-fit:cover;border-radius:50%;">
+                    <img src="<?= base_url('otto/otto.png?v=2') ?>" alt="Otto" style="width:70px;height:70px;object-fit:cover;border-radius:50%;background:#1d2638;">
                 </div>
                 <h3>Hola, <?= esc($usuario['nombre']) ?></h3>
                 <p>Soy Otto, tu asistente SST. Puedo consultarte el estado de seguridad y salud en el trabajo de <strong><?= esc($usuario['nombre_copropiedad'] ?: 'tu copropiedad') ?></strong>. ¿En qué te ayudo hoy?</p>
@@ -471,7 +471,7 @@
 
         <!-- Typing indicator -->
         <div class="typing-indicator" id="typingIndicator">
-            <div class="message-avatar" style="background:white; width:36px; height:36px; border-radius:50%; overflow:hidden; margin-right:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+            <div class="message-avatar" style="background:#1d2638; width:36px; height:36px; border-radius:50%; overflow:hidden; margin-right:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
                 <img src="<?= base_url('otto/otto.png?v=2') ?>" alt="Otto" style="width:100%;height:100%;object-fit:cover;">
             </div>
             <div class="typing-dots">
