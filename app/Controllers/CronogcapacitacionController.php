@@ -135,7 +135,8 @@ class CronogcapacitacionController extends Controller
         return $this->response->setJSON([
             'success' => true,
             'message' => 'Registro actualizado correctamente',
-            'newValue' => isset($porcentaje_cobertura) ? $porcentaje_cobertura . '%' : $value
+            'newValue' => $value,
+            'porcentajeCobertura' => isset($porcentaje_cobertura) ? $porcentaje_cobertura . '%' : null
         ]);
     } else {
         log_message('error', 'Error al actualizar el registro');
