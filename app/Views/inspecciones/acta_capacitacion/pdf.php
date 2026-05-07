@@ -108,12 +108,6 @@
                 <?php else: ?>-<?php endif; ?>
             </td>
         </tr>
-        <?php if (!empty($acta['enlace_grabacion'])): ?>
-        <tr>
-            <td class="datos-label">GRABACIÓN:</td>
-            <td colspan="3" style="word-break:break-all; font-size:8pt;"><?= esc($acta['enlace_grabacion']) ?></td>
-        </tr>
-        <?php endif; ?>
     </table>
 
     <!-- OBJETIVOS -->
@@ -121,14 +115,6 @@
     <div class="seccion">
         <div class="seccion-titulo">OBJETIVOS</div>
         <div class="seccion-contenido"><p><?= nl2br(esc($acta['objetivos'])) ?></p></div>
-    </div>
-    <?php endif; ?>
-
-    <!-- CONTENIDO -->
-    <?php if (!empty($acta['contenido'])): ?>
-    <div class="seccion">
-        <div class="seccion-titulo">CONTENIDO DESARROLLADO</div>
-        <div class="seccion-contenido"><p><?= nl2br(esc($acta['contenido'])) ?></p></div>
     </div>
     <?php endif; ?>
 
@@ -155,7 +141,7 @@
                     <td>
                         <?= esc($a['cargo'] ?? '-') ?>
                         <?php if (!empty($a['area_dependencia'])): ?>
-                            <br><small style="font-size:8pt; color:#666;"><?= esc($a['area_dependencia']) ?></small>
+                            <br><small style="font-size:8pt; color:#666;"><strong>Contratista:</strong> <?= esc($a['area_dependencia']) ?></small>
                         <?php endif; ?>
                     </td>
                     <td style="text-align:center; vertical-align:middle;">

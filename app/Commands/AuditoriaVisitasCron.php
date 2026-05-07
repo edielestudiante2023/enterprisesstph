@@ -79,7 +79,7 @@ class AuditoriaVisitasCron extends BaseCommand
                         $idCliente,
                         $acta['fecha_visita'],
                         $estandar,
-                        (int)$ciclo['id_consultor']
+                        (int)($ciclo['cliente_id_consultor'] ?? $ciclo['id_consultor'])
                     );
                     if ($newId) {
                         CLI::write("    Siguiente ciclo generado (id={$newId})", 'white');

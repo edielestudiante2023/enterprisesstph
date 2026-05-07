@@ -13,6 +13,7 @@ class ActaCapacitacionModel extends Model
         'tema', 'fecha_capacitacion', 'hora_inicio', 'hora_fin',
         'dictada_por', 'nombre_capacitador', 'entidad_capacitadora',
         'modalidad', 'enlace_grabacion', 'objetivos', 'contenido', 'observaciones',
+        'numero_programados', 'numero_evaluados', 'promedio_calificaciones',
         'ruta_pdf', 'estado',
         'token_inscripcion',
         'tipo_charla', 'id_cronograma_capacitacion',

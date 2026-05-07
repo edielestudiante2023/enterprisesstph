@@ -75,7 +75,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Area / Dependencia</label>
+                    <label class="form-label">Contratista</label>
                     <input type="text" name="area_dependencia" class="form-control" maxlength="100">
                 </div>
 

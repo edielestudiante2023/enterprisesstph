@@ -1679,6 +1679,11 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('acta-capacitacion/create',                       'ActaCapacitacionController::create');
     $routes->get('acta-capacitacion/create/(:num)',                'ActaCapacitacionController::create/$1');
     $routes->post('acta-capacitacion/store',                       'ActaCapacitacionController::store');
+    $routes->post('acta-capacitacion/store-batch',                 'ActaCapacitacionController::storeBatch');
+    $routes->get('acta-capacitacion/lote/(:any)',                  'ActaCapacitacionController::lote/$1');
+    $routes->get('acta-capacitacion/api-cronogramas-pendientes',   'ActaCapacitacionController::apiCronogramasPendientes');
+    $routes->post('acta-capacitacion/generar-objetivo',            'ActaCapacitacionController::generarObjetivo');
+    $routes->post('acta-capacitacion/generar-contenido',           'ActaCapacitacionController::generarContenido');
     $routes->get('acta-capacitacion/edit/(:num)',                  'ActaCapacitacionController::edit/$1');
     $routes->post('acta-capacitacion/update/(:num)',               'ActaCapacitacionController::update/$1');
     $routes->get('acta-capacitacion/view/(:num)',                  'ActaCapacitacionController::view/$1');
