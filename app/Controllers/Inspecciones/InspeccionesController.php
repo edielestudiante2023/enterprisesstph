@@ -4,6 +4,7 @@ namespace App\Controllers\Inspecciones;
 
 use App\Controllers\BaseController;
 use App\Models\ActaVisitaModel;
+use App\Models\ActaCapacitacionModel;
 use App\Models\InspeccionLocativaModel;
 use App\Models\InspeccionSenalizacionModel;
 use App\Models\InspeccionExtintoresModel;
@@ -351,6 +352,7 @@ class InspeccionesController extends BaseController
             'totalDesratizacion'  => $totalDesratizacion,
             'totalPlanillaSS'     => $totalPlanillaSS,
             'totalProveedores'    => $totalProveedores,
+            'totalActasCapacitacion' => (new ActaCapacitacionModel())->countAllResults(),
             'nombre'           => session()->get('nombre_usuario'),
         ];
 
