@@ -15,6 +15,9 @@ class ActaCapacitacionModel extends Model
         'modalidad', 'enlace_grabacion', 'objetivos', 'contenido', 'observaciones',
         'ruta_pdf', 'estado',
         'token_inscripcion',
+        'tipo_charla', 'id_cronograma_capacitacion',
+        'foto_capacitacion', 'foto_otros_1', 'foto_otros_2',
+        'ruta_pdf_responsabilidades',
         'created_at', 'updated_at',
     ];
 

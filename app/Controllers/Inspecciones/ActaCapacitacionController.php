@@ -8,7 +8,9 @@ use App\Models\ActaCapacitacionAsistenteModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
+use App\Models\CronogcapacitacionModel;
 use App\Traits\AutosaveJsonTrait;
+use App\Traits\ImagenCompresionTrait;
 use Dompdf\Dompdf;
 
 /**
@@ -17,6 +19,7 @@ use Dompdf\Dompdf;
 class ActaCapacitacionController extends BaseController
 {
     use AutosaveJsonTrait;
+    use ImagenCompresionTrait;
 
     protected ActaCapacitacionModel $actaModel;
     protected ActaCapacitacionAsistenteModel $asistenteModel;
@@ -80,25 +83,36 @@ class ActaCapacitacionController extends BaseController
         }
 
         $idComite = $this->request->getPost('id_comite');
-        $this->actaModel->insert([
-            'id_cliente'           => $this->request->getPost('id_cliente'),
-            'id_comite'            => $idComite ? (int)$idComite : null,
-            'creado_por_tipo'      => 'consultor',
-            'id_consultor'         => $userId,
-            'tema'                 => $this->request->getPost('tema'),
-            'fecha_capacitacion'   => $this->request->getPost('fecha_capacitacion'),
-            'hora_inicio'          => $this->request->getPost('hora_inicio') ?: null,
-            'hora_fin'             => $this->request->getPost('hora_fin') ?: null,
-            'dictada_por'          => $this->request->getPost('dictada_por') ?: 'ARL',
-            'nombre_capacitador'   => $this->request->getPost('nombre_capacitador'),
-            'entidad_capacitadora' => $this->request->getPost('entidad_capacitadora'),
-            'modalidad'            => $this->request->getPost('modalidad') ?: 'virtual',
-            'enlace_grabacion'     => $this->request->getPost('enlace_grabacion'),
-            'objetivos'            => $this->request->getPost('objetivos'),
-            'contenido'            => $this->request->getPost('contenido'),
-            'observaciones'        => $this->request->getPost('observaciones'),
-            'estado'               => 'borrador',
-        ]);
+        $idCronog = $this->request->getPost('id_cronograma_capacitacion');
+        $data = [
+            'id_cliente'                 => $this->request->getPost('id_cliente'),
+            'id_comite'                  => $idComite ? (int)$idComite : null,
+            'creado_por_tipo'            => 'consultor',
+            'id_consultor'               => $userId,
+            'tema'                       => $this->request->getPost('tema'),
+            'fecha_capacitacion'         => $this->request->getPost('fecha_capacitacion'),
+            'hora_inicio'                => $this->request->getPost('hora_inicio') ?: null,
+            'hora_fin'                   => $this->request->getPost('hora_fin') ?: null,
+            'dictada_por'                => $this->request->getPost('dictada_por') ?: 'ARL',
+            'nombre_capacitador'         => $this->request->getPost('nombre_capacitador'),
+            'entidad_capacitadora'       => $this->request->getPost('entidad_capacitadora'),
+            'modalidad'                  => $this->request->getPost('modalidad') ?: 'virtual',
+            'tipo_charla'                => $this->request->getPost('tipo_charla') ?: 'capacitacion',
+            'id_cronograma_capacitacion' => $idCronog ? (int)$idCronog : null,
+            'enlace_grabacion'           => $this->request->getPost('enlace_grabacion'),
+            'objetivos'                  => $this->request->getPost('objetivos'),
+            'contenido'                  => $this->request->getPost('contenido'),
+            'observaciones'              => $this->request->getPost('observaciones'),
+            'estado'                     => 'borrador',
+        ];
+
+        $dirFotos = 'uploads/inspecciones/acta-capacitacion/';
+        foreach (['foto_capacitacion','foto_otros_1','foto_otros_2'] as $campo) {
+            $nueva = $this->uploadFoto($campo, $dirFotos);
+            if ($nueva) $data[$campo] = $nueva;
+        }
+
+        $this->actaModel->insert($data);
         $idActa = $this->actaModel->getInsertID();
 
         $this->saveAsistentes($idActa);
@@ -139,22 +153,38 @@ class ActaCapacitacionController extends BaseController
         }
 
         $idComite = $this->request->getPost('id_comite');
-        $this->actaModel->update($id, [
-            'id_cliente'           => $this->request->getPost('id_cliente'),
-            'id_comite'            => $idComite ? (int)$idComite : null,
-            'tema'                 => $this->request->getPost('tema'),
-            'fecha_capacitacion'   => $this->request->getPost('fecha_capacitacion'),
-            'hora_inicio'          => $this->request->getPost('hora_inicio') ?: null,
-            'hora_fin'             => $this->request->getPost('hora_fin') ?: null,
-            'dictada_por'          => $this->request->getPost('dictada_por') ?: 'ARL',
-            'nombre_capacitador'   => $this->request->getPost('nombre_capacitador'),
-            'entidad_capacitadora' => $this->request->getPost('entidad_capacitadora'),
-            'modalidad'            => $this->request->getPost('modalidad') ?: 'virtual',
-            'enlace_grabacion'     => $this->request->getPost('enlace_grabacion'),
-            'objetivos'            => $this->request->getPost('objetivos'),
-            'contenido'            => $this->request->getPost('contenido'),
-            'observaciones'        => $this->request->getPost('observaciones'),
-        ]);
+        $idCronog = $this->request->getPost('id_cronograma_capacitacion');
+        $data = [
+            'id_cliente'                 => $this->request->getPost('id_cliente'),
+            'id_comite'                  => $idComite ? (int)$idComite : null,
+            'tema'                       => $this->request->getPost('tema'),
+            'fecha_capacitacion'         => $this->request->getPost('fecha_capacitacion'),
+            'hora_inicio'                => $this->request->getPost('hora_inicio') ?: null,
+            'hora_fin'                   => $this->request->getPost('hora_fin') ?: null,
+            'dictada_por'                => $this->request->getPost('dictada_por') ?: 'ARL',
+            'nombre_capacitador'         => $this->request->getPost('nombre_capacitador'),
+            'entidad_capacitadora'       => $this->request->getPost('entidad_capacitadora'),
+            'modalidad'                  => $this->request->getPost('modalidad') ?: 'virtual',
+            'tipo_charla'                => $this->request->getPost('tipo_charla') ?: 'capacitacion',
+            'id_cronograma_capacitacion' => $idCronog ? (int)$idCronog : null,
+            'enlace_grabacion'           => $this->request->getPost('enlace_grabacion'),
+            'objetivos'                  => $this->request->getPost('objetivos'),
+            'contenido'                  => $this->request->getPost('contenido'),
+            'observaciones'              => $this->request->getPost('observaciones'),
+        ];
+
+        $dirFotos = 'uploads/inspecciones/acta-capacitacion/';
+        foreach (['foto_capacitacion','foto_otros_1','foto_otros_2'] as $campo) {
+            $nueva = $this->uploadFoto($campo, $dirFotos);
+            if ($nueva) {
+                if (!empty($acta[$campo]) && file_exists(FCPATH . $acta[$campo])) {
+                    unlink(FCPATH . $acta[$campo]);
+                }
+                $data[$campo] = $nueva;
+            }
+        }
+
+        $this->actaModel->update($id, $data);
 
         $this->saveAsistentes((int)$id);
 
@@ -352,12 +382,22 @@ class ActaCapacitacionController extends BaseController
         $acta = $this->actaModel->find($id);
         if (!$acta) return redirect()->to('/inspecciones/acta-capacitacion');
 
-        $pdfPath = $this->generarPdfInterno((int)$id);
-        if (!$pdfPath) return redirect()->back()->with('error', 'Error al generar PDF');
+        $result = $this->generarPdfInterno((int)$id);
+        if (empty($result['acta'])) return redirect()->back()->with('error', 'Error al generar PDF');
 
-        $this->actaModel->update($id, ['estado' => 'completo', 'ruta_pdf' => $pdfPath]);
+        $update = ['estado' => 'completo', 'ruta_pdf' => $result['acta']];
+        if (!empty($result['responsabilidades'])) {
+            $update['ruta_pdf_responsabilidades'] = $result['responsabilidades'];
+        }
+        $this->actaModel->update($id, $update);
         $acta = $this->actaModel->find($id);
-        $this->uploadToReportes($acta, $pdfPath);
+
+        $this->uploadToReportes($acta, $result['acta']);
+        if (!empty($result['responsabilidades'])) {
+            $this->uploadResponsabilidadesToReportes($acta, $result['responsabilidades']);
+        }
+
+        $this->syncToCronograma($acta);
 
         return redirect()->to('/inspecciones/acta-capacitacion/view/' . $id)->with('msg', 'Acta finalizada.');
     }
@@ -367,12 +407,33 @@ class ActaCapacitacionController extends BaseController
         $acta = $this->actaModel->find($id);
         if (!$acta) return redirect()->to('/inspecciones/acta-capacitacion');
 
-        $pdfPath = $this->generarPdfInterno((int)$id);
-        $fullPath = FCPATH . $pdfPath;
+        $result = $this->generarPdfInterno((int)$id);
+        $fullPath = FCPATH . $result['acta'];
 
         return $this->response
             ->setHeader('Content-Type', 'application/pdf')
             ->setHeader('Content-Disposition', 'inline; filename="acta_capacitacion_' . $id . '.pdf"')
+            ->setBody(file_get_contents($fullPath));
+    }
+
+    public function generatePdfResponsabilidades($id)
+    {
+        $acta = $this->actaModel->find($id);
+        if (!$acta) return redirect()->to('/inspecciones/acta-capacitacion');
+        if (($acta['tipo_charla'] ?? '') !== 'induccion_reinduccion') {
+            return redirect()->to('/inspecciones/acta-capacitacion/view/' . $id)
+                ->with('error', 'Esta acta no es de inducción/reinducción.');
+        }
+
+        $result = $this->generarPdfInterno((int)$id);
+        $fullPath = !empty($result['responsabilidades']) ? FCPATH . $result['responsabilidades'] : null;
+        if (!$fullPath || !file_exists($fullPath)) {
+            return redirect()->back()->with('error', 'No se pudo generar el PDF de responsabilidades.');
+        }
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="responsabilidades_sst_' . $id . '.pdf"')
             ->setBody(file_get_contents($fullPath));
     }
 
@@ -718,7 +779,12 @@ class ActaCapacitacionController extends BaseController
         return $this->response->setJSON(['success' => true]);
     }
 
-    private function generarPdfInterno(int $id): ?string
+    /**
+     * Genera 1 o 2 PDFs:
+     *   - 'acta' (FT-SST-252): siempre
+     *   - 'responsabilidades' (FT-SST-003): solo si tipo_charla === 'induccion_reinduccion'
+     */
+    private function generarPdfInterno(int $id): array
     {
         $acta = $this->actaModel->find($id);
         $clientModel = new ClientModel();
@@ -735,6 +801,14 @@ class ActaCapacitacionController extends BaseController
             }
         }
 
+        $fotosBase64 = [];
+        foreach (['foto_capacitacion','foto_otros_1','foto_otros_2'] as $campo) {
+            $fotosBase64[$campo] = '';
+            if (!empty($acta[$campo]) && file_exists(FCPATH . $acta[$campo])) {
+                $fotosBase64[$campo] = $this->fotoABase64ParaPdf(FCPATH . $acta[$campo]);
+            }
+        }
+
         foreach ($asistentes as &$a) {
             $a['firma_base64'] = '';
             if (!empty($a['firma_path']) && file_exists(FCPATH . $a['firma_path'])) {
@@ -743,35 +817,62 @@ class ActaCapacitacionController extends BaseController
         }
         unset($a);
 
+        $pdfDir = 'uploads/inspecciones/actas_capacitacion/pdfs/';
+        if (!is_dir(FCPATH . $pdfDir)) mkdir(FCPATH . $pdfDir, 0755, true);
+
+        $resultado = ['acta' => null, 'responsabilidades' => null];
+
+        $opts = new \Dompdf\Options();
+        $opts->set('isRemoteEnabled', true);
+        $opts->set('isHtml5ParserEnabled', true);
+
+        // ---------- PDF 1: acta (FT-SST-252) ----------
         $html = view('inspecciones/acta_capacitacion/pdf', [
+            'pdfType'      => 'acta',
             'acta'         => $acta,
             'cliente'      => $cliente,
             'consultor'    => $consultor,
             'realizadoPor' => null,
             'asistentes'   => $asistentes,
             'logoBase64'   => $logoBase64,
+            'fotosBase64'  => $fotosBase64,
         ]);
-
-        $options = new \Dompdf\Options();
-        $options->set('isRemoteEnabled', true);
-        $options->set('isHtml5ParserEnabled', true);
-        $dompdf = new Dompdf($options);
+        $dompdf = new Dompdf($opts);
         $dompdf->loadHtml($html);
         $dompdf->setPaper('letter', 'portrait');
         $dompdf->render();
-
-        $pdfDir = 'uploads/inspecciones/actas_capacitacion/pdfs/';
-        if (!is_dir(FCPATH . $pdfDir)) mkdir(FCPATH . $pdfDir, 0755, true);
-
-        $pdfFileName = 'acta_capacitacion_' . $id . '_' . date('Ymd_His') . '.pdf';
-        $pdfPath = $pdfDir . $pdfFileName;
-
+        $pdfPath = $pdfDir . 'acta_capacitacion_' . $id . '_' . date('Ymd_His') . '.pdf';
         if (!empty($acta['ruta_pdf']) && file_exists(FCPATH . $acta['ruta_pdf'])) {
             unlink(FCPATH . $acta['ruta_pdf']);
         }
-
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());
-        return $pdfPath;
+        $resultado['acta'] = $pdfPath;
+
+        // ---------- PDF 2: responsabilidades (FT-SST-003) — solo inducción ----------
+        if (($acta['tipo_charla'] ?? '') === 'induccion_reinduccion') {
+            $html2 = view('inspecciones/acta_capacitacion/pdf', [
+                'pdfType'      => 'responsabilidades',
+                'acta'         => $acta,
+                'cliente'      => $cliente,
+                'consultor'    => $consultor,
+                'realizadoPor' => null,
+                'asistentes'   => $asistentes,
+                'logoBase64'   => $logoBase64,
+                'fotosBase64'  => $fotosBase64,
+            ]);
+            $dompdf2 = new Dompdf($opts);
+            $dompdf2->loadHtml($html2);
+            $dompdf2->setPaper('letter', 'portrait');
+            $dompdf2->render();
+            $pdfPath2 = $pdfDir . 'responsabilidades_sst_' . $id . '_' . date('Ymd_His') . '.pdf';
+            if (!empty($acta['ruta_pdf_responsabilidades']) && file_exists(FCPATH . $acta['ruta_pdf_responsabilidades'])) {
+                unlink(FCPATH . $acta['ruta_pdf_responsabilidades']);
+            }
+            file_put_contents(FCPATH . $pdfPath2, $dompdf2->output());
+            $resultado['responsabilidades'] = $pdfPath2;
+        }
+
+        return $resultado;
     }
 
     private function uploadToReportes(array $acta, string $pdfPath): bool
@@ -808,5 +909,240 @@ class ActaCapacitacionController extends BaseController
         if ($existente) return $reporteModel->update($existente['id_reporte'], $data);
         $data['created_at'] = date('Y-m-d H:i:s');
         return $reporteModel->save($data);
+    }
+
+    /**
+     * Sube el PDF FT-SST-003 (Responsabilidades SST) a tbl_reporte
+     * con id_detailreport=35, idempotente por acta_cap_resp_id.
+     */
+    private function uploadResponsabilidadesToReportes(array $acta, string $pdfPath): bool
+    {
+        $reporteModel = new ReporteModel();
+        $clientModel = new ClientModel();
+        $cliente = $clientModel->find($acta['id_cliente']);
+        if (!$cliente) return false;
+
+        $nitCliente = $cliente['nit_cliente'] ?? '';
+        $destDir = ROOTPATH . 'public/uploads/' . $nitCliente;
+        if (!is_dir($destDir)) mkdir($destDir, 0755, true);
+
+        $fileName = 'responsabilidades_sst_' . $acta['id'] . '_' . date('Ymd_His') . '.pdf';
+        copy(FCPATH . $pdfPath, $destDir . '/' . $fileName);
+
+        $data = [
+            'titulo_reporte'  => 'RESPONSABILIDADES SST - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $acta['fecha_capacitacion'],
+            'id_detailreport' => 35,
+            'id_report_type'  => 4,
+            'id_cliente'      => $acta['id_cliente'],
+            'estado'          => 'CERRADO',
+            'observaciones'   => 'Generado por consultor. acta_cap_resp_id:' . $acta['id'],
+            'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
+            'updated_at'      => date('Y-m-d H:i:s'),
+        ];
+
+        $existente = $reporteModel->where('id_cliente', $acta['id_cliente'])
+            ->where('id_report_type', 4)
+            ->where('id_detailreport', 35)
+            ->like('observaciones', 'acta_cap_resp_id:' . $acta['id'])
+            ->first();
+
+        if ($existente) return $reporteModel->update($existente['id_reporte'], $data);
+        $data['created_at'] = date('Y-m-d H:i:s');
+        return $reporteModel->save($data);
+    }
+
+    /**
+     * Sube una foto del form, la comprime y devuelve la ruta relativa.
+     */
+    private function uploadFoto(string $campo, string $dir): ?string
+    {
+        $file = $this->request->getFile($campo);
+        if (!$file || !$file->isValid() || $file->hasMoved()) {
+            return null;
+        }
+
+        if (!is_dir(FCPATH . $dir)) {
+            mkdir(FCPATH . $dir, 0755, true);
+        }
+
+        $fileName = $file->getRandomName();
+        $file->move(FCPATH . $dir, $fileName);
+        $this->comprimirImagen(FCPATH . $dir . $fileName);
+        return $dir . $fileName;
+    }
+
+    /**
+     * API: cronogramas de capacitación pendientes del cliente (sin reporte vinculado).
+     */
+    public function apiCronogramasPendientes()
+    {
+        $idCliente = (int) $this->request->getGet('id_cliente');
+        if (!$idCliente) {
+            return $this->response->setJSON([]);
+        }
+
+        $cronogModel = new CronogcapacitacionModel();
+        $idActa = (int) $this->request->getGet('id_acta');
+
+        $cronogramas = $cronogModel
+            ->where('id_cliente', $idCliente)
+            ->groupStart()
+                ->where('id_reporte_capacitacion IS NULL')
+                ->orWhere('id_reporte_capacitacion', 0)
+                ->orWhere('id_reporte_capacitacion', $idActa ?: 0)
+            ->groupEnd()
+            ->orderBy('fecha_programada', 'ASC')
+            ->findAll();
+
+        return $this->response->setJSON($cronogramas);
+    }
+
+    /**
+     * API IA: genera el objetivo de la capacitación con OpenAI.
+     */
+    public function generarObjetivo()
+    {
+        $payload = $this->request->getJSON(true) ?? [];
+        $nombre = trim((string)($payload['nombre_capacitacion'] ?? ''));
+
+        if (!$nombre) {
+            return $this->response->setJSON(['error' => 'Nombre vacío.'])->setStatusCode(400);
+        }
+
+        $apiKey = env('OPENAI_API_KEY');
+        if (!$apiKey) {
+            return $this->response->setJSON(['error' => 'API key no configurada.'])->setStatusCode(500);
+        }
+
+        $prompt = "Eres un experto en Seguridad y Salud en el Trabajo (SST) para propiedades horizontales colombianas (conjuntos residenciales y edificios). El personal capacitado son principalmente contratistas de aseo y vigilancia, y ocasionalmente la comunidad (residentes y administración).
+
+Redacta el objetivo de la siguiente capacitación en SST: «{$nombre}».
+
+El objetivo debe:
+- Ser claro, concreto y profesional
+- Estar en infinitivo (Capacitar, Sensibilizar, Fortalecer, etc.)
+- Tener máximo 3 oraciones
+- Mencionar el perfil del personal (contratistas de aseo, vigilancia o comunidad cuando aplique)
+- No incluir títulos ni numeración, solo el texto del objetivo";
+
+        $texto = $this->llamarOpenAI($prompt, 200, 0.6);
+        if ($texto === null) {
+            return $this->response->setJSON(['error' => 'Error al contactar la IA. Intenta de nuevo.'])->setStatusCode(500);
+        }
+        return $this->response->setJSON(['objetivo' => $texto]);
+    }
+
+    /**
+     * API IA: genera el contenido temático de la capacitación con OpenAI.
+     * Recibe nombre + objetivo y devuelve un temario en lista corta.
+     */
+    public function generarContenido()
+    {
+        $payload = $this->request->getJSON(true) ?? [];
+        $nombre   = trim((string)($payload['nombre_capacitacion'] ?? ''));
+        $objetivo = trim((string)($payload['objetivo_capacitacion'] ?? ''));
+
+        if (!$nombre) {
+            return $this->response->setJSON(['error' => 'Nombre vacío.'])->setStatusCode(400);
+        }
+
+        $apiKey = env('OPENAI_API_KEY');
+        if (!$apiKey) {
+            return $this->response->setJSON(['error' => 'API key no configurada.'])->setStatusCode(500);
+        }
+
+        $contextoObj = $objetivo ? "El objetivo de la capacitación es: «{$objetivo}»." : "";
+
+        $prompt = "Eres un experto en Seguridad y Salud en el Trabajo (SST) para propiedades horizontales colombianas (conjuntos residenciales y edificios). El personal capacitado son principalmente contratistas de aseo y vigilancia, y ocasionalmente la comunidad.
+
+Para la capacitación «{$nombre}». {$contextoObj}
+
+Redacta el contenido temático en formato lista de 4 a 6 puntos clave, conciso y profesional.
+
+El contenido debe:
+- Tener entre 4 y 6 ítems numerados (1., 2., 3., ...)
+- Cada ítem en una sola línea breve
+- Ser específico al tema, no genérico
+- No incluir títulos, encabezados ni introducción, solo la lista";
+
+        $texto = $this->llamarOpenAI($prompt, 350, 0.6);
+        if ($texto === null) {
+            return $this->response->setJSON(['error' => 'Error al contactar la IA. Intenta de nuevo.'])->setStatusCode(500);
+        }
+        return $this->response->setJSON(['contenido' => $texto]);
+    }
+
+    /**
+     * Helper compartido para llamar a OpenAI Chat Completions.
+     */
+    private function llamarOpenAI(string $prompt, int $maxTokens = 300, float $temperature = 0.6): ?string
+    {
+        $apiKey = env('OPENAI_API_KEY');
+        if (!$apiKey) return null;
+
+        $payload = json_encode([
+            'model'       => env('OPENAI_MODEL', 'gpt-4o-mini'),
+            'messages'    => [['role' => 'user', 'content' => $prompt]],
+            'max_tokens'  => $maxTokens,
+            'temperature' => $temperature,
+        ]);
+
+        $ch = curl_init('https://api.openai.com/v1/chat/completions');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $apiKey,
+            ],
+            CURLOPT_TIMEOUT        => 25,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if (!$response || $httpCode !== 200) {
+            log_message('error', 'ActaCap llamarOpenAI HTTP ' . $httpCode . ': ' . $response);
+            return null;
+        }
+
+        $data = json_decode($response, true);
+        $texto = trim($data['choices'][0]['message']['content'] ?? '');
+        return $texto ?: null;
+    }
+
+    /**
+     * Sincroniza los datos del acta finalizada al cronograma de capacitación vinculado,
+     * marcándolo como EJECUTADA con sus estadísticas.
+     */
+    private function syncToCronograma(array $acta): void
+    {
+        $idCronog = $acta['id_cronograma_capacitacion'] ?? null;
+        if (!$idCronog) return;
+
+        $cronogModel = new CronogcapacitacionModel();
+        $cronograma = $cronogModel->find($idCronog);
+        if (!$cronograma) return;
+
+        $asistentes = $this->asistenteModel->getByActa((int)$acta['id']);
+        $totalAsistentes = count($asistentes);
+        $totalFirmados = 0;
+        foreach ($asistentes as $a) {
+            if (!empty($a['firma_path'])) $totalFirmados++;
+        }
+
+        $cronogModel->update($idCronog, [
+            'fecha_de_realizacion'                       => $acta['fecha_capacitacion'],
+            'estado'                                     => 'EJECUTADA',
+            'nombre_del_capacitador'                     => $acta['nombre_capacitador'] ?? '',
+            'horas_de_duracion_de_la_capacitacion'       => $acta['hora_inicio'] && $acta['hora_fin']
+                ? round((strtotime($acta['hora_fin']) - strtotime($acta['hora_inicio'])) / 3600, 1) . 'h'
+                : '',
+            'numero_de_asistentes_a_capacitacion'        => $totalAsistentes,
+            'observaciones'                              => $acta['observaciones'] ?? '',
+            'id_reporte_capacitacion'                    => (int)$acta['id'],
+        ]);
     }
 }

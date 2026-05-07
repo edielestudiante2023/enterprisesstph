@@ -50,6 +50,9 @@
                     </a>
                 </div>
                 <div class="d-flex gap-1 flex-shrink-0">
+                    <a href="#" class="btn btn-sm btn-outline-primary btn-qr" data-url="<?= esc($u['url']) ?>" data-nombre="<?= esc($u['nombre']) ?>" title="Mostrar QR" style="font-size: 11px; padding: 1px 6px;">
+                        <i class="fas fa-qrcode"></i>
+                    </a>
                     <a href="<?= base_url('/inspecciones/urls/edit/') ?><?= $u['id'] ?>" class="btn btn-sm btn-outline-dark" style="font-size: 11px; padding: 1px 6px;">
                         <i class="fas fa-edit"></i>
                     </a>
@@ -64,7 +67,121 @@
     <?php endforeach; ?>
 <?php endif; ?>
 
+<!-- QR generator (cliente, offline-capable) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
+// Botón QR: abre modal con QR + opciones (proyectar / copiar / abrir)
+document.addEventListener('click', function(e) {
+    var btnQr = e.target.closest('.btn-qr');
+    if (!btnQr) return;
+    e.preventDefault();
+    mostrarQR(btnQr.dataset.url, btnQr.dataset.nombre);
+});
+
+function mostrarQR(url, nombre) {
+    Swal.fire({
+        title: nombre,
+        html:
+            '<div id="qr-container" style="display:flex;justify-content:center;padding:10px;"></div>' +
+            '<div style="word-break:break-all;font-size:11px;color:#666;margin-top:10px;background:#f5f5f5;padding:8px;border-radius:4px;font-family:monospace;">' +
+                escapeHtml(url) +
+            '</div>',
+        showCloseButton: true,
+        showConfirmButton: true,
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: '<i class="fas fa-expand"></i> Proyectar',
+        denyButtonText: '<i class="fas fa-copy"></i> Copiar URL',
+        cancelButtonText: '<i class="fas fa-external-link-alt"></i> Abrir',
+        confirmButtonColor: '#1c2437',
+        denyButtonColor: '#6c757d',
+        cancelButtonColor: '#198754',
+        reverseButtons: true,
+        focusConfirm: false,
+        didOpen: function() {
+            var c = document.getElementById('qr-container');
+            c.innerHTML = '';
+            new QRCode(c, {
+                text: url,
+                width: 256,
+                height: 256,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+    }).then(function(result) {
+        if (result.isConfirmed) {
+            proyectarQR(url, nombre);
+        } else if (result.isDenied) {
+            copiarAlPortapapeles(url);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            window.open(url, '_blank');
+        }
+    });
+}
+
+function proyectarQR(url, nombre) {
+    var w = window.open('', '_blank', 'width=1024,height=768');
+    if (!w) {
+        Swal.fire({title: 'Bloqueado', text: 'Permite popups en este sitio para proyectar.', icon: 'warning'});
+        return;
+    }
+    var safeNombre = escapeHtml(nombre);
+    var safeUrl = escapeHtml(url);
+    var jsUrl = url.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    w.document.write(
+        '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>QR - ' + safeNombre + '</title>' +
+        '<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>' +
+        '<style>' +
+        '*{box-sizing:border-box;margin:0;padding:0;}' +
+        'body{font-family:system-ui,sans-serif;background:#fff;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}' +
+        'h1{color:#1c2437;font-size:clamp(28px,5vw,52px);margin-bottom:30px;text-align:center;}' +
+        '#qrlarge{padding:20px;background:#fff;border:2px solid #1c2437;border-radius:12px;}' +
+        'p{color:#666;font-size:clamp(14px,1.5vw,20px);margin-top:30px;word-break:break-all;max-width:90vw;text-align:center;font-family:monospace;}' +
+        '.tip{position:fixed;bottom:15px;color:#999;font-size:13px;}' +
+        '@media print{.tip{display:none;}}' +
+        '</style></head><body>' +
+        '<h1>' + safeNombre + '</h1>' +
+        '<div id="qrlarge"></div>' +
+        '<p>' + safeUrl + '</p>' +
+        '<div class="tip">Apunta tu cámara al QR para abrir el contenido en tu celular · Esc para cerrar</div>' +
+        '<script>' +
+        'new QRCode(document.getElementById("qrlarge"),{text:"' + jsUrl + '",width:Math.min(window.innerHeight*0.55,500),height:Math.min(window.innerHeight*0.55,500),correctLevel:QRCode.CorrectLevel.H});' +
+        'document.addEventListener("keydown",function(e){if(e.key==="Escape")window.close();});' +
+        '<\/script></body></html>'
+    );
+    w.document.close();
+}
+
+function copiarAlPortapapeles(texto) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto).then(function() {
+            Swal.fire({title:'URL copiada',icon:'success',timer:1200,showConfirmButton:false});
+        }).catch(function() {
+            copiarFallback(texto);
+        });
+    } else {
+        copiarFallback(texto);
+    }
+}
+
+function copiarFallback(texto) {
+    var ta = document.createElement('textarea');
+    ta.value = texto; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); Swal.fire({title:'URL copiada',icon:'success',timer:1200,showConfirmButton:false}); }
+    catch(_) { Swal.fire({title:'No se pudo copiar',icon:'error',timer:1500,showConfirmButton:false}); }
+    document.body.removeChild(ta);
+}
+
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+}
+
+// Botón eliminar (existente)
 document.addEventListener('click', function(e) {
     var btn = e.target.closest('.btn-delete');
     if (!btn) return;
