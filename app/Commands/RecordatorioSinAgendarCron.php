@@ -54,7 +54,7 @@ class RecordatorioSinAgendarCron extends BaseCommand
         // ── Agrupar por consultor interno (id_consultor) ──
         $porConsultor = [];
         foreach ($pendientes as $c) {
-            $idCons = (int)$c['id_consultor'];
+            $idCons = (int)($c['cliente_id_consultor'] ?? $c['id_consultor']);
             $porConsultor[$idCons]['nombre'] = $c['nombre_consultor'] ?? 'Sin consultor';
             $porConsultor[$idCons]['correo'] = $c['correo_consultor'] ?? '';
             $porConsultor[$idCons]['clientes'][] = $c;

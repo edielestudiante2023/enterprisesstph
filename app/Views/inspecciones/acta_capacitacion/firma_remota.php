@@ -64,13 +64,6 @@
     </div>
     <?php endif; ?>
 
-    <?php if (!empty($acta['contenido'])): ?>
-    <div class="acta-card">
-        <div class="section-title"><i class="fas fa-book"></i> CONTENIDO</div>
-        <p style="margin:0;"><?= nl2br(esc($acta['contenido'])) ?></p>
-    </div>
-    <?php endif; ?>
-
     <div class="firma-section">
         <div class="section-title"><i class="fas fa-signature"></i> TU FIRMA</div>
         <div class="dato-label" style="margin-bottom:8px;">Firmando como:</div>

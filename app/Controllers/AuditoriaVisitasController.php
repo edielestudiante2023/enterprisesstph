@@ -54,7 +54,9 @@ class AuditoriaVisitasController extends BaseController
         $cliente = $clientModel->find($ciclo['id_cliente']);
 
         $consultantModel = new ConsultantModel();
-        $consultor = $consultantModel->find($ciclo['id_consultor']);
+        $consultor = !empty($cliente['id_consultor'])
+            ? $consultantModel->find($cliente['id_consultor'])
+            : null;
 
         $meses = [
             1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',

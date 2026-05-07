@@ -33,9 +33,6 @@
                         <?php endif; ?>
                     </td>
                 </tr>
-                <?php if (!empty($acta['enlace_grabacion'])): ?>
-                <tr><td class="text-muted">Grabación</td><td><a href="<?= esc($acta['enlace_grabacion']) ?>" target="_blank" rel="noopener">Ver enlace</a></td></tr>
-                <?php endif; ?>
             </table>
         </div>
     </div>
@@ -45,15 +42,6 @@
         <div class="card-body">
             <h6 class="card-title" style="font-size:14px; color:#999;">OBJETIVOS</h6>
             <p style="font-size:14px; margin:0;"><?= nl2br(esc($acta['objetivos'])) ?></p>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <?php if (!empty($acta['contenido'])): ?>
-    <div class="card mb-3">
-        <div class="card-body">
-            <h6 class="card-title" style="font-size:14px; color:#999;">CONTENIDO</h6>
-            <p style="font-size:14px; margin:0;"><?= nl2br(esc($acta['contenido'])) ?></p>
         </div>
     </div>
     <?php endif; ?>
@@ -72,7 +60,7 @@
                             <div class="text-muted" style="font-size:12px;">
                                 <?php if (!empty($a['numero_documento'])): ?><?= esc($a['tipo_documento']) ?> <?= esc($a['numero_documento']) ?> &middot; <?php endif; ?>
                                 <?= esc($a['cargo'] ?? '') ?>
-                                <?= !empty($a['area_dependencia']) ? ' &middot; ' . esc($a['area_dependencia']) : '' ?>
+                                <?= !empty($a['area_dependencia']) ? ' &middot; <strong>Contratista:</strong> ' . esc($a['area_dependencia']) : '' ?>
                             </div>
                         </div>
                         <span style="font-size:11px;">

@@ -25,9 +25,10 @@ class CicloVisitaModel extends Model
     {
         return $this->select('tbl_ciclos_visita.*,
                 c.nombre_cliente, c.correo_cliente, c.consultor_externo, c.email_consultor_externo, c.estandares,
+                c.id_consultor as cliente_id_consultor,
                 co.nombre_consultor, co.correo_consultor')
             ->join('tbl_clientes c', 'c.id_cliente = tbl_ciclos_visita.id_cliente', 'left')
-            ->join('tbl_consultor co', 'co.id_consultor = tbl_ciclos_visita.id_consultor', 'left')
+            ->join('tbl_consultor co', 'co.id_consultor = c.id_consultor', 'left')
             ->orderBy('tbl_ciclos_visita.anio', 'DESC')
             ->orderBy('tbl_ciclos_visita.mes_esperado', 'ASC')
             ->orderBy('c.nombre_cliente', 'ASC')
@@ -41,10 +42,11 @@ class CicloVisitaModel extends Model
     {
         return $this->select('tbl_ciclos_visita.*,
                 c.nombre_cliente, c.correo_cliente, c.consultor_externo, c.email_consultor_externo,
+                c.id_consultor as cliente_id_consultor,
                 co.nombre_consultor, co.correo_consultor')
             ->join('tbl_clientes c', 'c.id_cliente = tbl_ciclos_visita.id_cliente', 'left')
-            ->join('tbl_consultor co', 'co.id_consultor = tbl_ciclos_visita.id_consultor', 'left')
-            ->where('tbl_ciclos_visita.id_consultor', $idConsultor)
+            ->join('tbl_consultor co', 'co.id_consultor = c.id_consultor', 'left')
+            ->where('c.id_consultor', $idConsultor)
             ->orderBy('tbl_ciclos_visita.anio', 'DESC')
             ->orderBy('tbl_ciclos_visita.mes_esperado', 'ASC')
             ->findAll();
@@ -57,9 +59,10 @@ class CicloVisitaModel extends Model
     {
         return $this->select('tbl_ciclos_visita.*,
                 c.nombre_cliente, c.correo_cliente, c.consultor_externo, c.email_consultor_externo,
+                c.id_consultor as cliente_id_consultor,
                 co.nombre_consultor, co.correo_consultor')
             ->join('tbl_clientes c', 'c.id_cliente = tbl_ciclos_visita.id_cliente', 'left')
-            ->join('tbl_consultor co', 'co.id_consultor = tbl_ciclos_visita.id_consultor', 'left')
+            ->join('tbl_consultor co', 'co.id_consultor = c.id_consultor', 'left')
             ->where('tbl_ciclos_visita.mes_esperado', $mes)
             ->where('tbl_ciclos_visita.anio', $anio)
             ->orderBy('c.nombre_cliente', 'ASC')
@@ -74,9 +77,10 @@ class CicloVisitaModel extends Model
         $ayer = date('Y-m-d', strtotime('-1 day'));
         return $this->select('tbl_ciclos_visita.*,
                 c.nombre_cliente, c.correo_cliente, c.consultor_externo, c.email_consultor_externo, c.estandares,
+                c.id_consultor as cliente_id_consultor,
                 co.nombre_consultor, co.correo_consultor')
             ->join('tbl_clientes c', 'c.id_cliente = tbl_ciclos_visita.id_cliente', 'left')
-            ->join('tbl_consultor co', 'co.id_consultor = tbl_ciclos_visita.id_consultor', 'left')
+            ->join('tbl_consultor co', 'co.id_consultor = c.id_consultor', 'left')
             ->where('tbl_ciclos_visita.fecha_agendada', $ayer)
             ->where('tbl_ciclos_visita.alerta_enviada', 0)
             ->where('tbl_ciclos_visita.confirmacion_enviada', 0)
@@ -93,9 +97,10 @@ class CicloVisitaModel extends Model
 
         return $this->select('tbl_ciclos_visita.*,
                 c.nombre_cliente, c.correo_cliente, c.consultor_externo, c.email_consultor_externo, c.estandares,
+                c.id_consultor as cliente_id_consultor,
                 co.nombre_consultor, co.correo_consultor')
             ->join('tbl_clientes c', 'c.id_cliente = tbl_ciclos_visita.id_cliente', 'left')
-            ->join('tbl_consultor co', 'co.id_consultor = tbl_ciclos_visita.id_consultor', 'left')
+            ->join('tbl_consultor co', 'co.id_consultor = c.id_consultor', 'left')
             ->where('tbl_ciclos_visita.mes_esperado', $mes)
             ->where('tbl_ciclos_visita.anio', $anio)
             ->where('tbl_ciclos_visita.fecha_agendada IS NULL')

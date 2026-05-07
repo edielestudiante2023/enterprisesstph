@@ -85,11 +85,8 @@ $tokenInscripcionUrlBase = $ctx === 'consultor'
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label">Dictada por</label>
-                                <select name="dictada_por" class="form-select">
-                                    <?php foreach (['ARL','Consultor','Empresa','Otro'] as $op): ?>
-                                        <option value="<?= $op ?>" <?= ($acta['dictada_por'] ?? 'ARL') === $op ? 'selected' : '' ?>><?= $op ?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <input type="text" name="dictada_por" class="form-control"
+                                    value="<?= esc($acta['dictada_por'] ?? '') ?>" placeholder="Ej: ARL, Consultor SST...">
                             </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label">Modalidad</label>
@@ -104,26 +101,25 @@ $tokenInscripcionUrlBase = $ctx === 'consultor'
                         <div class="mb-3">
                             <label class="form-label">Entidad capacitadora</label>
                             <input type="text" name="entidad_capacitadora" class="form-control"
-                                value="<?= esc($acta['entidad_capacitadora'] ?? '') ?>" placeholder="Ej: ARL Sura">
+                                value="<?= esc($acta['entidad_capacitadora'] ?? '') ?>" placeholder="Consultor SST">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Nombre del capacitador</label>
                             <input type="text" name="nombre_capacitador" class="form-control"
                                 value="<?= esc($acta['nombre_capacitador'] ?? '') ?>">
                         </div>
+                        <input type="hidden" name="enlace_grabacion" value="<?= esc($acta['enlace_grabacion'] ?? '') ?>">
                         <div class="mb-3">
-                            <label class="form-label">Enlace grabación</label>
-                            <input type="url" name="enlace_grabacion" class="form-control"
-                                value="<?= esc($acta['enlace_grabacion'] ?? '') ?>" placeholder="https://...">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label mb-0">Objetivos</label>
+                                <button type="button" id="btnGenerarObjetivoActa" class="btn btn-sm"
+                                    style="font-size:11px; padding:2px 8px; background:#6c63ff; color:#fff; border:none; border-radius:4px;">
+                                    ✨ Generar con IA
+                                </button>
+                            </div>
+                            <textarea name="objetivos" id="objetivos_acta" class="form-control" rows="2" placeholder="Objetivos de la capacitación..."><?= esc($acta['objetivos'] ?? '') ?></textarea>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Objetivos</label>
-                            <textarea name="objetivos" class="form-control" rows="2" placeholder="Objetivos de la capacitación..."><?= esc($acta['objetivos'] ?? '') ?></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Contenido / Resumen</label>
-                            <textarea name="contenido" class="form-control" rows="3" placeholder="Resumen de lo cubierto en la capacitación..."><?= esc($acta['contenido'] ?? '') ?></textarea>
-                        </div>
+                        <input type="hidden" name="contenido" value="<?= esc($acta['contenido'] ?? '') ?>">
                         <div class="mb-0">
                             <label class="form-label">Observaciones</label>
                             <textarea name="observaciones" class="form-control" rows="2"><?= esc($acta['observaciones'] ?? '') ?></textarea>
@@ -131,6 +127,70 @@ $tokenInscripcionUrlBase = $ctx === 'consultor'
                     </div>
                 </div>
             </div>
+
+            <!-- Cronograma + Asistencia + Evaluación -->
+            <?php if ($ctx === 'consultor'): ?>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#secCronog">
+                        Cronograma · Asistencia · Evaluación
+                    </button>
+                </h2>
+                <div id="secCronog" class="accordion-collapse collapse" data-bs-parent="#accCap">
+                    <div class="accordion-body">
+
+                        <?php if (!$isEdit): ?>
+                        <!-- Modo CREATE: multi-checkbox de cronogramas PROGRAMADA -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Capacitaciones del cronograma <small class="text-muted">(marca las que se dictan hoy)</small>
+                            </label>
+                            <div id="cronogramasCheckboxesContainer" class="border rounded p-2" style="max-height:240px; overflow-y:auto; background:#fafafa;">
+                                <p class="text-muted mb-0" style="font-size:13px;"><i class="fas fa-info-circle"></i> Seleccione un cliente para ver sus capacitaciones programadas.</p>
+                            </div>
+                            <small class="text-muted d-block mt-1">Si marcas varias, se crearán <strong>actas hermanas</strong> (una por cada capacitación) con los mismos datos comunes y se generarán PDFs separados.</small>
+                        </div>
+                        <?php else: ?>
+                        <!-- Modo EDIT: select tradicional vinculado al cronograma único -->
+                        <div class="mb-3">
+                            <label class="form-label">Capacitación del cronograma <small class="text-muted">(vinculada)</small></label>
+                            <select name="id_cronograma_capacitacion" id="selectCronogramaActa" class="form-select">
+                                <option value="">-- Sin vincular --</option>
+                            </select>
+                        </div>
+                        <?php endif; ?>
+
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Asistentes esperados <small class="text-muted">(digitado)</small></label>
+                                <input type="number" name="numero_programados" class="form-control"
+                                    value="<?= esc($acta['numero_programados'] ?? '') ?>" placeholder="0" min="0">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Asistentes reales <small class="text-muted">(firmados QR)</small></label>
+                                <input type="text" id="asistentesRealesAuto" class="form-control bg-light"
+                                    value="<?= count(array_filter($asistentes ?? [], fn($a) => !empty($a['firma_path']))) ?>" readonly>
+                                <small class="text-muted">Se autocalcula del conteo de firmas registradas.</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Personas evaluadas</label>
+                                <input type="number" name="numero_evaluados" class="form-control"
+                                    value="<?= esc($acta['numero_evaluados'] ?? '') ?>" placeholder="0" min="0">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Promedio calificaciones <small class="text-muted">(IA al finalizar)</small></label>
+                                <input type="number" name="promedio_calificaciones" step="0.01" min="0" max="100" class="form-control"
+                                    value="<?= esc($acta['promedio_calificaciones'] ?? '') ?>" placeholder="Auto al finalizar">
+                                <small class="text-muted">Se calcula automáticamente con IA al finalizar (cliente + tema). Editable si quieres sobrescribirlo.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- Asistentes -->
             <div class="accordion-item">
@@ -250,7 +310,7 @@ $tokenInscripcionUrlBase = $ctx === 'consultor'
                                             </div>
                                             <div class="col-12">
                                                 <input type="text" name="asistente_area[]" class="form-control form-control-sm"
-                                                    value="<?= esc($a['area_dependencia'] ?? '') ?>" placeholder="Área / Dependencia">
+                                                    value="<?= esc($a['area_dependencia'] ?? '') ?>" placeholder="Contratista">
                                             </div>
                                             <div class="col-12">
                                                 <input type="email" name="asistente_email[]" class="form-control form-control-sm"
@@ -648,7 +708,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="col-8"><input type="text" name="asistente_num_doc[]" class="form-control form-control-sm" placeholder="Número documento"></div>
                         <div class="col-12"><input type="text" name="asistente_cargo[]" class="form-control form-control-sm" placeholder="Cargo"></div>
-                        <div class="col-12"><input type="text" name="asistente_area[]" class="form-control form-control-sm" placeholder="Área / Dependencia"></div>
+                        <div class="col-12"><input type="text" name="asistente_area[]" class="form-control form-control-sm" placeholder="Contratista"></div>
                         <div class="col-12"><input type="email" name="asistente_email[]" class="form-control form-control-sm" placeholder="Email (opcional)"></div>
                         <div class="col-12"><input type="text" name="asistente_celular[]" class="form-control form-control-sm" placeholder="Celular (opcional)"></div>
                     </div>
@@ -948,10 +1008,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             Swal.fire({
-                title: '¿Finalizar?',
-                html: 'Se generará el PDF con las firmas registradas a la fecha.<br><small>Los asistentes que aún no firmaron quedarán sin firma en el documento.</small>',
-                icon: 'question', showCancelButton: true,
-                confirmButtonText: 'Sí, finalizar', cancelButtonText: 'Cancelar', confirmButtonColor: '#bd9751',
+                icon: 'question',
+                title: '¿Ya terminaron todas las evaluaciones?',
+                html: 'Sin las evaluaciones cerradas <strong>no se podrá calcular el puntaje automático con IA</strong>.<br><br>'
+                    + 'Se generará el PDF con las firmas registradas a la fecha. Los asistentes que aún no firmaron quedarán sin firma.<br><br>'
+                    + '¿Confirmas finalizar?',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, finalizar',
+                cancelButtonText: 'No, espero',
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
             }).then(r => {
                 if (r.isConfirmed) {
                     var i = document.createElement('input');
@@ -962,5 +1028,138 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // ============================================================
+    // CRONOGRAMAS + BATCH (solo modo consultor)
+    // ============================================================
+    <?php if ($ctx === 'consultor'): ?>
+    var isEditModeActa = <?= $isEdit ? 'true' : 'false' ?>;
+    var cronogramasDataActa = [];
+    var selectedCronogActa = '<?= $isEdit ? ($acta['id_cronograma_capacitacion'] ?? '') : '' ?>';
+
+    function cargarCronogramasActa(idCliente) {
+        cronogramasDataActa = [];
+
+        if (isEditModeActa) {
+            var sel = document.getElementById('selectCronogramaActa');
+            if (sel) sel.innerHTML = '<option value="">-- Sin vincular --</option>';
+        } else {
+            var cont = document.getElementById('cronogramasCheckboxesContainer');
+            if (cont) {
+                cont.innerHTML = idCliente
+                    ? '<p class="text-muted mb-0" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Cargando capacitaciones programadas...</p>'
+                    : '<p class="text-muted mb-0" style="font-size:13px;"><i class="fas fa-info-circle"></i> Seleccione un cliente para ver sus capacitaciones programadas.</p>';
+            }
+        }
+        if (!idCliente) return;
+
+        $.ajax({
+            url: '<?= site_url('inspecciones/acta-capacitacion/api-cronogramas-pendientes') ?>',
+            data: { id_cliente: idCliente, id_acta: <?= $isEdit ? (int)($acta['id'] ?? 0) : 0 ?> },
+            dataType: 'json',
+            success: function(data) {
+                cronogramasDataActa = data || [];
+                if (isEditModeActa) {
+                    var sel = document.getElementById('selectCronogramaActa');
+                    if (!sel) return;
+                    cronogramasDataActa.forEach(function(c) {
+                        var opt = document.createElement('option');
+                        opt.value = c.id_cronograma_capacitacion;
+                        var fp = c.fecha_programada ? ' (' + c.fecha_programada + ')' : '';
+                        opt.textContent = (c.nombre_capacitacion || 'Sin nombre') + fp;
+                        if (String(c.id_cronograma_capacitacion) === String(selectedCronogActa)) opt.selected = true;
+                        sel.appendChild(opt);
+                    });
+                } else {
+                    renderCronogActaCheckboxes();
+                }
+            }
+        });
+    }
+
+    function renderCronogActaCheckboxes() {
+        var cont = document.getElementById('cronogramasCheckboxesContainer');
+        if (!cont) return;
+        if (!cronogramasDataActa.length) {
+            cont.innerHTML = '<p class="text-muted mb-0" style="font-size:13px;"><i class="fas fa-exclamation-triangle"></i> Este cliente no tiene capacitaciones en estado PROGRAMADA pendientes.</p>';
+            return;
+        }
+        var html = '';
+        cronogramasDataActa.forEach(function(c) {
+            var fp = c.fecha_programada ? ' <small class="text-muted">(' + c.fecha_programada + ')</small>' : '';
+            html += '<div class="form-check">'
+                + '<input class="form-check-input cronog-check" type="checkbox" name="id_cronogramas[]" '
+                + 'value="' + c.id_cronograma_capacitacion + '" id="cronog_a_' + c.id_cronograma_capacitacion + '">'
+                + '<label class="form-check-label" for="cronog_a_' + c.id_cronograma_capacitacion + '" style="font-size:13px;">'
+                + escHtmlActa(c.nombre_capacitacion || 'Sin nombre') + fp
+                + '</label></div>';
+        });
+        cont.innerHTML = html;
+    }
+
+    function escHtmlActa(s) {
+        return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // Detectar cambios en select cliente
+    var sCliente = document.getElementById('selectClienteCap');
+    if (sCliente) {
+        $(sCliente).on('change', function() { cargarCronogramasActa(this.value); });
+        if (sCliente.value) cargarCronogramasActa(sCliente.value);
+    }
+
+    // Si edición, cargar inmediatamente con el id_cliente actual
+    var idClienteIni = '<?= $idCliente ?? ($acta['id_cliente'] ?? '') ?>';
+    if (idClienteIni && !sCliente) cargarCronogramasActa(idClienteIni);
+
+    // Decidir entre /store y /store-batch al enviar el form (CREATE consultor)
+    var formActa = document.getElementById('actaCapForm');
+    var STORE_URL_ACTA       = '<?= site_url($baseUrl . '/store') ?>';
+    var STORE_BATCH_URL_ACTA = '<?= site_url('inspecciones/acta-capacitacion/store-batch') ?>';
+    if (formActa && !isEditModeActa) {
+        formActa.addEventListener('submit', function() {
+            var checks = document.querySelectorAll('input.cronog-check:checked');
+            formActa.action = (checks.length > 0) ? STORE_BATCH_URL_ACTA : STORE_URL_ACTA;
+        });
+    }
+
+    // ============================================================
+    // GENERAR OBJETIVO CON IA
+    // ============================================================
+    var btnObjIA = document.getElementById('btnGenerarObjetivoActa');
+    if (btnObjIA) {
+        btnObjIA.addEventListener('click', function() {
+            var tema = (document.querySelector('[name="tema"]') || {}).value || '';
+            tema = tema.trim();
+            if (!tema) {
+                Swal.fire({ icon: 'warning', title: 'Falta el tema', text: 'Escribe primero el tema de la capacitación.', confirmButtonColor: '#6c63ff' });
+                return;
+            }
+            var orig = btnObjIA.innerHTML;
+            btnObjIA.disabled = true;
+            btnObjIA.innerHTML = '⏳ Generando...';
+            fetch('<?= site_url('inspecciones/acta-capacitacion/generar-objetivo') ?>', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ nombre_capacitacion: tema })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                btnObjIA.disabled = false;
+                btnObjIA.innerHTML = orig;
+                if (data.objetivo) {
+                    document.getElementById('objetivos_acta').value = data.objetivo;
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'No se pudo generar el objetivo.', confirmButtonColor: '#6c63ff' });
+                }
+            })
+            .catch(function() {
+                btnObjIA.disabled = false;
+                btnObjIA.innerHTML = orig;
+                Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo conectar.', confirmButtonColor: '#6c63ff' });
+            });
+        });
+    }
+    <?php endif; ?>
 });
 </script>
