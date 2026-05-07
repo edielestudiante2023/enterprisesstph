@@ -2551,14 +2551,28 @@
 
             Swal.fire({
                 title: 'Confirmar ' + $opts.length + ($opts.length === 1 ? ' actividad' : ' actividades'),
-                html: '<ul style="text-align:left;max-height:200px;overflow-y:auto;">' + lista + '</ul>',
+                html: '<ul style="text-align:left;max-height:200px;overflow-y:auto;">' + lista + '</ul>' +
+                      '<div class="mt-3 text-start">' +
+                          '<label for="iaFechaInventario" class="form-label fw-bold">Fecha programada <span class="text-danger">*</span></label>' +
+                          '<input type="date" id="iaFechaInventario" class="form-control">' +
+                          '<small class="text-muted">Esta fecha se asignará a ' + ($opts.length === 1 ? 'la actividad' : 'todas las actividades seleccionadas') + '.</small>' +
+                      '</div>',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Insertar',
                 cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#7c3aed'
+                confirmButtonColor: '#7c3aed',
+                preConfirm: () => {
+                    var fecha = document.getElementById('iaFechaInventario').value;
+                    if (!fecha) {
+                        Swal.showValidationMessage('La fecha programada es obligatoria');
+                        return false;
+                    }
+                    return { fecha: fecha };
+                }
             }).then((result) => {
                 if (!result.isConfirmed) return;
+                var fechaProp = result.value.fecha;
 
                 var items = [];
                 $opts.each(function() {
@@ -2576,7 +2590,7 @@
                     $.ajax({
                         url: '<?= site_url('/pta-cliente-nueva/insertAiActivity') ?>',
                         method: 'POST',
-                        data: { id_cliente: clienteId, phva: item.phva, numeral: item.numeral, actividad: item.actividad, [csrfName]: csrfHash },
+                        data: { id_cliente: clienteId, phva: item.phva, numeral: item.numeral, actividad: item.actividad, fecha_propuesta: fechaProp, [csrfName]: csrfHash },
                         dataType: 'json',
                         success: function(resp) {
                             if (resp.success) { insertNext(); }
@@ -2635,19 +2649,32 @@
                 title: 'Confirmar actividad',
                 html: '<p><strong>PHVA:</strong> ' + escHtml(phva) + '</p>' +
                       '<p><strong>Numeral:</strong> ' + escHtml(numeral) + '</p>' +
-                      '<p><strong>Actividad:</strong> ' + escHtml(actividad) + '</p>',
+                      '<p><strong>Actividad:</strong> ' + escHtml(actividad) + '</p>' +
+                      '<div class="mt-3 text-start">' +
+                          '<label for="iaFechaIA" class="form-label fw-bold">Fecha programada <span class="text-danger">*</span></label>' +
+                          '<input type="date" id="iaFechaIA" class="form-control">' +
+                      '</div>',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Insertar',
                 cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#7c3aed'
+                confirmButtonColor: '#7c3aed',
+                preConfirm: () => {
+                    var fecha = document.getElementById('iaFechaIA').value;
+                    if (!fecha) {
+                        Swal.showValidationMessage('La fecha programada es obligatoria');
+                        return false;
+                    }
+                    return { fecha: fecha };
+                }
             }).then((result) => {
                 if (!result.isConfirmed) return;
+                var fechaProp = result.value.fecha;
 
                 $.ajax({
                     url: '<?= site_url('/pta-cliente-nueva/insertAiActivity') ?>',
                     method: 'POST',
-                    data: { id_cliente: clienteId, phva: phva, numeral: numeral, actividad: actividad, [csrfName]: csrfHash },
+                    data: { id_cliente: clienteId, phva: phva, numeral: numeral, actividad: actividad, fecha_propuesta: fechaProp, [csrfName]: csrfHash },
                     dataType: 'json',
                     success: function(resp) {
                         if (resp.success) {
