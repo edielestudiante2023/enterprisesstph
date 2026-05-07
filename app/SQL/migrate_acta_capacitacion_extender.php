@@ -6,6 +6,9 @@
  *   - 3 fotos
  *   - PDF de responsabilidades
  *
+ * Idempotente: detecta columnas existentes vía INFORMATION_SCHEMA y
+ * solo agrega las que falten. Compatible con MySQL 5.7+ (sin IF NOT EXISTS).
+ *
  * Uso:
  *   php app/SQL/migrate_acta_capacitacion_extender.php                    # LOCAL
  *   DB_PROD_PASS=xxx php app/SQL/migrate_acta_capacitacion_extender.php production
@@ -44,34 +47,54 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $opts);
     echo "Conectado a [{$env}] {$db}\n\n";
 
-    $sqls = [
-        "ALTER TABLE tbl_acta_capacitacion ADD COLUMN IF NOT EXISTS tipo_charla ENUM('induccion_reinduccion','reunion','charla','capacitacion','otros_temas') NOT NULL DEFAULT 'capacitacion' AFTER modalidad",
-        "ALTER TABLE tbl_acta_capacitacion ADD COLUMN IF NOT EXISTS id_cronograma_capacitacion INT NULL DEFAULT NULL AFTER tipo_charla",
-        "ALTER TABLE tbl_acta_capacitacion ADD COLUMN IF NOT EXISTS foto_capacitacion VARCHAR(255) NULL AFTER ruta_pdf",
-        "ALTER TABLE tbl_acta_capacitacion ADD COLUMN IF NOT EXISTS foto_otros_1 VARCHAR(255) NULL AFTER foto_capacitacion",
-        "ALTER TABLE tbl_acta_capacitacion ADD COLUMN IF NOT EXISTS foto_otros_2 VARCHAR(255) NULL AFTER foto_otros_1",
-        "ALTER TABLE tbl_acta_capacitacion ADD COLUMN IF NOT EXISTS ruta_pdf_responsabilidades VARCHAR(255) NULL AFTER foto_otros_2",
+    // Helper: ¿existe la columna?
+    $colExists = function (string $tabla, string $col) use ($pdo, $db): bool {
+        $stmt = $pdo->prepare("SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = :db AND TABLE_NAME = :tabla AND COLUMN_NAME = :col");
+        $stmt->execute([':db' => $db, ':tabla' => $tabla, ':col' => $col]);
+        return (bool) $stmt->fetchColumn();
+    };
+
+    // Helper: ¿existe el índice?
+    $idxExists = function (string $tabla, string $idx) use ($pdo, $db): bool {
+        $stmt = $pdo->prepare("SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS
+            WHERE TABLE_SCHEMA = :db AND TABLE_NAME = :tabla AND INDEX_NAME = :idx LIMIT 1");
+        $stmt->execute([':db' => $db, ':tabla' => $tabla, ':idx' => $idx]);
+        return (bool) $stmt->fetchColumn();
+    };
+
+    $tabla = 'tbl_acta_capacitacion';
+
+    $columnas = [
+        'tipo_charla'                => "ENUM('induccion_reinduccion','reunion','charla','capacitacion','otros_temas') NOT NULL DEFAULT 'capacitacion' AFTER modalidad",
+        'id_cronograma_capacitacion' => "INT NULL DEFAULT NULL AFTER tipo_charla",
+        'foto_capacitacion'          => "VARCHAR(255) NULL AFTER ruta_pdf",
+        'foto_otros_1'               => "VARCHAR(255) NULL AFTER foto_capacitacion",
+        'foto_otros_2'               => "VARCHAR(255) NULL AFTER foto_otros_1",
+        'ruta_pdf_responsabilidades' => "VARCHAR(255) NULL AFTER foto_otros_2",
     ];
 
-    foreach ($sqls as $sql) {
+    foreach ($columnas as $col => $def) {
+        if ($colExists($tabla, $col)) {
+            echo "SKIP: columna {$col} ya existe\n";
+            continue;
+        }
+        $sql = "ALTER TABLE `{$tabla}` ADD COLUMN `{$col}` {$def}";
         $pdo->exec($sql);
-        echo "OK: " . substr($sql, 0, 90) . "...\n";
+        echo "OK: ADD COLUMN {$col}\n";
     }
 
-    // Índice — MySQL no soporta IF NOT EXISTS para INDEX en todas las versiones
-    try {
-        $pdo->exec("ALTER TABLE tbl_acta_capacitacion ADD INDEX idx_acta_cap_cronograma (id_cronograma_capacitacion)");
-        echo "OK: ADD INDEX idx_acta_cap_cronograma\n";
-    } catch (\PDOException $e) {
-        if (strpos($e->getMessage(), 'Duplicate key name') !== false || strpos($e->getMessage(), '1061') !== false) {
-            echo "SKIP: índice idx_acta_cap_cronograma ya existe\n";
-        } else {
-            throw $e;
-        }
+    // Índice
+    $idx = 'idx_acta_cap_cronograma';
+    if ($idxExists($tabla, $idx)) {
+        echo "SKIP: índice {$idx} ya existe\n";
+    } else {
+        $pdo->exec("ALTER TABLE `{$tabla}` ADD INDEX `{$idx}` (id_cronograma_capacitacion)");
+        echo "OK: ADD INDEX {$idx}\n";
     }
 
     echo "\n=== Verificación columnas nuevas ===\n";
-    $stmt = $pdo->query("SHOW COLUMNS FROM `tbl_acta_capacitacion`");
+    $stmt = $pdo->query("SHOW COLUMNS FROM `{$tabla}`");
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $c) {
         $nuevas = ['tipo_charla','id_cronograma_capacitacion','foto_capacitacion','foto_otros_1','foto_otros_2','ruta_pdf_responsabilidades'];
         if (in_array($c['Field'], $nuevas, true)) {
