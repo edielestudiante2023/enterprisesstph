@@ -885,9 +885,14 @@ class PtaClienteNuevaController extends Controller
         $phva = $this->request->getPost('phva');
         $numeral = $this->request->getPost('numeral');
         $actividad = $this->request->getPost('actividad');
+        $fechaPropuesta = $this->request->getPost('fecha_propuesta');
 
         if (empty($idCliente) || empty($actividad)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Cliente y actividad son requeridos']);
+        }
+
+        if (empty($fechaPropuesta) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaPropuesta)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'La fecha programada es obligatoria y debe tener formato YYYY-MM-DD']);
         }
 
         try {
@@ -899,7 +904,7 @@ class PtaClienteNuevaController extends Controller
                 'actividad_plandetrabajo' => $actividad,
                 'responsable_sugerido_plandetrabajo' => 'CONSULTOR CYCLOID',
                 'observaciones' => '',
-                'fecha_propuesta' => date('Y-m-d'),
+                'fecha_propuesta' => $fechaPropuesta,
                 'estado_actividad' => 'ABIERTA',
                 'porcentaje_avance' => 0,
             ];
