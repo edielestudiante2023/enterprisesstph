@@ -1673,11 +1673,35 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('planilla-seg-social/edit/(:num)',  'PlanillaSSController::edit/$1');
     $routes->post('planilla-seg-social/update/(:num)','PlanillaSSController::update/$1');
     $routes->post('planilla-seg-social/delete/(:num)','PlanillaSSController::delete/$1');
+
+    // Acta de Capacitación (FT-SST-252) — flujo del consultor
+    $routes->get('acta-capacitacion',                              'ActaCapacitacionController::list');
+    $routes->get('acta-capacitacion/create',                       'ActaCapacitacionController::create');
+    $routes->get('acta-capacitacion/create/(:num)',                'ActaCapacitacionController::create/$1');
+    $routes->post('acta-capacitacion/store',                       'ActaCapacitacionController::store');
+    $routes->get('acta-capacitacion/edit/(:num)',                  'ActaCapacitacionController::edit/$1');
+    $routes->post('acta-capacitacion/update/(:num)',               'ActaCapacitacionController::update/$1');
+    $routes->get('acta-capacitacion/view/(:num)',                  'ActaCapacitacionController::view/$1');
+    $routes->get('acta-capacitacion/pdf/(:num)',                   'ActaCapacitacionController::generatePdf/$1');
+    $routes->post('acta-capacitacion/finalizar/(:num)',            'ActaCapacitacionController::finalizar/$1');
+    $routes->post('acta-capacitacion/generar-token-firma/(:num)',  'ActaCapacitacionController::generarTokenFirma/$1');
+    $routes->post('acta-capacitacion/asistente/save/(:num)',       'ActaCapacitacionController::saveAsistente/$1');
+    $routes->post('acta-capacitacion/asistente/delete/(:num)/(:num)', 'ActaCapacitacionController::deleteAsistente/$1/$2');
+    $routes->post('acta-capacitacion/asistente/enviar-email/(:num)',  'ActaCapacitacionController::enviarEmailFirma/$1');
+    $routes->get('acta-capacitacion/asistentes-status/(:num)',     'ActaCapacitacionController::getAsistentesStatus/$1');
+    $routes->post('acta-capacitacion/generar-token-inscripcion/(:num)', 'ActaCapacitacionController::generarTokenInscripcion/$1');
+    $routes->get('acta-capacitacion/delete/(:num)',                'ActaCapacitacionController::delete/$1');
 });
 
 // Rutas públicas Acta de Visita — firma remota por WhatsApp
 $routes->get('acta-visita/firmar-remoto/(:any)', 'Inspecciones\ActaVisitaController::firmarRemoto/$1');
 $routes->post('acta-visita/procesar-firma-remota', 'Inspecciones\ActaVisitaController::procesarFirmaRemota');
+
+// Rutas públicas Acta de Capacitación — firma remota + auto-inscripción QR
+$routes->get('acta-capacitacion/firmar-remoto/(:any)',   'Inspecciones\ActaCapacitacionController::firmarRemoto/$1');
+$routes->post('acta-capacitacion/procesar-firma-remota', 'Inspecciones\ActaCapacitacionController::procesarFirmaRemota');
+$routes->get('acta-capacitacion/inscripcion/(:any)',     'Inspecciones\ActaCapacitacionController::inscripcion/$1');
+$routes->post('acta-capacitacion/procesar-inscripcion',  'Inspecciones\ActaCapacitacionController::procesarInscripcion');
 
 // Evaluaciones rápidas post-visita (acceso por token, sin auth)
 $routes->get('acta-visita/evaluaciones-visita/(:num)/(:any)', 'Inspecciones\ActaVisitaController::evaluacionesVisita/$1/$2');

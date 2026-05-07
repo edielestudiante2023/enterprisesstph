@@ -1215,6 +1215,11 @@
                 <div><strong>Preguntas</strong></div>
                 <div class="count">(<?= $totalTemasEval ?>)</div>
             </a>
+            <a href="<?= base_url('/inspecciones/acta-capacitacion') ?>" class="card-tipo">
+                <i class="fas fa-graduation-cap"></i>
+                <div><strong>Actas Capacitación QR</strong></div>
+                <div class="count">(<?= $totalActasCapacitacion ?? 0 ?>)</div>
+            </a>
         </div>
     </div>
 
