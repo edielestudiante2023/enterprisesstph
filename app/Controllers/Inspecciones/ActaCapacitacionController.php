@@ -10,6 +10,7 @@ use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
 use App\Models\CronogcapacitacionModel;
+use App\Libraries\InspeccionEmailNotifier;
 use App\Traits\AutosaveJsonTrait;
 use App\Traits\ImagenCompresionTrait;
 use Dompdf\Dompdf;
@@ -419,8 +420,30 @@ class ActaCapacitacionController extends BaseController
                 $this->uploadResponsabilidadesToReportes($acta, $result['responsabilidades']);
             }
 
+            // Email al cliente + consultor con el PDF adjunto (modo legacy)
+            InspeccionEmailNotifier::enviar(
+                (int) $acta['id_cliente'],
+                (int) $acta['id_consultor'],
+                'REPORTE DE CAPACITACIÓN',
+                $acta['fecha_capacitacion'],
+                $result['acta'],
+                (int) $acta['id'],
+                'ActaCapacitacion'
+            );
+            if (!empty($result['responsabilidades'])) {
+                InspeccionEmailNotifier::enviar(
+                    (int) $acta['id_cliente'],
+                    (int) $acta['id_consultor'],
+                    'RESPONSABILIDADES SST',
+                    $acta['fecha_capacitacion'],
+                    $result['responsabilidades'],
+                    (int) $acta['id'],
+                    'ActaCapacitacion'
+                );
+            }
+
             return redirect()->to('/inspecciones/acta-capacitacion/view/' . $id)
-                ->with('msg', 'Acta finalizada. PDF genérico generado (sin cronograma vinculado).');
+                ->with('msg', 'Reporte finalizado. PDF genérico generado (sin cronograma vinculado).');
         }
 
         // ─── Modo nuevo: acta con N cronogramas → N PDFs (uno por capacitación) ───
@@ -497,6 +520,31 @@ class ActaCapacitacionController extends BaseController
                 (int)($evaluados ?? 0),
                 $promedio
             );
+
+            // 8. Enviar email al cliente + consultor con el PDF adjunto
+            //    (uno por capacitación, igual que el patrón de ActaVisita)
+            InspeccionEmailNotifier::enviar(
+                (int) $acta['id_cliente'],
+                (int) $acta['id_consultor'],
+                'REPORTE DE CAPACITACIÓN - ' . $nombreCap,
+                $acta['fecha_capacitacion'],
+                $result['acta'],
+                (int) $acta['id'],
+                'ActaCapacitacion'
+            );
+
+            // 9. Si la capacitación es Inducción/Reinducción, enviar también el FT-SST-003
+            if (!empty($result['responsabilidades'])) {
+                InspeccionEmailNotifier::enviar(
+                    (int) $acta['id_cliente'],
+                    (int) $acta['id_consultor'],
+                    'RESPONSABILIDADES SST - ' . $nombreCap,
+                    $acta['fecha_capacitacion'],
+                    $result['responsabilidades'],
+                    (int) $acta['id'],
+                    'ActaCapacitacion'
+                );
+            }
 
             $generadosOk++;
         }
