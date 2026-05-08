@@ -1195,6 +1195,8 @@
     <div class="section-title">Capacitaciones</div>
     <div class="card mb-3 border-0" style="background:#eefcf0; border-radius:12px; padding:10px 8px 6px;">
         <div class="grid-inspecciones" style="grid-template-columns:repeat(2, minmax(0,1fr));">
+            <?php /* OCULTOS — deprecados a favor de "Reporte de Capacitación QR" (acta-capacitacion).
+                     Los módulos siguen accesibles por URL directa para no romper registros históricos.
             <a href="<?= base_url('/inspecciones/asistencia-capacitacion') ?>" class="card-tipo">
                 <i class="fas fa-clipboard-list"></i>
                 <div><strong>Asistencia</strong></div>
@@ -1205,6 +1207,7 @@
                 <div><strong>Capacitaciones</strong></div>
                 <div class="count">(<?= $totalRepCap ?>)</div>
             </a>
+            */ ?>
             <a href="<?= base_url('/inspecciones/evaluacion-capacitacion') ?>" class="card-tipo">
                 <i class="fas fa-qrcode"></i>
                 <div><strong>Creador de QR evaluaciones</strong></div>
