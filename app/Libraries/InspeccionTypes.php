@@ -168,16 +168,10 @@ class InspeccionTypes
             ],
             // ========== Capacitaciones ==========
             [
-                'slug' => 'reporte-capacitacion', 'label' => 'Reporte de Capacitación', 'group' => 'Capacitaciones',
-                'icon' => 'fa-chalkboard-teacher',
-                'table' => 'tbl_reporte_capacitacion', 'date_col' => 'fecha_capacitacion',
-                'list_route' => 'inspecciones/reporte-capacitacion', 'create_route' => 'inspecciones/reporte-capacitacion/create', 'view_route' => 'inspecciones/reporte-capacitacion/view',
-            ],
-            [
-                'slug' => 'asistencia-capacitacion', 'label' => 'Asistencia Capacitación', 'group' => 'Capacitaciones',
-                'icon' => 'fa-clipboard-list',
-                'table' => 'tbl_asistencia_capacitacion', 'date_col' => 'fecha_sesion', 'estado_col' => null,
-                'list_route' => 'inspecciones/asistencia-capacitacion', 'create_route' => 'inspecciones/asistencia-capacitacion/create', 'view_route' => 'inspecciones/asistencia-capacitacion/view',
+                'slug' => 'acta-capacitacion', 'label' => 'Reporte de Capacitación QR', 'group' => 'Capacitaciones',
+                'icon' => 'fa-graduation-cap',
+                'table' => 'tbl_acta_capacitacion', 'date_col' => 'fecha_capacitacion',
+                'list_route' => 'inspecciones/acta-capacitacion', 'create_route' => 'inspecciones/acta-capacitacion/create', 'view_route' => 'inspecciones/acta-capacitacion/view',
             ],
             [
                 'slug' => 'evaluacion-capacitacion', 'label' => 'Evaluación Capacitación', 'group' => 'Capacitaciones',
