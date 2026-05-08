@@ -21,7 +21,7 @@
         table.datos-general td { border: 1px solid #999; padding: 5px 8px; }
         .datos-label { font-weight: bold; width: 22%; background:#f8f9fa; }
 
-        .firma-img { max-width: 110px; max-height: 50px; border-bottom: 1px solid #999; }
+        .firma-img { max-width: 180px; max-height: 80px; border-bottom: 1px solid #999; filter: contrast(1.6) brightness(0.6); }
         .empty-text { color: #888; font-style: italic; font-size: 9pt; }
         .pendiente-text { color:#d97706; font-style:italic; font-size:9pt; }
 
@@ -49,18 +49,30 @@
                 <table style="width:100%; border-collapse:collapse;" cellpadding="0" cellspacing="0">
                     <tr><td style="border-bottom:1px solid #333; padding:3px 6px; font-size:8pt;"><span style="font-weight:bold;">Código:</span> FT-SST-252</td></tr>
                     <tr><td style="border-bottom:1px solid #333; padding:3px 6px; font-size:8pt;"><span style="font-weight:bold;">Versión:</span> 001</td></tr>
-                    <tr><td style="padding:3px 6px; font-size:8pt;"><span style="font-weight:bold;">Vigencia:</span> <?= date('d/m/Y', strtotime($acta['fecha_capacitacion'])) ?></td></tr>
+                    <tr><td style="padding:3px 6px; font-size:8pt;"><span style="font-weight:bold;">Vigencia:</span> <?= !empty($vigenciaContrato) ? date('d/m/Y', strtotime($vigenciaContrato)) : date('d/m/Y', strtotime($acta['fecha_capacitacion'])) ?></td></tr>
                 </table>
             </td>
         </tr>
         <tr>
             <td style="border:1px solid #333; text-align:center; padding:6px 10px; vertical-align:middle;">
                 <div style="font-size:10pt; font-weight:bold; color:#333;">
-                    ACTA DE CAPACITACIÓN
+                    REPORTE DE CAPACITACIÓN
                 </div>
             </td>
         </tr>
     </table>
+
+    <?php
+    // Si hay contexto de cronograma específico (modo nuevo), el TEMA viene del cronograma.
+    // Si no (modo legacy), usa el campo libre del acta.
+    $temaPDF = !empty($cronogramaCtx['nombre_capacitacion'])
+        ? $cronogramaCtx['nombre_capacitacion']
+        : ($acta['tema'] ?? '');
+    // Objetivos: si hay contexto, usa el generado por IA; si no, los del acta.
+    $objetivosPDF = !empty($cronogramaCtx['objetivo_ia'])
+        ? $cronogramaCtx['objetivo_ia']
+        : ($acta['objetivos'] ?? '');
+    ?>
 
     <!-- DATOS GENERALES -->
     <table class="datos-general">
@@ -69,8 +81,8 @@
             <td colspan="3"><?= esc($cliente['nombre_cliente'] ?? '') ?></td>
         </tr>
         <tr>
-            <td class="datos-label">TEMA:</td>
-            <td colspan="3"><strong><?= esc($acta['tema']) ?></strong></td>
+            <td class="datos-label">CAPACITACIÓN:</td>
+            <td colspan="3"><strong><?= esc($temaPDF) ?></strong></td>
         </tr>
         <tr>
             <td class="datos-label">FECHA:</td>
@@ -110,11 +122,56 @@
         </tr>
     </table>
 
-    <!-- OBJETIVOS -->
-    <?php if (!empty($acta['objetivos'])): ?>
+    <!-- OBJETIVOS (generados por IA según la capacitación específica) -->
+    <?php if (!empty($objetivosPDF)): ?>
     <div class="seccion">
         <div class="seccion-titulo">OBJETIVOS</div>
-        <div class="seccion-contenido"><p><?= nl2br(esc($acta['objetivos'])) ?></p></div>
+        <div class="seccion-contenido"><p><?= nl2br(esc($objetivosPDF)) ?></p></div>
+    </div>
+    <?php endif; ?>
+
+    <!-- RESULTADOS DE LA EVALUACIÓN (matcheada con IA por tema) -->
+    <?php if (!empty($cronogramaCtx['respuestas_eval'])):
+        $resp = $cronogramaCtx['respuestas_eval'];
+        $promCalc = !empty($cronogramaCtx['promedio']) ? $cronogramaCtx['promedio'] : 0;
+    ?>
+    <div class="seccion">
+        <div class="seccion-titulo">RESULTADOS DE LA EVALUACIÓN</div>
+        <?php if (!empty($cronogramaCtx['tema_evaluacion'])): ?>
+        <p style="font-size:9pt; margin:2px 0 6px 0; color:#555;">
+            <strong>Tema evaluado:</strong> <?= esc($cronogramaCtx['tema_evaluacion']) ?>
+        </p>
+        <?php endif; ?>
+        <table class="tabla-contenido">
+            <thead>
+                <tr>
+                    <th style="width:5%;">#</th>
+                    <th style="width:35%;">NOMBRE</th>
+                    <th style="width:18%;">CÉDULA</th>
+                    <th style="width:25%;">CARGO</th>
+                    <th style="width:17%; text-align:center;">CALIFICACIÓN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($resp as $i => $r): ?>
+                <tr>
+                    <td style="text-align:center;"><?= $i + 1 ?></td>
+                    <td><?= esc($r['nombre'] ?? '') ?></td>
+                    <td><?= esc($r['cedula'] ?? '') ?></td>
+                    <td><?= esc($r['cargo'] ?? '') ?></td>
+                    <td style="text-align:center; font-weight:bold; color:<?= ((float)$r['calificacion'] >= 70) ? '#198754' : '#dc3545' ?>;">
+                        <?= number_format((float)$r['calificacion'], 1) ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+            <tfoot>
+                <tr style="background:#f8f9fa;">
+                    <td colspan="4" style="text-align:right; font-weight:bold;">PROMEDIO:</td>
+                    <td style="text-align:center; font-weight:bold; font-size:11pt;"><?= number_format((float)$promCalc, 2) ?></td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
     <?php endif; ?>
 
@@ -145,8 +202,18 @@
                         <?php endif; ?>
                     </td>
                     <td style="text-align:center; vertical-align:middle;">
-                        <?php if (!empty($a['firma_base64'])): ?>
-                            <img src="<?= $a['firma_base64'] ?>" class="firma-img">
+                        <?php
+                        // Preferir data URI base64 (funciona universalmente en DOMPDF).
+                        // Path absoluto solo como fallback (no funciona en Windows con DOMPDF).
+                        $firmaSrc = '';
+                        if (!empty($a['firma_base64'])) {
+                            $firmaSrc = $a['firma_base64'];
+                        } elseif (!empty($a['firma_full_path'])) {
+                            $firmaSrc = $a['firma_full_path'];
+                        }
+                        ?>
+                        <?php if ($firmaSrc): ?>
+                            <img src="<?= $firmaSrc ?>" class="firma-img">
                             <div style="font-size:7pt; color:#666;"><?= !empty($a['firmado_at']) ? date('d/m/Y H:i', strtotime($a['firmado_at'])) : '' ?></div>
                         <?php else: ?>
                             <span class="pendiente-text">Sin firma</span>
@@ -160,6 +227,33 @@
             <p class="empty-text">Sin asistentes registrados.</p>
         <?php endif; ?>
     </div>
+
+    <!-- REGISTRO FOTOGRÁFICO (solo en PDF acta, NO en responsabilidades) -->
+    <?php
+    $tienePdfFotos = ($pdfType ?? 'acta') === 'acta'
+        && !empty($fotosBase64)
+        && (
+            !empty($fotosBase64['foto_capacitacion'])
+            || !empty($fotosBase64['foto_otros_1'])
+            || !empty($fotosBase64['foto_otros_2'])
+        );
+    if ($tienePdfFotos):
+    ?>
+    <div class="seccion">
+        <div class="seccion-titulo">REGISTRO FOTOGRÁFICO</div>
+        <table style="width:100%; border-collapse:collapse; margin-top:6px;">
+            <tr>
+                <?php foreach (['foto_capacitacion','foto_otros_1','foto_otros_2'] as $f): ?>
+                    <?php if (!empty($fotosBase64[$f])): ?>
+                        <td style="width:33%; padding:4px; text-align:center; vertical-align:top;">
+                            <img src="<?= $fotosBase64[$f] ?>" style="max-width:100%; max-height:200px; border:1px solid #999;">
+                        </td>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </tr>
+        </table>
+    </div>
+    <?php endif; ?>
 
     <!-- OBSERVACIONES -->
     <?php if (!empty($acta['observaciones'])): ?>

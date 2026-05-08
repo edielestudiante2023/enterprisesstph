@@ -5,6 +5,7 @@ namespace App\Controllers\Inspecciones;
 use App\Controllers\BaseController;
 use App\Models\ActaCapacitacionModel;
 use App\Models\ActaCapacitacionAsistenteModel;
+use App\Models\ActaCronogramaModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
 use App\Models\ReporteModel;
@@ -23,11 +24,13 @@ class ActaCapacitacionController extends BaseController
 
     protected ActaCapacitacionModel $actaModel;
     protected ActaCapacitacionAsistenteModel $asistenteModel;
+    protected ActaCronogramaModel $vinculoModel;
 
     public function __construct()
     {
         $this->actaModel = new ActaCapacitacionModel();
         $this->asistenteModel = new ActaCapacitacionAsistenteModel();
+        $this->vinculoModel = new ActaCronogramaModel();
     }
 
     public function list()
@@ -49,7 +52,7 @@ class ActaCapacitacionController extends BaseController
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/acta_capacitacion/list', ['actas' => $actas]),
-            'title'   => 'Actas de Capacitación',
+            'title'   => 'Reportes de Capacitación',
         ]);
     }
 
@@ -57,13 +60,13 @@ class ActaCapacitacionController extends BaseController
     {
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/acta_capacitacion/form', [
-                'title'      => 'Nueva Acta de Capacitación',
+                'title'      => 'Nuevo Reporte de Capacitación',
                 'acta'       => null,
                 'asistentes' => [],
                 'idCliente'  => $idCliente,
                 'contexto'   => 'consultor',
             ]),
-            'title' => 'Nueva Acta de Capacitación',
+            'title' => 'Nuevo Reporte de Capacitación',
         ]);
     }
 
@@ -83,7 +86,6 @@ class ActaCapacitacionController extends BaseController
         }
 
         $idComite = $this->request->getPost('id_comite');
-        $idCronog = $this->request->getPost('id_cronograma_capacitacion');
         $data = [
             'id_cliente'                 => $this->request->getPost('id_cliente'),
             'id_comite'                  => $idComite ? (int)$idComite : null,
@@ -98,17 +100,9 @@ class ActaCapacitacionController extends BaseController
             'entidad_capacitadora'       => $this->request->getPost('entidad_capacitadora'),
             'modalidad'                  => $this->request->getPost('modalidad') ?: 'virtual',
             'tipo_charla'                => $this->request->getPost('tipo_charla') ?: 'capacitacion',
-            'id_cronograma_capacitacion' => $idCronog ? (int)$idCronog : null,
-            'enlace_grabacion'           => $this->request->getPost('enlace_grabacion'),
-            'objetivos'                  => $this->request->getPost('objetivos'),
-            'contenido'                  => $this->request->getPost('contenido'),
             'observaciones'              => $this->request->getPost('observaciones'),
             'numero_programados'         => $this->request->getPost('numero_programados') !== null && $this->request->getPost('numero_programados') !== ''
                                               ? (int) $this->request->getPost('numero_programados') : null,
-            'numero_evaluados'           => $this->request->getPost('numero_evaluados') !== null && $this->request->getPost('numero_evaluados') !== ''
-                                              ? (int) $this->request->getPost('numero_evaluados') : null,
-            'promedio_calificaciones'    => $this->request->getPost('promedio_calificaciones') !== null && $this->request->getPost('promedio_calificaciones') !== ''
-                                              ? $this->request->getPost('promedio_calificaciones') : null,
             'estado'                     => 'borrador',
         ];
 
@@ -120,6 +114,12 @@ class ActaCapacitacionController extends BaseController
 
         $this->actaModel->insert($data);
         $idActa = $this->actaModel->getInsertID();
+
+        // Sincronizar cronogramas vinculados (tabla puente N:M)
+        $idCronogs = $this->request->getPost('id_cronogramas');
+        if (is_array($idCronogs) && !empty($idCronogs)) {
+            $this->vinculoModel->syncForActa((int)$idActa, $idCronogs);
+        }
 
         $this->saveAsistentes($idActa);
 
@@ -136,13 +136,15 @@ class ActaCapacitacionController extends BaseController
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/acta_capacitacion/form', [
-                'title'      => 'Editar Acta de Capacitación',
-                'acta'       => $acta,
-                'asistentes' => $this->asistenteModel->getByActa((int)$id),
-                'idCliente'  => $acta['id_cliente'],
-                'contexto'   => 'consultor',
+                'title'        => 'Editar Reporte de Capacitación',
+                'acta'         => $acta,
+                'asistentes'   => $this->asistenteModel->getByActa((int)$id),
+                'vinculos'     => $this->vinculoModel->getByActa((int)$id),
+                'idCronogIds'  => $this->vinculoModel->getIdsCronogramaByActa((int)$id),
+                'idCliente'    => $acta['id_cliente'],
+                'contexto'     => 'consultor',
             ]),
-            'title' => 'Editar Acta de Capacitación',
+            'title' => 'Editar Reporte de Capacitación',
         ]);
     }
 
@@ -159,7 +161,6 @@ class ActaCapacitacionController extends BaseController
         }
 
         $idComite = $this->request->getPost('id_comite');
-        $idCronog = $this->request->getPost('id_cronograma_capacitacion');
         $data = [
             'id_cliente'                 => $this->request->getPost('id_cliente'),
             'id_comite'                  => $idComite ? (int)$idComite : null,
@@ -172,21 +173,19 @@ class ActaCapacitacionController extends BaseController
             'entidad_capacitadora'       => $this->request->getPost('entidad_capacitadora'),
             'modalidad'                  => $this->request->getPost('modalidad') ?: 'virtual',
             'tipo_charla'                => $this->request->getPost('tipo_charla') ?: 'capacitacion',
-            'id_cronograma_capacitacion' => $idCronog ? (int)$idCronog : null,
-            'enlace_grabacion'           => $this->request->getPost('enlace_grabacion'),
-            'objetivos'                  => $this->request->getPost('objetivos'),
-            'contenido'                  => $this->request->getPost('contenido'),
             'observaciones'              => $this->request->getPost('observaciones'),
             'numero_programados'         => $this->request->getPost('numero_programados') !== null && $this->request->getPost('numero_programados') !== ''
                                               ? (int) $this->request->getPost('numero_programados') : null,
-            'numero_evaluados'           => $this->request->getPost('numero_evaluados') !== null && $this->request->getPost('numero_evaluados') !== ''
-                                              ? (int) $this->request->getPost('numero_evaluados') : null,
-            'promedio_calificaciones'    => $this->request->getPost('promedio_calificaciones') !== null && $this->request->getPost('promedio_calificaciones') !== ''
-                                              ? $this->request->getPost('promedio_calificaciones') : null,
         ];
 
         $dirFotos = 'uploads/inspecciones/acta-capacitacion/';
         foreach (['foto_capacitacion','foto_otros_1','foto_otros_2'] as $campo) {
+            if ($this->request->getPost($campo . '__delete') === '1') {
+                if (!empty($acta[$campo]) && file_exists(FCPATH . $acta[$campo])) {
+                    unlink(FCPATH . $acta[$campo]);
+                }
+                $data[$campo] = null;
+            }
             $nueva = $this->uploadFoto($campo, $dirFotos);
             if ($nueva) {
                 if (!empty($acta[$campo]) && file_exists(FCPATH . $acta[$campo])) {
@@ -197,6 +196,12 @@ class ActaCapacitacionController extends BaseController
         }
 
         $this->actaModel->update($id, $data);
+
+        // Sincronizar cronogramas vinculados (solo si vienen — autosave puede no enviarlos)
+        $idCronogs = $this->request->getPost('id_cronogramas');
+        if (is_array($idCronogs)) {
+            $this->vinculoModel->syncForActa((int)$id, $idCronogs);
+        }
 
         $this->saveAsistentes((int)$id);
 
@@ -221,9 +226,10 @@ class ActaCapacitacionController extends BaseController
                 'consultor'    => $acta['id_consultor'] ? $consultantModel->find($acta['id_consultor']) : null,
                 'realizadoPor' => null,
                 'asistentes'   => $this->asistenteModel->getByActa((int)$id),
+                'vinculos'     => $this->vinculoModel->getByActa((int)$id),
                 'contexto'     => 'consultor',
             ]),
-            'title' => 'Ver Acta de Capacitación',
+            'title' => 'Ver Reporte de Capacitación',
         ]);
     }
 
@@ -345,7 +351,7 @@ class ActaCapacitacionController extends BaseController
         $mensaje = "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
             <div style='background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 20px; text-align: center;'>
-                <h2 style='color: white; margin: 0;'>Solicitud de Firma - Acta de Capacitación</h2>
+                <h2 style='color: white; margin: 0;'>Solicitud de Firma - Reporte de Capacitación</h2>
             </div>
             <div style='padding: 30px; background: #f8f9fa;'>
                 <p>Estimado/a <strong>{$nombre}</strong>,</p>
@@ -358,7 +364,7 @@ class ActaCapacitacionController extends BaseController
                 </div>
                 <div style='text-align: center; margin: 30px 0;'>
                     <a href='{$urlFirma}' style='background: #bd9751; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-size: 16px; display: inline-block;'>
-                        Firmar Acta de Capacitación
+                        Firmar Reporte de Capacitación
                     </a>
                 </div>
                 <p style='color: #666; font-size: 12px;'>O copie este enlace en su navegador:</p>
@@ -394,37 +400,113 @@ class ActaCapacitacionController extends BaseController
         $acta = $this->actaModel->find($id);
         if (!$acta) return redirect()->to('/inspecciones/acta-capacitacion');
 
-        // Pre-cálculo de puntaje promedio con IA si está vacío y hay tema
-        if (empty($acta['promedio_calificaciones']) && !empty($acta['tema'])) {
-            $puntaje = $this->calcularPuntajeIA(
+        $vinculos = $this->vinculoModel->getByActa((int)$id);
+
+        // ─── Modo legacy: acta sin cronogramas vinculados → 1 PDF genérico ───
+        if (empty($vinculos)) {
+            $result = $this->generarPdfInterno((int)$id, null);
+            if (empty($result['acta'])) return redirect()->back()->with('error', 'Error al generar PDF');
+
+            $update = ['estado' => 'completo', 'ruta_pdf' => $result['acta']];
+            if (!empty($result['responsabilidades'])) {
+                $update['ruta_pdf_responsabilidades'] = $result['responsabilidades'];
+            }
+            $this->actaModel->update($id, $update);
+            $acta = $this->actaModel->find($id);
+
+            $this->uploadToReportes($acta, $result['acta']);
+            if (!empty($result['responsabilidades'])) {
+                $this->uploadResponsabilidadesToReportes($acta, $result['responsabilidades']);
+            }
+
+            return redirect()->to('/inspecciones/acta-capacitacion/view/' . $id)
+                ->with('msg', 'Acta finalizada. PDF genérico generado (sin cronograma vinculado).');
+        }
+
+        // ─── Modo nuevo: acta con N cronogramas → N PDFs (uno por capacitación) ───
+        $generadosOk = 0;
+        $errores = [];
+        foreach ($vinculos as $v) {
+            $idVinculo  = (int)$v['id_acta_cronograma'];
+            $idCronog   = (int)$v['id_cronograma'];
+            $nombreCap  = $v['nombre_capacitacion'] ?? ($acta['tema'] ?? 'Capacitación');
+
+            // Detectar si esta capacitación es Inducción/Reinducción → genera FT-SST-003
+            $nombreNorm = mb_strtolower($nombreCap);
+            $esInduccion = (strpos($nombreNorm, 'inducción') !== false)
+                        || (strpos($nombreNorm, 'induccion') !== false)
+                        || (strpos($nombreNorm, 'reinducción') !== false)
+                        || (strpos($nombreNorm, 'reinduccion') !== false);
+
+            // 1. Generar objetivo IA específico para esta capacitación
+            $objetivoIa = $this->generarObjetivoIaInterno($nombreCap);
+
+            // 2. Calcular puntaje IA (cliente + tema=nombre_capacitacion)
+            $puntajeData = $this->calcularPuntajeIA(
                 (int) $acta['id_cliente'],
                 $acta['fecha_capacitacion'],
-                $acta['tema']
+                $nombreCap
             );
-            if ($puntaje !== null) {
-                $this->actaModel->update($id, ['promedio_calificaciones' => $puntaje]);
-                $acta['promedio_calificaciones'] = $puntaje;
+            $promedio       = $puntajeData['promedio']        ?? null;
+            $evaluados      = $puntajeData['evaluados']       ?? null;
+            $idEvaluacion   = $puntajeData['id_evaluacion']   ?? null;
+            $temaEvaluacion = $puntajeData['tema_evaluacion'] ?? null;
+
+            // 2b. Traer respuestas individuales de la evaluación matcheada (para el PDF)
+            $respuestasEval = $idEvaluacion
+                ? $this->getRespuestasEvaluacion((int) $idEvaluacion)
+                : [];
+
+            // 3. Persistir IA del vínculo (objetivo + promedio + evaluados)
+            $this->vinculoModel->update($idVinculo, [
+                'objetivo_ia'             => $objetivoIa,
+                'promedio_calificaciones' => $promedio,
+                'numero_evaluados'        => $evaluados,
+            ]);
+
+            // 4. Generar PDF específico de esta capacitación.
+            //    Si es inducción, además genera el FT-SST-003 (responsabilidades).
+            $cronogramaCtx = [
+                'id_cronograma'       => $idCronog,
+                'nombre_capacitacion' => $nombreCap,
+                'objetivo_ia'         => $objetivoIa,
+                'promedio'            => $promedio,
+                'evaluados'           => $evaluados,
+                'tema_evaluacion'     => $temaEvaluacion,
+                'respuestas_eval'     => $respuestasEval,
+            ];
+            $result = $this->generarPdfInterno((int)$id, $cronogramaCtx, $esInduccion);
+            if (empty($result['acta'])) {
+                $errores[] = $nombreCap;
+                continue;
             }
+
+            // 5. Guardar ruta_pdf en el vínculo
+            $this->vinculoModel->update($idVinculo, ['ruta_pdf' => $result['acta']]);
+
+            // 6. Subir a tbl_reportes (uno por PDF, idempotente por id_vinculo)
+            $this->uploadToReportes($acta, $result['acta'], $idVinculo, $nombreCap);
+            if (!empty($result['responsabilidades'])) {
+                $this->uploadResponsabilidadesToReportes($acta, $result['responsabilidades'], $idVinculo, $nombreCap);
+            }
+
+            // 7. Sync al cronograma específico (estado=EJECUTADA)
+            $this->syncToCronogramaIndividual(
+                (int)$idCronog,
+                $acta,
+                (int)($evaluados ?? 0),
+                $promedio
+            );
+
+            $generadosOk++;
         }
 
-        $result = $this->generarPdfInterno((int)$id);
-        if (empty($result['acta'])) return redirect()->back()->with('error', 'Error al generar PDF');
+        $this->actaModel->update($id, ['estado' => 'completo']);
 
-        $update = ['estado' => 'completo', 'ruta_pdf' => $result['acta']];
-        if (!empty($result['responsabilidades'])) {
-            $update['ruta_pdf_responsabilidades'] = $result['responsabilidades'];
-        }
-        $this->actaModel->update($id, $update);
-        $acta = $this->actaModel->find($id);
+        $msg = "Acta finalizada. {$generadosOk} PDF(s) generado(s).";
+        if (!empty($errores)) $msg .= ' Errores: ' . implode(', ', $errores);
 
-        $this->uploadToReportes($acta, $result['acta']);
-        if (!empty($result['responsabilidades'])) {
-            $this->uploadResponsabilidadesToReportes($acta, $result['responsabilidades']);
-        }
-
-        $this->syncToCronograma($acta);
-
-        return redirect()->to('/inspecciones/acta-capacitacion/view/' . $id)->with('msg', 'Acta finalizada.');
+        return redirect()->to('/inspecciones/acta-capacitacion/view/' . $id)->with('msg', $msg);
     }
 
     public function generatePdf($id)
@@ -807,9 +889,15 @@ class ActaCapacitacionController extends BaseController
     /**
      * Genera 1 o 2 PDFs:
      *   - 'acta' (FT-SST-252): siempre
-     *   - 'responsabilidades' (FT-SST-003): solo si tipo_charla === 'induccion_reinduccion'
+     *   - 'responsabilidades' (FT-SST-003): si $forzarResponsabilidades (modo nuevo, decisión por vínculo)
+     *      o si acta.tipo_charla === 'induccion_reinduccion' (modo legacy sin cronograma)
+     *
+     * @param int        $id                       ID del acta
+     * @param array|null $cronogramaCtx            Contexto del cronograma cuando se genera 1 PDF por capacitación.
+     *                                             Claves: id_cronograma, nombre_capacitacion, objetivo_ia, promedio, evaluados.
+     * @param bool       $forzarResponsabilidades  Si true, genera el FT-SST-003 (decisión de finalizar por nombre del cronograma).
      */
-    private function generarPdfInterno(int $id): array
+    private function generarPdfInterno(int $id, ?array $cronogramaCtx = null, bool $forzarResponsabilidades = false): array
     {
         $acta = $this->actaModel->find($id);
         $clientModel = new ClientModel();
@@ -826,6 +914,21 @@ class ActaCapacitacionController extends BaseController
             }
         }
 
+        // Vigencia del documento = fecha de inicio del contrato más reciente del cliente.
+        // Fallback a fecha_capacitacion si no hay contrato.
+        $vigenciaContrato = $acta['fecha_capacitacion'];
+        $db = \Config\Database::connect();
+        $contrato = $db->table('tbl_contratos')
+            ->select('fecha_inicio')
+            ->where('id_cliente', (int)$acta['id_cliente'])
+            ->where('fecha_inicio IS NOT NULL', null, false)
+            ->orderBy('fecha_inicio', 'DESC')
+            ->limit(1)
+            ->get()->getRowArray();
+        if ($contrato && !empty($contrato['fecha_inicio'])) {
+            $vigenciaContrato = $contrato['fecha_inicio'];
+        }
+
         $fotosBase64 = [];
         foreach (['foto_capacitacion','foto_otros_1','foto_otros_2'] as $campo) {
             $fotosBase64[$campo] = '';
@@ -834,10 +937,14 @@ class ActaCapacitacionController extends BaseController
             }
         }
 
+        // Firmas: doble fallback. base64 + path absoluto (DOMPDF a veces falla con data URIs muy largos).
         foreach ($asistentes as &$a) {
-            $a['firma_base64'] = '';
+            $a['firma_base64']    = '';
+            $a['firma_full_path'] = '';
             if (!empty($a['firma_path']) && file_exists(FCPATH . $a['firma_path'])) {
-                $a['firma_base64'] = 'data:image/png;base64,' . base64_encode(file_get_contents(FCPATH . $a['firma_path']));
+                $absPath = FCPATH . $a['firma_path'];
+                $a['firma_full_path'] = $absPath;
+                $a['firma_base64']    = 'data:image/png;base64,' . base64_encode(file_get_contents($absPath));
             }
         }
         unset($a);
@@ -851,48 +958,50 @@ class ActaCapacitacionController extends BaseController
         $opts->set('isRemoteEnabled', true);
         $opts->set('isHtml5ParserEnabled', true);
 
+        // Sufijo en nombre de archivo (incluye cronograma si aplica)
+        $sufijoCronog = $cronogramaCtx ? ('_c' . (int)$cronogramaCtx['id_cronograma']) : '';
+
         // ---------- PDF 1: acta (FT-SST-252) ----------
         $html = view('inspecciones/acta_capacitacion/pdf', [
-            'pdfType'      => 'acta',
-            'acta'         => $acta,
-            'cliente'      => $cliente,
-            'consultor'    => $consultor,
-            'realizadoPor' => null,
-            'asistentes'   => $asistentes,
-            'logoBase64'   => $logoBase64,
-            'fotosBase64'  => $fotosBase64,
+            'pdfType'        => 'acta',
+            'acta'           => $acta,
+            'cliente'        => $cliente,
+            'consultor'      => $consultor,
+            'realizadoPor'   => null,
+            'asistentes'     => $asistentes,
+            'logoBase64'      => $logoBase64,
+            'fotosBase64'     => $fotosBase64,
+            'cronogramaCtx'   => $cronogramaCtx,
+            'vigenciaContrato'=> $vigenciaContrato,
         ]);
         $dompdf = new Dompdf($opts);
         $dompdf->loadHtml($html);
         $dompdf->setPaper('letter', 'portrait');
         $dompdf->render();
-        $pdfPath = $pdfDir . 'acta_capacitacion_' . $id . '_' . date('Ymd_His') . '.pdf';
-        if (!empty($acta['ruta_pdf']) && file_exists(FCPATH . $acta['ruta_pdf'])) {
-            unlink(FCPATH . $acta['ruta_pdf']);
-        }
+        $pdfPath = $pdfDir . 'acta_capacitacion_' . $id . $sufijoCronog . '_' . date('Ymd_His') . '.pdf';
         file_put_contents(FCPATH . $pdfPath, $dompdf->output());
         $resultado['acta'] = $pdfPath;
 
         // ---------- PDF 2: responsabilidades (FT-SST-003) — solo inducción ----------
-        if (($acta['tipo_charla'] ?? '') === 'induccion_reinduccion') {
-            $html2 = view('inspecciones/acta_capacitacion/pdf', [
-                'pdfType'      => 'responsabilidades',
-                'acta'         => $acta,
-                'cliente'      => $cliente,
-                'consultor'    => $consultor,
-                'realizadoPor' => null,
-                'asistentes'   => $asistentes,
-                'logoBase64'   => $logoBase64,
-                'fotosBase64'  => $fotosBase64,
+        // Modo nuevo: decisión por vínculo (la toma finalizar() por nombre del cronograma).
+        // Modo legacy (sin cronogramaCtx): mantiene el flag tipo_charla del acta.
+        $generarResponsabilidades = $forzarResponsabilidades
+            || ($cronogramaCtx === null && ($acta['tipo_charla'] ?? '') === 'induccion_reinduccion');
+        if ($generarResponsabilidades) {
+            // Vista dedicada FT-SST-003 — contenido fijo de responsabilidades SST.
+            $html2 = view('inspecciones/acta_capacitacion/pdf_responsabilidades', [
+                'acta'             => $acta,
+                'cliente'          => $cliente,
+                'consultor'        => $consultor,
+                'asistentes'       => $asistentes,
+                'logoBase64'       => $logoBase64,
+                'vigenciaContrato' => $vigenciaContrato,
             ]);
             $dompdf2 = new Dompdf($opts);
             $dompdf2->loadHtml($html2);
             $dompdf2->setPaper('letter', 'portrait');
             $dompdf2->render();
-            $pdfPath2 = $pdfDir . 'responsabilidades_sst_' . $id . '_' . date('Ymd_His') . '.pdf';
-            if (!empty($acta['ruta_pdf_responsabilidades']) && file_exists(FCPATH . $acta['ruta_pdf_responsabilidades'])) {
-                unlink(FCPATH . $acta['ruta_pdf_responsabilidades']);
-            }
+            $pdfPath2 = $pdfDir . 'responsabilidades_sst_' . $id . $sufijoCronog . '_' . date('Ymd_His') . '.pdf';
             file_put_contents(FCPATH . $pdfPath2, $dompdf2->output());
             $resultado['responsabilidades'] = $pdfPath2;
         }
@@ -900,7 +1009,74 @@ class ActaCapacitacionController extends BaseController
         return $resultado;
     }
 
-    private function uploadToReportes(array $acta, string $pdfPath): bool
+    /**
+     * Genera el objetivo SST con OpenAI dado el nombre de la capacitación.
+     * Reusa el mismo prompt que generarObjetivo() público pero como helper interno.
+     */
+    private function generarObjetivoIaInterno(string $nombreCapacitacion): string
+    {
+        $nombre = trim($nombreCapacitacion);
+        if (!$nombre) return '';
+
+        $prompt = "Eres un experto en Seguridad y Salud en el Trabajo (SST) para propiedades horizontales colombianas (conjuntos residenciales y edificios). El personal capacitado son principalmente contratistas de aseo y vigilancia, y ocasionalmente la comunidad (residentes y administración).
+
+Redacta el objetivo de la siguiente capacitación en SST: «{$nombre}».
+
+El objetivo debe:
+- Ser claro, concreto y profesional
+- Estar en infinitivo (Capacitar, Sensibilizar, Fortalecer, etc.)
+- Tener máximo 3 oraciones
+- Mencionar el perfil del personal (contratistas de aseo, vigilancia o comunidad cuando aplique)
+- No incluir títulos ni numeración, solo el texto del objetivo";
+
+        $texto = $this->llamarOpenAI($prompt, 200, 0.6);
+        return $texto ?: '';
+    }
+
+    /**
+     * Sync individual a tbl_cronog_capacitacion para UN cronograma específico.
+     * Llamado por finalizar() una vez por cada vínculo del acta.
+     */
+    private function syncToCronogramaIndividual(int $idCronog, array $acta, int $evaluados, ?float $promedio): void
+    {
+        $cronogModel = new CronogcapacitacionModel();
+        $cronograma = $cronogModel->find($idCronog);
+        if (!$cronograma) return;
+
+        $asistentes = $this->asistenteModel->getByActa((int)$acta['id']);
+        $totalFirmados = 0;
+        foreach ($asistentes as $a) {
+            if (!empty($a['firma_path'])) $totalFirmados++;
+        }
+
+        $programados = (int) ($acta['numero_programados'] ?? 0);
+        $cobertura = $programados > 0
+            ? number_format(($totalFirmados / $programados) * 100, 2) . '%'
+            : '0%';
+
+        $cronogModel->update($idCronog, [
+            'fecha_de_realizacion'                       => $acta['fecha_capacitacion'],
+            'estado'                                     => 'EJECUTADA',
+            'nombre_del_capacitador'                     => $acta['nombre_capacitador'] ?? '',
+            'horas_de_duracion_de_la_capacitacion'       => $acta['hora_inicio'] && $acta['hora_fin']
+                ? round((strtotime($acta['hora_fin']) - strtotime($acta['hora_inicio'])) / 3600, 1) . 'h'
+                : '',
+            'numero_de_asistentes_a_capacitacion'        => $totalFirmados,
+            'numero_total_de_personas_programadas'       => $programados,
+            'porcentaje_cobertura'                       => $cobertura,
+            'numero_de_personas_evaluadas'               => $evaluados,
+            'promedio_de_calificaciones'                 => $promedio !== null ? (string)$promedio : '',
+            'observaciones'                              => $acta['observaciones'] ?? '',
+            'id_reporte_capacitacion'                    => (int)$acta['id'],
+        ]);
+    }
+
+    /**
+     * Sube PDF a tbl_reporte. Si se pasa $idVinculo + $tituloCapacitacion, el reporte
+     * se identifica por vínculo (un reporte por cada capacitación dentro del acta).
+     * En modo legacy (sin idVinculo) usa el id del acta como identificador.
+     */
+    private function uploadToReportes(array $acta, string $pdfPath, ?int $idVinculo = null, ?string $tituloCapacitacion = null): bool
     {
         $reporteModel = new ReporteModel();
         $clientModel = new ClientModel();
@@ -911,16 +1087,26 @@ class ActaCapacitacionController extends BaseController
         $destDir = ROOTPATH . 'public/uploads/' . $nitCliente;
         if (!is_dir($destDir)) mkdir($destDir, 0755, true);
 
-        $fileName = 'acta_capacitacion_' . $acta['id'] . '_' . date('Ymd_His') . '.pdf';
+        $fileName = 'acta_capacitacion_' . $acta['id']
+            . ($idVinculo ? '_v' . $idVinculo : '')
+            . '_' . date('Ymd_His') . '.pdf';
         copy(FCPATH . $pdfPath, $destDir . '/' . $fileName);
 
+        $marcadorIdempotencia = $idVinculo
+            ? 'acta_cap_vinculo_id:' . $idVinculo
+            : 'acta_capacitacion_id:' . $acta['id'];
+
+        $titulo = $tituloCapacitacion
+            ? 'REPORTE DE CAPACITACION - ' . $tituloCapacitacion . ' - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $acta['fecha_capacitacion']
+            : 'REPORTE DE CAPACITACION - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $acta['fecha_capacitacion'];
+
         $data = [
-            'titulo_reporte'  => 'ACTA DE CAPACITACION - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $acta['fecha_capacitacion'],
+            'titulo_reporte'  => $titulo,
             'id_detailreport' => 6,
             'id_report_type'  => 4,
             'id_cliente'      => $acta['id_cliente'],
             'estado'          => 'CERRADO',
-            'observaciones'   => 'Generado por consultor. acta_capacitacion_id:' . $acta['id'],
+            'observaciones'   => 'Generado por consultor. ' . $marcadorIdempotencia,
             'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
             'updated_at'      => date('Y-m-d H:i:s'),
         ];
@@ -928,7 +1114,7 @@ class ActaCapacitacionController extends BaseController
         $existente = $reporteModel->where('id_cliente', $acta['id_cliente'])
             ->where('id_report_type', 4)
             ->where('id_detailreport', 6)
-            ->like('observaciones', 'acta_capacitacion_id:' . $acta['id'])
+            ->like('observaciones', $marcadorIdempotencia)
             ->first();
 
         if ($existente) return $reporteModel->update($existente['id_reporte'], $data);
@@ -938,9 +1124,10 @@ class ActaCapacitacionController extends BaseController
 
     /**
      * Sube el PDF FT-SST-003 (Responsabilidades SST) a tbl_reporte
-     * con id_detailreport=35, idempotente por acta_cap_resp_id.
+     * con id_detailreport=35. Idempotente por vínculo si se pasa $idVinculo,
+     * o por acta en modo legacy.
      */
-    private function uploadResponsabilidadesToReportes(array $acta, string $pdfPath): bool
+    private function uploadResponsabilidadesToReportes(array $acta, string $pdfPath, ?int $idVinculo = null, ?string $tituloCapacitacion = null): bool
     {
         $reporteModel = new ReporteModel();
         $clientModel = new ClientModel();
@@ -951,16 +1138,26 @@ class ActaCapacitacionController extends BaseController
         $destDir = ROOTPATH . 'public/uploads/' . $nitCliente;
         if (!is_dir($destDir)) mkdir($destDir, 0755, true);
 
-        $fileName = 'responsabilidades_sst_' . $acta['id'] . '_' . date('Ymd_His') . '.pdf';
+        $fileName = 'responsabilidades_sst_' . $acta['id']
+            . ($idVinculo ? '_v' . $idVinculo : '')
+            . '_' . date('Ymd_His') . '.pdf';
         copy(FCPATH . $pdfPath, $destDir . '/' . $fileName);
 
+        $marcadorIdempotencia = $idVinculo
+            ? 'acta_cap_resp_vinculo_id:' . $idVinculo
+            : 'acta_cap_resp_id:' . $acta['id'];
+
+        $titulo = $tituloCapacitacion
+            ? 'RESPONSABILIDADES SST - ' . $tituloCapacitacion . ' - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $acta['fecha_capacitacion']
+            : 'RESPONSABILIDADES SST - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $acta['fecha_capacitacion'];
+
         $data = [
-            'titulo_reporte'  => 'RESPONSABILIDADES SST - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $acta['fecha_capacitacion'],
+            'titulo_reporte'  => $titulo,
             'id_detailreport' => 35,
             'id_report_type'  => 4,
             'id_cliente'      => $acta['id_cliente'],
             'estado'          => 'CERRADO',
-            'observaciones'   => 'Generado por consultor. acta_cap_resp_id:' . $acta['id'],
+            'observaciones'   => 'Generado por consultor. ' . $marcadorIdempotencia,
             'enlace'          => base_url('uploads/' . $nitCliente . '/' . $fileName),
             'updated_at'      => date('Y-m-d H:i:s'),
         ];
@@ -968,7 +1165,7 @@ class ActaCapacitacionController extends BaseController
         $existente = $reporteModel->where('id_cliente', $acta['id_cliente'])
             ->where('id_report_type', 4)
             ->where('id_detailreport', 35)
-            ->like('observaciones', 'acta_cap_resp_id:' . $acta['id'])
+            ->like('observaciones', $marcadorIdempotencia)
             ->first();
 
         if ($existente) return $reporteModel->update($existente['id_reporte'], $data);
@@ -1021,6 +1218,59 @@ class ActaCapacitacionController extends BaseController
             ->findAll();
 
         return $this->response->setJSON($cronogramas);
+    }
+
+    /**
+     * API: evaluaciones registradas para un cliente y fecha (±7d).
+     * Devuelve resumen por tema + listado de respuestas individuales.
+     * Usado por el form de acta-capacitacion para que el consultor vea
+     * antes de finalizar quiénes ya hicieron evaluación y con qué nota.
+     */
+    public function apiEvaluacionesDelDia()
+    {
+        $idCliente = (int) $this->request->getGet('id_cliente');
+        $fecha     = $this->request->getGet('fecha');
+
+        if (!$idCliente || !$fecha) {
+            return $this->response->setJSON(['success' => false, 'msg' => 'Cliente y fecha requeridos.']);
+        }
+
+        $db = \Config\Database::connect();
+        $fechaDesde = date('Y-m-d', strtotime($fecha . ' -7 days'));
+        $fechaHasta = date('Y-m-d', strtotime($fecha . ' +7 days'));
+
+        // Resumen por tema (lo que la IA usará después en el match)
+        $resumen = $db->table('tbl_evaluacion_respuestas r')
+            ->select('t.nombre AS tema, COUNT(*) AS total, AVG(r.calificacion) AS promedio')
+            ->join('tbl_evaluaciones e', 'e.id = r.id_evaluacion', 'left')
+            ->join('tbl_evaluacion_tema t', 't.id = e.id_tema', 'left')
+            ->where('r.id_cliente_conjunto', $idCliente)
+            ->where('DATE(r.created_at) >=', $fechaDesde)
+            ->where('DATE(r.created_at) <=', $fechaHasta)
+            ->where('t.nombre IS NOT NULL')
+            ->groupBy('t.nombre')
+            ->orderBy('t.nombre', 'ASC')
+            ->get()->getResultArray();
+
+        // Detalle por persona (todas las respuestas en el rango)
+        $detalle = $db->table('tbl_evaluacion_respuestas r')
+            ->select('r.nombre, r.cedula, r.cargo, r.calificacion, t.nombre AS tema, r.created_at')
+            ->join('tbl_evaluaciones e', 'e.id = r.id_evaluacion', 'left')
+            ->join('tbl_evaluacion_tema t', 't.id = e.id_tema', 'left')
+            ->where('r.id_cliente_conjunto', $idCliente)
+            ->where('DATE(r.created_at) >=', $fechaDesde)
+            ->where('DATE(r.created_at) <=', $fechaHasta)
+            ->orderBy('t.nombre', 'ASC')
+            ->orderBy('r.calificacion', 'DESC')
+            ->get()->getResultArray();
+
+        return $this->response->setJSON([
+            'success'     => true,
+            'total'       => count($detalle),
+            'temas_count' => count($resumen),
+            'resumen'     => $resumen,
+            'detalle'     => $detalle,
+        ]);
     }
 
     /**
@@ -1139,214 +1389,15 @@ El contenido debe:
         return $texto ?: null;
     }
 
-    /**
-     * Sincroniza los datos del acta finalizada al cronograma de capacitación vinculado,
-     * marcándolo como EJECUTADA con sus estadísticas.
-     */
-    private function syncToCronograma(array $acta): void
-    {
-        $idCronog = $acta['id_cronograma_capacitacion'] ?? null;
-        if (!$idCronog) return;
-
-        $cronogModel = new CronogcapacitacionModel();
-        $cronograma = $cronogModel->find($idCronog);
-        if (!$cronograma) return;
-
-        $asistentes = $this->asistenteModel->getByActa((int)$acta['id']);
-        $totalFirmados = 0;
-        foreach ($asistentes as $a) {
-            if (!empty($a['firma_path'])) $totalFirmados++;
-        }
-
-        $programados = (int) ($acta['numero_programados'] ?? 0);
-        $cobertura = $programados > 0
-            ? number_format(($totalFirmados / $programados) * 100, 2) . '%'
-            : '0%';
-
-        $cronogModel->update($idCronog, [
-            'fecha_de_realizacion'                       => $acta['fecha_capacitacion'],
-            'estado'                                     => 'EJECUTADA',
-            'nombre_del_capacitador'                     => $acta['nombre_capacitador'] ?? '',
-            'horas_de_duracion_de_la_capacitacion'       => $acta['hora_inicio'] && $acta['hora_fin']
-                ? round((strtotime($acta['hora_fin']) - strtotime($acta['hora_inicio'])) / 3600, 1) . 'h'
-                : '',
-            'numero_de_asistentes_a_capacitacion'        => $totalFirmados,
-            'numero_total_de_personas_programadas'       => $programados,
-            'porcentaje_cobertura'                       => $cobertura,
-            'numero_de_personas_evaluadas'               => (int) ($acta['numero_evaluados'] ?? 0),
-            'promedio_de_calificaciones'                 => $acta['promedio_calificaciones'] ?? '',
-            'observaciones'                              => $acta['observaciones'] ?? '',
-            'id_reporte_capacitacion'                    => (int)$acta['id'],
-        ]);
-    }
-
-    // ============================================================
-    // STORE-BATCH: crear N actas hermanas (una por cada cronograma marcado)
-    // ============================================================
 
     /**
-     * Crea N actas hermanas, una por cada cronograma marcado con checkbox.
-     * Datos comunes (cliente, fecha, asistentes esperados, fotos, observaciones,
-     * capacitador, etc.) se copian a todos. Cada acta queda en estado borrador
-     * vinculada a su cronograma. Redirige a la vista lote.
-     */
-    public function storeBatch()
-    {
-        $userId = session()->get('user_id');
-
-        $idCliente   = (int) $this->request->getPost('id_cliente');
-        $fecha       = $this->request->getPost('fecha_capacitacion');
-        $idCronogs   = $this->request->getPost('id_cronogramas');
-        $idCronogs   = is_array($idCronogs) ? array_map('intval', $idCronogs) : [];
-        $idCronogs   = array_values(array_unique(array_filter($idCronogs)));
-
-        if (!$idCliente || !$fecha) {
-            return redirect()->back()->withInput()->with('error', 'Cliente y fecha son obligatorios.');
-        }
-
-        if (empty($idCronogs)) {
-            // Sin checkboxes — flujo legacy: 1 acta sin cronograma vinculado
-            return $this->store();
-        }
-
-        $cronogModel = new CronogcapacitacionModel();
-        $cronogramas = $cronogModel->whereIn('id_cronograma_capacitacion', $idCronogs)->findAll();
-        if (empty($cronogramas)) {
-            return redirect()->back()->withInput()->with('error', 'Cronogramas no encontrados.');
-        }
-
-        $idComite = $this->request->getPost('id_comite');
-
-        // Datos comunes
-        $comun = [
-            'id_cliente'              => $idCliente,
-            'id_comite'               => $idComite ? (int)$idComite : null,
-            'creado_por_tipo'         => 'consultor',
-            'id_consultor'            => $userId,
-            'fecha_capacitacion'      => $fecha,
-            'hora_inicio'             => $this->request->getPost('hora_inicio') ?: null,
-            'hora_fin'                => $this->request->getPost('hora_fin') ?: null,
-            'dictada_por'             => $this->request->getPost('dictada_por') ?: 'ARL',
-            'nombre_capacitador'      => $this->request->getPost('nombre_capacitador'),
-            'entidad_capacitadora'    => $this->request->getPost('entidad_capacitadora'),
-            'modalidad'               => $this->request->getPost('modalidad') ?: 'virtual',
-            'tipo_charla'             => $this->request->getPost('tipo_charla') ?: 'capacitacion',
-            'enlace_grabacion'        => $this->request->getPost('enlace_grabacion'),
-            'objetivos'               => $this->request->getPost('objetivos'),
-            'contenido'               => $this->request->getPost('contenido'),
-            'observaciones'           => $this->request->getPost('observaciones'),
-            'numero_programados'      => $this->request->getPost('numero_programados') !== null && $this->request->getPost('numero_programados') !== ''
-                                          ? (int) $this->request->getPost('numero_programados') : null,
-            'numero_evaluados'        => $this->request->getPost('numero_evaluados') !== null && $this->request->getPost('numero_evaluados') !== ''
-                                          ? (int) $this->request->getPost('numero_evaluados') : null,
-            'promedio_calificaciones' => $this->request->getPost('promedio_calificaciones') !== null && $this->request->getPost('promedio_calificaciones') !== ''
-                                          ? $this->request->getPost('promedio_calificaciones') : null,
-            'estado'                  => 'borrador',
-        ];
-
-        // Fotos: subir y luego copiar para que cada acta tenga las suyas
-        $dirFotos = 'uploads/inspecciones/acta-capacitacion/';
-        $fotoCap  = $this->uploadFoto('foto_capacitacion', $dirFotos);
-        $fotoOtr1 = $this->uploadFoto('foto_otros_1',     $dirFotos);
-        $fotoOtr2 = $this->uploadFoto('foto_otros_2',     $dirFotos);
-
-        $idsCreados = [];
-        foreach ($cronogramas as $cronog) {
-            $data = $comun;
-            $data['id_cronograma_capacitacion'] = (int) $cronog['id_cronograma_capacitacion'];
-            $data['tema']                       = $cronog['nombre_capacitacion'] ?? ($this->request->getPost('tema') ?: 'Capacitación');
-            // Si el cronograma tiene objetivo y el form no, usarlo
-            if (empty($data['objetivos']) && !empty($cronog['objetivo_capacitacion'])) {
-                $data['objetivos'] = $cronog['objetivo_capacitacion'];
-            }
-            // Capacitador / horas: si no se digitó, usar lo del cronograma
-            if (empty($data['nombre_capacitador']) && !empty($cronog['nombre_del_capacitador'])) {
-                $data['nombre_capacitador'] = $cronog['nombre_del_capacitador'];
-            }
-            // Programados: si no se digitó, usar el del cronograma
-            if (empty($data['numero_programados']) && !empty($cronog['numero_total_de_personas_programadas'])) {
-                $data['numero_programados'] = (int) $cronog['numero_total_de_personas_programadas'];
-            }
-
-            // Copiar fotos físicamente
-            $data['foto_capacitacion'] = $this->copiarArchivo($fotoCap);
-            $data['foto_otros_1']      = $this->copiarArchivo($fotoOtr1);
-            $data['foto_otros_2']      = $this->copiarArchivo($fotoOtr2);
-
-            $this->actaModel->insert($data);
-            $idsCreados[] = (int) $this->actaModel->getInsertID();
-        }
-
-        // Borrar las fotos originales (ya copiadas)
-        foreach ([$fotoCap, $fotoOtr1, $fotoOtr2] as $orig) {
-            if ($orig && file_exists(FCPATH . $orig)) {
-                @unlink(FCPATH . $orig);
-            }
-        }
-
-        if (count($idsCreados) === 1) {
-            return redirect()->to('/inspecciones/acta-capacitacion/edit/' . $idsCreados[0])
-                ->with('msg', 'Acta creada vinculada al cronograma.');
-        }
-
-        return redirect()->to('/inspecciones/acta-capacitacion/lote/' . implode(',', $idsCreados))
-            ->with('msg', count($idsCreados) . ' actas creadas, una por cada capacitación seleccionada.');
-    }
-
-    /**
-     * Vista de lote: muestra la lista de N actas hermanas recién creadas.
-     */
-    public function lote(string $idsCsv)
-    {
-        $ids = array_map('intval', array_filter(explode(',', $idsCsv)));
-        if (empty($ids)) {
-            return redirect()->to('/inspecciones/acta-capacitacion');
-        }
-
-        $actas = $this->actaModel
-            ->select('tbl_acta_capacitacion.*, tbl_cronog_capacitacion.nombre_capacitacion AS cronog_nombre, tbl_cronog_capacitacion.fecha_programada')
-            ->join('tbl_cronog_capacitacion', 'tbl_cronog_capacitacion.id_cronograma_capacitacion = tbl_acta_capacitacion.id_cronograma_capacitacion', 'left')
-            ->whereIn('tbl_acta_capacitacion.id', $ids)
-            ->orderBy('tbl_acta_capacitacion.id', 'ASC')
-            ->findAll();
-
-        $cliente = !empty($actas) ? (new ClientModel())->find($actas[0]['id_cliente']) : null;
-
-        return view('inspecciones/layout_pwa', [
-            'content' => view('inspecciones/acta_capacitacion/lote', [
-                'actas'   => $actas,
-                'cliente' => $cliente,
-            ]),
-            'title'   => 'Lote de capacitaciones del día',
-        ]);
-    }
-
-    /**
-     * Copia un archivo subido a un nombre nuevo único en el mismo directorio.
-     */
-    private function copiarArchivo(?string $rutaRelativa): ?string
-    {
-        if (!$rutaRelativa) return null;
-        $origAbs = FCPATH . $rutaRelativa;
-        if (!file_exists($origAbs)) return null;
-
-        $info = pathinfo($rutaRelativa);
-        $nuevoNombre = uniqid('ac_', true) . '.' . ($info['extension'] ?? 'jpg');
-        $nuevoRel    = $info['dirname'] . '/' . $nuevoNombre;
-        $nuevoAbs    = FCPATH . $nuevoRel;
-
-        if (!@copy($origAbs, $nuevoAbs)) return $rutaRelativa;
-        return $nuevoRel;
-    }
-
-    /**
-     * Calcula el puntaje promedio de evaluación que corresponde a una capacitación
+     * Calcula el puntaje promedio + count de evaluados + id_evaluacion matcheada
      * usando match semántico con IA (OpenAI gpt-4o-mini) entre el tema del acta
      * y los temas evaluados ese día (±7d) para el cliente.
      *
-     * @return float|null  Promedio (0-100) o null si no hay match.
+     * @return array{promedio: float, evaluados: int, id_evaluacion: int, tema_evaluacion: string}|null
      */
-    private function calcularPuntajeIA(int $idCliente, string $fecha, string $tema): ?float
+    private function calcularPuntajeIA(int $idCliente, string $fecha, string $tema): ?array
     {
         $tema = trim($tema);
         if (!$tema) return null;
@@ -1370,7 +1421,12 @@ El contenido debe:
 
         // Si solo hay 1 tema, match directo (no gastar IA)
         if (count($rows) === 1) {
-            return round((float) $rows[0]['promedio'], 2);
+            return [
+                'promedio'        => round((float) $rows[0]['promedio'], 2),
+                'evaluados'       => (int) $rows[0]['n'],
+                'id_evaluacion'   => (int) $rows[0]['id_evaluacion'],
+                'tema_evaluacion' => $rows[0]['tema_nombre'],
+            ];
         }
 
         $temas = array_column($rows, 'tema_nombre');
@@ -1393,9 +1449,27 @@ Sin comillas, sin explicación, solo el texto del tema o NONE.";
 
         foreach ($rows as $r) {
             if (strcasecmp(trim($r['tema_nombre']), $match) === 0) {
-                return round((float) $r['promedio'], 2);
+                return [
+                    'promedio'        => round((float) $r['promedio'], 2),
+                    'evaluados'       => (int) $r['n'],
+                    'id_evaluacion'   => (int) $r['id_evaluacion'],
+                    'tema_evaluacion' => $r['tema_nombre'],
+                ];
             }
         }
         return null;
+    }
+
+    /**
+     * Devuelve las respuestas individuales de una evaluación (para incluir en el PDF).
+     */
+    private function getRespuestasEvaluacion(int $idEvaluacion): array
+    {
+        $db = \Config\Database::connect();
+        return $db->table('tbl_evaluacion_respuestas')
+            ->select('nombre, cedula, cargo, calificacion')
+            ->where('id_evaluacion', $idEvaluacion)
+            ->orderBy('calificacion', 'DESC')
+            ->get()->getResultArray();
     }
 }

@@ -26,18 +26,18 @@ $tokenInscripcionUrlBase = $ctx === 'consultor'
 ?>
 
 <div class="container-fluid px-3">
-    <form method="post" action="<?= $action ?>" id="actaCapForm">
+    <form method="post" action="<?= $action ?>" id="actaCapForm" enctype="multipart/form-data">
         <?= csrf_field() ?>
 
         <div class="accordion mt-2" id="accCap">
             <!-- Datos Generales -->
             <div class="accordion-item">
                 <h2 class="accordion-header">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#secDatos">
+                    <button class="accordion-button <?= $isEdit ? 'collapsed' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#secDatos">
                         Datos Generales
                     </button>
                 </h2>
-                <div id="secDatos" class="accordion-collapse collapse show" data-bs-parent="#accCap">
+                <div id="secDatos" class="accordion-collapse collapse <?= $isEdit ? '' : 'show' ?>" data-bs-parent="#accCap">
                     <div class="accordion-body">
                         <?php if ($ctx === 'miembro'): ?>
                         <input type="hidden" name="id_cliente" value="<?= $idCliente ?? ($acta['id_cliente'] ?? '') ?>">
@@ -109,16 +109,7 @@ $tokenInscripcionUrlBase = $ctx === 'consultor'
                                 value="<?= esc($acta['nombre_capacitador'] ?? '') ?>">
                         </div>
                         <input type="hidden" name="enlace_grabacion" value="<?= esc($acta['enlace_grabacion'] ?? '') ?>">
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <label class="form-label mb-0">Objetivos</label>
-                                <button type="button" id="btnGenerarObjetivoActa" class="btn btn-sm"
-                                    style="font-size:11px; padding:2px 8px; background:#6c63ff; color:#fff; border:none; border-radius:4px;">
-                                    ✨ Generar con IA
-                                </button>
-                            </div>
-                            <textarea name="objetivos" id="objetivos_acta" class="form-control" rows="2" placeholder="Objetivos de la capacitación..."><?= esc($acta['objetivos'] ?? '') ?></textarea>
-                        </div>
+                        <input type="hidden" name="objetivos" value="<?= esc($acta['objetivos'] ?? '') ?>">
                         <input type="hidden" name="contenido" value="<?= esc($acta['contenido'] ?? '') ?>">
                         <div class="mb-0">
                             <label class="form-label">Observaciones</label>
@@ -128,65 +119,132 @@ $tokenInscripcionUrlBase = $ctx === 'consultor'
                 </div>
             </div>
 
-            <!-- Cronograma + Asistencia + Evaluación -->
+            <!-- Cronograma + Asistencia (NUEVO MODELO N:M, mismo bloque para CREATE y EDIT) -->
             <?php if ($ctx === 'consultor'): ?>
             <div class="accordion-item">
                 <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#secCronog">
-                        Cronograma · Asistencia · Evaluación
+                    <button class="accordion-button <?= $isEdit ? '' : 'collapsed' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#secCronog">
+                        Capacitaciones · Asistencia
                     </button>
                 </h2>
-                <div id="secCronog" class="accordion-collapse collapse" data-bs-parent="#accCap">
+                <div id="secCronog" class="accordion-collapse collapse <?= $isEdit ? 'show' : '' ?>" data-bs-parent="#accCap">
                     <div class="accordion-body">
 
-                        <?php if (!$isEdit): ?>
-                        <!-- Modo CREATE: multi-checkbox de cronogramas PROGRAMADA -->
+                        <!-- Multi-checkbox unificado: 1 acta puede vincular N capacitaciones del cronograma -->
                         <div class="mb-3">
                             <label class="form-label">
-                                Capacitaciones del cronograma <small class="text-muted">(marca las que se dictan hoy)</small>
+                                Capacitaciones del cronograma <small class="text-muted">(marca todas las que se dictan)</small>
                             </label>
                             <div id="cronogramasCheckboxesContainer" class="border rounded p-2" style="max-height:240px; overflow-y:auto; background:#fafafa;">
                                 <p class="text-muted mb-0" style="font-size:13px;"><i class="fas fa-info-circle"></i> Seleccione un cliente para ver sus capacitaciones programadas.</p>
                             </div>
-                            <small class="text-muted d-block mt-1">Si marcas varias, se crearán <strong>actas hermanas</strong> (una por cada capacitación) con los mismos datos comunes y se generarán PDFs separados.</small>
+                            <small class="text-muted d-block mt-1">
+                                Al finalizar el acta, se generará <strong>1 PDF por cada capacitación marcada</strong>.
+                                El objetivo se genera automáticamente con IA según cada tema.
+                            </small>
                         </div>
-                        <?php else: ?>
-                        <!-- Modo EDIT: select tradicional vinculado al cronograma único -->
-                        <div class="mb-3">
-                            <label class="form-label">Capacitación del cronograma <small class="text-muted">(vinculada)</small></label>
-                            <select name="id_cronograma_capacitacion" id="selectCronogramaActa" class="form-select">
-                                <option value="">-- Sin vincular --</option>
-                            </select>
-                        </div>
-                        <?php endif; ?>
 
                         <div class="row">
                             <div class="col-6 mb-3">
-                                <label class="form-label">Asistentes esperados <small class="text-muted">(digitado)</small></label>
+                                <label class="form-label">Asistentes esperados <small class="text-muted">(digitado, global)</small></label>
                                 <input type="number" name="numero_programados" class="form-control"
                                     value="<?= esc($acta['numero_programados'] ?? '') ?>" placeholder="0" min="0">
                             </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label">Asistentes reales <small class="text-muted">(firmados QR)</small></label>
-                                <input type="text" id="asistentesRealesAuto" class="form-control bg-light"
-                                    value="<?= count(array_filter($asistentes ?? [], fn($a) => !empty($a['firma_path']))) ?>" readonly>
+                                <input type="number" id="asistentesRealesAuto" class="form-control"
+                                    value="<?= count(array_filter($asistentes ?? [], fn($a) => !empty($a['firma_path']))) ?>" disabled
+                                    style="background:#e9ecef; cursor:not-allowed;">
                                 <small class="text-muted">Se autocalcula del conteo de firmas registradas.</small>
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Personas evaluadas</label>
-                                <input type="number" name="numero_evaluados" class="form-control"
-                                    value="<?= esc($acta['numero_evaluados'] ?? '') ?>" placeholder="0" min="0">
+                        <!-- Evaluaciones registradas del día (read-only) -->
+                        <div class="mb-3 p-2 rounded" style="background:#ecfdf5; border:1px solid #a7f3d0;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span style="font-size:13px; font-weight:600; color:#065f46;">
+                                    <i class="fas fa-clipboard-check"></i> Evaluaciones registradas (cliente + fecha)
+                                </span>
+                                <button type="button" id="btnRefreshEvalDia" class="btn btn-sm btn-outline-success" style="font-size:11px; padding:2px 8px;">
+                                    <i class="fas fa-sync-alt"></i> Actualizar
+                                </button>
                             </div>
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Promedio calificaciones <small class="text-muted">(IA al finalizar)</small></label>
-                                <input type="number" name="promedio_calificaciones" step="0.01" min="0" max="100" class="form-control"
-                                    value="<?= esc($acta['promedio_calificaciones'] ?? '') ?>" placeholder="Auto al finalizar">
-                                <small class="text-muted">Se calcula automáticamente con IA al finalizar (cliente + tema). Editable si quieres sobrescribirlo.</small>
+                            <div id="evalDiaContainer" style="font-size:12px;">
+                                <span class="text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando...</span>
                             </div>
                         </div>
+
+                        <div class="alert alert-info py-2 mb-0" style="font-size:12px;">
+                            <i class="fas fa-magic"></i>
+                            Al <strong>Finalizar</strong>: por cada capacitación marcada se calcula automáticamente
+                            el <strong>objetivo</strong>, <strong>personas evaluadas</strong> y <strong>promedio</strong>
+                            con IA (matching cliente + tema). Se generan PDFs y reportes individuales.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- Registro fotográfico (solo modo consultor) -->
+            <?php if ($ctx === 'consultor'): ?>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#secFotos">
+                        Registro fotográfico
+                    </button>
+                </h2>
+                <div id="secFotos" class="accordion-collapse collapse" data-bs-parent="#accCap">
+                    <div class="accordion-body">
+                        <small class="text-muted d-block mb-2">
+                            Las fotos se muestran en la vista web y en cada PDF principal de las capacitaciones marcadas
+                            (no aparecen en el PDF de Responsabilidades SST).
+                        </small>
+                        <?php
+                        $fotoFields = [
+                            'foto_capacitacion' => 'Foto capacitación',
+                            'foto_otros_1'      => 'Foto otros 1',
+                            'foto_otros_2'      => 'Foto otros 2',
+                        ];
+                        foreach ($fotoFields as $fname => $flabel):
+                            $hasFoto = $isEdit && !empty($acta[$fname]);
+                            $btnText = $hasFoto ? 'Cambiar imagen' : 'Subir imagen';
+                        ?>
+                        <div class="mb-3" data-foto-field="<?= $fname ?>" style="display:flex;flex-direction:column;align-items:stretch;gap:8px;">
+                            <label class="form-label" style="display:block;margin:0;font-size:13px;font-weight:600;"><?= $flabel ?></label>
+                            <input type="hidden" name="<?= $fname ?>__delete" value="0" data-foto-delete-flag>
+                            <?php if ($hasFoto): ?>
+                                <div class="foto-thumb-wrap" style="position:relative;display:block;width:100%;">
+                                    <img src="<?= base_url(esc($acta[$fname])) ?>" alt="<?= esc($flabel) ?>"
+                                         style="display:block;width:100%;max-height:220px;object-fit:contain;background:#fff;border:2px solid #bd9751;border-radius:8px;padding:4px;">
+                                    <button type="button" class="foto-delete-btn" aria-label="Eliminar imagen"
+                                            style="position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:2px solid #d33;background:#fff;color:#d33;font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.18);padding:0;">
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+                            <label style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;background:#bd9751;color:#fff;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;border:none;width:100%;">
+                                <i class="fas fa-image" aria-hidden="true"></i>
+                                <span><?= $btnText ?></span>
+                                <input type="file" name="<?= $fname ?>" accept="image/*" data-label="<?= esc($flabel) ?>"
+                                       style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">
+                            </label>
+                        </div>
+                        <?php endforeach; ?>
+                        <script>
+                        (function(){
+                            document.querySelectorAll('.foto-delete-btn').forEach(function(btn){
+                                btn.addEventListener('click', function(){
+                                    if (!confirm('¿Eliminar esta imagen?')) return;
+                                    var wrap = btn.closest('[data-foto-field]');
+                                    if (!wrap) return;
+                                    var thumb = wrap.querySelector('.foto-thumb-wrap');
+                                    if (thumb) thumb.style.display = 'none';
+                                    var flag = wrap.querySelector('[data-foto-delete-flag]');
+                                    if (flag) flag.value = '1';
+                                });
+                            });
+                        })();
+                        </script>
                     </div>
                 </div>
             </div>
@@ -1030,27 +1088,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ============================================================
-    // CRONOGRAMAS + BATCH (solo modo consultor)
+    // CAPACITACIONES (multi-checkbox unificado para CREATE y EDIT)
     // ============================================================
     <?php if ($ctx === 'consultor'): ?>
     var isEditModeActa = <?= $isEdit ? 'true' : 'false' ?>;
     var cronogramasDataActa = [];
-    var selectedCronogActa = '<?= $isEdit ? ($acta['id_cronograma_capacitacion'] ?? '') : '' ?>';
+    // En EDIT, IDs ya vinculados a esta acta (vienen del controller)
+    var idCronogIniciales = <?= json_encode($idCronogIds ?? []) ?>;
 
     function cargarCronogramasActa(idCliente) {
         cronogramasDataActa = [];
+        var cont = document.getElementById('cronogramasCheckboxesContainer');
+        if (!cont) return;
 
-        if (isEditModeActa) {
-            var sel = document.getElementById('selectCronogramaActa');
-            if (sel) sel.innerHTML = '<option value="">-- Sin vincular --</option>';
-        } else {
-            var cont = document.getElementById('cronogramasCheckboxesContainer');
-            if (cont) {
-                cont.innerHTML = idCliente
-                    ? '<p class="text-muted mb-0" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Cargando capacitaciones programadas...</p>'
-                    : '<p class="text-muted mb-0" style="font-size:13px;"><i class="fas fa-info-circle"></i> Seleccione un cliente para ver sus capacitaciones programadas.</p>';
-            }
-        }
+        cont.innerHTML = idCliente
+            ? '<p class="text-muted mb-0" style="font-size:13px;"><i class="fas fa-spinner fa-spin"></i> Cargando capacitaciones programadas...</p>'
+            : '<p class="text-muted mb-0" style="font-size:13px;"><i class="fas fa-info-circle"></i> Seleccione un cliente para ver sus capacitaciones programadas.</p>';
+
         if (!idCliente) return;
 
         $.ajax({
@@ -1059,20 +1113,7 @@ document.addEventListener('DOMContentLoaded', function() {
             dataType: 'json',
             success: function(data) {
                 cronogramasDataActa = data || [];
-                if (isEditModeActa) {
-                    var sel = document.getElementById('selectCronogramaActa');
-                    if (!sel) return;
-                    cronogramasDataActa.forEach(function(c) {
-                        var opt = document.createElement('option');
-                        opt.value = c.id_cronograma_capacitacion;
-                        var fp = c.fecha_programada ? ' (' + c.fecha_programada + ')' : '';
-                        opt.textContent = (c.nombre_capacitacion || 'Sin nombre') + fp;
-                        if (String(c.id_cronograma_capacitacion) === String(selectedCronogActa)) opt.selected = true;
-                        sel.appendChild(opt);
-                    });
-                } else {
-                    renderCronogActaCheckboxes();
-                }
+                renderCronogActaCheckboxes();
             }
         });
     }
@@ -1087,9 +1128,10 @@ document.addEventListener('DOMContentLoaded', function() {
         var html = '';
         cronogramasDataActa.forEach(function(c) {
             var fp = c.fecha_programada ? ' <small class="text-muted">(' + c.fecha_programada + ')</small>' : '';
+            var checked = (idCronogIniciales.indexOf(parseInt(c.id_cronograma_capacitacion)) !== -1) ? 'checked' : '';
             html += '<div class="form-check">'
                 + '<input class="form-check-input cronog-check" type="checkbox" name="id_cronogramas[]" '
-                + 'value="' + c.id_cronograma_capacitacion + '" id="cronog_a_' + c.id_cronograma_capacitacion + '">'
+                + 'value="' + c.id_cronograma_capacitacion + '" id="cronog_a_' + c.id_cronograma_capacitacion + '" ' + checked + '>'
                 + '<label class="form-check-label" for="cronog_a_' + c.id_cronograma_capacitacion + '" style="font-size:13px;">'
                 + escHtmlActa(c.nombre_capacitacion || 'Sin nombre') + fp
                 + '</label></div>';
@@ -1101,65 +1143,84 @@ document.addEventListener('DOMContentLoaded', function() {
         return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    // Detectar cambios en select cliente
+    // Listener: cuando el usuario cambia el cliente, recargar cronogramas
     var sCliente = document.getElementById('selectClienteCap');
     if (sCliente) {
         $(sCliente).on('change', function() { cargarCronogramasActa(this.value); });
-        if (sCliente.value) cargarCronogramasActa(sCliente.value);
     }
 
-    // Si edición, cargar inmediatamente con el id_cliente actual
+    // Carga inicial: usar el id_cliente venido de PHP (no esperar al AJAX de clientes)
     var idClienteIni = '<?= $idCliente ?? ($acta['id_cliente'] ?? '') ?>';
-    if (idClienteIni && !sCliente) cargarCronogramasActa(idClienteIni);
-
-    // Decidir entre /store y /store-batch al enviar el form (CREATE consultor)
-    var formActa = document.getElementById('actaCapForm');
-    var STORE_URL_ACTA       = '<?= site_url($baseUrl . '/store') ?>';
-    var STORE_BATCH_URL_ACTA = '<?= site_url('inspecciones/acta-capacitacion/store-batch') ?>';
-    if (formActa && !isEditModeActa) {
-        formActa.addEventListener('submit', function() {
-            var checks = document.querySelectorAll('input.cronog-check:checked');
-            formActa.action = (checks.length > 0) ? STORE_BATCH_URL_ACTA : STORE_URL_ACTA;
-        });
-    }
+    if (idClienteIni) cargarCronogramasActa(idClienteIni);
 
     // ============================================================
-    // GENERAR OBJETIVO CON IA
+    // Panel Evaluaciones del día (read-only)
     // ============================================================
-    var btnObjIA = document.getElementById('btnGenerarObjetivoActa');
-    if (btnObjIA) {
-        btnObjIA.addEventListener('click', function() {
-            var tema = (document.querySelector('[name="tema"]') || {}).value || '';
-            tema = tema.trim();
-            if (!tema) {
-                Swal.fire({ icon: 'warning', title: 'Falta el tema', text: 'Escribe primero el tema de la capacitación.', confirmButtonColor: '#6c63ff' });
-                return;
-            }
-            var orig = btnObjIA.innerHTML;
-            btnObjIA.disabled = true;
-            btnObjIA.innerHTML = '⏳ Generando...';
-            fetch('<?= site_url('inspecciones/acta-capacitacion/generar-objetivo') ?>', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                body: JSON.stringify({ nombre_capacitacion: tema })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                btnObjIA.disabled = false;
-                btnObjIA.innerHTML = orig;
-                if (data.objetivo) {
-                    document.getElementById('objetivos_acta').value = data.objetivo;
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'No se pudo generar el objetivo.', confirmButtonColor: '#6c63ff' });
+    function cargarEvalDia() {
+        var cont = document.getElementById('evalDiaContainer');
+        if (!cont) return;
+        var idCliente = document.querySelector('[name="id_cliente"]') ? document.querySelector('[name="id_cliente"]').value : idClienteIni;
+        var fecha     = (document.querySelector('[name="fecha_capacitacion"]') || {}).value || '';
+        if (!idCliente || !fecha) {
+            cont.innerHTML = '<span class="text-muted">Seleccione cliente y fecha.</span>';
+            return;
+        }
+        cont.innerHTML = '<span class="text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando...</span>';
+        $.ajax({
+            url: '<?= site_url('inspecciones/acta-capacitacion/api-evaluaciones-del-dia') ?>',
+            data: { id_cliente: idCliente, fecha: fecha },
+            dataType: 'json',
+            success: function(resp) {
+                if (!resp.success) {
+                    cont.innerHTML = '<span class="text-muted">' + (resp.msg || 'Sin datos.') + '</span>';
+                    return;
                 }
-            })
-            .catch(function() {
-                btnObjIA.disabled = false;
-                btnObjIA.innerHTML = orig;
-                Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo conectar.', confirmButtonColor: '#6c63ff' });
-            });
+                if (!resp.total) {
+                    cont.innerHTML = '<span class="text-muted">Sin evaluaciones registradas para este cliente y fecha (±7 días).</span>';
+                    return;
+                }
+                var html = '<div style="font-size:12px; color:#065f46; margin-bottom:6px;">'
+                         + '<strong>' + resp.total + '</strong> respuesta(s) en <strong>' + resp.temas_count + '</strong> tema(s):</div>';
+                // Resumen por tema
+                html += '<table class="table table-sm mb-2" style="font-size:11px;">';
+                html += '<thead><tr><th>Tema</th><th class="text-center">Respuestas</th><th class="text-center">Promedio</th></tr></thead><tbody>';
+                resp.resumen.forEach(function(r) {
+                    var avg = parseFloat(r.promedio).toFixed(1);
+                    var color = (parseFloat(r.promedio) >= 70) ? '#198754' : '#dc3545';
+                    html += '<tr><td>' + escHtmlActa(r.tema) + '</td>'
+                          + '<td class="text-center">' + r.total + '</td>'
+                          + '<td class="text-center" style="font-weight:600; color:' + color + ';">' + avg + '</td></tr>';
+                });
+                html += '</tbody></table>';
+                // Detalle (collapsible)
+                html += '<details style="font-size:11px;"><summary style="cursor:pointer; color:#065f46;">Ver detalle por persona</summary>';
+                html += '<table class="table table-sm mt-1" style="font-size:11px;"><thead><tr><th>Tema</th><th>Nombre</th><th>Cédula</th><th>Cargo</th><th class="text-center">Calificación</th></tr></thead><tbody>';
+                resp.detalle.forEach(function(d) {
+                    var cal = parseFloat(d.calificacion).toFixed(1);
+                    var cls = (parseFloat(d.calificacion) >= 70) ? 'text-success' : 'text-danger';
+                    html += '<tr><td>' + escHtmlActa(d.tema) + '</td>'
+                          + '<td>' + escHtmlActa(d.nombre || '') + '</td>'
+                          + '<td>' + escHtmlActa(d.cedula || '') + '</td>'
+                          + '<td>' + escHtmlActa(d.cargo || '') + '</td>'
+                          + '<td class="text-center fw-bold ' + cls + '">' + cal + '</td></tr>';
+                });
+                html += '</tbody></table></details>';
+                cont.innerHTML = html;
+            },
+            error: function() {
+                cont.innerHTML = '<span class="text-danger">Error al cargar.</span>';
+            }
         });
     }
+
+    cargarEvalDia();
+    var btnRefreshEval = document.getElementById('btnRefreshEvalDia');
+    if (btnRefreshEval) btnRefreshEval.addEventListener('click', cargarEvalDia);
+
+    var fechaInputEval = document.querySelector('[name="fecha_capacitacion"]');
+    if (fechaInputEval) fechaInputEval.addEventListener('change', cargarEvalDia);
+    var clienteSelEval = document.getElementById('selectClienteCap');
+    if (clienteSelEval) $(clienteSelEval).on('change', cargarEvalDia);
     <?php endif; ?>
 });
 </script>
