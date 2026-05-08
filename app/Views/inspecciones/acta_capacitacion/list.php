@@ -1,6 +1,6 @@
 <div class="container-fluid px-3">
     <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
-        <h6 class="mb-0">Actas de Capacitación</h6>
+        <h6 class="mb-0">Reportes de Capacitación</h6>
         <a href="<?= site_url('inspecciones/acta-capacitacion/create') ?>" class="btn btn-sm btn-pwa-primary" style="width:auto; padding:8px 16px;">
             <i class="fas fa-plus"></i> Nueva
         </a>

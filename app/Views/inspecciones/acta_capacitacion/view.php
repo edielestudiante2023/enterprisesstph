@@ -1,6 +1,6 @@
 <div class="container-fluid px-3">
     <div class="mt-2 mb-3 d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">Acta de Capacitación</h6>
+        <h6 class="mb-0">Reporte de Capacitación</h6>
         <span class="badge badge-<?= esc($acta['estado']) ?>">
             <?= $acta['estado'] === 'completo' ? 'Completo' : 'Borrador' ?>
         </span>
@@ -37,11 +37,53 @@
         </div>
     </div>
 
-    <?php if (!empty($acta['objetivos'])): ?>
+    <?php if (!empty($vinculos)): ?>
     <div class="card mb-3">
         <div class="card-body">
-            <h6 class="card-title" style="font-size:14px; color:#999;">OBJETIVOS</h6>
-            <p style="font-size:14px; margin:0;"><?= nl2br(esc($acta['objetivos'])) ?></p>
+            <h6 class="card-title" style="font-size:14px; color:#999;">CAPACITACIONES DICTADAS (<?= count($vinculos) ?>)</h6>
+            <small class="text-muted d-block mb-2">Cada capacitación genera su propio PDF y queda vinculada al cronograma del cliente.</small>
+            <?php foreach ($vinculos as $v): ?>
+            <div class="mb-2 pb-2" style="border-bottom:1px solid #eee;">
+                <div class="d-flex justify-content-between align-items-start" style="gap:8px;">
+                    <div style="flex:1;">
+                        <strong style="font-size:14px;"><?= esc($v['nombre_capacitacion'] ?? '(cronograma eliminado)') ?></strong>
+                        <?php if (!empty($v['fecha_programada'])): ?>
+                            <div class="text-muted" style="font-size:11px;">Programada: <?= esc($v['fecha_programada']) ?></div>
+                        <?php endif; ?>
+                        <?php if (!empty($v['promedio_calificaciones']) || !empty($v['numero_evaluados'])): ?>
+                            <div class="text-muted" style="font-size:11px;">
+                                <?= !empty($v['numero_evaluados']) ? 'Evaluados: <strong>' . (int)$v['numero_evaluados'] . '</strong>' : '' ?>
+                                <?php if (!empty($v['promedio_calificaciones'])): ?>
+                                    · Promedio: <strong><?= esc($v['promedio_calificaciones']) ?></strong>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($v['objetivo_ia'])): ?>
+                            <details style="font-size:12px; margin-top:4px;">
+                                <summary class="text-muted" style="cursor:pointer;">Ver objetivo (IA)</summary>
+                                <div style="background:#f8f9fa; padding:6px 8px; border-radius:4px; margin-top:4px;"><?= nl2br(esc($v['objetivo_ia'])) ?></div>
+                            </details>
+                        <?php endif; ?>
+                    </div>
+                    <?php if (!empty($v['ruta_pdf'])): ?>
+                    <a href="<?= base_url($v['ruta_pdf']) ?>" target="_blank" class="btn btn-sm btn-outline-success" style="font-size:11px; white-space:nowrap;">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </a>
+                    <?php else: ?>
+                    <span class="badge bg-secondary" style="font-size:10px;">Pendiente finalizar</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (!empty($acta['tema'])): ?>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title" style="font-size:14px; color:#999;">TEMA <small class="text-muted">(nota interna)</small></h6>
+            <p style="font-size:13px; margin:0; color:#666;"><?= esc($acta['tema']) ?></p>
         </div>
     </div>
     <?php endif; ?>
@@ -82,6 +124,26 @@
         </div>
     </div>
 
+    <?php
+    $tieneFotosView = !empty($acta['foto_capacitacion']) || !empty($acta['foto_otros_1']) || !empty($acta['foto_otros_2']);
+    ?>
+    <?php if ($tieneFotosView): ?>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title" style="font-size:14px; color:#999;">REGISTRO FOTOGRÁFICO</h6>
+            <div class="d-flex flex-wrap gap-2">
+                <?php foreach (['foto_capacitacion','foto_otros_1','foto_otros_2'] as $f): ?>
+                    <?php if (!empty($acta[$f])): ?>
+                    <a href="<?= base_url($acta[$f]) ?>" target="_blank" style="display:inline-block;">
+                        <img src="<?= base_url($acta[$f]) ?>" alt="<?= esc($f) ?>" style="max-width:160px; max-height:120px; border:1px solid #dee2e6; border-radius:6px;">
+                    </a>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <?php if (!empty($acta['observaciones'])): ?>
     <div class="card mb-3">
         <div class="card-body">
@@ -92,7 +154,23 @@
     <?php endif; ?>
 
     <div class="mb-4 d-grid gap-2">
-        <?php if ($acta['estado'] === 'completo' && !empty($acta['ruta_pdf'])): ?>
+        <?php
+        // Modo nuevo: cada vínculo tiene su propio PDF. Si hay vínculos con ruta_pdf, mostrar botón
+        // que abre el primero (los demás están listados en el bloque "Capacitaciones dictadas").
+        $primerPdf = '';
+        $totalPdfs = 0;
+        foreach (($vinculos ?? []) as $vTmp) {
+            if (!empty($vTmp['ruta_pdf'])) {
+                if (!$primerPdf) $primerPdf = $vTmp['ruta_pdf'];
+                $totalPdfs++;
+            }
+        }
+        ?>
+        <?php if ($acta['estado'] === 'completo' && $totalPdfs > 0): ?>
+        <a href="<?= base_url($primerPdf) ?>" target="_blank" class="btn btn-pwa btn-pwa-primary">
+            <i class="fas fa-file-pdf"></i> Ver PDF<?= $totalPdfs > 1 ? ' (' . $totalPdfs . ' capacitaciones)' : '' ?>
+        </a>
+        <?php elseif ($acta['estado'] === 'completo' && !empty($acta['ruta_pdf'])): ?>
         <a href="<?= site_url('inspecciones/acta-capacitacion/pdf/' . $acta['id']) ?>" class="btn btn-pwa btn-pwa-primary" target="_blank">
             <i class="fas fa-file-pdf"></i> Ver PDF
         </a>
