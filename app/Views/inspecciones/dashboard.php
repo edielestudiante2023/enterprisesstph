@@ -38,7 +38,8 @@
         + count($pendientesKpiPlag ?? [])
         + count($pendientesKpiAgua ?? [])
         + count($pendientesPiscinas ?? [])
-        + count($pendientesPiscinero ?? []);
+        + count($pendientesPiscinero ?? [])
+        + count($pendientesActaCap ?? []);
     ?>
     <?php if ($totalPend > 0): ?>
     <div class="accordion mb-3" id="accordionPendientes">
@@ -92,6 +93,48 @@
                     <a href="<?= base_url('/inspecciones/acta-visita/firma/') ?><?= $doc['id'] ?>" class="btn btn-sm btn-outline-warning">
                         Ir a firmas <i class="fas fa-arrow-right ms-1"></i>
                     </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes Acta de Capacitación -->
+    <?php if (!empty($pendientesActaCap)): ?>
+    <?php foreach ($pendientesActaCap as $ac): ?>
+    <div class="card card-inspeccion <?= esc($ac['estado']) ?>">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>
+                        <?php if ($ac['estado'] === 'borrador'): ?>
+                            <i class="fas fa-edit text-warning"></i>
+                        <?php else: ?>
+                            <i class="fas fa-signature text-orange"></i>
+                        <?php endif; ?>
+                        Acta Capacitación - <?= esc($ac['nombre_cliente'] ?? 'Sin cliente') ?>
+                    </strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= !empty($ac['fecha_capacitacion']) ? date('d/m/Y', strtotime($ac['fecha_capacitacion'])) : '—' ?>
+                        <?php if (!empty($ac['tema'])): ?>
+                            &middot; <?= esc(mb_strimwidth($ac['tema'], 0, 40, '…')) ?>
+                        <?php endif; ?>
+                        &middot;
+                        <span class="badge badge-<?= esc($ac['estado']) ?>" style="font-size: 11px;">
+                            <?= $ac['estado'] === 'borrador' ? 'Borrador' : 'Esperando firmas' ?>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-1">
+                <a href="<?= base_url('/inspecciones/acta-capacitacion/edit/') ?><?= $ac['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+                <?php if ($ac['estado'] === 'borrador'): ?>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/acta-capacitacion/delete/') ?><?= $ac['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
                 <?php endif; ?>
             </div>
         </div>
