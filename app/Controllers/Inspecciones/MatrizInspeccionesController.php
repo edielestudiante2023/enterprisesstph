@@ -268,6 +268,15 @@ class MatrizInspeccionesController extends BaseController
             return 0;
         });
 
+        // Si el rango es un subset (no año completo), ocultar filas sin actividad
+        // (ni inspecciones realizadas ni PTAs vinculadas en el rango) para no confundir al consultor.
+        $rangoEsAnioCompleto = ($fechaDesde === $anio . '-01-01' && $fechaHasta === $anio . '-12-31');
+        if (!$rangoEsAnioCompleto) {
+            $filas = array_values(array_filter($filas, static function ($f) {
+                return count($f['inspecciones']) > 0 || count($f['pta_vinculados']) > 0;
+            }));
+        }
+
         // Años disponibles: año actual en adelante (sin años pasados).
         // Si el cliente tiene PTAs/inspecciones programadas en años futuros, aparecen también.
         $anioActual = (int) date('Y');
