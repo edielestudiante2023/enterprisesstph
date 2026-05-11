@@ -56,8 +56,6 @@ class HvBrigadistaController extends BaseController
             return redirect()->to('/inspecciones/hv-brigadista')->with('error', 'No encontrada');
         }
 
-        if ($r = $this->guardFinalizado($hv, '/inspecciones/hv-brigadista/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
 
         $data = [

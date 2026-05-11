@@ -185,8 +185,6 @@ class ProbabilidadPeligrosController extends BaseController
             return redirect()->to('/inspecciones/probabilidad-peligros')->with('error', 'No encontrada');
         }
 
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/probabilidad-peligros/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 

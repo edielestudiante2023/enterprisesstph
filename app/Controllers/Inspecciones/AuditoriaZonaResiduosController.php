@@ -184,8 +184,6 @@ class AuditoriaZonaResiduosController extends BaseController
             return redirect()->to('/inspecciones/auditoria-zona-residuos')->with('error', 'No encontrada');
         }
 
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/auditoria-zona-residuos/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 

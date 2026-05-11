@@ -183,8 +183,6 @@ class DotacionToderoController extends BaseController
             return redirect()->to('/inspecciones/dotacion-todero')->with('error', 'No encontrada');
         }
 
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/dotacion-todero/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 

@@ -397,8 +397,6 @@ class MatrizVulnerabilidadController extends BaseController
             return redirect()->to('/inspecciones/matriz-vulnerabilidad')->with('error', 'No encontrada');
         }
 
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/matriz-vulnerabilidad/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 

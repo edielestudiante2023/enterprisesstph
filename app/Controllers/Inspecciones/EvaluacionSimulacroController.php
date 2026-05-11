@@ -56,8 +56,6 @@ class EvaluacionSimulacroController extends BaseController
             return redirect()->to('/inspecciones/simulacro')->with('error', 'No encontrada');
         }
 
-        if ($r = $this->guardFinalizado($eval, '/inspecciones/simulacro/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
 
         $data = [

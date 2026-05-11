@@ -175,8 +175,6 @@ class DotacionAseadoraController extends BaseController
             return redirect()->to('/inspecciones/dotacion-aseadora')->with('error', 'No encontrada');
         }
 
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/dotacion-aseadora/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 
