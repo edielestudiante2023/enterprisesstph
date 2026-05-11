@@ -219,19 +219,5 @@
     <tr><td><strong>Consejo de Administración</strong></td><td>Aprobar contrataciones y presupuesto para insumos, EPP y mantenimiento.</td></tr>
 </table>
 
-<!-- 12. REGISTROS -->
-<div class="section-title">12. REGISTROS Y DOCUMENTACIÓN</div>
-<ul>
-    <li>Bitácora de contingencias de limpieza y desinfección (quién, qué, dónde, cuándo, acción).</li>
-    <li>Inventario y control de stock de insumos.</li>
-    <li>Fichas de Datos de Seguridad (FDS / MSDS) de cada producto utilizado.</li>
-    <li>Cartillas plastificadas de dilución por producto.</li>
-    <li>Registro de capacitaciones del personal (SGA, derrames, EPP) firmado.</li>
-    <li>Registro de entrega y reposición de EPP.</li>
-    <li>Bitácora de mantenimiento de equipos.</li>
-    <li>Listado de proveedores principales y de respaldo.</li>
-    <li>Reportes de incidentes a ARL y autoridades sanitarias (si aplica).</li>
-</ul>
-
 </body>
 </html>
