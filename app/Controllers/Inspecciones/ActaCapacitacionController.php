@@ -476,8 +476,13 @@ class ActaCapacitacionController extends BaseController
             $temaEvaluacion = $puntajeData['tema_evaluacion'] ?? null;
 
             // 2b. Traer respuestas individuales de la evaluación matcheada (para el PDF)
+            // Filtramos por cliente + fecha del acta para no acumular respuestas históricas.
             $respuestasEval = $idEvaluacion
-                ? $this->getRespuestasEvaluacion((int) $idEvaluacion)
+                ? $this->getRespuestasEvaluacion(
+                    (int) $idEvaluacion,
+                    (int) ($acta['id_cliente'] ?? 0) ?: null,
+                    $acta['fecha_capacitacion'] ?? null
+                )
                 : [];
 
             // 3. Persistir IA del vínculo (objetivo + promedio + evaluados)
@@ -1509,15 +1514,24 @@ Sin comillas, sin explicación, solo el texto del tema o NONE.";
     }
 
     /**
-     * Devuelve las respuestas individuales de una evaluación (para incluir en el PDF).
+     * Devuelve las respuestas individuales de una evaluación, filtradas por cliente y día del acta.
+     * Una misma evaluación (ej. "Inducción SST") es reutilizada por muchas actas/clientes,
+     * por lo que hay que filtrar por id_cliente_conjunto + fecha_dia para no traer las respuestas
+     * históricas acumuladas. (Fix bug PDF mostrando 93 calificaciones para 5 asistentes.)
      */
-    private function getRespuestasEvaluacion(int $idEvaluacion): array
+    private function getRespuestasEvaluacion(int $idEvaluacion, ?int $idCliente = null, ?string $fechaDia = null): array
     {
         $db = \Config\Database::connect();
-        return $db->table('tbl_evaluacion_respuestas')
+        $builder = $db->table('tbl_evaluacion_respuestas')
             ->select('nombre, cedula, cargo, calificacion')
             ->where('id_evaluacion', $idEvaluacion)
-            ->orderBy('calificacion', 'DESC')
-            ->get()->getResultArray();
+            ->orderBy('calificacion', 'DESC');
+        if ($idCliente) {
+            $builder->where('id_cliente_conjunto', $idCliente);
+        }
+        if ($fechaDia) {
+            $builder->where('fecha_dia', $fechaDia);
+        }
+        return $builder->get()->getResultArray();
     }
 }
