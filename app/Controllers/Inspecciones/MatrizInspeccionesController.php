@@ -5,6 +5,7 @@ namespace App\Controllers\Inspecciones;
 use App\Controllers\BaseController;
 use App\Libraries\InspeccionTypes;
 use App\Models\ClientModel;
+use App\Models\ContractModel;
 use App\Models\InspeccionNoAplicaModel;
 use App\Models\PtaInspeccionMatchModel;
 
@@ -92,6 +93,18 @@ class MatrizInspeccionesController extends BaseController
         $tipos    = InspeccionTypes::all();
         $noAplica = $this->noAplicaModel->getByCliente($idCliente);
 
+        // Contrato activo del cliente (para mostrar frecuencia)
+        $contractModel = new ContractModel();
+        $lastContract = $contractModel->where('id_cliente', $idCliente)
+            ->where('estado', 'activo')
+            ->orderBy('fecha_fin', 'DESC')
+            ->first();
+        if (!$lastContract) {
+            $lastContract = $contractModel->where('id_cliente', $idCliente)
+                ->orderBy('created_at', 'DESC')
+                ->first();
+        }
+
         $db = \Config\Database::connect();
 
         // Precargar matches del cliente cuyo PTA cae en el rango
@@ -111,8 +124,9 @@ class MatrizInspeccionesController extends BaseController
             }
         }
 
-        // Conteos por año (todos los años del cliente) y por mes (del año activo)
-        // Una sola query GROUP BY YEAR, MONTH por tipo de inspección.
+        // Conteos por año/mes (initial fallback — JS los recalcula client-side en cada draw).
+        // Cuenta TODAS las inspecciones del cliente (cualquier estado), no filtra por estado=completo.
+        // Suma fechas planeadas (PTAs vinculadas) y fechas realizadas (inspecciones en cada tabla).
         $inspeccionesPorAnio = [];
         $inspeccionesPorMes  = array_fill(1, 12, 0);
         foreach ($tipos as $tipo) {
@@ -127,17 +141,30 @@ class MatrizInspeccionesController extends BaseController
                 ->where("{$dateColT} IS NOT NULL", null, false)
                 ->groupBy(["YEAR({$dateColT})", "MONTH({$dateColT})"]);
 
-            $estadoColT = array_key_exists('estado_col', $tipo) ? $tipo['estado_col'] : 'estado';
-            $estadoValueT = $tipo['estado_value'] ?? 'completo';
-            if ($estadoColT !== null && in_array($estadoColT, $fieldsT, true)) {
-                $b->where($estadoColT, $estadoValueT);
-            }
             foreach (($tipo['extra_where'] ?? []) as $col => $val) {
                 if (in_array($col, $fieldsT, true)) $b->where($col, $val);
             }
 
             foreach ($b->get()->getResultArray() as $r) {
                 $y = (int) $r['y']; $m = (int) $r['m']; $c = (int) $r['c'];
+                if ($y > 0) $inspeccionesPorAnio[$y] = ($inspeccionesPorAnio[$y] ?? 0) + $c;
+                if ($y === $anio && $m >= 1 && $m <= 12) {
+                    $inspeccionesPorMes[$m] += $c;
+                }
+            }
+        }
+
+        // Sumar PTAs vinculadas (programadas) por año/mes al pool de conteos
+        if ($db->tableExists('tbl_pta_inspeccion_match')) {
+            $rowsPta = $db->table('tbl_pta_inspeccion_match m')
+                ->select("YEAR(p.fecha_propuesta) AS y, MONTH(p.fecha_propuesta) AS mm, COUNT(*) AS c")
+                ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'inner')
+                ->where('m.id_cliente', $idCliente)
+                ->where('p.fecha_propuesta IS NOT NULL', null, false)
+                ->groupBy(["YEAR(p.fecha_propuesta)", "MONTH(p.fecha_propuesta)"])
+                ->get()->getResultArray();
+            foreach ($rowsPta as $r) {
+                $y = (int) $r['y']; $m = (int) $r['mm']; $c = (int) $r['c'];
                 if ($y > 0) $inspeccionesPorAnio[$y] = ($inspeccionesPorAnio[$y] ?? 0) + $c;
                 if ($y === $anio && $m >= 1 && $m <= 12) {
                     $inspeccionesPorMes[$m] += $c;
@@ -251,6 +278,7 @@ class MatrizInspeccionesController extends BaseController
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/matriz/detalle', [
                 'cliente'              => $cliente,
+                'lastContract'         => $lastContract,
                 'anio'                 => $anio,
                 'fechaDesde'           => $fechaDesde,
                 'fechaHasta'           => $fechaHasta,

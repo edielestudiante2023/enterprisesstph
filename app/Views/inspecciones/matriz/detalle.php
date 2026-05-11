@@ -27,11 +27,43 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
     $anioActualPhp = (int) date('Y');
     $rangoEsAnioCompleto = ($fechaDesde === $anio . '-01-01' && $fechaHasta === $anio . '-12-31');
     $mesesAbrev = ['Ene.','Feb.','Mar.','Abr.','May.','Jun.','Jul.','Ago.','Sept.','Oct.','Nov.','Dic.'];
+    $mesesNombre = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+    // Frecuencia del contrato (mensual/bimensual/trimestral)
+    $frecuenciaTxt = $lastContract['frecuencia_visitas'] ?? '';
+    $frecLow = strtolower($frecuenciaTxt);
+    $frecBg = '#6c757d';
+    if (strpos($frecLow, 'bimensual') !== false)        $frecBg = '#0d6efd';
+    elseif (strpos($frecLow, 'trimestral') !== false)   $frecBg = '#fd7e14';
+    elseif (strpos($frecLow, 'mensual') !== false)      $frecBg = '#198754';
+    elseif (strpos($frecLow, 'semestral') !== false)    $frecBg = '#6610f2';
+    elseif (strpos($frecLow, 'anual') !== false)        $frecBg = '#dc3545';
+
+    // Texto del header de la columna "Fechas en ..."
+    if ($mesActivo) {
+        $colFechasHeader = 'Fechas en ' . $mesesNombre[$mesActivo - 1] . ' ' . (int) $anio;
+    } elseif ($rangoEsAnioCompleto) {
+        $colFechasHeader = 'Fechas en ' . (int) $anio;
+    } else {
+        $colFechasHeader = 'Fechas ' . date('d/m/Y', strtotime($fechaDesde)) . ' – ' . date('d/m/Y', strtotime($fechaHasta));
+    }
     ?>
     <div class="card border-0 mb-3" style="background: linear-gradient(135deg, #1c2437 0%, #2a3449 100%); border-radius:12px;">
         <div class="card-body py-3 px-3">
             <div style="color:#bd9751; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Cliente</div>
-            <div style="color:#fff; font-size:17px; font-weight:600;"><?= esc($cliente['nombre_cliente'] ?? '') ?></div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span style="color:#fff; font-size:17px; font-weight:600;"><?= esc($cliente['nombre_cliente'] ?? '') ?></span>
+                <?php if (!empty($frecuenciaTxt)): ?>
+                    <span class="badge" style="background:<?= $frecBg ?>; color:#fff; font-size:11px; padding:4px 10px; border-radius:12px;">
+                        <i class="fas fa-calendar-check"></i> <?= esc($frecuenciaTxt) ?>
+                    </span>
+                <?php endif; ?>
+                <?php if ($mesActivo): ?>
+                    <span class="badge" style="background:#bd9751; color:#fff; font-size:11px; padding:4px 10px; border-radius:12px;">
+                        <i class="fas fa-filter"></i> Filtrando: <?= $mesesNombre[$mesActivo - 1] ?> <?= (int) $anio ?>
+                    </span>
+                <?php endif; ?>
+            </div>
             <?php if (!empty($cliente['nit_cliente'])): ?>
                 <div style="color:rgba(255,255,255,0.6); font-size:12px;">NIT <?= esc($cliente['nit_cliente']) ?></div>
             <?php endif; ?>
@@ -80,10 +112,10 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                     ?>
                         <div class="col-6 col-md-2">
                             <a href="<?= $urlAnio ?>" class="text-decoration-none">
-                                <div class="card border-0 card-matriz-filtro card-anio<?= $isActive ? ' active' : '' ?>">
+                                <div class="card border-0 card-matriz-filtro card-anio<?= $isActive ? ' active' : '' ?>" data-anio="<?= $yInt ?>">
                                     <div class="card-body text-center p-2">
                                         <div style="font-size:15px; font-weight:700; color:#fff;"><?= $yInt ?></div>
-                                        <div style="font-size:20px; font-weight:700; color:#fff; line-height:1;"><?= $count ?></div>
+                                        <div class="matriz-anio-count" style="font-size:20px; font-weight:700; color:#fff; line-height:1;"><?= $count ?></div>
                                         <small style="font-size:10px; color:rgba(255,255,255,0.85);">inspecciones</small>
                                     </div>
                                 </div>
@@ -106,10 +138,10 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                     ?>
                         <div class="col-6 col-md-1">
                             <a href="<?= $urlMes ?>" class="text-decoration-none">
-                                <div class="card border-0 card-matriz-filtro card-mes<?= $isActiveMes ? ' active' : '' ?>">
+                                <div class="card border-0 card-matriz-filtro card-mes<?= $isActiveMes ? ' active' : '' ?>" data-mes="<?= $m ?>">
                                     <div class="card-body text-center p-2">
                                         <div style="font-size:11px; font-weight:600; color:#fff;"><?= $mesesAbrev[$m - 1] ?></div>
-                                        <div style="font-size:16px; font-weight:700; color:#fff; line-height:1;"><?= $cm ?></div>
+                                        <div class="matriz-mes-count" style="font-size:16px; font-weight:700; color:#fff; line-height:1;"><?= $cm ?></div>
                                     </div>
                                 </div>
                             </a>
@@ -204,7 +236,7 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                 <tr>
                     <th style="font-size:12px;">Grupo</th>
                     <th style="font-size:12px;">Tipo de Inspección</th>
-                    <th style="font-size:12px;">Fechas en <?= (int) $anio ?></th>
+                    <th style="font-size:12px;"><?= esc($colFechasHeader) ?></th>
                     <th style="font-size:12px;">Estado</th>
                     <th style="font-size:12px; text-align:right;">Acciones</th>
                 </tr>
@@ -241,7 +273,16 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                 ][$f['estado']];
                 $estadoTexto = ['hecha' => 'Hecha', 'pendiente' => 'Pendiente', 'atrasada' => 'Atrasada', 'no_aplica' => 'No Aplica'][$f['estado']];
                 ?>
-                <tr data-estado="<?= esc($f['estado']) ?>" <?= $f['estado'] === 'no_aplica' ? 'style="opacity:0.6;"' : '' ?>>
+                <?php
+                $fechasRealizadasArr = array_values(array_filter(array_map(fn($i) => $i['fecha'] ?? null, $f['inspecciones'])));
+                $fechasProgramadasArr = array_values(array_filter(array_map(fn($v) => $v['fecha_propuesta'] ?? null, $f['pta_vinculados'])));
+                $fechasTodasArr = array_values(array_unique(array_merge($fechasRealizadasArr, $fechasProgramadasArr)));
+                ?>
+                <tr data-estado="<?= esc($f['estado']) ?>"
+                    data-fechas="<?= esc(implode(',', $fechasTodasArr)) ?>"
+                    data-fechas-realizadas="<?= esc(implode(',', $fechasRealizadasArr)) ?>"
+                    data-fechas-programadas="<?= esc(implode(',', $fechasProgramadasArr)) ?>"
+                    <?= $f['estado'] === 'no_aplica' ? 'style="opacity:0.6;"' : '' ?>>
                     <td style="font-size:11px; color:#555;"><?= esc($f['group']) ?></td>
                     <td style="font-size:13px;">
                         <i class="fas <?= esc($f['icon']) ?>" style="color:#bd9751; width:18px;"></i>
@@ -523,6 +564,40 @@ document.addEventListener('DOMContentLoaded', function () {
             if (activeCard) activeCard.classList.add('active');
         }
     });
+
+    // Recalcular cards Año/Mes según filas visibles (interconexión con cards de estado).
+    // Cada fila lleva data-fechas (CSV YYYY-MM-DD) con todas sus fechas relevantes (realizadas + programadas).
+    function recalcMatrizCards() {
+        const monthly = new Array(13).fill(0);
+        let yearActiveCount = 0;
+        tabla.rows({ search: 'applied' }).every(function () {
+            const node = this.node();
+            if (!node) return;
+            const raw = node.getAttribute('data-fechas') || '';
+            if (!raw) return;
+            raw.split(',').forEach(function (d) {
+                if (d.length < 10) return;
+                const y = parseInt(d.substring(0, 4), 10);
+                const m = parseInt(d.substring(5, 7), 10);
+                if (y === ANIO) {
+                    yearActiveCount++;
+                    if (m >= 1 && m <= 12) monthly[m]++;
+                }
+            });
+        });
+        document.querySelectorAll('.card-mes').forEach(function (card) {
+            const m = parseInt(card.getAttribute('data-mes'), 10);
+            const el = card.querySelector('.matriz-mes-count');
+            if (el && m >= 1 && m <= 12) el.textContent = monthly[m];
+        });
+        const cardAnio = document.querySelector('.card-anio[data-anio="' + ANIO + '"]');
+        if (cardAnio) {
+            const elA = cardAnio.querySelector('.matriz-anio-count');
+            if (elA) elA.textContent = yearActiveCount;
+        }
+    }
+    tabla.on('draw', recalcMatrizCards);
+    recalcMatrizCards();
 
     document.querySelectorAll('.col-filter').forEach(function (el) {
         el.addEventListener('input', function () {
