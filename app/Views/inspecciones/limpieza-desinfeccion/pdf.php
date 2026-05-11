@@ -439,6 +439,141 @@
 </table>
 <p class="nota">Nota: La dilución se calcula sobre la fórmula: mL de hipoclorito = (% concentración deseada × 1000 mL) ÷ % concentración del producto. Las medidas se expresan por cada litro de agua limpia. No mezclar con detergente, amoniaco, vinagre ni otros productos químicos. Preparar la solución justo antes de su uso y desecharla al finalizar la jornada.</p>
 
+<!-- Tabla maestra de concentraciones de otros insumos químicos -->
+<div class="subsection-title">Tabla maestra de concentraciones de insumos químicos</div>
+<p>Además del hipoclorito de sodio, los siguientes insumos químicos son de uso frecuente en propiedad horizontal. Las concentraciones aquí relacionadas son orientativas y deben validarse con la ficha técnica y la Hoja de Datos de Seguridad (FDS/SDS) del producto adquirido:</p>
+<table class="data-table">
+    <tr>
+        <th>INSUMO QUÍMICO</th>
+        <th>USO PRINCIPAL</th>
+        <th>CONC. PRODUCTO COMERCIAL</th>
+        <th>DILUCIÓN RECOMENDADA</th>
+        <th>mL × LITRO DE AGUA</th>
+        <th>TIEMPO DE CONTACTO</th>
+    </tr>
+    <tr>
+        <td>Hipoclorito de sodio</td>
+        <td>Desinfección general pisos / superficies</td>
+        <td>5,25% (doméstico)</td>
+        <td>0,05%</td>
+        <td>10 mL × 1 L</td>
+        <td>10 min</td>
+    </tr>
+    <tr>
+        <td>Hipoclorito de sodio</td>
+        <td>Desinfección general pisos / superficies</td>
+        <td>13% (industrial)</td>
+        <td>0,05%</td>
+        <td>4 mL × 1 L</td>
+        <td>10 min</td>
+    </tr>
+    <tr>
+        <td>Hipoclorito de sodio</td>
+        <td>Áreas críticas (baños, residuos)</td>
+        <td>5,25% – 13%</td>
+        <td>0,1% – 0,2%</td>
+        <td>20 – 40 mL × 1 L</td>
+        <td>10 – 15 min</td>
+    </tr>
+    <tr>
+        <td>Amonio cuaternario (5ª gen.)</td>
+        <td>Desinfección general superficies</td>
+        <td>50% concentrado</td>
+        <td>0,2% – 0,4%</td>
+        <td>4 – 8 mL × 1 L</td>
+        <td>10 min</td>
+    </tr>
+    <tr>
+        <td>Amonio cuaternario (5ª gen.)</td>
+        <td>Áreas críticas (baños, basuras)</td>
+        <td>50% concentrado</td>
+        <td>0,5% – 1,0%</td>
+        <td>10 – 20 mL × 1 L</td>
+        <td>10 min</td>
+    </tr>
+    <tr>
+        <td>Peróxido de hidrógeno</td>
+        <td>Desinfección de superficies</td>
+        <td>6% – 7,5%</td>
+        <td>0,5%</td>
+        <td>80 mL × 1 L</td>
+        <td>5 – 10 min</td>
+    </tr>
+    <tr>
+        <td>Peróxido de hidrógeno</td>
+        <td>Áreas de alimentos / cocinas</td>
+        <td>3%</td>
+        <td>Sin diluir</td>
+        <td>Listo para usar</td>
+        <td>5 min</td>
+    </tr>
+    <tr>
+        <td>Alcohol etílico / isopropílico</td>
+        <td>Antiséptico manos y superficies pequeñas</td>
+        <td>70%</td>
+        <td>Sin diluir</td>
+        <td>Listo para usar</td>
+        <td>30 seg – 1 min</td>
+    </tr>
+    <tr>
+        <td>Detergente multiusos neutro</td>
+        <td>Limpieza general de pisos</td>
+        <td>Concentrado</td>
+        <td>1% – 2%</td>
+        <td>10 – 20 mL × 1 L</td>
+        <td>Frotar y enjuagar</td>
+    </tr>
+    <tr>
+        <td>Detergente industrial / desengrasante</td>
+        <td>Limpieza profunda y zonas grasosas</td>
+        <td>Concentrado</td>
+        <td>3% – 5%</td>
+        <td>30 – 50 mL × 1 L</td>
+        <td>3 – 5 min</td>
+    </tr>
+    <tr>
+        <td>Jabón líquido (manos)</td>
+        <td>Higiene de manos</td>
+        <td>Listo para usar</td>
+        <td>No diluir</td>
+        <td>3 – 5 mL</td>
+        <td>Frotar 20 seg</td>
+    </tr>
+    <tr>
+        <td>Limpiavidrios</td>
+        <td>Vidrios y superficies brillantes</td>
+        <td>Listo para usar</td>
+        <td>No diluir</td>
+        <td>Pulverizar</td>
+        <td>Inmediato</td>
+    </tr>
+    <tr>
+        <td>Ácido muriático (HCl)</td>
+        <td>Sarro fuerte en baños y orinales</td>
+        <td>30%</td>
+        <td>1:10 (10%)</td>
+        <td>100 mL × 1 L</td>
+        <td>3 – 5 min, enjuagar</td>
+    </tr>
+    <tr>
+        <td>Vinagre blanco</td>
+        <td>Limpieza ecológica (cal y residuos)</td>
+        <td>5% acidez</td>
+        <td>Sin diluir o 1:1</td>
+        <td>500 mL × 1 L</td>
+        <td>5 – 10 min</td>
+    </tr>
+    <tr>
+        <td>Bicarbonato de sodio</td>
+        <td>Limpiador suave y desodorizante</td>
+        <td>Sólido</td>
+        <td>Pasta con agua</td>
+        <td>2 cdas × 1 L</td>
+        <td>Aplicar y frotar</td>
+    </tr>
+</table>
+<p class="nota"><strong>Nota de seguridad:</strong> Las concentraciones son orientativas; siempre debe primar la Ficha de Datos de Seguridad (FDS/SDS) y la ficha técnica del fabricante. Está <strong>estrictamente prohibido</strong> mezclar hipoclorito + amonio, hipoclorito + ácidos o peróxido + alcohol: pueden generar gases tóxicos (cloramina, cloro gaseoso) o reacciones violentas. Las soluciones se preparan justo antes de su uso y se desechan al finalizar la jornada.</p>
+
 <!-- 1.7 TÉCNICAS -->
 <div class="section-title">1.7 TÉCNICAS DE LIMPIEZA Y DESINFECCIÓN</div>
 <p>Con el fin de garantizar la efectividad del proceso de limpieza y desinfección y prevenir la contaminación cruzada, se deberán aplicar de manera obligatoria las siguientes técnicas inductivas:</p>
