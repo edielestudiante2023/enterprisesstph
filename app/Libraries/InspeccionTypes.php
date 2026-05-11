@@ -224,6 +224,12 @@ class InspeccionTypes
                 'list_route' => 'inspecciones/contingencia-plagas', 'create_route' => 'inspecciones/contingencia-plagas/create', 'view_route' => 'inspecciones/contingencia-plagas/view',
             ],
             [
+                'slug' => 'contingencia-limpieza-desinfeccion', 'label' => 'Contingencia Limpieza y Desinfección', 'group' => 'Contingencias',
+                'icon' => 'fa-spray-can-sparkles',
+                'table' => 'tbl_plan_contingencia_limpieza_desinfeccion', 'date_col' => 'fecha_programa',
+                'list_route' => 'inspecciones/contingencia-limpieza-desinfeccion', 'create_route' => 'inspecciones/contingencia-limpieza-desinfeccion/create', 'view_route' => 'inspecciones/contingencia-limpieza-desinfeccion/view',
+            ],
+            [
                 'slug' => 'contingencia-agua', 'label' => 'Contingencia Sin Agua', 'group' => 'Contingencias',
                 'icon' => 'fa-tint-slash',
                 'table' => 'tbl_plan_contingencia_agua', 'date_col' => 'fecha_programa',

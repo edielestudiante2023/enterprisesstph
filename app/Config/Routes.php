@@ -1507,6 +1507,21 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('contingencia-plagas/enviar-email/(:num)', 'PlanContingenciaPlagasController::enviarEmail/$1');
     $routes->get('contingencia-plagas/documento', 'PlanContingenciaPlagasController::documento');
 
+    // Plan de Contingencias — Limpieza y Desinfección (FT-SST-234)
+    $routes->get('contingencia-limpieza-desinfeccion', 'PlanContingenciaLimpiezaDesinfeccionController::list');
+    $routes->get('contingencia-limpieza-desinfeccion/create', 'PlanContingenciaLimpiezaDesinfeccionController::create');
+    $routes->get('contingencia-limpieza-desinfeccion/create/(:num)', 'PlanContingenciaLimpiezaDesinfeccionController::create/$1');
+    $routes->post('contingencia-limpieza-desinfeccion/store', 'PlanContingenciaLimpiezaDesinfeccionController::store');
+    $routes->get('contingencia-limpieza-desinfeccion/edit/(:num)', 'PlanContingenciaLimpiezaDesinfeccionController::edit/$1');
+    $routes->post('contingencia-limpieza-desinfeccion/update/(:num)', 'PlanContingenciaLimpiezaDesinfeccionController::update/$1');
+    $routes->get('contingencia-limpieza-desinfeccion/view/(:num)', 'PlanContingenciaLimpiezaDesinfeccionController::view/$1');
+    $routes->get('contingencia-limpieza-desinfeccion/pdf/(:num)', 'PlanContingenciaLimpiezaDesinfeccionController::generatePdf/$1');
+    $routes->get('contingencia-limpieza-desinfeccion/regenerar/(:num)', 'PlanContingenciaLimpiezaDesinfeccionController::regenerarPdf/$1');
+    $routes->post('contingencia-limpieza-desinfeccion/finalizar/(:num)', 'PlanContingenciaLimpiezaDesinfeccionController::finalizar/$1');
+    $routes->get('contingencia-limpieza-desinfeccion/delete/(:num)', 'PlanContingenciaLimpiezaDesinfeccionController::delete/$1');
+    $routes->get('contingencia-limpieza-desinfeccion/enviar-email/(:num)', 'PlanContingenciaLimpiezaDesinfeccionController::enviarEmail/$1');
+    $routes->get('contingencia-limpieza-desinfeccion/documento', 'PlanContingenciaLimpiezaDesinfeccionController::documento');
+
     // Plan de Contingencia — Sin Suministro de Agua (FT-SST-234)
     $routes->get('contingencia-agua', 'PlanContingenciaAguaController::list');
     $routes->get('contingencia-agua/create', 'PlanContingenciaAguaController::create');
