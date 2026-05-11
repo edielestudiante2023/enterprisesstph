@@ -241,6 +241,10 @@ trait ImagenCompresionTrait
         header('Content-Type: application/pdf');
         header('Content-Disposition: inline; filename="' . $filename . '"');
         header('Content-Length: ' . filesize($fullPath));
+        // Evitar caché de Cloudflare/navegador — los PDFs se regeneran y deben reflejar cambios inmediatos
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
         readfile($fullPath);
         exit;
     }
