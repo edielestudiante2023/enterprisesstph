@@ -241,11 +241,10 @@ class MatrizInspeccionesController extends BaseController
             return 0;
         });
 
-        // Años disponibles: los que el cliente tiene con datos, más el año actual y los 4 anteriores.
-        // El dropdown sigue funcionando con ?anio=YYYY.
+        // Años disponibles: solo los que el cliente tiene con datos + el año actual (para poder navegar al "ahora").
+        // Sin hardcode de últimos N años, para no inflar cards/dropdown con años vacíos.
         $anioActual = (int) date('Y');
-        $rango5     = range($anioActual, $anioActual - 4);
-        $aniosUnion = array_unique(array_merge(array_keys($inspeccionesPorAnio), $rango5));
+        $aniosUnion = array_unique(array_merge(array_keys($inspeccionesPorAnio), [$anioActual]));
         rsort($aniosUnion);
         $aniosDisponibles = $aniosUnion;
 
