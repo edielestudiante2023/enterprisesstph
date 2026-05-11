@@ -263,6 +263,13 @@
                             <p>Evaluaciones y estándares</p>
                         </div>
                     </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="view-card text-center">
+                            <i class="fas fa-th-list view-icon"></i>
+                            <h5>Matriz de Inspecciones</h5>
+                            <p>Cronograma anual y estado de inspecciones por cliente</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -355,21 +362,22 @@
                 // Guardar cliente en localStorage
                 localStorage.setItem('selectedClient', clientId);
 
-                // URLs de las vistas
+                // URLs de las vistas (usar {clientId} como placeholder cuando la ruta lo requiera)
                 var views = [
                     '<?= base_url('/reportList') ?>',
-                    '<?= base_url('/pta-cliente-nueva/list') ?>',
+                    '<?= base_url('/pta-cliente-nueva/list') ?>?cliente={clientId}',
                     '<?= base_url('/listcronogCapacitacion') ?>',
                     '<?= base_url('/vencimientos') ?>',
                     '<?= base_url('/listPendientes') ?>',
-                    '<?= base_url('/listEvaluaciones') ?>'
+                    '<?= base_url('/listEvaluaciones') ?>',
+                    '<?= base_url('/inspecciones/matriz') ?>/{clientId}'
                 ];
 
-                // Abrir cada vista en una nueva pestaña
+                // Abrir cada vista en una nueva pestaña, sustituyendo {clientId} con el cliente seleccionado
                 views.forEach(function(url, index) {
-                    // Pequeño delay entre aperturas para evitar que el navegador bloquee
+                    var finalUrl = url.replace('{clientId}', clientId);
                     setTimeout(function() {
-                        window.open(url, '_blank');
+                        window.open(finalUrl, '_blank');
                     }, index * 100);
                 });
             });
