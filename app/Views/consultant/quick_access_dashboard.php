@@ -270,6 +270,13 @@
                             <p>Cronograma anual y estado de inspecciones por cliente</p>
                         </div>
                     </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="view-card text-center">
+                            <i class="fas fa-chart-line view-icon"></i>
+                            <h5>Informe de Avances</h5>
+                            <p>Snapshots, métricas y vencimientos consolidados</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -370,7 +377,8 @@
                     '<?= base_url('/vencimientos') ?>',
                     '<?= base_url('/listPendientes') ?>',
                     '<?= base_url('/listEvaluaciones') ?>',
-                    '<?= base_url('/inspecciones/matriz') ?>/{clientId}'
+                    '<?= base_url('/inspecciones/matriz') ?>/{clientId}',
+                    '<?= base_url('/informe-avances') ?>'
                 ];
 
                 // Abrir cada vista en una nueva pestaña, sustituyendo {clientId} con el cliente seleccionado
