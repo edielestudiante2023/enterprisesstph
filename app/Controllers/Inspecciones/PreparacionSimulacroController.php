@@ -194,8 +194,6 @@ class PreparacionSimulacroController extends BaseController
             return redirect()->to('/inspecciones/preparacion-simulacro')->with('error', 'No encontrada');
         }
 
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/preparacion-simulacro/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 

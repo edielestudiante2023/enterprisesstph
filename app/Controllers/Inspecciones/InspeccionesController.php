@@ -44,6 +44,7 @@ use App\Models\ProgramaPlagasModel;
 use App\Models\ProgramaAguaPotableModel;
 use App\Models\PlanSaneamientoModel;
 use App\Models\PlanContingenciaPlagasModel;
+use App\Models\PlanContingenciaLimpiezaDesinfeccionModel;
 use App\Models\PlanContingenciaAguaModel;
 use App\Models\PlanContingenciaBasuraModel;
 use App\Models\KpiLimpiezaModel;
@@ -227,6 +228,9 @@ class InspeccionesController extends BaseController
         $totalContPlagas = $contPlagasModel->where('estado', 'completo')->countAllResults();
         $pendientesContPlagas = $contPlagasModel->getAllPendientes();
 
+        $contLimpiezaModel = new PlanContingenciaLimpiezaDesinfeccionModel();
+        $totalContLimpieza = $contLimpiezaModel->where('estado', 'completo')->countAllResults();
+
         $contAguaModel = new PlanContingenciaAguaModel();
         $totalContAgua = $contAguaModel->where('estado', 'completo')->countAllResults();
         $pendientesContAgua = $contAguaModel->getAllPendientes();
@@ -337,6 +341,7 @@ class InspeccionesController extends BaseController
             'totalProgAgua'    => $totalProgAgua,
             'totalPlanSan'     => $totalPlanSan,
             'totalContPlagas'  => $totalContPlagas,
+            'totalContLimpieza' => $totalContLimpieza,
             'totalContAgua'    => $totalContAgua,
             'totalContBasura'  => $totalContBasura,
             'totalKpiLimp'     => $totalKpiLimp,

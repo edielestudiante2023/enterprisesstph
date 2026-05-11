@@ -159,8 +159,6 @@ class ReporteCapacitacionController extends BaseController
             return redirect()->to('/inspecciones/reporte-capacitacion')->with('error', 'No encontrado');
         }
 
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/reporte-capacitacion/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 

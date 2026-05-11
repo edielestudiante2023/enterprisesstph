@@ -224,8 +224,6 @@ class PlanEmergenciaController extends BaseController
             return redirect()->to('/inspecciones/plan-emergencia')->with('error', 'No encontrado');
         }
 
-        if ($r = $this->guardFinalizado($inspeccion, '/inspecciones/plan-emergencia/view/' . $id)) return $r;
-
         $clientModel = new ClientModel();
         $consultantModel = new ConsultantModel();
 
