@@ -162,9 +162,10 @@
             <thead>
                 <tr style="background:#f0f0f0;">
                     <th style="width:5%; border:1px solid #999; padding:5px;">#</th>
-                    <th style="width:35%; border:1px solid #999; padding:5px;">NOMBRE COMPLETO</th>
-                    <th style="width:20%; border:1px solid #999; padding:5px;">DOCUMENTO</th>
-                    <th style="width:40%; border:1px solid #999; padding:5px;">FIRMA</th>
+                    <th style="width:28%; border:1px solid #999; padding:5px;">NOMBRE COMPLETO</th>
+                    <th style="width:17%; border:1px solid #999; padding:5px;">DOCUMENTO</th>
+                    <th style="width:20%; border:1px solid #999; padding:5px;">CARGO</th>
+                    <th style="width:30%; border:1px solid #999; padding:5px;">FIRMA</th>
                 </tr>
             </thead>
             <tbody>
@@ -178,6 +179,7 @@
                     <td style="border:1px solid #999; padding:4px; text-align:center;"><?= $i + 1 ?></td>
                     <td style="border:1px solid #999; padding:4px;"><?= esc($a['nombre_completo']) ?></td>
                     <td style="border:1px solid #999; padding:4px;"><?= esc($a['tipo_documento'] ?? '') ?> <?= esc($a['numero_documento'] ?? '') ?></td>
+                    <td style="border:1px solid #999; padding:4px;"><?= esc($a['cargo'] ?? '') ?></td>
                     <td style="border:1px solid #999; padding:4px; text-align:center;">
                         <?php if ($firmaSrc): ?>
                             <img src="<?= $firmaSrc ?>" class="firma-img">
