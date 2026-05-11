@@ -210,13 +210,23 @@
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($ptaActividades as $pta): ?>
+            <?php foreach ($ptaActividades as $pta):
+                // Estado actualizado: prioriza tbl_pta_cliente.estado_actividad si ya está cerrada/gestionando,
+                // si no usa el flag local de la visita.
+                $cerradaActual = ($pta['estado_actividad'] ?? null) === 'CERRADA' || !empty($pta['cerrada']);
+                $enProceso = !$cerradaActual && (
+                    ($pta['estado_actividad'] ?? null) === 'GESTIONANDO'
+                    || !empty($pta['justificacion_no_cierre'])
+                );
+                $estadoLabel = $cerradaActual ? 'CERRADA' : ($enProceso ? 'EN PROCESO' : 'PENDIENTE');
+                $estadoColor = $cerradaActual ? 'green' : ($enProceso ? '#b8860b' : '#888');
+            ?>
             <tr>
                 <td><?= esc($pta['numeral_plandetrabajo'] ?? '') ?></td>
                 <td><?= esc($pta['actividad_plandetrabajo'] ?? '') ?></td>
                 <td><?= !empty($pta['fecha_propuesta']) ? date('d/m/Y', strtotime($pta['fecha_propuesta'])) : '-' ?></td>
-                <td style="font-weight:bold; color:<?= $pta['cerrada'] ? 'green' : ($pta['justificacion_no_cierre'] ? '#b8860b' : '#888') ?>">
-                    <?= $pta['cerrada'] ? 'CERRADA' : ($pta['justificacion_no_cierre'] ? 'EN PROCESO' : 'PENDIENTE') ?>
+                <td style="font-weight:bold; color:<?= $estadoColor ?>">
+                    <?= $estadoLabel ?>
                 </td>
                 <td style="font-size:11px; color:#555;"><?= esc($pta['justificacion_no_cierre'] ?? '') ?></td>
             </tr>
