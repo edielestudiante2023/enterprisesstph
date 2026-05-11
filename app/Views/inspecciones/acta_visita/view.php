@@ -63,11 +63,20 @@
             <?php foreach ($ptaActividades as $pta): ?>
             <div style="font-size:14px; padding:4px 0; border-bottom:1px solid #eee;">
                 <strong><?= esc($pta['numeral_plandetrabajo'] ?? '') ?></strong> - <?= esc($pta['actividad_plandetrabajo'] ?? '') ?>
-                <?php if ($pta['cerrada']): ?>
+                <?php
+                $cerradaActual = ($pta['estado_actividad'] ?? null) === 'CERRADA' || !empty($pta['cerrada']);
+                $enProceso = !$cerradaActual && (
+                    ($pta['estado_actividad'] ?? null) === 'GESTIONANDO'
+                    || !empty($pta['justificacion_no_cierre'])
+                );
+                ?>
+                <?php if ($cerradaActual): ?>
                     <span class="badge bg-success" style="font-size:10px;">CERRADA</span>
-                <?php elseif (!empty($pta['justificacion_no_cierre'])): ?>
+                <?php elseif ($enProceso): ?>
                     <span class="badge bg-warning text-dark" style="font-size:10px;">EN PROCESO</span>
-                    <small class="text-muted d-block"><?= esc($pta['justificacion_no_cierre']) ?></small>
+                    <?php if (!empty($pta['justificacion_no_cierre'])): ?>
+                        <small class="text-muted d-block"><?= esc($pta['justificacion_no_cierre']) ?></small>
+                    <?php endif; ?>
                 <?php else: ?>
                     <span class="badge bg-secondary" style="font-size:10px;">PENDIENTE</span>
                 <?php endif; ?>
