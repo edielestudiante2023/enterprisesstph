@@ -41,7 +41,9 @@ class MatrizInspeccionesController extends BaseController
     }
 
     /**
-     * Pantalla 2: detalle de inspecciones de un cliente en un año.
+     * Pantalla 2: detalle de inspecciones de un cliente.
+     * Filtra por rango fecha_desde / fecha_hasta. Acepta ?anio=YYYY como atajo (back-compat)
+     * y mapea a 01/01–31/12 del año indicado. Default: año actual completo.
      */
     public function detalle(int $idCliente)
     {
@@ -51,20 +53,56 @@ class MatrizInspeccionesController extends BaseController
                 ->with('error', 'Cliente no encontrado.');
         }
 
-        $anio = (int) ($this->request->getGet('anio') ?: date('Y'));
-        $tipos = InspeccionTypes::all();
+        $isValidDate = static fn($d) => is_string($d) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) && strtotime($d) !== false;
+
+        $fechaDesde = trim((string) $this->request->getGet('fecha_desde'));
+        $fechaHasta = trim((string) $this->request->getGet('fecha_hasta'));
+        $anioParam  = trim((string) $this->request->getGet('anio'));
+
+        if ($isValidDate($fechaDesde) && $isValidDate($fechaHasta)) {
+            // Modo rango explícito
+            if ($fechaDesde > $fechaHasta) {
+                [$fechaDesde, $fechaHasta] = [$fechaHasta, $fechaDesde];
+            }
+        } else {
+            // Modo año (back-compat o default)
+            $anio = (int) ($anioParam ?: date('Y'));
+            $fechaDesde = $anio . '-01-01';
+            $fechaHasta = $anio . '-12-31';
+        }
+
+        // Año "activo" (para resaltar card y filtrar meses): año de fecha_desde si coincide con fecha_hasta
+        $anioInicio = (int) substr($fechaDesde, 0, 4);
+        $anioFin    = (int) substr($fechaHasta, 0, 4);
+        $anio       = $anioInicio === $anioFin ? $anioInicio : (int) date('Y');
+
+        // Mes "activo" si el rango es justo un mes calendario completo
+        $mesActivo = null;
+        if ($anioInicio === $anioFin) {
+            $mesIni = (int) substr($fechaDesde, 5, 2);
+            $mesFin = (int) substr($fechaHasta, 5, 2);
+            $diaIni = (int) substr($fechaDesde, 8, 2);
+            $diaFin = (int) substr($fechaHasta, 8, 2);
+            $ultDia = (int) date('t', strtotime($fechaDesde));
+            if ($mesIni === $mesFin && $diaIni === 1 && $diaFin === $ultDia) {
+                $mesActivo = $mesIni;
+            }
+        }
+
+        $tipos    = InspeccionTypes::all();
         $noAplica = $this->noAplicaModel->getByCliente($idCliente);
 
         $db = \Config\Database::connect();
 
-        // Precargar matches del cliente cuyo PTA cae en el anio seleccionado
+        // Precargar matches del cliente cuyo PTA cae en el rango
         $matchesBySlug = [];
         if ($db->tableExists('tbl_pta_inspeccion_match')) {
             $matches = $db->table('tbl_pta_inspeccion_match m')
                 ->select('m.slug_inspeccion, m.id_ptacliente, m.method, m.score, p.fecha_propuesta, p.fecha_cierre, p.numeral_plandetrabajo, p.actividad_plandetrabajo, p.estado_actividad')
                 ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'inner')
                 ->where('m.id_cliente', $idCliente)
-                ->where('YEAR(p.fecha_propuesta)', $anio)
+                ->where('p.fecha_propuesta >=', $fechaDesde)
+                ->where('p.fecha_propuesta <=', $fechaHasta)
                 ->orderBy('p.fecha_propuesta', 'ASC')
                 ->get()
                 ->getResultArray();
@@ -72,6 +110,41 @@ class MatrizInspeccionesController extends BaseController
                 $matchesBySlug[$m['slug_inspeccion']][] = $m;
             }
         }
+
+        // Conteos por año (todos los años del cliente) y por mes (del año activo)
+        // Una sola query GROUP BY YEAR, MONTH por tipo de inspección.
+        $inspeccionesPorAnio = [];
+        $inspeccionesPorMes  = array_fill(1, 12, 0);
+        foreach ($tipos as $tipo) {
+            if (!$db->tableExists($tipo['table'])) continue;
+            $fieldsT = $db->getFieldNames($tipo['table']);
+            $dateColT = in_array($tipo['date_col'], $fieldsT, true) ? $tipo['date_col'] : null;
+            if (!$dateColT || !in_array('id_cliente', $fieldsT, true)) continue;
+
+            $b = $db->table($tipo['table'])
+                ->select("YEAR({$dateColT}) AS y, MONTH({$dateColT}) AS m, COUNT(*) AS c")
+                ->where('id_cliente', $idCliente)
+                ->where("{$dateColT} IS NOT NULL", null, false)
+                ->groupBy(["YEAR({$dateColT})", "MONTH({$dateColT})"]);
+
+            $estadoColT = array_key_exists('estado_col', $tipo) ? $tipo['estado_col'] : 'estado';
+            $estadoValueT = $tipo['estado_value'] ?? 'completo';
+            if ($estadoColT !== null && in_array($estadoColT, $fieldsT, true)) {
+                $b->where($estadoColT, $estadoValueT);
+            }
+            foreach (($tipo['extra_where'] ?? []) as $col => $val) {
+                if (in_array($col, $fieldsT, true)) $b->where($col, $val);
+            }
+
+            foreach ($b->get()->getResultArray() as $r) {
+                $y = (int) $r['y']; $m = (int) $r['m']; $c = (int) $r['c'];
+                if ($y > 0) $inspeccionesPorAnio[$y] = ($inspeccionesPorAnio[$y] ?? 0) + $c;
+                if ($y === $anio && $m >= 1 && $m <= 12) {
+                    $inspeccionesPorMes[$m] += $c;
+                }
+            }
+        }
+        krsort($inspeccionesPorAnio);
 
         $filas = [];
 
@@ -93,7 +166,8 @@ class MatrizInspeccionesController extends BaseController
                     $builder = $db->table($tipo['table'])
                         ->select("{$pkCol} AS id, {$dateCol} AS fecha")
                         ->where('id_cliente', $idCliente)
-                        ->where("YEAR({$dateCol})", $anio)
+                        ->where("{$dateCol} >=", $fechaDesde)
+                        ->where("{$dateCol} <=", $fechaHasta)
                         ->orderBy($dateCol, 'DESC');
 
                     if ($estadoCol !== null && in_array($estadoCol, $fields, true)) {
@@ -167,14 +241,25 @@ class MatrizInspeccionesController extends BaseController
             return 0;
         });
 
-        $aniosDisponibles = range((int) date('Y'), (int) date('Y') - 4);
+        // Años disponibles: los que el cliente tiene con datos, más el año actual y los 4 anteriores.
+        // El dropdown sigue funcionando con ?anio=YYYY.
+        $anioActual = (int) date('Y');
+        $rango5     = range($anioActual, $anioActual - 4);
+        $aniosUnion = array_unique(array_merge(array_keys($inspeccionesPorAnio), $rango5));
+        rsort($aniosUnion);
+        $aniosDisponibles = $aniosUnion;
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/matriz/detalle', [
-                'cliente'          => $cliente,
-                'anio'             => $anio,
-                'aniosDisponibles' => $aniosDisponibles,
-                'filas'            => $filas,
+                'cliente'              => $cliente,
+                'anio'                 => $anio,
+                'fechaDesde'           => $fechaDesde,
+                'fechaHasta'           => $fechaHasta,
+                'mesActivo'            => $mesActivo,
+                'aniosDisponibles'     => $aniosDisponibles,
+                'inspeccionesPorAnio'  => $inspeccionesPorAnio,
+                'inspeccionesPorMes'   => $inspeccionesPorMes,
+                'filas'                => $filas,
             ]),
             'title'   => 'Matriz - ' . ($cliente['nombre_cliente'] ?? 'Cliente'),
         ]);

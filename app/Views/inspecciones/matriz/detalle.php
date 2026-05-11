@@ -21,6 +21,13 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
         </a>
     </div>
 
+    <?php
+    $idClienteUrl = (int) $cliente['id_cliente'];
+    $baseMatrizUrl = base_url('inspecciones/matriz/' . $idClienteUrl);
+    $anioActualPhp = (int) date('Y');
+    $rangoEsAnioCompleto = ($fechaDesde === $anio . '-01-01' && $fechaHasta === $anio . '-12-31');
+    $mesesAbrev = ['Ene.','Feb.','Mar.','Abr.','May.','Jun.','Jul.','Ago.','Sept.','Oct.','Nov.','Dic.'];
+    ?>
     <div class="card border-0 mb-3" style="background: linear-gradient(135deg, #1c2437 0%, #2a3449 100%); border-radius:12px;">
         <div class="card-body py-3 px-3">
             <div style="color:#bd9751; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Cliente</div>
@@ -29,14 +36,114 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                 <div style="color:rgba(255,255,255,0.6); font-size:12px;">NIT <?= esc($cliente['nit_cliente']) ?></div>
             <?php endif; ?>
 
-            <form method="get" action="<?= base_url('inspecciones/matriz/' . (int) $cliente['id_cliente']) ?>" class="d-flex align-items-center gap-2 mt-3">
-                <label for="anio" style="color:#fff; font-size:12px; margin:0;">Año:</label>
-                <select name="anio" id="anio" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()">
-                    <?php foreach ($aniosDisponibles as $y): ?>
-                        <option value="<?= $y ?>" <?= $y === (int) $anio ? 'selected' : '' ?>><?= $y ?></option>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                <form method="get" action="<?= $baseMatrizUrl ?>" class="d-flex align-items-center gap-2 m-0">
+                    <label for="anio" style="color:#fff; font-size:12px; margin:0;">Año:</label>
+                    <select name="anio" id="anio" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()">
+                        <?php foreach ($aniosDisponibles as $y): ?>
+                            <option value="<?= (int) $y ?>" <?= ((int) $y === (int) $anio) ? 'selected' : '' ?>>
+                                <?= (int) $y ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </form>
+
+                <button class="btn btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#matrizFiltrosPanel"
+                    style="background:#bd9751; color:#fff; border:none; padding:5px 12px; font-size:12px; border-radius:6px;">
+                    <i class="fas fa-layer-group"></i> Filtros por Tarjetas
+                    <i class="fas fa-chevron-down ms-1" style="font-size:10px;"></i>
+                </button>
+
+                <span style="color:rgba(255,255,255,0.85); font-size:11px;">
+                    <i class="fas fa-calendar"></i>
+                    Rango: <strong><?= date('d/m/Y', strtotime($fechaDesde)) ?></strong> – <strong><?= date('d/m/Y', strtotime($fechaHasta)) ?></strong>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel colapsable: cards Año / cards Mes / Rango Desde-Hasta -->
+    <div class="collapse mb-3" id="matrizFiltrosPanel">
+        <div class="card border-0" style="background:#f8f9fa; border-radius:12px;">
+            <div class="card-body py-3 px-3">
+
+                <!-- Cards Año -->
+                <div class="section-title-matriz">
+                    <i class="fas fa-calendar-alt"></i> Filtrar por Año
+                </div>
+                <div class="row g-2 mb-3">
+                    <?php foreach ($aniosDisponibles as $y):
+                        $yInt = (int) $y;
+                        $count = (int) ($inspeccionesPorAnio[$yInt] ?? 0);
+                        $urlAnio = $baseMatrizUrl . '?fecha_desde=' . $yInt . '-01-01&fecha_hasta=' . $yInt . '-12-31';
+                        $isActive = ($yInt === (int) $anio && $rangoEsAnioCompleto);
+                    ?>
+                        <div class="col-6 col-md-2">
+                            <a href="<?= $urlAnio ?>" class="text-decoration-none">
+                                <div class="card border-0 card-matriz-filtro card-anio<?= $isActive ? ' active' : '' ?>">
+                                    <div class="card-body text-center p-2">
+                                        <div style="font-size:15px; font-weight:700; color:#fff;"><?= $yInt ?></div>
+                                        <div style="font-size:20px; font-weight:700; color:#fff; line-height:1;"><?= $count ?></div>
+                                        <small style="font-size:10px; color:rgba(255,255,255,0.85);">inspecciones</small>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                     <?php endforeach; ?>
-                </select>
-            </form>
+                </div>
+
+                <!-- Cards Mes -->
+                <div class="section-title-matriz">
+                    <i class="fas fa-calendar-week"></i> Filtrar por Mes <small style="font-weight:normal; color:#888;">(año <?= (int) $anio ?>)</small>
+                </div>
+                <div class="row g-2 mb-3">
+                    <?php for ($m = 1; $m <= 12; $m++):
+                        $cm = (int) ($inspeccionesPorMes[$m] ?? 0);
+                        $ultDia = (int) date('t', strtotime(sprintf('%04d-%02d-01', (int) $anio, $m)));
+                        $urlMes = $baseMatrizUrl . '?fecha_desde=' . sprintf('%04d-%02d-01', (int) $anio, $m)
+                                . '&fecha_hasta=' . sprintf('%04d-%02d-%02d', (int) $anio, $m, $ultDia);
+                        $isActiveMes = ($mesActivo === $m);
+                    ?>
+                        <div class="col-6 col-md-1">
+                            <a href="<?= $urlMes ?>" class="text-decoration-none">
+                                <div class="card border-0 card-matriz-filtro card-mes<?= $isActiveMes ? ' active' : '' ?>">
+                                    <div class="card-body text-center p-2">
+                                        <div style="font-size:11px; font-weight:600; color:#fff;"><?= $mesesAbrev[$m - 1] ?></div>
+                                        <div style="font-size:16px; font-weight:700; color:#fff; line-height:1;"><?= $cm ?></div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    <?php endfor; ?>
+                </div>
+
+                <!-- Rango Fecha Desde / Hasta -->
+                <div class="section-title-matriz">
+                    <i class="fas fa-calendar-day"></i> Rango personalizado
+                </div>
+                <form method="get" action="<?= $baseMatrizUrl ?>" class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <label for="fecha_desde" class="form-label" style="font-size:12px; margin-bottom:2px; color:#555;">
+                            <i class="fas fa-calendar-plus"></i> Fecha Desde
+                        </label>
+                        <input type="date" name="fecha_desde" id="fecha_desde" class="form-control form-control-sm" value="<?= esc($fechaDesde) ?>">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="fecha_hasta" class="form-label" style="font-size:12px; margin-bottom:2px; color:#555;">
+                            <i class="fas fa-calendar-minus"></i> Fecha Hasta
+                        </label>
+                        <input type="date" name="fecha_hasta" id="fecha_hasta" class="form-control form-control-sm" value="<?= esc($fechaHasta) ?>">
+                    </div>
+                    <div class="col-md-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-sm" style="background:#bd9751; color:#fff; border:none; padding:5px 12px; font-size:12px;">
+                            <i class="fas fa-filter"></i> Aplicar
+                        </button>
+                        <a href="<?= $baseMatrizUrl ?>?anio=<?= $anioActualPhp ?>" class="btn btn-sm btn-outline-secondary" style="font-size:12px;">
+                            <i class="fas fa-times"></i> Limpiar
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -308,6 +415,21 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
 .card-filtro { transition: transform .15s, box-shadow .15s, outline .15s; outline: 2px solid transparent; }
 .card-filtro:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
 .card-filtro.active { outline: 2px solid #bd9751; box-shadow: 0 4px 10px rgba(189,151,81,0.25); }
+
+/* Filtros año/mes/rango */
+.section-title-matriz {
+    font-size: 12px; font-weight: 700; color: #1c2437;
+    border-left: 3px solid #bd9751; padding-left: 8px;
+    margin: 6px 0 10px 0; text-transform: uppercase; letter-spacing: 0.4px;
+}
+.card-matriz-filtro {
+    border-radius: 8px; cursor: pointer; transition: transform .15s, box-shadow .15s, outline .15s;
+    outline: 2px solid transparent; min-height: 60px;
+}
+.card-matriz-filtro:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.12); }
+.card-matriz-filtro.active { outline: 3px solid #bd9751; box-shadow: 0 0 0 4px rgba(189,151,81,0.25); transform: scale(1.04); }
+.card-anio { background: linear-gradient(135deg, #1c2437 0%, #2a3449 100%); }
+.card-mes  { background: linear-gradient(135deg, #2a3449 0%, #3a4659 100%); }
 .pta-row { padding:6px 8px; border-bottom:1px solid #eef2f7; display:flex; align-items:flex-start; gap:8px; }
 .pta-row:hover { background:#f8f9fa; }
 .pta-row.pta-closed { opacity:0.7; background:#f8f9fa; }
