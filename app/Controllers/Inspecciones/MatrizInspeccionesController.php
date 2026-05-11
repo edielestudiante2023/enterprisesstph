@@ -268,12 +268,18 @@ class MatrizInspeccionesController extends BaseController
             return 0;
         });
 
-        // Años disponibles: solo los que el cliente tiene con datos + el año actual (para poder navegar al "ahora").
-        // Sin hardcode de últimos N años, para no inflar cards/dropdown con años vacíos.
+        // Años disponibles: año actual en adelante (sin años pasados).
+        // Si el cliente tiene PTAs/inspecciones programadas en años futuros, aparecen también.
         $anioActual = (int) date('Y');
-        $aniosUnion = array_unique(array_merge(array_keys($inspeccionesPorAnio), [$anioActual]));
+        $aniosFuturos = array_filter(array_keys($inspeccionesPorAnio), static fn($y) => (int) $y >= $anioActual);
+        $aniosUnion = array_unique(array_merge($aniosFuturos, [$anioActual]));
         rsort($aniosUnion);
         $aniosDisponibles = $aniosUnion;
+
+        // Limpiar inspeccionesPorAnio para que no muestre conteos de años pasados
+        foreach (array_keys($inspeccionesPorAnio) as $yKey) {
+            if ((int) $yKey < $anioActual) unset($inspeccionesPorAnio[$yKey]);
+        }
 
         return view('inspecciones/layout_pwa', [
             'content' => view('inspecciones/matriz/detalle', [
