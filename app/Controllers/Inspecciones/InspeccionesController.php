@@ -358,6 +358,7 @@ class InspeccionesController extends BaseController
             'totalPlanillaSS'     => $totalPlanillaSS,
             'totalProveedores'    => $totalProveedores,
             'totalActasCapacitacion' => (new ActaCapacitacionModel())->countAllResults(),
+            'pendientesActaCap'      => (new ActaCapacitacionModel())->getAllPendientes(),
             'nombre'           => session()->get('nombre_usuario'),
         ];
 

@@ -42,7 +42,7 @@ class ActaCapacitacionModel extends Model
         return $this->select('tbl_acta_capacitacion.*, tbl_clientes.nombre_cliente, tbl_consultor.nombre_consultor')
             ->join('tbl_clientes', 'tbl_clientes.id_cliente = tbl_acta_capacitacion.id_cliente', 'left')
             ->join('tbl_consultor', 'tbl_consultor.id_consultor = tbl_acta_capacitacion.id_consultor', 'left')
-            ->whereIn('tbl_acta_capacitacion.estado', ['borrador', 'pendiente_firma'])
+            ->whereIn('tbl_acta_capacitacion.estado', ['borrador', 'esperando_firmas'])
             ->orderBy('tbl_acta_capacitacion.fecha_capacitacion', 'DESC')
             ->findAll();
     }
