@@ -39,7 +39,10 @@
         + count($pendientesKpiAgua ?? [])
         + count($pendientesPiscinas ?? [])
         + count($pendientesPiscinero ?? [])
-        + count($pendientesActaCap ?? []);
+        + count($pendientesActaCap ?? [])
+        + count($pendientesContLimpieza ?? [])
+        + count($pendientesProcEmgArea ?? [])
+        + count($pendientesInfAvances ?? []);
     ?>
     <?php if ($totalPend > 0): ?>
     <div class="accordion mb-3" id="accordionPendientes">
@@ -94,6 +97,92 @@
                         Ir a firmas <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes Informe de Avances -->
+    <?php if (!empty($pendientesInfAvances)): ?>
+    <?php foreach ($pendientesInfAvances as $ia): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Informe de Avances - <?= esc($ia['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?php $fechaIA = $ia['fecha_corte'] ?? ($ia['fecha_informe'] ?? ($ia['updated_at'] ?? null)); ?>
+                        <?= !empty($fechaIA) ? date('d/m/Y', strtotime($fechaIA)) : '—' ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-1">
+                <a href="<?= base_url('/informe-avances/edit/') ?><?= $ia['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/informe-avances/delete/') ?><?= $ia['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes Contingencia Limpieza y Desinfección -->
+    <?php if (!empty($pendientesContLimpieza)): ?>
+    <?php foreach ($pendientesContLimpieza as $cl): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Contingencia Limpieza - <?= esc($cl['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?= !empty($cl['fecha_programa']) ? date('d/m/Y', strtotime($cl['fecha_programa'])) : '—' ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-1">
+                <a href="<?= base_url('/inspecciones/contingencia-limpieza-desinfeccion/edit/') ?><?= $cl['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/contingencia-limpieza-desinfeccion/delete/') ?><?= $cl['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <!-- Pendientes Procedimiento Emergencia por Área -->
+    <?php if (!empty($pendientesProcEmgArea)): ?>
+    <?php foreach ($pendientesProcEmgArea as $pe): ?>
+    <div class="card card-inspeccion borrador">
+        <div class="card-body py-3 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong><i class="fas fa-edit text-warning"></i> Proc. Emergencia Área - <?= esc($pe['nombre_cliente'] ?? 'Sin cliente') ?></strong>
+                    <div class="text-muted" style="font-size: 13px;">
+                        <?php $fechaPE = $pe['fecha_elaboracion'] ?? ($pe['updated_at'] ?? null); ?>
+                        <?= !empty($fechaPE) ? date('d/m/Y', strtotime($fechaPE)) : '—' ?>
+                        &middot;
+                        <span class="badge badge-borrador" style="font-size: 11px;">Borrador</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 d-flex gap-1">
+                <a href="<?= base_url('/inspecciones/procedimiento-emergencia-area/edit/') ?><?= $pe['id'] ?>" class="btn btn-sm btn-outline-dark">
+                    Continuar editando <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar('<?= base_url('/inspecciones/procedimiento-emergencia-area/delete/') ?><?= $pe['id'] ?>')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>

@@ -45,6 +45,7 @@ use App\Models\ProgramaAguaPotableModel;
 use App\Models\PlanSaneamientoModel;
 use App\Models\PlanContingenciaPlagasModel;
 use App\Models\PlanContingenciaLimpiezaDesinfeccionModel;
+use App\Models\InformeAvancesModel;
 use App\Models\PlanContingenciaAguaModel;
 use App\Models\PlanContingenciaBasuraModel;
 use App\Models\KpiLimpiezaModel;
@@ -359,6 +360,9 @@ class InspeccionesController extends BaseController
             'totalProveedores'    => $totalProveedores,
             'totalActasCapacitacion' => (new ActaCapacitacionModel())->countAllResults(),
             'pendientesActaCap'      => (new ActaCapacitacionModel())->getAllPendientes(),
+            'pendientesContLimpieza' => (new PlanContingenciaLimpiezaDesinfeccionModel())->getAllPendientes(),
+            'pendientesProcEmgArea'  => (new ProcedimientoEmergenciaAreaModel())->getAllPendientes(),
+            'pendientesInfAvances'   => (new InformeAvancesModel())->getAllPendientes(),
             'nombre'           => session()->get('nombre_usuario'),
         ];
 
