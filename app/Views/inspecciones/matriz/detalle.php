@@ -16,14 +16,6 @@ $aplicables = $totalTodos - $totalNoAplica;
 // 'Al día' cuenta como cumplido para cobertura (la inspección está vigente según frecuencia)
 $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicables) * 100) : 0;
 
-$frecuenciaLabels = [
-    'mensual'    => 'Mensual',
-    'bimensual'  => 'Bimensual',
-    'trimestral' => 'Trimestral',
-    'semestral'  => 'Semestral',
-    'anual'      => 'Anual',
-    'puntual'    => 'Puntual',
-];
 ?>
 <div class="container-fluid px-3 mt-2">
     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -311,17 +303,26 @@ $frecuenciaLabels = [
                         <i class="fas <?= esc($f['icon']) ?>" style="color:#bd9751; width:18px;"></i>
                         <?= esc($f['label']) ?>
                         <?php
-                        $frecActual = $f['frecuencia'] ?? null;
-                        $frecLabel  = $frecActual ? ($frecuenciaLabels[$frecActual] ?? $frecActual) : 'Sin definir';
-                        $frecColor  = $frecActual ? '#0d6efd' : '#888';
+                        $vecesAnio      = $f['veces_anio']      ?? null;
+                        $realizadasAnio = (int) ($f['realizadas_anio'] ?? 0);
+                        if ($vecesAnio === null) {
+                            $frecText  = 'Sin definir';
+                            $frecColor = '#888';
+                        } elseif ($vecesAnio === 0) {
+                            $frecText  = 'Puntual';
+                            $frecColor = '#0d6efd';
+                        } else {
+                            $frecText  = $realizadasAnio . ' / ' . $vecesAnio;
+                            $frecColor = $realizadasAnio >= $vecesAnio ? '#0f5132' : '#0d6efd';
+                        }
                         ?>
                         <button type="button" class="badge btn-frecuencia"
                             data-slug="<?= esc($f['slug']) ?>"
                             data-label="<?= esc($f['label']) ?>"
-                            data-frecuencia="<?= esc($frecActual ?? '') ?>"
+                            data-veces-anio="<?= $vecesAnio === null ? '' : (int) $vecesAnio ?>"
                             style="background:transparent; color:<?= $frecColor ?>; border:1px solid <?= $frecColor ?>; font-weight:500; padding:2px 6px; font-size:10px; cursor:pointer; margin-left:4px;"
-                            title="Frecuencia configurada para este cliente">
-                            <i class="fas fa-redo-alt"></i> <?= esc($frecLabel) ?>
+                            title="Veces por año configuradas para este cliente — click para cambiar">
+                            <i class="fas fa-redo-alt"></i> <?= esc($frecText) ?>
                         </button>
                     </td>
                     <td style="font-size:12px;" data-order="<?= esc($f['ultima'] ?? $f['proxima_planeada'] ?? $f['ultima_vencida'] ?? '9999-99-99') ?>">
@@ -329,13 +330,13 @@ $frecuenciaLabels = [
                             <span class="text-muted">—</span>
                         <?php else: ?>
                             <?php if ($f['total'] === 0): ?>
-                                <?php if ($f['estado'] === 'al_dia' && !empty($f['ultima_global'])): ?>
+                                <?php if ($f['estado'] === 'al_dia'): ?>
                                     <span style="color:#0f5132; font-weight:600;">
-                                        <i class="fas fa-shield-alt"></i> Última: <?= date('d/m/Y', strtotime($f['ultima_global'])) ?>
+                                        <i class="fas fa-shield-alt"></i> Cumple meta del año (<?= (int) ($f['realizadas_anio'] ?? 0) ?> de <?= (int) ($f['veces_anio'] ?? 0) ?>)
                                     </span>
-                                    <?php if (!empty($f['proxima_esperada'])): ?>
+                                    <?php if (!empty($f['ultima_global'])): ?>
                                         <small class="d-block text-muted" style="font-size:10px;">
-                                            Próxima esperada: <?= date('d/m/Y', strtotime($f['proxima_esperada'])) ?>
+                                            Última realizada: <?= date('d/m/Y', strtotime($f['ultima_global'])) ?>
                                         </small>
                                     <?php endif; ?>
                                 <?php elseif ($f['estado'] === 'atrasada' && !empty($f['ultima_vencida'])): ?>
@@ -465,7 +466,7 @@ $frecuenciaLabels = [
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header" style="background:#1c2437; color:#fff;">
-                <h6 class="modal-title"><i class="fas fa-redo-alt"></i> Frecuencia de inspección</h6>
+                <h6 class="modal-title"><i class="fas fa-redo-alt"></i> Veces por año</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -473,20 +474,13 @@ $frecuenciaLabels = [
                     <strong>Tipo:</strong> <span id="frecModalLabel" style="color:#bd9751;"></span>
                 </div>
                 <p class="small text-muted mt-2" style="font-size:11px;">
-                    Define cada cuánto debe realizarse esta inspección para este cliente. La matriz usará esta frecuencia
-                    para calcular si el tipo está "Al día" según la última realización registrada.
+                    Cantidad de veces que debe realizarse esta inspección en el año, para este cliente.
+                    La matriz usa este valor para marcar como "Al día" cuando se cumple la meta.
                 </p>
                 <div class="mt-2">
-                    <label class="form-label small fw-bold">Frecuencia</label>
-                    <select id="frecModalSelect" class="form-select form-select-sm">
-                        <option value="">— Sin definir —</option>
-                        <option value="mensual">Mensual (30 días)</option>
-                        <option value="bimensual">Bimensual (60 días)</option>
-                        <option value="trimestral">Trimestral (90 días)</option>
-                        <option value="semestral">Semestral (180 días)</option>
-                        <option value="anual">Anual (365 días)</option>
-                        <option value="puntual">Puntual (ad-hoc, sin frecuencia fija)</option>
-                    </select>
+                    <label for="frecModalInput" class="form-label small fw-bold">Veces por año</label>
+                    <input type="number" id="frecModalInput" class="form-control" min="0" max="365" step="1" placeholder="Ej: 1, 4, 12">
+                    <small class="text-muted" style="font-size:11px;">0 = puntual (sin frecuencia fija)</small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1075,21 +1069,27 @@ document.addEventListener('DOMContentLoaded', function () {
             frecModalSlug  = this.dataset.slug;
             frecModalLabel = this.dataset.label;
             document.getElementById('frecModalLabel').textContent = frecModalLabel;
-            document.getElementById('frecModalSelect').value = this.dataset.frecuencia || '';
+            document.getElementById('frecModalInput').value = this.dataset.vecesAnio || '';
             frecModalBs.show();
+            setTimeout(() => document.getElementById('frecModalInput').focus(), 200);
         });
     });
 
     document.getElementById('frecModalBtnGuardar').addEventListener('click', function () {
-        const valor = document.getElementById('frecModalSelect').value;
-        if (!valor) {
-            Swal.fire('Falta seleccionar', 'Elige una frecuencia.', 'info');
+        const raw = document.getElementById('frecModalInput').value;
+        if (raw === '' || raw === null) {
+            Swal.fire('Falta valor', 'Escribe un número entre 0 y 365.', 'info');
+            return;
+        }
+        const valor = parseInt(raw, 10);
+        if (isNaN(valor) || valor < 0 || valor > 365) {
+            Swal.fire('Valor inválido', 'El número debe estar entre 0 y 365.', 'warning');
             return;
         }
         const fd = new FormData();
         fd.append('id_cliente', ID_CLIENTE);
         fd.append('slug_inspeccion', frecModalSlug);
-        fd.append('frecuencia', valor);
+        fd.append('veces_anio', String(valor));
         this.disabled = true;
         const orig = this.innerHTML;
         this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
@@ -1101,8 +1101,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     frecModalBs.hide();
                     Swal.fire({
                         icon: 'success',
-                        title: 'Frecuencia guardada',
-                        text: frecModalLabel + ' → ' + valor,
+                        title: 'Guardado',
+                        text: frecModalLabel + ' → ' + valor + ' veces/año',
                         timer: 1200,
                         showConfirmButton: false
                     }).then(() => location.reload());

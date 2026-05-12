@@ -237,36 +237,32 @@ class MatrizInspeccionesController extends BaseController
                 }
             }
 
-            // Frecuencia configurada por el consultor para este combo cliente+slug (si la hay)
-            $frecuencia      = $frecuenciasMap[$tipo['slug']] ?? null;
-            $proximaEsperada = null;
+            // Frecuencia configurada por el consultor (veces al año) para este combo cliente+slug
+            $vecesAnio       = $frecuenciasMap[$tipo['slug']] ?? null; // null = sin definir, 0 = puntual
+            $realizadasAnio  = 0;
             $ultimaGlobal    = null;
-            if ($frecuencia && $frecuencia !== 'puntual') {
-                $intervaloDias = InspeccionFrecuenciaClienteModel::intervaloDias($frecuencia);
-                if ($intervaloDias && $db->tableExists($tipo['table'])) {
-                    $fieldsT = $db->getFieldNames($tipo['table']);
-                    $dateColT = in_array($tipo['date_col'], $fieldsT, true) ? $tipo['date_col'] : null;
-                    if ($dateColT && in_array('id_cliente', $fieldsT, true)) {
-                        $row = $db->table($tipo['table'])
-                            ->selectMax($dateColT, 'u')
-                            ->where('id_cliente', $idCliente)
-                            ->where("{$dateColT} IS NOT NULL", null, false)
-                            ->get()->getRowArray();
-                        $ultimaGlobal = $row['u'] ?? null;
-                        if ($ultimaGlobal) {
-                            $proximaEsperada = date('Y-m-d', strtotime($ultimaGlobal . ' +' . $intervaloDias . ' days'));
-                        }
-                    }
+            if ($vecesAnio !== null && $db->tableExists($tipo['table'])) {
+                $fieldsT  = $db->getFieldNames($tipo['table']);
+                $dateColT = in_array($tipo['date_col'], $fieldsT, true) ? $tipo['date_col'] : null;
+                if ($dateColT && in_array('id_cliente', $fieldsT, true)) {
+                    // Conteo de inspecciones realizadas en el año activo (no en el rango filtrado)
+                    $row = $db->table($tipo['table'])
+                        ->select("COUNT(*) AS c, MAX({$dateColT}) AS u")
+                        ->where('id_cliente', $idCliente)
+                        ->where("YEAR({$dateColT})", $anio)
+                        ->get()->getRowArray();
+                    $realizadasAnio = (int) ($row['c'] ?? 0);
+                    $ultimaGlobal   = $row['u'] ?? null;
                 }
             }
 
             if ($na) {
                 $estado = 'no_aplica';
+            } elseif ($vecesAnio !== null && $vecesAnio > 0 && $realizadasAnio >= $vecesAnio) {
+                // Cumple meta anual configurada → al día
+                $estado = 'al_dia';
             } elseif ($total > 0) {
                 $estado = 'hecha';
-            } elseif ($proximaEsperada && $proximaEsperada > $hoy) {
-                // Frecuencia configurada + última realización global aún vigente → al día
-                $estado = 'al_dia';
             } elseif ($hayPasadas && !$hayFuturas) {
                 $estado = 'atrasada';
             } else {
@@ -289,8 +285,8 @@ class MatrizInspeccionesController extends BaseController
                 'pta_vinculados'   => $ptaVincs,
                 'proxima_planeada' => $proxima,
                 'ultima_vencida'   => $ultimaVencida,
-                'frecuencia'       => $frecuencia,
-                'proxima_esperada' => $proximaEsperada,
+                'veces_anio'       => $vecesAnio,
+                'realizadas_anio'  => $realizadasAnio,
                 'ultima_global'    => $ultimaGlobal,
             ];
         }
@@ -341,20 +337,20 @@ class MatrizInspeccionesController extends BaseController
     }
 
     /**
-     * Define / actualiza la frecuencia de un tipo de inspección para un cliente.
-     * POST: id_cliente, slug_inspeccion, frecuencia
+     * Define / actualiza la frecuencia (veces por año) de un tipo de inspección para un cliente.
+     * POST: id_cliente, slug_inspeccion, veces_anio (0..365)
      */
     public function setFrecuencia()
     {
-        $idCliente  = (int) $this->request->getPost('id_cliente');
-        $slug       = trim((string) $this->request->getPost('slug_inspeccion'));
-        $frecuencia = trim((string) $this->request->getPost('frecuencia'));
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $slug      = trim((string) $this->request->getPost('slug_inspeccion'));
+        $veces     = (int) $this->request->getPost('veces_anio');
 
-        if (!$idCliente || !$slug || !$frecuencia || !InspeccionTypes::bySlug($slug)) {
+        if (!$idCliente || !$slug || $veces < 0 || $veces > 365 || !InspeccionTypes::bySlug($slug)) {
             return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
         }
 
-        $ok = (new InspeccionFrecuenciaClienteModel())->setFrecuencia($idCliente, $slug, $frecuencia);
+        $ok = (new InspeccionFrecuenciaClienteModel())->setVecesAnio($idCliente, $slug, $veces);
         return $this->response->setJSON(['ok' => (bool) $ok]);
     }
 
