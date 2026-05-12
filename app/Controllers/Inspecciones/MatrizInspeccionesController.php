@@ -245,12 +245,25 @@ class MatrizInspeccionesController extends BaseController
                 $fieldsT  = $db->getFieldNames($tipo['table']);
                 $dateColT = in_array($tipo['date_col'], $fieldsT, true) ? $tipo['date_col'] : null;
                 if ($dateColT && in_array('id_cliente', $fieldsT, true)) {
-                    // Conteo de inspecciones realizadas en el año activo (no en el rango filtrado)
-                    $row = $db->table($tipo['table'])
+                    // Aplica los MISMOS filtros que el query principal de inspecciones para no mezclar
+                    // tipos que comparten tabla (ej. tbl_certificado_servicio: Desratización/Fumigación/Lavado).
+                    $estadoColT2   = array_key_exists('estado_col', $tipo) ? $tipo['estado_col'] : 'estado';
+                    $estadoValueT2 = $tipo['estado_value'] ?? 'completo';
+                    $extraWhereT2  = $tipo['extra_where'] ?? [];
+
+                    $b2 = $db->table($tipo['table'])
                         ->select("COUNT(*) AS c, MAX({$dateColT}) AS u")
                         ->where('id_cliente', $idCliente)
-                        ->where("YEAR({$dateColT})", $anio)
-                        ->get()->getRowArray();
+                        ->where("YEAR({$dateColT})", $anio);
+
+                    if ($estadoColT2 !== null && in_array($estadoColT2, $fieldsT, true)) {
+                        $b2->where($estadoColT2, $estadoValueT2);
+                    }
+                    foreach ($extraWhereT2 as $colW => $valW) {
+                        if (in_array($colW, $fieldsT, true)) $b2->where($colW, $valW);
+                    }
+
+                    $row = $b2->get()->getRowArray();
                     $realizadasAnio = (int) ($row['c'] ?? 0);
                     $ultimaGlobal   = $row['u'] ?? null;
                 }
