@@ -911,6 +911,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('matriz/(:num)', 'MatrizInspeccionesController::detalle/$1');
     $routes->post('matriz/no-aplica', 'MatrizInspeccionesController::marcarNoAplica');
     $routes->post('matriz/quitar-no-aplica', 'MatrizInspeccionesController::quitarNoAplica');
+    $routes->post('matriz/set-frecuencia', 'MatrizInspeccionesController::setFrecuencia');
     $routes->get('matriz/pta-list/(:num)', 'MatrizInspeccionesController::listarPtaPorSlug/$1');
     $routes->post('matriz/vincular-pta', 'MatrizInspeccionesController::vincularPta');
     $routes->post('matriz/desvincular-pta', 'MatrizInspeccionesController::desvincularPta');

@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Libraries\InspeccionTypes;
 use App\Models\ClientModel;
 use App\Models\ContractModel;
+use App\Models\InspeccionFrecuenciaClienteModel;
 use App\Models\InspeccionNoAplicaModel;
 use App\Models\PtaInspeccionMatchModel;
 
@@ -92,6 +93,9 @@ class MatrizInspeccionesController extends BaseController
 
         $tipos    = InspeccionTypes::all();
         $noAplica = $this->noAplicaModel->getByCliente($idCliente);
+
+        // Frecuencias configuradas por el consultor para este cliente
+        $frecuenciasMap = (new InspeccionFrecuenciaClienteModel())->getByCliente($idCliente);
 
         // Contrato activo del cliente (para mostrar frecuencia)
         $contractModel = new ContractModel();
@@ -233,10 +237,36 @@ class MatrizInspeccionesController extends BaseController
                 }
             }
 
+            // Frecuencia configurada por el consultor para este combo cliente+slug (si la hay)
+            $frecuencia      = $frecuenciasMap[$tipo['slug']] ?? null;
+            $proximaEsperada = null;
+            $ultimaGlobal    = null;
+            if ($frecuencia && $frecuencia !== 'puntual') {
+                $intervaloDias = InspeccionFrecuenciaClienteModel::intervaloDias($frecuencia);
+                if ($intervaloDias && $db->tableExists($tipo['table'])) {
+                    $fieldsT = $db->getFieldNames($tipo['table']);
+                    $dateColT = in_array($tipo['date_col'], $fieldsT, true) ? $tipo['date_col'] : null;
+                    if ($dateColT && in_array('id_cliente', $fieldsT, true)) {
+                        $row = $db->table($tipo['table'])
+                            ->selectMax($dateColT, 'u')
+                            ->where('id_cliente', $idCliente)
+                            ->where("{$dateColT} IS NOT NULL", null, false)
+                            ->get()->getRowArray();
+                        $ultimaGlobal = $row['u'] ?? null;
+                        if ($ultimaGlobal) {
+                            $proximaEsperada = date('Y-m-d', strtotime($ultimaGlobal . ' +' . $intervaloDias . ' days'));
+                        }
+                    }
+                }
+            }
+
             if ($na) {
                 $estado = 'no_aplica';
             } elseif ($total > 0) {
                 $estado = 'hecha';
+            } elseif ($proximaEsperada && $proximaEsperada > $hoy) {
+                // Frecuencia configurada + última realización global aún vigente → al día
+                $estado = 'al_dia';
             } elseif ($hayPasadas && !$hayFuturas) {
                 $estado = 'atrasada';
             } else {
@@ -244,21 +274,24 @@ class MatrizInspeccionesController extends BaseController
             }
 
             $filas[] = [
-                'slug'           => $tipo['slug'],
-                'label'          => $tipo['label'],
-                'group'          => $tipo['group'] ?? 'Otros',
-                'icon'           => $tipo['icon'],
-                'list_route'     => $tipo['list_route'],
-                'create_route'   => $tipo['create_route'],
-                'view_route'     => $tipo['view_route'],
-                'inspecciones'   => $inspecciones,
-                'ultima'         => $ultima,
-                'total'          => $total,
-                'estado'         => $estado,
-                'no_aplica'      => $na,
-                'pta_vinculados' => $ptaVincs,
+                'slug'             => $tipo['slug'],
+                'label'            => $tipo['label'],
+                'group'            => $tipo['group'] ?? 'Otros',
+                'icon'             => $tipo['icon'],
+                'list_route'       => $tipo['list_route'],
+                'create_route'     => $tipo['create_route'],
+                'view_route'       => $tipo['view_route'],
+                'inspecciones'     => $inspecciones,
+                'ultima'           => $ultima,
+                'total'            => $total,
+                'estado'           => $estado,
+                'no_aplica'        => $na,
+                'pta_vinculados'   => $ptaVincs,
                 'proxima_planeada' => $proxima,
                 'ultima_vencida'   => $ultimaVencida,
+                'frecuencia'       => $frecuencia,
+                'proxima_esperada' => $proximaEsperada,
+                'ultima_global'    => $ultimaGlobal,
             ];
         }
 
@@ -305,6 +338,24 @@ class MatrizInspeccionesController extends BaseController
             ]),
             'title'   => 'Matriz - ' . ($cliente['nombre_cliente'] ?? 'Cliente'),
         ]);
+    }
+
+    /**
+     * Define / actualiza la frecuencia de un tipo de inspección para un cliente.
+     * POST: id_cliente, slug_inspeccion, frecuencia
+     */
+    public function setFrecuencia()
+    {
+        $idCliente  = (int) $this->request->getPost('id_cliente');
+        $slug       = trim((string) $this->request->getPost('slug_inspeccion'));
+        $frecuencia = trim((string) $this->request->getPost('frecuencia'));
+
+        if (!$idCliente || !$slug || !$frecuencia || !InspeccionTypes::bySlug($slug)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+
+        $ok = (new InspeccionFrecuenciaClienteModel())->setFrecuencia($idCliente, $slug, $frecuencia);
+        return $this->response->setJSON(['ok' => (bool) $ok]);
     }
 
     public function marcarNoAplica()

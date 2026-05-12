@@ -3,15 +3,27 @@ $totalHechas    = 0;
 $totalPend      = 0;
 $totalAtrasadas = 0;
 $totalNoAplica  = 0;
+$totalAlDia     = 0;
 foreach ($filas as $f) {
-    if ($f['estado'] === 'hecha')         $totalHechas++;
-    elseif ($f['estado'] === 'pendiente') $totalPend++;
-    elseif ($f['estado'] === 'atrasada')  $totalAtrasadas++;
-    else                                  $totalNoAplica++;
+    if      ($f['estado'] === 'hecha')     $totalHechas++;
+    elseif  ($f['estado'] === 'al_dia')    $totalAlDia++;
+    elseif  ($f['estado'] === 'pendiente') $totalPend++;
+    elseif  ($f['estado'] === 'atrasada')  $totalAtrasadas++;
+    else                                   $totalNoAplica++;
 }
 $totalTodos = count($filas);
 $aplicables = $totalTodos - $totalNoAplica;
-$cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
+// 'Al día' cuenta como cumplido para cobertura (la inspección está vigente según frecuencia)
+$cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicables) * 100) : 0;
+
+$frecuenciaLabels = [
+    'mensual'    => 'Mensual',
+    'bimensual'  => 'Bimensual',
+    'trimestral' => 'Trimestral',
+    'semestral'  => 'Semestral',
+    'anual'      => 'Anual',
+    'puntual'    => 'Puntual',
+];
 ?>
 <div class="container-fluid px-3 mt-2">
     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -198,6 +210,14 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
             </div>
         </div>
         <div class="col-6 col-md">
+            <div class="card border-0 text-center card-filtro" data-filtro="al_dia" style="background:#cce5d0; border-radius:10px; cursor:pointer;" title="Cumple según frecuencia configurada — próxima fecha aún vigente">
+                <div class="card-body py-2 px-1">
+                    <div style="font-size:11px; color:#0f5132; font-weight:600;"><i class="fas fa-shield-check"></i> Al día</div>
+                    <div style="font-size:20px; font-weight:700; color:#0f5132;"><?= $totalAlDia ?></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md">
             <div class="card border-0 text-center card-filtro" data-filtro="pendiente" style="background:#fff3cd; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#856404; font-weight:600;"><i class="fas fa-clock"></i> Pendientes</div>
@@ -248,6 +268,7 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                         <select class="form-select form-select-sm col-filter" data-col="3" style="font-size:11px;">
                             <option value="">Todos</option>
                             <option value="Hecha">Hechas</option>
+                            <option value="Al día">Al día</option>
                             <option value="Pendiente">Pendientes</option>
                             <option value="Atrasada">Atrasadas</option>
                             <option value="No Aplica">No Aplica</option>
@@ -261,17 +282,19 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                 <?php
                 $badgeClass = [
                     'hecha'     => 'background:#d4edda; color:#155724;',
+                    'al_dia'    => 'background:#cce5d0; color:#0f5132;',
                     'pendiente' => 'background:#fff3cd; color:#856404;',
                     'atrasada'  => 'background:#f8d7da; color:#721c24;',
                     'no_aplica' => 'background:#e2e3e5; color:#383d41;',
                 ][$f['estado']];
                 $badgeLabel = [
                     'hecha'     => '<i class="fas fa-check-circle"></i> Hecha' . ($f['total'] > 1 ? ' (' . $f['total'] . ')' : ''),
+                    'al_dia'    => '<i class="fas fa-shield-alt"></i> Al día',
                     'pendiente' => '<i class="fas fa-clock"></i> Pendiente',
                     'atrasada'  => '<i class="fas fa-exclamation-triangle"></i> Atrasada',
                     'no_aplica' => '<i class="fas fa-ban"></i> No Aplica',
                 ][$f['estado']];
-                $estadoTexto = ['hecha' => 'Hecha', 'pendiente' => 'Pendiente', 'atrasada' => 'Atrasada', 'no_aplica' => 'No Aplica'][$f['estado']];
+                $estadoTexto = ['hecha' => 'Hecha', 'al_dia' => 'Al día', 'pendiente' => 'Pendiente', 'atrasada' => 'Atrasada', 'no_aplica' => 'No Aplica'][$f['estado']];
                 ?>
                 <?php
                 $fechasRealizadasArr = array_values(array_filter(array_map(fn($i) => $i['fecha'] ?? null, $f['inspecciones'])));
@@ -287,13 +310,35 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
                     <td style="font-size:13px;">
                         <i class="fas <?= esc($f['icon']) ?>" style="color:#bd9751; width:18px;"></i>
                         <?= esc($f['label']) ?>
+                        <?php
+                        $frecActual = $f['frecuencia'] ?? null;
+                        $frecLabel  = $frecActual ? ($frecuenciaLabels[$frecActual] ?? $frecActual) : 'Sin definir';
+                        $frecColor  = $frecActual ? '#0d6efd' : '#888';
+                        ?>
+                        <button type="button" class="badge btn-frecuencia"
+                            data-slug="<?= esc($f['slug']) ?>"
+                            data-label="<?= esc($f['label']) ?>"
+                            data-frecuencia="<?= esc($frecActual ?? '') ?>"
+                            style="background:transparent; color:<?= $frecColor ?>; border:1px solid <?= $frecColor ?>; font-weight:500; padding:2px 6px; font-size:10px; cursor:pointer; margin-left:4px;"
+                            title="Frecuencia configurada para este cliente">
+                            <i class="fas fa-redo-alt"></i> <?= esc($frecLabel) ?>
+                        </button>
                     </td>
                     <td style="font-size:12px;" data-order="<?= esc($f['ultima'] ?? $f['proxima_planeada'] ?? $f['ultima_vencida'] ?? '9999-99-99') ?>">
                         <?php if ($f['estado'] === 'no_aplica'): ?>
                             <span class="text-muted">—</span>
                         <?php else: ?>
                             <?php if ($f['total'] === 0): ?>
-                                <?php if ($f['estado'] === 'atrasada' && !empty($f['ultima_vencida'])): ?>
+                                <?php if ($f['estado'] === 'al_dia' && !empty($f['ultima_global'])): ?>
+                                    <span style="color:#0f5132; font-weight:600;">
+                                        <i class="fas fa-shield-alt"></i> Última: <?= date('d/m/Y', strtotime($f['ultima_global'])) ?>
+                                    </span>
+                                    <?php if (!empty($f['proxima_esperada'])): ?>
+                                        <small class="d-block text-muted" style="font-size:10px;">
+                                            Próxima esperada: <?= date('d/m/Y', strtotime($f['proxima_esperada'])) ?>
+                                        </small>
+                                    <?php endif; ?>
+                                <?php elseif ($f['estado'] === 'atrasada' && !empty($f['ultima_vencida'])): ?>
                                     <span style="color:#721c24; font-weight:600;">
                                         <i class="fas fa-exclamation-triangle"></i> Vencida desde <?= date('d/m/Y', strtotime($f['ultima_vencida'])) ?>
                                     </span>
@@ -415,6 +460,45 @@ $cobertura  = $aplicables > 0 ? round(($totalHechas / $aplicables) * 100) : 0;
     </div>
 </div>
 
+<!-- Modal definir/cambiar frecuencia -->
+<div class="modal fade" id="modalFrecuencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#1c2437; color:#fff;">
+                <h6 class="modal-title"><i class="fas fa-redo-alt"></i> Frecuencia de inspección</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div style="font-size:13px;">
+                    <strong>Tipo:</strong> <span id="frecModalLabel" style="color:#bd9751;"></span>
+                </div>
+                <p class="small text-muted mt-2" style="font-size:11px;">
+                    Define cada cuánto debe realizarse esta inspección para este cliente. La matriz usará esta frecuencia
+                    para calcular si el tipo está "Al día" según la última realización registrada.
+                </p>
+                <div class="mt-2">
+                    <label class="form-label small fw-bold">Frecuencia</label>
+                    <select id="frecModalSelect" class="form-select form-select-sm">
+                        <option value="">— Sin definir —</option>
+                        <option value="mensual">Mensual (30 días)</option>
+                        <option value="bimensual">Bimensual (60 días)</option>
+                        <option value="trimestral">Trimestral (90 días)</option>
+                        <option value="semestral">Semestral (180 días)</option>
+                        <option value="anual">Anual (365 días)</option>
+                        <option value="puntual">Puntual (ad-hoc, sin frecuencia fija)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-primary" id="frecModalBtnGuardar" style="background:#bd9751; border-color:#bd9751;">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal vincular PTA -->
 <div class="modal fade" id="modalVincularPta" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -532,12 +616,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const ANIO = <?= (int) $anio ?>;
     const URL_MARCAR = '<?= base_url('inspecciones/matriz/no-aplica') ?>';
     const URL_QUITAR = '<?= base_url('inspecciones/matriz/quitar-no-aplica') ?>';
+    const URL_SET_FRECUENCIA = '<?= base_url('inspecciones/matriz/set-frecuencia') ?>';
     const URL_PTA_LIST = '<?= base_url('inspecciones/matriz/pta-list/' . (int) $cliente['id_cliente']) ?>';
     const URL_PTA_LINK = '<?= base_url('inspecciones/matriz/vincular-pta') ?>';
     const URL_PTA_CREAR = '<?= base_url('inspecciones/matriz/crear-pta') ?>';
     const URL_PTA_IA = '<?= base_url('inspecciones/matriz/generar-pta-ia') ?>';
 
-    const estadoLabelMap = { 'hecha': 'Hecha', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
+    const estadoLabelMap = { 'hecha': 'Hecha', 'al_dia': 'Al día', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
 
     const tabla = $('#tablaMatriz').DataTable({
         responsive: true,
@@ -557,7 +642,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (saved) el.value = saved;
             });
             const estadoText = tabla.column(3).search();
-            const textToFiltro = { '': 'todas', 'Hecha': 'hecha', 'Pendiente': 'pendiente', 'Atrasada': 'atrasada', 'No Aplica': 'no_aplica' };
+            const textToFiltro = { '': 'todas', 'Hecha': 'hecha', 'Al día': 'al_dia', 'Pendiente': 'pendiente', 'Atrasada': 'atrasada', 'No Aplica': 'no_aplica' };
             const activeFiltro = textToFiltro[estadoText] || 'todas';
             document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
             const activeCard = document.querySelector('.card-filtro[data-filtro="' + activeFiltro + '"]');
@@ -978,5 +1063,61 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    // ================ FRECUENCIA ================
+    const frecModalEl  = document.getElementById('modalFrecuencia');
+    const frecModalBs  = new bootstrap.Modal(frecModalEl);
+    let frecModalSlug  = null;
+    let frecModalLabel = null;
+
+    document.querySelectorAll('.btn-frecuencia').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            frecModalSlug  = this.dataset.slug;
+            frecModalLabel = this.dataset.label;
+            document.getElementById('frecModalLabel').textContent = frecModalLabel;
+            document.getElementById('frecModalSelect').value = this.dataset.frecuencia || '';
+            frecModalBs.show();
+        });
+    });
+
+    document.getElementById('frecModalBtnGuardar').addEventListener('click', function () {
+        const valor = document.getElementById('frecModalSelect').value;
+        if (!valor) {
+            Swal.fire('Falta seleccionar', 'Elige una frecuencia.', 'info');
+            return;
+        }
+        const fd = new FormData();
+        fd.append('id_cliente', ID_CLIENTE);
+        fd.append('slug_inspeccion', frecModalSlug);
+        fd.append('frecuencia', valor);
+        this.disabled = true;
+        const orig = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+        fetch(URL_SET_FRECUENCIA, { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(res => {
+                if (res.ok) {
+                    frecModalBs.hide();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Frecuencia guardada',
+                        text: frecModalLabel + ' → ' + valor,
+                        timer: 1200,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('Error', res.msg || 'No se pudo guardar.', 'error');
+                    this.disabled = false;
+                    this.innerHTML = orig;
+                }
+            })
+            .catch(() => {
+                Swal.fire('Error', 'Error de red.', 'error');
+                this.disabled = false;
+                this.innerHTML = orig;
+            });
+    });
+    // ================ FIN FRECUENCIA ================
 });
 </script>
