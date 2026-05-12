@@ -79,6 +79,51 @@ $action = $isEdit ? base_url('/inspecciones/acta-visita/update/') . $acta['id'] 
                 </div>
             </div>
 
+            <!-- INSPECCIONES DEL CLIENTE — solo lectura, contexto para el consultor (no se imprime en PDF) -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#secInspContexto">
+                        <i class="fas fa-th-list me-2" style="color:#bd9751;"></i>
+                        Inspecciones del cliente — atención requerida
+                        <span id="ctxBadgeTotal" class="badge bg-warning text-dark ms-2 d-none">0</span>
+                    </button>
+                </h2>
+                <div id="secInspContexto" class="accordion-collapse collapse" data-bs-parent="#accordionActa">
+                    <div class="accordion-body">
+                        <div class="alert alert-info py-2 px-3 mb-2" style="font-size:12px;">
+                            <i class="fas fa-info-circle"></i> Solo para tu referencia. Esta sección no se imprime en el acta ni en el PDF.
+                        </div>
+
+                        <!-- Chips semáforo -->
+                        <div class="d-flex flex-wrap gap-2 mb-3" id="ctxSemaforo">
+                            <button type="button" class="btn btn-sm" data-ctx-filtro="todas"
+                                style="background:#eef2f7; color:#1c2437; border:2px solid #bd9751; padding:4px 10px; font-size:12px;">
+                                <i class="fas fa-list"></i> Todas <span class="ctx-count-todas">0</span>
+                            </button>
+                            <button type="button" class="btn btn-sm" data-ctx-filtro="atrasadas"
+                                style="background:#f8d7da; color:#721c24; border:2px solid transparent; padding:4px 10px; font-size:12px;">
+                                <i class="fas fa-exclamation-triangle"></i> Atrasadas <span class="ctx-count-atrasadas">0</span>
+                            </button>
+                            <button type="button" class="btn btn-sm" data-ctx-filtro="delMes"
+                                style="background:#fff3cd; color:#856404; border:2px solid transparent; padding:4px 10px; font-size:12px;">
+                                <i class="fas fa-calendar-day"></i> Del mes <span class="ctx-count-delMes">0</span>
+                            </button>
+                            <button type="button" class="btn btn-sm" data-ctx-filtro="sinFecha"
+                                style="background:#e2e3e5; color:#383d41; border:2px solid transparent; padding:4px 10px; font-size:12px;">
+                                <i class="fas fa-question-circle"></i> Sin fecha <span class="ctx-count-sinFecha">0</span>
+                            </button>
+                        </div>
+
+                        <!-- Lista -->
+                        <div id="ctxLista" style="font-size:13px;">
+                            <p class="text-muted text-center mb-0" style="font-size:12px;">
+                                <i class="fas fa-info-circle"></i> Selecciona un cliente para ver sus inspecciones.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- INTEGRANTES -->
             <div class="accordion-item">
                 <h2 class="accordion-header">
@@ -307,6 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (clienteId) {
                 loadTemasAbiertos(clienteId);
                 loadPtaActividades();
+                loadInspeccionesContexto(clienteId, getFechaVisita());
             }
         }
     });
@@ -317,13 +363,115 @@ document.addEventListener('DOMContentLoaded', function() {
         if (id) {
             loadTemasAbiertos(id);
             loadPtaActividades();
+            loadInspeccionesContexto(id, getFechaVisita());
         }
     });
 
     // Cargar PTA al cambiar fecha
     document.querySelector('[name="fecha_visita"]').addEventListener('change', function() {
         loadPtaActividades();
+        const id = document.getElementById('selectCliente').value;
+        if (id) loadInspeccionesContexto(id, getFechaVisita());
     });
+
+    // ====================== INSPECCIONES CONTEXTO (solo lectura) ======================
+    let _ctxData = { atrasadas: [], delMes: [], sinFecha: [] };
+    let _ctxFiltro = 'todas';
+
+    function loadInspeccionesContexto(idCliente, fechaVisita) {
+        const cont = document.getElementById('ctxLista');
+        if (!cont) return;
+        cont.innerHTML = '<p class="text-muted text-center mb-0" style="font-size:12px;"><i class="fas fa-spinner fa-spin"></i> Cargando inspecciones...</p>';
+        fetch('<?= base_url('/inspecciones/acta-visita/api-inspecciones-contexto/') ?>' + idCliente + '?fecha=' + encodeURIComponent(fechaVisita))
+            .then(r => r.json())
+            .then(data => {
+                if (!data.ok) {
+                    cont.innerHTML = '<p class="text-danger text-center mb-0" style="font-size:12px;">' + (data.msg || 'Error') + '</p>';
+                    return;
+                }
+                _ctxData = { atrasadas: data.atrasadas || [], delMes: data.delMes || [], sinFecha: data.sinFecha || [] };
+                renderContextoCounts();
+                renderContextoLista();
+            })
+            .catch(() => {
+                cont.innerHTML = '<p class="text-danger text-center mb-0" style="font-size:12px;">Error de red.</p>';
+            });
+    }
+
+    function renderContextoCounts() {
+        const a = _ctxData.atrasadas.length;
+        const m = _ctxData.delMes.length;
+        const s = _ctxData.sinFecha.length;
+        const total = a + m + s;
+        document.querySelector('.ctx-count-todas').textContent = total;
+        document.querySelector('.ctx-count-atrasadas').textContent = a;
+        document.querySelector('.ctx-count-delMes').textContent = m;
+        document.querySelector('.ctx-count-sinFecha').textContent = s;
+        const badge = document.getElementById('ctxBadgeTotal');
+        if (total > 0) {
+            badge.textContent = total;
+            badge.classList.remove('d-none');
+        } else {
+            badge.classList.add('d-none');
+        }
+    }
+
+    function fmtFecha(s) {
+        if (!s || s.length < 10) return '—';
+        return s.substring(8,10) + '/' + s.substring(5,7) + '/' + s.substring(0,4);
+    }
+
+    function renderItem(it, tipo) {
+        const color = tipo === 'atrasadas' ? '#f8d7da' : (tipo === 'delMes' ? '#fff3cd' : '#e2e3e5');
+        const textColor = tipo === 'atrasadas' ? '#721c24' : (tipo === 'delMes' ? '#856404' : '#383d41');
+        const label = tipo === 'atrasadas' ? 'Atrasada' : (tipo === 'delMes' ? 'Del mes' : 'Sin fecha');
+        const fecha = it.fecha_propuesta ? '<span style="color:' + textColor + '; font-weight:600;"><i class="fas fa-calendar"></i> ' + fmtFecha(it.fecha_propuesta) + '</span>' : '';
+        const numeral = it.numeral ? '<span class="badge bg-light text-dark" style="font-size:10px;">' + escapeHtml(it.numeral) + '</span>' : '';
+        const ult = it.ultima_realizada
+            ? '<small class="text-muted d-block" style="font-size:11px;"><i class="fas fa-history"></i> Última realizada: ' + fmtFecha(it.ultima_realizada) + '</small>'
+            : '<small class="text-muted d-block" style="font-size:11px;"><i class="fas fa-history"></i> Sin registros previos</small>';
+        return '<div style="padding:8px 10px; margin-bottom:6px; border-left:4px solid ' + textColor + '; background:' + color + '; border-radius:4px;">' +
+            '<div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">' +
+                '<div style="flex:1; min-width:200px;">' +
+                    '<i class="fas ' + escapeHtml(it.icon) + '" style="color:' + textColor + '; width:16px;"></i> ' +
+                    '<strong>' + escapeHtml(it.label) + '</strong>' +
+                    ' <small class="text-muted">(' + escapeHtml(it.group) + ')</small><br>' +
+                    fecha + ' ' + numeral +
+                    (it.actividad ? '<div style="font-size:11px; color:#555; margin-top:2px;">' + escapeHtml(it.actividad) + '</div>' : '') +
+                    ult +
+                '</div>' +
+                '<span class="badge" style="background:' + textColor + '; color:#fff; font-size:10px; padding:3px 8px; align-self:flex-start;">' + label + '</span>' +
+            '</div>' +
+        '</div>';
+    }
+
+    function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+
+    function renderContextoLista() {
+        const cont = document.getElementById('ctxLista');
+        let lista = [];
+        if (_ctxFiltro === 'todas' || _ctxFiltro === 'atrasadas') _ctxData.atrasadas.forEach(it => lista.push({ it, tipo: 'atrasadas' }));
+        if (_ctxFiltro === 'todas' || _ctxFiltro === 'delMes')    _ctxData.delMes.forEach(it => lista.push({ it, tipo: 'delMes' }));
+        if (_ctxFiltro === 'todas' || _ctxFiltro === 'sinFecha')  _ctxData.sinFecha.forEach(it => lista.push({ it, tipo: 'sinFecha' }));
+
+        if (lista.length === 0) {
+            cont.innerHTML = '<p class="text-success text-center mb-0" style="font-size:12px;"><i class="fas fa-check-circle"></i> Sin inspecciones por revisar en este filtro.</p>';
+            return;
+        }
+        cont.innerHTML = lista.map(x => renderItem(x.it, x.tipo)).join('');
+    }
+
+    document.querySelectorAll('#ctxSemaforo [data-ctx-filtro]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            _ctxFiltro = this.dataset.ctxFiltro;
+            document.querySelectorAll('#ctxSemaforo [data-ctx-filtro]').forEach(b => b.style.borderColor = 'transparent');
+            this.style.borderColor = '#bd9751';
+            renderContextoLista();
+        });
+    });
+    // =============== FIN INSPECCIONES CONTEXTO ===============
 
     function getFechaVisita() {
         return document.querySelector('[name="fecha_visita"]').value || new Date().toISOString().split('T')[0];
