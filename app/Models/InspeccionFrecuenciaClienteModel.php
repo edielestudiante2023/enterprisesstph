@@ -8,55 +8,40 @@ class InspeccionFrecuenciaClienteModel extends Model
 {
     protected $table = 'tbl_inspeccion_frecuencia_cliente';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['id_cliente', 'slug_inspeccion', 'frecuencia', 'created_at', 'updated_at'];
+    protected $allowedFields = ['id_cliente', 'slug_inspeccion', 'veces_anio', 'created_at', 'updated_at'];
     protected $useTimestamps = true;
 
     /**
-     * Devuelve un map [slug => frecuencia] para el cliente.
+     * Devuelve un map [slug => veces_anio] para el cliente.
      */
     public function getByCliente(int $idCliente): array
     {
         $rows = $this->where('id_cliente', $idCliente)->findAll();
         $out = [];
         foreach ($rows as $r) {
-            $out[$r['slug_inspeccion']] = $r['frecuencia'];
+            $out[$r['slug_inspeccion']] = (int) $r['veces_anio'];
         }
         return $out;
     }
 
     /**
      * Upsert: actualiza si existe, crea si no.
+     * vecesAnio = 0 significa puntual (sin frecuencia fija).
      */
-    public function setFrecuencia(int $idCliente, string $slug, string $frecuencia): bool
+    public function setVecesAnio(int $idCliente, string $slug, int $vecesAnio): bool
     {
-        $valid = ['mensual', 'bimensual', 'trimestral', 'semestral', 'anual', 'puntual'];
-        if (!in_array($frecuencia, $valid, true)) return false;
+        if ($vecesAnio < 0 || $vecesAnio > 365) return false;
 
         $existing = $this->where('id_cliente', $idCliente)
             ->where('slug_inspeccion', $slug)
             ->first();
         if ($existing) {
-            return (bool) $this->update($existing['id'], ['frecuencia' => $frecuencia]);
+            return (bool) $this->update($existing['id'], ['veces_anio' => $vecesAnio]);
         }
         return (bool) $this->insert([
             'id_cliente'      => $idCliente,
             'slug_inspeccion' => $slug,
-            'frecuencia'      => $frecuencia,
+            'veces_anio'      => $vecesAnio,
         ]);
-    }
-
-    /**
-     * Días de un intervalo de frecuencia.
-     */
-    public static function intervaloDias(string $frecuencia): ?int
-    {
-        return [
-            'mensual'    => 30,
-            'bimensual'  => 60,
-            'trimestral' => 90,
-            'semestral'  => 180,
-            'anual'      => 365,
-            'puntual'    => null,
-        ][$frecuencia] ?? null;
     }
 }
