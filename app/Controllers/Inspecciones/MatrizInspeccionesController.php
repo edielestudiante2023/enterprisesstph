@@ -367,6 +367,131 @@ class MatrizInspeccionesController extends BaseController
         return $this->response->setJSON(['ok' => (bool) $ok]);
     }
 
+    /**
+     * Cierra PTAs vinculadas al slug del cliente sincronizándolas con las inspecciones realizadas.
+     * - Si hay PTAs abiertas: cierra las primeras N en orden por fecha_propuesta, asignando
+     *   fecha_propuesta = fecha_cierre = fecha real de la inspección correspondiente.
+     * - Si NO hay PTAs vinculadas pero sí inspecciones: crea N PTAs ya CERRADAS con la fecha real
+     *   de cada inspección y las vincula al slug (registro retroactivo).
+     *
+     * POST: id_cliente, slug_inspeccion
+     */
+    public function cerrarPtaPorMatriz()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $slug      = trim((string) $this->request->getPost('slug_inspeccion'));
+
+        $tipo = InspeccionTypes::bySlug($slug);
+        if (!$idCliente || !$slug || !$tipo) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+
+        $db = \Config\Database::connect();
+
+        if (!$db->tableExists($tipo['table'])) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Tabla de inspección no existe.']);
+        }
+        $fields  = $db->getFieldNames($tipo['table']);
+        $dateCol = in_array($tipo['date_col'], $fields, true) ? $tipo['date_col'] : null;
+        if (!$dateCol || !in_array('id_cliente', $fields, true)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Tabla sin columnas necesarias.']);
+        }
+
+        $estadoCol   = array_key_exists('estado_col', $tipo) ? $tipo['estado_col'] : 'estado';
+        $estadoValue = $tipo['estado_value'] ?? 'completo';
+        $extraWhere  = $tipo['extra_where'] ?? [];
+
+        // Inspecciones reales realizadas (ordenadas por fecha ASC, aplicando todos los filtros del catálogo)
+        $b = $db->table($tipo['table'])
+            ->select("{$dateCol} AS fecha")
+            ->where('id_cliente', $idCliente)
+            ->where("{$dateCol} IS NOT NULL", null, false)
+            ->orderBy($dateCol, 'ASC');
+        if ($estadoCol !== null && in_array($estadoCol, $fields, true)) {
+            $b->where($estadoCol, $estadoValue);
+        }
+        foreach ($extraWhere as $col => $val) {
+            if (in_array($col, $fields, true)) $b->where($col, $val);
+        }
+        $inspecciones = array_column($b->get()->getResultArray(), 'fecha');
+
+        if (empty($inspecciones)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'No hay inspecciones realizadas para cerrar.']);
+        }
+
+        // PTAs vinculadas al slug, no cerradas
+        $ptasAbiertas = $db->table('tbl_pta_cliente p')
+            ->select('p.id_ptacliente, p.estado_actividad')
+            ->join('tbl_pta_inspeccion_match m', 'm.id_ptacliente = p.id_ptacliente', 'inner')
+            ->where('m.id_cliente', $idCliente)
+            ->where('m.slug_inspeccion', $slug)
+            ->where('p.estado_actividad !=', 'CERRADA')
+            ->orderBy('p.fecha_propuesta', 'ASC')
+            ->get()->getResultArray();
+
+        $now      = date('Y-m-d H:i:s');
+        $cerradas = 0;
+        $creadas  = 0;
+
+        if (!empty($ptasAbiertas)) {
+            // Caso 1: hay PTAs abiertas → cerrar min(N inspecciones, M PTAs)
+            $hasta = min(count($inspecciones), count($ptasAbiertas));
+            for ($i = 0; $i < $hasta; $i++) {
+                $fecha = $inspecciones[$i];
+                $idPta = (int) $ptasAbiertas[$i]['id_ptacliente'];
+                $db->table('tbl_pta_cliente')
+                    ->where('id_ptacliente', $idPta)
+                    ->update([
+                        'estado_actividad'  => 'CERRADA',
+                        'fecha_propuesta'   => $fecha,
+                        'fecha_cierre'      => $fecha,
+                        'porcentaje_avance' => 100,
+                        'updated_at'        => $now,
+                    ]);
+                $cerradas++;
+            }
+        } else {
+            // Caso 2: no hay PTAs vinculadas → crear N PTAs CERRADAS retroactivamente
+            foreach ($inspecciones as $fecha) {
+                $db->table('tbl_pta_cliente')->insert([
+                    'id_cliente'                           => $idCliente,
+                    'phva_plandetrabajo'                   => 'HACER',
+                    'numeral_plandetrabajo'                => '-',
+                    'actividad_plandetrabajo'              => 'Inspección de ' . $tipo['label'] . ' (registrada retroactivamente desde la matriz)',
+                    'responsable_sugerido_plandetrabajo'   => 'CONSULTOR CYCLOID',
+                    'responsable_definido_paralaactividad' => '-',
+                    'fecha_propuesta'                      => $fecha,
+                    'fecha_cierre'                         => $fecha,
+                    'estado_actividad'                     => 'CERRADA',
+                    'porcentaje_avance'                    => 100,
+                    'created_at'                           => $now,
+                    'updated_at'                           => $now,
+                ]);
+                $idPta = (int) $db->insertID();
+                if ($idPta > 0) {
+                    $this->matchModel->upsert([
+                        'id_cliente'      => $idCliente,
+                        'id_ptacliente'   => $idPta,
+                        'slug_inspeccion' => $slug,
+                        'score'           => 1.000,
+                        'method'          => 'manual',
+                        'reasoning'       => 'Creada retroactivamente desde la matriz al cerrar inspección hecha.',
+                        'ai_model'        => null,
+                        'created_at'      => $now,
+                    ]);
+                    $creadas++;
+                }
+            }
+        }
+
+        return $this->response->setJSON([
+            'ok'       => true,
+            'cerradas' => $cerradas,
+            'creadas'  => $creadas,
+            'inspecciones_total' => count($inspecciones),
+        ]);
+    }
+
     public function marcarNoAplica()
     {
         $idCliente = (int) $this->request->getPost('id_cliente');

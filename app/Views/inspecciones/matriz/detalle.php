@@ -300,6 +300,9 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                     <?= $f['estado'] === 'no_aplica' ? 'style="opacity:0.6;"' : '' ?>>
                     <td style="font-size:11px; color:#555;"><?= esc($f['group']) ?></td>
                     <td style="font-size:13px;">
+                        <?php if (in_array($f['estado'], ['hecha', 'al_dia'], true) && ($f['total'] > 0 || (int) ($f['realizadas_anio'] ?? 0) > 0)): ?>
+                            <i class="fas fa-circle-check" style="color:#198754; font-size:18px; margin-right:4px;" title="Elaborada"></i>
+                        <?php endif; ?>
                         <i class="fas <?= esc($f['icon']) ?>" style="color:#bd9751; width:18px;"></i>
                         <?= esc($f['label']) ?>
                         <?php
@@ -435,6 +438,27 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                                 title="Crear actividad en el Plan de Trabajo"
                                 style="padding:2px 7px;font-size:11px;">
                                 <i class="fas fa-calendar-plus"></i> PTA
+                            </button>
+                            <?php endif; ?>
+                            <?php
+                            // Botón "Cerrar en plan": visible si hay al menos una inspección realizada
+                            // (en el año o de cualquier época) y existen PTAs no cerradas, o no hay PTAs
+                            $ptaAbiertasCount = 0;
+                            foreach ($f['pta_vinculados'] as $v) {
+                                if (($v['estado_actividad'] ?? '') !== 'CERRADA') $ptaAbiertasCount++;
+                            }
+                            $tieneRealizadas = $f['total'] > 0 || (int) ($f['realizadas_anio'] ?? 0) > 0;
+                            $mostrarCerrar = $tieneRealizadas && ($ptaAbiertasCount > 0 || empty($f['pta_vinculados']));
+                            ?>
+                            <?php if ($mostrarCerrar): ?>
+                            <button type="button" class="btn btn-xs btn-outline-success btn-cerrar-pta-matriz"
+                                data-slug="<?= esc($f['slug']) ?>"
+                                data-label="<?= esc($f['label']) ?>"
+                                data-realizadas="<?= max($f['total'], (int) ($f['realizadas_anio'] ?? 0)) ?>"
+                                data-abiertas="<?= $ptaAbiertasCount ?>"
+                                title="Cerrar en el Plan de Trabajo con las fechas reales de las inspecciones"
+                                style="padding:2px 7px;font-size:11px; background:#d1e7dd; border-color:#198754; color:#0f5132;">
+                                <i class="fas fa-clipboard-check"></i> Cerrar en plan
                             </button>
                             <?php endif; ?>
                             <button type="button" class="btn btn-xs btn-outline-secondary btn-marcar-na"
@@ -611,6 +635,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_MARCAR = '<?= base_url('inspecciones/matriz/no-aplica') ?>';
     const URL_QUITAR = '<?= base_url('inspecciones/matriz/quitar-no-aplica') ?>';
     const URL_SET_FRECUENCIA = '<?= base_url('inspecciones/matriz/set-frecuencia') ?>';
+    const URL_CERRAR_PTA_MATRIZ = '<?= base_url('inspecciones/matriz/cerrar-pta-por-matriz') ?>';
     const URL_PTA_LIST = '<?= base_url('inspecciones/matriz/pta-list/' . (int) $cliente['id_cliente']) ?>';
     const URL_PTA_LINK = '<?= base_url('inspecciones/matriz/vincular-pta') ?>';
     const URL_PTA_CREAR = '<?= base_url('inspecciones/matriz/crear-pta') ?>';
@@ -1057,6 +1082,60 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    // ================ CERRAR PTA DESDE MATRIZ ================
+    document.querySelectorAll('.btn-cerrar-pta-matriz').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const slug      = this.dataset.slug;
+            const label     = this.dataset.label;
+            const real      = parseInt(this.dataset.realizadas, 10) || 0;
+            const abiertas  = parseInt(this.dataset.abiertas, 10) || 0;
+            const aCerrar   = abiertas > 0 ? Math.min(real, abiertas) : real;
+            const accion    = abiertas > 0
+                ? 'Cerrar ' + aCerrar + ' PTA(s) abierta(s) con las fechas reales de las inspecciones.'
+                : 'No hay PTAs vinculadas. Se crearán ' + real + ' PTA(s) CERRADA(s) retroactivamente con la fecha de cada inspección.';
+
+            Swal.fire({
+                title: 'Cerrar en el Plan de Trabajo',
+                html: '<div style="text-align:left; font-size:13px;">' +
+                      '<strong>Tipo:</strong> ' + label + '<br>' +
+                      '<strong>Inspecciones realizadas:</strong> ' + real + '<br>' +
+                      '<strong>PTAs abiertas vinculadas:</strong> ' + abiertas + '<br><br>' +
+                      '<strong>Acción:</strong> ' + accion +
+                      '</div>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, sincronizar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#198754'
+            }).then(function (r) {
+                if (!r.isConfirmed) return;
+                const fd = new FormData();
+                fd.append('id_cliente', ID_CLIENTE);
+                fd.append('slug_inspeccion', slug);
+                fetch(URL_CERRAR_PTA_MATRIZ, { method: 'POST', body: fd })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.ok) {
+                            const msg = res.cerradas > 0
+                                ? res.cerradas + ' PTA(s) cerrada(s) con éxito.'
+                                : res.creadas + ' PTA(s) CERRADA(s) creada(s) retroactivamente.';
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Sincronizado',
+                                text: msg,
+                                timer: 1800,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', res.msg || 'No se pudo cerrar.', 'error');
+                        }
+                    })
+                    .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
+            });
+        });
+    });
+    // ================ FIN CERRAR PTA DESDE MATRIZ ================
 
     // ================ FRECUENCIA ================
     const frecModalEl  = document.getElementById('modalFrecuencia');
