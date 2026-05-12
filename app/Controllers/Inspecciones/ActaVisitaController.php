@@ -116,9 +116,10 @@ class ActaVisitaController extends BaseController
             }
         }
 
-        $atrasadas = [];
-        $delMes    = [];
-        $sinFecha  = [];
+        $atrasadas       = [];
+        $delMes          = [];
+        $sinProgramarNueva = []; // sin PTA y nunca hecha (urgente)
+        $sinProgramarHecha = []; // sin PTA pero ya hecha alguna vez (revisar próxima)
 
         foreach ($tipos as $tipo) {
             $slug = $tipo['slug'];
@@ -151,7 +152,11 @@ class ActaVisitaController extends BaseController
 
             $ptas = $matchesBySlug[$slug] ?? [];
             if (empty($ptas)) {
-                $sinFecha[] = $base;
+                if ($ultima === null) {
+                    $sinProgramarNueva[] = $base;
+                } else {
+                    $sinProgramarHecha[] = $base;
+                }
                 continue;
             }
 
@@ -175,19 +180,20 @@ class ActaVisitaController extends BaseController
             }
         }
 
-        // Ordenar por fecha
-        usort($atrasadas, fn($a, $b) => strcmp($a['fecha_propuesta'], $b['fecha_propuesta']));
-        usort($delMes,    fn($a, $b) => strcmp($a['fecha_propuesta'], $b['fecha_propuesta']));
-        usort($sinFecha,  fn($a, $b) => strcmp($a['label'], $b['label']));
+        usort($atrasadas,         fn($a, $b) => strcmp($a['fecha_propuesta'], $b['fecha_propuesta']));
+        usort($delMes,            fn($a, $b) => strcmp($a['fecha_propuesta'], $b['fecha_propuesta']));
+        usort($sinProgramarNueva, fn($a, $b) => strcmp($a['label'], $b['label']));
+        usort($sinProgramarHecha, fn($a, $b) => strcmp($b['ultima_realizada'] ?? '', $a['ultima_realizada'] ?? ''));
 
         return $this->response->setJSON([
-            'ok'         => true,
-            'fecha'      => $fecha,
-            'hoy'        => $hoy,
-            'fin_mes'    => $finMes,
-            'atrasadas'  => $atrasadas,
-            'delMes'     => $delMes,
-            'sinFecha'   => $sinFecha,
+            'ok'                => true,
+            'fecha'             => $fecha,
+            'hoy'               => $hoy,
+            'fin_mes'           => $finMes,
+            'atrasadas'         => $atrasadas,
+            'delMes'            => $delMes,
+            'sinProgramarNueva' => $sinProgramarNueva,
+            'sinProgramarHecha' => $sinProgramarHecha,
         ]);
     }
 
