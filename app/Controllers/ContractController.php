@@ -207,6 +207,9 @@ class ContractController extends Controller
         $result = $this->contractLibrary->createContract($data);
 
         if ($result['success']) {
+            // Sincronizar periodicidad de ciclos visita con el contrato más reciente del cliente
+            (new CicloVisitaModel())->sincronizarPeriodicidadDesdeContratos();
+
             return redirect()->to('/contracts/view/' . $result['contract_id'])
                            ->with('success', $result['message']);
         }
@@ -272,6 +275,9 @@ class ContractController extends Controller
             (int)$data['id_cliente'],
             $data['frecuencia_visitas'] ?? null
         );
+
+        // Sincronizar periodicidad de ciclos visita con el contrato más reciente del cliente
+        (new CicloVisitaModel())->sincronizarPeriodicidadDesdeContratos();
 
         return redirect()->to('/contracts/view/' . $idContrato)
                        ->with('success', 'Contrato actualizado exitosamente');
