@@ -21,6 +21,10 @@ class AuditoriaVisitasController extends BaseController
      */
     public function index()
     {
+        // Sincronizar periodicidad de cada ciclo con la frecuencia_visitas
+        // del contrato más reciente del cliente (idempotente: solo toca si difiere).
+        $this->model->sincronizarPeriodicidadDesdeContratos();
+
         $ciclos = $this->model->getAllConJoins();
 
         // Lista de consultores para el filtro

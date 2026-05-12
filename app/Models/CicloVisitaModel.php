@@ -19,6 +19,55 @@ class CicloVisitaModel extends Model
     ];
 
     /**
+     * Sincroniza tbl_ciclos_visita.estandar con la frecuencia_visitas del
+     * contrato más reciente de cada cliente.
+     *
+     * "Más reciente" = mayor fecha_inicio. Tie-breaker: mayor id_contrato.
+     * Actualiza TODOS los ciclos del cliente, solo si la frecuencia difiere
+     * (idempotente, no toca filas que ya estén correctas).
+     *
+     * @return int Número de filas actualizadas.
+     */
+    public function sincronizarPeriodicidadDesdeContratos(): int
+    {
+        $db = $this->db;
+        if (!$db->tableExists('tbl_contrato')) return 0;
+
+        // Listar contratos ordenados — primero el más reciente por cliente
+        $contratos = $db->table('tbl_contrato')
+            ->select('id_contrato, id_cliente, fecha_inicio, frecuencia_visitas')
+            ->where('fecha_inicio IS NOT NULL', null, false)
+            ->where('frecuencia_visitas IS NOT NULL', null, false)
+            ->where("frecuencia_visitas <> ''", null, false)
+            ->orderBy('id_cliente', 'ASC')
+            ->orderBy('fecha_inicio', 'DESC')
+            ->orderBy('id_contrato', 'DESC')
+            ->get()->getResultArray();
+
+        $masReciente = [];
+        foreach ($contratos as $c) {
+            if (!isset($masReciente[$c['id_cliente']])) {
+                $masReciente[$c['id_cliente']] = $c['frecuencia_visitas'];
+            }
+        }
+
+        if (empty($masReciente)) return 0;
+
+        $totalAfectados = 0;
+        foreach ($masReciente as $idCliente => $frec) {
+            $rows = $db->table('tbl_ciclos_visita')
+                ->where('id_cliente', $idCliente)
+                ->groupStart()
+                    ->where('estandar IS NULL', null, false)
+                    ->orWhere('estandar !=', $frec)
+                ->groupEnd()
+                ->update(['estandar' => $frec]);
+            if ($rows) $totalAfectados += (int) $db->affectedRows();
+        }
+        return $totalAfectados;
+    }
+
+    /**
      * Todos los ciclos con datos de cliente y consultor
      */
     public function getAllConJoins()
