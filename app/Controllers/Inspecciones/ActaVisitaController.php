@@ -101,6 +101,11 @@ class ActaVisitaController extends BaseController
         $tipos    = \App\Libraries\InspeccionTypes::all();
         $noAplica = (new \App\Models\InspeccionNoAplicaModel())->getByCliente($idCliente);
 
+        // Frecuencias configuradas por el consultor (veces por año, 0=puntual, null=sin definir)
+        $frecuenciasMap = (new \App\Models\InspeccionFrecuenciaClienteModel())->getByCliente($idCliente);
+
+        $anioActual = (int) substr($fecha, 0, 4);
+
         $db = \Config\Database::connect();
 
         $matchesBySlug = [];
@@ -125,19 +130,53 @@ class ActaVisitaController extends BaseController
             $slug = $tipo['slug'];
             if (isset($noAplica[$slug])) continue;
 
-            // Última fecha realizada (informativa)
-            $ultima = null;
+            // Última fecha realizada (informativa) + conteo del año
+            $ultima         = null;
+            $realizadasAnio = 0;
             if ($db->tableExists($tipo['table'])) {
-                $fields = $db->getFieldNames($tipo['table']);
+                $fields  = $db->getFieldNames($tipo['table']);
                 $dateCol = in_array($tipo['date_col'], $fields, true) ? $tipo['date_col'] : null;
                 if ($dateCol && in_array('id_cliente', $fields, true)) {
-                    $row = $db->table($tipo['table'])
+                    // Aplica los mismos filtros que la matriz (extra_where + estado_col) para
+                    // no mezclar tipos que comparten tabla (ej. certificados de servicio).
+                    $estadoColT   = array_key_exists('estado_col', $tipo) ? $tipo['estado_col'] : 'estado';
+                    $estadoValueT = $tipo['estado_value'] ?? 'completo';
+                    $extraWhereT  = $tipo['extra_where'] ?? [];
+
+                    // Última realización global
+                    $b = $db->table($tipo['table'])
                         ->selectMax($dateCol, 'ultima')
                         ->where('id_cliente', $idCliente)
-                        ->where("{$dateCol} IS NOT NULL", null, false)
-                        ->get()->getRowArray();
+                        ->where("{$dateCol} IS NOT NULL", null, false);
+                    if ($estadoColT !== null && in_array($estadoColT, $fields, true)) {
+                        $b->where($estadoColT, $estadoValueT);
+                    }
+                    foreach ($extraWhereT as $colW => $valW) {
+                        if (in_array($colW, $fields, true)) $b->where($colW, $valW);
+                    }
+                    $row = $b->get()->getRowArray();
                     $ultima = $row['ultima'] ?? null;
+
+                    // Conteo en el año actual
+                    $b2 = $db->table($tipo['table'])
+                        ->select('COUNT(*) AS c')
+                        ->where('id_cliente', $idCliente)
+                        ->where("YEAR({$dateCol})", $anioActual);
+                    if ($estadoColT !== null && in_array($estadoColT, $fields, true)) {
+                        $b2->where($estadoColT, $estadoValueT);
+                    }
+                    foreach ($extraWhereT as $colW => $valW) {
+                        if (in_array($colW, $fields, true)) $b2->where($colW, $valW);
+                    }
+                    $row2 = $b2->get()->getRowArray();
+                    $realizadasAnio = (int) ($row2['c'] ?? 0);
                 }
+            }
+
+            // Si tiene frecuencia configurada y ya cumplió la meta del año → al día, no aparece
+            $vecesAnio = $frecuenciasMap[$slug] ?? null;
+            if ($vecesAnio !== null && $vecesAnio > 0 && $realizadasAnio >= $vecesAnio) {
+                continue;
             }
 
             $base = [
@@ -148,10 +187,17 @@ class ActaVisitaController extends BaseController
                 'list_route'       => $tipo['list_route'],
                 'create_route'     => $tipo['create_route'],
                 'ultima_realizada' => $ultima,
+                'veces_anio'       => $vecesAnio,
+                'realizadas_anio'  => $realizadasAnio,
             ];
 
             $ptas = $matchesBySlug[$slug] ?? [];
             if (empty($ptas)) {
+                // Sin PTA vinculada
+                if ($vecesAnio === 0) {
+                    // Puntual sin PTA y sin acción urgente → no aparece (es ad-hoc)
+                    continue;
+                }
                 if ($ultima === null) {
                     $sinProgramarNueva[] = $base;
                 } else {

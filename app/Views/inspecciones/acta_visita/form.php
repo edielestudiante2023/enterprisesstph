@@ -448,6 +448,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const ult = it.ultima_realizada
             ? '<small class="text-muted d-block" style="font-size:11px;"><i class="fas fa-history"></i> Última realizada: ' + fmtFecha(it.ultima_realizada) + '</small>'
             : '<small class="text-muted d-block" style="font-size:11px;"><i class="fas fa-history"></i> Sin registros previos</small>';
+        let meta = '';
+        if (it.veces_anio !== undefined && it.veces_anio !== null && it.veces_anio > 0) {
+            const r = it.realizadas_anio || 0;
+            const faltan = Math.max(0, it.veces_anio - r);
+            meta = '<small class="d-block" style="font-size:11px; color:' + textColor + '; font-weight:600;">'
+                 + '<i class="fas fa-bullseye"></i> ' + r + ' / ' + it.veces_anio + ' este año'
+                 + (faltan > 0 ? ' — faltan ' + faltan : '')
+                 + '</small>';
+        }
         return '<div style="padding:8px 10px; margin-bottom:6px; border-left:4px solid ' + textColor + '; background:' + color + '; border-radius:4px;">' +
             '<div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">' +
                 '<div style="flex:1; min-width:200px;">' +
@@ -457,6 +466,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     fecha + ' ' + numeral +
                     (it.actividad ? '<div style="font-size:11px; color:#555; margin-top:2px;">' + escapeHtml(it.actividad) + '</div>' : '') +
                     ult +
+                    meta +
                 '</div>' +
                 '<span class="badge" style="background:' + textColor + '; color:#fff; font-size:10px; padding:3px 8px; align-self:flex-start;">' + label + '</span>' +
             '</div>' +
