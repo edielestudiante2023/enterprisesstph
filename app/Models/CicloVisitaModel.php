@@ -31,7 +31,10 @@ class CicloVisitaModel extends Model
     public function sincronizarPeriodicidadDesdeContratos(): int
     {
         $db = $this->db;
-        if (!$db->tableExists('tbl_contratos')) return 0;
+        if (!$db->tableExists('tbl_contratos')) {
+            log_message('error', '[CicloVisitaModel] sincronizarPeriodicidadDesdeContratos: tabla tbl_contratos NO existe — sincronización abortada. Revisar nombre en BD.');
+            return 0;
+        }
 
         // Listar contratos ordenados — primero el más reciente por cliente
         $contratos = $db->table('tbl_contratos')
@@ -51,7 +54,10 @@ class CicloVisitaModel extends Model
             }
         }
 
-        if (empty($masReciente)) return 0;
+        if (empty($masReciente)) {
+            log_message('warning', '[CicloVisitaModel] sincronizarPeriodicidadDesdeContratos: tbl_contratos no devolvió frecuencias válidas — nada que sincronizar.');
+            return 0;
+        }
 
         $totalAfectados = 0;
         foreach ($masReciente as $idCliente => $frec) {
@@ -63,6 +69,9 @@ class CicloVisitaModel extends Model
                 ->groupEnd()
                 ->update(['estandar' => $frec]);
             if ($rows) $totalAfectados += (int) $db->affectedRows();
+        }
+        if ($totalAfectados > 0) {
+            log_message('info', "[CicloVisitaModel] sincronizarPeriodicidadDesdeContratos OK — {$totalAfectados} fila(s) actualizada(s).");
         }
         return $totalAfectados;
     }
