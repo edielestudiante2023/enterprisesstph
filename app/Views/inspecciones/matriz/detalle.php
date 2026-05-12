@@ -481,6 +481,12 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                             $mostrarCerrar = $tieneRealizadas && ($ptaAbiertasCount > 0 || empty($f['pta_vinculados']));
                             ?>
                             <?php if ($mostrarCerrar): ?>
+                            <?php $esHuerfana = empty($f['pta_vinculados']); ?>
+                            <?php if ($esHuerfana): ?>
+                                <i class="fas fa-circle"
+                                    title="Hecha pero SIN actividad en el Plan de Trabajo — al cerrar se crearán PTAs retroactivas"
+                                    style="color:#ffc107; font-size:14px; margin-right:2px;"></i>
+                            <?php endif; ?>
                             <button type="button" class="btn btn-xs btn-outline-success btn-cerrar-pta-matriz"
                                 data-slug="<?= esc($f['slug']) ?>"
                                 data-label="<?= esc($f['label']) ?>"
