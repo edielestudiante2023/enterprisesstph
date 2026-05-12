@@ -108,9 +108,15 @@ $action = $isEdit ? base_url('/inspecciones/acta-visita/update/') . $acta['id'] 
                                 style="background:#fff3cd; color:#856404; border:2px solid transparent; padding:4px 10px; font-size:12px;">
                                 <i class="fas fa-calendar-day"></i> Del mes <span class="ctx-count-delMes">0</span>
                             </button>
-                            <button type="button" class="btn btn-sm" data-ctx-filtro="sinFecha"
-                                style="background:#e2e3e5; color:#383d41; border:2px solid transparent; padding:4px 10px; font-size:12px;">
-                                <i class="fas fa-question-circle"></i> Sin fecha <span class="ctx-count-sinFecha">0</span>
+                            <button type="button" class="btn btn-sm" data-ctx-filtro="sinProgramarNueva"
+                                style="background:#f5c2c7; color:#842029; border:2px solid transparent; padding:4px 10px; font-size:12px;"
+                                title="Sin PTA vinculada y sin historial — urgente">
+                                <i class="fas fa-circle-exclamation"></i> Nunca hecha <span class="ctx-count-sinProgramarNueva">0</span>
+                            </button>
+                            <button type="button" class="btn btn-sm" data-ctx-filtro="sinProgramarHecha"
+                                style="background:#e2e3e5; color:#383d41; border:2px solid transparent; padding:4px 10px; font-size:12px;"
+                                title="Hecha alguna vez pero sin próxima PTA programada">
+                                <i class="fas fa-calendar-plus"></i> Sin próxima <span class="ctx-count-sinProgramarHecha">0</span>
                             </button>
                         </div>
 
@@ -375,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ====================== INSPECCIONES CONTEXTO (solo lectura) ======================
-    let _ctxData = { atrasadas: [], delMes: [], sinFecha: [] };
+    let _ctxData = { atrasadas: [], delMes: [], sinProgramarNueva: [], sinProgramarHecha: [] };
     let _ctxFiltro = 'todas';
 
     function loadInspeccionesContexto(idCliente, fechaVisita) {
@@ -389,7 +395,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     cont.innerHTML = '<p class="text-danger text-center mb-0" style="font-size:12px;">' + (data.msg || 'Error') + '</p>';
                     return;
                 }
-                _ctxData = { atrasadas: data.atrasadas || [], delMes: data.delMes || [], sinFecha: data.sinFecha || [] };
+                _ctxData = {
+                    atrasadas: data.atrasadas || [],
+                    delMes: data.delMes || [],
+                    sinProgramarNueva: data.sinProgramarNueva || [],
+                    sinProgramarHecha: data.sinProgramarHecha || []
+                };
                 renderContextoCounts();
                 renderContextoLista();
             })
@@ -399,14 +410,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderContextoCounts() {
-        const a = _ctxData.atrasadas.length;
-        const m = _ctxData.delMes.length;
-        const s = _ctxData.sinFecha.length;
-        const total = a + m + s;
+        const a  = _ctxData.atrasadas.length;
+        const m  = _ctxData.delMes.length;
+        const sn = _ctxData.sinProgramarNueva.length;
+        const sh = _ctxData.sinProgramarHecha.length;
+        const total = a + m + sn + sh;
         document.querySelector('.ctx-count-todas').textContent = total;
         document.querySelector('.ctx-count-atrasadas').textContent = a;
         document.querySelector('.ctx-count-delMes').textContent = m;
-        document.querySelector('.ctx-count-sinFecha').textContent = s;
+        document.querySelector('.ctx-count-sinProgramarNueva').textContent = sn;
+        document.querySelector('.ctx-count-sinProgramarHecha').textContent = sh;
         const badge = document.getElementById('ctxBadgeTotal');
         if (total > 0) {
             badge.textContent = total;
@@ -422,9 +435,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderItem(it, tipo) {
-        const color = tipo === 'atrasadas' ? '#f8d7da' : (tipo === 'delMes' ? '#fff3cd' : '#e2e3e5');
-        const textColor = tipo === 'atrasadas' ? '#721c24' : (tipo === 'delMes' ? '#856404' : '#383d41');
-        const label = tipo === 'atrasadas' ? 'Atrasada' : (tipo === 'delMes' ? 'Del mes' : 'Sin fecha');
+        const palette = {
+            atrasadas:         { bg: '#f8d7da', fg: '#721c24', label: 'Atrasada' },
+            delMes:            { bg: '#fff3cd', fg: '#856404', label: 'Del mes' },
+            sinProgramarNueva: { bg: '#f5c2c7', fg: '#842029', label: 'Nunca hecha' },
+            sinProgramarHecha: { bg: '#e2e3e5', fg: '#383d41', label: 'Sin próxima' }
+        };
+        const p = palette[tipo] || palette.sinProgramarHecha;
+        const color = p.bg, textColor = p.fg, label = p.label;
         const fecha = it.fecha_propuesta ? '<span style="color:' + textColor + '; font-weight:600;"><i class="fas fa-calendar"></i> ' + fmtFecha(it.fecha_propuesta) + '</span>' : '';
         const numeral = it.numeral ? '<span class="badge bg-light text-dark" style="font-size:10px;">' + escapeHtml(it.numeral) + '</span>' : '';
         const ult = it.ultima_realizada
@@ -452,9 +470,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderContextoLista() {
         const cont = document.getElementById('ctxLista');
         let lista = [];
-        if (_ctxFiltro === 'todas' || _ctxFiltro === 'atrasadas') _ctxData.atrasadas.forEach(it => lista.push({ it, tipo: 'atrasadas' }));
-        if (_ctxFiltro === 'todas' || _ctxFiltro === 'delMes')    _ctxData.delMes.forEach(it => lista.push({ it, tipo: 'delMes' }));
-        if (_ctxFiltro === 'todas' || _ctxFiltro === 'sinFecha')  _ctxData.sinFecha.forEach(it => lista.push({ it, tipo: 'sinFecha' }));
+        const all = _ctxFiltro === 'todas';
+        if (all || _ctxFiltro === 'atrasadas')         _ctxData.atrasadas.forEach(it => lista.push({ it, tipo: 'atrasadas' }));
+        if (all || _ctxFiltro === 'delMes')            _ctxData.delMes.forEach(it => lista.push({ it, tipo: 'delMes' }));
+        if (all || _ctxFiltro === 'sinProgramarNueva') _ctxData.sinProgramarNueva.forEach(it => lista.push({ it, tipo: 'sinProgramarNueva' }));
+        if (all || _ctxFiltro === 'sinProgramarHecha') _ctxData.sinProgramarHecha.forEach(it => lista.push({ it, tipo: 'sinProgramarHecha' }));
 
         if (lista.length === 0) {
             cont.innerHTML = '<p class="text-success text-center mb-0" style="font-size:12px;"><i class="fas fa-check-circle"></i> Sin inspecciones por revisar en este filtro.</p>';
