@@ -82,6 +82,116 @@ class ActaVisitaController extends BaseController
     }
 
     /**
+     * API: Contexto de inspecciones del cliente para el form de acta-visita.
+     * Solo lectura — NO se imprime en PDF, sirve al consultor para ver:
+     *  - Atrasadas: PTAs vinculadas con fecha_propuesta < hoy y no cerradas
+     *  - Del mes: PTAs vinculadas con fecha_propuesta entre hoy y fin del mes de la visita
+     *  - Sin fecha: tipos de inspección sin PTA vinculada y sin "no aplica"
+     */
+    public function apiInspeccionesContexto(int $idCliente)
+    {
+        $fecha = trim((string) $this->request->getGet('fecha')) ?: date('Y-m-d');
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha) || !strtotime($fecha)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Fecha inválida']);
+        }
+
+        $hoy    = date('Y-m-d');
+        $finMes = date('Y-m-t', strtotime($fecha));
+
+        $tipos    = \App\Libraries\InspeccionTypes::all();
+        $noAplica = (new \App\Models\InspeccionNoAplicaModel())->getByCliente($idCliente);
+
+        $db = \Config\Database::connect();
+
+        $matchesBySlug = [];
+        if ($db->tableExists('tbl_pta_inspeccion_match')) {
+            $rows = $db->table('tbl_pta_inspeccion_match m')
+                ->select('m.slug_inspeccion, p.fecha_propuesta, p.numeral_plandetrabajo, p.actividad_plandetrabajo, p.estado_actividad')
+                ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'inner')
+                ->where('m.id_cliente', $idCliente)
+                ->orderBy('p.fecha_propuesta', 'ASC')
+                ->get()->getResultArray();
+            foreach ($rows as $r) {
+                $matchesBySlug[$r['slug_inspeccion']][] = $r;
+            }
+        }
+
+        $atrasadas = [];
+        $delMes    = [];
+        $sinFecha  = [];
+
+        foreach ($tipos as $tipo) {
+            $slug = $tipo['slug'];
+            if (isset($noAplica[$slug])) continue;
+
+            // Última fecha realizada (informativa)
+            $ultima = null;
+            if ($db->tableExists($tipo['table'])) {
+                $fields = $db->getFieldNames($tipo['table']);
+                $dateCol = in_array($tipo['date_col'], $fields, true) ? $tipo['date_col'] : null;
+                if ($dateCol && in_array('id_cliente', $fields, true)) {
+                    $row = $db->table($tipo['table'])
+                        ->selectMax($dateCol, 'ultima')
+                        ->where('id_cliente', $idCliente)
+                        ->where("{$dateCol} IS NOT NULL", null, false)
+                        ->get()->getRowArray();
+                    $ultima = $row['ultima'] ?? null;
+                }
+            }
+
+            $base = [
+                'slug'             => $slug,
+                'label'            => $tipo['label'],
+                'group'            => $tipo['group'] ?? 'Otros',
+                'icon'             => $tipo['icon'],
+                'list_route'       => $tipo['list_route'],
+                'create_route'     => $tipo['create_route'],
+                'ultima_realizada' => $ultima,
+            ];
+
+            $ptas = $matchesBySlug[$slug] ?? [];
+            if (empty($ptas)) {
+                $sinFecha[] = $base;
+                continue;
+            }
+
+            foreach ($ptas as $pta) {
+                $fp = $pta['fecha_propuesta'] ?? null;
+                if (!$fp) continue;
+                if (($pta['estado_actividad'] ?? null) === 'CERRADA') continue;
+
+                $item = $base + [
+                    'fecha_propuesta' => $fp,
+                    'numeral'         => $pta['numeral_plandetrabajo'] ?? null,
+                    'actividad'       => mb_strimwidth($pta['actividad_plandetrabajo'] ?? '', 0, 120, '…'),
+                    'estado_pta'      => $pta['estado_actividad'] ?? null,
+                ];
+
+                if ($fp < $hoy) {
+                    $atrasadas[] = $item;
+                } elseif ($fp <= $finMes) {
+                    $delMes[] = $item;
+                }
+            }
+        }
+
+        // Ordenar por fecha
+        usort($atrasadas, fn($a, $b) => strcmp($a['fecha_propuesta'], $b['fecha_propuesta']));
+        usort($delMes,    fn($a, $b) => strcmp($a['fecha_propuesta'], $b['fecha_propuesta']));
+        usort($sinFecha,  fn($a, $b) => strcmp($a['label'], $b['label']));
+
+        return $this->response->setJSON([
+            'ok'         => true,
+            'fecha'      => $fecha,
+            'hoy'        => $hoy,
+            'fin_mes'    => $finMes,
+            'atrasadas'  => $atrasadas,
+            'delMes'     => $delMes,
+            'sinFecha'   => $sinFecha,
+        ]);
+    }
+
+    /**
      * Guardar nueva acta (siempre como borrador)
      */
     public function store()
