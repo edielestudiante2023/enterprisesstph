@@ -1,15 +1,26 @@
 <?php
-$totalHechas    = 0;
-$totalPend      = 0;
-$totalAtrasadas = 0;
-$totalNoAplica  = 0;
-$totalAlDia     = 0;
+$totalHechas         = 0;
+$totalPend           = 0;
+$totalAtrasadas      = 0;
+$totalNoAplica       = 0;
+$totalAlDia          = 0;
+$totalPorSincronizar = 0;
 foreach ($filas as $f) {
     if      ($f['estado'] === 'hecha')     $totalHechas++;
     elseif  ($f['estado'] === 'al_dia')    $totalAlDia++;
     elseif  ($f['estado'] === 'pendiente') $totalPend++;
     elseif  ($f['estado'] === 'atrasada')  $totalAtrasadas++;
     else                                   $totalNoAplica++;
+
+    // "Por sincronizar": tiene inspecciones realizadas y o bien hay PTAs abiertas, o no hay PTAs
+    $ptaAbiertasC = 0;
+    foreach ($f['pta_vinculados'] as $v) {
+        if (($v['estado_actividad'] ?? '') !== 'CERRADA') $ptaAbiertasC++;
+    }
+    $tieneRealiz = $f['total'] > 0 || (int) ($f['realizadas_anio'] ?? 0) > 0;
+    if ($tieneRealiz && ($ptaAbiertasC > 0 || empty($f['pta_vinculados']))) {
+        $totalPorSincronizar++;
+    }
 }
 $totalTodos = count($filas);
 $aplicables = $totalTodos - $totalNoAplica;
@@ -202,6 +213,14 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             </div>
         </div>
         <div class="col-6 col-md">
+            <div class="card border-0 text-center card-filtro" data-filtro="por_sincronizar" style="background:#cfe2ff; border-radius:10px; cursor:pointer;" title="Hay inspecciones realizadas pendientes de cerrar en el Plan de Trabajo">
+                <div class="card-body py-2 px-1">
+                    <div style="font-size:11px; color:#084298; font-weight:600;"><i class="fas fa-clipboard-check"></i> Por sincronizar</div>
+                    <div style="font-size:20px; font-weight:700; color:#084298;"><?= $totalPorSincronizar ?></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md">
             <div class="card border-0 text-center card-filtro" data-filtro="al_dia" style="background:#cce5d0; border-radius:10px; cursor:pointer;" title="Cumple según frecuencia configurada — próxima fecha aún vigente">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#0f5132; font-weight:600;"><i class="fas fa-shield-check"></i> Al día</div>
@@ -260,6 +279,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                         <select class="form-select form-select-sm col-filter" data-col="3" style="font-size:11px;">
                             <option value="">Todos</option>
                             <option value="Hecha">Hechas</option>
+                            <option value="Por sincronizar">Por sincronizar</option>
                             <option value="Al día">Al día</option>
                             <option value="Pendiente">Pendientes</option>
                             <option value="Atrasada">Atrasadas</option>
@@ -406,7 +426,17 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                         <span class="badge" style="<?= $badgeClass ?> font-size:11px; padding:5px 8px;">
                             <?= $badgeLabel ?>
                         </span>
-                        <span class="d-none"><?= esc($estadoTexto) ?></span>
+                        <span class="d-none"><?= esc($estadoTexto) ?><?php
+                            // Texto invisible adicional para que el filtro 'Por sincronizar' (col 3) matchee
+                            $ptaAbiertasCnt = 0;
+                            foreach ($f['pta_vinculados'] as $vv) {
+                                if (($vv['estado_actividad'] ?? '') !== 'CERRADA') $ptaAbiertasCnt++;
+                            }
+                            $tieneRealizF = $f['total'] > 0 || (int) ($f['realizadas_anio'] ?? 0) > 0;
+                            if ($tieneRealizF && ($ptaAbiertasCnt > 0 || empty($f['pta_vinculados']))) {
+                                echo ' Por sincronizar';
+                            }
+                        ?></span>
                         <?php if ($f['estado'] === 'no_aplica' && !empty($f['no_aplica']['motivo'])): ?>
                             <div class="small text-muted mt-1" style="font-size:10px;"><?= esc($f['no_aplica']['motivo']) ?></div>
                         <?php endif; ?>
@@ -641,7 +671,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_PTA_CREAR = '<?= base_url('inspecciones/matriz/crear-pta') ?>';
     const URL_PTA_IA = '<?= base_url('inspecciones/matriz/generar-pta-ia') ?>';
 
-    const estadoLabelMap = { 'hecha': 'Hecha', 'al_dia': 'Al día', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
+    const estadoLabelMap = { 'hecha': 'Hecha', 'por_sincronizar': 'Por sincronizar', 'al_dia': 'Al día', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
 
     const tabla = $('#tablaMatriz').DataTable({
         responsive: true,
@@ -661,7 +691,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (saved) el.value = saved;
             });
             const estadoText = tabla.column(3).search();
-            const textToFiltro = { '': 'todas', 'Hecha': 'hecha', 'Al día': 'al_dia', 'Pendiente': 'pendiente', 'Atrasada': 'atrasada', 'No Aplica': 'no_aplica' };
+            const textToFiltro = { '': 'todas', 'Hecha': 'hecha', 'Por sincronizar': 'por_sincronizar', 'Al día': 'al_dia', 'Pendiente': 'pendiente', 'Atrasada': 'atrasada', 'No Aplica': 'no_aplica' };
             const activeFiltro = textToFiltro[estadoText] || 'todas';
             document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
             const activeCard = document.querySelector('.card-filtro[data-filtro="' + activeFiltro + '"]');
@@ -1090,9 +1120,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const label     = this.dataset.label;
             const real      = parseInt(this.dataset.realizadas, 10) || 0;
             const abiertas  = parseInt(this.dataset.abiertas, 10) || 0;
-            const aCerrar   = abiertas > 0 ? Math.min(real, abiertas) : real;
             const accion    = abiertas > 0
-                ? 'Cerrar ' + aCerrar + ' PTA(s) abierta(s) con las fechas reales de las inspecciones.'
+                ? 'Cerrar SOLO la PTA más antigua abierta (1 de ' + abiertas + ') con la fecha de la inspección más reciente. Si quedan PTAs por cerrar, vuelve a usar este botón.'
                 : 'No hay PTAs vinculadas. Se crearán ' + real + ' PTA(s) CERRADA(s) retroactivamente con la fecha de cada inspección.';
 
             Swal.fire({

@@ -434,22 +434,20 @@ class MatrizInspeccionesController extends BaseController
         $creadas  = 0;
 
         if (!empty($ptasAbiertas)) {
-            // Caso 1: hay PTAs abiertas → cerrar min(N inspecciones, M PTAs)
-            $hasta = min(count($inspecciones), count($ptasAbiertas));
-            for ($i = 0; $i < $hasta; $i++) {
-                $fecha = $inspecciones[$i];
-                $idPta = (int) $ptasAbiertas[$i]['id_ptacliente'];
-                $db->table('tbl_pta_cliente')
-                    ->where('id_ptacliente', $idPta)
-                    ->update([
-                        'estado_actividad'  => 'CERRADA',
-                        'fecha_propuesta'   => $fecha,
-                        'fecha_cierre'      => $fecha,
-                        'porcentaje_avance' => 100,
-                        'updated_at'        => $now,
-                    ]);
-                $cerradas++;
-            }
+            // Caso 1: cerrar UNA SOLA PTA (la más antigua abierta) con la fecha de la
+            // inspección MÁS RECIENTE. Permite al consultor sincronizar de a una.
+            $fechaMasReciente = end($inspecciones); // ordenadas ASC → última es la más reciente
+            $idPta = (int) $ptasAbiertas[0]['id_ptacliente']; // primera abierta = más antigua
+            $db->table('tbl_pta_cliente')
+                ->where('id_ptacliente', $idPta)
+                ->update([
+                    'estado_actividad'  => 'CERRADA',
+                    'fecha_propuesta'   => $fechaMasReciente,
+                    'fecha_cierre'      => $fechaMasReciente,
+                    'porcentaje_avance' => 100,
+                    'updated_at'        => $now,
+                ]);
+            $cerradas = 1;
         } else {
             // Caso 2: no hay PTAs vinculadas → crear N PTAs CERRADAS retroactivamente
             foreach ($inspecciones as $fecha) {
