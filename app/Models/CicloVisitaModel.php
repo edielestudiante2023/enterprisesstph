@@ -31,10 +31,10 @@ class CicloVisitaModel extends Model
     public function sincronizarPeriodicidadDesdeContratos(): int
     {
         $db = $this->db;
-        if (!$db->tableExists('tbl_contrato')) return 0;
+        if (!$db->tableExists('tbl_contratos')) return 0;
 
         // Listar contratos ordenados — primero el más reciente por cliente
-        $contratos = $db->table('tbl_contrato')
+        $contratos = $db->table('tbl_contratos')
             ->select('id_contrato, id_cliente, fecha_inicio, frecuencia_visitas')
             ->where('fecha_inicio IS NOT NULL', null, false)
             ->where('frecuencia_visitas IS NOT NULL', null, false)
