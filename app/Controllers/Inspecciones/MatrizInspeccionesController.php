@@ -878,6 +878,54 @@ class MatrizInspeccionesController extends BaseController
     }
 
     /**
+     * Desvincula todas las PTA del tipo de inspeccion dentro del año activo.
+     * Permite corregir vínculos y volver a crear la PTA desde la matriz.
+     */
+    public function desvincularPtaPorTipo()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $slug = trim((string) $this->request->getPost('slug_inspeccion'));
+        $anio = (int) ($this->request->getPost('anio') ?: date('Y'));
+
+        if (!$idCliente || !$slug || !$anio || !InspeccionTypes::bySlug($slug)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+
+        if (!$this->clienteModel->find($idCliente)) {
+            return $this->response->setStatusCode(404)->setJSON(['ok' => false, 'msg' => 'Cliente no encontrado.']);
+        }
+
+        $db = \Config\Database::connect();
+        $rows = $db->table('tbl_pta_inspeccion_match m')
+            ->select('m.id_ptacliente')
+            ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'inner')
+            ->where('m.id_cliente', $idCliente)
+            ->where('m.slug_inspeccion', $slug)
+            ->where('p.id_cliente', $idCliente)
+            ->where('YEAR(p.fecha_propuesta)', $anio)
+            ->get()
+            ->getResultArray();
+
+        $ids = array_values(array_unique(array_map('intval', array_column($rows, 'id_ptacliente'))));
+        if (empty($ids)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'No hay vínculos PTA para desvincular en este año.']);
+        }
+
+        $db->table('tbl_pta_inspeccion_match')
+            ->where('id_cliente', $idCliente)
+            ->where('slug_inspeccion', $slug)
+            ->whereIn('id_ptacliente', $ids)
+            ->delete();
+
+        self::clearMatrizCache($idCliente);
+
+        return $this->response->setJSON([
+            'ok'      => true,
+            'removed' => count($ids),
+        ]);
+    }
+
+    /**
      * Helper de clave de caché para la matriz.
      */
     private static function cacheKey(int $idCliente, string $fechaDesde, string $fechaHasta): string
