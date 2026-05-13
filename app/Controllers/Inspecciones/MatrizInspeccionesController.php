@@ -92,10 +92,21 @@ class MatrizInspeccionesController extends BaseController
         }
 
         $tipos    = InspeccionTypes::all();
-        $noAplica = $this->noAplicaModel->getByCliente($idCliente);
 
-        // Frecuencias configuradas por el consultor para este cliente
-        $frecuenciasMap = (new InspeccionFrecuenciaClienteModel())->getByCliente($idCliente);
+        // ─── CACHÉ ───────────────────────────────────────────────────────────
+        // La parte más costosa del controller es el loop por tipo (~130 queries).
+        // Cacheamos el bloque completo de $filas/$inspeccionesPorAnio/$inspeccionesPorMes
+        // por combo cliente+rango durante 60s. Se invalida en cualquier UPDATE
+        // del controller (marcar/quitar NA, vincular/crear/desvincular PTA, setFrecuencia,
+        // cerrarPtaPorMatriz).
+        $cache    = \Config\Services::cache();
+        $cacheKey = self::cacheKey($idCliente, $fechaDesde, $fechaHasta);
+        $cached   = $cache->get($cacheKey);
+        if (is_array($cached)) {
+            $filas               = $cached['filas'];
+            $inspeccionesPorAnio = $cached['inspeccionesPorAnio'];
+            $inspeccionesPorMes  = $cached['inspeccionesPorMes'];
+        }
 
         // Contrato activo del cliente (para mostrar frecuencia)
         $contractModel = new ContractModel();
@@ -108,6 +119,14 @@ class MatrizInspeccionesController extends BaseController
                 ->orderBy('created_at', 'DESC')
                 ->first();
         }
+
+        // Si el caché trajo todo, saltamos el cómputo pesado
+        if (!is_array($cached)) {
+
+        $noAplica = $this->noAplicaModel->getByCliente($idCliente);
+
+        // Frecuencias configuradas por el consultor para este cliente
+        $frecuenciasMap = (new InspeccionFrecuenciaClienteModel())->getByCliente($idCliente);
 
         $db = \Config\Database::connect();
 
@@ -319,6 +338,15 @@ class MatrizInspeccionesController extends BaseController
             }));
         }
 
+        // Guardar en caché (TTL 60s) — solo el bloque pesado computado server-side
+        $cache->save($cacheKey, [
+            'filas'               => $filas,
+            'inspeccionesPorAnio' => $inspeccionesPorAnio,
+            'inspeccionesPorMes'  => $inspeccionesPorMes,
+        ], 60);
+
+        } // ← cierre del if (!is_array($cached))
+
         // Años disponibles: año actual en adelante (sin años pasados).
         // Si el cliente tiene PTAs/inspecciones programadas en años futuros, aparecen también.
         $anioActual = (int) date('Y');
@@ -364,7 +392,36 @@ class MatrizInspeccionesController extends BaseController
         }
 
         $ok = (new InspeccionFrecuenciaClienteModel())->setVecesAnio($idCliente, $slug, $veces);
+        if ($ok) self::clearMatrizCache($idCliente);
         return $this->response->setJSON(['ok' => (bool) $ok]);
+    }
+
+    /**
+     * Define / actualiza la frecuencia para varios tipos de inspeccion.
+     * POST: id_cliente, slugs[], veces_anio (0..365)
+     */
+    public function setFrecuenciaMasiva()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $veces     = (int) $this->request->getPost('veces_anio');
+        $slugs     = $this->validSelectedSlugs($this->request->getPost('slugs'));
+
+        if (!$idCliente || $veces < 0 || $veces > 365 || empty($slugs)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Selecciona inspecciones y un valor entre 0 y 365.']);
+        }
+
+        if (!$this->clienteModel->find($idCliente)) {
+            return $this->response->setStatusCode(404)->setJSON(['ok' => false, 'msg' => 'Cliente no encontrado.']);
+        }
+
+        $updated = (new InspeccionFrecuenciaClienteModel())->setManyVecesAnio($idCliente, $slugs, $veces);
+        if ($updated > 0) self::clearMatrizCache($idCliente);
+
+        return $this->response->setJSON([
+            'ok'      => $updated > 0,
+            'updated' => $updated,
+            'total'   => count($slugs),
+        ]);
     }
 
     /**
@@ -482,6 +539,8 @@ class MatrizInspeccionesController extends BaseController
             }
         }
 
+        self::clearMatrizCache($idCliente);
+
         return $this->response->setJSON([
             'ok'       => true,
             'cerradas' => $cerradas,
@@ -502,8 +561,38 @@ class MatrizInspeccionesController extends BaseController
 
         $idConsultor = (int) (session('id_consultor') ?: session('id_usuario') ?: 0) ?: null;
         $ok = $this->noAplicaModel->marcar($idCliente, $tipo, $motivo, $idConsultor);
+        if ($ok) self::clearMatrizCache($idCliente);
 
         return $this->response->setJSON(['ok' => (bool) $ok]);
+    }
+
+    /**
+     * Marca varios tipos de inspeccion como No Aplica.
+     * POST: id_cliente, slugs[], motivo
+     */
+    public function marcarNoAplicaMasivo()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $slugs     = $this->validSelectedSlugs($this->request->getPost('slugs'));
+        $motivo    = trim((string) $this->request->getPost('motivo')) ?: null;
+
+        if (!$idCliente || empty($slugs)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Selecciona al menos una inspección.']);
+        }
+
+        if (!$this->clienteModel->find($idCliente)) {
+            return $this->response->setStatusCode(404)->setJSON(['ok' => false, 'msg' => 'Cliente no encontrado.']);
+        }
+
+        $idConsultor = (int) (session('id_consultor') ?: session('id_usuario') ?: 0) ?: null;
+        $updated = $this->noAplicaModel->marcarMany($idCliente, $slugs, $motivo, $idConsultor);
+        if ($updated > 0) self::clearMatrizCache($idCliente);
+
+        return $this->response->setJSON([
+            'ok'      => $updated > 0,
+            'updated' => $updated,
+            'total'   => count($slugs),
+        ]);
     }
 
     public function quitarNoAplica()
@@ -516,6 +605,7 @@ class MatrizInspeccionesController extends BaseController
         }
 
         $ok = $this->noAplicaModel->quitar($idCliente, $tipo);
+        if ($ok) self::clearMatrizCache($idCliente);
         return $this->response->setJSON(['ok' => (bool) $ok]);
     }
 
@@ -634,6 +724,10 @@ class MatrizInspeccionesController extends BaseController
             $this->matchModel->deleteMatch($idCliente, $idPta, $slug);
         }
 
+        if (count($toAdd) > 0 || count($toRemove) > 0) {
+            self::clearMatrizCache($idCliente);
+        }
+
         return $this->response->setJSON([
             'ok'      => true,
             'added'   => count($toAdd),
@@ -703,6 +797,8 @@ class MatrizInspeccionesController extends BaseController
             'ai_model'        => null,
             'created_at'      => $now,
         ]);
+
+        self::clearMatrizCache($idCliente);
 
         return $this->response->setJSON([
             'ok'            => true,
@@ -810,6 +906,43 @@ class MatrizInspeccionesController extends BaseController
         }
 
         $ok = $this->matchModel->deleteMatch($idCliente, $idPta, $slug);
+        if ($ok) self::clearMatrizCache($idCliente);
         return $this->response->setJSON(['ok' => (bool) $ok]);
+    }
+
+    /**
+     * Helper de clave de caché para la matriz.
+     */
+    private static function cacheKey(int $idCliente, string $fechaDesde, string $fechaHasta): string
+    {
+        return 'matriz_' . $idCliente . '_' . str_replace('-', '', $fechaDesde) . '_' . str_replace('-', '', $fechaHasta);
+    }
+
+    /**
+     * Invalida toda la caché de la matriz para un cliente (cualquier rango).
+     * Se llama tras cualquier UPDATE que afecte la representación de la matriz.
+     */
+    public static function clearMatrizCache(int $idCliente): void
+    {
+        $cache = \Config\Services::cache();
+        // El driver File de CI4 expone deleteMatching. Si no está disponible, fallback a clean().
+        if (method_exists($cache, 'deleteMatching')) {
+            $cache->deleteMatching('matriz_' . $idCliente . '_*');
+        } else {
+            $cache->clean();
+        }
+    }
+
+    /**
+     * Normaliza y valida slugs enviados desde acciones masivas.
+     */
+    private function validSelectedSlugs($raw): array
+    {
+        $slugs = is_array($raw) ? $raw : [];
+
+        return array_values(array_unique(array_filter(array_map(static function ($slug) {
+            $slug = trim((string) $slug);
+            return $slug !== '' && InspeccionTypes::bySlug($slug) ? $slug : null;
+        }, $slugs))));
     }
 }

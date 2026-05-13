@@ -261,11 +261,31 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
         </div>
     </div>
 
+    <div class="card border-0 mb-2" style="background:#fff; border-radius:10px;">
+        <div class="card-body py-2 px-3 d-flex flex-wrap align-items-center gap-2">
+            <span id="bulkSelectedCount" class="small text-muted me-auto" style="font-size:12px;">
+                <i class="fas fa-check-square"></i> 0 seleccionadas
+            </span>
+            <button type="button" id="btnBulkFrecuencia" class="btn btn-sm btn-outline-primary" style="font-size:12px; padding:5px 10px;" disabled>
+                <i class="fas fa-redo-alt"></i> Definir frecuencia
+            </button>
+            <button type="button" id="btnBulkNoAplica" class="btn btn-sm btn-outline-secondary" style="font-size:12px; padding:5px 10px;" disabled>
+                <i class="fas fa-ban"></i> No Aplica
+            </button>
+            <button type="button" id="btnBulkClear" class="btn btn-sm btn-outline-dark" style="font-size:12px; padding:5px 10px;" disabled>
+                <i class="fas fa-times"></i> Limpiar
+            </button>
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table id="tablaMatriz" class="table table-sm table-hover" style="width:100%; background:#fff;">
             <thead style="background:#1c2437; color:#fff;">
                 <tr>
                     <th style="font-size:12px;">Grupo</th>
+                    <th style="font-size:12px; text-align:center; width:42px;">
+                        <input type="checkbox" id="bulkSelectVisible" title="Seleccionar filas visibles">
+                    </th>
                     <th style="font-size:12px;">Tipo de Inspección</th>
                     <th style="font-size:12px;"><?= esc($colFechasHeader) ?></th>
                     <th style="font-size:12px;">Estado</th>
@@ -273,10 +293,11 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                 </tr>
                 <tr style="background:#2a3449;">
                     <th><input type="text" class="form-control form-control-sm col-filter" data-col="0" placeholder="Filtrar grupo" style="font-size:11px;"></th>
-                    <th><input type="text" class="form-control form-control-sm col-filter" data-col="1" placeholder="Filtrar tipo" style="font-size:11px;"></th>
+                    <th></th>
+                    <th><input type="text" class="form-control form-control-sm col-filter" data-col="2" placeholder="Filtrar tipo" style="font-size:11px;"></th>
                     <th></th>
                     <th>
-                        <select class="form-select form-select-sm col-filter" data-col="3" style="font-size:11px;">
+                        <select class="form-select form-select-sm col-filter" data-col="4" style="font-size:11px;">
                             <option value="">Todos</option>
                             <option value="Hecha">Hechas</option>
                             <option value="Por sincronizar">Por sincronizar</option>
@@ -319,6 +340,12 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                     data-fechas-programadas="<?= esc(implode(',', $fechasProgramadasArr)) ?>"
                     <?= $f['estado'] === 'no_aplica' ? 'style="opacity:0.6;"' : '' ?>>
                     <td style="font-size:11px; color:#555;"><?= esc($f['group']) ?></td>
+                    <td style="text-align:center;">
+                        <input type="checkbox" class="bulk-row-check"
+                            value="<?= esc($f['slug']) ?>"
+                            data-label="<?= esc($f['label']) ?>"
+                            title="Seleccionar <?= esc($f['label']) ?>">
+                    </td>
                     <td style="font-size:13px;">
                         <?php if (in_array($f['estado'], ['hecha', 'al_dia'], true) && ($f['total'] > 0 || (int) ($f['realizadas_anio'] ?? 0) > 0)): ?>
                             <i class="fas fa-circle-check" style="color:#198754; font-size:18px; margin-right:4px;" title="Elaborada"></i>
@@ -669,8 +696,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const ID_CLIENTE = <?= (int) $cliente['id_cliente'] ?>;
     const ANIO = <?= (int) $anio ?>;
     const URL_MARCAR = '<?= base_url('inspecciones/matriz/no-aplica') ?>';
+    const URL_MARCAR_MASIVO = '<?= base_url('inspecciones/matriz/no-aplica-masivo') ?>';
     const URL_QUITAR = '<?= base_url('inspecciones/matriz/quitar-no-aplica') ?>';
     const URL_SET_FRECUENCIA = '<?= base_url('inspecciones/matriz/set-frecuencia') ?>';
+    const URL_SET_FRECUENCIA_MASIVA = '<?= base_url('inspecciones/matriz/set-frecuencia-masiva') ?>';
     const URL_CERRAR_PTA_MATRIZ = '<?= base_url('inspecciones/matriz/cerrar-pta-por-matriz') ?>';
     const URL_PTA_LIST = '<?= base_url('inspecciones/matriz/pta-list/' . (int) $cliente['id_cliente']) ?>';
     const URL_PTA_LINK = '<?= base_url('inspecciones/matriz/vincular-pta') ?>';
@@ -684,19 +713,22 @@ document.addEventListener('DOMContentLoaded', function () {
         language: { url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json' },
         pageLength: 25,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'Todas']],
-        order: [[0, 'asc'], [1, 'asc']],
+        order: [[0, 'asc'], [2, 'asc']],
         columnDefs: [
-            { orderable: false, targets: [4] }
+            { orderable: false, targets: [1, 5] }
         ],
         orderCellsTop: true,
         stateSave: true,
         stateDuration: -1,
+        stateLoadParams: function (settings, data) {
+            if (!data || !data.columns || data.columns.length !== 6) return false;
+        },
         initComplete: function () {
             document.querySelectorAll('.col-filter').forEach(function (el) {
                 const saved = tabla.column(el.dataset.col).search();
                 if (saved) el.value = saved;
             });
-            const estadoText = tabla.column(3).search();
+            const estadoText = tabla.column(4).search();
             const textToFiltro = { '': 'todas', 'Hecha': 'hecha', 'Por sincronizar': 'por_sincronizar', 'Al día': 'al_dia', 'Pendiente': 'pendiente', 'Atrasada': 'atrasada', 'No Aplica': 'no_aplica' };
             const activeFiltro = textToFiltro[estadoText] || 'todas';
             document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
@@ -704,6 +736,129 @@ document.addEventListener('DOMContentLoaded', function () {
             if (activeCard) activeCard.classList.add('active');
         }
     });
+
+    const selectedSlugs = new Set();
+    const bulkSelectVisible = document.getElementById('bulkSelectVisible');
+    const bulkCount = document.getElementById('bulkSelectedCount');
+    const btnBulkFrecuencia = document.getElementById('btnBulkFrecuencia');
+    const btnBulkNoAplica = document.getElementById('btnBulkNoAplica');
+    const btnBulkClear = document.getElementById('btnBulkClear');
+
+    function syncBulkControls() {
+        const count = selectedSlugs.size;
+        bulkCount.innerHTML = '<i class="fas fa-check-square"></i> ' + count + ' seleccionada' + (count === 1 ? '' : 's');
+        btnBulkFrecuencia.disabled = count === 0;
+        btnBulkNoAplica.disabled = count === 0;
+        btnBulkClear.disabled = count === 0;
+
+        document.querySelectorAll('.bulk-row-check').forEach(function (cb) {
+            cb.checked = selectedSlugs.has(cb.value);
+        });
+
+        const visibleChecks = Array.from(document.querySelectorAll('.bulk-row-check'));
+        const visibleSelected = visibleChecks.filter(cb => cb.checked).length;
+        bulkSelectVisible.checked = visibleChecks.length > 0 && visibleSelected === visibleChecks.length;
+        bulkSelectVisible.indeterminate = visibleSelected > 0 && visibleSelected < visibleChecks.length;
+    }
+
+    document.querySelector('#tablaMatriz tbody').addEventListener('change', function (ev) {
+        if (!ev.target.classList.contains('bulk-row-check')) return;
+        if (ev.target.checked) selectedSlugs.add(ev.target.value);
+        else selectedSlugs.delete(ev.target.value);
+        syncBulkControls();
+    });
+
+    bulkSelectVisible.addEventListener('change', function () {
+        document.querySelectorAll('.bulk-row-check').forEach(function (cb) {
+            if (bulkSelectVisible.checked) selectedSlugs.add(cb.value);
+            else selectedSlugs.delete(cb.value);
+            cb.checked = bulkSelectVisible.checked;
+        });
+        syncBulkControls();
+    });
+
+    btnBulkClear.addEventListener('click', function () {
+        selectedSlugs.clear();
+        syncBulkControls();
+    });
+
+    function appendSelectedSlugs(fd) {
+        Array.from(selectedSlugs).forEach(slug => fd.append('slugs[]', slug));
+    }
+
+    btnBulkFrecuencia.addEventListener('click', function () {
+        Swal.fire({
+            title: 'Definir frecuencia masiva',
+            html: '<div style="text-align:left; font-size:13px;">Se aplicará a <strong>' + selectedSlugs.size + '</strong> tipo(s) de inspección seleccionados.</div>',
+            input: 'number',
+            inputPlaceholder: 'Ej: 1, 4, 12',
+            inputAttributes: { min: 0, max: 365, step: 1 },
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Aplicar frecuencia',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#bd9751',
+            preConfirm: value => {
+                const n = parseInt(value, 10);
+                if (value === '' || isNaN(n) || n < 0 || n > 365) {
+                    Swal.showValidationMessage('Escribe un número entre 0 y 365.');
+                    return false;
+                }
+                return n;
+            }
+        }).then(function (r) {
+            if (!r.isConfirmed) return;
+            const fd = new FormData();
+            fd.append('id_cliente', ID_CLIENTE);
+            fd.append('veces_anio', String(r.value));
+            appendSelectedSlugs(fd);
+            fetch(URL_SET_FRECUENCIA_MASIVA, { method: 'POST', body: fd })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.ok) {
+                        Swal.fire({ icon: 'success', title: 'Frecuencia aplicada', text: res.updated + ' de ' + res.total + ' actualizadas.', timer: 1600, showConfirmButton: false })
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', res.msg || 'No se pudo aplicar.', 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
+        });
+    });
+
+    btnBulkNoAplica.addEventListener('click', function () {
+        Swal.fire({
+            title: 'Marcar No Aplica masivo',
+            html: '<div style="text-align:left; font-size:13px;">Se marcarán <strong>' + selectedSlugs.size + '</strong> tipo(s) de inspección seleccionados.</div>',
+            input: 'text',
+            inputPlaceholder: 'Motivo común (opcional)',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Marcar No Aplica',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#6c757d'
+        }).then(function (r) {
+            if (!r.isConfirmed) return;
+            const fd = new FormData();
+            fd.append('id_cliente', ID_CLIENTE);
+            fd.append('motivo', r.value || '');
+            appendSelectedSlugs(fd);
+            fetch(URL_MARCAR_MASIVO, { method: 'POST', body: fd })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.ok) {
+                        Swal.fire({ icon: 'success', title: 'No Aplica aplicado', text: res.updated + ' de ' + res.total + ' actualizadas.', timer: 1600, showConfirmButton: false })
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', res.msg || 'No se pudo marcar.', 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
+        });
+    });
+
+    tabla.on('draw', syncBulkControls);
+    syncBulkControls();
 
     // Recalcular cards Año/Mes según filas visibles (interconexión con cards de estado).
     // Cada fila lleva data-fechas (CSV YYYY-MM-DD) con todas sus fechas relevantes (realizadas + programadas).
@@ -754,15 +909,15 @@ document.addEventListener('DOMContentLoaded', function () {
             this.classList.add('active');
 
             const filtro = this.dataset.filtro;
-            const selectEstado = document.querySelector('.col-filter[data-col="3"]');
+            const selectEstado = document.querySelector('.col-filter[data-col="4"]');
 
             if (filtro === 'todas') {
                 selectEstado.value = '';
-                tabla.column(3).search('').draw();
+                tabla.column(4).search('').draw();
             } else {
                 const label = estadoLabelMap[filtro] || '';
                 selectEstado.value = label;
-                tabla.column(3).search(label).draw();
+                tabla.column(4).search(label).draw();
             }
         });
     });

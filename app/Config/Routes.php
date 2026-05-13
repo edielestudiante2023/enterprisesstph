@@ -910,8 +910,10 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('matriz', 'MatrizInspeccionesController::index');
     $routes->get('matriz/(:num)', 'MatrizInspeccionesController::detalle/$1');
     $routes->post('matriz/no-aplica', 'MatrizInspeccionesController::marcarNoAplica');
+    $routes->post('matriz/no-aplica-masivo', 'MatrizInspeccionesController::marcarNoAplicaMasivo');
     $routes->post('matriz/quitar-no-aplica', 'MatrizInspeccionesController::quitarNoAplica');
     $routes->post('matriz/set-frecuencia', 'MatrizInspeccionesController::setFrecuencia');
+    $routes->post('matriz/set-frecuencia-masiva', 'MatrizInspeccionesController::setFrecuenciaMasiva');
     $routes->post('matriz/cerrar-pta-por-matriz', 'MatrizInspeccionesController::cerrarPtaPorMatriz');
     $routes->get('matriz/pta-list/(:num)', 'MatrizInspeccionesController::listarPtaPorSlug/$1');
     $routes->post('matriz/vincular-pta', 'MatrizInspeccionesController::vincularPta');

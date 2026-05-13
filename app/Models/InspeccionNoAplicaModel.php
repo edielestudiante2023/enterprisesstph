@@ -52,6 +52,21 @@ class InspeccionNoAplicaModel extends Model
         ]);
     }
 
+    /**
+     * Marca varios tipos como No Aplica para un cliente.
+     */
+    public function marcarMany(int $idCliente, array $tipos, ?string $motivo, ?int $idConsultor): int
+    {
+        $updated = 0;
+        foreach (array_values(array_unique(array_filter($tipos))) as $tipo) {
+            if ($this->marcar($idCliente, (string) $tipo, $motivo, $idConsultor)) {
+                $updated++;
+            }
+        }
+
+        return $updated;
+    }
+
     public function quitar(int $idCliente, string $tipo): bool
     {
         return $this->where('id_cliente', $idCliente)
