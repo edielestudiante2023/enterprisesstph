@@ -491,6 +491,16 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                                 style="padding:2px 7px;font-size:11px;">
                                 <i class="fas fa-link"></i><?= count($f['pta_vinculados']) > 0 ? ' ' . count($f['pta_vinculados']) : '' ?>
                             </button>
+                            <?php if (!empty($f['pta_vinculados'])): ?>
+                            <button type="button" class="btn btn-xs btn-outline-danger btn-desvincular-pta"
+                                data-slug="<?= esc($f['slug']) ?>"
+                                data-label="<?= esc($f['label']) ?>"
+                                data-count="<?= count($f['pta_vinculados']) ?>"
+                                title="Desvincular actividades del Plan de Trabajo para este año"
+                                style="padding:2px 7px;font-size:11px;">
+                                <i class="fas fa-unlink"></i>
+                            </button>
+                            <?php endif; ?>
                             <?php if (empty($f['pta_vinculados'])): ?>
                             <button type="button" class="btn btn-xs btn-outline-success btn-crear-pta"
                                 data-slug="<?= esc($f['slug']) ?>"
@@ -707,6 +717,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_CERRAR_PTA_MATRIZ_MASIVO = '<?= base_url('inspecciones/matriz/cerrar-pta-por-matriz-masivo') ?>';
     const URL_PTA_LIST = '<?= base_url('inspecciones/matriz/pta-list/' . (int) $cliente['id_cliente']) ?>';
     const URL_PTA_LINK = '<?= base_url('inspecciones/matriz/vincular-pta') ?>';
+    const URL_PTA_UNLINK_TIPO = '<?= base_url('inspecciones/matriz/desvincular-pta-tipo') ?>';
     const URL_PTA_CREAR = '<?= base_url('inspecciones/matriz/crear-pta') ?>';
     const URL_PTA_IA = '<?= base_url('inspecciones/matriz/generar-pta-ia') ?>';
 
@@ -1141,6 +1152,52 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
     // ================ FIN VINCULAR PTA ================
+
+    // ================ DESVINCULAR PTA POR TIPO ================
+    document.querySelectorAll('.btn-desvincular-pta').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const slug = this.dataset.slug;
+            const label = this.dataset.label;
+            const count = parseInt(this.dataset.count, 10) || 0;
+
+            Swal.fire({
+                title: 'Desvincular del Plan de Trabajo',
+                html: '<div style="text-align:left; font-size:13px;">' +
+                      '<strong>Tipo:</strong> ' + label + '<br>' +
+                      '<strong>Vínculos visibles:</strong> ' + count + '<br><br>' +
+                      'Se quitará el vínculo de este tipo de inspección con las actividades PTA del año ' + ANIO + '. No se eliminarán actividades del plan ni inspecciones.' +
+                      '</div>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, desvincular',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#dc3545'
+            }).then(function (r) {
+                if (!r.isConfirmed) return;
+                const fd = new FormData();
+                fd.append('id_cliente', ID_CLIENTE);
+                fd.append('slug_inspeccion', slug);
+                fd.append('anio', ANIO);
+                fetch(URL_PTA_UNLINK_TIPO, { method: 'POST', body: fd })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.ok) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Desvinculado',
+                                text: res.removed + ' vínculo(s) quitado(s).',
+                                timer: 1600,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire('Sin cambios', res.msg || 'No se pudo desvincular.', 'info');
+                        }
+                    })
+                    .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
+            });
+        });
+    });
+    // ================ FIN DESVINCULAR PTA POR TIPO ================
 
     // ================ CREAR PTA ================
     document.querySelectorAll('.btn-crear-pta').forEach(function (btn) {
