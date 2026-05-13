@@ -748,8 +748,8 @@ class MatrizInspeccionesController extends BaseController
         $actividad = trim((string) $this->request->getPost('actividad'));
         $phva = strtoupper(trim((string) $this->request->getPost('phva'))) ?: 'HACER';
         $numeral = trim((string) $this->request->getPost('numeral')) ?: '-';
-        $responsable = trim((string) $this->request->getPost('responsable_sugerido')) ?: 'CONSULTOR CYCLOID';
-        $observaciones = trim((string) $this->request->getPost('observaciones')) ?: null;
+        $responsable = 'CONSULTOR CYCLOID';
+        $observaciones = null;
 
         $phvaValidos = ['PLANEAR', 'HACER', 'VERIFICAR', 'ACTUAR'];
         if (!$idCliente || !$slug || !InspeccionTypes::bySlug($slug) || !$fecha || !$actividad) {
@@ -807,8 +807,8 @@ class MatrizInspeccionesController extends BaseController
     }
 
     /**
-     * Genera detalles sugeridos (numeral, PHVA, responsable, observaciones, semana)
-     * para una actividad PTA usando Claude Haiku 4.5. Stateless: no toca BD.
+     * Genera detalles sugeridos (numeral, PHVA) para una actividad PTA usando Claude Haiku 4.5.
+     * Responsable y observaciones quedan fijos por regla de negocio.
      */
     public function generarDetallesPta()
     {
@@ -834,8 +834,7 @@ class MatrizInspeccionesController extends BaseController
             . "Devuelve UN SOLO JSON estricto con estos campos:\n"
             . "- numeral: string con el numeral Decreto 1072 mas apropiado (ej 1.2.3 o 4.1.1). Usa solo digitos y puntos.\n"
             . "- phva: PLANEAR | HACER | VERIFICAR | ACTUAR\n"
-            . "- responsable_sugerido: string max 80 chars, cargos separados por coma. Incluye CONSULTOR CYCLOID.\n"
-            . "- observaciones: string max 120 chars, una frase breve de contexto u objetivo.\n\n"
+            . "No incluyas responsable_sugerido ni observaciones; esos campos se fijan por sistema.\n\n"
             . "Responde SOLO el JSON valido, sin markdown ni texto adicional.";
 
         $payload = [
@@ -887,8 +886,8 @@ class MatrizInspeccionesController extends BaseController
             'ok'                   => true,
             'numeral'              => mb_substr((string) ($parsed['numeral'] ?? ''), 0, 60),
             'phva'                 => $phva,
-            'responsable_sugerido' => mb_substr((string) ($parsed['responsable_sugerido'] ?? 'CONSULTOR CYCLOID'), 0, 255),
-            'observaciones'        => mb_substr((string) ($parsed['observaciones'] ?? ''), 0, 255),
+            'responsable_sugerido' => 'CONSULTOR CYCLOID',
+            'observaciones'        => '',
         ]);
     }
 
