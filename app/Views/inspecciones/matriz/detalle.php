@@ -1188,10 +1188,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 }
                                 if (res.numeral) document.getElementById('ptaNumeral').value = res.numeral;
                                 if (res.phva) document.getElementById('ptaPhva').value = res.phva;
-                                if (res.responsable_sugerido) document.getElementById('ptaResp').value = res.responsable_sugerido;
-                                if (res.observaciones) document.getElementById('ptaObs').value = res.observaciones;
+                                document.getElementById('ptaResp').value = 'CONSULTOR CYCLOID';
+                                document.getElementById('ptaObs').value = '';
                                 document.getElementById('ptaIAStatus').innerHTML =
-                                    '<span style="color:#155724;"><i class="fas fa-check-circle"></i> Campos autocompletados por IA (Claude Haiku). Puedes editarlos.</span>';
+                                    '<span style="color:#155724;"><i class="fas fa-check-circle"></i> Numeral y PHVA autocompletados por IA. Responsable y observaciones quedan por defecto.</span>';
                             })
                             .catch(() => {
                                 document.getElementById('ptaIAStatus').innerHTML =
