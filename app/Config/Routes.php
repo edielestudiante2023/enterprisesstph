@@ -753,6 +753,9 @@ $routes->post('/pta-cliente-nueva/updateCerradas', 'PtaClienteNuevaController::u
 // Ruta para actualizar fecha por mes seleccionado (botones mensuales)
 $routes->post('/pta-cliente-nueva/updateDateByMonth', 'PtaClienteNuevaController::updateDateByMonth');
 
+// Ruta para actualizar fecha en bloque a N actividades seleccionadas
+$routes->post('/pta-cliente-nueva/updateDateBulk', 'PtaClienteNuevaController::updateDateBulk');
+
 // Rutas para Eliminar Abiertas y Regenerar Plan
 $routes->post('/pta-cliente-nueva/deleteAbiertas', 'PtaClienteNuevaController::deleteAbiertas');
 $routes->post('/pta-cliente-nueva/regenerarPlan', 'PtaClienteNuevaController::regenerarPlan');

@@ -901,6 +901,9 @@
                             <button type="button" id="btnDeleteSelected" class="btn btn-danger me-2" style="display:none;">
                                 <i class="fas fa-trash-alt"></i> Eliminar Seleccionados (<span id="selectedCount">0</span>)
                             </button>
+                            <button type="button" id="btnCambiarFechaSelected" class="btn btn-primary me-2" style="display:none;" title="Cambiar fecha en bloque a las actividades seleccionadas">
+                                <i class="fas fa-calendar-alt"></i> Cambiar Fecha (<span id="selectedCountFecha">0</span>)
+                            </button>
                             <button type="button" id="btnCalificarCerradas" class="btn btn-warning me-2">
                                 <i class="fas fa-check-double"></i> Calificar Cerradas
                             </button>
@@ -1971,10 +1974,13 @@
             function updateSelectedCount() {
                 var count = $('.row-select:checked').length;
                 $('#selectedCount').text(count);
+                $('#selectedCountFecha').text(count);
                 if (count > 0) {
                     $('#btnDeleteSelected').show();
+                    $('#btnCambiarFechaSelected').show();
                 } else {
                     $('#btnDeleteSelected').hide();
+                    $('#btnCambiarFechaSelected').hide();
                 }
             }
 
@@ -2046,6 +2052,138 @@
                         $btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i> Eliminar Seleccionados (<span id="selectedCount">0</span>)');
                         updateSelectedCount();
                     }
+                });
+            });
+
+            // ===================================================================
+            // BULK CAMBIO DE FECHA (fecha_propuesta / fecha_cierre)
+            // ===================================================================
+            $('#btnCambiarFechaSelected').on('click', function() {
+                var ids = [];
+                $('.row-select:checked').each(function() { ids.push($(this).val()); });
+                if (ids.length === 0) return;
+
+                var hoy = new Date();
+                var yyyy = hoy.getFullYear();
+                var mm = String(hoy.getMonth() + 1).padStart(2, '0');
+                var dd = String(hoy.getDate()).padStart(2, '0');
+                var fechaHoy = yyyy + '-' + mm + '-' + dd;
+
+                var meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+                var mesOptions = meses.map(function(n, i){
+                    var v = i + 1;
+                    var sel = (v === (hoy.getMonth() + 1)) ? 'selected' : '';
+                    return '<option value="' + v + '" ' + sel + '>' + n + '</option>';
+                }).join('');
+
+                var yearOptions = '';
+                for (var y = yyyy - 2; y <= yyyy + 3; y++) {
+                    yearOptions += '<option value="' + y + '" ' + (y === yyyy ? 'selected' : '') + '>' + y + '</option>';
+                }
+
+                var html =
+                    '<div style="text-align:left;font-size:14px;">' +
+                      '<p><b>' + ids.length + '</b> actividad(es) seleccionada(s).</p>' +
+                      '<div style="margin-bottom:10px;">' +
+                        '<label><b>Campo a actualizar:</b></label><br>' +
+                        '<label style="margin-right:14px;"><input type="radio" name="bf_campo" value="fecha_propuesta" checked> Fecha Propuesta</label>' +
+                        '<label><input type="radio" name="bf_campo" value="fecha_cierre"> Fecha Cierre</label>' +
+                      '</div>' +
+                      '<div style="margin-bottom:10px;">' +
+                        '<label><b>Modo:</b></label><br>' +
+                        '<label style="margin-right:14px;"><input type="radio" name="bf_modo" value="exacta" checked> Fecha exacta</label>' +
+                        '<label><input type="radio" name="bf_modo" value="mes"> Último día de mes/año</label>' +
+                      '</div>' +
+                      '<div id="bf_modo_exacta_box" style="margin-bottom:10px;">' +
+                        '<label>Fecha:</label> <input type="date" id="bf_fecha" class="swal2-input" style="width:auto;" value="' + fechaHoy + '">' +
+                      '</div>' +
+                      '<div id="bf_modo_mes_box" style="display:none;margin-bottom:10px;">' +
+                        '<label>Mes:</label> <select id="bf_mes" class="swal2-select" style="width:auto;">' + mesOptions + '</select> ' +
+                        '<label>Año:</label> <select id="bf_anio" class="swal2-select" style="width:auto;">' + yearOptions + '</select>' +
+                      '</div>' +
+                    '</div>';
+
+                Swal.fire({
+                    title: 'Cambiar fecha en bloque',
+                    html: html,
+                    width: 520,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-check"></i> Aplicar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#4e73df',
+                    didOpen: function() {
+                        $('input[name="bf_modo"]').on('change', function() {
+                            if ($(this).val() === 'exacta') {
+                                $('#bf_modo_exacta_box').show();
+                                $('#bf_modo_mes_box').hide();
+                            } else {
+                                $('#bf_modo_exacta_box').hide();
+                                $('#bf_modo_mes_box').show();
+                            }
+                        });
+                    },
+                    preConfirm: function() {
+                        var campo = $('input[name="bf_campo"]:checked').val();
+                        var modo  = $('input[name="bf_modo"]:checked').val();
+                        var payload = { campo: campo };
+                        if (modo === 'exacta') {
+                            var f = $('#bf_fecha').val();
+                            if (!f || !/^\d{4}-\d{2}-\d{2}$/.test(f)) {
+                                Swal.showValidationMessage('Selecciona una fecha válida');
+                                return false;
+                            }
+                            payload.fecha = f;
+                        } else {
+                            payload.month = parseInt($('#bf_mes').val(), 10);
+                            payload.year  = parseInt($('#bf_anio').val(), 10);
+                        }
+                        return payload;
+                    }
+                }).then(function(result) {
+                    if (!result.isConfirmed || !result.value) return;
+
+                    var data = Object.assign({}, result.value, {
+                        ids: ids,
+                        '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+                    });
+
+                    Swal.fire({ title: 'Actualizando...', allowOutsideClick: false, didOpen: function() { Swal.showLoading(); } });
+
+                    $.ajax({
+                        url: '<?= site_url('/pta-cliente-nueva/updateDateBulk') ?>',
+                        method: 'POST',
+                        data: data,
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                // Determinar índice de columna a refrescar
+                                var colIdx = (response.campo === 'fecha_cierre') ? 10 : 9;
+                                $('.row-select:checked').each(function() {
+                                    var $tr = $(this).closest('tr');
+                                    var row = table.row($tr);
+                                    var rowData = row.data();
+                                    if (rowData) {
+                                        rowData[colIdx] = response.newDate;
+                                        row.data(rowData);
+                                    }
+                                });
+                                table.draw(false);
+                                $('#selectAll').prop('checked', false);
+                                $('.row-select').prop('checked', false);
+                                updateSelectedCount();
+                                updateCardCounts();
+                                updateMonthlyCounts();
+                                generateYearCards();
+                                Swal.fire('Listo', response.message, 'success');
+                            } else {
+                                Swal.fire('Error', response.message || 'No se pudo actualizar', 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire('Error', 'Error de comunicación con el servidor: ' + error, 'error');
+                            console.error('Error AJAX:', xhr.responseText);
+                        }
+                    });
                 });
             });
 
