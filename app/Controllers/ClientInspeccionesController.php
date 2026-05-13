@@ -17,6 +17,7 @@ use App\Models\InspeccionBotiquinModel;
 use App\Models\ElementoBotiquinModel;
 use App\Models\InspeccionExtintoresModel;
 use App\Models\ExtintorDetalleModel;
+use App\Models\InspeccionProductosQuimicosModel;
 use App\Models\InspeccionComunicacionModel;
 use App\Models\InspeccionGabineteModel;
 use App\Models\GabineteDetalleModel;
@@ -29,11 +30,21 @@ use App\Models\InspeccionRecursosSeguridadModel;
 use App\Models\HvBrigadistaModel;
 use App\Models\PlanEmergenciaModel;
 use App\Models\EvaluacionSimulacroModel;
+use App\Models\InspeccionBrigadaSimulacrosModel;
+use App\Models\InspeccionAscensoresModel;
+use App\Models\InspeccionPiscinasModel;
+use App\Models\InspeccionPiscineroModel;
 use App\Models\ProgramaLimpiezaModel;
 use App\Models\ProgramaResiduosModel;
 use App\Models\ProgramaPlagasModel;
 use App\Models\ProgramaAguaPotableModel;
 use App\Models\PlanSaneamientoModel;
+use App\Models\PlanContingenciaPlagasModel;
+use App\Models\PlanContingenciaLimpiezaDesinfeccionModel;
+use App\Models\PlanContingenciaAguaModel;
+use App\Models\PlanContingenciaBasuraModel;
+use App\Models\CertificadoServicioModel;
+use App\Models\PlanillaSSModel;
 use App\Models\KpiLimpiezaModel;
 use App\Models\KpiResiduosModel;
 use App\Models\KpiPlagasModel;
@@ -44,6 +55,7 @@ use App\Models\DotacionToderoModel;
 use App\Models\AuditoriaZonaResiduosModel;
 use App\Models\AsistenciaCapacitacionModel;
 use App\Models\AsistenciaCapacitacionAsistenteModel;
+use App\Models\EvaluacionCapacitacionModel;
 use App\Models\ReporteCapacitacionModel;
 use App\Models\PreparacionSimulacroModel;
 use App\Models\InspeccionNoAplicaModel;
@@ -118,6 +130,7 @@ class ClientInspeccionesController extends Controller
         $senalizacionModel = new InspeccionSenalizacionModel();
         $botiquinModel = new InspeccionBotiquinModel();
         $extintoresModel = new InspeccionExtintoresModel();
+        $productosQuimicosModel = new InspeccionProductosQuimicosModel();
         $comunicacionModel = new InspeccionComunicacionModel();
         $gabineteModel = new InspeccionGabineteModel();
         $cartaVigiaModel = new CartaVigiaModel();
@@ -128,11 +141,21 @@ class ClientInspeccionesController extends Controller
         $hvBrigadistaModel = new HvBrigadistaModel();
         $planEmergenciaModel = new PlanEmergenciaModel();
         $simulacroModel = new EvaluacionSimulacroModel();
+        $brigadaSimulacrosModel = new InspeccionBrigadaSimulacrosModel();
+        $ascensoresModel = new InspeccionAscensoresModel();
+        $piscinasModel = new InspeccionPiscinasModel();
+        $piscineroModel = new InspeccionPiscineroModel();
         $progLimpModel = new ProgramaLimpiezaModel();
         $progResModel = new ProgramaResiduosModel();
         $progPlagModel = new ProgramaPlagasModel();
         $progAguaModel = new ProgramaAguaPotableModel();
         $planSanModel = new PlanSaneamientoModel();
+        $contPlagasModel = new PlanContingenciaPlagasModel();
+        $contLimpiezaModel = new PlanContingenciaLimpiezaDesinfeccionModel();
+        $contAguaModel = new PlanContingenciaAguaModel();
+        $contBasuraModel = new PlanContingenciaBasuraModel();
+        $certificadoModel = new CertificadoServicioModel();
+        $planillaModel = new PlanillaSSModel();
         $kpiLimpModel = new KpiLimpiezaModel();
         $kpiResModel = new KpiResiduosModel();
         $kpiPlagModel = new KpiPlagasModel();
@@ -142,6 +165,7 @@ class ClientInspeccionesController extends Controller
         $dotToderoModel = new DotacionToderoModel();
         $audResiduosModel = new AuditoriaZonaResiduosModel();
         $asistInducModel = new AsistenciaCapacitacionModel();
+        $evalCapacModel = new EvaluacionCapacitacionModel();
         $repCapacModel = new ReporteCapacitacionModel();
         $prepSimulacroModel = new PreparacionSimulacroModel();
 
@@ -194,6 +218,16 @@ class ClientInspeccionesController extends Controller
                 'url'     => base_url('client/inspecciones/extintores'),
                 'conteo'  => $extintoresModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
                 'ultima'  => $extintoresModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Productos Químicos',
+                'slug_matriz' => 'productos-quimicos',
+                'icono'   => 'fa-flask',
+                'color'   => '#7b1fa2',
+                'url'     => base_url('client/inspecciones/productos-quimicos'),
+                'conteo'  => $productosQuimicosModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $productosQuimicosModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
                 'campo_fecha' => 'fecha_inspeccion',
             ],
             [
@@ -263,6 +297,46 @@ class ClientInspeccionesController extends Controller
                 'url'     => base_url('client/inspecciones/recursos-seguridad'),
                 'conteo'  => $recursosModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
                 'ultima'  => $recursosModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Brigada y Simulacros',
+                'slug_matriz' => 'brigada-simulacros',
+                'icono'   => 'fa-people-carry',
+                'color'   => '#455a64',
+                'url'     => base_url('client/inspecciones/brigada-simulacros'),
+                'conteo'  => $brigadaSimulacrosModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $brigadaSimulacrosModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Ascensores',
+                'slug_matriz' => 'ascensores',
+                'icono'   => 'fa-sort',
+                'color'   => '#3949ab',
+                'url'     => base_url('client/inspecciones/ascensores'),
+                'conteo'  => $ascensoresModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $ascensoresModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Piscinas',
+                'slug_matriz' => 'piscinas',
+                'icono'   => 'fa-swimming-pool',
+                'color'   => '#0288d1',
+                'url'     => base_url('client/inspecciones/piscinas'),
+                'conteo'  => $piscinasModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $piscinasModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
+                'campo_fecha' => 'fecha_inspeccion',
+            ],
+            [
+                'nombre'  => 'Piscinero / Salvavidas',
+                'slug_matriz' => 'piscinero',
+                'icono'   => 'fa-swimmer',
+                'color'   => '#0097a7',
+                'url'     => base_url('client/inspecciones/piscinero'),
+                'conteo'  => $piscineroModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $piscineroModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_inspeccion', 'DESC')->first(),
                 'campo_fecha' => 'fecha_inspeccion',
             ],
             [
@@ -344,6 +418,86 @@ class ClientInspeccionesController extends Controller
                 'conteo'  => $planSanModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
                 'ultima'  => $planSanModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->first(),
                 'campo_fecha' => 'fecha_programa',
+            ],
+            [
+                'nombre'  => 'Contingencia Plagas',
+                'slug_matriz' => 'contingencia-plagas',
+                'icono'   => 'fa-bug',
+                'color'   => '#6d4c41',
+                'url'     => base_url('client/inspecciones/contingencia-plagas'),
+                'conteo'  => $contPlagasModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $contPlagasModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->first(),
+                'campo_fecha' => 'fecha_programa',
+            ],
+            [
+                'nombre'  => 'Contingencia Limpieza y Desinfección',
+                'slug_matriz' => 'contingencia-limpieza-desinfeccion',
+                'icono'   => 'fa-spray-can',
+                'color'   => '#00796b',
+                'url'     => base_url('client/inspecciones/contingencia-limpieza-desinfeccion'),
+                'conteo'  => $contLimpiezaModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $contLimpiezaModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->first(),
+                'campo_fecha' => 'fecha_programa',
+            ],
+            [
+                'nombre'  => 'Contingencia Sin Agua',
+                'slug_matriz' => 'contingencia-agua',
+                'icono'   => 'fa-tint-slash',
+                'color'   => '#1565c0',
+                'url'     => base_url('client/inspecciones/contingencia-agua'),
+                'conteo'  => $contAguaModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $contAguaModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->first(),
+                'campo_fecha' => 'fecha_programa',
+            ],
+            [
+                'nombre'  => 'Contingencia Basura',
+                'slug_matriz' => 'contingencia-basura',
+                'icono'   => 'fa-trash-alt',
+                'color'   => '#5d4037',
+                'url'     => base_url('client/inspecciones/contingencia-basura'),
+                'conteo'  => $contBasuraModel->where('id_cliente', $clientId)->where('estado', 'completo')->countAllResults(false),
+                'ultima'  => $contBasuraModel->where('id_cliente', $clientId)->where('estado', 'completo')->orderBy('fecha_programa', 'DESC')->first(),
+                'campo_fecha' => 'fecha_programa',
+            ],
+            [
+                'nombre'  => 'Lavado de Tanques',
+                'slug_matriz' => 'lavado-tanques',
+                'icono'   => 'fa-water',
+                'color'   => '#0288d1',
+                'url'     => base_url('client/inspecciones/lavado-tanques'),
+                'conteo'  => $certificadoModel->where('id_cliente', $clientId)->where('id_mantenimiento', 2)->countAllResults(false),
+                'ultima'  => $certificadoModel->where('id_cliente', $clientId)->where('id_mantenimiento', 2)->orderBy('fecha_servicio', 'DESC')->first(),
+                'campo_fecha' => 'fecha_servicio',
+            ],
+            [
+                'nombre'  => 'Fumigación',
+                'slug_matriz' => 'fumigacion',
+                'icono'   => 'fa-spray-can',
+                'color'   => '#7cb342',
+                'url'     => base_url('client/inspecciones/fumigacion'),
+                'conteo'  => $certificadoModel->where('id_cliente', $clientId)->where('id_mantenimiento', 3)->countAllResults(false),
+                'ultima'  => $certificadoModel->where('id_cliente', $clientId)->where('id_mantenimiento', 3)->orderBy('fecha_servicio', 'DESC')->first(),
+                'campo_fecha' => 'fecha_servicio',
+            ],
+            [
+                'nombre'  => 'Desratización',
+                'slug_matriz' => 'desratizacion',
+                'icono'   => 'fa-mouse',
+                'color'   => '#8d6e63',
+                'url'     => base_url('client/inspecciones/desratizacion'),
+                'conteo'  => $certificadoModel->where('id_cliente', $clientId)->where('id_mantenimiento', 4)->countAllResults(false),
+                'ultima'  => $certificadoModel->where('id_cliente', $clientId)->where('id_mantenimiento', 4)->orderBy('fecha_servicio', 'DESC')->first(),
+                'campo_fecha' => 'fecha_servicio',
+            ],
+            [
+                'nombre'  => 'Planilla Seg. Social',
+                'slug_matriz' => 'planilla-seg-social',
+                'icono'   => 'fa-file-invoice',
+                'color'   => '#546e7a',
+                'url'     => base_url('client/inspecciones/planilla-ss'),
+                'conteo'  => $planillaModel->where('id_cliente', $clientId)->countAllResults(false),
+                'ultima'  => $planillaModel->where('id_cliente', $clientId)->orderBy('created_at', 'DESC')->first(),
+                'campo_fecha' => 'created_at',
             ],
             [
                 'nombre'  => 'KPI Limpieza',
@@ -445,6 +599,16 @@ class ClientInspeccionesController extends Controller
                 'campo_fecha' => 'fecha_sesion',
             ],
             [
+                'nombre'  => 'Evaluación Capacitación',
+                'slug_matriz' => 'evaluacion-capacitacion',
+                'icono'   => 'fa-pen-fancy',
+                'color'   => '#6a1b9a',
+                'url'     => base_url('client/inspecciones/evaluacion-capacitacion'),
+                'conteo'  => $evalCapacModel->where('id_cliente', $clientId)->countAllResults(false),
+                'ultima'  => $evalCapacModel->where('id_cliente', $clientId)->orderBy('created_at', 'DESC')->first(),
+                'campo_fecha' => 'created_at',
+            ],
+            [
                 'nombre'  => 'Reportes de Capacitación',
                 'slug_matriz' => 'acta-capacitacion',
                 'icono'   => 'fa-graduation-cap',
@@ -479,6 +643,251 @@ class ClientInspeccionesController extends Controller
             'title'   => 'Mis Inspecciones',
             'content' => view('client/inspecciones/dashboard', ['tipos' => $tipos]),
         ]);
+    }
+
+    private function listGenericModule(
+        object $model,
+        string $titulo,
+        string $tipo,
+        string $baseUrl,
+        string $campoFecha,
+        ?string $estado = 'completo',
+        array $extraWhere = []
+    ) {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $client = (new ClientModel())->find($clientId);
+        $builder = $model->where('id_cliente', $clientId);
+        foreach ($extraWhere as $field => $value) {
+            $builder->where($field, $value);
+        }
+        if ($estado !== null) {
+            $builder->where('estado', $estado);
+        }
+        $inspecciones = $builder->orderBy($campoFecha, 'DESC')->findAll();
+
+        return view('client/inspecciones/layout', [
+            'client' => $client,
+            'title' => $titulo,
+            'content' => view('client/inspecciones/list', [
+                'titulo'       => $titulo,
+                'tipo'         => $tipo,
+                'inspecciones' => $inspecciones,
+                'campo_fecha'  => $campoFecha,
+                'base_url'     => $baseUrl,
+            ]),
+        ]);
+    }
+
+    private function viewGenericModule(
+        object $model,
+        int $id,
+        string $titulo,
+        string $tipo,
+        string $backUrl,
+        string $campoFecha,
+        ?string $pdfRoute = null,
+        ?string $estado = 'completo',
+        array $extraWhere = []
+    ) {
+        $clientId = $this->getClientId();
+        if (!$clientId) {
+            return redirect()->to('/login')->with('error', 'Acceso no autorizado.');
+        }
+
+        $builder = $model->where('id', $id)->where('id_cliente', $clientId);
+        foreach ($extraWhere as $field => $value) {
+            $builder->where($field, $value);
+        }
+        if ($estado !== null) {
+            $builder->where('estado', $estado);
+        }
+        $registro = $builder->first();
+        if (!$registro) {
+            return redirect()->to('/client/inspecciones')->with('error', 'Documento no encontrado.');
+        }
+
+        $client = (new ClientModel())->find($clientId);
+        $pdfUrl = $pdfRoute ? rtrim($pdfRoute, '/') . '/' . $id : null;
+
+        return view('client/inspecciones/layout', [
+            'client' => $client,
+            'title' => $titulo,
+            'content' => view('client/inspecciones/generic_view', [
+                'titulo'      => $titulo,
+                'tipo'        => $tipo,
+                'icono'       => $this->clientModuleIcon($tipo),
+                'cliente'     => $client,
+                'registro'    => $registro,
+                'fecha_campo' => $campoFecha,
+                'back_url'    => $backUrl,
+                'pdf_url'     => $pdfUrl,
+            ]),
+        ]);
+    }
+
+    private function clientModuleIcon(string $tipo): string
+    {
+        $map = [
+            'productos_quimicos' => 'fa-flask',
+            'brigada_simulacros' => 'fa-people-carry',
+            'ascensores' => 'fa-sort',
+            'piscinas' => 'fa-swimming-pool',
+            'piscinero' => 'fa-swimmer',
+            'evaluacion_capacitacion' => 'fa-pen-fancy',
+            'contingencia_plagas' => 'fa-bug',
+            'contingencia_limpieza' => 'fa-spray-can',
+            'contingencia_agua' => 'fa-tint-slash',
+            'contingencia_basura' => 'fa-trash-alt',
+            'lavado_tanques' => 'fa-water',
+            'fumigacion' => 'fa-spray-can',
+            'desratizacion' => 'fa-mouse',
+            'planilla_ss' => 'fa-file-invoice',
+        ];
+        return $map[$tipo] ?? 'fa-clipboard-list';
+    }
+
+    public function listProductosQuimicos()
+    {
+        return $this->listGenericModule(new InspeccionProductosQuimicosModel(), 'Productos Químicos', 'productos_quimicos', 'client/inspecciones/productos-quimicos', 'fecha_inspeccion');
+    }
+
+    public function viewProductosQuimicos(int $id)
+    {
+        return $this->viewGenericModule(new InspeccionProductosQuimicosModel(), $id, 'Productos Químicos', 'productos_quimicos', 'client/inspecciones/productos-quimicos', 'fecha_inspeccion', 'inspecciones/productos-quimicos/pdf');
+    }
+
+    public function listBrigadaSimulacros()
+    {
+        return $this->listGenericModule(new InspeccionBrigadaSimulacrosModel(), 'Brigada y Simulacros', 'brigada_simulacros', 'client/inspecciones/brigada-simulacros', 'fecha_inspeccion');
+    }
+
+    public function viewBrigadaSimulacros(int $id)
+    {
+        return $this->viewGenericModule(new InspeccionBrigadaSimulacrosModel(), $id, 'Brigada y Simulacros', 'brigada_simulacros', 'client/inspecciones/brigada-simulacros', 'fecha_inspeccion', 'inspecciones/brigada-simulacros/pdf');
+    }
+
+    public function listAscensores()
+    {
+        return $this->listGenericModule(new InspeccionAscensoresModel(), 'Ascensores', 'ascensores', 'client/inspecciones/ascensores', 'fecha_inspeccion');
+    }
+
+    public function viewAscensores(int $id)
+    {
+        return $this->viewGenericModule(new InspeccionAscensoresModel(), $id, 'Ascensores', 'ascensores', 'client/inspecciones/ascensores', 'fecha_inspeccion', 'inspecciones/ascensores/pdf');
+    }
+
+    public function listPiscinas()
+    {
+        return $this->listGenericModule(new InspeccionPiscinasModel(), 'Piscinas', 'piscinas', 'client/inspecciones/piscinas', 'fecha_inspeccion');
+    }
+
+    public function viewPiscinas(int $id)
+    {
+        return $this->viewGenericModule(new InspeccionPiscinasModel(), $id, 'Piscinas', 'piscinas', 'client/inspecciones/piscinas', 'fecha_inspeccion', 'inspecciones/piscinas/pdf');
+    }
+
+    public function listPiscinero()
+    {
+        return $this->listGenericModule(new InspeccionPiscineroModel(), 'Piscinero / Salvavidas', 'piscinero', 'client/inspecciones/piscinero', 'fecha_inspeccion');
+    }
+
+    public function viewPiscinero(int $id)
+    {
+        return $this->viewGenericModule(new InspeccionPiscineroModel(), $id, 'Piscinero / Salvavidas', 'piscinero', 'client/inspecciones/piscinero', 'fecha_inspeccion', 'inspecciones/piscinero/pdf');
+    }
+
+    public function listEvaluacionCapacitacion()
+    {
+        return $this->listGenericModule(new EvaluacionCapacitacionModel(), 'Evaluación Capacitación', 'evaluacion_capacitacion', 'client/inspecciones/evaluacion-capacitacion', 'created_at', null);
+    }
+
+    public function viewEvaluacionCapacitacion(int $id)
+    {
+        return $this->viewGenericModule(new EvaluacionCapacitacionModel(), $id, 'Evaluación Capacitación', 'evaluacion_capacitacion', 'client/inspecciones/evaluacion-capacitacion', 'created_at', null, null);
+    }
+
+    public function listContingenciaPlagas()
+    {
+        return $this->listGenericModule(new PlanContingenciaPlagasModel(), 'Contingencia Plagas', 'contingencia_plagas', 'client/inspecciones/contingencia-plagas', 'fecha_programa');
+    }
+
+    public function viewContingenciaPlagas(int $id)
+    {
+        return $this->viewGenericModule(new PlanContingenciaPlagasModel(), $id, 'Contingencia Plagas', 'contingencia_plagas', 'client/inspecciones/contingencia-plagas', 'fecha_programa', 'inspecciones/contingencia-plagas/pdf');
+    }
+
+    public function listContingenciaLimpieza()
+    {
+        return $this->listGenericModule(new PlanContingenciaLimpiezaDesinfeccionModel(), 'Contingencia Limpieza y Desinfección', 'contingencia_limpieza', 'client/inspecciones/contingencia-limpieza-desinfeccion', 'fecha_programa');
+    }
+
+    public function viewContingenciaLimpieza(int $id)
+    {
+        return $this->viewGenericModule(new PlanContingenciaLimpiezaDesinfeccionModel(), $id, 'Contingencia Limpieza y Desinfección', 'contingencia_limpieza', 'client/inspecciones/contingencia-limpieza-desinfeccion', 'fecha_programa', 'inspecciones/contingencia-limpieza-desinfeccion/pdf');
+    }
+
+    public function listContingenciaAgua()
+    {
+        return $this->listGenericModule(new PlanContingenciaAguaModel(), 'Contingencia Sin Agua', 'contingencia_agua', 'client/inspecciones/contingencia-agua', 'fecha_programa');
+    }
+
+    public function viewContingenciaAgua(int $id)
+    {
+        return $this->viewGenericModule(new PlanContingenciaAguaModel(), $id, 'Contingencia Sin Agua', 'contingencia_agua', 'client/inspecciones/contingencia-agua', 'fecha_programa', 'inspecciones/contingencia-agua/pdf');
+    }
+
+    public function listContingenciaBasura()
+    {
+        return $this->listGenericModule(new PlanContingenciaBasuraModel(), 'Contingencia Basura', 'contingencia_basura', 'client/inspecciones/contingencia-basura', 'fecha_programa');
+    }
+
+    public function viewContingenciaBasura(int $id)
+    {
+        return $this->viewGenericModule(new PlanContingenciaBasuraModel(), $id, 'Contingencia Basura', 'contingencia_basura', 'client/inspecciones/contingencia-basura', 'fecha_programa', 'inspecciones/contingencia-basura/pdf');
+    }
+
+    public function listLavadoTanques()
+    {
+        return $this->listGenericModule(new CertificadoServicioModel(), 'Lavado de Tanques', 'lavado_tanques', 'client/inspecciones/lavado-tanques', 'fecha_servicio', null, ['id_mantenimiento' => 2]);
+    }
+
+    public function viewLavadoTanques(int $id)
+    {
+        return $this->viewGenericModule(new CertificadoServicioModel(), $id, 'Lavado de Tanques', 'lavado_tanques', 'client/inspecciones/lavado-tanques', 'fecha_servicio', null, null, ['id_mantenimiento' => 2]);
+    }
+
+    public function listFumigacion()
+    {
+        return $this->listGenericModule(new CertificadoServicioModel(), 'Fumigación', 'fumigacion', 'client/inspecciones/fumigacion', 'fecha_servicio', null, ['id_mantenimiento' => 3]);
+    }
+
+    public function viewFumigacion(int $id)
+    {
+        return $this->viewGenericModule(new CertificadoServicioModel(), $id, 'Fumigación', 'fumigacion', 'client/inspecciones/fumigacion', 'fecha_servicio', null, null, ['id_mantenimiento' => 3]);
+    }
+
+    public function listDesratizacion()
+    {
+        return $this->listGenericModule(new CertificadoServicioModel(), 'Desratización', 'desratizacion', 'client/inspecciones/desratizacion', 'fecha_servicio', null, ['id_mantenimiento' => 4]);
+    }
+
+    public function viewDesratizacion(int $id)
+    {
+        return $this->viewGenericModule(new CertificadoServicioModel(), $id, 'Desratización', 'desratizacion', 'client/inspecciones/desratizacion', 'fecha_servicio', null, null, ['id_mantenimiento' => 4]);
+    }
+
+    public function listPlanillaSS()
+    {
+        return $this->listGenericModule(new PlanillaSSModel(), 'Planilla Seg. Social', 'planilla_ss', 'client/inspecciones/planilla-ss', 'created_at', null);
+    }
+
+    public function viewPlanillaSS(int $id)
+    {
+        return $this->viewGenericModule(new PlanillaSSModel(), $id, 'Planilla Seg. Social', 'planilla_ss', 'client/inspecciones/planilla-ss', 'created_at', null, null);
     }
 
     // ─── ACTAS DE VISITA ────────────────────────────────────

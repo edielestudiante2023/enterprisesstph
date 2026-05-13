@@ -5,9 +5,20 @@
     </a>
 </div>
 
-<div class="row g-4">
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="input-group">
+            <span class="input-group-text bg-white">
+                <i class="fas fa-search text-muted"></i>
+            </span>
+            <input type="search" id="buscarInspeccion" class="form-control" placeholder="Buscar módulo..." autocomplete="off">
+        </div>
+    </div>
+</div>
+
+<div class="row g-4" id="gridInspecciones">
     <?php foreach ($tipos as $tipo): ?>
-    <div class="col-md-4 col-lg-4">
+    <div class="col-md-4 col-lg-4 inspeccion-card" data-nombre="<?= esc(mb_strtolower($tipo['nombre'])) ?>">
         <a href="<?= $tipo['url'] ?>" style="text-decoration:none;">
             <div class="card h-100" style="border-left: 4px solid <?= $tipo['color'] ?>; transition: all 0.3s ease; cursor:pointer;">
                 <div class="card-body text-center py-4">
@@ -28,7 +39,7 @@
                     <?php if ($tipo['ultima']): ?>
                         <div class="mt-2" style="font-size:12px; color:#999;">
                             <i class="fas fa-calendar-alt me-1"></i>
-                            Última: <?= date('d/m/Y', strtotime($tipo['ultima'][$tipo['campo_fecha']])) ?>
+                            Última: <?= !empty($tipo['ultima'][$tipo['campo_fecha']]) ? date('d/m/Y', strtotime($tipo['ultima'][$tipo['campo_fecha']])) : 'Sin fecha' ?>
                         </div>
                     <?php endif; ?>
                     <?php endif; ?>
@@ -37,6 +48,16 @@
         </a>
     </div>
     <?php endforeach; ?>
+</div>
+
+<div id="sinResultadosInspecciones" class="text-center mt-4" style="display:none;">
+    <div class="card">
+        <div class="card-body py-4">
+            <i class="fas fa-search" style="font-size:2.4rem; color:#ccc;"></i>
+            <h5 class="mt-3 text-muted">No se encontraron módulos</h5>
+            <p class="text-muted mb-0">Intente con otro nombre de inspección.</p>
+        </div>
+    </div>
 </div>
 
 <?php if (array_sum(array_filter(array_column($tipos, 'conteo'))) === 0): ?>
@@ -57,3 +78,28 @@
         box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('buscarInspeccion');
+    const cards = Array.from(document.querySelectorAll('.inspeccion-card'));
+    const empty = document.getElementById('sinResultadosInspecciones');
+
+    if (!input) return;
+
+    input.addEventListener('input', function() {
+        const term = this.value.trim().toLowerCase();
+        let visibles = 0;
+
+        cards.forEach(function(card) {
+            const match = !term || card.dataset.nombre.includes(term);
+            card.style.display = match ? '' : 'none';
+            if (match) visibles++;
+        });
+
+        if (empty) {
+            empty.style.display = visibles === 0 ? '' : 'none';
+        }
+    });
+});
+</script>
