@@ -272,6 +272,9 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             <button type="button" id="btnBulkNoAplica" class="btn btn-sm btn-outline-secondary" style="font-size:12px; padding:5px 10px;" disabled>
                 <i class="fas fa-ban"></i> No Aplica
             </button>
+            <button type="button" id="btnBulkCerrarPta" class="btn btn-sm" style="font-size:12px; padding:5px 10px; background:#87ceeb; border-color:#6bbfe3; color:#0b3d4f;" disabled>
+                <i class="fas fa-print"></i> Imprimir en PTA
+            </button>
             <button type="button" id="btnBulkClear" class="btn btn-sm btn-outline-dark" style="font-size:12px; padding:5px 10px;" disabled>
                 <i class="fas fa-times"></i> Limpiar
             </button>
@@ -498,7 +501,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                             </button>
                             <?php endif; ?>
                             <?php
-                            // Botón "Cerrar en plan": visible si hay al menos una inspección realizada
+                            // Botón "Imprimir en PTA": visible si hay al menos una inspección realizada
                             // (en el año o de cualquier época) y existen PTAs no cerradas, o no hay PTAs
                             $ptaAbiertasCount = 0;
                             foreach ($f['pta_vinculados'] as $v) {
@@ -519,9 +522,9 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                                 data-label="<?= esc($f['label']) ?>"
                                 data-realizadas="<?= max($f['total'], (int) ($f['realizadas_anio'] ?? 0)) ?>"
                                 data-abiertas="<?= $ptaAbiertasCount ?>"
-                                title="Cerrar en el Plan de Trabajo con las fechas reales de las inspecciones"
-                                style="padding:2px 7px;font-size:11px; background:#d1e7dd; border-color:#198754; color:#0f5132;">
-                                <i class="fas fa-clipboard-check"></i> Cerrar en plan
+                                title="Imprimir en PTA con las fechas reales de las inspecciones"
+                                style="padding:2px 7px;font-size:11px; background:#87ceeb; border-color:#6bbfe3; color:#0b3d4f;">
+                                <i class="fas fa-print"></i> Imprimir en PTA
                             </button>
                             <?php endif; ?>
                             <button type="button" class="btn btn-xs btn-outline-secondary btn-marcar-na"
@@ -701,6 +704,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_SET_FRECUENCIA = '<?= base_url('inspecciones/matriz/set-frecuencia') ?>';
     const URL_SET_FRECUENCIA_MASIVA = '<?= base_url('inspecciones/matriz/set-frecuencia-masiva') ?>';
     const URL_CERRAR_PTA_MATRIZ = '<?= base_url('inspecciones/matriz/cerrar-pta-por-matriz') ?>';
+    const URL_CERRAR_PTA_MATRIZ_MASIVO = '<?= base_url('inspecciones/matriz/cerrar-pta-por-matriz-masivo') ?>';
     const URL_PTA_LIST = '<?= base_url('inspecciones/matriz/pta-list/' . (int) $cliente['id_cliente']) ?>';
     const URL_PTA_LINK = '<?= base_url('inspecciones/matriz/vincular-pta') ?>';
     const URL_PTA_CREAR = '<?= base_url('inspecciones/matriz/crear-pta') ?>';
@@ -742,6 +746,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const bulkCount = document.getElementById('bulkSelectedCount');
     const btnBulkFrecuencia = document.getElementById('btnBulkFrecuencia');
     const btnBulkNoAplica = document.getElementById('btnBulkNoAplica');
+    const btnBulkCerrarPta = document.getElementById('btnBulkCerrarPta');
     const btnBulkClear = document.getElementById('btnBulkClear');
 
     function syncBulkControls() {
@@ -749,6 +754,7 @@ document.addEventListener('DOMContentLoaded', function () {
         bulkCount.innerHTML = '<i class="fas fa-check-square"></i> ' + count + ' seleccionada' + (count === 1 ? '' : 's');
         btnBulkFrecuencia.disabled = count === 0;
         btnBulkNoAplica.disabled = count === 0;
+        btnBulkCerrarPta.disabled = count === 0;
         btnBulkClear.disabled = count === 0;
 
         document.querySelectorAll('.bulk-row-check').forEach(function (cb) {
@@ -851,6 +857,39 @@ document.addEventListener('DOMContentLoaded', function () {
                             .then(() => location.reload());
                     } else {
                         Swal.fire('Error', res.msg || 'No se pudo marcar.', 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
+        });
+    });
+
+    btnBulkCerrarPta.addEventListener('click', function () {
+        Swal.fire({
+            title: 'Imprimir en PTA masivo',
+            html: '<div style="text-align:left; font-size:13px;">Se procesarán <strong>' + selectedSlugs.size + '</strong> tipo(s) seleccionados.<br><br>Por cada tipo se cerrará solo la PTA abierta más antigua por fecha propuesta ascendente. Si no hay PTA vinculada, se crearán PTAs cerradas retroactivas con las inspecciones reales.</div>',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, imprimir en PTA',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#0ea5d7'
+        }).then(function (r) {
+            if (!r.isConfirmed) return;
+            const fd = new FormData();
+            fd.append('id_cliente', ID_CLIENTE);
+            appendSelectedSlugs(fd);
+            fetch(URL_CERRAR_PTA_MATRIZ_MASIVO, { method: 'POST', body: fd })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.ok) {
+                        const msg = res.procesadas + ' procesada(s). ' +
+                            res.cerradas + ' PTA(s) cerrada(s). ' +
+                            res.creadas + ' PTA(s) creada(s).' +
+                            (res.omitidas > 0 ? ' ' + res.omitidas + ' omitida(s).' : '');
+                        Swal.fire({ icon: 'success', title: 'Impreso en PTA', text: msg, timer: 2200, showConfirmButton: false })
+                            .then(() => location.reload());
+                    } else {
+                        const detalle = (res.errores || []).slice(0, 3).map(e => (e.label || e.slug) + ': ' + e.msg).join('\n');
+                        Swal.fire('Sin cambios', detalle || res.msg || 'No se pudo imprimir en PTA.', 'info');
                     }
                 })
                 .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
@@ -1274,7 +1313,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // ================ CERRAR PTA DESDE MATRIZ ================
+    // ================ IMPRIMIR EN PTA DESDE MATRIZ ================
     document.querySelectorAll('.btn-cerrar-pta-matriz').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const slug      = this.dataset.slug;
@@ -1286,7 +1325,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 : 'No hay PTAs vinculadas. Se crearán ' + real + ' PTA(s) CERRADA(s) retroactivamente con la fecha de cada inspección.';
 
             Swal.fire({
-                title: 'Cerrar en el Plan de Trabajo',
+                title: 'Imprimir en PTA',
                 html: '<div style="text-align:left; font-size:13px;">' +
                       '<strong>Tipo:</strong> ' + label + '<br>' +
                       '<strong>Inspecciones realizadas:</strong> ' + real + '<br>' +
@@ -1295,9 +1334,9 @@ document.addEventListener('DOMContentLoaded', function () {
                       '</div>',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Sí, sincronizar',
+                confirmButtonText: 'Sí, imprimir en PTA',
                 cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#198754'
+                confirmButtonColor: '#0ea5d7'
             }).then(function (r) {
                 if (!r.isConfirmed) return;
                 const fd = new FormData();
@@ -1312,7 +1351,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 : res.creadas + ' PTA(s) CERRADA(s) creada(s) retroactivamente.';
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Sincronizado',
+                                title: 'Impreso en PTA',
                                 text: msg,
                                 timer: 1800,
                                 showConfirmButton: false
@@ -1325,7 +1364,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
-    // ================ FIN CERRAR PTA DESDE MATRIZ ================
+    // ================ FIN IMPRIMIR EN PTA DESDE MATRIZ ================
 
     // ================ FRECUENCIA ================
     const frecModalEl  = document.getElementById('modalFrecuencia');
