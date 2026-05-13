@@ -46,6 +46,7 @@ use App\Models\AsistenciaCapacitacionModel;
 use App\Models\AsistenciaCapacitacionAsistenteModel;
 use App\Models\ReporteCapacitacionModel;
 use App\Models\PreparacionSimulacroModel;
+use App\Models\InspeccionNoAplicaModel;
 use App\Controllers\Inspecciones\InspeccionBotiquinController;
 use App\Controllers\Inspecciones\InspeccionExtintoresController;
 use App\Controllers\Inspecciones\InspeccionComunicacionController;
@@ -147,6 +148,7 @@ class ClientInspeccionesController extends Controller
         $tipos = [
             [
                 'nombre'  => 'Actas de Visita',
+                'slug_matriz' => 'acta-visita',
                 'icono'   => 'fa-file-signature',
                 'color'   => '#1c2437',
                 'url'     => base_url('client/inspecciones/actas-visita'),
@@ -156,6 +158,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Inspecciones Locativas',
+                'slug_matriz' => 'inspeccion-locativa',
                 'icono'   => 'fa-building',
                 'color'   => '#bd9751',
                 'url'     => base_url('client/inspecciones/locativas'),
@@ -165,6 +168,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Inspecciones de Señalización',
+                'slug_matriz' => 'senalizacion',
                 'icono'   => 'fa-sign',
                 'color'   => '#28a745',
                 'url'     => base_url('client/inspecciones/senalizacion'),
@@ -174,6 +178,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Inspecciones de Botiquín',
+                'slug_matriz' => 'botiquin',
                 'icono'   => 'fa-first-aid',
                 'color'   => '#dc3545',
                 'url'     => base_url('client/inspecciones/botiquin'),
@@ -183,6 +188,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Inspecciones de Extintores',
+                'slug_matriz' => 'extintores',
                 'icono'   => 'fa-fire-extinguisher',
                 'color'   => '#fd7e14',
                 'url'     => base_url('client/inspecciones/extintores'),
@@ -192,6 +198,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Equipos de Comunicación',
+                'slug_matriz' => 'comunicaciones',
                 'icono'   => 'fa-broadcast-tower',
                 'color'   => '#6f42c1',
                 'url'     => base_url('client/inspecciones/comunicaciones'),
@@ -201,6 +208,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Inspecciones de Gabinetes',
+                'slug_matriz' => 'gabinetes',
                 'icono'   => 'fa-shower',
                 'color'   => '#20c997',
                 'url'     => base_url('client/inspecciones/gabinetes'),
@@ -210,6 +218,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Cartas de Vigía',
+                'slug_matriz' => 'carta-vigia',
                 'icono'   => 'fa-user-shield',
                 'color'   => '#17a2b8',
                 'url'     => base_url('client/inspecciones/carta-vigia'),
@@ -228,6 +237,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Matriz de Vulnerabilidad',
+                'slug_matriz' => 'matriz-vulnerabilidad',
                 'icono'   => 'fa-shield-alt',
                 'color'   => '#e83e8c',
                 'url'     => base_url('client/inspecciones/matriz-vulnerabilidad'),
@@ -237,6 +247,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Probabilidad de Peligros',
+                'slug_matriz' => 'probabilidad-peligros',
                 'icono'   => 'fa-exclamation-triangle',
                 'color'   => '#343a40',
                 'url'     => base_url('client/inspecciones/probabilidad-peligros'),
@@ -246,6 +257,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Recursos de Seguridad',
+                'slug_matriz' => 'recursos-seguridad',
                 'icono'   => 'fa-hard-hat',
                 'color'   => '#795548',
                 'url'     => base_url('client/inspecciones/recursos-seguridad'),
@@ -255,6 +267,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'HV Brigadistas',
+                'slug_matriz' => 'hv-brigadista',
                 'icono'   => 'fa-id-card-alt',
                 'color'   => '#00bcd4',
                 'url'     => base_url('client/inspecciones/hv-brigadista'),
@@ -264,6 +277,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Plan de Emergencia',
+                'slug_matriz' => 'plan-emergencia',
                 'icono'   => 'fa-route',
                 'color'   => '#ff5722',
                 'url'     => base_url('client/inspecciones/plan-emergencia'),
@@ -273,6 +287,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Evaluación Simulacro',
+                'slug_matriz' => 'simulacro',
                 'icono'   => 'fa-running',
                 'color'   => '#607d8b',
                 'url'     => base_url('client/inspecciones/simulacro'),
@@ -282,6 +297,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Limpieza y Desinfección',
+                'slug_matriz' => 'limpieza-desinfeccion',
                 'icono'   => 'fa-pump-soap',
                 'color'   => '#4caf50',
                 'url'     => base_url('client/inspecciones/limpieza-desinfeccion'),
@@ -291,6 +307,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Residuos Sólidos',
+                'slug_matriz' => 'residuos-solidos',
                 'icono'   => 'fa-recycle',
                 'color'   => '#2e7d32',
                 'url'     => base_url('client/inspecciones/residuos-solidos'),
@@ -300,6 +317,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Control Plagas',
+                'slug_matriz' => 'control-plagas',
                 'icono'   => 'fa-bug',
                 'color'   => '#5d4037',
                 'url'     => base_url('client/inspecciones/control-plagas'),
@@ -309,6 +327,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Agua Potable',
+                'slug_matriz' => 'agua-potable',
                 'icono'   => 'fa-tint',
                 'color'   => '#0277bd',
                 'url'     => base_url('client/inspecciones/agua-potable'),
@@ -318,6 +337,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Plan Saneamiento',
+                'slug_matriz' => 'plan-saneamiento',
                 'icono'   => 'fa-shield-alt',
                 'color'   => '#4a148c',
                 'url'     => base_url('client/inspecciones/plan-saneamiento'),
@@ -327,6 +347,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'KPI Limpieza',
+                'slug_matriz' => 'kpi-limpieza',
                 'icono'   => 'fa-chart-line',
                 'color'   => '#00897b',
                 'url'     => base_url('client/inspecciones/kpi-limpieza'),
@@ -336,6 +357,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'KPI Residuos',
+                'slug_matriz' => 'kpi-residuos',
                 'icono'   => 'fa-chart-bar',
                 'color'   => '#558b2f',
                 'url'     => base_url('client/inspecciones/kpi-residuos'),
@@ -345,6 +367,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'KPI Plagas',
+                'slug_matriz' => 'kpi-plagas',
                 'icono'   => 'fa-chart-pie',
                 'color'   => '#795548',
                 'url'     => base_url('client/inspecciones/kpi-plagas'),
@@ -354,6 +377,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'KPI Agua Potable',
+                'slug_matriz' => 'kpi-agua-potable',
                 'icono'   => 'fa-chart-area',
                 'color'   => '#01579b',
                 'url'     => base_url('client/inspecciones/kpi-agua-potable'),
@@ -373,6 +397,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Dotación Vigilante',
+                'slug_matriz' => 'dotacion-vigilante',
                 'icono'   => 'fa-user-tie',
                 'color'   => '#37474f',
                 'url'     => base_url('client/inspecciones/dotacion-vigilante'),
@@ -382,6 +407,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Dotación Aseadora',
+                'slug_matriz' => 'dotacion-aseadora',
                 'icono'   => 'fa-broom',
                 'color'   => '#8d6e63',
                 'url'     => base_url('client/inspecciones/dotacion-aseadora'),
@@ -391,6 +417,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Dotación Todero',
+                'slug_matriz' => 'dotacion-todero',
                 'icono'   => 'fa-hard-hat',
                 'color'   => '#ff8f00',
                 'url'     => base_url('client/inspecciones/dotacion-todero'),
@@ -400,6 +427,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Auditoría Zona de Residuos',
+                'slug_matriz' => 'auditoria-zona-residuos',
                 'icono'   => 'fa-recycle',
                 'color'   => '#2e7d32',
                 'url'     => base_url('client/inspecciones/auditoria-zona-residuos'),
@@ -418,6 +446,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Reportes de Capacitación',
+                'slug_matriz' => 'acta-capacitacion',
                 'icono'   => 'fa-graduation-cap',
                 'color'   => '#ad1457',
                 'url'     => base_url('client/inspecciones/reporte-capacitacion'),
@@ -427,6 +456,7 @@ class ClientInspeccionesController extends Controller
             ],
             [
                 'nombre'  => 'Preparación Simulacro',
+                'slug_matriz' => 'preparacion-simulacro',
                 'icono'   => 'fa-clipboard-list',
                 'color'   => '#546e7a',
                 'url'     => base_url('client/inspecciones/preparacion-simulacro'),
@@ -435,6 +465,14 @@ class ClientInspeccionesController extends Controller
                 'campo_fecha' => 'fecha_simulacro',
             ],
         ];
+
+        $noAplica = (new InspeccionNoAplicaModel())->getByCliente((int) $clientId);
+        if (!empty($noAplica)) {
+            $tipos = array_values(array_filter($tipos, static function (array $tipo) use ($noAplica): bool {
+                $slug = $tipo['slug_matriz'] ?? null;
+                return !$slug || !isset($noAplica[$slug]);
+            }));
+        }
 
         return view('client/inspecciones/layout', [
             'client'  => $client,
