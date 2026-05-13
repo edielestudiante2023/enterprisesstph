@@ -723,6 +723,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const estadoLabelMap = { 'hecha': 'Hecha', 'por_sincronizar': 'Por sincronizar', 'al_dia': 'Al día', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
 
+    function reloadMatriz() {
+        const url = new URL(window.location.href);
+        url.searchParams.set('_r', String(Date.now()));
+        window.location.href = url.toString();
+    }
+
     const tabla = $('#tablaMatriz').DataTable({
         responsive: true,
         language: { url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json' },
@@ -834,7 +840,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(res => {
                     if (res.ok) {
                         Swal.fire({ icon: 'success', title: 'Frecuencia aplicada', text: res.updated + ' de ' + res.total + ' actualizadas.', timer: 1600, showConfirmButton: false })
-                            .then(() => location.reload());
+                            .then(() => reloadMatriz());
                     } else {
                         Swal.fire('Error', res.msg || 'No se pudo aplicar.', 'error');
                     }
@@ -865,7 +871,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(res => {
                     if (res.ok) {
                         Swal.fire({ icon: 'success', title: 'No Aplica aplicado', text: res.updated + ' de ' + res.total + ' actualizadas.', timer: 1600, showConfirmButton: false })
-                            .then(() => location.reload());
+                            .then(() => reloadMatriz());
                     } else {
                         Swal.fire('Error', res.msg || 'No se pudo marcar.', 'error');
                     }
@@ -897,7 +903,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             res.creadas + ' PTA(s) creada(s).' +
                             (res.omitidas > 0 ? ' ' + res.omitidas + ' omitida(s).' : '');
                         Swal.fire({ icon: 'success', title: 'Impreso en PTA', text: msg, timer: 2200, showConfirmButton: false })
-                            .then(() => location.reload());
+                            .then(() => reloadMatriz());
                     } else {
                         const detalle = (res.errores || []).slice(0, 3).map(e => (e.label || e.slug) + ': ' + e.msg).join('\n');
                         Swal.fire('Sin cambios', detalle || res.msg || 'No se pudo imprimir en PTA.', 'info');
@@ -995,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 fetch(URL_MARCAR, { method: 'POST', body: fd })
                     .then(res => res.json())
                     .then(res => {
-                        if (res.ok) location.reload();
+                        if (res.ok) reloadMatriz();
                         else Swal.fire('Error', res.msg || 'No se pudo marcar.', 'error');
                     })
                     .catch(() => Swal.fire('Error', 'No se pudo marcar.', 'error'));
@@ -1138,7 +1144,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         text: (res.added > 0 ? '+' + res.added + ' nuevo(s). ' : '') + (res.removed > 0 ? '-' + res.removed + ' quitado(s).' : ''),
                         timer: 1600,
                         showConfirmButton: false
-                    }).then(() => location.reload());
+                    }).then(() => reloadMatriz());
                 } else {
                     Swal.fire('Error', res.msg || 'No se pudo guardar.', 'error');
                     document.getElementById('modalBtnGuardar').disabled = false;
@@ -1188,7 +1194,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 text: res.removed + ' vínculo(s) quitado(s).',
                                 timer: 1600,
                                 showConfirmButton: false
-                            }).then(() => location.reload());
+                            }).then(() => reloadMatriz());
                         } else {
                             Swal.fire('Sin cambios', res.msg || 'No se pudo desvincular.', 'info');
                         }
@@ -1330,7 +1336,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 title: 'Actividad creada y vinculada',
                                 text: 'id_ptacliente=' + res.id_ptacliente,
                                 timer: 1800, showConfirmButton: false
-                            }).then(() => location.reload());
+                            }).then(() => reloadMatriz());
                         } else {
                             Swal.fire('Error', res.msg || 'No se pudo crear.', 'error');
                         }
@@ -1362,7 +1368,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 fetch(URL_QUITAR, { method: 'POST', body: fd })
                     .then(res => res.json())
                     .then(res => {
-                        if (res.ok) location.reload();
+                        if (res.ok) reloadMatriz();
                         else Swal.fire('Error', res.msg || 'No se pudo quitar.', 'error');
                     })
                     .catch(() => Swal.fire('Error', 'No se pudo quitar.', 'error'));
@@ -1412,7 +1418,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 text: msg,
                                 timer: 1800,
                                 showConfirmButton: false
-                            }).then(() => location.reload());
+                            }).then(() => reloadMatriz());
                         } else {
                             Swal.fire('Error', res.msg || 'No se pudo cerrar.', 'error');
                         }
@@ -1470,7 +1476,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         text: frecModalLabel + ' → ' + valor + ' veces/año',
                         timer: 1200,
                         showConfirmButton: false
-                    }).then(() => location.reload());
+                    }).then(() => reloadMatriz());
                 } else {
                     Swal.fire('Error', res.msg || 'No se pudo guardar.', 'error');
                     this.disabled = false;
