@@ -1411,6 +1411,13 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->get('evaluacion-capacitacion/delete/(:num)', 'EvaluacionCapacitacionController::delete/$1');
     $routes->get('evaluacion-capacitacion/api-resultados-fecha', 'EvaluacionCapacitacionController::apiResultadosPorFecha');
 
+    // Encuesta de Caracterizacion (QR publico)
+    $routes->get('encuesta-caracterizacion', 'EncuestaCaracterizacionController::list');
+    $routes->get('encuesta-caracterizacion/create', 'EncuestaCaracterizacionController::create');
+    $routes->post('encuesta-caracterizacion/store', 'EncuestaCaracterizacionController::store');
+    $routes->get('encuesta-caracterizacion/view/(:num)', 'EncuestaCaracterizacionController::view/$1');
+    $routes->get('encuesta-caracterizacion/delete/(:num)', 'EncuestaCaracterizacionController::delete/$1');
+
     // Temas de Evaluación (gestión de preguntas dinámicas)
     $routes->get('evaluacion-tema', 'EvaluacionTemaController::list');
     $routes->get('evaluacion-tema/create', 'EvaluacionTemaController::create');
@@ -1728,6 +1735,11 @@ $routes->get('acta-capacitacion/firmar-remoto/(:any)',   'Inspecciones\ActaCapac
 $routes->post('acta-capacitacion/procesar-firma-remota', 'Inspecciones\ActaCapacitacionController::procesarFirmaRemota');
 $routes->get('acta-capacitacion/inscripcion/(:any)',     'Inspecciones\ActaCapacitacionController::inscripcion/$1');
 $routes->post('acta-capacitacion/procesar-inscripcion',  'Inspecciones\ActaCapacitacionController::procesarInscripcion');
+
+// Encuesta de Caracterizacion (acceso por token, sin auth)
+$routes->get('encuesta-caracterizacion/(:segment)/gracias', 'Inspecciones\EncuestaCaracterizacionController::gracias/$1');
+$routes->post('encuesta-caracterizacion/(:segment)/submit', 'Inspecciones\EncuestaCaracterizacionController::submitPublico/$1');
+$routes->get('encuesta-caracterizacion/(:segment)', 'Inspecciones\EncuestaCaracterizacionController::formPublico/$1');
 
 // Evaluaciones rápidas post-visita (acceso por token, sin auth)
 $routes->get('acta-visita/evaluaciones-visita/(:num)/(:any)', 'Inspecciones\ActaVisitaController::evaluacionesVisita/$1/$2');

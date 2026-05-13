@@ -1355,6 +1355,11 @@
                 <div><strong>Reporte de Capacitación QR</strong></div>
                 <div class="count">(<?= $totalActasCapacitacion ?? 0 ?>)</div>
             </a>
+            <a href="<?= base_url('/inspecciones/encuesta-caracterizacion') ?>" class="card-tipo">
+                <i class="fas fa-clipboard-question"></i>
+                <div><strong>Items Nucleares SG-SST</strong></div>
+                <div class="count">(<?= $totalEncuestaCaracterizacion ?? 0 ?>)</div>
+            </a>
         </div>
     </div>
 
