@@ -652,6 +652,101 @@ class PtaClienteNuevaController extends Controller
     }
 
     /**
+     * Actualiza fecha_propuesta o fecha_cierre en bloque para N actividades seleccionadas.
+     * Acepta una fecha exacta (Y-m-d) o un par mes+año (se traduce al último día del mes,
+     * mismo criterio que updateDateByMonth).
+     */
+    public function updateDateBulk()
+    {
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Método no permitido']);
+        }
+
+        $ids   = $this->request->getPost('ids');
+        $campo = $this->request->getPost('campo');
+        $fecha = $this->request->getPost('fecha');
+        $month = $this->request->getPost('month');
+        $year  = $this->request->getPost('year');
+
+        if (empty($ids) || !is_array($ids)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'No se proporcionaron IDs']);
+        }
+
+        $camposPermitidos = ['fecha_propuesta', 'fecha_cierre'];
+        if (!in_array($campo, $camposPermitidos, true)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Campo inválido']);
+        }
+
+        // Resolver fecha final: exacta o último día del mes
+        $newDate = null;
+        if (!empty($fecha)) {
+            $dt = \DateTime::createFromFormat('Y-m-d', $fecha);
+            $errors = \DateTime::getLastErrors();
+            $hasErrors = is_array($errors) && (($errors['warning_count'] ?? 0) > 0 || ($errors['error_count'] ?? 0) > 0);
+            if (!$dt || $hasErrors || $dt->format('Y-m-d') !== $fecha) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Fecha inválida (formato esperado YYYY-MM-DD)']);
+            }
+            $newDate = $fecha;
+        } else {
+            $m = (int) $month;
+            $y = (int) $year;
+            if ($m < 1 || $m > 12 || $y < 1900 || $y > 2100) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Mes/año inválidos']);
+            }
+            $lastDayDate = new \DateTime(sprintf('%04d-%02d-01', $y, $m));
+            $lastDayDate->modify('last day of this month');
+            $newDate = $lastDayDate->format('Y-m-d');
+        }
+
+        $ptaModel = new PtaClienteNuevaModel();
+        $updated  = 0;
+        $now      = date('Y-m-d H:i:s');
+
+        try {
+            foreach ($ids as $id) {
+                $id = (int) $id;
+                if ($id <= 0) continue;
+
+                $registro = $ptaModel->find($id);
+                if (!$registro) continue;
+
+                $valorAnterior = $registro[$campo] ?? null;
+
+                $ok = $ptaModel->update($id, [
+                    $campo       => $newDate,
+                    'updated_at' => $now,
+                ]);
+
+                if ($ok) {
+                    PtaAuditService::log(
+                        $id,
+                        'BULK_UPDATE',
+                        $campo,
+                        $valorAnterior,
+                        $newDate,
+                        __METHOD__,
+                        $registro['id_cliente'] ?? null
+                    );
+                    $updated++;
+                }
+            }
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => $updated . ' actividad(es) actualizada(s) al ' . $newDate,
+                'updated' => $updated,
+                'newDate' => $newDate,
+                'campo'   => $campo,
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => 'Error al actualizar: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
      * Elimina todas las actividades ABIERTA de un cliente (con triple validación aritmética en frontend)
      */
     public function deleteAbiertas()
