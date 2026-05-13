@@ -7,7 +7,7 @@
  *   DB_PROD_PASS=xxx php app/CLI/crear_encuesta_caracterizacion_schema.php production
  */
 
-$env = $argv[1] ?? 'local';
+$env = trim($argv[1] ?? 'local');
 
 if ($env === 'production') {
     $host = 'db-mysql-cycloid-do-user-18794030-0.h.db.ondigitalocean.com';
