@@ -44,4 +44,21 @@ class InspeccionFrecuenciaClienteModel extends Model
             'veces_anio'      => $vecesAnio,
         ]);
     }
+
+    /**
+     * Aplica la misma frecuencia a varios tipos de inspeccion del cliente.
+     */
+    public function setManyVecesAnio(int $idCliente, array $slugs, int $vecesAnio): int
+    {
+        if ($vecesAnio < 0 || $vecesAnio > 365) return 0;
+
+        $updated = 0;
+        foreach (array_values(array_unique(array_filter($slugs))) as $slug) {
+            if ($this->setVecesAnio($idCliente, (string) $slug, $vecesAnio)) {
+                $updated++;
+            }
+        }
+
+        return $updated;
+    }
 }
