@@ -6,11 +6,16 @@ $iconos = [
     'senalizacion'            => 'fa-sign',
     'botiquin'                => 'fa-first-aid',
     'extintores'              => 'fa-fire-extinguisher',
+    'productos_quimicos'      => 'fa-flask',
     'comunicaciones'          => 'fa-broadcast-tower',
     'gabinetes'               => 'fa-shower',
     'matriz_vulnerabilidad'   => 'fa-shield-alt',
     'probabilidad_peligros'   => 'fa-exclamation-triangle',
     'recursos_seguridad'      => 'fa-hard-hat',
+    'brigada_simulacros'      => 'fa-people-carry',
+    'ascensores'              => 'fa-sort',
+    'piscinas'                => 'fa-swimming-pool',
+    'piscinero'               => 'fa-swimmer',
     'hv_brigadista'           => 'fa-id-card-alt',
     'plan_emergencia'         => 'fa-route',
     'simulacro'               => 'fa-running',
@@ -20,12 +25,21 @@ $iconos = [
     'dotacion_todero'         => 'fa-hard-hat',
     'auditoria_residuos'      => 'fa-recycle',
     'asistencia_induccion'    => 'fa-chalkboard-teacher',
+    'evaluacion_capacitacion' => 'fa-pen-fancy',
     'reporte_capacitacion'    => 'fa-graduation-cap',
     'preparacion_simulacro'   => 'fa-clipboard-list',
     'residuos'                => 'fa-recycle',
     'plagas'                  => 'fa-bug',
     'agua_potable'            => 'fa-tint',
     'plan_saneamiento'        => 'fa-shield-alt',
+    'contingencia_plagas'     => 'fa-bug',
+    'contingencia_limpieza'   => 'fa-spray-can',
+    'contingencia_agua'       => 'fa-tint-slash',
+    'contingencia_basura'     => 'fa-trash-alt',
+    'lavado_tanques'          => 'fa-water',
+    'fumigacion'              => 'fa-spray-can',
+    'desratizacion'           => 'fa-mouse',
+    'planilla_ss'             => 'fa-file-invoice',
     'kpi_limpieza'            => 'fa-chart-line',
     'kpi_residuos'            => 'fa-chart-bar',
     'kpi_plagas'              => 'fa-chart-pie',
@@ -63,7 +77,7 @@ $icono = $iconos[$tipo] ?? 'fa-clipboard-list';
                     </div>
                     <div style="font-size:14px; color:#555;">
                         <i class="fas fa-calendar-alt me-1" style="color:#bd9751;"></i>
-                        <?= date('d/m/Y', strtotime($insp[$campo_fecha])) ?>
+                        <?= !empty($insp[$campo_fecha]) ? date('d/m/Y', strtotime($insp[$campo_fecha])) : 'Sin fecha' ?>
                     </div>
                     <?php if ($tipo === 'senalizacion' && isset($insp['calificacion'])): ?>
                     <div class="mt-2">
@@ -128,6 +142,41 @@ $icono = $iconos[$tipo] ?? 'fa-clipboard-list';
                     <?php if ($tipo === 'preparacion_simulacro' && !empty($insp['evento_simulado'])): ?>
                     <div class="mt-2" style="font-size:13px; color:#777;">
                         <i class="fas fa-clipboard-list me-1"></i> <?= esc(mb_strimwidth($insp['evento_simulado'], 0, 50, '...')) ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($tipo === 'productos_quimicos' && !empty($insp['nivel_riesgo'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-flask me-1"></i> <?= esc($insp['nivel_riesgo']) ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($tipo === 'ascensores' && isset($insp['total_ascensores'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-sort me-1"></i> <?= $insp['total_ascensores'] ?> ascensores
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($tipo === 'piscinas' && isset($insp['total_piscinas'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-swimming-pool me-1"></i> <?= $insp['total_piscinas'] ?> piscinas
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($tipo === 'piscinero' && !empty($insp['nombre_piscinero'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-user me-1"></i> <?= esc(mb_strimwidth($insp['nombre_piscinero'], 0, 50, '...')) ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($tipo === 'evaluacion_capacitacion' && !empty($insp['titulo'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-pen-fancy me-1"></i> <?= esc(mb_strimwidth($insp['titulo'], 0, 50, '...')) ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array($tipo, ['lavado_tanques','fumigacion','desratizacion']) && !empty($insp['archivo'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-paperclip me-1"></i> Certificado adjunto
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($tipo === 'planilla_ss' && !empty($insp['periodo'])): ?>
+                    <div class="mt-2" style="font-size:13px; color:#777;">
+                        <i class="fas fa-calendar me-1"></i> Periodo: <?= esc($insp['periodo']) ?>
                     </div>
                     <?php endif; ?>
                     <div class="mt-3 text-end">

@@ -109,7 +109,36 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
         </div>
     </div>
 
-    <!-- Panel colapsable: cards Año / cards Mes / Rango Desde-Hasta -->
+    <!-- Cards Mes: siempre visibles para navegar rapido por el año activo -->
+    <div class="card border-0 mb-3" style="background:#f8f9fa; border-radius:12px;">
+        <div class="card-body py-3 px-3">
+            <div class="section-title-matriz">
+                <i class="fas fa-calendar-week"></i> Filtrar por Mes <small style="font-weight:normal; color:#888;">(año <?= (int) $anio ?>)</small>
+            </div>
+            <div class="row g-2 mb-0">
+                <?php for ($m = 1; $m <= 12; $m++):
+                    $cm = (int) ($inspeccionesPorMes[$m] ?? 0);
+                    $ultDia = (int) date('t', strtotime(sprintf('%04d-%02d-01', (int) $anio, $m)));
+                    $urlMes = $baseMatrizUrl . '?fecha_desde=' . sprintf('%04d-%02d-01', (int) $anio, $m)
+                            . '&fecha_hasta=' . sprintf('%04d-%02d-%02d', (int) $anio, $m, $ultDia);
+                    $isActiveMes = ($mesActivo === $m);
+                ?>
+                    <div class="col-6 col-md-1">
+                        <a href="<?= $urlMes ?>" class="text-decoration-none">
+                            <div class="card border-0 card-matriz-filtro card-mes<?= $isActiveMes ? ' active' : '' ?>" data-mes="<?= $m ?>">
+                                <div class="card-body text-center p-2">
+                                    <div style="font-size:11px; font-weight:600; color:#fff;"><?= $mesesAbrev[$m - 1] ?></div>
+                                    <div class="matriz-mes-count" style="font-size:16px; font-weight:700; color:#fff; line-height:1;"><?= $cm ?></div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                <?php endfor; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel colapsable: cards Año / Rango Desde-Hasta -->
     <div class="collapse mb-3" id="matrizFiltrosPanel">
         <div class="card border-0" style="background:#f8f9fa; border-radius:12px;">
             <div class="card-body py-3 px-3">
@@ -137,31 +166,6 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                             </a>
                         </div>
                     <?php endforeach; ?>
-                </div>
-
-                <!-- Cards Mes -->
-                <div class="section-title-matriz">
-                    <i class="fas fa-calendar-week"></i> Filtrar por Mes <small style="font-weight:normal; color:#888;">(año <?= (int) $anio ?>)</small>
-                </div>
-                <div class="row g-2 mb-3">
-                    <?php for ($m = 1; $m <= 12; $m++):
-                        $cm = (int) ($inspeccionesPorMes[$m] ?? 0);
-                        $ultDia = (int) date('t', strtotime(sprintf('%04d-%02d-01', (int) $anio, $m)));
-                        $urlMes = $baseMatrizUrl . '?fecha_desde=' . sprintf('%04d-%02d-01', (int) $anio, $m)
-                                . '&fecha_hasta=' . sprintf('%04d-%02d-%02d', (int) $anio, $m, $ultDia);
-                        $isActiveMes = ($mesActivo === $m);
-                    ?>
-                        <div class="col-6 col-md-1">
-                            <a href="<?= $urlMes ?>" class="text-decoration-none">
-                                <div class="card border-0 card-matriz-filtro card-mes<?= $isActiveMes ? ' active' : '' ?>" data-mes="<?= $m ?>">
-                                    <div class="card-body text-center p-2">
-                                        <div style="font-size:11px; font-weight:600; color:#fff;"><?= $mesesAbrev[$m - 1] ?></div>
-                                        <div class="matriz-mes-count" style="font-size:16px; font-weight:700; color:#fff; line-height:1;"><?= $cm ?></div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    <?php endfor; ?>
                 </div>
 
                 <!-- Rango Fecha Desde / Hasta -->
@@ -331,6 +335,12 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                     'no_aplica' => '<i class="fas fa-ban"></i> No Aplica',
                 ][$f['estado']];
                 $estadoTexto = ['hecha' => 'Hecha', 'al_dia' => 'Al día', 'pendiente' => 'Pendiente', 'atrasada' => 'Atrasada', 'no_aplica' => 'No Aplica'][$f['estado']];
+                $ptaAbiertasCntRow = 0;
+                foreach ($f['pta_vinculados'] as $vv) {
+                    if (($vv['estado_actividad'] ?? '') !== 'CERRADA') $ptaAbiertasCntRow++;
+                }
+                $tieneRealizRow = $f['total'] > 0 || (int) ($f['realizadas_anio'] ?? 0) > 0;
+                $porSincronizarRow = $tieneRealizRow && ($ptaAbiertasCntRow > 0 || empty($f['pta_vinculados']));
                 ?>
                 <?php
                 $fechasRealizadasArr = array_values(array_filter(array_map(fn($i) => $i['fecha'] ?? null, $f['inspecciones'])));
@@ -338,6 +348,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                 $fechasTodasArr = array_values(array_unique(array_merge($fechasRealizadasArr, $fechasProgramadasArr)));
                 ?>
                 <tr data-estado="<?= esc($f['estado']) ?>"
+                    data-por-sincronizar="<?= $porSincronizarRow ? '1' : '0' ?>"
                     data-fechas="<?= esc(implode(',', $fechasTodasArr)) ?>"
                     data-fechas-realizadas="<?= esc(implode(',', $fechasRealizadasArr)) ?>"
                     data-fechas-programadas="<?= esc(implode(',', $fechasProgramadasArr)) ?>"
@@ -458,12 +469,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                         </span>
                         <span class="d-none"><?= esc($estadoTexto) ?><?php
                             // Texto invisible adicional para que el filtro 'Por sincronizar' (col 3) matchee
-                            $ptaAbiertasCnt = 0;
-                            foreach ($f['pta_vinculados'] as $vv) {
-                                if (($vv['estado_actividad'] ?? '') !== 'CERRADA') $ptaAbiertasCnt++;
-                            }
-                            $tieneRealizF = $f['total'] > 0 || (int) ($f['realizadas_anio'] ?? 0) > 0;
-                            if ($tieneRealizF && ($ptaAbiertasCnt > 0 || empty($f['pta_vinculados']))) {
+                            if ($porSincronizarRow) {
                                 echo ' Por sincronizar';
                             }
                         ?></span>
@@ -722,6 +728,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_PTA_IA = '<?= base_url('inspecciones/matriz/generar-pta-ia') ?>';
 
     const estadoLabelMap = { 'hecha': 'Hecha', 'por_sincronizar': 'Por sincronizar', 'al_dia': 'Al día', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
+    let activeEstadoCardFilter = 'todas';
 
     function reloadMatriz() {
         const url = new URL(window.location.href);
@@ -745,18 +752,39 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!data || !data.columns || data.columns.length !== 6) return false;
         },
         initComplete: function () {
+            const api = this.api();
             document.querySelectorAll('.col-filter').forEach(function (el) {
-                const saved = tabla.column(el.dataset.col).search();
+                const saved = api.column(el.dataset.col).search();
                 if (saved) el.value = saved;
             });
-            const estadoText = tabla.column(4).search();
+            const estadoText = api.column(4).search();
             const textToFiltro = { '': 'todas', 'Hecha': 'hecha', 'Por sincronizar': 'por_sincronizar', 'Al día': 'al_dia', 'Pendiente': 'pendiente', 'Atrasada': 'atrasada', 'No Aplica': 'no_aplica' };
             const activeFiltro = textToFiltro[estadoText] || 'todas';
+            activeEstadoCardFilter = activeFiltro;
+            if (activeFiltro !== 'todas') {
+                api.column(4).search('');
+            }
             document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
             const activeCard = document.querySelector('.card-filtro[data-filtro="' + activeFiltro + '"]');
             if (activeCard) activeCard.classList.add('active');
         }
     });
+
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+        if (!settings.nTable || settings.nTable.id !== 'tablaMatriz') return true;
+        if (!activeEstadoCardFilter || activeEstadoCardFilter === 'todas') return true;
+
+        const node = settings.aoData[dataIndex] ? settings.aoData[dataIndex].nTr : null;
+        if (!node) return true;
+
+        if (activeEstadoCardFilter === 'por_sincronizar') {
+            return node.getAttribute('data-por-sincronizar') === '1';
+        }
+        return node.getAttribute('data-estado') === activeEstadoCardFilter;
+    });
+    if (activeEstadoCardFilter !== 'todas') {
+        tabla.draw();
+    }
 
     const selectedSlugs = new Set();
     const bulkSelectVisible = document.getElementById('bulkSelectVisible');
@@ -952,9 +980,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('.col-filter').forEach(function (el) {
         el.addEventListener('input', function () {
+            if (this.dataset.col === '4') {
+                activeEstadoCardFilter = 'todas';
+                document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
+                const todas = document.querySelector('.card-filtro[data-filtro="todas"]');
+                if (todas) todas.classList.add('active');
+            }
             tabla.column(this.dataset.col).search(this.value).draw();
         });
         el.addEventListener('change', function () {
+            if (this.dataset.col === '4') {
+                activeEstadoCardFilter = 'todas';
+                document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
+                const todas = document.querySelector('.card-filtro[data-filtro="todas"]');
+                if (todas) todas.classList.add('active');
+            }
             tabla.column(this.dataset.col).search(this.value).draw();
         });
     });
@@ -966,6 +1006,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const filtro = this.dataset.filtro;
             const selectEstado = document.querySelector('.col-filter[data-col="4"]');
+            activeEstadoCardFilter = filtro;
 
             if (filtro === 'todas') {
                 selectEstado.value = '';
@@ -973,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 const label = estadoLabelMap[filtro] || '';
                 selectEstado.value = label;
-                tabla.column(4).search(label).draw();
+                tabla.column(4).search('').draw();
             }
         });
     });
