@@ -369,6 +369,45 @@
             estatus_mes: ''
         };
 
+        // ═══ PERSISTENCIA DE FILTROS (sobrevive a F5) ═══
+        var FILTROS_KEY = 'auditoria_visitas_filtros';
+
+        function guardarFiltros() {
+            try { localStorage.setItem(FILTROS_KEY, JSON.stringify(activeFilters)); } catch (e) {}
+        }
+
+        function restaurarFiltros() {
+            var saved;
+            try { saved = JSON.parse(localStorage.getItem(FILTROS_KEY) || 'null'); } catch (e) { saved = null; }
+            if (!saved || typeof saved !== 'object') return;
+
+            Object.keys(activeFilters).forEach(function (k) {
+                if (typeof saved[k] === 'string') activeFilters[k] = saved[k];
+            });
+
+            // Sincronizar dropdowns
+            $('#filtroConsultor').val(activeFilters.consultor);
+            $('#filtroMes').val(activeFilters.mes);
+            $('#filtroPeriodicidad').val(activeFilters.periodicidad);
+            $('#filtroEstatusAgenda').val(activeFilters.estatus_agenda);
+            $('#filtroEstatusMes').val(activeFilters.estatus_mes);
+
+            // Sincronizar cards activas
+            ['consultor', 'externo', 'estatus_agenda', 'estatus_mes'].forEach(function (ft) {
+                $('[data-filter="' + ft + '"]').removeClass('active');
+                var val = activeFilters[ft] || '';
+                var $card = $('[data-filter="' + ft + '"][data-value="' + val + '"]');
+                if ($card.length) {
+                    $card.addClass('active');
+                } else {
+                    $('[data-filter="' + ft + '"][data-value=""]').addClass('active');
+                }
+            });
+
+            table.draw();
+            recalcCards();
+        }
+
         // Leer celdas directamente del DOM (bypass cache interno DataTables)
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             var $cells = $(table.row(dataIndex).node()).children('td');
@@ -417,6 +456,7 @@
             activeFilters[filterType] = (typeof value === 'string') ? value.trim() : value;
             table.draw();
             recalcCards();
+            guardarFiltros();
         }
 
         function recalcCards() {
@@ -617,6 +657,9 @@
                 }
             });
         });
+
+        // Restaurar filtros guardados al cargar la vista
+        restaurarFiltros();
     });
     </script>
 </body>
