@@ -1061,6 +1061,12 @@ document.addEventListener('DOMContentLoaded', function() {
     var btnFinalizar = document.getElementById('btnFinalizar');
     if (btnFinalizar) {
         btnFinalizar.addEventListener('click', function(e) {
+            <?php if ($ctx === 'consultor'): ?>
+            if (document.querySelectorAll('.cronog-check:checked').length === 0) {
+                Swal.fire({ icon: 'warning', title: 'Marca al menos 1 capacitación del cronograma antes de finalizar', confirmButtonColor: '#bd9751' });
+                return;
+            }
+            <?php endif; ?>
             if (document.querySelectorAll('.asistente-row').length === 0) {
                 Swal.fire({ icon: 'warning', title: 'Agrega al menos 1 asistente antes de finalizar', confirmButtonColor: '#bd9751' });
                 return;

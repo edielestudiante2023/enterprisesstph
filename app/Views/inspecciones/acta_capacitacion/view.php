@@ -1,3 +1,20 @@
+<?php
+$ctx = $contexto ?? 'consultor';
+$emailUrlBase  = $ctx === 'consultor'
+    ? 'inspecciones/acta-capacitacion/asistente/enviar-email/'
+    : 'miembro/acta-capacitacion/asistente/enviar-email/';
+$deleteUrlBase = $ctx === 'consultor'
+    ? 'inspecciones/acta-capacitacion/asistente/delete/'
+    : 'miembro/acta-capacitacion/asistente/delete/';
+$actaEditable = ($acta['estado'] ?? '') !== 'completo';
+
+$sinFirmar = [];
+foreach (($asistentes ?? []) as $aTmp) {
+    if (empty($aTmp['firma_path'])) {
+        $sinFirmar[] = $aTmp;
+    }
+}
+?>
 <div class="container-fluid px-3">
     <div class="mt-2 mb-3 d-flex justify-content-between align-items-center">
         <h6 class="mb-0">Reporte de Capacitación</h6>
@@ -94,8 +111,19 @@
             <?php if (empty($asistentes)): ?>
                 <p class="text-muted" style="font-size:13px;">Sin asistentes registrados.</p>
             <?php else: ?>
+                <?php if (!empty($sinFirmar)): ?>
+                <div class="alert alert-warning py-2 px-3 mb-3" style="font-size:13px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong><?= count($sinFirmar) ?> de <?= count($asistentes) ?></strong> asistente(s) sin firmar:
+                    <?= esc(implode(', ', array_column($sinFirmar, 'nombre_completo'))) ?>
+                </div>
+                <?php else: ?>
+                <div class="alert alert-success py-2 px-3 mb-3" style="font-size:13px;">
+                    <i class="fas fa-check-circle"></i> Todos los asistentes firmaron.
+                </div>
+                <?php endif; ?>
                 <?php foreach ($asistentes as $i => $a): ?>
-                <div class="mb-2 pb-2" style="border-bottom:1px solid #eee;">
+                <div class="mb-2 pb-2" style="border-bottom:1px solid #eee;" id="asistente-row-<?= (int) $a['id'] ?>">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <strong style="font-size:14px;"><?= ($i + 1) ?>. <?= esc($a['nombre_completo']) ?></strong>
@@ -117,6 +145,30 @@
                     </div>
                     <?php if (!empty($a['firma_path'])): ?>
                     <img src="<?= base_url($a['firma_path']) ?>" style="max-height:50px; margin-top:4px;">
+                    <?php else: ?>
+                    <div class="mt-2 d-flex gap-2 flex-wrap align-items-center">
+                        <?php if (!empty($a['email'])): ?>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-reenviar-firma"
+                                data-id="<?= (int) $a['id'] ?>"
+                                data-nombre="<?= esc($a['nombre_completo'], 'attr') ?>"
+                                data-email="<?= esc($a['email'], 'attr') ?>"
+                                style="font-size:11px;">
+                            <i class="fas fa-paper-plane"></i> Reenviar firma
+                        </button>
+                        <?php else: ?>
+                        <span class="text-danger" style="font-size:11px;">
+                            <i class="fas fa-exclamation-circle"></i> Sin email registrado &mdash; solo se puede eliminar
+                        </span>
+                        <?php endif; ?>
+                        <?php if ($actaEditable): ?>
+                        <button type="button" class="btn btn-outline-danger btn-sm js-eliminar-asistente"
+                                data-id="<?= (int) $a['id'] ?>"
+                                data-nombre="<?= esc($a['nombre_completo'], 'attr') ?>"
+                                style="font-size:11px;">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                        <?php endif; ?>
+                    </div>
                     <?php endif; ?>
                 </div>
                 <?php endforeach; ?>
@@ -185,3 +237,131 @@
         </a>
     </div>
 </div>
+
+<script>
+(function () {
+    var emailUrlBase  = '<?= site_url($emailUrlBase) ?>';
+    var deleteUrlBase = '<?= site_url($deleteUrlBase) ?>';
+    var idActa        = <?= (int) $acta['id'] ?>;
+    var csrfName      = '<?= csrf_token() ?>';
+    var csrfHash      = '<?= csrf_hash() ?>';
+
+    // Recarga manteniendo el mensaje visible un instante (CSRF rota en cada POST)
+    function recargar() { window.location.reload(); }
+
+    // ---- Reenviar enlace de firma al email registrado ----
+    document.querySelectorAll('.js-reenviar-firma').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = btn.dataset.id, nombre = btn.dataset.nombre, email = btn.dataset.email;
+            Swal.fire({
+                icon: 'question',
+                title: 'Reenviar enlace de firma',
+                html: 'Se enviará un nuevo enlace de firma a:<br><strong>' + email + '</strong>'
+                    + '<br><br><span style="font-size:12px;color:#666;">Asistente: ' + nombre + '</span>',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, enviar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#4e73df',
+                reverseButtons: true,
+            }).then(function (res) {
+                if (!res.isConfirmed) return;
+                var fd = new FormData();
+                fd.append(csrfName, csrfHash);
+                Swal.fire({ title: 'Enviando...', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+                fetch(emailUrlBase + id, {
+                    method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (!data.success) {
+                        Swal.fire('No se pudo enviar', data.error || 'Intenta de nuevo', 'error').then(recargar);
+                        return;
+                    }
+                    Swal.fire({
+                        icon: 'success', title: 'Enlace enviado',
+                        text: 'Se envió a ' + (data.email || email),
+                        timer: 2200, showConfirmButton: false
+                    }).then(recargar);
+                })
+                .catch(function () {
+                    Swal.fire('Error de conexión', 'No se pudo enviar el email. Verifica tu conexión.', 'error');
+                });
+            });
+        });
+    });
+
+    // ---- Eliminar asistente con doble validación aritmética ----
+    function preguntaAritmetica(paso, total) {
+        var a = Math.floor(Math.random() * 9) + 1;
+        var b = Math.floor(Math.random() * 9) + 1;
+        var pregunta, correcta;
+        if (Math.random() < 0.5) {
+            pregunta = a + ' + ' + b; correcta = a + b;
+        } else {
+            if (b > a) { var t = a; a = b; b = t; }
+            pregunta = a + ' − ' + b; correcta = a - b;
+        }
+        return Swal.fire({
+            title: 'Validación ' + paso + ' de ' + total,
+            html: 'Para confirmar la eliminación, resuelve:<br>'
+                + '<strong style="font-size:22px;">' + pregunta + ' = ?</strong>',
+            input: 'number',
+            showCancelButton: true,
+            confirmButtonText: 'Continuar',
+            cancelButtonText: 'Cancelar',
+            allowOutsideClick: false,
+            preConfirm: function (val) {
+                if (val === '' || val === null || parseInt(val, 10) !== correcta) {
+                    Swal.showValidationMessage('Respuesta incorrecta. Operación cancelada.');
+                    return false;
+                }
+                return true;
+            }
+        });
+    }
+
+    document.querySelectorAll('.js-eliminar-asistente').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = btn.dataset.id, nombre = btn.dataset.nombre;
+            preguntaAritmetica(1, 2).then(function (r1) {
+                if (!r1.isConfirmed) return;
+                preguntaAritmetica(2, 2).then(function (r2) {
+                    if (!r2.isConfirmed) return;
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '¿Eliminar a ' + nombre + '?',
+                        text: 'Esta acción no se puede deshacer.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#dc3545',
+                        reverseButtons: true,
+                        focusCancel: true,
+                    }).then(function (rc) {
+                        if (!rc.isConfirmed) return;
+                        var fd = new FormData();
+                        fd.append(csrfName, csrfHash);
+                        fetch(deleteUrlBase + idActa + '/' + id, {
+                            method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            if (!data.success) {
+                                Swal.fire('No se pudo eliminar', data.error || 'Intenta de nuevo', 'error').then(recargar);
+                                return;
+                            }
+                            Swal.fire({
+                                icon: 'success', title: 'Asistente eliminado',
+                                timer: 1500, showConfirmButton: false
+                            }).then(recargar);
+                        })
+                        .catch(function () {
+                            Swal.fire('Error de conexión', 'No se pudo eliminar el asistente.', 'error');
+                        });
+                    });
+                });
+            });
+        });
+    });
+})();
+</script>

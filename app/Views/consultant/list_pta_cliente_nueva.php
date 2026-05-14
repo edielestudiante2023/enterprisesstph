@@ -898,12 +898,6 @@
                             </button>
                         </div>
                         <div class="col-md-4 text-end">
-                            <button type="button" id="btnDeleteSelected" class="btn btn-danger me-2" style="display:none;">
-                                <i class="fas fa-trash-alt"></i> Eliminar Seleccionados (<span id="selectedCount">0</span>)
-                            </button>
-                            <button type="button" id="btnCambiarFechaSelected" class="btn btn-primary me-2" style="display:none;" title="Cambiar fecha en bloque a las actividades seleccionadas">
-                                <i class="fas fa-calendar-alt"></i> Cambiar Fecha (<span id="selectedCountFecha">0</span>)
-                            </button>
                             <button type="button" id="btnCalificarCerradas" class="btn btn-warning me-2">
                                 <i class="fas fa-check-double"></i> Calificar Cerradas
                             </button>
@@ -917,6 +911,22 @@
                     </div>
                 </div>
             </form>
+        </div>
+
+        <!-- Barra de acciones masivas (visible solo cuando hay checkboxes marcados) -->
+        <div id="bulkActionsBar" class="d-flex flex-wrap align-items-center gap-2 mb-3 px-3 py-2"
+             style="display:none !important;background:#e7f1ff;border-left:4px solid #4e73df;border-radius:6px;">
+            <span class="me-2" style="font-weight:600;color:#2e59d9;">
+                <i class="fas fa-check-square"></i>
+                <span id="bulkActionsLabel">0 actividad(es) seleccionada(s)</span>:
+            </span>
+            <button type="button" id="btnCambiarFechaSelected" class="btn btn-primary btn-sm me-2"
+                    title="Cambiar fecha en bloque a las actividades seleccionadas">
+                <i class="fas fa-calendar-alt"></i> Cambiar Fecha (<span id="selectedCountFecha">0</span>)
+            </button>
+            <button type="button" id="btnDeleteSelected" class="btn btn-danger btn-sm me-2">
+                <i class="fas fa-trash-alt"></i> Eliminar Seleccionados (<span id="selectedCount">0</span>)
+            </button>
         </div>
 
         <!-- Mostrar la tabla solo si existen registros -->
@@ -1975,12 +1985,11 @@
                 var count = $('.row-select:checked').length;
                 $('#selectedCount').text(count);
                 $('#selectedCountFecha').text(count);
+                $('#bulkActionsLabel').text(count + ' actividad(es) seleccionada(s)');
                 if (count > 0) {
-                    $('#btnDeleteSelected').show();
-                    $('#btnCambiarFechaSelected').show();
+                    $('#bulkActionsBar').css('display', 'flex');
                 } else {
-                    $('#btnDeleteSelected').hide();
-                    $('#btnCambiarFechaSelected').hide();
+                    $('#bulkActionsBar').css('display', 'none');
                 }
             }
 
