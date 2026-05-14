@@ -26,13 +26,12 @@ $totalRealizadas = $totalHechas + $totalAlDia;
 
 // "Faltan para estar al día": inspecciones que faltan para cumplir la meta anual
 // configurada, sobre los tipos con frecuencia definida (>0) aún no alcanzada.
-// También: $totalSinPlaneadas (filas sin PTA planeada, excluye No Aplica) y
-// $frecuenciasSet (valores distintos de veces_anio, para el dropdown de Frecuencia).
-$totalFaltantes    = 0;
-$totalSinMeta      = 0;
-$totalSinPlaneadas = 0;
-$totalConPlaneadas = 0;
-$frecuenciasSet    = [];
+// También: $planeadasCounts (cantidad de PTA planeadas => nº de filas, excluye
+// No Aplica) y $frecuenciasSet (valores distintos de veces_anio).
+$totalFaltantes  = 0;
+$totalSinMeta    = 0;
+$planeadasCounts = []; // [cantidad_de_planeadas => nº de filas]
+$frecuenciasSet  = [];
 foreach ($filas as $f) {
     $vaRaw = $f['veces_anio'] ?? null;
     $frecuenciasSet[$vaRaw === null ? 'sin_definir' : (string) (int) $vaRaw] = true;
@@ -44,12 +43,11 @@ foreach ($filas as $f) {
     if ($va === null)             $totalSinMeta++;
     elseif ($va > 0 && $ra < $va) $totalFaltantes += ($va - $ra);
 
-    $tienePlaneada = false;
+    $nPlaneadas = 0;
     foreach ($f['pta_vinculados'] as $v) {
-        if (!empty($v['fecha_propuesta'])) { $tienePlaneada = true; break; }
+        if (!empty($v['fecha_propuesta'])) $nPlaneadas++;
     }
-    if ($tienePlaneada) $totalConPlaneadas++;
-    else                $totalSinPlaneadas++;
+    $planeadasCounts[$nPlaneadas] = ($planeadasCounts[$nPlaneadas] ?? 0) + 1;
 }
 // Orden del dropdown de frecuencia: 'sin_definir' primero, luego numérico ascendente.
 $frecuenciasOpciones = array_keys($frecuenciasSet);
@@ -58,6 +56,8 @@ usort($frecuenciasOpciones, function ($a, $b) {
     if ($b === 'sin_definir') return 1;
     return (int) $a <=> (int) $b;
 });
+// Orden del dropdown de planeadas: cantidades ascendentes (0, 1, 2, ...).
+ksort($planeadasCounts);
 
 $totalTodos = count($filas);
 $aplicables = $totalTodos - $totalNoAplica;
@@ -360,8 +360,9 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                     <th>
                         <select class="form-select form-select-sm filtro-fechas" style="font-size:11px;">
                             <option value="">Planeadas: todas</option>
-                            <option value="sin">Sin planeadas (<?= $totalSinPlaneadas ?>)</option>
-                            <option value="con">Con planeadas (<?= $totalConPlaneadas ?>)</option>
+                            <?php foreach ($planeadasCounts as $cant => $nFilas): ?>
+                                <option value="<?= (int) $cant ?>"><?= (int) $cant ?> planeada<?= $cant == 1 ? '' : 's' ?> (<?= (int) $nFilas ?>)</option>
+                            <?php endforeach; ?>
                         </select>
                     </th>
                     <th>
@@ -434,6 +435,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                     data-fechas="<?= esc(implode(',', $fechasTodasArr)) ?>"
                     data-fechas-realizadas="<?= esc(implode(',', $fechasRealizadasArr)) ?>"
                     data-fechas-programadas="<?= esc(implode(',', $fechasProgramadasArr)) ?>"
+                    data-planeadas-count="<?= count($fechasProgramadasArr) ?>"
                     <?= $f['estado'] === 'no_aplica' ? 'style="opacity:0.6;"' : '' ?>>
                     <td style="font-size:11px; color:#555;"><?= esc($f['group']) ?></td>
                     <td style="text-align:center;">
@@ -884,8 +886,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 const frecEl   = document.querySelector('.filtro-frecuencia');
                 const fechasEl = document.querySelector('.filtro-fechas');
-                if (frecEl)   frecEl.value   = activeFrecuenciaFilter;
-                if (fechasEl) fechasEl.value = activeFechasFilter;
+                if (frecEl) {
+                    frecEl.value = activeFrecuenciaFilter;
+                    // si el valor guardado ya no existe como opción, se descarta
+                    activeFrecuenciaFilter = frecEl.value;
+                }
+                if (fechasEl) {
+                    fechasEl.value = activeFechasFilter;
+                    // si el valor guardado ya no existe como opción (ej. 'sin'/'con'
+                    // viejos), .value queda '' y se descarta limpiamente
+                    activeFechasFilter = fechasEl.value;
+                }
             } else {
                 document.querySelectorAll('.col-filter').forEach(function (el) {
                     const saved = api.column(el.dataset.col).search();
@@ -929,12 +940,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if ((node.getAttribute('data-frecuencia') || '') !== activeFrecuenciaFilter) return false;
         }
 
-        // Filtro de planeadas (PTA). No Aplica nunca cuenta como "sin" ni "con".
-        if (activeFechasFilter === 'sin') {
-            if ((node.getAttribute('data-fechas-programadas') || '') !== '' ||
-                node.getAttribute('data-estado') === 'no_aplica') return false;
-        } else if (activeFechasFilter === 'con') {
-            if ((node.getAttribute('data-fechas-programadas') || '') === '') return false;
+        // Filtro de planeadas (PTA): cantidad exacta. No Aplica nunca cuenta.
+        if (activeFechasFilter !== '') {
+            if (node.getAttribute('data-estado') === 'no_aplica') return false;
+            if ((node.getAttribute('data-planeadas-count') || '') !== activeFechasFilter) return false;
         }
 
         return true;
