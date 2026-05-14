@@ -330,11 +330,11 @@ INSTRUCCIONES:
 2. ESPANOL COLOMBIANO 100%: prohibido extranjerismos, anglicismos o siglas en ingles. Usar siempre terminos en espanol.
 3. Genera dos textos:
    a) BRIGADA (200 a 300 palabras): conformacion y estado actual de la brigada en {$cliente}.
-      - Si NO existe brigada, explica el plan de conformacion en 90 dias.
+      - Si NO existe brigada, explica el plan de conformacion de modo que la brigada quede conformada, capacitada y operativa antes del mes de octubre, para que pueda participar en el Simulacro Nacional de Respuesta a Emergencias de la UNGRD. Calcula si el octubre objetivo es el de este ano o el del proximo segun la fecha de la inspeccion.
       - Si existe pero esta inactiva o con pocos brigadistas, plan de reactivacion.
       - Cita Decreto 1072/2015 art. 2.2.4.6.25 y Resolucion 0256/2014.
    b) SIMULACROS (200 a 300 palabras): programa de capacitacion y simulacros para los proximos 12 meses.
-      - Si el ultimo simulacro fue hace mucho o no hay registro, prioriza simulacro general en los proximos 90 dias.
+      - Si el ultimo simulacro fue hace mucho o no hay registro, prioriza realizar el simulacro general en el mes de octubre, coincidiendo con el Simulacro Nacional de Respuesta a Emergencias de la UNGRD. Calcula si el octubre mas cercano es el de este ano o el del proximo segun la fecha de la inspeccion.
       - Incluye recomendacion de participar en el Simulacro Nacional de Evacuacion anual.
       - Lista 4 a 6 temas de capacitacion priorizados.
 4. Personaliza con datos reales del cliente, no uses texto generico.
