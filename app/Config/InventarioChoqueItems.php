@@ -37,12 +37,8 @@ class InventarioChoqueItems
                 'Pasamanos',
                 'Camaras CCTV',
                 'Luminarias exteriores',
-            ],
-            'BRIGADA' => [
-                'Brigada 1',
-                'Brigada 2',
-                'Dotacion brigada',
-                'Soporte simulacro',
+                'Detectores de humo',
+                'Aspersores de control de extincion de fuego',
             ],
             'PLAN DE EMERGENCIA' => [
                 'Foto fachada',
