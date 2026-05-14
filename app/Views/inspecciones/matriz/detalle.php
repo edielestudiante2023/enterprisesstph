@@ -772,6 +772,28 @@ document.addEventListener('DOMContentLoaded', function () {
     const estadoLabelMap = { 'realizadas': 'Realizadas', 'por_sincronizar': 'Por sincronizar', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
     let activeEstadoCardFilter = 'todas';
 
+    // ── Persistencia de filtros por cliente (sobrevive a F5) ───────────────────
+    // Guarda card de estado + filtros de texto Grupo/Tipo/Estado en localStorage.
+    const FILTROS_KEY = 'matriz_filtros_' + ID_CLIENTE;
+
+    function guardarFiltros() {
+        try {
+            localStorage.setItem(FILTROS_KEY, JSON.stringify({
+                card:   activeEstadoCardFilter || 'todas',
+                grupo:  tabla.column(0).search(),
+                tipo:   tabla.column(2).search(),
+                estado: tabla.column(4).search(),
+            }));
+        } catch (e) {}
+    }
+
+    function leerFiltros() {
+        try {
+            const o = JSON.parse(localStorage.getItem(FILTROS_KEY) || 'null');
+            return (o && typeof o === 'object') ? o : null;
+        } catch (e) { return null; }
+    }
+
     function reloadMatriz() {
         const url = new URL(window.location.href);
         url.searchParams.set('_r', String(Date.now()));
@@ -795,19 +817,34 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         initComplete: function () {
             const api = this.api();
-            document.querySelectorAll('.col-filter').forEach(function (el) {
-                const saved = api.column(el.dataset.col).search();
-                if (saved) el.value = saved;
-            });
-            const estadoText = api.column(4).search();
-            const textToFiltro = { '': 'todas', 'Realizadas': 'realizadas', 'Por sincronizar': 'por_sincronizar', 'Pendiente': 'pendiente', 'Atrasada': 'atrasada', 'No Aplica': 'no_aplica', 'Hecha': 'realizadas', 'Al día': 'realizadas' };
-            const activeFiltro = textToFiltro[estadoText] || 'todas';
-            activeEstadoCardFilter = activeFiltro;
-            if (activeFiltro !== 'todas') {
-                api.column(4).search('');
+            const grupoEl  = document.querySelector('.col-filter[data-col="0"]');
+            const tipoEl   = document.querySelector('.col-filter[data-col="2"]');
+            const estadoEl = document.querySelector('.col-filter[data-col="4"]');
+            const f = leerFiltros();
+
+            if (f) {
+                // localStorage es la fuente de verdad de los filtros
+                api.column(0).search(f.grupo || '');
+                api.column(2).search(f.tipo || '');
+                api.column(4).search(f.estado || '');
+                activeEstadoCardFilter = f.card || 'todas';
+                if (grupoEl) grupoEl.value = f.grupo || '';
+                if (tipoEl)  tipoEl.value  = f.tipo || '';
+                if (estadoEl) {
+                    estadoEl.value = (activeEstadoCardFilter !== 'todas')
+                        ? (estadoLabelMap[activeEstadoCardFilter] || '')
+                        : (f.estado || '');
+                }
+            } else {
+                document.querySelectorAll('.col-filter').forEach(function (el) {
+                    const saved = api.column(el.dataset.col).search();
+                    if (saved) el.value = saved;
+                });
+                activeEstadoCardFilter = 'todas';
             }
+
             document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
-            const activeCard = document.querySelector('.card-filtro[data-filtro="' + activeFiltro + '"]');
+            const activeCard = document.querySelector('.card-filtro[data-filtro="' + activeEstadoCardFilter + '"]');
             if (activeCard) activeCard.classList.add('active');
         }
     });
@@ -828,9 +865,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         return node.getAttribute('data-estado') === activeEstadoCardFilter;
     });
-    if (activeEstadoCardFilter !== 'todas') {
-        tabla.draw();
-    }
+    // Aplica los filtros restaurados (columnas + card custom) en un solo redraw
+    tabla.draw();
 
     const selectedSlugs = new Set();
     const bulkSelectVisible = document.getElementById('bulkSelectVisible');
@@ -1033,6 +1069,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (todas) todas.classList.add('active');
             }
             tabla.column(this.dataset.col).search(this.value).draw();
+            guardarFiltros();
         });
         el.addEventListener('change', function () {
             if (this.dataset.col === '4') {
@@ -1042,6 +1079,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (todas) todas.classList.add('active');
             }
             tabla.column(this.dataset.col).search(this.value).draw();
+            guardarFiltros();
         });
     });
 
@@ -1062,6 +1100,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 selectEstado.value = label;
                 tabla.column(4).search('').draw();
             }
+            guardarFiltros();
         });
     });
 
