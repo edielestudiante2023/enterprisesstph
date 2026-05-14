@@ -338,12 +338,13 @@ class MatrizInspeccionesController extends BaseController
             }));
         }
 
-        // Guardar en caché (TTL 60s) — solo el bloque pesado computado server-side
+        // Guardar en caché (TTL 600s = 10 min) — solo el bloque pesado computado
+        // server-side. Se invalida igual en cualquier UPDATE vía clearMatrizCache.
         $cache->save($cacheKey, [
             'filas'               => $filas,
             'inspeccionesPorAnio' => $inspeccionesPorAnio,
             'inspeccionesPorMes'  => $inspeccionesPorMes,
-        ], 60);
+        ], 600);
 
         } // ← cierre del if (!is_array($cached))
 
