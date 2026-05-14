@@ -272,6 +272,16 @@
                 </select>
             </div>
         </div>
+        <div class="row filter-row">
+            <div class="col-md-3">
+                <label style="font-size:11px; color:#6c757d; margin-bottom:2px;">Fecha Acta desde</label>
+                <input type="date" id="filtroFechaDesde" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-3">
+                <label style="font-size:11px; color:#6c757d; margin-bottom:2px;">Fecha Acta hasta</label>
+                <input type="date" id="filtroFechaHasta" class="form-control form-control-sm">
+            </div>
+        </div>
 
         <!-- ═══ TABLA ═══ -->
         <table id="tablaAuditoria" class="table table-striped table-bordered" style="width:100%">
@@ -294,6 +304,7 @@
                 <?php foreach ($ciclos as $c): ?>
                     <tr data-id-cliente="<?= esc($c['id_cliente'] ?? '') ?>"
                         data-fecha-agendada="<?= esc($c['fecha_agendada'] ?? '') ?>"
+                        data-fecha-acta="<?= esc($c['fecha_acta'] ?? '') ?>"
                         data-correo-consultor="<?= esc($c['correo_consultor'] ?? '') ?>"
                         data-nombre-consultor="<?= esc($c['nombre_consultor'] ?? '') ?>"
                         data-email-externo="<?= esc($c['email_consultor_externo'] ?? '') ?>"
@@ -356,7 +367,9 @@
             pageLength: 50,
             order: [[4, 'asc'], [0, 'asc']],
             dom: 'Bfrtip',
-            buttons: ['copy', 'csv', 'excel']
+            buttons: ['copy', 'csv', 'excel'],
+            // Restaura los filtros DESPUÉS de la init (con language.url la init es async)
+            initComplete: function () { restaurarFiltros(); }
         });
 
         // ═══ FILTROS CUSTOM (bypass column().search) ═══
@@ -366,7 +379,9 @@
             mes: '',
             periodicidad: '',
             estatus_agenda: '',
-            estatus_mes: ''
+            estatus_mes: '',
+            fecha_desde: '',
+            fecha_hasta: ''
         };
 
         // ═══ PERSISTENCIA DE FILTROS (sobrevive a F5) ═══
@@ -392,16 +407,20 @@
             $('#filtroEstatusAgenda').val(activeFilters.estatus_agenda);
             $('#filtroEstatusMes').val(activeFilters.estatus_mes);
 
-            // Sincronizar cards activas
+            // Sincronizar inputs de fecha
+            $('#filtroFechaDesde').val(activeFilters.fecha_desde);
+            $('#filtroFechaHasta').val(activeFilters.fecha_hasta);
+
+            // Sincronizar cards activas (comparación por .attr para evitar problemas
+            // de selector con nombres que tengan caracteres especiales)
             ['consultor', 'externo', 'estatus_agenda', 'estatus_mes'].forEach(function (ft) {
-                $('[data-filter="' + ft + '"]').removeClass('active');
+                var $grupo = $('[data-filter="' + ft + '"]');
+                $grupo.removeClass('active');
                 var val = activeFilters[ft] || '';
-                var $card = $('[data-filter="' + ft + '"][data-value="' + val + '"]');
-                if ($card.length) {
-                    $card.addClass('active');
-                } else {
-                    $('[data-filter="' + ft + '"][data-value=""]').addClass('active');
-                }
+                var $match = $grupo.filter(function () {
+                    return ($(this).attr('data-value') || '') === val;
+                });
+                ($match.length ? $match : $grupo.filter('[data-value=""]')).addClass('active');
             });
 
             table.draw();
@@ -435,6 +454,12 @@
                 var t = $cells.eq(8).text().trim();
                 if (t.toLowerCase() !== activeFilters.estatus_mes.toLowerCase()) return false;
             }
+            if (activeFilters.fecha_desde || activeFilters.fecha_hasta) {
+                var fa = $(table.row(dataIndex).node()).attr('data-fecha-acta') || '';
+                if (!fa) return false;
+                if (activeFilters.fecha_desde && fa < activeFilters.fecha_desde) return false;
+                if (activeFilters.fecha_hasta && fa > activeFilters.fecha_hasta) return false;
+            }
             return true;
         });
 
@@ -449,6 +474,7 @@
                 'sm'  => ucfirst($c['estatus_mes'] ?? 'pendiente'),
                 'per' => ucfirst(strtolower(trim($c['estandar'] ?? ''))),
                 'mes' => ($mn[$c['mes_esperado']] ?? $c['mes_esperado']) . ' ' . $c['anio'],
+                'fa'  => $c['fecha_acta'] ?? '',
             ];
         }, $ciclos)), JSON_UNESCAPED_UNICODE) ?>;
 
@@ -470,6 +496,11 @@
                 if (activeFilters.mes && c.mes.indexOf(activeFilters.mes) === -1) return;
                 if (activeFilters.estatus_agenda && c.sa.toLowerCase() !== activeFilters.estatus_agenda.toLowerCase()) return;
                 if (activeFilters.estatus_mes && c.sm.toLowerCase() !== activeFilters.estatus_mes.toLowerCase()) return;
+                if (activeFilters.fecha_desde || activeFilters.fecha_hasta) {
+                    if (!c.fa) return;
+                    if (activeFilters.fecha_desde && c.fa < activeFilters.fecha_desde) return;
+                    if (activeFilters.fecha_hasta && c.fa > activeFilters.fecha_hasta) return;
+                }
 
                 total++;
                 counts.consultor[c.con] = (counts.consultor[c.con] || 0) + 1;
@@ -529,6 +560,8 @@
             $('[data-filter="estatus_mes"]').removeClass('active');
             $('[data-filter="estatus_mes"][data-value="' + val + '"]').addClass('active');
         });
+        $('#filtroFechaDesde').on('change', function() { applyFilter('fecha_desde', this.value); });
+        $('#filtroFechaHasta').on('change', function() { applyFilter('fecha_hasta', this.value); });
 
         // Enviar recordatorio manual
         $(document).on('click', '.btn-enviar-recordatorio', function() {
@@ -658,8 +691,7 @@
             });
         });
 
-        // Restaurar filtros guardados al cargar la vista
-        restaurarFiltros();
+        // restaurarFiltros() se invoca desde el initComplete de la DataTable.
     });
     </script>
 </body>

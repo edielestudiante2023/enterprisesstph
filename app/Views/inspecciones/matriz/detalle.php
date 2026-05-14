@@ -844,6 +844,12 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
             const activeCard = document.querySelector('.card-filtro[data-filtro="' + activeEstadoCardFilter + '"]');
             if (activeCard) activeCard.classList.add('active');
+
+            // Redibujar para aplicar los filtros restaurados (columnas + card custom).
+            // Va DENTRO de initComplete: con language.url la init de DataTables es
+            // asíncrona, y un draw() externo se ejecutaba antes de tiempo
+            // ("Requested unknown parameter").
+            api.draw();
         }
     });
 
@@ -863,8 +869,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         return node.getAttribute('data-estado') === activeEstadoCardFilter;
     });
-    // Aplica los filtros restaurados (columnas + card custom) en un solo redraw
-    tabla.draw();
 
     const selectedSlugs = new Set();
     const bulkSelectVisible = document.getElementById('bulkSelectVisible');
