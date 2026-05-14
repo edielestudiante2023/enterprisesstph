@@ -810,11 +810,9 @@ document.addEventListener('DOMContentLoaded', function () {
             { orderable: false, targets: [1, 5] }
         ],
         orderCellsTop: true,
-        stateSave: true,
-        stateDuration: -1,
-        stateLoadParams: function (settings, data) {
-            if (!data || !data.columns || data.columns.length !== 6) return false;
-        },
+        // stateSave deshabilitado: la persistencia de filtros la maneja nuestro
+        // propio localStorage (matriz_filtros_<id_cliente>). El estado interno de
+        // DataTables corrompía la tabla ("Requested unknown parameter").
         initComplete: function () {
             const api = this.api();
             const grupoEl  = document.querySelector('.col-filter[data-col="0"]');

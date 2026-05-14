@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\CicloVisitaModel;
 use App\Models\ClientModel;
 use App\Models\ConsultantModel;
+use App\Models\InformeAvancesModel;
 use App\Libraries\NotificadorVisita;
 
 class AuditoriaVisitasController extends BaseController
@@ -26,6 +27,36 @@ class AuditoriaVisitasController extends BaseController
         $this->model->sincronizarPeriodicidadDesdeContratos();
 
         $ciclos = $this->model->getAllConJoins();
+
+        // Cruce con informes de avance: ¿existe un informe completo de ese cliente
+        // cuyo mes/año de fecha_hasta (fin del periodo) coincida con el mes/año de
+        // la fecha_acta del ciclo? → 'cumple' / 'no_cumple' / 'sin_acta'.
+        $informeModel = new InformeAvancesModel();
+        $informes = $informeModel
+            ->select('id_cliente, fecha_hasta')
+            ->where('estado', 'completo')
+            ->where('fecha_hasta IS NOT NULL')
+            ->findAll();
+
+        $informesIndex = [];
+        foreach ($informes as $inf) {
+            $ts = strtotime($inf['fecha_hasta']);
+            if ($ts === false) {
+                continue;
+            }
+            $informesIndex[$inf['id_cliente'] . '-' . date('Y-n', $ts)] = true;
+        }
+
+        foreach ($ciclos as &$c) {
+            if (empty($c['fecha_acta'])) {
+                $c['cumple_informe'] = 'sin_acta';
+                continue;
+            }
+            $ts = strtotime($c['fecha_acta']);
+            $key = $c['id_cliente'] . '-' . date('Y-n', $ts);
+            $c['cumple_informe'] = isset($informesIndex[$key]) ? 'cumple' : 'no_cumple';
+        }
+        unset($c);
 
         // Lista de consultores para el filtro
         $consultantModel = new ConsultantModel();
