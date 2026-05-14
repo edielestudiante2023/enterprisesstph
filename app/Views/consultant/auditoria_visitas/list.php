@@ -286,6 +286,7 @@
                     <th>Fecha Acta</th>
                     <th>Estatus Agenda</th>
                     <th>Estatus Mes</th>
+                    <th>Informe de Avance</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -314,6 +315,15 @@
                             <span class="badge badge-<?= $c['estatus_mes'] ?>">
                                 <?= ucfirst($c['estatus_mes']) ?>
                             </span>
+                        </td>
+                        <td>
+                            <?php if (($c['cumple_informe'] ?? '') === 'cumple'): ?>
+                                <span class="badge badge-cumple">Cumple</span>
+                            <?php elseif (($c['cumple_informe'] ?? '') === 'no_cumple'): ?>
+                                <span class="badge badge-incumple">No Cumple</span>
+                            <?php else: ?>
+                                <span class="text-muted">—</span>
+                            <?php endif; ?>
                         </td>
                         <td>
                             <a href="/consultant/auditoria-visitas/edit/<?= $c['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar">
