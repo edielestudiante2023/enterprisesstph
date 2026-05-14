@@ -31,10 +31,14 @@ $msg = $cal >= 70 ? '¡Felicitaciones! Aprobó la evaluación.' : ($cal >= 50 ? 
 ?>
 
 <div class="container-fluid px-3 pt-4 text-center">
-    <?php if (!empty($duplicado)): ?>
+    <?php if (!empty($actualizado)): ?>
+    <div class="alert alert-success mb-3" style="font-size:13px; text-align:left;">
+        <strong>¡Listo!</strong> Tu nuevo intento obtuvo un puntaje más alto y reemplazó al anterior.
+    </div>
+    <?php elseif (!empty($duplicado)): ?>
     <div class="alert alert-info mb-3" style="font-size:13px; text-align:left;">
         <strong>¡Gracias!</strong> Ya habías registrado tu evaluación hoy.
-        Tu primera respuesta quedó guardada correctamente.
+        Se conservó tu mejor puntaje.
     </div>
     <?php endif; ?>
     <div class="score-circle <?= $scoreClass ?>"><?= $cal ?>%</div>

@@ -22,6 +22,20 @@ foreach ($filas as $f) {
         $totalPorSincronizar++;
     }
 }
+$totalRealizadas = $totalHechas + $totalAlDia;
+
+// "Faltan para estar al día": inspecciones que faltan para cumplir la meta anual
+// configurada, sobre los tipos con frecuencia definida (>0) aún no alcanzada.
+$totalFaltantes = 0;
+$totalSinMeta   = 0;
+foreach ($filas as $f) {
+    if ($f['estado'] === 'no_aplica') continue;
+    $va = $f['veces_anio'] ?? null;
+    $ra = (int) ($f['realizadas_anio'] ?? 0);
+    if ($va === null)             $totalSinMeta++;
+    elseif ($va > 0 && $ra < $va) $totalFaltantes += ($va - $ra);
+}
+
 $totalTodos = count($filas);
 $aplicables = $totalTodos - $totalNoAplica;
 // 'Al día' cuenta como cumplido para cobertura (la inspección está vigente según frecuencia)
@@ -209,10 +223,23 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             </div>
         </div>
         <div class="col-6 col-md">
-            <div class="card border-0 text-center card-filtro" data-filtro="hecha" style="background:#d4edda; border-radius:10px; cursor:pointer;">
+            <div class="card border-0 text-center card-filtro" data-filtro="realizadas" style="background:#d4edda; border-radius:10px; cursor:pointer;" title="Inspecciones realizadas — cumplan o no la meta anual configurada">
                 <div class="card-body py-2 px-1">
-                    <div style="font-size:11px; color:#155724; font-weight:600;"><i class="fas fa-check-circle"></i> Hechas</div>
-                    <div style="font-size:20px; font-weight:700; color:#155724;"><?= $totalHechas ?></div>
+                    <div style="font-size:11px; color:#155724; font-weight:600;"><i class="fas fa-check-circle"></i> Realizadas</div>
+                    <div style="font-size:20px; font-weight:700; color:#155724;"><?= $totalRealizadas ?></div>
+                    <?php if ($totalFaltantes > 0): ?>
+                        <div style="font-size:9px; color:#0f5132; font-weight:600; line-height:1.15;">
+                            Faltan <?= $totalFaltantes ?> para estar al día
+                        </div>
+                    <?php elseif ($totalSinMeta > 0): ?>
+                        <div style="font-size:9px; color:#856404; font-weight:600; line-height:1.15;">
+                            <?= $totalSinMeta ?> sin meta definida
+                        </div>
+                    <?php elseif ($totalRealizadas > 0): ?>
+                        <div style="font-size:9px; color:#0f5132; font-weight:600; line-height:1.15;">
+                            <i class="fas fa-shield-alt"></i> Todas al día
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -221,14 +248,6 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#084298; font-weight:600;"><i class="fas fa-clipboard-check"></i> Por sincronizar</div>
                     <div style="font-size:20px; font-weight:700; color:#084298;"><?= $totalPorSincronizar ?></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md">
-            <div class="card border-0 text-center card-filtro" data-filtro="al_dia" style="background:#cce5d0; border-radius:10px; cursor:pointer;" title="Cumple según frecuencia configurada — próxima fecha aún vigente">
-                <div class="card-body py-2 px-1">
-                    <div style="font-size:11px; color:#0f5132; font-weight:600;"><i class="fas fa-shield-check"></i> Al día</div>
-                    <div style="font-size:20px; font-weight:700; color:#0f5132;"><?= $totalAlDia ?></div>
                 </div>
             </div>
         </div>
@@ -306,9 +325,8 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                     <th>
                         <select class="form-select form-select-sm col-filter" data-col="4" style="font-size:11px;">
                             <option value="">Todos</option>
-                            <option value="Hecha">Hechas</option>
+                            <option value="Realizadas">Realizadas</option>
                             <option value="Por sincronizar">Por sincronizar</option>
-                            <option value="Al día">Al día</option>
                             <option value="Pendiente">Pendientes</option>
                             <option value="Atrasada">Atrasadas</option>
                             <option value="No Aplica">No Aplica</option>
@@ -327,14 +345,35 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                     'atrasada'  => 'background:#f8d7da; color:#721c24;',
                     'no_aplica' => 'background:#e2e3e5; color:#383d41;',
                 ][$f['estado']];
-                $badgeLabel = [
-                    'hecha'     => '<i class="fas fa-check-circle"></i> Hecha' . ($f['total'] > 1 ? ' (' . $f['total'] . ')' : ''),
-                    'al_dia'    => '<i class="fas fa-shield-alt"></i> Al día',
-                    'pendiente' => '<i class="fas fa-clock"></i> Pendiente',
-                    'atrasada'  => '<i class="fas fa-exclamation-triangle"></i> Atrasada',
-                    'no_aplica' => '<i class="fas fa-ban"></i> No Aplica',
-                ][$f['estado']];
-                $estadoTexto = ['hecha' => 'Hecha', 'al_dia' => 'Al día', 'pendiente' => 'Pendiente', 'atrasada' => 'Atrasada', 'no_aplica' => 'No Aplica'][$f['estado']];
+
+                // "Hecha" y "Al día" se presentan unificados como "Realizadas"; el badge
+                // muestra el progreso contra la meta anual para que el consultor vea
+                // cuántas faltan para quedar al día.
+                $vecesAnioBadge      = $f['veces_anio'] ?? null;
+                $realizadasAnioBadge = (int) ($f['realizadas_anio'] ?? 0);
+                $badgeHint = '';
+                if ($f['estado'] === 'al_dia') {
+                    $badgeLabel = '<i class="fas fa-shield-alt"></i> Al día'
+                        . ($vecesAnioBadge > 0 ? ' · ' . $realizadasAnioBadge . '/' . (int) $vecesAnioBadge : '');
+                } elseif ($f['estado'] === 'hecha') {
+                    if ($vecesAnioBadge !== null && $vecesAnioBadge > 0) {
+                        $faltanBadge = max(0, (int) $vecesAnioBadge - $realizadasAnioBadge);
+                        $badgeLabel = '<i class="fas fa-check-circle"></i> ' . $realizadasAnioBadge . '/' . (int) $vecesAnioBadge
+                            . ' · falta' . ($faltanBadge === 1 ? '' : 'n') . ' ' . $faltanBadge;
+                    } else {
+                        $badgeLabel = '<i class="fas fa-check-circle"></i> Hecha' . ($f['total'] > 1 ? ' (' . $f['total'] . ')' : '');
+                        if ($vecesAnioBadge === null) {
+                            $badgeHint = 'Define la frecuencia para ver cuántas faltan';
+                        }
+                    }
+                } else {
+                    $badgeLabel = [
+                        'pendiente' => '<i class="fas fa-clock"></i> Pendiente',
+                        'atrasada'  => '<i class="fas fa-exclamation-triangle"></i> Atrasada',
+                        'no_aplica' => '<i class="fas fa-ban"></i> No Aplica',
+                    ][$f['estado']];
+                }
+                $estadoTexto = ['hecha' => 'Realizadas', 'al_dia' => 'Realizadas', 'pendiente' => 'Pendiente', 'atrasada' => 'Atrasada', 'no_aplica' => 'No Aplica'][$f['estado']];
                 $ptaAbiertasCntRow = 0;
                 foreach ($f['pta_vinculados'] as $vv) {
                     if (($vv['estado_actividad'] ?? '') !== 'CERRADA') $ptaAbiertasCntRow++;
@@ -473,6 +512,9 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                                 echo ' Por sincronizar';
                             }
                         ?></span>
+                        <?php if ($badgeHint !== ''): ?>
+                            <div class="small text-muted mt-1" style="font-size:10px;"><i class="fas fa-info-circle"></i> <?= esc($badgeHint) ?></div>
+                        <?php endif; ?>
                         <?php if ($f['estado'] === 'no_aplica' && !empty($f['no_aplica']['motivo'])): ?>
                             <div class="small text-muted mt-1" style="font-size:10px;"><?= esc($f['no_aplica']['motivo']) ?></div>
                         <?php endif; ?>
@@ -727,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_PTA_CREAR = '<?= base_url('inspecciones/matriz/crear-pta') ?>';
     const URL_PTA_IA = '<?= base_url('inspecciones/matriz/generar-pta-ia') ?>';
 
-    const estadoLabelMap = { 'hecha': 'Hecha', 'por_sincronizar': 'Por sincronizar', 'al_dia': 'Al día', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
+    const estadoLabelMap = { 'realizadas': 'Realizadas', 'por_sincronizar': 'Por sincronizar', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
     let activeEstadoCardFilter = 'todas';
 
     function reloadMatriz() {
@@ -758,7 +800,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (saved) el.value = saved;
             });
             const estadoText = api.column(4).search();
-            const textToFiltro = { '': 'todas', 'Hecha': 'hecha', 'Por sincronizar': 'por_sincronizar', 'Al día': 'al_dia', 'Pendiente': 'pendiente', 'Atrasada': 'atrasada', 'No Aplica': 'no_aplica' };
+            const textToFiltro = { '': 'todas', 'Realizadas': 'realizadas', 'Por sincronizar': 'por_sincronizar', 'Pendiente': 'pendiente', 'Atrasada': 'atrasada', 'No Aplica': 'no_aplica', 'Hecha': 'realizadas', 'Al día': 'realizadas' };
             const activeFiltro = textToFiltro[estadoText] || 'todas';
             activeEstadoCardFilter = activeFiltro;
             if (activeFiltro !== 'todas') {
@@ -779,6 +821,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (activeEstadoCardFilter === 'por_sincronizar') {
             return node.getAttribute('data-por-sincronizar') === '1';
+        }
+        if (activeEstadoCardFilter === 'realizadas') {
+            const e = node.getAttribute('data-estado');
+            return e === 'hecha' || e === 'al_dia';
         }
         return node.getAttribute('data-estado') === activeEstadoCardFilter;
     });
