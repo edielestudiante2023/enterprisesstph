@@ -382,9 +382,32 @@ class InformeAvancesController extends BaseController
     public function apiVencimientos($idCliente)
     {
         return $this->response->setJSON([
-            'success' => true,
-            'data'    => $this->getVencimientosCliente((int) $idCliente),
+            'success'            => true,
+            'data'               => $this->getVencimientosCliente((int) $idCliente),
+            'frecuencia_visitas' => $this->getFrecuenciaVisitasCliente((int) $idCliente),
         ]);
+    }
+
+    /**
+     * Frecuencia de visita (mensual/bimensual/trimestral/...) del contrato más
+     * reciente del cliente. Devuelve null si no hay contrato o no está definida.
+     */
+    private function getFrecuenciaVisitasCliente(int $idCliente): ?string
+    {
+        $db = \Config\Database::connect();
+        if (!$db->tableExists('tbl_contratos')) {
+            return null;
+        }
+        $row = $db->table('tbl_contratos')
+            ->select('frecuencia_visitas')
+            ->where('id_cliente', $idCliente)
+            ->where('frecuencia_visitas IS NOT NULL', null, false)
+            ->where("TRIM(frecuencia_visitas) <> ''", null, false)
+            ->orderBy('fecha_inicio', 'DESC')
+            ->orderBy('id_contrato', 'DESC')
+            ->get(1)
+            ->getRowArray();
+        return $row['frecuencia_visitas'] ?? null;
     }
 
     // ─── AJAX: Generar resumen con IA ───
