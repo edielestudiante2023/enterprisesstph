@@ -84,6 +84,7 @@
                             <label class="form-label fw-bold">Periodo</label>
                             <select id="selectMes" class="form-select">
                                 <option value="">Manual...</option>
+                                <option value="cur">Mes actual</option>
                                 <option value="prev">Mes anterior</option>
                                 <option value="bim">Bimestre anterior</option>
                                 <option value="trim">Trimestre anterior</option>
@@ -492,63 +493,6 @@
         });
     }
 
-    // ── Periodo del informe: mes actual vs mes anterior ───────────────────────
-    // offset 0 = mes actual, -1 = mes anterior. Date() maneja el cambio de año.
-    function rangoMes(offset) {
-        var hoy = new Date();
-        var desde = new Date(hoy.getFullYear(), hoy.getMonth() + offset, 1);
-        var hasta = new Date(hoy.getFullYear(), hoy.getMonth() + offset + 1, 0);
-        var iso = function(d) {
-            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-        };
-        var corto = function(d) {
-            return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
-        };
-        return { desde: iso(desde), hasta: iso(hasta), label: corto(desde) + ' – ' + corto(hasta) };
-    }
-
-    function aplicarPeriodo(cual) {
-        var r = rangoMes(cual === 'actual' ? 0 : -1);
-        $('#fechaDesde').val(r.desde);
-        $('#fechaHasta').val(r.hasta);
-        $('#selectMes').val(''); // las fechas mandan; el dropdown queda en "Manual..."
-    }
-
-    function preguntarPeriodoInforme() {
-        var rActual = rangoMes(0);
-        var rAnterior = rangoMes(-1);
-        Swal.fire({
-            title: '¿De qué periodo es el informe?',
-            html:
-                '<div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:10px;">' +
-                '  <div id="cardMesActual" style="cursor:pointer; border:2px solid #bd9751; border-radius:12px; padding:18px 16px; width:210px; background:#fffdf6;">' +
-                '    <i class="fas fa-calendar-day" style="font-size:30px; color:#bd9751;"></i>' +
-                '    <div style="font-weight:700; margin-top:8px;">Informe del mes actual</div>' +
-                '    <div style="color:#666; font-size:0.85rem; margin-top:4px;">' + rActual.label + '</div>' +
-                '  </div>' +
-                '  <div id="cardMesAnterior" style="cursor:pointer; border:2px solid #1c2437; border-radius:12px; padding:18px 16px; width:210px; background:#f7f8fa;">' +
-                '    <i class="fas fa-calendar-minus" style="font-size:30px; color:#1c2437;"></i>' +
-                '    <div style="font-weight:700; margin-top:8px;">Informe del mes anterior</div>' +
-                '    <div style="color:#666; font-size:0.85rem; margin-top:4px;">' + rAnterior.label + '</div>' +
-                '  </div>' +
-                '</div>',
-            showConfirmButton: false,
-            showCancelButton: false,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: function() {
-                document.getElementById('cardMesActual').addEventListener('click', function() {
-                    aplicarPeriodo('actual');
-                    Swal.close();
-                });
-                document.getElementById('cardMesAnterior').addEventListener('click', function() {
-                    aplicarPeriodo('anterior');
-                    Swal.close();
-                });
-            }
-        });
-    }
-
     $(document).ready(function() {
         // Recordatorio antes de crear informe (solo modo crear)
         if (!EDIT_MODE) {
@@ -575,9 +519,7 @@
             }).then(function(result) {
                 if (!result.isConfirmed) {
                     window.location.href = BASE + 'quick-access';
-                    return;
                 }
-                preguntarPeriodoInforme();
             });
         }
 
@@ -658,7 +600,13 @@
             var anio = parseInt($('#selectAnio').val()) || new Date().getFullYear();
             var mes, lastDay, fechaDesde, fechaHasta;
 
-            if (val === 'prev' || val === 'bim' || val === 'trim') {
+            if (val === 'cur') {
+                var hoyCur = new Date();
+                var dCur = new Date(hoyCur.getFullYear(), hoyCur.getMonth(), 1);
+                var hCur = new Date(hoyCur.getFullYear(), hoyCur.getMonth() + 1, 0);
+                fechaDesde = dCur.getFullYear() + '-' + String(dCur.getMonth()+1).padStart(2,'0') + '-01';
+                fechaHasta = hCur.getFullYear() + '-' + String(hCur.getMonth()+1).padStart(2,'0') + '-' + String(hCur.getDate()).padStart(2,'0');
+            } else if (val === 'prev' || val === 'bim' || val === 'trim') {
                 var today = new Date();
                 var mesesAtras = val === 'trim' ? 3 : (val === 'bim' ? 2 : 1);
                 // Fecha hasta = último día del mes anterior
