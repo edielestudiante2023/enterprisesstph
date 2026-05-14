@@ -79,9 +79,10 @@
                         placeholder="Ej: Juan Pérez García">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" style="font-size:13px;">Número de documento *</label>
-                    <input type="text" name="cedula" class="form-control form-control-sm" required
-                        placeholder="CC, CE, PEP, PPT, pasaporte (sin puntos ni guiones)">
+                    <label class="form-label" style="font-size:13px;">Documento *</label>
+                    <input type="text" name="cedula" id="inputCedula" class="form-control form-control-sm" required
+                        inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+                        placeholder="Solo números, sin puntos ni espacios">
                 </div>
                 <div class="mb-3">
                     <label class="form-label" style="font-size:13px;">Número de WhatsApp *</label>
@@ -178,6 +179,12 @@ $(function() {
 
     $('#selectConjunto').on('change', function() {
         $(this).next('.select2').find('.select2-selection').css('border-color','');
+    });
+
+    // Documento: solo enteros — descarta cualquier carácter no numérico al escribir o pegar.
+    $('#inputCedula').on('input', function() {
+        var limpio = this.value.replace(/[^0-9]/g, '');
+        if (this.value !== limpio) this.value = limpio;
     });
 });
 </script>

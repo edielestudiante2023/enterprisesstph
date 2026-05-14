@@ -114,7 +114,7 @@ $evalUrl        = base_url('evaluar/' . $evaluacion['token']);
                 <div class="table-responsive">
                     <table class="table table-sm table-bordered mb-0" style="font-size:11px;">
                         <thead class="table-light">
-                            <tr><th>#</th><th>Nombre</th><th>Documento</th><th>Cargo</th><th class="text-center">Calif.</th></tr>
+                            <tr><th>#</th><th>Nombre</th><th>Documento</th><th>Cargo</th><th class="text-center">Calif.</th><th class="text-center">Acción</th></tr>
                         </thead>
                         <tbody>
                         <?php foreach ($s['respuestas'] as $i => $r):
@@ -126,6 +126,13 @@ $evalUrl        = base_url('evaluar/' . $evaluacion['token']);
                             <td><?= esc($r['cargo']) ?></td>
                             <td class="text-center fw-bold <?= $aprobado ? 'text-success' : 'text-danger' ?>">
                                 <?= number_format($r['calificacion'], 1) ?>%
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-del-resp"
+                                    data-id="<?= (int) $r['id'] ?>" data-nombre="<?= esc($r['nombre']) ?>"
+                                    style="padding:1px 6px; font-size:10px;" title="Eliminar este registro">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -149,7 +156,7 @@ $evalUrl        = base_url('evaluar/' . $evaluacion['token']);
             <div class="table-responsive">
                 <table class="table table-sm table-bordered mb-0" style="font-size:11px;">
                     <thead class="table-light">
-                        <tr><th>#</th><th>Nombre</th><th>Documento</th><th>Cargo</th><th>Empresa</th><th class="text-center">Calif.</th></tr>
+                        <tr><th>#</th><th>Nombre</th><th>Documento</th><th>Cargo</th><th>Empresa</th><th class="text-center">Calif.</th><th class="text-center">Acción</th></tr>
                     </thead>
                     <tbody>
                     <?php foreach ($sinCliente as $i => $r):
@@ -162,6 +169,13 @@ $evalUrl        = base_url('evaluar/' . $evaluacion['token']);
                         <td><?= esc($r['empresa_contratante']) ?></td>
                         <td class="text-center fw-bold <?= $aprobado ? 'text-success' : 'text-danger' ?>">
                             <?= number_format($r['calificacion'], 1) ?>%
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-del-resp"
+                                data-id="<?= (int) $r['id'] ?>" data-nombre="<?= esc($r['nombre']) ?>"
+                                style="padding:1px 6px; font-size:10px;" title="Eliminar este registro">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -184,5 +198,71 @@ $evalUrl        = base_url('evaluar/' . $evaluacion['token']);
 function copyLink() {
     navigator.clipboard.writeText(document.getElementById('evalLinkInput').value)
         .then(() => Swal.fire({ icon:'success', title:'Copiado', timer:1200, showConfirmButton:false }));
+}
+
+// Eliminar respuesta individual con doble validación aritmética (guard contra borrado accidental)
+const URL_DEL_RESPUESTA = '<?= base_url('inspecciones/evaluacion-capacitacion/respuesta/delete') ?>';
+
+document.addEventListener('click', function (ev) {
+    const btn = ev.target.closest('.btn-del-resp');
+    if (!btn) return;
+    pedirDobleValidacion(btn.dataset.id, btn.dataset.nombre || 'este registro');
+});
+
+function pedirDobleValidacion(id, nombre) {
+    const n1a = Math.floor(Math.random() * 9) + 1, n1b = Math.floor(Math.random() * 9) + 1;
+    const n2a = Math.floor(Math.random() * 9) + 1, n2b = Math.floor(Math.random() * 9) + 1;
+
+    Swal.fire({
+        title: 'Eliminar registro',
+        html: 'Vas a eliminar la evaluación de <b>' + nombre + '</b>.<br><br>'
+            + 'Validación 1 de 2:<br><b>¿Cuánto es ' + n1a + ' + ' + n1b + '?</b>',
+        input: 'number',
+        inputAttributes: { min: 0 },
+        showCancelButton: true,
+        confirmButtonText: 'Siguiente',
+        cancelButtonText: 'Cancelar',
+        preConfirm: function (v) {
+            if (parseInt(v, 10) !== (n1a + n1b)) {
+                Swal.showValidationMessage('Resultado incorrecto.');
+                return false;
+            }
+            return true;
+        }
+    }).then(function (r1) {
+        if (!r1.isConfirmed) return;
+        Swal.fire({
+            title: 'Confirma de nuevo',
+            html: 'Validación 2 de 2:<br><b>¿Cuánto es ' + n2a + ' + ' + n2b + '?</b>',
+            input: 'number',
+            inputAttributes: { min: 0 },
+            showCancelButton: true,
+            confirmButtonText: 'Eliminar definitivamente',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#dc3545',
+            preConfirm: function (v) {
+                if (parseInt(v, 10) !== (n2a + n2b)) {
+                    Swal.showValidationMessage('Resultado incorrecto.');
+                    return false;
+                }
+                return true;
+            }
+        }).then(function (r2) {
+            if (!r2.isConfirmed) return;
+            const fd = new FormData();
+            fd.append('id_respuesta', id);
+            fetch(URL_DEL_RESPUESTA, { method: 'POST', body: fd })
+                .then(function (res) { return res.json(); })
+                .then(function (res) {
+                    if (res.ok) {
+                        Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1200, showConfirmButton: false })
+                            .then(function () { location.reload(); });
+                    } else {
+                        Swal.fire('Error', res.msg || 'No se pudo eliminar.', 'error');
+                    }
+                })
+                .catch(function () { Swal.fire('Error', 'Error de red.', 'error'); });
+        });
+    });
 }
 </script>

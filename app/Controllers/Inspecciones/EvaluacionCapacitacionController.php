@@ -191,6 +191,28 @@ class EvaluacionCapacitacionController extends BaseController
             ->with('msg', 'Evaluación eliminada.');
     }
 
+    /**
+     * Elimina una respuesta individual (fila de tbl_evaluacion_respuestas).
+     * La doble validación aritmética se hace en el front como guard contra
+     * borrados accidentales.
+     */
+    public function deleteRespuesta()
+    {
+        $idRespuesta = (int) $this->request->getPost('id_respuesta');
+        if (!$idRespuesta) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'ID de respuesta inválido.']);
+        }
+
+        $resp = $this->respuestaModel->find($idRespuesta);
+        if (!$resp) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'La respuesta ya no existe.']);
+        }
+
+        $this->respuestaModel->delete($idRespuesta);
+
+        return $this->response->setJSON(['ok' => true]);
+    }
+
     // ── API para ReporteCapacitacion ─────────────────────────────────────────
 
     public function apiResultadosPorFecha()
@@ -274,6 +296,9 @@ class EvaluacionCapacitacionController extends BaseController
         if (!$nombre || !$cedula) {
             return redirect()->to('/evaluar/' . $token)->with('error', 'Nombre y documento son obligatorios.');
         }
+        if (!ctype_digit($cedula)) {
+            return redirect()->to('/evaluar/' . $token)->with('error', 'El documento debe contener solo números (sin puntos, espacios ni letras).');
+        }
         if (!$idCliente) {
             return redirect()->to('/evaluar/' . $token)->with('error', 'Debe seleccionar el conjunto en el cual trabaja.');
         }
@@ -299,33 +324,36 @@ class EvaluacionCapacitacionController extends BaseController
         $respuestasRaw = $this->request->getPost('respuesta') ?? [];
         $calificacion  = EvaluacionPreguntaModel::calcularCalificacion($respuestasRaw, $preguntas);
 
-        // Regla: una persona no puede ser evaluada dos veces el mismo dia en el mismo tema.
-        // Si ya existe respuesta para (id_evaluacion, cedula, hoy), redirigir a gracias sin insertar.
+        $datos = [
+            'id_evaluacion'       => $evaluacion['id'],
+            'nombre'              => $nombre,
+            'cedula'              => $cedula,
+            'whatsapp'            => $whatsapp,
+            'empresa_contratante' => $empresa,
+            'cargo'               => $cargo,
+            'id_cliente_conjunto' => $idCliente,
+            'acepta_tratamiento'  => 1,
+            'respuestas'          => json_encode($respuestasRaw),
+            'calificacion'        => $calificacion,
+        ];
+
+        // Regla: una persona no puede tener dos respuestas el mismo día en el mismo tema.
+        // Si reintenta, se CONSERVA SIEMPRE el intento de mayor puntaje (UPDATE de la misma
+        // fila, nunca una fila adicional).
         $yaRespondido = $this->respuestaModel
             ->where('id_evaluacion', $evaluacion['id'])
             ->where('cedula', $cedula)
             ->where('DATE(created_at)', date('Y-m-d'))
             ->first();
+
         if ($yaRespondido) {
-            return redirect()->to('/evaluar/' . $token . '/gracias?cal=' . $yaRespondido['calificacion'] . '&duplicado=1');
+            return $this->resolverReintento($token, $yaRespondido, $datos, $calificacion, $idCliente, (int) $evaluacion['id']);
         }
 
         try {
-            $this->respuestaModel->insert([
-                'id_evaluacion'       => $evaluacion['id'],
-                'nombre'              => $nombre,
-                'cedula'              => $cedula,
-                'whatsapp'            => $whatsapp,
-                'empresa_contratante' => $empresa,
-                'cargo'               => $cargo,
-                'id_cliente_conjunto' => $idCliente,
-                'acepta_tratamiento'  => 1,
-                'respuestas'          => json_encode($respuestasRaw),
-                'calificacion'        => $calificacion,
-            ]);
+            $this->respuestaModel->insert($datos);
         } catch (\Throwable $e) {
-            // Safety net: si race-condition dispara violacion de UK uk_eval_doc_dia,
-            // tratamos como duplicado amigable (mismo resultado que el pre-check).
+            // Race-condition: otra petición insertó primero y violó la UK uk_eval_doc_dia.
             if (strpos($e->getMessage(), 'uk_eval_doc_dia') !== false
                 || strpos($e->getMessage(), 'Duplicate entry') !== false) {
                 $yaRespondido = $this->respuestaModel
@@ -333,8 +361,9 @@ class EvaluacionCapacitacionController extends BaseController
                     ->where('cedula', $cedula)
                     ->where('DATE(created_at)', date('Y-m-d'))
                     ->first();
-                $cal = $yaRespondido['calificacion'] ?? $calificacion;
-                return redirect()->to('/evaluar/' . $token . '/gracias?cal=' . $cal . '&duplicado=1');
+                if ($yaRespondido) {
+                    return $this->resolverReintento($token, $yaRespondido, $datos, $calificacion, $idCliente, (int) $evaluacion['id']);
+                }
             }
             throw $e;
         }
@@ -348,6 +377,28 @@ class EvaluacionCapacitacionController extends BaseController
         return redirect()->to('/evaluar/' . $token . '/gracias?cal=' . $calificacion);
     }
 
+    /**
+     * Resuelve un reintento de evaluación: conserva SIEMPRE el intento de mayor puntaje.
+     * Si el nuevo puntaje supera al guardado, sobrescribe la misma fila; si no, conserva
+     * el guardado. Nunca crea una fila adicional.
+     */
+    private function resolverReintento(string $token, array $yaRespondido, array $datos, float $calificacion, ?int $idCliente, int $idEvaluacion)
+    {
+        if ($calificacion > (float) $yaRespondido['calificacion']) {
+            // El nuevo intento es mejor → sobrescribe la fila existente.
+            $this->respuestaModel->update($yaRespondido['id'], $datos);
+
+            if ($idCliente) {
+                (new EvaluacionSesionModel())->obtenerOCrear($idEvaluacion, $idCliente, date('Y-m-d'));
+            }
+
+            return redirect()->to('/evaluar/' . $token . '/gracias?cal=' . $calificacion . '&actualizado=1');
+        }
+
+        // El intento guardado es igual o mejor → se conserva, no se crea fila nueva.
+        return redirect()->to('/evaluar/' . $token . '/gracias?cal=' . $yaRespondido['calificacion'] . '&duplicado=1');
+    }
+
     public function gracias(string $token)
     {
         $evaluacion = $this->evalModel->where('token', $token)->first();
@@ -359,6 +410,7 @@ class EvaluacionCapacitacionController extends BaseController
             'evaluacion'   => $evaluacion,
             'calificacion' => (float) ($this->request->getGet('cal') ?? 0),
             'duplicado'    => (bool) $this->request->getGet('duplicado'),
+            'actualizado'  => (bool) $this->request->getGet('actualizado'),
         ]);
     }
 
