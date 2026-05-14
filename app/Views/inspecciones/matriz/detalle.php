@@ -31,6 +31,7 @@ $totalRealizadas = $totalHechas + $totalAlDia;
 $totalFaltantes    = 0;
 $totalSinMeta      = 0;
 $totalSinPlaneadas = 0;
+$totalConPlaneadas = 0;
 $frecuenciasSet    = [];
 foreach ($filas as $f) {
     $vaRaw = $f['veces_anio'] ?? null;
@@ -47,7 +48,8 @@ foreach ($filas as $f) {
     foreach ($f['pta_vinculados'] as $v) {
         if (!empty($v['fecha_propuesta'])) { $tienePlaneada = true; break; }
     }
-    if (!$tienePlaneada) $totalSinPlaneadas++;
+    if ($tienePlaneada) $totalConPlaneadas++;
+    else                $totalSinPlaneadas++;
 }
 // Orden del dropdown de frecuencia: 'sin_definir' primero, luego numérico ascendente.
 $frecuenciasOpciones = array_keys($frecuenciasSet);
@@ -359,7 +361,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                         <select class="form-select form-select-sm filtro-fechas" style="font-size:11px;">
                             <option value="">Planeadas: todas</option>
                             <option value="sin">Sin planeadas (<?= $totalSinPlaneadas ?>)</option>
-                            <option value="con">Con planeadas</option>
+                            <option value="con">Con planeadas (<?= $totalConPlaneadas ?>)</option>
                         </select>
                     </th>
                     <th>

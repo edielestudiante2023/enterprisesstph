@@ -293,7 +293,7 @@ class InspeccionTypes
                 'slug' => 'planilla-seg-social', 'label' => 'Planilla Seg. Social', 'group' => 'Otros',
                 'icon' => 'fa-file-invoice',
                 'table' => 'tbl_planilla_ss_inspeccion', 'date_col' => 'created_at', 'estado_col' => null,
-                'list_route' => 'inspecciones/planilla-ss', 'create_route' => 'inspecciones/planilla-ss/create', 'view_route' => 'inspecciones/planilla-ss/view',
+                'list_route' => 'inspecciones/planilla-seg-social', 'create_route' => 'inspecciones/planilla-seg-social/create', 'view_route' => 'inspecciones/planilla-seg-social/edit',
             ],
             [
                 'slug' => 'carta-vigia', 'label' => 'Carta Vigía', 'group' => 'Otros',
