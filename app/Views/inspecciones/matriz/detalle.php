@@ -26,15 +26,38 @@ $totalRealizadas = $totalHechas + $totalAlDia;
 
 // "Faltan para estar al día": inspecciones que faltan para cumplir la meta anual
 // configurada, sobre los tipos con frecuencia definida (>0) aún no alcanzada.
+// También: $totalSinFechas (filas sin fechas, excluye No Aplica) y $frecuenciasSet
+// (valores distintos de veces_anio, para el dropdown de Frecuencia).
 $totalFaltantes = 0;
 $totalSinMeta   = 0;
+$totalSinFechas = 0;
+$frecuenciasSet = [];
 foreach ($filas as $f) {
+    $vaRaw = $f['veces_anio'] ?? null;
+    $frecuenciasSet[$vaRaw === null ? 'sin_definir' : (string) (int) $vaRaw] = true;
+
     if ($f['estado'] === 'no_aplica') continue;
+
     $va = $f['veces_anio'] ?? null;
     $ra = (int) ($f['realizadas_anio'] ?? 0);
     if ($va === null)             $totalSinMeta++;
     elseif ($va > 0 && $ra < $va) $totalFaltantes += ($va - $ra);
+
+    $tieneFechas = !empty($f['inspecciones']);
+    if (!$tieneFechas) {
+        foreach ($f['pta_vinculados'] as $v) {
+            if (!empty($v['fecha_propuesta'])) { $tieneFechas = true; break; }
+        }
+    }
+    if (!$tieneFechas) $totalSinFechas++;
 }
+// Orden del dropdown de frecuencia: 'sin_definir' primero, luego numérico ascendente.
+$frecuenciasOpciones = array_keys($frecuenciasSet);
+usort($frecuenciasOpciones, function ($a, $b) {
+    if ($a === 'sin_definir') return -1;
+    if ($b === 'sin_definir') return 1;
+    return (int) $a <=> (int) $b;
+});
 
 $totalTodos = count($filas);
 $aplicables = $totalTodos - $totalNoAplica;
@@ -320,8 +343,27 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                 <tr style="background:#2a3449;">
                     <th><input type="text" class="form-control form-control-sm col-filter" data-col="0" placeholder="Filtrar grupo" style="font-size:11px;"></th>
                     <th></th>
-                    <th><input type="text" class="form-control form-control-sm col-filter" data-col="2" placeholder="Filtrar tipo" style="font-size:11px;"></th>
-                    <th></th>
+                    <th>
+                        <input type="text" class="form-control form-control-sm col-filter" data-col="2" placeholder="Filtrar tipo" style="font-size:11px;">
+                        <select class="form-select form-select-sm filtro-frecuencia" style="font-size:11px; margin-top:4px;">
+                            <option value="">Frecuencia: todas</option>
+                            <?php foreach ($frecuenciasOpciones as $fk): ?>
+                                <option value="<?= esc($fk) ?>"><?php
+                                    if ($fk === 'sin_definir')      echo 'Sin definir';
+                                    elseif ($fk === '0')            echo 'Puntual';
+                                    elseif ($fk === '1')            echo '1 vez al año';
+                                    else                            echo esc($fk) . ' veces al año';
+                                ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </th>
+                    <th>
+                        <select class="form-select form-select-sm filtro-fechas" style="font-size:11px;">
+                            <option value="">Fechas: todas</option>
+                            <option value="sin">Sin fechas (<?= $totalSinFechas ?>)</option>
+                            <option value="con">Con fechas</option>
+                        </select>
+                    </th>
                     <th>
                         <select class="form-select form-select-sm col-filter" data-col="4" style="font-size:11px;">
                             <option value="">Todos</option>
@@ -388,6 +430,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                 ?>
                 <tr data-estado="<?= esc($f['estado']) ?>"
                     data-por-sincronizar="<?= $porSincronizarRow ? '1' : '0' ?>"
+                    data-frecuencia="<?= $vecesAnioBadge === null ? 'sin_definir' : (string) (int) $vecesAnioBadge ?>"
                     data-fechas="<?= esc(implode(',', $fechasTodasArr)) ?>"
                     data-fechas-realizadas="<?= esc(implode(',', $fechasRealizadasArr)) ?>"
                     data-fechas-programadas="<?= esc(implode(',', $fechasProgramadasArr)) ?>"
@@ -771,6 +814,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const estadoLabelMap = { 'realizadas': 'Realizadas', 'por_sincronizar': 'Por sincronizar', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
     let activeEstadoCardFilter = 'todas';
+    let activeFrecuenciaFilter = '';
+    let activeFechasFilter = '';
 
     // ── Persistencia de filtros por cliente (sobrevive a F5) ───────────────────
     // Guarda card de estado + filtros de texto Grupo/Tipo/Estado en localStorage.
@@ -779,10 +824,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function guardarFiltros() {
         try {
             localStorage.setItem(FILTROS_KEY, JSON.stringify({
-                card:   activeEstadoCardFilter || 'todas',
-                grupo:  tabla.column(0).search(),
-                tipo:   tabla.column(2).search(),
-                estado: tabla.column(4).search(),
+                card:       activeEstadoCardFilter || 'todas',
+                grupo:      tabla.column(0).search(),
+                tipo:       tabla.column(2).search(),
+                estado:     tabla.column(4).search(),
+                frecuencia: activeFrecuenciaFilter || '',
+                fechas:     activeFechasFilter || '',
             }));
         } catch (e) {}
     }
@@ -826,6 +873,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 api.column(2).search(f.tipo || '');
                 api.column(4).search(f.estado || '');
                 activeEstadoCardFilter = f.card || 'todas';
+                activeFrecuenciaFilter = f.frecuencia || '';
+                activeFechasFilter     = f.fechas || '';
                 if (grupoEl) grupoEl.value = f.grupo || '';
                 if (tipoEl)  tipoEl.value  = f.tipo || '';
                 if (estadoEl) {
@@ -833,6 +882,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         ? (estadoLabelMap[activeEstadoCardFilter] || '')
                         : (f.estado || '');
                 }
+                const frecEl   = document.querySelector('.filtro-frecuencia');
+                const fechasEl = document.querySelector('.filtro-fechas');
+                if (frecEl)   frecEl.value   = activeFrecuenciaFilter;
+                if (fechasEl) fechasEl.value = activeFechasFilter;
             } else {
                 document.querySelectorAll('.col-filter').forEach(function (el) {
                     const saved = api.column(el.dataset.col).search();
@@ -855,19 +908,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
         if (!settings.nTable || settings.nTable.id !== 'tablaMatriz') return true;
-        if (!activeEstadoCardFilter || activeEstadoCardFilter === 'todas') return true;
 
         const node = settings.aoData[dataIndex] ? settings.aoData[dataIndex].nTr : null;
         if (!node) return true;
 
-        if (activeEstadoCardFilter === 'por_sincronizar') {
-            return node.getAttribute('data-por-sincronizar') === '1';
+        // Filtro de estado (cards)
+        if (activeEstadoCardFilter && activeEstadoCardFilter !== 'todas') {
+            if (activeEstadoCardFilter === 'por_sincronizar') {
+                if (node.getAttribute('data-por-sincronizar') !== '1') return false;
+            } else if (activeEstadoCardFilter === 'realizadas') {
+                const e = node.getAttribute('data-estado');
+                if (e !== 'hecha' && e !== 'al_dia') return false;
+            } else {
+                if (node.getAttribute('data-estado') !== activeEstadoCardFilter) return false;
+            }
         }
-        if (activeEstadoCardFilter === 'realizadas') {
-            const e = node.getAttribute('data-estado');
-            return e === 'hecha' || e === 'al_dia';
+
+        // Filtro de frecuencia (veces al año)
+        if (activeFrecuenciaFilter) {
+            if ((node.getAttribute('data-frecuencia') || '') !== activeFrecuenciaFilter) return false;
         }
-        return node.getAttribute('data-estado') === activeEstadoCardFilter;
+
+        // Filtro de fechas (No Aplica nunca cuenta como "sin" ni "con")
+        if (activeFechasFilter === 'sin') {
+            if ((node.getAttribute('data-fechas') || '') !== '' ||
+                node.getAttribute('data-estado') === 'no_aplica') return false;
+        } else if (activeFechasFilter === 'con') {
+            if ((node.getAttribute('data-fechas') || '') === '') return false;
+        }
+
+        return true;
     });
 
     const selectedSlugs = new Set();
@@ -1102,6 +1172,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 selectEstado.value = label;
                 tabla.column(4).search('').draw();
             }
+            guardarFiltros();
+        });
+    });
+
+    // Dropdowns de Frecuencia y Fechas (filtros custom, persistentes)
+    document.querySelectorAll('.filtro-frecuencia').forEach(function (el) {
+        el.addEventListener('change', function () {
+            activeFrecuenciaFilter = this.value;
+            tabla.draw();
+            guardarFiltros();
+        });
+    });
+    document.querySelectorAll('.filtro-fechas').forEach(function (el) {
+        el.addEventListener('change', function () {
+            activeFechasFilter = this.value;
+            tabla.draw();
             guardarFiltros();
         });
     });
