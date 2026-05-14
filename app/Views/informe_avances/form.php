@@ -119,6 +119,11 @@
                         </div>
                         <div class="col-md-6 d-flex align-items-end" id="liquidarStatus"></div>
                     </div>
+                    <div class="row g-2 mt-2">
+                        <div class="col-12">
+                            <div id="frecuenciaContratoInfo" class="alert alert-light border py-2 px-3 mb-0" style="display:none; font-size:0.88rem;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -487,6 +492,63 @@
         });
     }
 
+    // ── Periodo del informe: mes actual vs mes anterior ───────────────────────
+    // offset 0 = mes actual, -1 = mes anterior. Date() maneja el cambio de año.
+    function rangoMes(offset) {
+        var hoy = new Date();
+        var desde = new Date(hoy.getFullYear(), hoy.getMonth() + offset, 1);
+        var hasta = new Date(hoy.getFullYear(), hoy.getMonth() + offset + 1, 0);
+        var iso = function(d) {
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        };
+        var corto = function(d) {
+            return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+        };
+        return { desde: iso(desde), hasta: iso(hasta), label: corto(desde) + ' – ' + corto(hasta) };
+    }
+
+    function aplicarPeriodo(cual) {
+        var r = rangoMes(cual === 'actual' ? 0 : -1);
+        $('#fechaDesde').val(r.desde);
+        $('#fechaHasta').val(r.hasta);
+        $('#selectMes').val(''); // las fechas mandan; el dropdown queda en "Manual..."
+    }
+
+    function preguntarPeriodoInforme() {
+        var rActual = rangoMes(0);
+        var rAnterior = rangoMes(-1);
+        Swal.fire({
+            title: '¿De qué periodo es el informe?',
+            html:
+                '<div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:10px;">' +
+                '  <div id="cardMesActual" style="cursor:pointer; border:2px solid #bd9751; border-radius:12px; padding:18px 16px; width:210px; background:#fffdf6;">' +
+                '    <i class="fas fa-calendar-day" style="font-size:30px; color:#bd9751;"></i>' +
+                '    <div style="font-weight:700; margin-top:8px;">Informe del mes actual</div>' +
+                '    <div style="color:#666; font-size:0.85rem; margin-top:4px;">' + rActual.label + '</div>' +
+                '  </div>' +
+                '  <div id="cardMesAnterior" style="cursor:pointer; border:2px solid #1c2437; border-radius:12px; padding:18px 16px; width:210px; background:#f7f8fa;">' +
+                '    <i class="fas fa-calendar-minus" style="font-size:30px; color:#1c2437;"></i>' +
+                '    <div style="font-weight:700; margin-top:8px;">Informe del mes anterior</div>' +
+                '    <div style="color:#666; font-size:0.85rem; margin-top:4px;">' + rAnterior.label + '</div>' +
+                '  </div>' +
+                '</div>',
+            showConfirmButton: false,
+            showCancelButton: false,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: function() {
+                document.getElementById('cardMesActual').addEventListener('click', function() {
+                    aplicarPeriodo('actual');
+                    Swal.close();
+                });
+                document.getElementById('cardMesAnterior').addEventListener('click', function() {
+                    aplicarPeriodo('anterior');
+                    Swal.close();
+                });
+            }
+        });
+    }
+
     $(document).ready(function() {
         // Recordatorio antes de crear informe (solo modo crear)
         if (!EDIT_MODE) {
@@ -513,7 +575,9 @@
             }).then(function(result) {
                 if (!result.isConfirmed) {
                     window.location.href = BASE + 'quick-access';
+                    return;
                 }
+                preguntarPeriodoInforme();
             });
         }
 
@@ -650,6 +714,18 @@
 
         function loadVencimientos(clienteId) {
             $.get(BASE + 'informe-avances/api/vencimientos/' + clienteId, function(resp) {
+                // Frecuencia de visita del contrato (informativo, para acertar el rango)
+                var frec = (resp && resp.frecuencia_visitas) ? String(resp.frecuencia_visitas).trim() : '';
+                if (frec) {
+                    $('#frecuenciaContratoInfo')
+                        .html('<i class="fas fa-calendar-check me-1"></i>Frecuencia de visita del contrato: <strong>' + frec + '</strong>')
+                        .show();
+                } else {
+                    $('#frecuenciaContratoInfo')
+                        .html('<i class="fas fa-info-circle me-1"></i>Sin frecuencia de visita definida en el contrato')
+                        .show();
+                }
+
                 var container = $('#seccionVencimientos');
                 if (!resp.success || !resp.data || resp.data.length === 0) {
                     container.remove();
