@@ -158,6 +158,11 @@
                                                        data-id-pta="<?= (int) $v['id_ptacliente'] ?>"
                                                        data-fecha="<?= esc($v['fecha_propuesta']) ?>"
                                                        title="Editar fecha propuesta"></i>
+                                                    <?php if ($isCerrada): ?>
+                                                        <i class="fas fa-eraser pta-reabrir"
+                                                           data-id-pta="<?= (int) $v['id_ptacliente'] ?>"
+                                                           title="Reabrir: estado → ABIERTA, vaciar fecha de cierre"></i>
+                                                    <?php endif; ?>
                                                 </span>
                                                 <?php if (!empty($v['numeral_plandetrabajo']) && $v['numeral_plandetrabajo'] !== '-'): ?>
                                                     <span class="pta-numeral"><?= esc($v['numeral_plandetrabajo']) ?></span>
