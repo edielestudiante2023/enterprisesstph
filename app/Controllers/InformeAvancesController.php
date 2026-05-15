@@ -355,11 +355,48 @@ class InformeAvancesController extends BaseController
             $db->query("INSERT INTO historial_resumen_plan_trabajo (id_cliente, nombre_cliente, estandares, nombre_consultor, correo_consultor, total_actividades, actividades_abiertas, porcentaje_abiertas, fecha_extraccion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [$id, $nombreCliente, $estandaresCliente, $nombreConsultor, $correoConsultor, $totalAct, $abiertas, $pctAbiertas, $now]);
             $insPlan = $db->affectedRows();
 
+            // Si se está liquidando desde un informe existente (edit mode), recalcular
+            // y persistir las métricas frescas en tbl_informe_avances. Solo se pisan los
+            // campos calculados; los editoriales (resumen, soportes, conclusiones) no.
+            $idInforme = (int) ($this->request->getPost('id_informe') ?: 0);
+            $informeActualizado = false;
+            if ($idInforme > 0) {
+                $informe = $this->informeModel->find($idInforme);
+                if ($informe && (int) $informe['id_cliente'] === $id) {
+                    $fechaDesde = $informe['fecha_desde'] ?: "{$anio}-01-01";
+                    $fechaHasta = $informe['fecha_hasta'] ?: date('Y-m-d');
+                    $service = new MetricasInformeService();
+                    $metricas = $service->calcularTodas($id, $fechaDesde, $fechaHasta, $anio);
+
+                    $this->informeModel->update($idInforme, [
+                        'puntaje_anterior'             => $metricas['puntaje_anterior'],
+                        'puntaje_actual'               => $metricas['puntaje_actual'],
+                        'diferencia_neta'              => $metricas['diferencia_neta'],
+                        'estado_avance'                => $metricas['estado_avance'],
+                        'indicador_plan_trabajo'       => $metricas['indicador_plan_trabajo'],
+                        'indicador_capacitacion'       => $metricas['indicador_capacitacion'],
+                        'actividades_abiertas'         => $metricas['actividades_abiertas'],
+                        'actividades_sin_respuesta'    => $metricas['actividades_sin_respuesta'] ?? '',
+                        'actividades_cerradas_periodo' => $metricas['actividades_cerradas_periodo'],
+                        'actividades_no_cerradas_pta'  => $metricas['actividades_no_cerradas_pta'] ?? '',
+                        'enlace_dashboard'             => $metricas['enlace_dashboard'],
+                        'metricas_desglose_json'       => json_encode([
+                            'desglose_estandares'   => $metricas['desglose_estandares'] ?? [],
+                            'desglose_plan_trabajo' => $metricas['desglose_plan_trabajo'] ?? [],
+                            'desglose_capacitacion' => $metricas['desglose_capacitacion'] ?? [],
+                            'desglose_pendientes'   => $metricas['desglose_pendientes'] ?? [],
+                        ], JSON_UNESCAPED_UNICODE),
+                    ]);
+                    $informeActualizado = true;
+                }
+            }
+
             return $this->response->setJSON([
                 'success' => true,
                 'mensaje' => "Snapshot liquidado para cliente {$id} (ciclo {$anio})",
                 'estandares' => ['eliminados' => $delEst, 'insertados' => $insEst, 'porcentaje' => $pctCumplimiento],
                 'plan' => ['eliminados' => $delPlan, 'insertados' => $insPlan, 'porcentaje_abiertas' => $pctAbiertas],
+                'informe_actualizado' => $informeActualizado,
                 'fecha' => $now,
             ]);
         } catch (\Exception $e) {
