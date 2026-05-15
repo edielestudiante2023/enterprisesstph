@@ -16,11 +16,42 @@ class MatrizInspeccionesController extends BaseController
     protected InspeccionNoAplicaModel $noAplicaModel;
     protected PtaInspeccionMatchModel $matchModel;
 
+    /** Caché en memoria (por request) para evitar SHOW TABLES repetidos. */
+    private array $tableExistsCache = [];
+    /** Caché en memoria (por request) para evitar SHOW COLUMNS repetidos. */
+    private array $fieldNamesCache = [];
+
     public function __construct()
     {
         $this->clienteModel = new ClientModel();
         $this->noAplicaModel = new InspeccionNoAplicaModel();
         $this->matchModel = new PtaInspeccionMatchModel();
+    }
+
+    /**
+     * tableExists() cacheado por nombre de tabla durante la vida del controller.
+     * Evita re-ejecutar SHOW TABLES decenas de veces en los loops por tipo.
+     */
+    private function tableExistsCached(string $table): bool
+    {
+        if (!array_key_exists($table, $this->tableExistsCache)) {
+            $this->tableExistsCache[$table] = \Config\Database::connect()->tableExists($table);
+        }
+        return $this->tableExistsCache[$table];
+    }
+
+    /**
+     * getFieldNames() cacheado por nombre de tabla. Devuelve [] si la tabla
+     * no existe (no consulta SHOW COLUMNS en ese caso).
+     */
+    private function fieldNamesCached(string $table): array
+    {
+        if (!array_key_exists($table, $this->fieldNamesCache)) {
+            $this->fieldNamesCache[$table] = $this->tableExistsCached($table)
+                ? \Config\Database::connect()->getFieldNames($table)
+                : [];
+        }
+        return $this->fieldNamesCache[$table];
     }
 
     /**
@@ -148,7 +179,7 @@ class MatrizInspeccionesController extends BaseController
 
         // Precargar matches del cliente cuyo PTA cae en el rango
         $matchesBySlug = [];
-        if ($db->tableExists('tbl_pta_inspeccion_match')) {
+        if ($this->tableExistsCached('tbl_pta_inspeccion_match')) {
             $matches = $db->table('tbl_pta_inspeccion_match m')
                 ->select('m.slug_inspeccion, m.id_ptacliente, m.method, m.score, p.fecha_propuesta, p.fecha_cierre, p.numeral_plandetrabajo, p.actividad_plandetrabajo, p.estado_actividad')
                 ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'inner')
@@ -169,8 +200,8 @@ class MatrizInspeccionesController extends BaseController
         $inspeccionesPorAnio = [];
         $inspeccionesPorMes  = array_fill(1, 12, 0);
         foreach ($tipos as $tipo) {
-            if (!$db->tableExists($tipo['table'])) continue;
-            $fieldsT = $db->getFieldNames($tipo['table']);
+            if (!$this->tableExistsCached($tipo['table'])) continue;
+            $fieldsT = $this->fieldNamesCached($tipo['table']);
             $dateColT = in_array($tipo['date_col'], $fieldsT, true) ? $tipo['date_col'] : null;
             if (!$dateColT || !in_array('id_cliente', $fieldsT, true)) continue;
 
@@ -194,7 +225,7 @@ class MatrizInspeccionesController extends BaseController
         }
 
         // Sumar PTAs vinculadas (programadas) por año/mes al pool de conteos
-        if ($db->tableExists('tbl_pta_inspeccion_match')) {
+        if ($this->tableExistsCached('tbl_pta_inspeccion_match')) {
             $rowsPta = $db->table('tbl_pta_inspeccion_match m')
                 ->select("YEAR(p.fecha_propuesta) AS y, MONTH(p.fecha_propuesta) AS mm, COUNT(*) AS c")
                 ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'inner')
@@ -898,8 +929,8 @@ class MatrizInspeccionesController extends BaseController
         $estadoValue = $tipo['estado_value'] ?? 'completo';
         $extraWhere = $tipo['extra_where'] ?? [];
 
-        if ($db->tableExists($tipo['table'])) {
-            $fields = $db->getFieldNames($tipo['table']);
+        if ($this->tableExistsCached($tipo['table'])) {
+            $fields = $this->fieldNamesCached($tipo['table']);
             $dateCol = in_array($tipo['date_col'], $fields, true) ? $tipo['date_col'] : null;
             $pkCol = in_array('id', $fields, true) ? 'id' : ($fields[0] ?? 'id');
 
@@ -951,8 +982,8 @@ class MatrizInspeccionesController extends BaseController
         $vecesAnio       = $frecuenciasMap[$tipo['slug']] ?? null; // null = sin definir, 0 = puntual
         $realizadasAnio  = 0;
         $ultimaGlobal    = null;
-        if ($vecesAnio !== null && $db->tableExists($tipo['table'])) {
-            $fieldsT  = $db->getFieldNames($tipo['table']);
+        if ($vecesAnio !== null && $this->tableExistsCached($tipo['table'])) {
+            $fieldsT  = $this->fieldNamesCached($tipo['table']);
             $dateColT = in_array($tipo['date_col'], $fieldsT, true) ? $tipo['date_col'] : null;
             if ($dateColT && in_array('id_cliente', $fieldsT, true)) {
                 // Aplica los MISMOS filtros que el query principal de inspecciones para no mezclar
@@ -1050,7 +1081,7 @@ class MatrizInspeccionesController extends BaseController
 
         $db = \Config\Database::connect();
         $matchesBySlug = [];
-        if ($db->tableExists('tbl_pta_inspeccion_match')) {
+        if ($this->tableExistsCached('tbl_pta_inspeccion_match')) {
             $matches = $db->table('tbl_pta_inspeccion_match m')
                 ->select('m.slug_inspeccion, m.id_ptacliente, m.method, m.score, p.fecha_propuesta, p.fecha_cierre, p.numeral_plandetrabajo, p.actividad_plandetrabajo, p.estado_actividad')
                 ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'inner')
@@ -1119,11 +1150,11 @@ class MatrizInspeccionesController extends BaseController
     {
         $db = \Config\Database::connect();
 
-        if (!$db->tableExists($tipo['table'])) {
+        if (!$this->tableExistsCached($tipo['table'])) {
             return ['ok' => false, 'msg' => 'Tabla de inspección no existe.'];
         }
 
-        $fields  = $db->getFieldNames($tipo['table']);
+        $fields  = $this->fieldNamesCached($tipo['table']);
         $dateCol = in_array($tipo['date_col'], $fields, true) ? $tipo['date_col'] : null;
         if (!$dateCol || !in_array('id_cliente', $fields, true)) {
             return ['ok' => false, 'msg' => 'Tabla sin columnas necesarias.'];
