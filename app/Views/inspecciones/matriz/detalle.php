@@ -326,6 +326,9 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             <button type="button" id="btnBulkClear" class="btn btn-sm btn-outline-dark" style="font-size:12px; padding:5px 10px;" disabled>
                 <i class="fas fa-times"></i> Limpiar
             </button>
+            <button type="button" id="btnLimpiarFiltrosMatriz" class="btn btn-sm btn-outline-secondary" style="font-size:12px; padding:5px 10px;" title="Limpia card, Grupo, Tipo, Estado, Frecuencia y Planeadas">
+                <i class="fas fa-broom"></i> Limpiar todos los filtros
+            </button>
         </div>
     </div>
 
@@ -773,6 +776,35 @@ document.addEventListener('DOMContentLoaded', function () {
         syncBulkControls();
     });
 
+    // Botón "Limpiar todos los filtros" — resetea card + Grupo/Tipo/Estado +
+    // Frecuencia + Planeadas, limpia localStorage y redibuja la tabla.
+    document.getElementById('btnLimpiarFiltrosMatriz').addEventListener('click', function () {
+        activeEstadoCardFilter = 'todas';
+        activeFrecuenciaFilter = '';
+        activeFechasFilter = '';
+
+        tabla.column(0).search('');
+        tabla.column(2).search('');
+        tabla.column(4).search('');
+
+        document.querySelectorAll('.col-filter').forEach(function (el) {
+            if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.value = '';
+        });
+        const frecEl   = document.querySelector('.filtro-frecuencia');
+        const fechasEl = document.querySelector('.filtro-fechas');
+        if (frecEl)   frecEl.value   = '';
+        if (fechasEl) fechasEl.value = '';
+
+        document.querySelectorAll('.card-filtro').forEach(c => c.classList.remove('active'));
+        const cardTodas = document.querySelector('.card-filtro[data-filtro="todas"]');
+        if (cardTodas) cardTodas.classList.add('active');
+
+        try { localStorage.removeItem(FILTROS_KEY); } catch (e) {}
+
+        tabla.draw();
+        guardarFiltros(); // persiste el estado limpio
+    });
+
     function appendSelectedSlugs(fd) {
         Array.from(selectedSlugs).forEach(slug => fd.append('slugs[]', slug));
     }
@@ -931,16 +963,20 @@ document.addEventListener('DOMContentLoaded', function () {
     recalcMatrizCards();
 
     // ── Recalcular cards de Estado + Cobertura desde las <tr> del tbody ─────
-    // Cuenta TODAS las filas del tbody (no solo las visibles), porque los
-    // contadores de las cards son totales por estado, no del filtro activo.
+    // Cuenta TODAS las filas que DataTables conoce (incluyendo otras páginas y
+    // filtradas, que no están en el DOM con paginación). Por eso usamos
+    // tabla.rows().nodes() en vez de querySelectorAll.
     function recalcEstadoCards() {
-        const rows = document.querySelectorAll('#tablaMatriz tbody tr[data-estado]');
+        if (typeof tabla === 'undefined' || !tabla) return;
+        const rows = tabla.rows().nodes().toArray();
         let total = 0, hecha = 0, alDia = 0, pendiente = 0, atrasada = 0, noAplica = 0;
         let porSinc = 0, sinMeta = 0, faltantes = 0;
 
         rows.forEach(function (tr) {
-            total++;
+            if (!tr || !tr.getAttribute) return;
             const e = tr.getAttribute('data-estado');
+            if (!e) return;
+            total++;
             if (e === 'hecha') hecha++;
             else if (e === 'al_dia') alDia++;
             else if (e === 'pendiente') pendiente++;
