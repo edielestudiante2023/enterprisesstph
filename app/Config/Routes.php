@@ -952,6 +952,7 @@ $routes->group('inspecciones', ['namespace' => 'App\Controllers\Inspecciones', '
     $routes->post('matriz/desvincular-pta', 'MatrizInspeccionesController::desvincularPta');
     $routes->post('matriz/desvincular-pta-tipo', 'MatrizInspeccionesController::desvincularPtaPorTipo');
     $routes->post('matriz/editar-fecha-pta', 'MatrizInspeccionesController::editarFechaPta');
+    $routes->get('matriz/fila-slug/(:num)', 'MatrizInspeccionesController::filaSlug/$1');
     $routes->post('matriz/crear-pta', 'MatrizInspeccionesController::crearPta');
     $routes->post('matriz/generar-pta-ia', 'MatrizInspeccionesController::generarDetallesPta');
 
