@@ -530,6 +530,10 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
                                                 <span class="pta-date">
                                                     <i class="fas fa-calendar-alt"></i> <?= date('d/m/Y', strtotime($v['fecha_propuesta'])) ?>
                                                     <?php if ($isCerrada): ?><span class="pta-check">✓</span><?php endif; ?>
+                                                    <i class="fas fa-pen pta-edit-fecha"
+                                                       data-id-pta="<?= (int) $v['id_ptacliente'] ?>"
+                                                       data-fecha="<?= esc($v['fecha_propuesta']) ?>"
+                                                       title="Editar fecha propuesta"></i>
                                                 </span>
                                                 <?php if (!empty($v['numeral_plandetrabajo']) && $v['numeral_plandetrabajo'] !== '-'): ?>
                                                     <span class="pta-numeral"><?= esc($v['numeral_plandetrabajo']) ?></span>
@@ -780,6 +784,11 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
 .pta-item .pta-date { color:#0b5ed7; font-weight:600; white-space:nowrap; flex-shrink:0; }
 .pta-item.pta-item-cerrada .pta-date { color:#155724; }
 .pta-item .pta-check { color:#155724; font-weight:700; margin-left:2px; }
+.pta-item .pta-edit-fecha {
+    color:#6c757d; cursor:pointer; margin-left:6px; font-size:10px;
+    transition: color .15s;
+}
+.pta-item .pta-edit-fecha:hover { color:#bd9751; }
 .pta-item .pta-numeral {
     background:#fff; color:#555; padding:1px 5px; border-radius:4px;
     font-size:9px; font-weight:600; flex-shrink:0;
@@ -812,6 +821,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_PTA_LINK = '<?= base_url('inspecciones/matriz/vincular-pta') ?>';
     const URL_PTA_UNLINK_TIPO = '<?= base_url('inspecciones/matriz/desvincular-pta-tipo') ?>';
     const URL_PTA_CREAR = '<?= base_url('inspecciones/matriz/crear-pta') ?>';
+    const URL_PTA_EDITAR_FECHA = '<?= base_url('inspecciones/matriz/editar-fecha-pta') ?>';
     const URL_PTA_IA = '<?= base_url('inspecciones/matriz/generar-pta-ia') ?>';
 
     const estadoLabelMap = { 'realizadas': 'Realizadas', 'por_sincronizar': 'Por sincronizar', 'pendiente': 'Pendiente', 'atrasada': 'Atrasada', 'no_aplica': 'No Aplica' };
@@ -1300,6 +1310,46 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('modalCountSelected').textContent =
             modalVinculados.size + ' seleccionada(s)';
     }
+
+    // Editar fecha propuesta de una PTA con un clic (icono lápiz en .pta-item)
+    document.addEventListener('click', function (ev) {
+        const icon = ev.target.closest('.pta-edit-fecha');
+        if (!icon) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        const idPta = icon.getAttribute('data-id-pta');
+        const fechaActual = icon.getAttribute('data-fecha') || '';
+        Swal.fire({
+            title: 'Editar fecha propuesta',
+            input: 'date',
+            inputValue: fechaActual,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-save me-1"></i> Guardar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#bd9751',
+            preConfirm: function (val) {
+                if (!val) { Swal.showValidationMessage('Selecciona una fecha.'); return false; }
+                return val;
+            }
+        }).then(function (r) {
+            if (!r.isConfirmed) return;
+            const fd = new FormData();
+            fd.append('id_cliente', ID_CLIENTE);
+            fd.append('id_ptacliente', idPta);
+            fd.append('fecha_propuesta', r.value);
+            fetch(URL_PTA_EDITAR_FECHA, { method: 'POST', body: fd })
+                .then(function (res) { return res.json(); })
+                .then(function (res) {
+                    if (res.ok) {
+                        Swal.fire({ icon: 'success', title: 'Fecha actualizada', timer: 1200, showConfirmButton: false })
+                            .then(function () { reloadMatriz(); });
+                    } else {
+                        Swal.fire('Error', res.msg || 'No se pudo actualizar.', 'error');
+                    }
+                })
+                .catch(function () { Swal.fire('Error', 'Error de red.', 'error'); });
+        });
+    });
 
     document.querySelectorAll('.btn-vincular-pta').forEach(function (btn) {
         btn.addEventListener('click', function () {
