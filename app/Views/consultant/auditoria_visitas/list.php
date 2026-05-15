@@ -281,6 +281,11 @@
                 <label style="font-size:11px; color:#6c757d; margin-bottom:2px;">Fecha Acta hasta</label>
                 <input type="date" id="filtroFechaHasta" class="form-control form-control-sm">
             </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="button" id="btnLimpiarFiltros" class="btn btn-outline-secondary btn-sm w-100">
+                    <i class="fas fa-broom me-1"></i> Limpiar todos los filtros
+                </button>
+            </div>
         </div>
 
         <!-- ═══ TABLA ═══ -->
@@ -562,6 +567,18 @@
         });
         $('#filtroFechaDesde').on('change', function() { applyFilter('fecha_desde', this.value); });
         $('#filtroFechaHasta').on('change', function() { applyFilter('fecha_hasta', this.value); });
+
+        // Botón "Limpiar todos los filtros" — resetea todos los filtros y persiste
+        $('#btnLimpiarFiltros').on('click', function() {
+            Object.keys(activeFilters).forEach(function (k) { activeFilters[k] = ''; });
+            $('#filtroConsultor, #filtroMes, #filtroPeriodicidad, #filtroEstatusAgenda, #filtroEstatusMes').val('');
+            $('#filtroFechaDesde, #filtroFechaHasta').val('');
+            $('.filter-card').removeClass('active');
+            $('.filter-card[data-value=""]').addClass('active');
+            table.draw();
+            recalcCards();
+            guardarFiltros();
+        });
 
         // Enviar recordatorio manual
         $(document).on('click', '.btn-enviar-recordatorio', function() {

@@ -124,6 +124,9 @@
                         <div class="col-12">
                             <div id="frecuenciaContratoInfo" class="alert alert-light border py-2 px-3 mb-0" style="display:none; font-size:0.88rem;"></div>
                         </div>
+                        <div class="col-12">
+                            <div id="frecuenciaRangoAlerta" class="alert alert-warning py-2 px-3 mb-0" style="display:none; font-size:0.88rem;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -627,6 +630,7 @@
             }
             $('#fechaDesde').val(fechaDesde);
             $('#fechaHasta').val(fechaHasta);
+            validarRangoFrecuencia();
         });
 
         if (EDIT_MODE && PRESELECT_CLIENTE) {
@@ -660,10 +664,43 @@
             }
         }
 
+        // Frecuencia del contrato vigente (se llena en loadVencimientos). Sirve
+        // para validar que el rango Desde/Hasta cubra los meses esperados.
+        var frecuenciaContrato = '';
+
+        function validarRangoFrecuencia() {
+            var $alerta = $('#frecuenciaRangoAlerta');
+            var f = (frecuenciaContrato || '').toLowerCase();
+            var requeridos = 0;
+            if (f.indexOf('trimestral') !== -1)      requeridos = 3;
+            else if (f.indexOf('bimensual') !== -1)  requeridos = 2;
+            if (!requeridos) { $alerta.hide(); return; }
+
+            var d = $('#fechaDesde').val();
+            var h = $('#fechaHasta').val();
+            if (!d || !h) { $alerta.hide(); return; }
+
+            var dd = new Date(d + 'T00:00:00');
+            var hh = new Date(h + 'T00:00:00');
+            if (isNaN(dd) || isNaN(hh) || hh < dd) { $alerta.hide(); return; }
+
+            var meses = (hh.getFullYear() * 12 + hh.getMonth()) - (dd.getFullYear() * 12 + dd.getMonth()) + 1;
+            if (meses < requeridos) {
+                var nombre = requeridos === 3 ? 'TRIMESTRAL' : 'BIMENSUAL';
+                $alerta.html('<i class="fas fa-exclamation-triangle me-1"></i>El contrato es <strong>' + nombre + '</strong> pero el rango seleccionado cubre solo <strong>' + meses + ' mes' + (meses === 1 ? '' : 'es') + '</strong>. Debería cubrir al menos <strong>' + requeridos + ' meses</strong>.').show();
+            } else {
+                $alerta.hide();
+            }
+        }
+
+        // Validar al cambiar manualmente las fechas
+        $('#fechaDesde, #fechaHasta').on('change', validarRangoFrecuencia);
+
         function loadVencimientos(clienteId) {
             $.get(BASE + 'informe-avances/api/vencimientos/' + clienteId, function(resp) {
                 // Frecuencia de visita del contrato (informativo, para acertar el rango)
                 var frec = (resp && resp.frecuencia_visitas) ? String(resp.frecuencia_visitas).trim() : '';
+                frecuenciaContrato = frec;
                 if (frec) {
                     $('#frecuenciaContratoInfo')
                         .html('<i class="fas fa-calendar-check me-1"></i>Frecuencia de visita del contrato: <strong>' + frec + '</strong>')
@@ -673,6 +710,7 @@
                         .html('<i class="fas fa-info-circle me-1"></i>Sin frecuencia de visita definida en el contrato')
                         .show();
                 }
+                validarRangoFrecuencia();
 
                 var container = $('#seccionVencimientos');
                 if (!resp.success || !resp.data || resp.data.length === 0) {
