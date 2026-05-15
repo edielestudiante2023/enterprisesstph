@@ -55,6 +55,7 @@
                     data-slug="<?= esc($f['slug']) ?>"
                     data-por-sincronizar="<?= $porSincronizarRow ? '1' : '0' ?>"
                     data-frecuencia="<?= $vecesAnioBadge === null ? 'sin_definir' : (string) (int) $vecesAnioBadge ?>"
+                    data-realizadas-anio="<?= $realizadasAnioBadge ?>"
                     data-fechas="<?= esc(implode(',', $fechasTodasArr)) ?>"
                     data-fechas-realizadas="<?= esc(implode(',', $fechasRealizadasArr)) ?>"
                     data-fechas-programadas="<?= esc(implode(',', $fechasProgramadasArr)) ?>"
