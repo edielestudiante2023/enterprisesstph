@@ -329,6 +329,9 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             <button type="button" id="btnLimpiarFiltrosMatriz" class="btn btn-sm btn-outline-secondary" style="font-size:12px; padding:5px 10px;" title="Limpia card, Grupo, Tipo, Estado, Frecuencia y Planeadas">
                 <i class="fas fa-broom"></i> Limpiar todos los filtros
             </button>
+            <button type="button" id="btnRefrescarTodoMatriz" class="btn btn-sm btn-outline-info" style="font-size:12px; padding:5px 10px;" title="Recarga todas las filas con datos frescos (PTAs, inspecciones, frecuencias y vinculaciones modificadas desde otros módulos)">
+                <i class="fas fa-sync-alt"></i> Refrescar todo
+            </button>
         </div>
     </div>
 
@@ -563,6 +566,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_PTA_EDITAR_FECHA = '<?= base_url('inspecciones/matriz/editar-fecha-pta') ?>';
     const URL_PTA_REABRIR      = '<?= base_url('inspecciones/matriz/reabrir-pta') ?>';
     const URL_FILA_SLUG = '<?= base_url('inspecciones/matriz/fila-slug/' . (int) $cliente['id_cliente']) ?>';
+    const URL_FILAS_TODAS = '<?= base_url('inspecciones/matriz/filas-todas/' . (int) $cliente['id_cliente']) ?>';
 
     /**
      * Refresca UNA fila de la matriz (un slug) por AJAX sin recargar la página.
@@ -809,6 +813,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
         tabla.draw();
         guardarFiltros(); // persiste el estado limpio
+    });
+
+    // Botón "Refrescar todo" — pide al servidor todas las filas pre-renderizadas con
+    // cache invalidado y reemplaza el contenido de la DataTable manteniendo filtros y página.
+    document.getElementById('btnRefrescarTodoMatriz').addEventListener('click', function () {
+        const btn = this;
+        const original = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refrescando...';
+
+        const url = new URL(window.location.href);
+        const fd = (url.searchParams.get('fecha_desde')) || (<?= (int) $anio ?> + '-01-01');
+        const fh = (url.searchParams.get('fecha_hasta')) || (<?= (int) $anio ?> + '-12-31');
+        const q = new URLSearchParams({ fecha_desde: fd, fecha_hasta: fh });
+
+        fetch(URL_FILAS_TODAS + '?' + q.toString())
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+                if (!res || !res.ok || !Array.isArray(res.filas)) {
+                    Swal.fire('Error', (res && res.msg) || 'No se pudieron cargar las filas.', 'error');
+                    return;
+                }
+                // Reemplazo masivo: quitar TODAS las filas y agregar las nuevas en bloque
+                tabla.clear();
+                res.filas.forEach(function (item) {
+                    if (!item || !item.html) return;
+                    const $new = $(item.html.trim());
+                    if ($new && $new.length) tabla.row.add($new[0]);
+                });
+                tabla.draw(false); // dispara recalcEstadoCards y mantiene la página actual
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Matriz actualizada',
+                    text: res.total + ' fila(s) recargadas con datos frescos.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            })
+            .catch(function () {
+                Swal.fire('Error', 'Error de red al refrescar la matriz.', 'error');
+            })
+            .finally(function () {
+                btn.disabled = false;
+                btn.innerHTML = original;
+            });
     });
 
     function appendSelectedSlugs(fd) {
