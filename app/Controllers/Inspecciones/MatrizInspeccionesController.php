@@ -1151,6 +1151,73 @@ class MatrizInspeccionesController extends BaseController
     }
 
     /**
+     * Devuelve TODAS las filas de la matriz pre-renderizadas (html + slug) para refrescar
+     * la tabla completa por AJAX sin recargar la vista. Fuerza limpieza de caché antes
+     * de computar — pensado para el botón "Refrescar todo" que debe hablar datos vivos
+     * cuando se modifican PTAs/inspecciones desde otros módulos.
+     */
+    public function filasMatriz($idCliente)
+    {
+        $idCliente = (int) $idCliente;
+        if (!$idCliente) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Cliente inválido.']);
+        }
+
+        $cliente = $this->clienteModel->find($idCliente);
+        if (!$cliente) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Cliente no encontrado.']);
+        }
+
+        $isValidDate = static fn($d) => is_string($d) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) && strtotime($d) !== false;
+        $fechaDesde = trim((string) $this->request->getGet('fecha_desde'));
+        $fechaHasta = trim((string) $this->request->getGet('fecha_hasta'));
+        if (!$isValidDate($fechaDesde) || !$isValidDate($fechaHasta)) {
+            $anio = (int) date('Y');
+            $fechaDesde = $anio . '-01-01';
+            $fechaHasta = $anio . '-12-31';
+        }
+        $anio = (int) substr($fechaDesde, 0, 4);
+
+        // Forzar refresco real: el cliente puede haber sido tocado desde otros módulos
+        self::clearMatrizCache($idCliente);
+
+        $noAplica       = $this->noAplicaModel->getByCliente($idCliente);
+        $frecuenciasMap = (new \App\Models\InspeccionFrecuenciaClienteModel())->getByCliente($idCliente);
+
+        $db = \Config\Database::connect();
+        $matchesBySlug = [];
+        if ($this->tableExistsCached('tbl_pta_inspeccion_match')) {
+            $matches = $db->table('tbl_pta_inspeccion_match m')
+                ->select('m.slug_inspeccion, m.id_ptacliente, m.method, m.score, p.fecha_propuesta, p.fecha_cierre, p.numeral_plandetrabajo, p.actividad_plandetrabajo, p.estado_actividad')
+                ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'inner')
+                ->where('m.id_cliente', $idCliente)
+                ->where('p.fecha_propuesta >=', $fechaDesde)
+                ->where('p.fecha_propuesta <=', $fechaHasta)
+                ->orderBy('p.fecha_propuesta', 'ASC')
+                ->get()->getResultArray();
+            foreach ($matches as $m) {
+                $matchesBySlug[$m['slug_inspeccion']][] = $m;
+            }
+        }
+
+        $tipos = InspeccionTypes::all();
+        $filas = [];
+        foreach ($tipos as $tipo) {
+            $f = $this->computeFila($tipo, $idCliente, $fechaDesde, $fechaHasta, $anio, $noAplica, $frecuenciasMap, $matchesBySlug);
+            $filas[] = [
+                'slug' => $f['slug'],
+                'html' => view('inspecciones/matriz/_fila', ['f' => $f, 'cliente' => $cliente]),
+            ];
+        }
+
+        return $this->response->setJSON([
+            'ok'    => true,
+            'filas' => $filas,
+            'total' => count($filas),
+        ]);
+    }
+
+    /**
      * Helper de clave de caché para la matriz.
      */
     private static function cacheKey(int $idCliente, string $fechaDesde, string $fechaHasta): string
