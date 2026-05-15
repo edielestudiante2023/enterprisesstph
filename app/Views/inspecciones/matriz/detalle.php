@@ -241,7 +241,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             <div class="card border-0 text-center card-filtro active" data-filtro="todas" style="background:#eef2f7; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#1c2437; font-weight:600;"><i class="fas fa-list"></i> Todas</div>
-                    <div style="font-size:20px; font-weight:700; color:#1c2437;"><?= $totalTodos ?></div>
+                    <div class="card-count-num" style="font-size:20px; font-weight:700; color:#1c2437;"><?= $totalTodos ?></div>
                 </div>
             </div>
         </div>
@@ -249,20 +249,22 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             <div class="card border-0 text-center card-filtro" data-filtro="realizadas" style="background:#d4edda; border-radius:10px; cursor:pointer;" title="Inspecciones realizadas — cumplan o no la meta anual configurada">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#155724; font-weight:600;"><i class="fas fa-check-circle"></i> Realizadas</div>
-                    <div style="font-size:20px; font-weight:700; color:#155724;"><?= $totalRealizadas ?></div>
-                    <?php if ($totalFaltantes > 0): ?>
-                        <div style="font-size:9px; color:#0f5132; font-weight:600; line-height:1.15;">
-                            Faltan <?= $totalFaltantes ?> para estar al día
-                        </div>
-                    <?php elseif ($totalSinMeta > 0): ?>
-                        <div style="font-size:9px; color:#856404; font-weight:600; line-height:1.15;">
-                            <?= $totalSinMeta ?> sin meta definida
-                        </div>
-                    <?php elseif ($totalRealizadas > 0): ?>
-                        <div style="font-size:9px; color:#0f5132; font-weight:600; line-height:1.15;">
-                            <i class="fas fa-shield-alt"></i> Todas al día
-                        </div>
-                    <?php endif; ?>
+                    <div class="card-count-num" style="font-size:20px; font-weight:700; color:#155724;"><?= $totalRealizadas ?></div>
+                    <div id="cardRealizadasSubtext">
+                        <?php if ($totalFaltantes > 0): ?>
+                            <div style="font-size:9px; color:#0f5132; font-weight:600; line-height:1.15;">
+                                Faltan <?= $totalFaltantes ?> para estar al día
+                            </div>
+                        <?php elseif ($totalSinMeta > 0): ?>
+                            <div style="font-size:9px; color:#856404; font-weight:600; line-height:1.15;">
+                                <?= $totalSinMeta ?> sin meta definida
+                            </div>
+                        <?php elseif ($totalRealizadas > 0): ?>
+                            <div style="font-size:9px; color:#0f5132; font-weight:600; line-height:1.15;">
+                                <i class="fas fa-shield-alt"></i> Todas al día
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -270,7 +272,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             <div class="card border-0 text-center card-filtro" data-filtro="por_sincronizar" style="background:#cfe2ff; border-radius:10px; cursor:pointer;" title="Hay inspecciones realizadas pendientes de cerrar en el Plan de Trabajo">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#084298; font-weight:600;"><i class="fas fa-clipboard-check"></i> Por sincronizar</div>
-                    <div style="font-size:20px; font-weight:700; color:#084298;"><?= $totalPorSincronizar ?></div>
+                    <div class="card-count-num" style="font-size:20px; font-weight:700; color:#084298;"><?= $totalPorSincronizar ?></div>
                 </div>
             </div>
         </div>
@@ -278,7 +280,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             <div class="card border-0 text-center card-filtro" data-filtro="pendiente" style="background:#fff3cd; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#856404; font-weight:600;"><i class="fas fa-clock"></i> Pendientes</div>
-                    <div style="font-size:20px; font-weight:700; color:#856404;"><?= $totalPend ?></div>
+                    <div class="card-count-num" style="font-size:20px; font-weight:700; color:#856404;"><?= $totalPend ?></div>
                 </div>
             </div>
         </div>
@@ -286,7 +288,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             <div class="card border-0 text-center card-filtro" data-filtro="atrasada" style="background:#f8d7da; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#721c24; font-weight:600;"><i class="fas fa-exclamation-triangle"></i> Atrasadas</div>
-                    <div style="font-size:20px; font-weight:700; color:#721c24;"><?= $totalAtrasadas ?></div>
+                    <div class="card-count-num" style="font-size:20px; font-weight:700; color:#721c24;"><?= $totalAtrasadas ?></div>
                 </div>
             </div>
         </div>
@@ -294,7 +296,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             <div class="card border-0 text-center card-filtro" data-filtro="no_aplica" style="background:#e2e3e5; border-radius:10px; cursor:pointer;">
                 <div class="card-body py-2 px-1">
                     <div style="font-size:11px; color:#383d41; font-weight:600;"><i class="fas fa-ban"></i> No Aplica</div>
-                    <div style="font-size:20px; font-weight:700; color:#383d41;"><?= $totalNoAplica ?></div>
+                    <div class="card-count-num" style="font-size:20px; font-weight:700; color:#383d41;"><?= $totalNoAplica ?></div>
                 </div>
             </div>
         </div>
@@ -303,7 +305,7 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
     <div class="card border-0 mb-3" style="background:#f8f9fa; border-radius:10px;">
         <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center">
             <span style="font-size:12px; color:#555;"><i class="fas fa-chart-pie"></i> Cobertura (sobre aplicables)</span>
-            <span style="font-size:18px; font-weight:700; color:#2e7d4f;"><?= $cobertura ?>%</span>
+            <span id="coberturaPct" style="font-size:18px; font-weight:700; color:#2e7d4f;"><?= $cobertura ?>%</span>
         </div>
     </div>
 
@@ -927,6 +929,73 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     tabla.on('draw', recalcMatrizCards);
     recalcMatrizCards();
+
+    // ── Recalcular cards de Estado + Cobertura desde las <tr> del tbody ─────
+    // Cuenta TODAS las filas del tbody (no solo las visibles), porque los
+    // contadores de las cards son totales por estado, no del filtro activo.
+    function recalcEstadoCards() {
+        const rows = document.querySelectorAll('#tablaMatriz tbody tr[data-estado]');
+        let total = 0, hecha = 0, alDia = 0, pendiente = 0, atrasada = 0, noAplica = 0;
+        let porSinc = 0, sinMeta = 0, faltantes = 0;
+
+        rows.forEach(function (tr) {
+            total++;
+            const e = tr.getAttribute('data-estado');
+            if (e === 'hecha') hecha++;
+            else if (e === 'al_dia') alDia++;
+            else if (e === 'pendiente') pendiente++;
+            else if (e === 'atrasada') atrasada++;
+            else if (e === 'no_aplica') noAplica++;
+
+            if (tr.getAttribute('data-por-sincronizar') === '1') porSinc++;
+
+            if (e !== 'no_aplica') {
+                const fre = tr.getAttribute('data-frecuencia');
+                if (fre === 'sin_definir') {
+                    sinMeta++;
+                } else {
+                    const va = parseInt(fre, 10) || 0;
+                    const ra = parseInt(tr.getAttribute('data-realizadas-anio') || '0', 10);
+                    if (va > 0 && ra < va) faltantes += (va - ra);
+                }
+            }
+        });
+
+        const realizadas = hecha + alDia;
+        const aplicables = total - noAplica;
+        const cobertura = aplicables > 0 ? Math.round((realizadas / aplicables) * 100) : 0;
+
+        const setCount = function (filtro, n) {
+            const el = document.querySelector('.card-filtro[data-filtro="' + filtro + '"] .card-count-num');
+            if (el) el.textContent = n;
+        };
+        setCount('todas', total);
+        setCount('realizadas', realizadas);
+        setCount('por_sincronizar', porSinc);
+        setCount('pendiente', pendiente);
+        setCount('atrasada', atrasada);
+        setCount('no_aplica', noAplica);
+
+        // Sub-texto del card "Realizadas"
+        const sub = document.getElementById('cardRealizadasSubtext');
+        if (sub) {
+            if (faltantes > 0) {
+                sub.innerHTML = '<div style="font-size:9px; color:#0f5132; font-weight:600; line-height:1.15;">Faltan ' + faltantes + ' para estar al día</div>';
+            } else if (sinMeta > 0) {
+                sub.innerHTML = '<div style="font-size:9px; color:#856404; font-weight:600; line-height:1.15;">' + sinMeta + ' sin meta definida</div>';
+            } else if (realizadas > 0) {
+                sub.innerHTML = '<div style="font-size:9px; color:#0f5132; font-weight:600; line-height:1.15;"><i class="fas fa-shield-alt"></i> Todas al día</div>';
+            } else {
+                sub.innerHTML = '';
+            }
+        }
+
+        // Cobertura
+        const cobEl = document.getElementById('coberturaPct');
+        if (cobEl) cobEl.textContent = cobertura + '%';
+    }
+    tabla.on('draw', recalcEstadoCards);
+    recalcEstadoCards();
 
     document.querySelectorAll('.col-filter').forEach(function (el) {
         el.addEventListener('input', function () {
