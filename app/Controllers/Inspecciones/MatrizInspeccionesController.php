@@ -199,128 +199,7 @@ class MatrizInspeccionesController extends BaseController
         $filas = [];
 
         foreach ($tipos as $tipo) {
-            $inspecciones = [];
-            $ultima = null;
-            $total = 0;
-
-            $estadoCol = array_key_exists('estado_col', $tipo) ? $tipo['estado_col'] : 'estado';
-            $estadoValue = $tipo['estado_value'] ?? 'completo';
-            $extraWhere = $tipo['extra_where'] ?? [];
-
-            if ($db->tableExists($tipo['table'])) {
-                $fields = $db->getFieldNames($tipo['table']);
-                $dateCol = in_array($tipo['date_col'], $fields, true) ? $tipo['date_col'] : null;
-                $pkCol = in_array('id', $fields, true) ? 'id' : ($fields[0] ?? 'id');
-
-                if ($dateCol !== null && in_array('id_cliente', $fields, true)) {
-                    $builder = $db->table($tipo['table'])
-                        ->select("{$pkCol} AS id, {$dateCol} AS fecha")
-                        ->where('id_cliente', $idCliente)
-                        ->where("{$dateCol} >=", $fechaDesde)
-                        ->where("{$dateCol} <=", $fechaHasta)
-                        ->orderBy($dateCol, 'DESC');
-
-                    if ($estadoCol !== null && in_array($estadoCol, $fields, true)) {
-                        $builder->where($estadoCol, $estadoValue);
-                    }
-
-                    foreach ($extraWhere as $col => $val) {
-                        if (in_array($col, $fields, true)) {
-                            $builder->where($col, $val);
-                        }
-                    }
-
-                    $rows = $builder->get()->getResultArray();
-                    $inspecciones = $rows;
-                    $total = count($rows);
-                    $ultima = $rows[0]['fecha'] ?? null;
-                }
-            }
-
-            $na = $noAplica[$tipo['slug']] ?? null;
-
-            // Analizar PTAs vinculados para determinar 'atrasada' y proxima fecha
-            $ptaVincs = $matchesBySlug[$tipo['slug']] ?? [];
-            $hoy = date('Y-m-d');
-            $proxima = null; $ultimaVencida = null;
-            $hayFuturas = false; $hayPasadas = false;
-            foreach ($ptaVincs as $v) {
-                $fp = $v['fecha_propuesta'] ?? null;
-                if (!$fp) continue;
-                if ($fp > $hoy) {
-                    $hayFuturas = true;
-                    if ($proxima === null || $fp < $proxima) $proxima = $fp;
-                } else {
-                    $hayPasadas = true;
-                    if ($ultimaVencida === null || $fp > $ultimaVencida) $ultimaVencida = $fp;
-                }
-            }
-
-            // Frecuencia configurada por el consultor (veces al año) para este combo cliente+slug
-            $vecesAnio       = $frecuenciasMap[$tipo['slug']] ?? null; // null = sin definir, 0 = puntual
-            $realizadasAnio  = 0;
-            $ultimaGlobal    = null;
-            if ($vecesAnio !== null && $db->tableExists($tipo['table'])) {
-                $fieldsT  = $db->getFieldNames($tipo['table']);
-                $dateColT = in_array($tipo['date_col'], $fieldsT, true) ? $tipo['date_col'] : null;
-                if ($dateColT && in_array('id_cliente', $fieldsT, true)) {
-                    // Aplica los MISMOS filtros que el query principal de inspecciones para no mezclar
-                    // tipos que comparten tabla (ej. tbl_certificado_servicio: Desratización/Fumigación/Lavado).
-                    $estadoColT2   = array_key_exists('estado_col', $tipo) ? $tipo['estado_col'] : 'estado';
-                    $estadoValueT2 = $tipo['estado_value'] ?? 'completo';
-                    $extraWhereT2  = $tipo['extra_where'] ?? [];
-
-                    $b2 = $db->table($tipo['table'])
-                        ->select("COUNT(*) AS c, MAX({$dateColT}) AS u")
-                        ->where('id_cliente', $idCliente)
-                        ->where("YEAR({$dateColT})", $anio);
-
-                    if ($estadoColT2 !== null && in_array($estadoColT2, $fieldsT, true)) {
-                        $b2->where($estadoColT2, $estadoValueT2);
-                    }
-                    foreach ($extraWhereT2 as $colW => $valW) {
-                        if (in_array($colW, $fieldsT, true)) $b2->where($colW, $valW);
-                    }
-
-                    $row = $b2->get()->getRowArray();
-                    $realizadasAnio = (int) ($row['c'] ?? 0);
-                    $ultimaGlobal   = $row['u'] ?? null;
-                }
-            }
-
-            if ($na) {
-                $estado = 'no_aplica';
-            } elseif ($vecesAnio !== null && $vecesAnio > 0 && $realizadasAnio >= $vecesAnio) {
-                // Cumple meta anual configurada → al día
-                $estado = 'al_dia';
-            } elseif ($total > 0) {
-                $estado = 'hecha';
-            } elseif ($hayPasadas && !$hayFuturas) {
-                $estado = 'atrasada';
-            } else {
-                $estado = 'pendiente';
-            }
-
-            $filas[] = [
-                'slug'             => $tipo['slug'],
-                'label'            => $tipo['label'],
-                'group'            => $tipo['group'] ?? 'Otros',
-                'icon'             => $tipo['icon'],
-                'list_route'       => $tipo['list_route'],
-                'create_route'     => $tipo['create_route'],
-                'view_route'       => $tipo['view_route'],
-                'inspecciones'     => $inspecciones,
-                'ultima'           => $ultima,
-                'total'            => $total,
-                'estado'           => $estado,
-                'no_aplica'        => $na,
-                'pta_vinculados'   => $ptaVincs,
-                'proxima_planeada' => $proxima,
-                'ultima_vencida'   => $ultimaVencida,
-                'veces_anio'       => $vecesAnio,
-                'realizadas_anio'  => $realizadasAnio,
-                'ultima_global'    => $ultimaGlobal,
-            ];
+            $filas[] = $this->computeFila($tipo, $idCliente, $fechaDesde, $fechaHasta, $anio, $noAplica, $frecuenciasMap, $matchesBySlug);
         }
 
         usort($filas, function ($a, $b) {
@@ -969,6 +848,208 @@ class MatrizInspeccionesController extends BaseController
         return $this->response->setJSON([
             'ok'      => true,
             'removed' => count($ids),
+        ]);
+    }
+
+    /**
+     * Calcula los datos de UNA fila de la matriz (un slug para un cliente).
+     * Extraído del loop principal de detalle() para poder re-renderizar una
+     * sola fila vía AJAX tras una acción (Fase 2 de la migración).
+     */
+    private function computeFila(
+        array $tipo,
+        int $idCliente,
+        string $fechaDesde,
+        string $fechaHasta,
+        int $anio,
+        array $noAplica,
+        array $frecuenciasMap,
+        array $matchesBySlug
+    ): array {
+        $db = \Config\Database::connect();
+
+        $inspecciones = [];
+        $ultima = null;
+        $total = 0;
+
+        $estadoCol = array_key_exists('estado_col', $tipo) ? $tipo['estado_col'] : 'estado';
+        $estadoValue = $tipo['estado_value'] ?? 'completo';
+        $extraWhere = $tipo['extra_where'] ?? [];
+
+        if ($db->tableExists($tipo['table'])) {
+            $fields = $db->getFieldNames($tipo['table']);
+            $dateCol = in_array($tipo['date_col'], $fields, true) ? $tipo['date_col'] : null;
+            $pkCol = in_array('id', $fields, true) ? 'id' : ($fields[0] ?? 'id');
+
+            if ($dateCol !== null && in_array('id_cliente', $fields, true)) {
+                $builder = $db->table($tipo['table'])
+                    ->select("{$pkCol} AS id, {$dateCol} AS fecha")
+                    ->where('id_cliente', $idCliente)
+                    ->where("{$dateCol} >=", $fechaDesde)
+                    ->where("{$dateCol} <=", $fechaHasta)
+                    ->orderBy($dateCol, 'DESC');
+
+                if ($estadoCol !== null && in_array($estadoCol, $fields, true)) {
+                    $builder->where($estadoCol, $estadoValue);
+                }
+
+                foreach ($extraWhere as $col => $val) {
+                    if (in_array($col, $fields, true)) {
+                        $builder->where($col, $val);
+                    }
+                }
+
+                $rows = $builder->get()->getResultArray();
+                $inspecciones = $rows;
+                $total = count($rows);
+                $ultima = $rows[0]['fecha'] ?? null;
+            }
+        }
+
+        $na = $noAplica[$tipo['slug']] ?? null;
+
+        // Analizar PTAs vinculados para determinar 'atrasada' y proxima fecha
+        $ptaVincs = $matchesBySlug[$tipo['slug']] ?? [];
+        $hoy = date('Y-m-d');
+        $proxima = null; $ultimaVencida = null;
+        $hayFuturas = false; $hayPasadas = false;
+        foreach ($ptaVincs as $v) {
+            $fp = $v['fecha_propuesta'] ?? null;
+            if (!$fp) continue;
+            if ($fp > $hoy) {
+                $hayFuturas = true;
+                if ($proxima === null || $fp < $proxima) $proxima = $fp;
+            } else {
+                $hayPasadas = true;
+                if ($ultimaVencida === null || $fp > $ultimaVencida) $ultimaVencida = $fp;
+            }
+        }
+
+        // Frecuencia configurada por el consultor (veces al año) para este combo cliente+slug
+        $vecesAnio       = $frecuenciasMap[$tipo['slug']] ?? null; // null = sin definir, 0 = puntual
+        $realizadasAnio  = 0;
+        $ultimaGlobal    = null;
+        if ($vecesAnio !== null && $db->tableExists($tipo['table'])) {
+            $fieldsT  = $db->getFieldNames($tipo['table']);
+            $dateColT = in_array($tipo['date_col'], $fieldsT, true) ? $tipo['date_col'] : null;
+            if ($dateColT && in_array('id_cliente', $fieldsT, true)) {
+                // Aplica los MISMOS filtros que el query principal de inspecciones para no mezclar
+                // tipos que comparten tabla (ej. tbl_certificado_servicio: Desratización/Fumigación/Lavado).
+                $estadoColT2   = array_key_exists('estado_col', $tipo) ? $tipo['estado_col'] : 'estado';
+                $estadoValueT2 = $tipo['estado_value'] ?? 'completo';
+                $extraWhereT2  = $tipo['extra_where'] ?? [];
+
+                $b2 = $db->table($tipo['table'])
+                    ->select("COUNT(*) AS c, MAX({$dateColT}) AS u")
+                    ->where('id_cliente', $idCliente)
+                    ->where("YEAR({$dateColT})", $anio);
+
+                if ($estadoColT2 !== null && in_array($estadoColT2, $fieldsT, true)) {
+                    $b2->where($estadoColT2, $estadoValueT2);
+                }
+                foreach ($extraWhereT2 as $colW => $valW) {
+                    if (in_array($colW, $fieldsT, true)) $b2->where($colW, $valW);
+                }
+
+                $row = $b2->get()->getRowArray();
+                $realizadasAnio = (int) ($row['c'] ?? 0);
+                $ultimaGlobal   = $row['u'] ?? null;
+            }
+        }
+
+        if ($na) {
+            $estado = 'no_aplica';
+        } elseif ($vecesAnio !== null && $vecesAnio > 0 && $realizadasAnio >= $vecesAnio) {
+            $estado = 'al_dia';
+        } elseif ($total > 0) {
+            $estado = 'hecha';
+        } elseif ($hayPasadas && !$hayFuturas) {
+            $estado = 'atrasada';
+        } else {
+            $estado = 'pendiente';
+        }
+
+        return [
+            'slug'             => $tipo['slug'],
+            'label'            => $tipo['label'],
+            'group'            => $tipo['group'] ?? 'Otros',
+            'icon'             => $tipo['icon'],
+            'list_route'       => $tipo['list_route'],
+            'create_route'     => $tipo['create_route'],
+            'view_route'       => $tipo['view_route'],
+            'inspecciones'     => $inspecciones,
+            'ultima'           => $ultima,
+            'total'            => $total,
+            'estado'           => $estado,
+            'no_aplica'        => $na,
+            'pta_vinculados'   => $ptaVincs,
+            'proxima_planeada' => $proxima,
+            'ultima_vencida'   => $ultimaVencida,
+            'veces_anio'       => $vecesAnio,
+            'realizadas_anio'  => $realizadasAnio,
+            'ultima_global'    => $ultimaGlobal,
+        ];
+    }
+
+    /**
+     * Endpoint AJAX: renderiza UNA fila de la matriz (un slug) y devuelve su HTML.
+     * Lo consume el JS para refrescar una sola fila tras una acción, sin recargar
+     * toda la página.
+     *
+     * GET inspecciones/matriz/fila-slug/(:num)?slug=foo&fecha_desde=YYYY-MM-DD&fecha_hasta=YYYY-MM-DD
+     */
+    public function filaSlug($idCliente)
+    {
+        $idCliente = (int) $idCliente;
+        $slug = trim((string) $this->request->getGet('slug'));
+        $tipo = \App\Libraries\InspeccionTypes::bySlug($slug);
+        if (!$idCliente || !$tipo) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+
+        $cliente = $this->clienteModel->find($idCliente);
+        if (!$cliente) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Cliente no encontrado.']);
+        }
+
+        $isValidDate = static fn($d) => is_string($d) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) && strtotime($d) !== false;
+        $fechaDesde = trim((string) $this->request->getGet('fecha_desde'));
+        $fechaHasta = trim((string) $this->request->getGet('fecha_hasta'));
+        if (!$isValidDate($fechaDesde) || !$isValidDate($fechaHasta)) {
+            $anio = (int) date('Y');
+            $fechaDesde = $anio . '-01-01';
+            $fechaHasta = $anio . '-12-31';
+        }
+        $anio = (int) substr($fechaDesde, 0, 4);
+
+        // Datos auxiliares para computeFila
+        $noAplica        = $this->noAplicaModel->getByCliente($idCliente);
+        $frecuenciasMap  = (new \App\Models\InspeccionFrecuenciaClienteModel())->getByCliente($idCliente);
+
+        $db = \Config\Database::connect();
+        $matchesBySlug = [];
+        if ($db->tableExists('tbl_pta_inspeccion_match')) {
+            $matches = $db->table('tbl_pta_inspeccion_match m')
+                ->select('m.slug_inspeccion, m.id_ptacliente, m.method, m.score, p.fecha_propuesta, p.fecha_cierre, p.numeral_plandetrabajo, p.actividad_plandetrabajo, p.estado_actividad')
+                ->join('tbl_pta_cliente p', 'p.id_ptacliente = m.id_ptacliente', 'inner')
+                ->where('m.id_cliente', $idCliente)
+                ->where('m.slug_inspeccion', $slug)
+                ->where('p.fecha_propuesta >=', $fechaDesde)
+                ->where('p.fecha_propuesta <=', $fechaHasta)
+                ->orderBy('p.fecha_propuesta', 'ASC')
+                ->get()->getResultArray();
+            foreach ($matches as $m) {
+                $matchesBySlug[$m['slug_inspeccion']][] = $m;
+            }
+        }
+
+        $f = $this->computeFila($tipo, $idCliente, $fechaDesde, $fechaHasta, $anio, $noAplica, $frecuenciasMap, $matchesBySlug);
+        $html = view('inspecciones/matriz/_fila', ['f' => $f, 'cliente' => $cliente]);
+
+        return $this->response->setJSON([
+            'ok'    => true,
+            'html'  => $html,
+            'slug'  => $slug,
         ]);
     }
 
