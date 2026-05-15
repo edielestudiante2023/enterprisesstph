@@ -106,6 +106,22 @@ class MatrizInspeccionesController extends BaseController
             $filas               = $cached['filas'];
             $inspeccionesPorAnio = $cached['inspeccionesPorAnio'];
             $inspeccionesPorMes  = $cached['inspeccionesPorMes'];
+
+            // Re-mezclar campos de configuración (label, icon, group, rutas) desde
+            // InspeccionTypes en cada hit. NO se cachean para que cambios al
+            // archivo InspeccionTypes.php se reflejen sin tener que limpiar caché.
+            $filas = array_values(array_filter(array_map(static function ($f) {
+                $tipo = \App\Libraries\InspeccionTypes::bySlug($f['slug'] ?? '');
+                if (!$tipo) return null; // tipo eliminado de la config → descarto la fila
+                return array_merge($f, [
+                    'label'        => $tipo['label'],
+                    'group'        => $tipo['group'] ?? 'Otros',
+                    'icon'         => $tipo['icon'],
+                    'list_route'   => $tipo['list_route'],
+                    'create_route' => $tipo['create_route'],
+                    'view_route'   => $tipo['view_route'],
+                ]);
+            }, $filas)));
         }
 
         // Contrato activo del cliente (para mostrar frecuencia)
@@ -219,8 +235,14 @@ class MatrizInspeccionesController extends BaseController
 
         // Guardar en caché (TTL 600s = 10 min) — solo el bloque pesado computado
         // server-side. Se invalida igual en cualquier UPDATE vía clearMatrizCache.
+        // Se strip-ean los campos que vienen de InspeccionTypes (label, group, icon,
+        // *_route) porque se re-inyectan en cada cache HIT desde la config fresca.
+        $filasParaCache = array_map(static function ($f) {
+            unset($f['label'], $f['group'], $f['icon'], $f['list_route'], $f['create_route'], $f['view_route']);
+            return $f;
+        }, $filas);
         $cache->save($cacheKey, [
-            'filas'               => $filas,
+            'filas'               => $filasParaCache,
             'inspeccionesPorAnio' => $inspeccionesPorAnio,
             'inspeccionesPorMes'  => $inspeccionesPorMes,
         ], 600);
