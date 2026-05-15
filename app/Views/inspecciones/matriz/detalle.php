@@ -523,6 +523,11 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
     transition: color .15s;
 }
 .pta-item .pta-edit-fecha:hover { color:#bd9751; }
+.pta-item .pta-reabrir {
+    color:#856404; cursor:pointer; margin-left:6px; font-size:10px;
+    transition: color .15s;
+}
+.pta-item .pta-reabrir:hover { color:#dc3545; }
 .pta-item .pta-numeral {
     background:#fff; color:#555; padding:1px 5px; border-radius:4px;
     font-size:9px; font-weight:600; flex-shrink:0;
@@ -556,6 +561,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_PTA_UNLINK_TIPO = '<?= base_url('inspecciones/matriz/desvincular-pta-tipo') ?>';
     const URL_PTA_CREAR = '<?= base_url('inspecciones/matriz/crear-pta') ?>';
     const URL_PTA_EDITAR_FECHA = '<?= base_url('inspecciones/matriz/editar-fecha-pta') ?>';
+    const URL_PTA_REABRIR      = '<?= base_url('inspecciones/matriz/reabrir-pta') ?>';
     const URL_FILA_SLUG = '<?= base_url('inspecciones/matriz/fila-slug/' . (int) $cliente['id_cliente']) ?>';
 
     /**
@@ -1236,6 +1242,42 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Reabrir una PTA cerrada (icono borrador) → estado ABIERTA, fecha_cierre NULL, avance 0
+    document.addEventListener('click', function (ev) {
+        const icon = ev.target.closest('.pta-reabrir');
+        if (!icon) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        const idPta = icon.getAttribute('data-id-pta');
+        const tr    = icon.closest('tr[data-slug]');
+        const slug  = tr ? tr.getAttribute('data-slug') : null;
+        Swal.fire({
+            title: 'Reabrir esta actividad PTA',
+            html: 'Estado <b>CERRADA</b> → <b>ABIERTA</b>.<br>Se borra la fecha de cierre y % avance vuelve a 0.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-eraser me-1"></i> Sí, reabrir',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#856404'
+        }).then(function (r) {
+            if (!r.isConfirmed) return;
+            const fd = new FormData();
+            fd.append('id_cliente', ID_CLIENTE);
+            fd.append('id_ptacliente', idPta);
+            fetch(URL_PTA_REABRIR, { method: 'POST', body: fd })
+                .then(function (res) { return res.json(); })
+                .then(function (res) {
+                    if (res.ok) {
+                        if (slug) actualizarFila(slug);
+                        Swal.fire({ icon: 'success', title: 'Reabierta', timer: 1200, showConfirmButton: false });
+                    } else {
+                        Swal.fire('Error', res.msg || 'No se pudo reabrir.', 'error');
+                    }
+                })
+                .catch(function () { Swal.fire('Error', 'Error de red.', 'error'); });
+        });
+    });
+
     document.addEventListener('click', function (ev) {
         const btn = ev.target.closest('.btn-vincular-pta');
         if (!btn) return;
@@ -1540,6 +1582,79 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ================ IMPRIMIR EN PTA DESDE MATRIZ ================
+    function ejecutarImprimirPta(slug) {
+        const fd = new FormData();
+        fd.append('id_cliente', ID_CLIENTE);
+        fd.append('slug_inspeccion', slug);
+        return fetch(URL_CERRAR_PTA_MATRIZ, { method: 'POST', body: fd })
+            .then(res => res.json())
+            .then(res => {
+                if (res.ok) {
+                    actualizarFila(slug);
+                    const msg = res.cerradas > 0
+                        ? res.cerradas + ' PTA(s) cerrada(s) con éxito.'
+                        : res.creadas + ' PTA(s) CERRADA(s) creada(s) retroactivamente.';
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Impreso en PTA',
+                        text: msg,
+                        timer: 1800,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire('Error', res.msg || 'No se pudo cerrar.', 'error');
+                }
+            })
+            .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
+    }
+
+    function pedirDobleValidacionImprimirPta(slug, label, fechaMinFutura) {
+        const n1a = Math.floor(Math.random() * 9) + 1, n1b = Math.floor(Math.random() * 9) + 1;
+        const n2a = Math.floor(Math.random() * 9) + 1, n2b = Math.floor(Math.random() * 9) + 1;
+        const fechaTxt = fechaMinFutura.split('-').reverse().join('/');
+        Swal.fire({
+            title: 'Atención: fecha futura',
+            html: 'La PTA más próxima de <b>' + label + '</b> está programada para <b>' + fechaTxt + '</b> (aún no llega).<br><br>'
+                + 'Si continúas, se cerrará con la fecha de la inspección más reciente.<br><br>'
+                + 'Validación 1 de 2:<br><b>¿Cuánto es ' + n1a + ' + ' + n1b + '?</b>',
+            input: 'number',
+            inputAttributes: { min: 0 },
+            showCancelButton: true,
+            confirmButtonText: 'Siguiente',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#dc3545',
+            preConfirm: function (v) {
+                if (parseInt(v, 10) !== (n1a + n1b)) {
+                    Swal.showValidationMessage('Resultado incorrecto.');
+                    return false;
+                }
+                return true;
+            }
+        }).then(function (r1) {
+            if (!r1.isConfirmed) return;
+            Swal.fire({
+                title: 'Confirma de nuevo',
+                html: 'Validación 2 de 2:<br><b>¿Cuánto es ' + n2a + ' + ' + n2b + '?</b>',
+                input: 'number',
+                inputAttributes: { min: 0 },
+                showCancelButton: true,
+                confirmButtonText: 'Sí, imprimir en PTA',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#dc3545',
+                preConfirm: function (v) {
+                    if (parseInt(v, 10) !== (n2a + n2b)) {
+                        Swal.showValidationMessage('Resultado incorrecto.');
+                        return false;
+                    }
+                    return true;
+                }
+            }).then(function (r2) {
+                if (!r2.isConfirmed) return;
+                ejecutarImprimirPta(slug);
+            });
+        });
+    }
+
     document.addEventListener('click', function (ev) {
         const btn = ev.target.closest('.btn-cerrar-pta-matriz');
         if (!btn) return;
@@ -1547,7 +1662,28 @@ document.addEventListener('DOMContentLoaded', function () {
         const label     = btn.dataset.label;
         const real      = parseInt(btn.dataset.realizadas, 10) || 0;
         const abiertas  = parseInt(btn.dataset.abiertas, 10) || 0;
-        const accion    = abiertas > 0
+
+        // Detectar la fecha programada más próxima abierta (mínima) y compararla con hoy.
+        // Si es estrictamente futura, exigimos doble validación aritmética para evitar
+        // cierres accidentales de actividades aún no vencidas.
+        const tr = btn.closest('tr[data-slug]');
+        const fechasProgRaw = tr ? (tr.getAttribute('data-fechas-programadas') || '') : '';
+        const fechasProg = fechasProgRaw.split(',').map(s => s.trim()).filter(Boolean).sort();
+        const minFecha = fechasProg.length ? fechasProg[0] : null;
+        const hoyISO = (function () {
+            const d = new Date();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return d.getFullYear() + '-' + m + '-' + dd;
+        })();
+        const esFutura = !!(minFecha && minFecha > hoyISO);
+
+        if (esFutura) {
+            pedirDobleValidacionImprimirPta(slug, label, minFecha);
+            return;
+        }
+
+        const accion = abiertas > 0
             ? 'Cerrar SOLO la PTA más antigua abierta (1 de ' + abiertas + ') con la fecha de la inspección más reciente. Si quedan PTAs por cerrar, vuelve a usar este botón.'
             : 'No hay PTAs vinculadas. Se crearán ' + real + ' PTA(s) CERRADA(s) retroactivamente con la fecha de cada inspección.';
 
@@ -1566,29 +1702,7 @@ document.addEventListener('DOMContentLoaded', function () {
             confirmButtonColor: '#0ea5d7'
         }).then(function (r) {
             if (!r.isConfirmed) return;
-            const fd = new FormData();
-            fd.append('id_cliente', ID_CLIENTE);
-            fd.append('slug_inspeccion', slug);
-            fetch(URL_CERRAR_PTA_MATRIZ, { method: 'POST', body: fd })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.ok) {
-                        actualizarFila(slug);
-                        const msg = res.cerradas > 0
-                            ? res.cerradas + ' PTA(s) cerrada(s) con éxito.'
-                            : res.creadas + ' PTA(s) CERRADA(s) creada(s) retroactivamente.';
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Impreso en PTA',
-                            text: msg,
-                            timer: 1800,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        Swal.fire('Error', res.msg || 'No se pudo cerrar.', 'error');
-                    }
-                })
-                .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
+            ejecutarImprimirPta(slug);
         });
     });
     // ================ FIN IMPRIMIR EN PTA DESDE MATRIZ ================

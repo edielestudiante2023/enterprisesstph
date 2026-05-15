@@ -839,6 +839,50 @@ class MatrizInspeccionesController extends BaseController
     }
 
     /**
+     * Reabre una PTA cerrada: estado → ABIERTA, fecha_cierre → NULL,
+     * porcentaje_avance → 0. Pensado para corregir actividades cerradas por
+     * error (ej. al "Imprimir en PTA" se cerró una de fecha futura).
+     *
+     * POST: id_cliente, id_ptacliente
+     */
+    public function reabrirPta()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $idPta     = (int) $this->request->getPost('id_ptacliente');
+
+        if (!$idCliente || !$idPta) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+
+        $db = \Config\Database::connect();
+        $pta = $db->table('tbl_pta_cliente')
+            ->select('id_ptacliente, id_cliente')
+            ->where('id_ptacliente', $idPta)
+            ->get(1)->getRowArray();
+
+        if (!$pta) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Actividad PTA no encontrada.']);
+        }
+        if ((int) $pta['id_cliente'] !== $idCliente) {
+            return $this->response->setStatusCode(403)
+                ->setJSON(['ok' => false, 'msg' => 'La actividad no pertenece a este cliente.']);
+        }
+
+        $db->table('tbl_pta_cliente')
+            ->where('id_ptacliente', $idPta)
+            ->update([
+                'estado_actividad'  => 'ABIERTA',
+                'fecha_cierre'      => null,
+                'porcentaje_avance' => 0,
+                'updated_at'        => date('Y-m-d H:i:s'),
+            ]);
+
+        self::clearMatrizCache($idCliente);
+
+        return $this->response->setJSON(['ok' => true]);
+    }
+
+    /**
      * Desvincula una sola actividad PTA de un slug (accion rapida desde la fila).
      */
     public function desvincularPta()
