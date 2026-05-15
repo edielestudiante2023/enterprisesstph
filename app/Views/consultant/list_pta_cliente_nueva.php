@@ -665,9 +665,6 @@
                             <?php endfor; ?>
                         </select>
                     </div>
-                    <button type="button" id="btnClearCardFilters" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-times"></i> Limpiar Filtros
-                    </button>
                 </div>
             </div>
         </div>
@@ -890,11 +887,9 @@
                             <button type="submit" class="btn btn-primary me-2" id="btnBuscar">
                                 <i class="fas fa-search"></i> Buscar
                             </button>
-                            <button type="button" id="btnMostrarTodos" class="btn btn-success me-2">
-                                <i class="fas fa-eye"></i> Ver Todos
-                            </button>
-                            <button type="reset" id="resetFilters" class="btn btn-secondary me-2">
-                                <i class="fas fa-undo"></i> Limpiar
+                            <button type="button" id="btnClearAllFilters" class="btn btn-outline-secondary me-2"
+                                    title="Limpia cards, fechas, búsqueda y orden de la tabla, y borra las preferencias guardadas para este cliente">
+                                <i class="fas fa-broom"></i> Limpiar todos los filtros
                             </button>
                         </div>
                         <div class="col-md-4 text-end">
@@ -1113,9 +1108,41 @@
             });
 
             // Variables globales para filtros activos
-            var activeYear = $('#yearFilterSelect').val() || null;
+            var activeYear = null;
             var activeMonth = null;
             var activeStatus = null;
+
+            // ============================================
+            // Persistencia de filtros por cliente (localStorage)
+            // ============================================
+            // Orden por defecto del DataTable (idéntico al "order" del init).
+            // Cuando se "Limpiar todos los filtros" se vuelve a este orden.
+            var DEFAULT_TABLE_ORDER = [[11, 'asc'], [9, 'asc'], [5, 'asc'], [7, 'asc']];
+
+            function prefsKey(clienteId) { return 'ptaListPrefs_' + clienteId; }
+            function tableStateKey(clienteId) { return 'ptaTableState_' + clienteId; }
+
+            function loadPrefs(clienteId) {
+                if (!clienteId) return {};
+                try {
+                    var raw = localStorage.getItem(prefsKey(clienteId));
+                    return raw ? JSON.parse(raw) : {};
+                } catch (e) { return {}; }
+            }
+            // Merge: pasa solo las claves que quieras tocar, las demás se preservan
+            function savePrefs(clienteId, patch) {
+                if (!clienteId) return;
+                try {
+                    var cur = loadPrefs(clienteId);
+                    var next = Object.assign({}, cur, patch);
+                    localStorage.setItem(prefsKey(clienteId), JSON.stringify(next));
+                } catch (e) {}
+            }
+
+            // Cliente activo del request (en URL). Es el que usamos como scope.
+            var CURRENT_CLIENT_ID = '<?= service('request')->getGet('cliente') ?? '' ?>';
+            var URL_HAS_FECHA_DESDE = '<?= service('request')->getGet('fecha_desde') ?? '' ?>' !== '';
+            var URL_HAS_FECHA_HASTA = '<?= service('request')->getGet('fecha_hasta') ?? '' ?>' !== '';
 
             // Initialize Select2 on client dropdown
             $('#cliente').select2({
@@ -1164,6 +1191,22 @@
                     localStorage.removeItem('selectedClient');
                 }
             });
+
+            // ============================================
+            // Auto-aplicar fechas guardadas si la URL no las trae
+            // (solo cuando hay cliente en URL y prefs tiene fechas guardadas).
+            // Hace prefill + submit una sola vez; al volver con fechas en URL ya no entra.
+            // ============================================
+            if (CURRENT_CLIENT_ID && !URL_HAS_FECHA_DESDE && !URL_HAS_FECHA_HASTA) {
+                var _prefs = loadPrefs(CURRENT_CLIENT_ID);
+                if (_prefs.fecha_desde && _prefs.fecha_hasta) {
+                    $('#fecha_desde').val(_prefs.fecha_desde);
+                    $('#fecha_hasta').val(_prefs.fecha_hasta);
+                    $('#filterForm').data('via-todos', true);
+                    $('#filterForm').submit();
+                    return; // Cortamos el resto del ready: la página se va a recargar
+                }
+            }
 
             // Escuchar cambios de cliente desde Quick Access Dashboard (otras pestañas)
             function _syncClientFromQA(newClientId) {
@@ -1289,6 +1332,7 @@
                 if (year) {
                     $('.card-year[data-year="' + year + '"]').addClass('active');
                 }
+                savePrefs(CURRENT_CLIENT_ID, { activeYear: activeYear });
                 applyFilters();
             });
 
@@ -1309,6 +1353,7 @@
                     $('#yearFilterSelect').val(year);
                 }
 
+                savePrefs(CURRENT_CLIENT_ID, { activeYear: activeYear });
                 applyFilters();
             });
 
@@ -1327,6 +1372,7 @@
                     activeMonth = month;
                 }
 
+                savePrefs(CURRENT_CLIENT_ID, { activeMonth: activeMonth });
                 applyFilters();
             });
 
@@ -1345,54 +1391,54 @@
                     activeStatus = status;
                 }
 
+                savePrefs(CURRENT_CLIENT_ID, { activeStatus: activeStatus });
                 applyFilters();
             });
 
-            // Botón para limpiar todos los filtros de tarjetas
-            $('#btnClearCardFilters').on('click', function() {
-                // Limpiar estados
+            // ============================================
+            // Botón único: Limpiar TODOS los filtros del cliente actual
+            // (cards, fechas, búsqueda y orden de DataTable, prefs en localStorage)
+            // ============================================
+            $('#btnClearAllFilters').on('click', function() {
+                var cliente = $('#cliente').val();
+
+                // 1) Resetear estados JS de cards
                 activeYear = null;
                 activeMonth = null;
                 activeStatus = null;
 
-                // Remover clases activas
+                // 2) Quitar clases activas y resetear segmentadores
                 $('#yearFilterSelect').val('');
                 $('.card-year').removeClass('active');
                 $('.card-month').removeClass('active');
                 $('.card-status').removeClass('active');
 
-                // Limpiar filtros personalizados de DataTables
-                $.fn.dataTable.ext.search.pop();
-
-                if (table) {
-                    table.draw();
-                    generateYearCards(); // Regenerar tarjetas de año
-                }
-
-                showAlert('Filtros de tarjetas limpiados. Mostrando todos los registros.', 'info');
-            });
-
-            // Botón para mostrar todos los registros (limpiar filtros de fecha)
-            $('#btnMostrarTodos').on('click', function() {
-                var cliente = $('#cliente').val();
-                if (!cliente) {
-                    showAlert('Primero debe seleccionar un Cliente antes de usar "Ver Todos".', 'warning');
-                    return;
-                }
-
-                // Limpiar todos los filtros de fecha
+                // 3) Limpiar fechas del form
                 $('#fecha_desde').val('');
                 $('#fecha_hasta').val('');
 
-                showAlert('Mostrando todos los registros del cliente seleccionado...', 'success');
+                // 4) Limpiar filtros custom de DataTables y resetear search/order/page
+                $.fn.dataTable.ext.search.pop();
+                if (table) {
+                    // Reset orden default a-z por Actividad y resto de columnas, y página 1
+                    table.search('').order(DEFAULT_TABLE_ORDER).page(0).draw();
+                }
 
-                // Marcar que viene del botón "Ver Todos" para evitar validación de fechas
-                $('#filterForm').data('via-todos', true);
+                // 5) Borrar prefs y estado de DataTable persistido del cliente actual
+                if (cliente) {
+                    try {
+                        localStorage.removeItem(prefsKey(cliente));
+                        localStorage.removeItem(tableStateKey(cliente));
+                    } catch (e) {}
+                }
 
-                // Enviar automáticamente el formulario después de limpiar las fechas
-                setTimeout(function() {
+                // 6) Submit del form con solo el cliente (sin fechas) para recargar la lista
+                if (cliente) {
+                    $('#filterForm').data('via-todos', true);
                     $('#filterForm').submit();
-                }, 1000); // Esperar 1 segundo para que el usuario vea el mensaje
+                } else {
+                    showAlert('Filtros limpiados. Seleccione un cliente para listar registros.', 'info');
+                }
             });
 
             $('#filterForm').on('submit', function(e) {
@@ -1407,30 +1453,20 @@
                     return false;
                 }
 
-                // Validar filtros de búsqueda
-                var esViaTodos = $(this).data('via-todos') === true;
-                var tieneFechas = fechaDesde && fechaHasta;
-
-                // PERMITIR búsqueda si:
-                // 1. Viene del botón "Ver Todos"
-                // 2. Tiene fechas completas
-                var puedeEjecutar = esViaTodos || tieneFechas;
-
-                if (!puedeEjecutar) {
-                    showAlert('Debe especificar:\n• Rango de fechas (Fecha Desde y Fecha Hasta)\n• O hacer clic en "Ver Todos" para mostrar todos los registros del cliente', 'warning');
-                    e.preventDefault();
-                    return false;
-                }
-
-                // Limpiar el flag después de usarlo
-                $(this).removeData('via-todos');
-
-                // Si tiene fechas manuales incompletas, avisar
+                // Si se llena solo una fecha, exigir la otra (rango incompleto)
                 if ((fechaDesde && !fechaHasta) || (!fechaDesde && fechaHasta)) {
-                    showAlert('Para usar rango manual debe completar tanto "Fecha Desde" como "Fecha Hasta".', 'warning');
+                    showAlert('Para usar rango manual debe completar tanto "Fecha Desde" como "Fecha Hasta". O deje ambas en blanco para mostrar todos los registros del cliente.', 'warning');
                     e.preventDefault();
                     return false;
                 }
+
+                // Guardar fechas (o limpiarlas) en prefs antes de submit
+                if (typeof savePrefs === 'function') {
+                    savePrefs(cliente, { fecha_desde: fechaDesde || null, fecha_hasta: fechaHasta || null });
+                }
+
+                // Limpiar el flag de Quick Access si quedó
+                $(this).removeData('via-todos');
             });
 
             // Función para mostrar alertas mejoradas
@@ -1511,12 +1547,24 @@
                     "lengthChange": true,
                     "responsive": false,
                     "autoWidth": false,
-                    "order": [
-                        [11, 'asc'],
-                        [9, 'asc'],
-                        [5, 'asc'],
-                        [7, 'asc']
-                    ],
+                    "order": DEFAULT_TABLE_ORDER,
+                    // Persistencia de orden/búsqueda/página/longitud por cliente.
+                    // Si no hay cliente, no persistimos (devuelve null al load → default).
+                    "stateSave": true,
+                    "stateDuration": 0,
+                    "stateSaveCallback": function(settings, data) {
+                        if (!CURRENT_CLIENT_ID) return;
+                        try {
+                            localStorage.setItem(tableStateKey(CURRENT_CLIENT_ID), JSON.stringify(data));
+                        } catch (e) {}
+                    },
+                    "stateLoadCallback": function(settings) {
+                        if (!CURRENT_CLIENT_ID) return null;
+                        try {
+                            var raw = localStorage.getItem(tableStateKey(CURRENT_CLIENT_ID));
+                            return raw ? JSON.parse(raw) : null;
+                        } catch (e) { return null; }
+                    },
                     "columnDefs": [
                         { "visible": false, "targets": [1, 2, 3, 4, 5, 6, 14, 15, 16, 17] },
                         { "orderable": false, "searchable": false, "targets": [0] }
@@ -1668,11 +1716,44 @@
                 generateYearCards();
                 initTruncateButtons();
 
-                // Aplicar filtro de año actual al cargar
-                if (activeYear) {
+                // ============================================
+                // Restaurar filtros de cards desde prefs (per-cliente)
+                // ============================================
+                (function restoreCardFiltersFromPrefs() {
+                    if (!CURRENT_CLIENT_ID) {
+                        // Sin cliente: respetar el default del dropdown (año actual) si lo tiene
+                        var def = $('#yearFilterSelect').val();
+                        if (def) { activeYear = def; applyFilters(); $('.card-year[data-year="' + def + '"]').addClass('active'); }
+                        return;
+                    }
+                    var prefs = loadPrefs(CURRENT_CLIENT_ID);
+                    var hasAnyPref = Object.prototype.hasOwnProperty.call(prefs, 'activeYear')
+                                  || Object.prototype.hasOwnProperty.call(prefs, 'activeMonth')
+                                  || Object.prototype.hasOwnProperty.call(prefs, 'activeStatus');
+
+                    if (!hasAnyPref) {
+                        // Primera vez para este cliente: respetar el año por defecto del dropdown
+                        var def2 = $('#yearFilterSelect').val();
+                        if (def2) {
+                            activeYear = def2;
+                            $('.card-year[data-year="' + def2 + '"]').addClass('active');
+                        }
+                    } else {
+                        activeYear = prefs.activeYear || null;
+                        activeMonth = prefs.activeMonth || null;
+                        activeStatus = prefs.activeStatus || null;
+
+                        $('#yearFilterSelect').val(activeYear || '');
+                        $('.card-year').removeClass('active');
+                        $('.card-month').removeClass('active');
+                        $('.card-status').removeClass('active');
+                        if (activeYear) $('.card-year[data-year="' + activeYear + '"]').addClass('active');
+                        if (activeMonth) $('.card-month[data-month="' + activeMonth + '"]').addClass('active');
+                        if (activeStatus) $('.card-status[data-status="' + activeStatus + '"]').addClass('active');
+                    }
+
                     applyFilters();
-                    $('.card-year[data-year="' + activeYear + '"]').addClass('active');
-                }
+                })();
 
                 $('#ptaTable tbody').on('dblclick', 'td.editable', function() {
                     var cell = table.cell(this);
@@ -1802,11 +1883,6 @@
                     });
                 });
             }
-
-            $('#resetFilters').click(function() {
-                $('#filterForm')[0].reset();
-                window.location.href = "<?= site_url('/pta-cliente-nueva/list') ?>";
-            });
 
             // Manejador para el botón Calificar Cerradas
             $('#btnCalificarCerradas').click(function() {
