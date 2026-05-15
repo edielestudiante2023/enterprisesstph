@@ -1730,11 +1730,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const real      = parseInt(btn.dataset.realizadas, 10) || 0;
         const abiertas  = parseInt(btn.dataset.abiertas, 10) || 0;
 
-        // Detectar la fecha programada más próxima abierta (mínima) y compararla con hoy.
+        // Detectar la fecha programada más próxima ABIERTA (mínima) y compararla con hoy.
         // Si es estrictamente futura, exigimos doble validación aritmética para evitar
         // cierres accidentales de actividades aún no vencidas.
+        // Importante: solo miramos PTAs aún abiertas — las ya cerradas no se vuelven a
+        // cerrar, así que su fecha no debe influir en la decisión.
         const tr = btn.closest('tr[data-slug]');
-        const fechasProgRaw = tr ? (tr.getAttribute('data-fechas-programadas') || '') : '';
+        const fechasProgRaw = tr ? (tr.getAttribute('data-fechas-programadas-abiertas') || '') : '';
         const fechasProg = fechasProgRaw.split(',').map(s => s.trim()).filter(Boolean).sort();
         const minFecha = fechasProg.length ? fechasProg[0] : null;
         const hoyISO = (function () {

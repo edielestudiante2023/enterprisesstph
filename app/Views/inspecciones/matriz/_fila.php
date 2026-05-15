@@ -49,6 +49,12 @@
                 <?php
                 $fechasRealizadasArr = array_values(array_filter(array_map(fn($i) => $i['fecha'] ?? null, $f['inspecciones'])));
                 $fechasProgramadasArr = array_values(array_filter(array_map(fn($v) => $v['fecha_propuesta'] ?? null, $f['pta_vinculados'])));
+                // Subset: solo las PTAs aún abiertas — usado para detectar fechas futuras
+                // antes de "Imprimir en PTA" (la backend cierra la abierta más antigua).
+                $fechasProgramadasAbiertasArr = array_values(array_filter(array_map(
+                    fn($v) => (($v['estado_actividad'] ?? '') !== 'CERRADA') ? ($v['fecha_propuesta'] ?? null) : null,
+                    $f['pta_vinculados']
+                )));
                 $fechasTodasArr = array_values(array_unique(array_merge($fechasRealizadasArr, $fechasProgramadasArr)));
                 ?>
                 <tr data-estado="<?= esc($f['estado']) ?>"
@@ -59,6 +65,7 @@
                     data-fechas="<?= esc(implode(',', $fechasTodasArr)) ?>"
                     data-fechas-realizadas="<?= esc(implode(',', $fechasRealizadasArr)) ?>"
                     data-fechas-programadas="<?= esc(implode(',', $fechasProgramadasArr)) ?>"
+                    data-fechas-programadas-abiertas="<?= esc(implode(',', $fechasProgramadasAbiertasArr)) ?>"
                     data-planeadas-count="<?= count($fechasProgramadasArr) ?>"
                     <?= $f['estado'] === 'no_aplica' ? 'style="opacity:0.6;"' : '' ?>>
                     <td style="font-size:11px; color:#555;"><?= esc($f['group']) ?></td>
