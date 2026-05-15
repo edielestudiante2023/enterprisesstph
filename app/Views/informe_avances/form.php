@@ -407,6 +407,7 @@
     const BASE = '<?= base_url() ?>/';
     const EDIT_MODE = <?= json_encode($mode === 'edit') ?>;
     const PRESELECT_CLIENTE = <?= json_encode($id_cliente) ?>;
+    const INFORME_ID = <?= json_encode($informe['id'] ?? null) ?>;
 
     // Chart instances
     var charts = { estandares: null, plan: null, cap: null, pend: null };
@@ -568,12 +569,22 @@
                 url: BASE + 'informe-avances/api/liquidar/' + clienteId,
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                data: { '<?= csrf_token() ?>': '<?= csrf_hash() ?>', anio: $('#selectAnio').val() },
+                data: {
+                    '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
+                    anio: $('#selectAnio').val(),
+                    id_informe: INFORME_ID || ''
+                },
                 success: function(resp) {
                     if (resp.success) {
                         $('#liquidarStatus').html('<span class="text-success"><i class="fas fa-check-circle me-1"></i>Snapshot tomado (' + resp.fecha + ')</span>');
                         // Mostrar cuerpo del informe y recargar datos frescos
                         $('#informeBody').slideDown();
+                        // Vaciar campos calculados para que loadMetricas pueda sobrescribirlos
+                        // con las métricas frescas (el snapshot ya actualizó tbl_informe_avances en backend).
+                        $('#actividadesAbiertas').val('');
+                        $('#actividadesSinRespuesta').val('');
+                        $('#actividadesCerradas').val('');
+                        $('#actividadesNoCerradasPta').val('');
                         loadMetricas(clienteId);
                         loadHistorial(clienteId);
                     } else {
