@@ -613,8 +613,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Guarda card de estado + filtros de texto Grupo/Tipo/Estado en localStorage.
     const FILTROS_KEY = 'matriz_filtros_' + ID_CLIENTE;
 
+    // Orden por defecto del DataTable (espejo del config `order:` de abajo).
+    // Se usa para resetear desde "Limpiar todos los filtros".
+    const ORDER_DEFAULT = [[0, 'asc'], [2, 'asc']];
+
     function guardarFiltros() {
         try {
+            let order = null;
+            try { if (typeof tabla !== 'undefined' && tabla) order = tabla.order(); } catch (e) {}
             localStorage.setItem(FILTROS_KEY, JSON.stringify({
                 card:       activeEstadoCardFilter || 'todas',
                 grupo:      tabla.column(0).search(),
@@ -622,6 +628,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 estado:     tabla.column(4).search(),
                 frecuencia: activeFrecuenciaFilter || '',
                 fechas:     activeFechasFilter || '',
+                order:      order,
             }));
         } catch (e) {}
     }
@@ -699,11 +706,19 @@ document.addEventListener('DOMContentLoaded', function () {
             const activeCard = document.querySelector('.card-filtro[data-filtro="' + activeEstadoCardFilter + '"]');
             if (activeCard) activeCard.classList.add('active');
 
+            // Restaurar orden de columnas guardado (si existe y es válido)
+            if (f && Array.isArray(f.order) && f.order.length) {
+                try { api.order(f.order); } catch (e) {}
+            }
+
             // Redibujar para aplicar los filtros restaurados (columnas + card custom).
             // Va DENTRO de initComplete: con language.url la init de DataTables es
             // asíncrona, y un draw() externo se ejecutaba antes de tiempo
             // ("Requested unknown parameter").
             api.draw();
+
+            // Persistir cambios de orden a partir de aquí (no durante la inicialización)
+            api.on('order.dt', function () { guardarFiltros(); });
         }
     });
 
@@ -810,6 +825,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (cardTodas) cardTodas.classList.add('active');
 
         try { localStorage.removeItem(FILTROS_KEY); } catch (e) {}
+
+        // Reset del orden de columnas al default
+        try { tabla.order(ORDER_DEFAULT); } catch (e) {}
 
         tabla.draw();
         guardarFiltros(); // persiste el estado limpio
