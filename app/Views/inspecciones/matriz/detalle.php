@@ -801,12 +801,16 @@ document.addEventListener('DOMContentLoaded', function () {
             fd.append('id_cliente', ID_CLIENTE);
             fd.append('veces_anio', String(r.value));
             appendSelectedSlugs(fd);
+            const slugsToRefresh = Array.from(selectedSlugs);
             fetch(URL_SET_FRECUENCIA_MASIVA, { method: 'POST', body: fd })
                 .then(res => res.json())
                 .then(res => {
                     if (res.ok) {
-                        Swal.fire({ icon: 'success', title: 'Frecuencia aplicada', text: res.updated + ' de ' + res.total + ' actualizadas.', timer: 1600, showConfirmButton: false })
-                            .then(() => reloadMatriz());
+                        Promise.all(slugsToRefresh.map(s => actualizarFila(s))).then(() => {
+                            selectedSlugs.clear();
+                            syncBulkControls();
+                        });
+                        Swal.fire({ icon: 'success', title: 'Frecuencia aplicada', text: res.updated + ' de ' + res.total + ' actualizadas.', timer: 1600, showConfirmButton: false });
                     } else {
                         Swal.fire('Error', res.msg || 'No se pudo aplicar.', 'error');
                     }
@@ -832,12 +836,16 @@ document.addEventListener('DOMContentLoaded', function () {
             fd.append('id_cliente', ID_CLIENTE);
             fd.append('motivo', r.value || '');
             appendSelectedSlugs(fd);
+            const slugsToRefreshNa = Array.from(selectedSlugs);
             fetch(URL_MARCAR_MASIVO, { method: 'POST', body: fd })
                 .then(res => res.json())
                 .then(res => {
                     if (res.ok) {
-                        Swal.fire({ icon: 'success', title: 'No Aplica aplicado', text: res.updated + ' de ' + res.total + ' actualizadas.', timer: 1600, showConfirmButton: false })
-                            .then(() => reloadMatriz());
+                        Promise.all(slugsToRefreshNa.map(s => actualizarFila(s))).then(() => {
+                            selectedSlugs.clear();
+                            syncBulkControls();
+                        });
+                        Swal.fire({ icon: 'success', title: 'No Aplica aplicado', text: res.updated + ' de ' + res.total + ' actualizadas.', timer: 1600, showConfirmButton: false });
                     } else {
                         Swal.fire('Error', res.msg || 'No se pudo marcar.', 'error');
                     }
@@ -860,16 +868,20 @@ document.addEventListener('DOMContentLoaded', function () {
             const fd = new FormData();
             fd.append('id_cliente', ID_CLIENTE);
             appendSelectedSlugs(fd);
+            const slugsToRefreshCerrar = Array.from(selectedSlugs);
             fetch(URL_CERRAR_PTA_MATRIZ_MASIVO, { method: 'POST', body: fd })
                 .then(res => res.json())
                 .then(res => {
                     if (res.ok) {
+                        Promise.all(slugsToRefreshCerrar.map(s => actualizarFila(s))).then(() => {
+                            selectedSlugs.clear();
+                            syncBulkControls();
+                        });
                         const msg = res.procesadas + ' procesada(s). ' +
                             res.cerradas + ' PTA(s) cerrada(s). ' +
                             res.creadas + ' PTA(s) creada(s).' +
                             (res.omitidas > 0 ? ' ' + res.omitidas + ' omitida(s).' : '');
-                        Swal.fire({ icon: 'success', title: 'Impreso en PTA', text: msg, timer: 2200, showConfirmButton: false })
-                            .then(() => reloadMatriz());
+                        Swal.fire({ icon: 'success', title: 'Impreso en PTA', text: msg, timer: 2200, showConfirmButton: false });
                     } else {
                         const detalle = (res.errores || []).slice(0, 3).map(e => (e.label || e.slug) + ': ' + e.msg).join('\n');
                         Swal.fire('Sin cambios', detalle || res.msg || 'No se pudo imprimir en PTA.', 'info');
@@ -976,34 +988,35 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.querySelectorAll('.btn-marcar-na').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const slug = this.dataset.slug;
-            const label = this.dataset.label;
+    // Delegado para sobrevivir reemplazos de <tr> por actualizarFila()
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-marcar-na');
+        if (!btn) return;
+        const slug = btn.dataset.slug;
+        const label = btn.dataset.label;
 
-            Swal.fire({
-                title: 'Marcar "' + label + '" como No Aplica',
-                input: 'text',
-                inputPlaceholder: 'Motivo (opcional), ej: El edificio no tiene ascensor',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Marcar N/A',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#6c757d'
-            }).then(function (r) {
-                if (!r.isConfirmed) return;
-                const fd = new FormData();
-                fd.append('id_cliente', ID_CLIENTE);
-                fd.append('tipo_inspeccion', slug);
-                fd.append('motivo', r.value || '');
-                fetch(URL_MARCAR, { method: 'POST', body: fd })
-                    .then(res => res.json())
-                    .then(res => {
-                        if (res.ok) reloadMatriz();
-                        else Swal.fire('Error', res.msg || 'No se pudo marcar.', 'error');
-                    })
-                    .catch(() => Swal.fire('Error', 'No se pudo marcar.', 'error'));
-            });
+        Swal.fire({
+            title: 'Marcar "' + label + '" como No Aplica',
+            input: 'text',
+            inputPlaceholder: 'Motivo (opcional), ej: El edificio no tiene ascensor',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Marcar N/A',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#6c757d'
+        }).then(function (r) {
+            if (!r.isConfirmed) return;
+            const fd = new FormData();
+            fd.append('id_cliente', ID_CLIENTE);
+            fd.append('tipo_inspeccion', slug);
+            fd.append('motivo', r.value || '');
+            fetch(URL_MARCAR, { method: 'POST', body: fd })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.ok) actualizarFila(slug);
+                    else Swal.fire('Error', res.msg || 'No se pudo marcar.', 'error');
+                })
+                .catch(() => Swal.fire('Error', 'No se pudo marcar.', 'error'));
         });
     });
 
@@ -1084,6 +1097,8 @@ document.addEventListener('DOMContentLoaded', function () {
         ev.stopPropagation();
         const idPta = icon.getAttribute('data-id-pta');
         const fechaActual = icon.getAttribute('data-fecha') || '';
+        const tr = icon.closest('tr[data-slug]');
+        const slug = tr ? tr.getAttribute('data-slug') : null;
         Swal.fire({
             title: 'Editar fecha propuesta',
             input: 'date',
@@ -1106,8 +1121,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(function (res) { return res.json(); })
                 .then(function (res) {
                     if (res.ok) {
-                        Swal.fire({ icon: 'success', title: 'Fecha actualizada', timer: 1200, showConfirmButton: false })
-                            .then(function () { reloadMatriz(); });
+                        if (slug) actualizarFila(slug);
+                        Swal.fire({ icon: 'success', title: 'Fecha actualizada', timer: 1200, showConfirmButton: false });
                     } else {
                         Swal.fire('Error', res.msg || 'No se pudo actualizar.', 'error');
                     }
@@ -1116,20 +1131,20 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.querySelectorAll('.btn-vincular-pta').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            modalSlug = this.dataset.slug;
-            modalLabel = this.dataset.label;
-            document.getElementById('modalSlugLabel').textContent = modalLabel;
-            document.getElementById('modalBuscador').value = '';
-            document.getElementById('modalToggleCerradas').checked = false;
-            document.getElementById('modalPtaList').innerHTML = '<div class="text-center text-muted py-3"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
-            modalPtas = [];
-            modalVinculados = new Set();
-            modalBs.show();
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-vincular-pta');
+        if (!btn) return;
+        modalSlug = btn.dataset.slug;
+        modalLabel = btn.dataset.label;
+        document.getElementById('modalSlugLabel').textContent = modalLabel;
+        document.getElementById('modalBuscador').value = '';
+        document.getElementById('modalToggleCerradas').checked = false;
+        document.getElementById('modalPtaList').innerHTML = '<div class="text-center text-muted py-3"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+        modalPtas = [];
+        modalVinculados = new Set();
+        modalBs.show();
 
-            cargarPtas(false);
-        });
+        cargarPtas(false);
     });
 
     function cargarPtas(incluirCerradas) {
@@ -1176,13 +1191,16 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => {
                 if (res.ok) {
                     modalBs.hide();
+                    if (modalSlug) actualizarFila(modalSlug);
                     Swal.fire({
                         icon: 'success',
                         title: 'Vínculos guardados',
                         text: (res.added > 0 ? '+' + res.added + ' nuevo(s). ' : '') + (res.removed > 0 ? '-' + res.removed + ' quitado(s).' : ''),
                         timer: 1600,
                         showConfirmButton: false
-                    }).then(() => reloadMatriz());
+                    });
+                    document.getElementById('modalBtnGuardar').disabled = false;
+                    document.getElementById('modalBtnGuardar').innerHTML = '<i class="fas fa-save"></i> Guardar vínculos';
                 } else {
                     Swal.fire('Error', res.msg || 'No se pudo guardar.', 'error');
                     document.getElementById('modalBtnGuardar').disabled = false;
@@ -1198,57 +1216,59 @@ document.addEventListener('DOMContentLoaded', function () {
     // ================ FIN VINCULAR PTA ================
 
     // ================ DESVINCULAR PTA POR TIPO ================
-    document.querySelectorAll('.btn-desvincular-pta').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const slug = this.dataset.slug;
-            const label = this.dataset.label;
-            const count = parseInt(this.dataset.count, 10) || 0;
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-desvincular-pta');
+        if (!btn) return;
+        const slug = btn.dataset.slug;
+        const label = btn.dataset.label;
+        const count = parseInt(btn.dataset.count, 10) || 0;
 
-            Swal.fire({
-                title: 'Desvincular del Plan de Trabajo',
-                html: '<div style="text-align:left; font-size:13px;">' +
-                      '<strong>Tipo:</strong> ' + label + '<br>' +
-                      '<strong>Vínculos visibles:</strong> ' + count + '<br><br>' +
-                      'Se quitará el vínculo de este tipo de inspección con las actividades PTA del año ' + ANIO + '. No se eliminarán actividades del plan ni inspecciones.' +
-                      '</div>',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, desvincular',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#dc3545'
-            }).then(function (r) {
-                if (!r.isConfirmed) return;
-                const fd = new FormData();
-                fd.append('id_cliente', ID_CLIENTE);
-                fd.append('slug_inspeccion', slug);
-                fd.append('anio', ANIO);
-                fetch(URL_PTA_UNLINK_TIPO, { method: 'POST', body: fd })
-                    .then(res => res.json())
-                    .then(res => {
-                        if (res.ok) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Desvinculado',
-                                text: res.removed + ' vínculo(s) quitado(s).',
-                                timer: 1600,
-                                showConfirmButton: false
-                            }).then(() => reloadMatriz());
-                        } else {
-                            Swal.fire('Sin cambios', res.msg || 'No se pudo desvincular.', 'info');
-                        }
-                    })
-                    .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
-            });
+        Swal.fire({
+            title: 'Desvincular del Plan de Trabajo',
+            html: '<div style="text-align:left; font-size:13px;">' +
+                  '<strong>Tipo:</strong> ' + label + '<br>' +
+                  '<strong>Vínculos visibles:</strong> ' + count + '<br><br>' +
+                  'Se quitará el vínculo de este tipo de inspección con las actividades PTA del año ' + ANIO + '. No se eliminarán actividades del plan ni inspecciones.' +
+                  '</div>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, desvincular',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#dc3545'
+        }).then(function (r) {
+            if (!r.isConfirmed) return;
+            const fd = new FormData();
+            fd.append('id_cliente', ID_CLIENTE);
+            fd.append('slug_inspeccion', slug);
+            fd.append('anio', ANIO);
+            fetch(URL_PTA_UNLINK_TIPO, { method: 'POST', body: fd })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.ok) {
+                        actualizarFila(slug);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Desvinculado',
+                            text: res.removed + ' vínculo(s) quitado(s).',
+                            timer: 1600,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('Sin cambios', res.msg || 'No se pudo desvincular.', 'info');
+                    }
+                })
+                .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
         });
     });
     // ================ FIN DESVINCULAR PTA POR TIPO ================
 
     // ================ CREAR PTA ================
-    document.querySelectorAll('.btn-crear-pta').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const slug = this.dataset.slug;
-            const label = this.dataset.label;
-            const today = new Date().toISOString().slice(0, 10);
+    document.addEventListener('click', function (ev) {
+        const btnCrearPta = ev.target.closest('.btn-crear-pta');
+        if (!btnCrearPta) return;
+        const slug = btnCrearPta.dataset.slug;
+        const label = btnCrearPta.dataset.label;
+        const today = new Date().toISOString().slice(0, 10);
 
             Swal.fire({
                 title: 'Crear actividad en el Plan de Trabajo',
@@ -1369,100 +1389,101 @@ document.addEventListener('DOMContentLoaded', function () {
                     .then(res => res.json())
                     .then(res => {
                         if (res.ok) {
+                            actualizarFila(slug);
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Actividad creada y vinculada',
                                 text: 'id_ptacliente=' + res.id_ptacliente,
                                 timer: 1800, showConfirmButton: false
-                            }).then(() => reloadMatriz());
+                            });
                         } else {
                             Swal.fire('Error', res.msg || 'No se pudo crear.', 'error');
                         }
                     })
                     .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
             });
-        });
     });
     // ================ FIN CREAR PTA ================
 
-    document.querySelectorAll('.btn-quitar-na').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const slug = this.dataset.slug;
-            const label = this.dataset.label;
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-quitar-na');
+        if (!btn) return;
+        const slug = btn.dataset.slug;
+        const label = btn.dataset.label;
 
-            Swal.fire({
-                title: '¿Quitar marca No Aplica?',
-                text: '"' + label + '" volverá al listado como pendiente.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, quitar',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#ffc107'
-            }).then(function (r) {
-                if (!r.isConfirmed) return;
-                const fd = new FormData();
-                fd.append('id_cliente', ID_CLIENTE);
-                fd.append('tipo_inspeccion', slug);
-                fetch(URL_QUITAR, { method: 'POST', body: fd })
-                    .then(res => res.json())
-                    .then(res => {
-                        if (res.ok) reloadMatriz();
-                        else Swal.fire('Error', res.msg || 'No se pudo quitar.', 'error');
-                    })
-                    .catch(() => Swal.fire('Error', 'No se pudo quitar.', 'error'));
-            });
+        Swal.fire({
+            title: '¿Quitar marca No Aplica?',
+            text: '"' + label + '" volverá al listado como pendiente.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, quitar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#ffc107'
+        }).then(function (r) {
+            if (!r.isConfirmed) return;
+            const fd = new FormData();
+            fd.append('id_cliente', ID_CLIENTE);
+            fd.append('tipo_inspeccion', slug);
+            fetch(URL_QUITAR, { method: 'POST', body: fd })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.ok) actualizarFila(slug);
+                    else Swal.fire('Error', res.msg || 'No se pudo quitar.', 'error');
+                })
+                .catch(() => Swal.fire('Error', 'No se pudo quitar.', 'error'));
         });
     });
 
     // ================ IMPRIMIR EN PTA DESDE MATRIZ ================
-    document.querySelectorAll('.btn-cerrar-pta-matriz').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const slug      = this.dataset.slug;
-            const label     = this.dataset.label;
-            const real      = parseInt(this.dataset.realizadas, 10) || 0;
-            const abiertas  = parseInt(this.dataset.abiertas, 10) || 0;
-            const accion    = abiertas > 0
-                ? 'Cerrar SOLO la PTA más antigua abierta (1 de ' + abiertas + ') con la fecha de la inspección más reciente. Si quedan PTAs por cerrar, vuelve a usar este botón.'
-                : 'No hay PTAs vinculadas. Se crearán ' + real + ' PTA(s) CERRADA(s) retroactivamente con la fecha de cada inspección.';
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-cerrar-pta-matriz');
+        if (!btn) return;
+        const slug      = btn.dataset.slug;
+        const label     = btn.dataset.label;
+        const real      = parseInt(btn.dataset.realizadas, 10) || 0;
+        const abiertas  = parseInt(btn.dataset.abiertas, 10) || 0;
+        const accion    = abiertas > 0
+            ? 'Cerrar SOLO la PTA más antigua abierta (1 de ' + abiertas + ') con la fecha de la inspección más reciente. Si quedan PTAs por cerrar, vuelve a usar este botón.'
+            : 'No hay PTAs vinculadas. Se crearán ' + real + ' PTA(s) CERRADA(s) retroactivamente con la fecha de cada inspección.';
 
-            Swal.fire({
-                title: 'Imprimir en PTA',
-                html: '<div style="text-align:left; font-size:13px;">' +
-                      '<strong>Tipo:</strong> ' + label + '<br>' +
-                      '<strong>Inspecciones realizadas:</strong> ' + real + '<br>' +
-                      '<strong>PTAs abiertas vinculadas:</strong> ' + abiertas + '<br><br>' +
-                      '<strong>Acción:</strong> ' + accion +
-                      '</div>',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, imprimir en PTA',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#0ea5d7'
-            }).then(function (r) {
-                if (!r.isConfirmed) return;
-                const fd = new FormData();
-                fd.append('id_cliente', ID_CLIENTE);
-                fd.append('slug_inspeccion', slug);
-                fetch(URL_CERRAR_PTA_MATRIZ, { method: 'POST', body: fd })
-                    .then(res => res.json())
-                    .then(res => {
-                        if (res.ok) {
-                            const msg = res.cerradas > 0
-                                ? res.cerradas + ' PTA(s) cerrada(s) con éxito.'
-                                : res.creadas + ' PTA(s) CERRADA(s) creada(s) retroactivamente.';
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Impreso en PTA',
-                                text: msg,
-                                timer: 1800,
-                                showConfirmButton: false
-                            }).then(() => reloadMatriz());
-                        } else {
-                            Swal.fire('Error', res.msg || 'No se pudo cerrar.', 'error');
-                        }
-                    })
-                    .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
-            });
+        Swal.fire({
+            title: 'Imprimir en PTA',
+            html: '<div style="text-align:left; font-size:13px;">' +
+                  '<strong>Tipo:</strong> ' + label + '<br>' +
+                  '<strong>Inspecciones realizadas:</strong> ' + real + '<br>' +
+                  '<strong>PTAs abiertas vinculadas:</strong> ' + abiertas + '<br><br>' +
+                  '<strong>Acción:</strong> ' + accion +
+                  '</div>',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, imprimir en PTA',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#0ea5d7'
+        }).then(function (r) {
+            if (!r.isConfirmed) return;
+            const fd = new FormData();
+            fd.append('id_cliente', ID_CLIENTE);
+            fd.append('slug_inspeccion', slug);
+            fetch(URL_CERRAR_PTA_MATRIZ, { method: 'POST', body: fd })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.ok) {
+                        actualizarFila(slug);
+                        const msg = res.cerradas > 0
+                            ? res.cerradas + ' PTA(s) cerrada(s) con éxito.'
+                            : res.creadas + ' PTA(s) CERRADA(s) creada(s) retroactivamente.';
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Impreso en PTA',
+                            text: msg,
+                            timer: 1800,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('Error', res.msg || 'No se pudo cerrar.', 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
         });
     });
     // ================ FIN IMPRIMIR EN PTA DESDE MATRIZ ================
@@ -1473,15 +1494,15 @@ document.addEventListener('DOMContentLoaded', function () {
     let frecModalSlug  = null;
     let frecModalLabel = null;
 
-    document.querySelectorAll('.btn-frecuencia').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            frecModalSlug  = this.dataset.slug;
-            frecModalLabel = this.dataset.label;
-            document.getElementById('frecModalLabel').textContent = frecModalLabel;
-            document.getElementById('frecModalInput').value = this.dataset.vecesAnio || '';
-            frecModalBs.show();
-            setTimeout(() => document.getElementById('frecModalInput').focus(), 200);
-        });
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest('.btn-frecuencia');
+        if (!btn) return;
+        frecModalSlug  = btn.dataset.slug;
+        frecModalLabel = btn.dataset.label;
+        document.getElementById('frecModalLabel').textContent = frecModalLabel;
+        document.getElementById('frecModalInput').value = btn.dataset.vecesAnio || '';
+        frecModalBs.show();
+        setTimeout(() => document.getElementById('frecModalInput').focus(), 200);
     });
 
     document.getElementById('frecModalBtnGuardar').addEventListener('click', function () {
@@ -1508,13 +1529,17 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => {
                 if (res.ok) {
                     frecModalBs.hide();
+                    const slugRefresh = frecModalSlug;
+                    if (slugRefresh) actualizarFila(slugRefresh);
                     Swal.fire({
                         icon: 'success',
                         title: 'Guardado',
                         text: frecModalLabel + ' → ' + valor + ' veces/año',
                         timer: 1200,
                         showConfirmButton: false
-                    }).then(() => reloadMatriz());
+                    });
+                    this.disabled = false;
+                    this.innerHTML = orig;
                 } else {
                     Swal.fire('Error', res.msg || 'No se pudo guardar.', 'error');
                     this.disabled = false;
