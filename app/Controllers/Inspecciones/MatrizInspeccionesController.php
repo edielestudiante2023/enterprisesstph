@@ -861,6 +861,52 @@ class MatrizInspeccionesController extends BaseController
     }
 
     /**
+     * Actualiza la fecha_propuesta de una PTA vinculada al cliente.
+     * Permite corregir fechas mal puestas desde el desplegable de planeadas
+     * de la matriz, sin abrir el módulo de PTA.
+     *
+     * POST: id_cliente, id_ptacliente, fecha_propuesta (YYYY-MM-DD)
+     */
+    public function editarFechaPta()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $idPta     = (int) $this->request->getPost('id_ptacliente');
+        $fecha     = trim((string) $this->request->getPost('fecha_propuesta'));
+
+        if (!$idCliente || !$idPta || !$fecha) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha) || strtotime($fecha) === false) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Fecha inválida (YYYY-MM-DD).']);
+        }
+
+        $db = \Config\Database::connect();
+        $pta = $db->table('tbl_pta_cliente')
+            ->select('id_ptacliente, id_cliente')
+            ->where('id_ptacliente', $idPta)
+            ->get(1)->getRowArray();
+
+        if (!$pta) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Actividad PTA no encontrada.']);
+        }
+        if ((int) $pta['id_cliente'] !== $idCliente) {
+            return $this->response->setStatusCode(403)
+                ->setJSON(['ok' => false, 'msg' => 'La actividad no pertenece a este cliente.']);
+        }
+
+        $db->table('tbl_pta_cliente')
+            ->where('id_ptacliente', $idPta)
+            ->update([
+                'fecha_propuesta' => $fecha,
+                'updated_at'      => date('Y-m-d H:i:s'),
+            ]);
+
+        self::clearMatrizCache($idCliente);
+
+        return $this->response->setJSON(['ok' => true]);
+    }
+
+    /**
      * Desvincula una sola actividad PTA de un slug (accion rapida desde la fila).
      */
     public function desvincularPta()
