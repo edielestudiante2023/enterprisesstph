@@ -1278,18 +1278,43 @@ class MatrizInspeccionesController extends BaseController
 
         $tipos = InspeccionTypes::all();
         $filas = [];
+        // Acumuladores para opciones dinámicas de los dropdowns del <thead> — espejo
+        // de la lógica en detalle.php (sección PHP top) que el frontend no puede
+        // re-derivar sin volver a llamar al server.
+        $frecuenciasSet  = [];
+        $planeadasCounts = [];
         foreach ($tipos as $tipo) {
             $f = $this->computeFila($tipo, $idCliente, $fechaDesde, $fechaHasta, $anio, $noAplica, $frecuenciasMap, $matchesBySlug);
             $filas[] = [
                 'slug' => $f['slug'],
                 'html' => view('inspecciones/matriz/_fila', ['f' => $f, 'cliente' => $cliente]),
             ];
+
+            $vaRaw = $f['veces_anio'] ?? null;
+            $frecuenciasSet[$vaRaw === null ? 'sin_definir' : (string) (int) $vaRaw] = true;
+
+            if (($f['estado'] ?? '') === 'no_aplica') continue;
+            $nPlaneadas = 0;
+            foreach ($f['pta_vinculados'] as $v) {
+                if (!empty($v['fecha_propuesta'])) $nPlaneadas++;
+            }
+            $planeadasCounts[$nPlaneadas] = ($planeadasCounts[$nPlaneadas] ?? 0) + 1;
         }
 
+        $frecuenciasOpciones = array_keys($frecuenciasSet);
+        usort($frecuenciasOpciones, function ($a, $b) {
+            if ($a === 'sin_definir') return -1;
+            if ($b === 'sin_definir') return 1;
+            return (int) $a <=> (int) $b;
+        });
+        ksort($planeadasCounts);
+
         return $this->response->setJSON([
-            'ok'    => true,
-            'filas' => $filas,
-            'total' => count($filas),
+            'ok'                  => true,
+            'filas'               => $filas,
+            'total'               => count($filas),
+            'frecuencias_opciones'=> $frecuenciasOpciones,
+            'planeadas_counts'    => $planeadasCounts, // {cantidad: nFilas}
         ]);
     }
 

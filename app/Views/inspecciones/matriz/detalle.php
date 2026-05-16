@@ -931,6 +931,56 @@ document.addEventListener('DOMContentLoaded', function () {
                     if ($new && $new.length) tabla.row.add($new[0]);
                 });
                 tabla.draw(false); // dispara recalcEstadoCards y mantiene la página actual
+
+                // Repoblar dropdowns dinámicos del <thead> (frecuencia + planeadas)
+                // con las opciones derivadas de las filas frescas. Preserva la selección
+                // actual si todavía existe; si no, queda en "todas" y re-aplica el filtro.
+                if (Array.isArray(res.frecuencias_opciones)) {
+                    const frecEl = document.querySelector('.filtro-frecuencia');
+                    if (frecEl) {
+                        const prev = frecEl.value;
+                        let html = '<option value="">Frecuencia: todas</option>';
+                        res.frecuencias_opciones.forEach(function (fk) {
+                            let lbl;
+                            if (fk === 'sin_definir')      lbl = 'Sin definir';
+                            else if (fk === '0' || fk === 0) lbl = 'Puntual';
+                            else if (fk === '1' || fk === 1) lbl = '1 vez al año';
+                            else                            lbl = fk + ' veces al año';
+                            html += '<option value="' + fk + '">' + lbl + '</option>';
+                        });
+                        frecEl.innerHTML = html;
+                        // Restaurar valor si aún existe; si no, limpiar el filtro custom
+                        const stillValid = res.frecuencias_opciones.map(String).indexOf(String(prev)) !== -1;
+                        if (prev && stillValid) {
+                            frecEl.value = prev;
+                        } else if (prev) {
+                            activeFrecuenciaFilter = '';
+                            tabla.draw(false);
+                            guardarFiltros();
+                        }
+                    }
+                }
+                if (res.planeadas_counts && typeof res.planeadas_counts === 'object') {
+                    const fechasEl = document.querySelector('.filtro-fechas');
+                    if (fechasEl) {
+                        const prev = fechasEl.value;
+                        let html = '<option value="">Planeadas: todas</option>';
+                        Object.keys(res.planeadas_counts).map(Number).sort((a, b) => a - b).forEach(function (cant) {
+                            const n = res.planeadas_counts[cant];
+                            html += '<option value="' + cant + '">' + cant + ' planeada' + (cant == 1 ? '' : 's') + ' (' + n + ')</option>';
+                        });
+                        fechasEl.innerHTML = html;
+                        const stillValidF = Object.prototype.hasOwnProperty.call(res.planeadas_counts, prev);
+                        if (prev && stillValidF) {
+                            fechasEl.value = prev;
+                        } else if (prev) {
+                            activeFechasFilter = '';
+                            tabla.draw(false);
+                            guardarFiltros();
+                        }
+                    }
+                }
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Matriz actualizada',

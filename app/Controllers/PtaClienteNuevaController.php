@@ -844,6 +844,112 @@ class PtaClienteNuevaController extends Controller
     }
 
     /**
+     * Vista del módulo "Generar actividades por Eje Temático" para un cliente.
+     * Muestra los 10 ejes en accordion, con checkbox + date picker individual por actividad,
+     * y un badge ✓ verde si la tarea ya existe en tbl_pta_cliente del cliente en el año actual.
+     */
+    public function generarEjes($idCliente = null)
+    {
+        $idCliente = (int) $idCliente;
+        if (!$idCliente) {
+            return redirect()->to(base_url('/pta-cliente-nueva/list'))->with('error', 'Cliente inválido.');
+        }
+        $clientModel = new ClientModel();
+        $cliente = $clientModel->find($idCliente);
+        if (!$cliente) {
+            return redirect()->to(base_url('/pta-cliente-nueva/list'))->with('error', 'Cliente no encontrado.');
+        }
+
+        // Tareas ya existentes en el año actual (por texto exacto) — para mostrar badge ✓
+        $db = \Config\Database::connect();
+        $anio = date('Y');
+        $existentes = $db->table('tbl_pta_cliente')
+            ->select('actividad_plandetrabajo')
+            ->where('id_cliente', $idCliente)
+            ->where('YEAR(fecha_propuesta)', $anio)
+            ->get()->getResultArray();
+        $existSet = array_flip(array_column($existentes, 'actividad_plandetrabajo'));
+
+        return view('consultant/pta_generar_ejes', [
+            'cliente'   => $cliente,
+            'ejes'      => \App\Libraries\EjesTematicos::all(),
+            'existSet'  => $existSet,
+            'anio'      => $anio,
+        ]);
+    }
+
+    /**
+     * Endpoint POST para crear masivamente las actividades seleccionadas en el módulo
+     * de Ejes Temáticos. Recibe id_cliente + array seleccionadas[] = [{id, fecha}].
+     * Cada item resuelve su tarea desde EjesTematicos::getActividadById() y se inserta
+     * en tbl_pta_cliente con fecha asignada. NO crea matches en tbl_pta_inspeccion_match
+     * (por diseño — los ejes son gestión estratégica paralela a inspecciones físicas).
+     */
+    public function generarEjesGuardar()
+    {
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Método no permitido.']);
+        }
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $items     = $this->request->getPost('seleccionadas');
+        if (!$idCliente || !is_array($items) || empty($items)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'No se seleccionaron actividades.']);
+        }
+        $clientModel = new ClientModel();
+        if (!$clientModel->find($idCliente)) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Cliente no encontrado.']);
+        }
+
+        $db  = \Config\Database::connect();
+        $now = date('Y-m-d H:i:s');
+        $isValidDate = static fn($d) => is_string($d) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) && strtotime($d) !== false;
+
+        $insertadas  = 0;
+        $omitidasFecha = 0;
+        $omitidasId  = 0;
+        $detalle = [];
+
+        foreach ($items as $row) {
+            $actId = isset($row['id']) ? trim((string) $row['id']) : '';
+            $fecha = isset($row['fecha']) ? trim((string) $row['fecha']) : '';
+            if (!$isValidDate($fecha)) { $omitidasFecha++; continue; }
+
+            $act = \App\Libraries\EjesTematicos::getActividadById($actId);
+            if (!$act) { $omitidasId++; continue; }
+
+            $db->table('tbl_pta_cliente')->insert([
+                'id_cliente'                           => $idCliente,
+                'phva_plandetrabajo'                   => '',
+                'numeral_plandetrabajo'                => '-',
+                'actividad_plandetrabajo'              => $act['tarea'],
+                'responsable_sugerido_plandetrabajo'   => 'CONSULTOR CYCLOID',
+                'responsable_definido_paralaactividad' => '-',
+                'fecha_propuesta'                      => $fecha,
+                'estado_actividad'                     => 'ABIERTA',
+                'porcentaje_avance'                    => 0,
+                'created_at'                           => $now,
+                'updated_at'                           => $now,
+            ]);
+            $detalle[] = ['eje' => $act['eje_slug'], 'id' => $actId, 'fecha' => $fecha];
+            $insertadas++;
+        }
+
+        \App\Controllers\Inspecciones\MatrizInspeccionesController::logMatchAudit('generarEjesGuardar', $idCliente, [
+            'pta_creadas'   => $insertadas,
+            'omitidas_id'   => $omitidasId,
+            'omitidas_fecha'=> $omitidasFecha,
+            'detalle'       => $detalle,
+        ]);
+
+        return $this->response->setJSON([
+            'ok'              => true,
+            'creadas'         => $insertadas,
+            'omitidas_id'     => $omitidasId,
+            'omitidas_fecha'  => $omitidasFecha,
+        ]);
+    }
+
+    /**
      * Importa actividades a tbl_pta_cliente desde la configuración de la Matriz de Inspecciones.
      * Por cada slug con veces_anio > 0 y no marcado como N/A, crea N actividades con
      * fecha_propuesta=hoy y las vincula al slug en tbl_pta_inspeccion_match.

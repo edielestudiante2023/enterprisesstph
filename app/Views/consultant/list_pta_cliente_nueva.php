@@ -534,22 +534,31 @@
         <!-- Enlaces de navegación -->
         <div class="d-flex gap-2 mb-3">
             <a href="<?= base_url('/dashboardconsultant') ?>" class="btn btn-primary btn-sm">Ir a DashBoard</a>
+            <?php /* DESHABILITADO 2026-05-16 — decisión de consultoría: el PTA ya NO se
+                     genera desde el CSV plantilla. Reemplazado por:
+                       - "Importar desde Matriz" (inspecciones físicas: extintores, botiquín, etc.)
+                       - "Generar por Eje Temático" (gestión estratégica: políticas, planes, autoeval, etc.)
+                     Modal renewPlanModal preservado abajo por si se requiere retomar.
             <button type="button" class="btn btn-warning btn-sm btn-tooltip" data-bs-toggle="modal" data-bs-target="#renewPlanModal"
                     data-bs-placement="bottom"
                     title="Elimina las actividades ABIERTA, genera el plan desde la plantilla CSV y no reinserta las que ya estén CERRADA este año. Ideal para iniciar un nuevo ciclo.">
                 <i class="fas fa-sync-alt"></i> Renovar Plan de Trabajo
             </button>
+            */ ?>
             <?php if (!empty($filters['cliente'])): ?>
             <button type="button" id="btnEliminarAbiertas" class="btn btn-danger btn-sm btn-tooltip"
                     data-bs-placement="bottom"
                     title="Elimina TODAS las actividades en estado ABIERTA de este cliente. Requiere resolver 3 operaciones matemáticas para confirmar. No toca las CERRADA ni GESTIONANDO.">
                 <i class="fas fa-eraser"></i> Eliminar Abiertas
             </button>
+            <?php /* DESHABILITADO 2026-05-16 — ver nota arriba. Reemplazado por
+                     los botones "Importar desde Matriz" y "Generar por Eje Temático".
             <button type="button" class="btn btn-info btn-sm btn-tooltip" data-bs-toggle="modal" data-bs-target="#regenerarPlanModal"
                     data-bs-placement="bottom"
                     title="Agrega actividades faltantes desde la plantilla CSV sin tocar las existentes. Si una actividad (texto exacto) ya existe en el año actual (cualquier estado), no la duplica.">
                 <i class="fas fa-redo"></i> Regenerar Plan
             </button>
+            */ ?>
             <button type="button" id="btnCrearActividadIA" class="btn btn-purple btn-sm btn-tooltip" data-bs-toggle="modal" data-bs-target="#crearActividadIAModal"
                     data-bs-placement="bottom"
                     title="Crea una actividad nueva: busque en el inventario del Decreto 1072 o describa lo que necesita y la IA propondrá 3 opciones profesionales.">
@@ -565,6 +574,12 @@
                     title="Crea actividades en el PTA según la frecuencia configurada en la Matriz de Inspecciones para este cliente. Todas con fecha=hoy; el consultor distribuye en el año después. Si ya existen PTAs vinculadas a algún slug, pide confirmación.">
                 <i class="fas fa-file-import"></i> Importar desde Matriz
             </button>
+            <a href="<?= base_url('/pta-cliente-nueva/generar-ejes/' . (int) $filters['cliente']) ?>"
+               class="btn btn-secondary btn-sm btn-tooltip"
+               data-bs-placement="bottom"
+               title="Genera actividades del PTA seleccionando por eje temático (gestión estratégica, documental, emergencias, riesgos, contratistas, etc.). Asigna fecha individual por actividad.">
+                <i class="fas fa-list-check"></i> Generar por Eje Temático
+            </a>
             <?php endif; ?>
         </div>
 
