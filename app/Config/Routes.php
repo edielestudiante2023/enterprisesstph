@@ -54,6 +54,7 @@ $routes->get('consultant/auditoria-visitas/edit/(:num)', 'AuditoriaVisitasContro
 $routes->post('consultant/auditoria-visitas/update/(:num)', 'AuditoriaVisitasController::update/$1');
 $routes->post('consultant/auditoria-visitas/delete/(:num)', 'AuditoriaVisitasController::delete/$1');
 $routes->post('consultant/auditoria-visitas/enviar-recordatorio', 'AuditoriaVisitasController::enviarRecordatorio');
+$routes->post('consultant/auditoria-visitas/observaciones/(:num)', 'AuditoriaVisitasController::updateObservaciones/$1');
 
 $routes->get('/dashboardconsultant', 'ConsultantController::index');
 

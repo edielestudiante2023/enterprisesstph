@@ -324,6 +324,7 @@
                     <th>Estatus Agenda</th>
                     <th>Estatus Mes</th>
                     <th>Informe de Avance</th>
+                    <th title="Observaciones editables inline — click para editar, blur o Ctrl+Enter para guardar, Esc para cancelar.">Observaciones</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -377,6 +378,20 @@
                             <?php else: ?>
                                 <span class="text-muted">—</span>
                             <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php $obsVal = $c['observaciones'] ?? ''; ?>
+                            <div class="obs-cell"
+                                 data-id="<?= (int) $c['id'] ?>"
+                                 data-obs="<?= esc($obsVal) ?>"
+                                 style="min-width:160px; max-width:260px; cursor:text;"
+                                 title="Click para editar">
+                                <?php if ($obsVal !== ''): ?>
+                                    <span class="obs-text" style="white-space:pre-wrap; word-break:break-word; font-size:12px; color:#212529;"><?= esc($obsVal) ?></span>
+                                <?php else: ?>
+                                    <span class="obs-placeholder text-muted" style="font-size:12px; font-style:italic;">+ agregar observación</span>
+                                <?php endif; ?>
+                            </div>
                         </td>
                         <td>
                             <a href="/consultant/auditoria-visitas/edit/<?= $c['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editar">
@@ -766,6 +781,82 @@
                 }
             });
         });
+
+        // ═══ EDICIÓN INLINE DE OBSERVACIONES ═══
+        // Click en la celda → reemplaza por textarea con valor actual, autofocus.
+        // Blur → AJAX POST a /consultant/auditoria-visitas/observaciones/{id}.
+        // Esc → cancela sin guardar. Ctrl+Enter → fuerza blur (guardar).
+        $(document).on('click', '.obs-cell', function() {
+            var $cell = $(this);
+            if ($cell.find('textarea').length) return; // ya en edición
+            var id     = $cell.data('id');
+            var actual = $cell.data('obs') || '';
+
+            var $ta = $('<textarea class="form-control form-control-sm obs-edit" rows="3" style="font-size:12px; width:100%;"></textarea>').val(actual);
+            $cell.html($ta);
+            $ta.trigger('focus');
+            // Posicionar cursor al final
+            var len = $ta.val().length;
+            $ta[0].setSelectionRange(len, len);
+
+            var cancelled = false;
+
+            $ta.on('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    cancelled = true;
+                    $ta.off('blur');
+                    repintarCelda($cell, actual);
+                } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    $ta.trigger('blur');
+                }
+            });
+
+            $ta.on('blur', function() {
+                if (cancelled) return;
+                var nuevo = $ta.val();
+                // Si no cambió, no hacer roundtrip
+                if (nuevo === actual) {
+                    repintarCelda($cell, actual);
+                    return;
+                }
+                $ta.prop('disabled', true);
+                $.ajax({
+                    url: '<?= base_url('consultant/auditoria-visitas/observaciones') ?>/' + id,
+                    method: 'POST',
+                    data: { observaciones: nuevo },
+                    dataType: 'json'
+                }).done(function(res) {
+                    if (res && res.ok) {
+                        $cell.data('obs', nuevo);
+                        repintarCelda($cell, nuevo, true);
+                    } else {
+                        Swal.fire('Error', (res && res.msg) || 'No se pudo guardar.', 'error');
+                        repintarCelda($cell, actual);
+                    }
+                }).fail(function() {
+                    Swal.fire('Error', 'Error de red al guardar.', 'error');
+                    repintarCelda($cell, actual);
+                });
+            });
+        });
+
+        function repintarCelda($cell, valor, mostrarTick) {
+            var html;
+            if (valor && valor !== '') {
+                html = '<span class="obs-text" style="white-space:pre-wrap; word-break:break-word; font-size:12px; color:#212529;"></span>';
+                $cell.html(html);
+                $cell.find('.obs-text').text(valor);
+            } else {
+                html = '<span class="obs-placeholder text-muted" style="font-size:12px; font-style:italic;">+ agregar observación</span>';
+                $cell.html(html);
+            }
+            if (mostrarTick) {
+                var $tick = $('<i class="fas fa-check ms-1" style="color:#198754; font-size:11px;"></i>');
+                $cell.append($tick);
+                setTimeout(function() { $tick.fadeOut(400, function(){ $tick.remove(); }); }, 1200);
+            }
+        }
 
         // restaurarFiltros() se invoca desde el initComplete de la DataTable.
     });

@@ -167,6 +167,27 @@ class AuditoriaVisitasController extends BaseController
     }
 
     /**
+     * Actualización inline de observaciones desde la vista de auditoría.
+     * Recibe POST { observaciones } y guarda en tbl_ciclos_visita.observaciones.
+     * Responde JSON {ok, msg}.
+     */
+    public function updateObservaciones($id)
+    {
+        $id = (int) $id;
+        if (!$id) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'ID inválido.']);
+        }
+        $ciclo = $this->model->find($id);
+        if (!$ciclo) {
+            return $this->response->setStatusCode(404)
+                ->setJSON(['ok' => false, 'msg' => 'Registro no encontrado.']);
+        }
+        $obs = trim((string) $this->request->getPost('observaciones'));
+        $this->model->update($id, ['observaciones' => $obs !== '' ? $obs : null]);
+        return $this->response->setJSON(['ok' => true]);
+    }
+
+    /**
      * Eliminar registro
      */
     public function delete($id)
