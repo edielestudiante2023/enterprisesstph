@@ -1189,6 +1189,44 @@ class MatrizInspeccionesController extends BaseController
     }
 
     /**
+     * Borra TODAS las frecuencias configuradas (veces_anio) de un cliente.
+     * Operación destructiva — pensada para upgrades de contrato (trimestral → bimensual
+     * → mensual) donde el consultor quiere reconfigurar la frecuencia desde cero.
+     * El frontend exige doble validación aritmética antes de invocar este endpoint.
+     */
+    public function limpiarFrecuencias()
+    {
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        if (!$idCliente) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Parámetros inválidos.']);
+        }
+        if (!$this->clienteModel->find($idCliente)) {
+            return $this->response->setStatusCode(404)
+                ->setJSON(['ok' => false, 'msg' => 'Cliente no encontrado.']);
+        }
+
+        $db = \Config\Database::connect();
+        $before = (int) $db->table('tbl_inspeccion_frecuencia_cliente')
+            ->where('id_cliente', $idCliente)
+            ->countAllResults();
+
+        $db->table('tbl_inspeccion_frecuencia_cliente')
+            ->where('id_cliente', $idCliente)
+            ->delete();
+
+        self::logMatchAudit('limpiarFrecuencias', $idCliente, [
+            'frecuencias_borradas' => $before,
+        ], true);
+
+        self::clearMatrizCache($idCliente);
+
+        return $this->response->setJSON([
+            'ok'                   => true,
+            'frecuencias_borradas' => $before,
+        ]);
+    }
+
+    /**
      * Devuelve TODAS las filas de la matriz pre-renderizadas (html + slug) para refrescar
      * la tabla completa por AJAX sin recargar la vista. Fuerza limpieza de caché antes
      * de computar — pensado para el botón "Refrescar todo" que debe hablar datos vivos

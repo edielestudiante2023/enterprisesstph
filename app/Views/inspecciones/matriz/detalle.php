@@ -332,6 +332,9 @@ $cobertura  = $aplicables > 0 ? round((($totalHechas + $totalAlDia) / $aplicable
             <button type="button" id="btnRefrescarTodoMatriz" class="btn btn-sm btn-outline-info" style="font-size:12px; padding:5px 10px;" title="Recarga todas las filas con datos frescos (PTAs, inspecciones, frecuencias y vinculaciones modificadas desde otros módulos)">
                 <i class="fas fa-sync-alt"></i> Refrescar todo
             </button>
+            <button type="button" id="btnLimpiarFrecuencias" class="btn btn-sm btn-outline-danger" style="font-size:12px; padding:5px 10px;" title="Borra TODAS las frecuencias (veces/año) configuradas del cliente. Útil para reconfigurar tras upgrade de contrato (trimestral → bimensual → mensual). Pide doble validación.">
+                <i class="fas fa-eraser"></i> Limpiar frecuencias
+            </button>
         </div>
     </div>
 
@@ -567,6 +570,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const URL_PTA_REABRIR      = '<?= base_url('inspecciones/matriz/reabrir-pta') ?>';
     const URL_FILA_SLUG = '<?= base_url('inspecciones/matriz/fila-slug/' . (int) $cliente['id_cliente']) ?>';
     const URL_FILAS_TODAS = '<?= base_url('inspecciones/matriz/filas-todas/' . (int) $cliente['id_cliente']) ?>';
+    const URL_LIMPIAR_FRECUENCIAS = '<?= base_url('inspecciones/matriz/limpiar-frecuencias') ?>';
 
     /**
      * Refresca UNA fila de la matriz (un slug) por AJAX sin recargar la página.
@@ -831,6 +835,72 @@ document.addEventListener('DOMContentLoaded', function () {
 
         tabla.draw();
         guardarFiltros(); // persiste el estado limpio
+    });
+
+    // Botón "Limpiar frecuencias" — operación destructiva con doble validación aritmética
+    // (espejo del patrón de borrar evaluación / Imprimir-PTA con fecha futura).
+    document.getElementById('btnLimpiarFrecuencias').addEventListener('click', function () {
+        const n1a = Math.floor(Math.random() * 9) + 1, n1b = Math.floor(Math.random() * 9) + 1;
+        const n2a = Math.floor(Math.random() * 9) + 1, n2b = Math.floor(Math.random() * 9) + 1;
+        Swal.fire({
+            title: 'Limpiar frecuencias del cliente',
+            html: 'Vas a borrar <b>TODAS</b> las frecuencias (veces/año) configuradas.<br>'
+                + 'Esto NO toca PTAs ya creadas, solo la configuración base de la matriz.<br><br>'
+                + 'Validación 1 de 2:<br><b>¿Cuánto es ' + n1a + ' + ' + n1b + '?</b>',
+            input: 'number',
+            inputAttributes: { min: 0 },
+            showCancelButton: true,
+            confirmButtonText: 'Siguiente',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#dc3545',
+            preConfirm: function (v) {
+                if (parseInt(v, 10) !== (n1a + n1b)) {
+                    Swal.showValidationMessage('Resultado incorrecto.');
+                    return false;
+                }
+                return true;
+            }
+        }).then(function (r1) {
+            if (!r1.isConfirmed) return;
+            Swal.fire({
+                title: 'Confirma de nuevo',
+                html: 'Validación 2 de 2:<br><b>¿Cuánto es ' + n2a + ' + ' + n2b + '?</b>',
+                input: 'number',
+                inputAttributes: { min: 0 },
+                showCancelButton: true,
+                confirmButtonText: 'Sí, limpiar definitivamente',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#dc3545',
+                preConfirm: function (v) {
+                    if (parseInt(v, 10) !== (n2a + n2b)) {
+                        Swal.showValidationMessage('Resultado incorrecto.');
+                        return false;
+                    }
+                    return true;
+                }
+            }).then(function (r2) {
+                if (!r2.isConfirmed) return;
+                const fd = new FormData();
+                fd.append('id_cliente', ID_CLIENTE);
+                fetch(URL_LIMPIAR_FRECUENCIAS, { method: 'POST', body: fd })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.ok) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Frecuencias borradas',
+                                text: res.frecuencias_borradas + ' frecuencia(s) eliminadas. Recargando matriz...',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            document.getElementById('btnRefrescarTodoMatriz').click();
+                        } else {
+                            Swal.fire('Error', res.msg || 'No se pudo limpiar.', 'error');
+                        }
+                    })
+                    .catch(() => Swal.fire('Error', 'Error de red.', 'error'));
+            });
+        });
     });
 
     // Botón "Refrescar todo" — pide al servidor todas las filas pre-renderizadas con
