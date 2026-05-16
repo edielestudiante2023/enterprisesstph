@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap4-theme@1.0.0/dist/select2-bootstrap4.min.css">
     <style>
         body { background-color: #f8f9fa; color: #343a40; }
         table { background-color: #fff; }
@@ -230,7 +232,26 @@
         </div>
 
         <!-- ═══ FILTROS DESPLEGABLES ═══ -->
+        <?php
+        // Lista de clientes únicos derivada de los ciclos visibles (no toda la BD)
+        // para no mostrar clientes que no aparecen en esta vista.
+        $clientesUnicos = [];
+        foreach ($ciclos as $cc) {
+            $nc = $cc['nombre_cliente'] ?? '';
+            if ($nc !== '') $clientesUnicos[$nc] = true;
+        }
+        $clientesUnicos = array_keys($clientesUnicos);
+        sort($clientesUnicos);
+        ?>
         <div class="row filter-row mt-3">
+            <div class="col-md-3">
+                <select id="filtroCliente" class="form-control form-control-sm" style="width:100%;">
+                    <option value="">Todos los clientes</option>
+                    <?php foreach ($clientesUnicos as $nc): ?>
+                        <option value="<?= esc($nc) ?>"><?= esc($nc) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             <div class="col-md-3">
                 <select id="filtroConsultor" class="form-control form-control-sm">
                     <option value="">Todos los consultores</option>
@@ -361,6 +382,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -379,8 +401,18 @@
             initComplete: function () { restaurarFiltros(); }
         });
 
+        // Inicializar Select2 sobre el filtro de cliente (buscador + autocompletado).
+        // Los demás dropdowns tienen pocas opciones (≤12), no necesitan select2.
+        $('#filtroCliente').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Buscar cliente...',
+            allowClear: true,
+            width: '100%'
+        });
+
         // ═══ FILTROS CUSTOM (bypass column().search) ═══
         var activeFilters = {
+            cliente: '',
             consultor: '',
             externo: '',
             mes: '',
@@ -408,6 +440,7 @@
             });
 
             // Sincronizar dropdowns
+            $('#filtroCliente').val(activeFilters.cliente).trigger('change.select2');
             $('#filtroConsultor').val(activeFilters.consultor);
             $('#filtroMes').val(activeFilters.mes);
             $('#filtroPeriodicidad').val(activeFilters.periodicidad);
@@ -437,6 +470,10 @@
         // Leer celdas directamente del DOM (bypass cache interno DataTables)
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             var $cells = $(table.row(dataIndex).node()).children('td');
+            if (activeFilters.cliente) {
+                var t = $cells.eq(0).text().trim();
+                if (t !== activeFilters.cliente) return false;
+            }
             if (activeFilters.consultor) {
                 var t = $cells.eq(1).text().trim();
                 if (t.toUpperCase().indexOf(activeFilters.consultor.toUpperCase()) === -1) return false;
@@ -542,6 +579,11 @@
             if (dropdownMap[filterType]) $(dropdownMap[filterType]).val(value);
         });
 
+        // Filtro de cliente (select2)
+        $('#filtroCliente').on('change', function() {
+            applyFilter('cliente', this.value || '');
+        });
+
         // Dropdowns → filtrar + sincronizar cards
         $('#filtroConsultor').on('change', function() {
             var val = this.value;
@@ -574,6 +616,7 @@
         $('#btnLimpiarFiltros').on('click', function() {
             Object.keys(activeFilters).forEach(function (k) { activeFilters[k] = ''; });
             $('#filtroConsultor, #filtroMes, #filtroPeriodicidad, #filtroEstatusAgenda, #filtroEstatusMes').val('');
+            $('#filtroCliente').val('').trigger('change.select2');
             $('#filtroFechaDesde, #filtroFechaHasta').val('');
             $('.filter-card').removeClass('active');
             $('.filter-card[data-value=""]').addClass('active');
