@@ -560,6 +560,11 @@
                     title="Envía el Plan de Trabajo actual por email al cliente y al consultor responsable.">
                 <i class="fas fa-envelope"></i> Socializar Plan de Trabajo
             </button>
+            <button type="button" id="btnImportarDesdeMatriz" class="btn btn-dark btn-sm btn-tooltip"
+                    data-bs-placement="bottom"
+                    title="Crea actividades en el PTA según la frecuencia configurada en la Matriz de Inspecciones para este cliente. Todas con fecha=hoy; el consultor distribuye en el año después. Si ya existen PTAs vinculadas a algún slug, pide confirmación.">
+                <i class="fas fa-file-import"></i> Importar desde Matriz
+            </button>
             <?php endif; ?>
         </div>
 
@@ -2473,6 +2478,99 @@
                     complete: function() {
                         $btn.prop('disabled', false).html('<i class="fas fa-envelope"></i> Socializar Plan de Trabajo');
                     }
+                });
+            });
+        });
+
+        // ===== Importar desde Matriz de Inspecciones =====
+        $(document).ready(function() {
+            var $btnImp = $('#btnImportarDesdeMatriz');
+            if (!$btnImp.length) return;
+            var URL_IMPORTAR = '<?= base_url('/pta-cliente-nueva/importar-desde-matriz') ?>';
+            var CSRF_NAME    = '<?= csrf_token() ?>';
+            var CSRF_HASH    = '<?= csrf_hash() ?>';
+            var clienteIdImp = '<?= $filters['cliente'] ?? '' ?>';
+
+            function ejecutarImportacion(confirmar) {
+                $btnImp.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Importando...');
+                var payload = { id_cliente: clienteIdImp };
+                payload[CSRF_NAME] = CSRF_HASH;
+                if (confirmar) payload.confirmar = 1;
+
+                return $.ajax({
+                    url: URL_IMPORTAR,
+                    method: 'POST',
+                    data: payload,
+                    dataType: 'json'
+                }).always(function() {
+                    $btnImp.prop('disabled', false).html('<i class="fas fa-file-import"></i> Importar desde Matriz');
+                });
+            }
+
+            $btnImp.on('click', function() {
+                if (!clienteIdImp) {
+                    Swal.fire('Falta cliente', 'Selecciona un cliente primero.', 'info');
+                    return;
+                }
+                ejecutarImportacion(false).done(function(res) {
+                    // Caso A: no hay configuración previa en la matriz
+                    if (!res.ok && res.requiere_configuracion) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Configura primero la matriz',
+                            html: res.msg + '<br><br><a href="<?= base_url('/inspecciones/matriz/') ?>' + clienteIdImp + '" target="_blank" class="btn btn-sm btn-primary"><i class="fas fa-th"></i> Abrir Matriz de Inspecciones</a>',
+                            confirmButtonText: 'Entendido'
+                        });
+                        return;
+                    }
+                    // Caso B: hay slugs con PTAs existentes → confirmar
+                    if (!res.ok && res.requiere_confirmacion) {
+                        var lista = res.slugs_con_pta.map(function(s) {
+                            return '<li><b>' + s.label + '</b> — ya tiene ' + s.pta_existentes + ' PTA(s)</li>';
+                        }).join('');
+                        Swal.fire({
+                            title: 'Ya hay PTAs vinculadas',
+                            html: 'Los siguientes tipos ya tienen actividades en el PTA:<br><br>'
+                                + '<ul style="text-align:left">' + lista + '</ul>'
+                                + 'Si continúas se van a <b>crear duplicados</b> (' + res.total_a_crear + ' actividades nuevas en ' + res.total_slugs + ' tipos).<br><br>'
+                                + '¿Continuar?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí, importar igual',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonColor: '#dc3545'
+                        }).then(function(r) {
+                            if (!r.isConfirmed) return;
+                            ejecutarImportacion(true).done(function(res2) {
+                                if (res2.ok) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Importación lista',
+                                        text: res2.creadas + ' PTA(s) creadas en ' + res2.slugs_procesados + ' tipo(s). Recargando...',
+                                        timer: 1800,
+                                        showConfirmButton: false
+                                    }).then(function() { location.reload(); });
+                                } else {
+                                    Swal.fire('Error', res2.msg || 'No se pudo importar.', 'error');
+                                }
+                            });
+                        });
+                        return;
+                    }
+                    // Caso C: éxito en la primera llamada (sin overlap)
+                    if (res.ok) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Importación lista',
+                            text: res.creadas + ' PTA(s) creadas en ' + res.slugs_procesados + ' tipo(s). Recargando...',
+                            timer: 1800,
+                            showConfirmButton: false
+                        }).then(function() { location.reload(); });
+                        return;
+                    }
+                    Swal.fire('Error', res.msg || 'No se pudo importar.', 'error');
+                }).fail(function() {
+                    Swal.fire('Error', 'Error de red.', 'error');
                 });
             });
         });

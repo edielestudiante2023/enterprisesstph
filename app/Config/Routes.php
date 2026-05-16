@@ -746,6 +746,7 @@ $routes->post('/pta-cliente-nueva/editinginline', 'PtaClienteNuevaController::ed
 $routes->get('/pta-cliente-nueva/excel', 'PtaClienteNuevaController::exportExcelPtaClienteNuevaModel');
 $routes->get('/pta-cliente-nueva/delete/(:num)', 'PtaClienteNuevaController::deletePtaClienteNuevaModel/$1');
 $routes->post('/pta-cliente-nueva/deleteMultiple', 'PtaClienteNuevaController::deleteMultiplePtaClienteNuevaModel');
+$routes->post('/pta-cliente-nueva/importar-desde-matriz', 'PtaClienteNuevaController::importarDesdeMatriz');
 
 // Ruta para actualizar registros cerrados
 $routes->post('/pta-cliente-nueva/updateCerradas', 'PtaClienteNuevaController::updateCerradas');

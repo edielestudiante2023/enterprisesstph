@@ -844,6 +844,157 @@ class PtaClienteNuevaController extends Controller
     }
 
     /**
+     * Importa actividades a tbl_pta_cliente desde la configuración de la Matriz de Inspecciones.
+     * Por cada slug con veces_anio > 0 y no marcado como N/A, crea N actividades con
+     * fecha_propuesta=hoy y las vincula al slug en tbl_pta_inspeccion_match.
+     *
+     * Flujo en 2 pasos:
+     *  1. Sin 'confirmar': si hay matches existentes para algún slug, devuelve
+     *     requiere_confirmacion=true con la lista para que el frontend muestre modal.
+     *  2. Con 'confirmar=1': ejecuta el bulk insert.
+     *
+     * Reemplaza al antiguo auto-relleno desde CSV (deshabilitado 2026-05-16).
+     */
+    public function importarDesdeMatriz()
+    {
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Método no permitido.']);
+        }
+
+        $idCliente = (int) $this->request->getPost('id_cliente');
+        $confirmar = (int) $this->request->getPost('confirmar') === 1;
+
+        if (!$idCliente) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Cliente inválido.']);
+        }
+
+        $clientModel = new ClientModel();
+        $cliente = $clientModel->find($idCliente);
+        if (!$cliente) {
+            return $this->response->setJSON(['ok' => false, 'msg' => 'Cliente no encontrado.']);
+        }
+
+        $frecModel    = new \App\Models\InspeccionFrecuenciaClienteModel();
+        $noAplicaModel = new \App\Models\InspeccionNoAplicaModel();
+
+        $frecsMap = $frecModel->getByCliente($idCliente);       // slug => veces_anio
+        $noAplica = $noAplicaModel->getByCliente($idCliente);   // slug => row
+
+        // Filtrar slugs aptos: veces_anio > 0 + no N/A + slug existe en catálogo
+        $slugsImportar = [];
+        foreach ($frecsMap as $slug => $vecesAnio) {
+            if ((int) $vecesAnio <= 0) continue;
+            if (!empty($noAplica[$slug])) continue;
+            $tipo = \App\Libraries\InspeccionTypes::bySlug($slug);
+            if (!$tipo) continue;
+            $template = $tipo['actividad_template'] ?? ('Inspección de ' . $tipo['label']);
+            $slugsImportar[$slug] = [
+                'veces_anio' => (int) $vecesAnio,
+                'template'   => $template,
+                'label'      => $tipo['label'],
+            ];
+        }
+
+        if (empty($slugsImportar)) {
+            return $this->response->setJSON([
+                'ok'  => false,
+                'msg' => 'No hay frecuencias configuradas para este cliente. Antes de importar, abre la Matriz de Inspecciones y define las veces/año por tipo de inspección (clic en el badge "0/0" o "Sin definir" de cada fila).',
+                'requiere_configuracion' => true,
+            ]);
+        }
+
+        // Detectar overlap con matches existentes
+        $db = \Config\Database::connect();
+        $existentes = $db->table('tbl_pta_inspeccion_match')
+            ->select('slug_inspeccion, COUNT(*) AS cnt')
+            ->where('id_cliente', $idCliente)
+            ->whereIn('slug_inspeccion', array_keys($slugsImportar))
+            ->groupBy('slug_inspeccion')
+            ->get()->getResultArray();
+
+        $slugsConPta = [];
+        foreach ($existentes as $m) {
+            $slugsConPta[] = [
+                'slug'           => $m['slug_inspeccion'],
+                'label'          => $slugsImportar[$m['slug_inspeccion']]['label'] ?? $m['slug_inspeccion'],
+                'pta_existentes' => (int) $m['cnt'],
+            ];
+        }
+
+        $totalACrear = 0;
+        foreach ($slugsImportar as $info) {
+            $totalACrear += $info['veces_anio'];
+        }
+
+        // Si hay overlap y no se confirmó, pedir confirmación
+        if (!empty($slugsConPta) && !$confirmar) {
+            return $this->response->setJSON([
+                'ok'                    => false,
+                'requiere_confirmacion' => true,
+                'slugs_con_pta'         => $slugsConPta,
+                'total_a_crear'         => $totalACrear,
+                'total_slugs'           => count($slugsImportar),
+            ]);
+        }
+
+        // Bulk insert
+        $hoy = date('Y-m-d');
+        $now = date('Y-m-d H:i:s');
+        $insertadas = 0;
+        $matchModel = new \App\Models\PtaInspeccionMatchModel();
+
+        foreach ($slugsImportar as $slug => $info) {
+            for ($i = 1; $i <= $info['veces_anio']; $i++) {
+                $actividad = $info['template'];
+                if ($info['veces_anio'] > 1) {
+                    $actividad .= ' (Periodo ' . $i . ')';
+                }
+                $db->table('tbl_pta_cliente')->insert([
+                    'id_cliente'                           => $idCliente,
+                    'phva_plandetrabajo'                   => '',
+                    'numeral_plandetrabajo'                => '-',
+                    'actividad_plandetrabajo'              => $actividad,
+                    'responsable_sugerido_plandetrabajo'   => 'CONSULTOR CYCLOID',
+                    'responsable_definido_paralaactividad' => '-',
+                    'fecha_propuesta'                      => $hoy,
+                    'estado_actividad'                     => 'ABIERTA',
+                    'porcentaje_avance'                    => 0,
+                    'created_at'                           => $now,
+                    'updated_at'                           => $now,
+                ]);
+                $idPta = (int) $db->insertID();
+                if ($idPta > 0) {
+                    $matchModel->upsert([
+                        'id_cliente'      => $idCliente,
+                        'id_ptacliente'   => $idPta,
+                        'slug_inspeccion' => $slug,
+                        'score'           => 1.000,
+                        'method'          => 'manual',
+                        'reasoning'       => 'Importada desde Matriz de Inspecciones.',
+                        'ai_model'        => null,
+                        'created_at'      => $now,
+                    ]);
+                    $insertadas++;
+                }
+            }
+        }
+
+        \App\Controllers\Inspecciones\MatrizInspeccionesController::logMatchAudit('importarDesdeMatriz', $idCliente, [
+            'slugs'             => array_keys($slugsImportar),
+            'pta_creadas'       => $insertadas,
+            'total_esperado'    => $totalACrear,
+            'overlap_existente' => array_column($slugsConPta, 'slug'),
+        ]);
+        \App\Controllers\Inspecciones\MatrizInspeccionesController::clearMatrizCache($idCliente);
+
+        return $this->response->setJSON([
+            'ok'                => true,
+            'creadas'           => $insertadas,
+            'slugs_procesados'  => count($slugsImportar),
+        ]);
+    }
+
+    /**
      * Busca actividades del inventario CSV por texto parcial
      */
     public function searchActivities()
