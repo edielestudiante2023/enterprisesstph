@@ -608,6 +608,18 @@ class MatrizInspeccionesController extends BaseController
         $toAdd = array_diff($ids, $actualesIds);
         $toRemove = array_diff($actualesIds, $ids);
 
+        // Auditoría: snapshot completo del diff ANTES de aplicar (clave para diagnosticar
+        // desvinculaciones silenciosas — incluye qué ids estaban antes vs qué pidió el cliente).
+        self::logMatchAudit('vincularPta.diff', $idCliente, [
+            'slug'           => $slug,
+            'anio'           => $anio,
+            'scope_year_ids' => $scopeIds,
+            'actuales_ids'   => $actualesIds,
+            'requested_ids'  => $ids,
+            'to_add'         => array_values($toAdd),
+            'to_remove'      => array_values($toRemove),
+        ], !empty($toRemove));
+
         foreach ($toAdd as $idPta) {
             $this->matchModel->upsert([
                 'id_cliente'      => $idCliente,
@@ -697,6 +709,13 @@ class MatrizInspeccionesController extends BaseController
             'reasoning'       => 'Creada desde la Matriz de Inspecciones.',
             'ai_model'        => null,
             'created_at'      => $now,
+        ]);
+
+        self::logMatchAudit('crearPta', $idCliente, [
+            'slug'          => $slug,
+            'id_ptacliente' => $idPta,
+            'fecha'         => $fecha,
+            'actividad'     => $actividad,
         ]);
 
         self::clearMatrizCache($idCliente);
@@ -877,6 +896,10 @@ class MatrizInspeccionesController extends BaseController
                 'updated_at'        => date('Y-m-d H:i:s'),
             ]);
 
+        self::logMatchAudit('reabrirPta', $idCliente, [
+            'id_ptacliente' => $idPta,
+        ]);
+
         self::clearMatrizCache($idCliente);
 
         return $this->response->setJSON(['ok' => true]);
@@ -896,6 +919,11 @@ class MatrizInspeccionesController extends BaseController
         }
 
         $ok = $this->matchModel->deleteMatch($idCliente, $idPta, $slug);
+        self::logMatchAudit('desvincularPta', $idCliente, [
+            'slug'          => $slug,
+            'id_ptacliente' => $idPta,
+            'ok'            => (bool) $ok,
+        ], true);
         if ($ok) self::clearMatrizCache($idCliente);
         return $this->response->setJSON(['ok' => (bool) $ok]);
     }
@@ -939,6 +967,13 @@ class MatrizInspeccionesController extends BaseController
             ->where('slug_inspeccion', $slug)
             ->whereIn('id_ptacliente', $ids)
             ->delete();
+
+        self::logMatchAudit('desvincularPtaPorTipo', $idCliente, [
+            'slug'     => $slug,
+            'anio'     => $anio,
+            'pta_ids'  => $ids,
+            'removed'  => count($ids),
+        ], true);
 
         self::clearMatrizCache($idCliente);
 
@@ -1226,6 +1261,40 @@ class MatrizInspeccionesController extends BaseController
     }
 
     /**
+     * Bitácora de operaciones sobre tbl_pta_inspeccion_match — archivo plano JSONL en
+     * writable/logs/matriz_match_audit.log. Pensado para diagnosticar desvinculaciones
+     * silenciosas: cada INSERT/DELETE/UPSERT incluye actor (IP, session), URI y contexto.
+     * Para deletes/removes adjunta un mini-backtrace para identificar al caller.
+     */
+    public static function logMatchAudit(string $action, int $idCliente, array $context = [], bool $includeBacktrace = false): void
+    {
+        try {
+            $logFile = WRITEPATH . 'logs/matriz_match_audit.log';
+            $session = null;
+            try { $session = \Config\Services::session(); } catch (\Throwable $e) { /* CLI */ }
+            $entry = [
+                'ts'        => date('Y-m-d H:i:s'),
+                'action'    => $action,
+                'id_cliente'=> $idCliente,
+                'ip'        => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+                'user_id'   => $session ? ($session->get('id_consultor') ?? $session->get('id_user') ?? $session->get('user_id') ?? null) : null,
+                'user_role' => $session ? ($session->get('rol') ?? null) : null,
+                'uri'       => $_SERVER['REQUEST_URI'] ?? ($_SERVER['SCRIPT_NAME'] ?? 'cli'),
+                'context'   => $context,
+            ];
+            if ($includeBacktrace) {
+                $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 6);
+                $entry['caller'] = array_map(static function ($f) {
+                    return ($f['class'] ?? '') . ($f['type'] ?? '') . ($f['function'] ?? '?') . ':' . ($f['line'] ?? 0);
+                }, array_slice($bt, 1, 5));
+            }
+            @file_put_contents($logFile, json_encode($entry, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND | LOCK_EX);
+        } catch (\Throwable $e) {
+            // Logging nunca debe romper la acción del usuario
+        }
+    }
+
+    /**
      * Invalida toda la caché de la matriz para un cliente (cualquier rango).
      * Se llama tras cualquier UPDATE que afecte la representación de la matriz.
      */
@@ -1317,6 +1386,12 @@ class MatrizInspeccionesController extends BaseController
                     'porcentaje_avance' => 100,
                     'updated_at'        => $now,
                 ]);
+            self::logMatchAudit('cerrarPtaPorSlug.cerrar', $idCliente, [
+                'slug'             => $slug,
+                'id_ptacliente'    => $idPta,
+                'fecha_aplicada'   => $fechaMasReciente,
+                'ptas_abiertas_n'  => count($ptasAbiertas),
+            ]);
             $cerradas = 1;
         } else {
             foreach ($inspecciones as $fecha) {
@@ -1345,6 +1420,11 @@ class MatrizInspeccionesController extends BaseController
                         'reasoning'       => 'Creada retroactivamente desde la matriz al cerrar inspección hecha.',
                         'ai_model'        => null,
                         'created_at'      => $now,
+                    ]);
+                    self::logMatchAudit('cerrarPtaPorSlug.retro', $idCliente, [
+                        'slug'          => $slug,
+                        'id_ptacliente' => $idPta,
+                        'fecha'         => $fecha,
                     ]);
                     $creadas++;
                 }
