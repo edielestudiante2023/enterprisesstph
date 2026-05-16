@@ -70,8 +70,14 @@ class ContractLibrary
             }
 
             if (!$skipInit && !$skipPta) {
-                // Auto-generar plan de trabajo para el cliente
-                $this->autoGenerateWorkPlan($data['id_cliente'], $data['frecuencia_visitas'] ?? null);
+                // DESHABILITADO 2026-05-16 — decisión de consultoría:
+                // Crear contrato ya NO regenera el PTA. El PTA se importa manualmente
+                // desde "/pta-cliente-nueva/list" → "Importar desde Matriz de Inspecciones"
+                // después de que el consultor configure frecuencias en la Matriz.
+                // Motivo: autoGenerateWorkPlan borraba PTAs ABIERTAS y eso wipeaba
+                // matches existentes en tbl_pta_inspeccion_match. El método sigue
+                // existiendo abajo por si se requiere retomar.
+                // $this->autoGenerateWorkPlan($data['id_cliente'], $data['frecuencia_visitas'] ?? null);
             }
 
             // Sincronizar estandares en tbl_clientes desde frecuencia_visitas del contrato

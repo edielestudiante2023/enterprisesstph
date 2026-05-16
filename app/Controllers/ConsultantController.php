@@ -169,31 +169,41 @@ class ConsultantController extends Controller
                 );
             }
 
-            // Generar automáticamente el Plan de Trabajo Año 1
-            try {
-                $tipoServicio = strtolower($this->request->getVar('estandares'));
-                $workPlanLibrary = new WorkPlanLibrary();
-
-                // Obtener las actividades del Año 1 según el tipo de servicio
-                $activities = $workPlanLibrary->getActivities($clientId, 1, $tipoServicio);
-
-                // Insertar las actividades
-                if (!empty($activities)) {
-                    $planModel = new PlanModel();
-                    $insertedCount = 0;
-
-                    foreach ($activities as $activity) {
-                        if ($planModel->insert($activity)) {
-                            $insertedCount++;
-                        }
-                    }
-
-                    log_message('info', "Plan de Trabajo generado automáticamente para cliente ID {$clientId}: {$insertedCount} actividades insertadas");
-                }
-            } catch (\Exception $e) {
-                // Log del error pero no interrumpir el flujo
-                log_message('error', 'Error al generar Plan de Trabajo automático: ' . $e->getMessage());
-            }
+            /*
+             * DESHABILITADO 2026-05-16 — decisión de consultoría:
+             * El PTA ya NO se auto-genera al crear cliente. El consultor configura
+             * frecuencias por tipo de inspección en la Matriz, y luego importa las
+             * actividades desde "/pta-cliente-nueva/list" → botón "Importar desde
+             * Matriz de Inspecciones".
+             * Motivo: evitar interferencias con tbl_pta_inspeccion_match (los matches
+             * vinculados al PTA se perdían cuando autoGenerateWorkPlan borraba
+             * actividades ABIERTAS). Código preservado por si se requiere retomar.
+             *
+             * try {
+             *     $tipoServicio = strtolower($this->request->getVar('estandares'));
+             *     $workPlanLibrary = new WorkPlanLibrary();
+             *
+             *     // Obtener las actividades del Año 1 según el tipo de servicio
+             *     $activities = $workPlanLibrary->getActivities($clientId, 1, $tipoServicio);
+             *
+             *     // Insertar las actividades
+             *     if (!empty($activities)) {
+             *         $planModel = new PlanModel();
+             *         $insertedCount = 0;
+             *
+             *         foreach ($activities as $activity) {
+             *             if ($planModel->insert($activity)) {
+             *                 $insertedCount++;
+             *             }
+             *         }
+             *
+             *         log_message('info', "Plan de Trabajo generado automáticamente para cliente ID {$clientId}: {$insertedCount} actividades insertadas");
+             *     }
+             * } catch (\Exception $e) {
+             *     // Log del error pero no interrumpir el flujo
+             *     log_message('error', 'Error al generar Plan de Trabajo automático: ' . $e->getMessage());
+             * }
+             */
 
             // Generar automáticamente el Cronograma de Capacitaciones
             try {
