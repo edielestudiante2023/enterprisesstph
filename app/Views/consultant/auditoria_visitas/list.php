@@ -299,6 +299,7 @@
                     <th>Mes Esperado</th>
                     <th>Fecha Agendada</th>
                     <th>Fecha Acta</th>
+                    <th title="Fecha de la última acta de visita ANTERIOR del cliente (estado completo) con fecha estrictamente menor a la fecha_acta del ciclo (o a hoy si está pendiente).">Última Acta Anterior</th>
                     <th>Estatus Agenda</th>
                     <th>Estatus Mes</th>
                     <th>Informe de Avance</th>
@@ -322,6 +323,7 @@
                         <td><?= $mesesNombre[$c['mes_esperado']] ?? $c['mes_esperado'] ?> <?= $c['anio'] ?></td>
                         <td><?= $c['fecha_agendada'] ? date('d/m/Y', strtotime($c['fecha_agendada'])) : '—' ?></td>
                         <td><?= $c['fecha_acta'] ? date('d/m/Y', strtotime($c['fecha_acta'])) : '—' ?></td>
+                        <td><?= !empty($c['ultima_acta_anterior']) ? date('d/m/Y', strtotime($c['ultima_acta_anterior'])) : '—' ?></td>
                         <td>
                             <span class="badge badge-<?= $c['estatus_agenda'] ?>">
                                 <?= ucfirst($c['estatus_agenda']) ?>
@@ -452,11 +454,11 @@
                 if (t.indexOf(activeFilters.mes) === -1) return false;
             }
             if (activeFilters.estatus_agenda) {
-                var t = $cells.eq(7).text().trim();
+                var t = $cells.eq(8).text().trim();
                 if (t.toLowerCase() !== activeFilters.estatus_agenda.toLowerCase()) return false;
             }
             if (activeFilters.estatus_mes) {
-                var t = $cells.eq(8).text().trim();
+                var t = $cells.eq(9).text().trim();
                 if (t.toLowerCase() !== activeFilters.estatus_mes.toLowerCase()) return false;
             }
             if (activeFilters.fecha_desde || activeFilters.fecha_hasta) {
