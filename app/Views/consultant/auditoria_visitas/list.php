@@ -344,7 +344,21 @@
                         <td><?= $mesesNombre[$c['mes_esperado']] ?? $c['mes_esperado'] ?> <?= $c['anio'] ?></td>
                         <td><?= $c['fecha_agendada'] ? date('d/m/Y', strtotime($c['fecha_agendada'])) : '—' ?></td>
                         <td><?= $c['fecha_acta'] ? date('d/m/Y', strtotime($c['fecha_acta'])) : '—' ?></td>
-                        <td><?= !empty($c['ultima_acta_anterior']) ? date('d/m/Y', strtotime($c['ultima_acta_anterior'])) : '—' ?></td>
+                        <td>
+                            <?php if (!empty($c['ultima_acta_anterior'])): ?>
+                                <?= date('d/m/Y', strtotime($c['ultima_acta_anterior'])) ?>
+                                <?php if (!empty($c['ultima_acta_anterior_id'])): ?>
+                                    <a href="<?= base_url('inspecciones/acta-visita/view/' . (int) $c['ultima_acta_anterior_id']) ?>"
+                                       target="_blank" rel="noopener"
+                                       class="ms-1 text-decoration-none"
+                                       title="Ver acta de visita anterior">
+                                        <i class="fas fa-eye" style="color:#0d6efd;"></i>
+                                    </a>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                —
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <span class="badge badge-<?= $c['estatus_agenda'] ?>">
                                 <?= ucfirst($c['estatus_agenda']) ?>
