@@ -58,6 +58,36 @@ class AuditoriaVisitasController extends BaseController
         }
         unset($c);
 
+        // Cargar TODAS las fechas de actas de visita completas (NO borrador) agrupadas
+        // por cliente, ordenadas DESC. Una sola query para luego buscar in-memory
+        // la última acta anterior al punto de referencia de cada ciclo.
+        $db = \Config\Database::connect();
+        $actasRows = $db->table('tbl_acta_visita')
+            ->select('id_cliente, fecha_visita')
+            ->where('estado', 'completo')
+            ->where('fecha_visita IS NOT NULL', null, false)
+            ->orderBy('fecha_visita', 'DESC')
+            ->get()->getResultArray();
+
+        $actasPorCliente = [];
+        foreach ($actasRows as $a) {
+            $idC = (int) $a['id_cliente'];
+            $actasPorCliente[$idC][] = $a['fecha_visita'];
+        }
+
+        // Para cada ciclo: ref = fecha_acta si existe, sino hoy. Última acta anterior
+        // = primer elemento (ya está DESC) estrictamente menor a ref.
+        $hoy = date('Y-m-d');
+        foreach ($ciclos as &$c) {
+            $ref = !empty($c['fecha_acta']) ? $c['fecha_acta'] : $hoy;
+            $ultima = null;
+            foreach (($actasPorCliente[(int) $c['id_cliente']] ?? []) as $f) {
+                if ($f < $ref) { $ultima = $f; break; }
+            }
+            $c['ultima_acta_anterior'] = $ultima;
+        }
+        unset($c);
+
         // Lista de consultores para el filtro
         $consultantModel = new ConsultantModel();
         $consultores = $consultantModel->orderBy('nombre_consultor')->findAll();
