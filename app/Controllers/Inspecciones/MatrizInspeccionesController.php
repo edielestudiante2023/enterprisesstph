@@ -1040,7 +1040,9 @@ class MatrizInspeccionesController extends BaseController
 
         $na = $noAplica[$tipo['slug']] ?? null;
 
-        // Analizar PTAs vinculados para determinar 'atrasada' y proxima fecha
+        // Analizar PTAs vinculados para determinar 'atrasada' y proxima fecha.
+        // Solo consideramos PTAs ABIERTAS — las cerradas no son "próxima" ni "vencida",
+        // ya están resueltas y su fecha_propuesta no debe inducir al estado de la fila.
         $ptaVincs = $matchesBySlug[$tipo['slug']] ?? [];
         $hoy = date('Y-m-d');
         $proxima = null; $ultimaVencida = null;
@@ -1048,6 +1050,7 @@ class MatrizInspeccionesController extends BaseController
         foreach ($ptaVincs as $v) {
             $fp = $v['fecha_propuesta'] ?? null;
             if (!$fp) continue;
+            if (($v['estado_actividad'] ?? '') === 'CERRADA') continue;
             if ($fp > $hoy) {
                 $hayFuturas = true;
                 if ($proxima === null || $fp < $proxima) $proxima = $fp;
