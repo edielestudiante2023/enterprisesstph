@@ -436,7 +436,6 @@ class ProbabilidadPeligrosController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 17)
             ->like('observaciones', 'prob_pel_id:' . $inspeccion['id'])
             ->first();
 

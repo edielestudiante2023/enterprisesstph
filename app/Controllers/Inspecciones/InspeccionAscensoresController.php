@@ -598,7 +598,6 @@ class InspeccionAscensoresController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 45)
             ->like('observaciones', 'insp_asc_id:' . $inspeccion['id'])
             ->first();
 

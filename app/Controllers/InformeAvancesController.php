@@ -717,7 +717,6 @@ class InformeAvancesController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $informe['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 37)
             ->like('observaciones', 'inf_avance_id:' . $informe['id'])
             ->first();
 

@@ -455,7 +455,6 @@ class AuditoriaZonaResiduosController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 27)
             ->like('observaciones', 'aud_res_id:' . $inspeccion['id'])
             ->first();
 

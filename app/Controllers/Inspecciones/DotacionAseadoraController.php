@@ -432,7 +432,6 @@ class DotacionAseadoraController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 26)
             ->like('observaciones', 'dot_ase_id:' . $inspeccion['id'])
             ->first();
 

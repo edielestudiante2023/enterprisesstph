@@ -549,7 +549,6 @@ class InspeccionGabineteController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 14)
             ->like('observaciones', 'insp_gab_id:' . $inspeccion['id'])
             ->first();
 

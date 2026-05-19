@@ -1387,7 +1387,6 @@ class ActaVisitaController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $acta['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 9)
             ->like('observaciones', 'acta_id:' . $acta['id'])
             ->first();
 

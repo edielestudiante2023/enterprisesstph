@@ -367,7 +367,6 @@ class PlanSaneamientoController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 32)
             ->like('observaciones', 'plan_san_id:' . $inspeccion['id'])
             ->first();
 

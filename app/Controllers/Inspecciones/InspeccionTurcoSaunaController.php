@@ -550,7 +550,6 @@ class InspeccionTurcoSaunaController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 50)
             ->like('observaciones', 'insp_tsj_id:' . $inspeccion['id'])
             ->first();
 

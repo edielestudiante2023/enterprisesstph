@@ -201,7 +201,6 @@ class FirmaAlturasController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $cliente['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 44)
             ->like('observaciones', 'protocolo_alturas_cliente:' . $cliente['id_cliente'])
             ->first();
 

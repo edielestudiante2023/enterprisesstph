@@ -1302,7 +1302,6 @@ class PlanEmergenciaController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 19)
             ->like('observaciones', 'plan_emg_id:' . $inspeccion['id'])
             ->first();
 

@@ -339,7 +339,6 @@ class PlanContingenciaAguaController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 38)
             ->like('observaciones', 'cont_agua_id:' . $inspeccion['id'])
             ->first();
 
