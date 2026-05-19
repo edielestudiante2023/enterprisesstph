@@ -336,7 +336,6 @@ class PlanContingenciaPlagasController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 36)
             ->like('observaciones', 'cont_plagas_id:' . $inspeccion['id'])
             ->first();
 

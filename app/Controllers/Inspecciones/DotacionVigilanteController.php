@@ -432,7 +432,6 @@ class DotacionVigilanteController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 14)
             ->like('observaciones', 'dot_vig_id:' . $inspeccion['id'])
             ->first();
 

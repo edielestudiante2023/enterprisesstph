@@ -468,7 +468,6 @@ class PreparacionSimulacroController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 28)
             ->like('observaciones', 'prep_sim_id:' . $inspeccion['id'])
             ->first();
 

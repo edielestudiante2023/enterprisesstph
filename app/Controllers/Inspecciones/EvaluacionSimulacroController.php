@@ -422,7 +422,6 @@ class EvaluacionSimulacroController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $eval['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 21)
             ->like('observaciones', 'eval_sim_id:' . $eval['id'])
             ->first();
 

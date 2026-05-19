@@ -578,7 +578,6 @@ class InspeccionSenalizacionController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 11)
             ->like('observaciones', 'insp_senal_id:' . $inspeccion['id'])
             ->first();
 

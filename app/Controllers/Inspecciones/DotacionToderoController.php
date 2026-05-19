@@ -440,7 +440,6 @@ class DotacionToderoController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 25)
             ->like('observaciones', 'dot_tod_id:' . $inspeccion['id'])
             ->first();
 

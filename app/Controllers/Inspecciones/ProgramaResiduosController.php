@@ -365,7 +365,6 @@ class ProgramaResiduosController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 29)
             ->like('observaciones', 'prog_res_id:' . $inspeccion['id'])
             ->first();
 

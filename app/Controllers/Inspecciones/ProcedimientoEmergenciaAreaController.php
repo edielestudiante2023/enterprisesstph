@@ -497,7 +497,6 @@ class ProcedimientoEmergenciaAreaController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $procedimiento['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 47)
             ->like('observaciones', 'proc_em_area_id:' . $procedimiento['id'])
             ->first();
 

@@ -629,7 +629,6 @@ El objetivo debe:
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 18)
             ->like('observaciones', 'rep_cap_id:' . $inspeccion['id'])
             ->first();
 

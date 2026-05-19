@@ -606,7 +606,6 @@ class CartaVigiaPwaController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $carta['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 30)
             ->like('observaciones', 'carta_vigia_id:' . $carta['id'])
             ->first();
 

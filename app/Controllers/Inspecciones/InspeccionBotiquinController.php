@@ -641,7 +641,6 @@ class InspeccionBotiquinController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 13)
             ->like('observaciones', 'insp_bot_id:' . $inspeccion['id'])
             ->first();
 

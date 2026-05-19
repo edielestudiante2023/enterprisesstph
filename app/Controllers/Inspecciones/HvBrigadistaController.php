@@ -462,7 +462,6 @@ class HvBrigadistaController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $hv['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 22)
             ->like('observaciones', 'hv_brig_id:' . $hv['id'])
             ->first();
 

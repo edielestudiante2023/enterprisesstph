@@ -375,7 +375,6 @@ class ProgramaAguaPotableController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 24)
             ->like('observaciones', 'prog_agua_id:' . $inspeccion['id'])
             ->first();
 

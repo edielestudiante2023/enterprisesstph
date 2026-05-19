@@ -240,7 +240,6 @@ class InspeccionBrigadaSimulacrosController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $inspeccion['id_cliente'])
             ->where('id_report_type', 6)
-            ->where('id_detailreport', 48)
             ->like('observaciones', 'insp_brig_id:' . $inspeccion['id'])
             ->first();
 
