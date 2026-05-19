@@ -487,7 +487,7 @@ class InspeccionRecursosSeguridadController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'INSPECCION RECURSOS SEGURIDAD - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_inspeccion'],
-            'id_detailreport' => 16,
+            'id_detailreport' => 5,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',

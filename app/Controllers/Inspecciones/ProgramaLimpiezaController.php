@@ -381,7 +381,7 @@ class ProgramaLimpiezaController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'PROGRAMA LIMPIEZA Y DESINFECCIÓN - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_programa'],
-            'id_detailreport' => 21,
+            'id_detailreport' => 56,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',

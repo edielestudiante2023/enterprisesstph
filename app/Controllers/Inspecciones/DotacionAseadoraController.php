@@ -447,7 +447,7 @@ class DotacionAseadoraController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'DOTACION ASEADORA - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_inspeccion'],
-            'id_detailreport' => 26,
+            'id_detailreport' => 7,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',

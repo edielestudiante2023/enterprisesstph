@@ -437,7 +437,7 @@ class EvaluacionSimulacroController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'EVALUACION SIMULACRO - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $eval['fecha'],
-            'id_detailreport' => 21,
+            'id_detailreport' => 13,
             'id_report_type'  => 6,
             'id_cliente'      => $eval['id_cliente'],
             'estado'          => 'CERRADO',

@@ -382,7 +382,7 @@ class PlanSaneamientoController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'PLAN DE SANEAMIENTO BÁSICO - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_programa'],
-            'id_detailreport' => 32,
+            'id_detailreport' => 25,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',

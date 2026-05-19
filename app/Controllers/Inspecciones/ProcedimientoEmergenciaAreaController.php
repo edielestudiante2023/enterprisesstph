@@ -511,7 +511,7 @@ class ProcedimientoEmergenciaAreaController extends BaseController
         $areaLabel = self::AREAS[$procedimiento['area']] ?? $procedimiento['area'];
         $data = [
             'titulo_reporte'  => 'PROCEDIMIENTO EMERGENCIA ' . $areaLabel . ' - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $procedimiento['fecha_elaboracion'],
-            'id_detailreport' => 47,
+            'id_detailreport' => 60,
             'id_report_type'  => 6,
             'id_cliente'      => $procedimiento['id_cliente'],
             'estado'          => 'CERRADO',

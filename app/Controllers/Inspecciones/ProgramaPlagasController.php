@@ -378,7 +378,7 @@ class ProgramaPlagasController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'PROGRAMA CONTROL INTEGRADO DE PLAGAS - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_programa'],
-            'id_detailreport' => 30,
+            'id_detailreport' => 57,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',

@@ -349,7 +349,7 @@ class PlanContingenciaLimpiezaDesinfeccionController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'PLAN CONTINGENCIA LIMPIEZA Y DESINFECCIÓN - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_programa'],
-            'id_detailreport' => 37,
+            'id_detailreport' => 59,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',

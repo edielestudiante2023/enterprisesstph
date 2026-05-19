@@ -656,7 +656,7 @@ class InspeccionBotiquinController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'INSPECCION BOTIQUIN - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_inspeccion'],
-            'id_detailreport' => 13,
+            'id_detailreport' => 3,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',
