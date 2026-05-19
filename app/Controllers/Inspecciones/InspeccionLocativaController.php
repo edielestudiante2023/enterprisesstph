@@ -558,7 +558,7 @@ class InspeccionLocativaController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'INSPECCION LOCATIVA - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_inspeccion'],
-            'id_detailreport' => 10,
+            'id_detailreport' => 16,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',

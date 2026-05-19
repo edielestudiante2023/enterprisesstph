@@ -477,7 +477,7 @@ class HvBrigadistaController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'HV BRIGADISTA - ' . ($hv['nombre_completo'] ?? '') . ' - ' . ($cliente['nombre_cliente'] ?? ''),
-            'id_detailreport' => 22,
+            'id_detailreport' => 14,
             'id_report_type'  => 6,
             'id_cliente'      => $hv['id_cliente'],
             'estado'          => 'CERRADO',

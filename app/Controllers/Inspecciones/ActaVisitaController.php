@@ -1403,7 +1403,7 @@ class ActaVisitaController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'ACTA DE VISITA - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $acta['fecha_visita'],
-            'id_detailreport' => 9,
+            'id_detailreport' => 52,
             'id_report_type'  => 6,
             'id_cliente'      => $acta['id_cliente'],
             'estado'          => 'CERRADO',

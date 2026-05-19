@@ -1155,7 +1155,7 @@ El objetivo debe:
 
         $data = [
             'titulo_reporte'  => $titulo,
-            'id_detailreport' => 6,
+            'id_detailreport' => 18,
             'id_report_type'  => 4,
             'id_cliente'      => $acta['id_cliente'],
             'estado'          => 'CERRADO',
@@ -1166,7 +1166,7 @@ El objetivo debe:
 
         $existente = $reporteModel->where('id_cliente', $acta['id_cliente'])
             ->where('id_report_type', 4)
-            ->where('id_detailreport', 6)
+            ->where('id_detailreport', 18)
             ->like('observaciones', $marcadorIdempotencia)
             ->first();
 

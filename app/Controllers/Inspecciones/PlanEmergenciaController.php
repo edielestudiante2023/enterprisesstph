@@ -1317,7 +1317,7 @@ class PlanEmergenciaController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'PLAN DE EMERGENCIA - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_visita'],
-            'id_detailreport' => 19,
+            'id_detailreport' => 10,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',

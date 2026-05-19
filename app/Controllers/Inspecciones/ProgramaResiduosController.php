@@ -380,7 +380,7 @@ class ProgramaResiduosController extends BaseController
 
         $data = [
             'titulo_reporte'  => 'PROGRAMA MANEJO INTEGRAL RESIDUOS SÓLIDOS - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $inspeccion['fecha_programa'],
-            'id_detailreport' => 29,
+            'id_detailreport' => 58,
             'id_report_type'  => 6,
             'id_cliente'      => $inspeccion['id_cliente'],
             'estado'          => 'CERRADO',

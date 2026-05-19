@@ -236,13 +236,13 @@ class CertificadoServicioController extends BaseController
         $existente = $reporteModel
             ->where('id_cliente', $idCliente)
             ->where('id_report_type', 13)
-            ->where('id_detailreport', 20)
+            ->where('id_detailreport', $cfg['detailreport'])
             ->like('observaciones', $tag)
             ->first();
 
         $data = [
             'titulo_reporte'  => strtoupper($cfg['nombre']) . ' - ' . ($cliente['nombre_cliente'] ?? '') . ' - ' . $fecha,
-            'id_detailreport' => 20,
+            'id_detailreport' => $cfg['detailreport'],
             'id_report_type'  => 13,
             'id_cliente'      => $idCliente,
             'estado'          => 'CERRADO',
